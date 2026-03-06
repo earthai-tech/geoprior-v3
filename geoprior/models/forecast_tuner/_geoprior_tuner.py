@@ -17,7 +17,7 @@ from ...utils.generic_utils import (
     vlog, rename_dict_keys, cast_multiple_bool_params
 )
 from ..subsidence.models import GeoPriorSubsNet
-from ..pinn_utils import check_required_input_keys
+from ..utils.pinn import check_required_input_keys
 from .. import KERAS_DEPS
 from . import KT_DEPS
 from ._base_tuner import PINNTunerBase
