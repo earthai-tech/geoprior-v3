@@ -1,14 +1,10 @@
 <div align="center">
 
-  <img src="https://raw.githubusercontent.com/earthai-tech/k-diagram/main/docs/source/_static/geoprior-svg.svg" 
+  <img src="https://raw.githubusercontent.com/earthai-tech/geoprior-v3/main/docs/source/_static/geoprior-svg.svg" 
      alt="GeoPrior logo" width="320"><br>
   <h1>Physics-guided AI for Geohazards</h1>
 
   <p align="center">
-    <!-- CI (update workflow file name once created) -->
-    <a href="https://github.com/earthai-tech/geoprior-v3/actions">
-      <img alt="Build Status" src="https://img.shields.io/github/actions/workflow/status/earthai-tech/geoprior-v3/python-package-conda.yml?branch=main&style=flat-square">
-    </a>
     <!-- Docs (add when ready) -->
     <a href="https://earthai-tech.github.io/geoprior-v3/">
       <img alt="Docs" src="https://img.shields.io/badge/docs-coming%20soon-blue?style=flat-square">
@@ -16,20 +12,11 @@
     <a href="https://github.com/earthai-tech/geoprior-v3/blob/main/LICENSE">
       <img alt="License" src="https://img.shields.io/github/license/earthai-tech/geoprior-v3?style=flat-square&logo=apache&color=purple">
     </a>
-    <a href="https://pypi.org/project/geoprior-v3/">
-      <img alt="PyPI" src="https://img.shields.io/pypi/v/geoprior-v3?style=flat-square">
-    </a>
-    <a href="https://pypi.org/project/geoprior-v3/">
-      <img alt="Python" src="https://img.shields.io/pypi/pyversions/geoprior-v3?style=flat-square">
-    </a>
     <a href="https://github.com/psf/black">
       <img alt="Black" src="https://img.shields.io/badge/code%20style-Black-000000.svg?style=flat-square">
     </a>
     <a href="https://github.com/earthai-tech/geoprior-v3/blob/main/CONTRIBUTING.md">
       <img alt="Contributions" src="https://img.shields.io/badge/Contributions-Welcome-brightgreen?style=flat-square">
-    </a>
-    <a href="https://codecov.io/gh/earthai-tech/geoprior-v3">
-      <img alt="Codecov" src="https://codecov.io/gh/earthai-tech/geoprior-v3/branch/main/graph/badge.svg">
     </a>
     <a href="https://github.com/earthai-tech/geoprior-v3/releases/latest">
       <img alt="GitHub Release" src="https://img.shields.io/github/v/release/earthai-tech/geoprior-v3">
