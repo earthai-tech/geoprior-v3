@@ -1,0 +1,1677 @@
+/* custom.css for k-diagram documentation with Furo theme */
+
+/*--------------------------------------------------------------------------
+ * Variables and Color Palette (k-diagram Theme v3 - Blue & Brown)
+ *--------------------------------------------------------------------------*/
+
+:root,
+html[data-theme="light"] {
+    /* --- Brand Colors --- */
+    /* Primary: A vibrant, modern blue for key elements. */
+    --color-brand-primary: #2166F3;
+    /* Secondary: A deep, professional brown for subheadings and content. */
+    --color-brand-secondary: #332421; /* # #5D4037 Dark Brown */
+    /* Tertiary: Slate blue for accents and secondary information. */
+    --color-brand-tertiary: #36456e;
+    /* Quaternary: A complementary sea green for tips and success states. */
+    --color-brand-quaternary: #2E8B57;
+
+    /* --- Intermediate & Accent Colors --- */
+    /* A lighter tint of the primary blue for hover effects and backgrounds. */
+    --color-brand-primary-tint: #E3F2FD;
+    /* A muted version of the secondary brown for borders and subtle text. */
+    --color-brand-secondary-muted: #8D6E63;
+
+    --color-brand-code: #8B0B6F;
+    
+    /* --- Sidebar Overrides (Light Mode) --- */
+    --color-sidebar-background: var(--color-background-secondary);
+    /* Use a tint of the new primary blue for sidebar hover. */
+    --color-sidebar-background-hover: color-mix(in srgb, var(--color-brand-primary) 8%, transparent);
+    --color-sidebar-link-text: var(--color-foreground-secondary);
+    --color-sidebar-link-text--top-level: var(--color-foreground-primary);
+
+
+    /* --- Status Colors (Admonitions) --- */
+    /* Amber for warnings. */
+    --color-warning-border: #f57c00;
+    --color-warning-bg-tint: 15%;
+    /* A distinct red for errors/danger. */
+    --color-error-border: #D32F2F;
+    --color-error-bg-tint: 10%;
+    /* Tertiary slate blue for info/notes. */
+    --color-info-border: var(--color-brand-tertiary);
+    --color-info-bg-tint: 10%;
+    /* Quaternary sea green for tips/hints. */
+    --color-tip-border: var(--color-brand-quaternary);
+    --color-tip-bg-tint: 10%;
+
+
+    /* --- Base Colors --- */
+    --color-foreground-primary: #212529; /* Near Black */
+    --color-foreground-secondary: #495057; /* Dark Grey */
+    --color-foreground-muted: #6c757d;   /* Medium Grey */
+    --color-background-primary: #ffffff;
+    --color-background-secondary: #f8f9fa; /* Off-white */
+    --color-background-hover: #e9ecef;
+    --color-border: #dee2e6;
+
+    /* --- Code Blocks --- */
+    /* Using the tertiary slate blue for code block borders for a themed feel. */
+    --color-code-background: #f8f9fa;
+    --color-code-border: color-mix(in srgb, var(--color-brand-tertiary) 20%, transparent);
+
+    /* --- Tables --- */
+    --color-table-border: #dee2e6;
+    --color-table-header-bg: #f1f3f5;
+    --color-table-stripe-bg: #f8f9fa;
+    /* Use a tint of the primary blue for table row hover. */
+    --color-table-hover-bg-tint: 12%;
+}
+
+html[data-theme="dark"] {
+    /* --- Brand Colors (Dark Mode) --- */
+    /* A lighter, more vibrant blue for dark backgrounds. */
+    --color-brand-primary: #64B5F6;
+    /* A lighter brown that's clear and readable. */
+    --color-brand-secondary: #A1887F;
+    /* A brighter slate blue. */
+    --color-brand-tertiary: #8a9bcd;
+    /* A brighter sea green. */
+    --color-brand-quaternary: #66bbab;
+
+    /* --- Intermediate & Accent Colors (Dark Mode) --- */
+    --color-brand-primary-tint: #1E293B; /* A very dark blue */
+    --color-brand-secondary-muted: #BCAAA4;
+
+
+    /* --- Sidebar Overrides (Dark Mode) --- */
+    --color-sidebar-background: var(--color-background-secondary);
+    --color-sidebar-background-hover: color-mix(in srgb, var(--color-brand-primary) 15%, transparent);
+    --color-sidebar-link-text: var(--color-foreground-muted);
+    --color-sidebar-link-text--top-level: var(--color-foreground-primary);
+
+
+    /* --- Status Colors (Dark Mode) --- */
+    --color-warning-border: #ffa726; /* Lighter Amber */
+    --color-warning-bg-tint: 20%;
+    --color-error-border: #EF5350; /* Lighter Red */
+    --color-error-bg-tint: 20%;
+    --color-info-border: var(--color-brand-tertiary);
+    --color-info-bg-tint: 15%;
+    --color-tip-border: var(--color-brand-quaternary);
+    --color-tip-bg-tint: 15%;
+
+
+    /* --- Base Colors (Dark Mode) --- */
+    --color-foreground-primary: #e9ecef; /* Light Grey */
+    --color-foreground-secondary: #ced4da;
+    --color-foreground-muted: #adb5bd;
+    --color-background-primary: #111827; /* Near Black */
+    --color-background-secondary: #1F2937; /* Dark Grey */
+    --color-background-hover: #374151;
+    --color-border: #495057;
+
+
+    /* --- Code Blocks (Dark Mode) --- */
+    --color-code-background: #1F2937;
+    --color-code-border: color-mix(in srgb, var(--color-brand-tertiary) 30%, transparent);
+
+
+    /* --- Tables (Dark Mode) --- */
+    --color-table-border: #495057;
+    --color-table-header-bg: #374151;
+    --color-table-stripe-bg: #1F2937;
+    /* Use a tint of the primary blue for table row hover. */
+    --color-table-hover-bg-tint: 15%;
+}
+
+/*--------------------------------------------------------------------------
+ * General Typography & Layout
+ *--------------------------------------------------------------------------*/
+body {
+    line-height: 1.7;
+    font-size: 16px;
+    font-family: "Segoe UI", Roboto, Ubuntu, Cantarell,
+                 "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body > .container, .content > article {
+    max-width: 960px;
+}
+
+/* Headings */
+h1, .heading-title {
+    font-size: 2.7rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.7rem;
+    /* Use Primary Blue for H1 */
+    border-bottom: 3px solid var(--color-brand-primary);
+    color: var(--color-brand-primary);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+h2 {
+    font-size: 2.0rem;
+    margin-top: 3.5rem;
+    margin-bottom: 1.4rem;
+    padding-bottom: 0.5rem;
+    /* Use a muted brown for the border to complement the text */
+    border-bottom: 1px solid var(--color-brand-secondary-muted);
+    /* Use Secondary Dark Brown for H2 */
+    color: var(--color-brand-secondary);
+    font-weight: 700; /* Bolder as requested */
+}
+
+h3 {
+    font-size: 1.6rem;
+    margin-top: 3rem;
+    margin-bottom: 1.2rem;
+    /* Use the standard dark text color for H3 */
+    color: var(--color-foreground-primary);
+    font-weight: 600;
+}
+
+h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    /* Use Tertiary Slate Blue for H4 for visual variety */
+    color: var(--color-brand-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2rem;
+}
+
+/* Page title (reinforces H1 style) */
+.content h1, article h1 {
+  color: var(--color-brand-primary) !important;
+  font-weight: 700;
+}
+
+/* Section titles (applies H2 style to linked titles) */
+.content h2, article h2,
+.content h2 a, article h2 a {
+  color: var(--color-brand-secondary) !important;
+  font-weight: 700 !important;
+}
+
+/*--------------------------------------------------------------------------
+ * Code Blocks & Inline Code — semantic emphasis for py objects
+ *--------------------------------------------------------------------------*/
+
+/* Accent color used on hover */
+:root { --color-code-accent: #8B0B6F; } /* dark magenta */
+
+/* Base containers */
+pre, :not(pre) > code {
+  font-family: 'Fira Code', 'JetBrains Mono', 'Source Code Pro', 'Consolas', 
+  'Menlo', 'Courier New', monospace;
+  border-radius: 6px;
+  border: 1px solid var(--color-code-border);
+  background-color: var(--color-code-background);
+}
+
+
+/* Code block wrapper + content */
+.highlight {               /* outer wrapper Sphinx/Furo uses */
+  margin: 1.7em 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,.04);
+  border-radius: 6px;
+}
+.highlight pre {
+  padding: 1em 1.2em;
+  background: transparent;
+ /* border: none;*/
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Inline code (generic) — keep neutral */
+:not(pre) > code {
+  padding: 0.2em 0.45em;
+  font-size: 0.9em;
+  white-space: nowrap;
+  color: inherit;
+  transition: background-color .2s ease, border-color .2s ease;
+}
+
+/* ---------------- Token emphasis inside blocks ----------------
+ * Pygments classes:
+ *  .nf = Name.Function    .nc = Name.Class
+ *  .nn = Name.Namespace   .ne = Name.Exception
+ *  .nd = Name.Decorator   .nx is for method  
+ *  .na = Name.Attribute
+ * -------------------------------------------------------------*/
+
+/* Default: thin primary-blue underline, slightly larger size */
+.highlight .nf,          /* Function */
+.highlight .nc,          /* Class */
+.highlight .nn,          /* Namespace */
+.highlight .ne,          /* Exception */
+.highlight .nd,          /* Decorator */
+.highlight .nx,          /* Method */
+.highlight .na {         /* Attribute */
+  font-size: 1.04em;                     /* subtle size bump */
+  font-weight: 400;                      /* NO bold by default */
+  text-decoration-line: underline;
+  text-decoration-color: var(--color-brand-primary);
+  text-decoration-thickness: 1px;        /* thin by default */
+  text-underline-offset: 2px;
+  transition: color .15s ease,
+              text-decoration-color .15s ease,
+              text-decoration-thickness .15s ease,
+              font-weight .15s ease;
+}
+
+/* Hover: thicker underline + magenta + semi-bold */
+.highlight .nf:hover,
+.highlight .nc:hover,
+.highlight .nn:hover,
+.highlight .ne:hover,
+.highlight .nd:hover,
+.highlight .nx:hover,
+.highlight .na:hover {    /* Added .nx for method hover */
+  color: var(--color-code-accent) !important;
+  text-decoration-color: var(--color-code-accent);
+  text-decoration-thickness: 2.5px;
+  font-weight: 600;
+}
+
+/* Keyboard accessibility */
+.highlight .nf:focus,
+.highlight .nc:focus,
+.highlight .nn:focus,
+.highlight .ne:focus,
+.highlight .nd:focus {
+  outline: none;
+  color: var(--color-code-accent) !important;
+  text-decoration-color: var(--color-code-accent);
+  text-decoration-thickness: 2.5px;
+  font-weight: 600;
+}
+
+/* ---------------- Inline Python xrefs (roles) ----------------
+ * Sphinx renders :py:func:, :py:class:, :py:mod: as code.xref.py...
+ * Give them the same baseline + hover behavior.
+ * -------------------------------------------------------------*/
+a.reference code.xref.py,
+code.xref.py.py-func,
+code.xref.py.py-class,
+code.xref.py.py-mod {
+  font-size: 1.02em;
+  font-weight: 400; /* not bold by default */
+  text-decoration-line: underline;
+  text-decoration-color: var(--color-brand-primary);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  transition: color .15s ease, text-decoration-color .15s ease,
+              text-decoration-thickness .15s ease, font-weight .15s ease;
+}
+
+/* Hover state for inline Python references */
+a.reference:hover code.xref.py,
+code.xref.py.py-func:hover,
+code.xref.py.py-class:hover,
+code.xref.py.py-mod:hover {
+  color: var(--color-code-accent);
+  text-decoration-color: var(--color-code-accent);
+  text-decoration-thickness: 2.5px;
+  font-weight: 600;
+}
+
+/* Additional rules for highlighting method calls like kdf.plot_feature_fingerprint */
+code.xref.py.py-func {
+  text-decoration-line: underline;
+  text-decoration-color: var(--color-brand-primary);
+  text-decoration-thickness: 1px;
+  transition: color .15s ease, text-decoration-color .15s ease, text-decoration-thickness .15s ease;
+}
+
+/* Hover state for method calls */
+code.xref.py.py-func:hover {
+  color: var(--color-code-accent);
+  text-decoration-color: var(--color-code-accent);
+  text-decoration-thickness: 2.5px;
+  font-weight: 600;
+}
+
+/* Links that appear inside highlighted code (keep tidy) */
+.highlight a {
+  text-decoration: none;
+  border-bottom: 1px dotted var(--color-brand-primary);
+  color: inherit;
+  transition: color .2s ease, border-color .2s ease, background-color .2s ease;
+}
+.highlight a:hover {
+  color: var(--color-code-accent) !important;
+  border-bottom: 2px solid var(--color-code-accent);
+  background-color: var(--color-background-hover);
+  border-radius: 3px;
+  padding: 1px 2px;
+  margin: -1px -2px;
+}
+
+/* Copy button */
+button.copybtn {
+  background-color: transparent !important;
+  border: 1px solid var(--color-code-border) !important;
+  color: var(--color-foreground-muted) !important;
+  opacity: .55 !important;
+  transition: opacity .2s ease, background-color .2s ease, color .2s ease;
+}
+button.copybtn:hover {
+  opacity: 1 !important;
+  background-color: var(--color-code-border) !important;
+  color: var(--color-foreground-primary) !important;
+}
+
+/*--------------------------------------------------------------------------
+ * Tables — Enhanced v3 (row hover ring, no cell/column hover)
+ *--------------------------------------------------------------------------*/
+table.docutils {
+  /* local tokens */
+  --table-radius: 10px;
+  --table-shadow: 0 1.5px 4px rgba(0,0,0,.06);
+  --row-hover-bg: color-mix(in srgb,
+                      var(--color-brand-tertiary) var(--color-table-hover-bg-tint),
+                      var(--color-background-primary));
+  --row-ring: var(--color-brand-tertiary); /* slate blue edge on hover */
+
+  width: 100%;
+  margin: 1.75em 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--color-table-border);
+  border-radius: var(--table-radius);
+  box-shadow: var(--table-shadow);
+  overflow: hidden; /* needed for rounded corners */
+}
+
+/* Responsive scroll for small screens */
+@media (max-width: 860px) {
+  table.docutils {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Sticky header with subtle tint */
+table.docutils thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--color-brand-tertiary) 7%, transparent),
+      transparent 70%),
+    var(--color-table-header-bg);
+  color: var(--color-foreground-primary);
+  border-bottom: 1px solid var(--color-table-border);
+  padding: 0.85em 1em;
+  font-weight: 700;
+  text-align: left;
+}
+
+/* Cells */
+table.docutils th,
+table.docutils td {
+  border-top: 1px solid var(--color-table-border);
+  padding: 0.85em 1em;
+  vertical-align: top;
+  font-size: .95em;
+  transition: background-color .15s ease, box-shadow .15s ease;
+}
+
+/* Zebra striping */
+table.docutils tbody tr:nth-child(even) {
+  background-color: var(--color-table-stripe-bg);
+}
+
+/* ===== Row hover only ===== */
+table.docutils tbody tr:hover > th,
+table.docutils tbody tr:hover > td {
+  background-color: var(--row-hover-bg);
+  /* top + bottom slate-blue edges drawn inside the cells */
+  box-shadow:
+    inset 0 2px 0 0 var(--row-ring),
+    inset 0 -2px 0 0 var(--row-ring);
+}
+
+/* add left edge only on the first cell */
+table.docutils tbody tr:hover > th:first-child,
+table.docutils tbody tr:hover > td:first-child {
+  box-shadow:
+    inset 0 2px 0 0 var(--row-ring),
+    inset 0 -2px 0 0 var(--row-ring),
+    inset 2px 0 0 0 var(--row-ring);
+}
+
+/* add right edge only on the last cell */
+table.docutils tbody tr:hover > th:last-child,
+table.docutils tbody tr:hover > td:last-child {
+  box-shadow:
+    inset 0 2px 0 0 var(--row-ring),
+    inset 0 -2px 0 0 var(--row-ring),
+    inset -2px 0 0 0 var(--row-ring);
+}
+
+/* Keyboard accessibility: give the same treatment when row contains focus */
+table.docutils tbody tr:focus-within > th,
+table.docutils tbody tr:focus-within > td {
+  background-color: var(--row-hover-bg);
+  box-shadow:
+    inset 0 2px 0 0 var(--row-ring),
+    inset 0 -2px 0 0 var(--row-ring);
+}
+table.docutils tbody tr:focus-within > th:first-child,
+table.docutils tbody tr:focus-within > td:first-child {
+  box-shadow:
+    inset 0 2px 0 0 var(--row-ring),
+    inset 0 -2px 0 0 var(--row-ring),
+    inset 2px 0 0 0 var(--row-ring);
+}
+table.docutils tbody tr:focus-within > th:last-child,
+table.docutils tbody tr:focus-within > td:last-child {
+  box-shadow:
+    inset 0 2px 0 0 var(--row-ring),
+    inset 0 -2px 0 0 var(--row-ring),
+    inset -2px 0 0 0 var(--row-ring);
+}
+
+/* Optional caption style */
+table.docutils caption {
+  caption-side: top;
+  padding: .6rem 0 .3rem;
+  font-weight: 700;
+  color: var(--color-foreground-secondary);
+}
+
+
+/*--------------------------------------------------------------------------
+ * Admonitions - Modern Icon-Based Design
+ *--------------------------------------------------------------------------*/
+.admonition {
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    margin: 2em 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    background-color: var(--color-background-primary);
+    overflow: hidden; /* To contain the styled title bar */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admonition:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.admonition .admonition-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
+    font-weight: 700;
+    padding: 0.8em 1.2em;
+    color: white; /* Text color is white for all title bars */
+}
+
+/* Icon styling using a mask for easy coloring */
+.admonition .admonition-title::before {
+    content: '';
+    display: inline-block;
+    width: 1.2em;
+    height: 1.2em;
+    flex-shrink: 0;
+    background-color: currentColor; /* The icon color will match the title text color */
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.admonition p:last-of-type {
+    margin-bottom: 0;
+}
+
+.admonition > *:not(.admonition-title) {
+    padding: 0 1.2em 1.2em;
+}
+
+/* Note / Info / See Also (Tertiary Slate Blue) */
+.admonition.note, .admonition.seealso, .admonition.info {
+    border-top: 4px solid var(--color-brand-tertiary);
+}
+.admonition.note .admonition-title,
+.admonition.seealso .admonition-title,
+.admonition.info .admonition-title {
+    background-color: var(--color-brand-tertiary);
+}
+.admonition.note .admonition-title::before,
+.admonition.seealso .admonition-title::before,
+.admonition.info .admonition-title::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='12' y1='16' x2='12' y2='12'%3E%3C/line%3E%3Cline x1='12' y1='8' x2='12.01' y2='8'%3E%3C/line%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='12' y1='16' x2='12' y2='12'%3E%3C/line%3E%3Cline x1='12' y1='8' x2='12.01' y2='8'%3E%3C/line%3E%3C/svg%3E");
+}
+
+/* Tip / Hint (Quaternary Sea Green) */
+.admonition.tip, .admonition.hint {
+    border-top: 4px solid var(--color-brand-quaternary);
+}
+.admonition.tip .admonition-title,
+.admonition.hint .admonition-title {
+    background-color: var(--color-brand-quaternary);
+}
+.admonition.tip .admonition-title::before,
+.admonition.hint .admonition-title::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'%3E%3C/path%3E%3Cpolyline points='15 3 21 9 11 19 5 19 5 13 15 3'%3E%3C/polyline%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'%3E%3C/path%3E%3Cpolyline points='15 3 21 9 11 19 5 19 5 13 15 3'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+/* Warning / Caution (Amber) */
+.admonition.warning, .admonition.caution {
+    border-top: 4px solid var(--color-warning-border);
+}
+.admonition.warning .admonition-title,
+.admonition.caution .admonition-title {
+    background-color: var(--color-warning-border);
+}
+.admonition.warning .admonition-title::before,
+.admonition.caution .admonition-title::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'%3E%3C/path%3E%3Cline x1='12' y1='9' x2='12' y2='13'%3E%3C/line%3E%3Cline x1='12' y1='17' x2='12.01' y2='17'%3E%3C/line%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'%3E%3C/path%3E%3Cline x1='12' y1='9' x2='12' y2='13'%3E%3C/line%3E%3Cline x1='12' y1='17' x2='12.01' y2='17'%3E%3C/line%3E%3C/svg%3E");
+}
+
+/* Error / Danger / Important (Red) */
+.admonition.error, .admonition.danger, .admonition.important {
+    border-top: 4px solid var(--color-error-border);
+}
+.admonition.error .admonition-title,
+.admonition.danger .admonition-title,
+.admonition.important .admonition-title {
+    background-color: var(--color-error-border);
+}
+.admonition.error .admonition-title::before,
+.admonition.danger .admonition-title::before,
+.admonition.important .admonition-title::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='15' y1='9' x2='9' y2='15'%3E%3C/line%3E%3Cline x1='9' y1='9' x2='15' y2='15'%3E%3C/line%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='15' y1='9' x2='9' y2='15'%3E%3C/line%3E%3Cline x1='9' y1='9' x2='15' y2='15'%3E%3C/line%3E%3C/svg%3E");
+}
+
+
+/* ----------------------------------------------------------------------
+ * PRACTICAL EXAMPLE(S) — hero admonition
+ * Use either:
+ *   .. admonition:: Practical example(s)
+ * --------------------------------------------------------------------*/
+
+/* Hide the built-in Sphinx/Furo icon on Practical Example(s) */
+.admonition.practical-examples .admonition-title::before {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+
+/* 1. Define colors for the new lighter theme */
+:root {
+    /* MODIFIED: New lighter accent colors */
+    --admonition-example-accent-light: #E0E8F0; /* A very light blue/gray for borders */
+    --admonition-example-bg-light: #F8F9FA;      /* A very light, clean gray for the background */
+}
+
+/* Hide the built-in Sphinx/Furo icon */
+.admonition.practical-examples .admonition-title::before {
+    content: none !important; display: none !important;
+}
+
+/* ----------------------------------------------------------------------
+ * PRACTICAL EXAMPLE(S) — hero admonition
+ * --------------------------------------------------------------------*/
+.admonition.practical-examples {
+    position: relative;
+    /* MODIFIED: Use the new very light border color */
+    border: .5px solid var(--admonition-example-accent-light);
+    border-radius: 14px;
+    overflow: hidden;
+    /* MODIFIED: Removed the complex gradient for a simple light gray background */
+    background: none; /*var(--admonition-example-bg-light);*/
+    /* MODIFIED: Made the shadow much lighter and more subtle */
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    transition: box-shadow .18s ease, border-color .18s ease;
+}
+
+.admonition.practical-examples:hover {
+    /* MODIFIED: A slightly stronger but still subtle hover shadow */
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+    /* MODIFIED: A slightly darker border color on hover */
+    border-color: color-mix(in srgb, var(--color-brand-primary) 20%, #FFF);
+}
+
+/* Title bar: gradient from Primary -> Tertiary */
+.admonition.practical-examples .admonition-title {
+    display: flex;
+    align-items: center;
+    gap: .8em;
+    padding: .7em 1.2em;
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: .2px;
+    background:
+        linear-gradient(90deg, var(--color-brand-code), #ffe0ff);
+}
+
+/* Icon (play-in-circle = “try it now”) */
+.admonition.practical-examples .admonition-title::before {
+    content: "";
+    width: 1.25em; height: 1.25em; flex-shrink: 0;
+    background-color: currentColor;
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+    -webkit-mask-size: contain;      mask-size: contain;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolygon points='10,8 16,12 10,16'/%3E%3C/svg%3E");
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolygon points='10,8 16,12 10,16'/%3E%3C/svg%3E");
+}
+
+/* Body spacing */
+.admonition.practical-examples > :not(.admonition-title) {
+    padding: 1.05em 1.2em 1.25em;
+}
+
+.admonition.practical-examples code,
+.admonition.practical-examples pre {
+    border-color: color-mix(in srgb, var(--color-brand-tertiary) 28%, var(--color-code-border));
+}
+
+/* Dark mode adjustments */
+html[data-theme="dark"] .admonition.practical-examples {
+    /* MODIFIED: Simple dark background, slightly lighter than main page */
+    background: var(--color-background-secondary);
+    /* MODIFIED: Darker, more subtle border for dark mode */
+    border-color: color-mix(in srgb, var(--color-brand-primary) 15%, #000);
+    /* MODIFIED: Subtle dark mode shadow */
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+html[data-theme="dark"] .admonition.practical-examples::before {
+    /* MODIFIED: Dark mode accent bar */
+    background: color-mix(in srgb, var(--color-brand-primary) 20%, #000);
+}
+html[data-theme="dark"] .admonition.practical-examples .admonition-title {
+    color: var(--color-background-primary);
+}
+
+/* ----------------------------------------------------------------------
+ * BEST PRACTICE(S) — green hero variant
+ * --------------------------------------------------------------------*/
+.admonition.best-practice {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--color-brand-quaternary) 30%, var(--color-border));
+  border-radius: 14px;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--color-brand-quaternary) 7%, transparent) 0%,
+      transparent 65%),
+    var(--color-background-primary);
+  box-shadow: 0 8px 22px rgba(0,0,0,.08);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.admonition.best-practice:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0,0,0,.14);
+  border-color: color-mix(in srgb, var(--color-brand-quaternary) 48%, var(--color-border));
+}
+
+.admonition.best-practice .admonition-title {
+  display: flex; align-items: center; gap: .8em;
+  padding: .95em 1.2em; color: #fff; font-weight: 800; letter-spacing: .2px;
+  background: linear-gradient(90deg,
+    var(--color-brand-quaternary),
+    color-mix(in srgb, var(--color-brand-quaternary) 72%, var(--color-brand-primary)));
+}
+
+.admonition.best-practice .admonition-title::before {
+  content: ""; width: 1.2em; height: 1.2em; background-color: currentColor;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' \
+viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' \
+stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+          mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' \
+viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' \
+stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+}
+
+.admonition.best-practice::before {
+  content: "";
+  position: absolute; inset: 0 auto 0 0; width: 8px;
+  background: var(--color-brand-quaternary);
+  opacity: .95;
+}
+
+.admonition.best-practice::after {
+  content: attr(data-badge);
+  position: absolute; top: .85rem; right: -36px;
+  transform: rotate(45deg);
+  background: var(--color-brand-quaternary);
+  color: #fff; font-weight: 900; letter-spacing: .8px;
+  padding: .25rem 1.75rem; font-size: .70rem;
+  box-shadow: 0 1px 6px rgba(0,0,0,.18);
+}
+
+html[data-theme="dark"] .admonition.best-practice {
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--color-brand-quaternary) 14%, transparent) 0%,
+      transparent 65%),
+    var(--color-background-secondary);
+  box-shadow: 0 8px 22px rgba(0,0,0,.50);
+}
+html[data-theme="dark"] .admonition.best-practice .admonition-title {
+  color: var(--color-background-primary);
+}
+html[data-theme="dark"] .admonition.best-practice::after {
+  box-shadow: 0 2px 10px rgba(0,0,0,.55);
+}
+
+/* Hide Best pratice Icon */ 
+/* Hide the leading icon for the "best-practice" variant */
+.admonition.best-practice .admonition-title::before{
+  content: none !important;   /* don’t generate the icon */
+  display: none !important;   /* don’t reserve space */
+  width: 0; height: 0;        /* extra safety across engines */
+  -webkit-mask-image: none;   /* clear masks in WebKit */
+          mask-image: none;
+}
+
+/* Remove the extra space that was for the icon */
+.admonition.best-practice .admonition-title{
+  gap: 0;
+}
+
+
+/* ----------------------------------------------------------------------
+ * PLOT ANATOMY — hero admonition
+ * Use:
+ * .. admonition:: Plot Anatomy
+ * --------------------------------------------------------------------*/
+/* Hide the built-in Sphinx/Furo icon */
+.admonition.plot-anatomy .admonition-title::before {
+    content: none !important;
+    display: none !important;
+}
+
+/* Main container styles */
+.admonition.plot-anatomy {
+    position: relative;
+    border: 1px solid color-mix(in srgb, var(--color-brand-primary) 26%, var(--color-border));
+    border-radius: 14px;
+    overflow: hidden;
+    background:
+        linear-gradient(135deg,
+            color-mix(in srgb, var(--color-brand-primary) 6%, transparent) 0%,
+            transparent 65%),
+        var(--color-background-primary);
+    box-shadow: 0 2px 8px rgba(0,0,0,.06); /* Softer shadow */
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+/* Hover effect: minimal movement, soft shadow */
+.admonition.plot-anatomy:hover {
+    transform: none;  /* No movement */
+    box-shadow: 0 4px 12px rgba(0,0,0,.14); /* Softer shadow */
+    border-color: color-mix(in srgb, var(--color-brand-primary) 42%, var(--color-border));
+}
+
+/* Title bar: gradient from Primary -> Tertiary */
+.admonition.plot-anatomy .admonition-title {
+    display: flex;
+    align-items: center;
+    gap: .8em;
+    padding: .95em 1.2em;
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: .2px;
+    background:
+        linear-gradient(90deg, var(--color-brand-primary), var(--color-brand-tertiary));
+}
+
+/* Icon (compass icon) */
+.admonition.plot-anatomy .admonition-title::before {
+    content: "";
+    width: 1.25em; height: 1.25em; flex-shrink: 0;
+    background-color: currentColor;
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+    -webkit-mask-size: contain;      mask-size: contain;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolygon points='16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76'/%3E%3C/svg%3E");
+          mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolygon points='16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76'/%3E%3C/svg%3E");
+}
+
+/* Body spacing - kept consistent */
+.admonition.plot-anatomy > :not(.admonition-title) {
+    padding: 1.05em 1.2em 1.25em;
+}
+
+/* Left accent bar */
+.admonition.plot-anatomy::before {
+    content: "";
+    position: absolute;
+    inset: 1px auto 1px 1px;
+    width: 1px;
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-brand-primary) 82%, transparent),
+        color-mix(in srgb, var(--color-brand-tertiary) 82%, transparent)
+    );
+    border-top-left-radius: 14px;
+    border-bottom-left-radius: 14px;
+    opacity: .8;
+}
+
+/* Corner ribbon - customized to "KEY" */
+.admonition.plot-anatomy::after {
+    content: "KEY"; /* Changed text from attr(data-badge) to "KEY" */
+    position: absolute; top: .85rem; right: -22px; /* Adjusted position for shorter text */
+    transform: rotate(45deg);
+    background: var(--color-brand-primary);
+    color: #fff; font-weight: 900; letter-spacing: .8px;
+    padding: .25rem 1.75rem; font-size: .70rem;
+    box-shadow: 0 1px 6px rgba(0,0,0,.18);
+}
+
+/* Dark mode adjustments */
+html[data-theme="dark"] .admonition.plot-anatomy {
+    background:
+        linear-gradient(135deg,
+            color-mix(in srgb, var(--color-brand-primary) 14%, transparent) 0%,
+            transparent 65%),
+        var(--color-background-secondary);
+    box-shadow: 0 2px 10px rgba(0,0,0,.35);
+}
+html[data-theme="dark"] .admonition.plot-anatomy .admonition-title {
+    color: var(--color-background-primary);
+}
+html[data-theme="dark"] .admonition.plot-anatomy::after {
+    box-shadow: 0 2px 10px rgba(0,0,0,.55);
+}
+
+/*--------------------------------------------------------------------------
+ * Sidebar Customization (Furo) 
+ *--------------------------------------------------------------------------*/
+
+.toc-drawer > .toc-tree {
+     padding-inline-start: 1.5rem;
+}
+/* only target the first UL under .toc-drawer */
+.toc-drawer > .toc-tree > li.current > a.reference {
+  /* your active‐link styles */
+  background-image: none !important;
+  background-color: var(--color-brand-primary)!important;
+  color: var(--color-background-primary) !important;
+  font-weight: 600;
+}
+
+.sidebar-drawer .reference {
+    transition: background-color 0.15s ease-in-out,
+                color 0.15s ease-in-out,
+                padding-left 0.15s ease-in-out;
+    padding: 0.3em 0.8em;
+    border-radius: 4px;
+    margin: 1px 0;
+    display: block;
+}
+
+.sidebar-drawer .reference:hover {
+    /* kill the Furo gradient */
+    background-image: none !important;
+    /* then draw a solid background */
+    background-color: var(--color-brand-primary) !important;
+    /* and keep the text dark */
+    color: var(--color-background-primary) !important;
+    padding-left: 1.1em;
+}
+
+
+/* "undo" the highlight for nested current links */
+.sidebar-drawer .toc-tree li li.current > a.reference {
+  background: none !important;
+  color: var(--color-sidebar-link-text) !important;
+  font-weight: normal !important;
+}
+
+/* Hide the built-in Sphinx/Furo icon on Practical Example(s) */
+.admonition.practical-examples .admonition-title::before {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* ----------------------------------------------------------------------
+ * PRACTICAL EXAMPLE(S) — hero admonition
+ * Use either:
+ *   .. admonition:: Practical example(s)
+ * --------------------------------------------------------------------*/
+/* Define a primary color for easy customization */
+:root {
+    --admonition-example-color:#047481;  /*#4A90E2; A nice, scholarly blue */
+    --admonition-example-bg: #F8FAFC;    /* #F8FAFC;A very light gray background */
+}
+
+/* Style the main admonition container */
+.admonition.practical-example {
+    border-left: 5px solid var(--admonition-example-color);
+    background-color: var(--admonition-example-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    margin: 2em 0; /* Add space above and below */
+    padding: 0; /* Remove default padding to have the title flush */
+    overflow: hidden; /* Keeps the title within the rounded corners */
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+/* Add a subtle hover effect */
+.admonition.practical-example:hover {
+    box-shadow: 0 7px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* Style the title block of the admonition */
+.admonition.practical-example .admonition-title {
+    background-color: var(--admonition-example-color);
+    color: white;
+    font-weight: 700;
+    font-size: 1.1em;
+    margin: 0;
+    padding: 12px 20px;
+    /* Add a lab flask icon using an inline SVG */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-flask-conical'%3E%3Cpath d='M10 22h4M8.5 22l1.5-3.5L6 14.5l-2 3.5-2 3.5h16l-2-3.5-2-3.5L14 18.5l1.5 3.5'%3E%3C/path%3E%3Cpath d='M14 14.5a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v0a4 4 0 0 0 4 4h4a4 4 0 0 0 4-4v0Z'%3E%3C/path%3E%3Cpath d='M6 10.5V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4.5'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 20px center;
+    padding-left: 55px; /* Make space for the icon */
+}
+
+/* Style the content inside the admonition box */
+.admonition.practical-example > *:not(.admonition-title) {
+    padding: 1em 25px;
+}
+
+/* Ensure the first element after the title has no extra top margin */
+.admonition.practical-example .admonition-title + * {
+    margin-top: 0;
+}
+/* Ensure the last element has no extra bottom margin */
+.admonition.practical-example > *:last-child {
+    margin-bottom: 0;
+    padding-bottom: 25px;
+}
+/*--------------------------------------------------------------------------
+ * Sphinx Design Components 
+ *--------------------------------------------------------------------------*/
+.sd-button-link {
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+}
+.sd-button-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+/* Style primary/secondary buttons */
+.sd-button-link.sd-color-primary {
+    background-color: var(--color-brand-primary) !important;
+    border-color: var(--color-brand-primary) !important;
+    color: white !important; /* Assuming white text works on primary */
+}
+.sd-button-link.sd-color-primary:hover {
+    /* Slightly darken primary color */
+    background-color: color-mix(in srgb, var(--color-brand-primary) 85%, black) !important;
+}
+.sd-button-link.sd-color-secondary {
+    background-color: var(--color-brand-secondary) !important;
+    border-color: var(--color-brand-secondary) !important;
+    color: white !important; /* Assuming white text works on secondary */
+}
+.sd-button-link.sd-color-secondary:hover {
+     /* Slightly darken secondary color */
+    background-color: color-mix(in srgb, var(--color-brand-secondary) 85%, black) !important;
+}
+
+.sd-card {
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.sd-card:hover {
+     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+     /* Use Secondary Blue for card hover border */
+     border-color: var(--color-brand-secondary);
+}
+.sd-card .sd-card-header {
+    background-color: var(--color-background-secondary);
+    border-bottom: 1px solid var(--color-border);
+    font-weight: 600;
+    padding: 0.8em 1.2em;
+}
+
+.sd-card .sd-card-body {
+    padding: 1.2em;
+}
+
+/* ------------------------------
+   Footnote-style citations (footcite)
+   Works with Sphinx/Docutils output:
+   - footnote refs in-text
+   - footnote blocks at page end
+   ------------------------------ */
+.citation {
+    /* A colored accent bar on the left */
+    border-left: 3px solid var(--color-brand-primary);
+    /* Space between the bar and the text */
+    padding-left: 1.5em;
+    /* Space between each reference entry */
+    margin-bottom: 1.5em;
+}
+
+.citation .label {
+    /* Make the citation label (e.g., [Hin98]) bold */
+    font-weight: bold;
+}
+
+/* --- Elegant Card Reference Style --- */
+.citation:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* In-text footnote reference markers (the little superscripts) */
+a.footnote-reference,
+a[role="doc-noteref"] {
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0 .15em;
+  border-bottom: 1px dotted var(--color-brand-primary);
+}
+a.footnote-reference:hover,
+a[role="doc-noteref"]:hover {
+  color: var(--color-brand-primary);
+  border-bottom-style: solid;
+}
+a.footnote-reference:focus-visible,
+a[role="doc-noteref"]:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Container for the footnotes section */
+.footnotes {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-brand-primary);
+}
+
+/* Individual footnote blocks */
+.footnote,
+dl.footnote {
+  /* match your .citation accent card style */
+  border-left: 3px solid var(--color-brand-primary);
+  padding-left: 1.5em;
+  margin: 1.25em 0 1.5em;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.footnote:hover,
+dl.footnote:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,.08);
+}
+
+/* Footnote label [1], [2], ... */
+.footnote .label,
+dl.footnote > dt,
+.footnote dt .label {
+  font-weight: bold;
+}
+
+/* Footnote text body */
+.footnote p,
+dl.footnote > dd {
+  margin: .35em 0 0;
+}
+
+/* Back-reference links (the ↩ back-to-text link) */
+a.footnote-backref,
+a[role="doc-backlink"] {
+  font-size: .9em;
+  margin-left: .5em;
+  opacity: .75;
+}
+a.footnote-backref::before,
+a[role="doc-backlink"]::before {
+  content: "↩︎";
+  margin-right: .25em;
+}
+
+/*--------------------------------------------------------------------------
+ * Hero Image Enhancement
+ *--------------------------------------------------------------------------*/
+
+/* Define the animation */
+@keyframes fadeIn-floatUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Apply the animation to the hero image card */
+.hero-image-card {
+  animation: fadeIn-floatUp 0.8s ease-out forwards;
+}
+
+
+/* Make the card a positioning container for the badge */
+.sd-card {
+  position: relative;
+}
+
+/* Base style for the badge */
+.new-badge-card {
+  display: none; /* Hidden by default, JS will show it */
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 3px 7px;
+  font-size: 0.75em;
+  font-weight: 700;
+  color: white;
+  background-color: var(--color-brand-primary); /* Your theme's primary red */
+  border-radius: 6px;
+  z-index: 2;
+  /* Apply the sparkle animation */
+  animation: sparkle 1.5s infinite ease-in-out;
+}
+
+/* Keyframe animation for the sparkle/pulse effect */
+@keyframes sparkle {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 121, 107, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(0, 121, 107, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 121, 107, 0);
+  }
+}
+
+/*--------------------------------------------------------------------------
+ *  Restore clickable cards and position badges
+ *--------------------------------------------------------------------------*/
+/* text links only (not cards / header anchors) */
+.content a:not(.sd-stretched-link):not(.sd-card-link):not(.headerlink),
+article a:not(.sd-stretched-link):not(.sd-card-link):not(.headerlink) {
+  color: var(--color-brand-content);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  position: relative;
+  transition: color .2s ease-out;
+}
+.content a:not(.sd-stretched-link):not(.sd-card-link):not(.headerlink)::after,
+article a:not(.sd-stretched-link):not(.sd-card-link):not(.headerlink)::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  width: 0;
+  height: 1px;
+  bottom: -2px; /*margin-top: 2px*/;
+  background: var(--color-brand-content); /*var(--color-brand-primary) #A93226*/;
+  transition: width .3s ease;
+}
+.content a:not(.sd-stretched-link):not(.sd-card-link):not(.headerlink):hover,
+article  a:not(.sd-stretched-link):not(.sd-card-link):not(.headerlink):hover {
+  color: var(--color-brand-primary);
+}
+.content a:not(.sd-stretched-link):not(.sd-card-link):not(.headerlink):hover::after,
+article  a:not(.sd-stretched-link):not(.sd-card-link):not(.headerlink):hover::after {
+  width: 100%;
+  left: 0;
+}
+
+
+/* critical: the stretched-link anchor itself must NOT be positioned */
+a.sd-stretched-link { position: static !important; }
+
+/* full-card, transparent clickable layer generated by the anchor */
+a.sd-stretched-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: transparent !important;
+}
+
+/* ------------------------------------------------------------------------
+ * Topic (Sphinx .. topic::) — Soft Card v2
+ * - Uses brand tertiary (#36456e in light, #8a9bcd in dark) for identity
+ * - Title becomes a rounded "chip"
+ * - Left accent bar + gentle background tint
+ * ---------------------------------------------------------------------- */
+
+/* Base card */
+.topic {
+  position: relative; /* for decorative layers */
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--color-brand-tertiary) 18%, var(--color-border));
+  background:
+    /* faint diagonal glaze */
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--color-brand-tertiary) 6%, transparent) 0%,
+      transparent 60%)
+    ,
+    /* base off-white / dark panel */
+    var(--color-background-secondary);
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  transition: box-shadow .18s ease, transform .18s ease, border-color .18s ease;
+  overflow: hidden;
+}
+
+/* Subtle left accent bar */
+.topic::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;   /* top 0, right auto, bottom 0, left 0 */
+  width: 6px;
+  background: var(--color-brand-tertiary);
+  opacity: .95;
+  border-radius: 12px 0 0 12px;
+}
+
+/* Gentle corner bloom for depth */
+.topic::after {
+  content: "";
+  position: absolute;
+  inset: -30% -20% auto auto; /* top-right glow */
+  width: 220px;
+  height: 220px;
+  pointer-events: none;
+  background: radial-gradient(closest-side,
+    color-mix(in srgb, var(--color-brand-tertiary) 16%, transparent),
+    transparent 70%);
+  opacity: .35;
+}
+
+/* Hover polish */
+.topic:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0,0,0,.12);
+  border-color: color-mix(in srgb, var(--color-brand-tertiary) 28%, var(--color-border));
+}
+
+/* Title chip (Sphinx renders <p class="topic-title">) */
+.topic p.topic-title {
+  display: inline-block;
+  margin: 0 0 .6rem 0;
+  padding: .35rem .7rem;
+  border-radius: 999px;                     /* pill shape */
+  background: var(--color-brand-tertiary);  /* slate blue chip */
+  color: #fff;                              /* readable on dark slate */
+  font-weight: 800;
+  letter-spacing: .2px;
+  line-height: 1.1;
+  box-shadow: 0 1px 3px rgba(0,0,0,.15);
+}
+
+
+/* Hide the default icon on topic titles to prevent overlap */
+.topic p.topic-title::before {
+  display: none !important;
+}
+
+/* Body text inside topic */
+.topic > :not(.topic-title) {
+  color: var(--color-foreground-secondary);
+}
+
+/* Links inside topic: keep on-brand and accessible */
+.topic a {
+  color: color-mix(in srgb, var(--color-brand-primary) 75%, var(--color-foreground-primary));
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color .15s ease, border-color .15s ease;
+}
+.topic a:hover {
+  color: var(--color-brand-primary);
+  border-color: var(--color-brand-primary);
+}
+
+/* ------- Dark mode refinements ------- */
+html[data-theme="dark"] .topic {
+  box-shadow: 0 1px 4px rgba(0,0,0,.35);
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--color-brand-tertiary) 10%, transparent) 0%,
+      transparent 60%),
+    var(--color-background-secondary);
+}
+html[data-theme="dark"] .topic p.topic-title {
+  /* tertiary is lighter in dark mode; use dark text for contrast */
+  color: var(--color-background-primary); /* near-black */
+  box-shadow: 0 1px 3px rgba(0,0,0,.45);
+}
+html[data-theme="dark"] .topic:hover {
+  box-shadow: 0 10px 24px rgba(0,0,0,.5);
+}
+
+/* Hide ONLY the permalink icon inside .. topic:: titles */
+.topic p.topic-title .headerlink,
+.topic p.topic-title .headerlink::before,
+.topic p.topic-title .headerlink::after {
+  display: none !important;
+  content: none !important; /* belt-and-suspenders for themes that use ::before */
+  visibility: hidden !important;  /* Add visibility:hidden to ensure it's not visible */
+}
+
+
+/*--------------------------------------------------------------------------
+ * CTA tiles (home grid)
+ *--------------------------------------------------------------------------*/
+.cta-tiles .sd-card {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-background-primary);
+  transition: transform .15s ease, box-shadow .15s ease,
+              background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.cta-tiles .sd-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0,0,0,.10);
+  background-color: var(--color-brand-primary) !important;  /* #00796B in light mode */
+  border-color: var(--color-brand-primary) !important;
+}
+
+/* Make text readable on brand background */
+.cta-tiles .sd-card:hover,
+.cta-tiles .sd-card:hover .sd-card-header,
+.cta-tiles .sd-card:hover .sd-card-body,
+.cta-tiles .sd-card:hover p,
+.cta-tiles .sd-card:hover a {
+  color: #fff !important;
+}
+
+/* Header polish */
+.cta-tiles .sd-card .sd-card-header {
+  border-bottom: 1px solid var(--color-border);
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: .75rem 1rem;
+}
+.cta-tiles .sd-card:hover .sd-card-header {
+  border-bottom-color: rgba(255,255,255,.35);
+}
+
+/* Body spacing */
+.cta-tiles .sd-card .sd-card-body {
+  padding: .9rem 1rem 1rem;
+  color: var(--color-foreground-secondary);
+}
+
+/* Keep the stretched-link overlay working over the card */
+.cta-tiles .sd-card { position: relative; }
+.cta-tiles a.sd-stretched-link { position: static !important; }
+.cta-tiles a.sd-stretched-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: transparent !important;
+}
+
+/* Optional: subtle emoji lift on hover */
+.cta-tiles .sd-card:hover .sd-card-header::before {
+  transform: translateY(-1px);
+}
+
+/* NEW badge you already use */
+.new-badge-card {
+  display: inline-block;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 3px 7px;
+  font-size: 0.70rem;
+  font-weight: 800;
+  color: #fff !important;
+  background-color: #ef4444;
+  border-radius: 9999px;
+  border: 2px solid #fff;
+  z-index: 3;
+}
+
+/* Dark mode: keep hover strong and readable */
+html[data-theme="dark"] .cta-tiles .sd-card:hover {
+  /* uses var(--color-brand-primary) from your dark palette */
+  box-shadow: 0 8px 22px rgba(0,0,0,.35);
+}
+
+:root { --tile-hover-bg: #2166F3; }
+html[data-theme="dark"] { --tile-hover-bg: #2166F3; } /* same in dark */
+.cta-tiles .sd-card:hover {
+ background-color: var(--tile-hover-bg) !important; 
+ border-color: var(--tile-hover-bg) !important; 
+}
+
+/* ---------------------------------------------------------------------------
+   SEE ALSO (image previews on hover)
+---------------------------------------------------------------------------- */
+
+/* Base card in the See-Also grid */
+.see-also-tiles .sd-card{
+  position: relative;                     /* for ::before/::after */
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: transparent !important;     /* let preview show through */
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+/* Header/body must be transparent so the image is visible */
+.see-also-tiles .sd-card .sd-card-header,
+.see-also-tiles .sd-card .sd-card-body{
+  background: transparent !important;
+  position: relative;
+  z-index: 2;                              /* above ::before/::after */
+}
+
+/* Subtle lift on hover */
+.see-also-tiles .sd-card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0,0,0,.12);
+  border-color: var(--color-brand-secondary);
+}
+
+/* ---- preview layers ---- */
+
+/* image layer (set per card with --card-preview below) */
+.see-also-tiles .sd-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: transparent;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.see-also-tiles .sd-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--card-preview);  /* Using the dynamically set variable */
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transform: scale(1.04);
+  transition: opacity .25s ease, transform .25s ease;
+  z-index: 0; /* Sit under the card content */
+}
+
+.see-also-tiles .sd-card:hover::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+
+/* blue tint for readability (Furo title/link blue #2166F3) */
+.see-also-tiles .sd-card::after{
+  content:"";
+  position:absolute; inset:0;
+  background: linear-gradient(to bottom,
+              rgba(33,102,243,.18), rgba(33,102,243,.52));
+  opacity:0; transition:opacity .25s ease;
+  z-index:1;
+}
+
+/* reveal image + tint */
+/*.see-also-tiles .sd-card:hover::before{ opacity:1; transform:scale(1); }*/
+.see-also-tiles .sd-card:hover::after { opacity:1; }
+
+/* Text color on hover = your dark red */
+
+.see-also-tiles .sd-card:hover,
+.see-also-tiles .sd-card:hover .sd-card-header,
+.see-also-tiles .sd-card:hover .sd-card-body,
+.see-also-tiles .sd-card:hover p,
+.see-also-tiles .sd-card:hover a{
+  color: #A93226 !important;              /* your “brand-content” red */
+}
+
+/* Keep stretched-link working */
+.see-also-tiles .sd-card a.sd-stretched-link{ position: static !important; }
+.see-also-tiles .sd-card a.sd-stretched-link::after{
+  content:""; position:absolute; inset:0; z-index:3; background:transparent !important;
+}
+
+/* Soft accent ONLY for the “Full API” tile (no preview, no tint) */
+.see-also-tiles .see-also-accent{
+  background: color-mix(in srgb, var(--color-brand-primary) 8%, var(--color-background-secondary));
+}
+html[data-theme="dark"] .see-also-tiles .see-also-accent{
+  background: color-mix(in srgb, var(--color-brand-primary) 14%, var(--color-background-secondary));
+}
+/* prevent image/tint on the accent tile */
+/*.see-also-tiles .see-also-accent::before,
+.see-also-tiles .see-also-accent::after{ display:none !important; }
+/* keep default text color on the accent tile */
+.see-also-tiles .see-also-accent:hover,
+.see-also-tiles .see-also-accent:hover *{
+  color: var(--color-foreground-primary) !important;
+}
+
+/* Per-card preview images
+   (custom.css is at /_static/css/, previews at /_static/previews/) */
+.see-also-tiles .card--uncertainty { --card-preview: url('../previews/uncertainty.png');}
+.see-also-tiles .card--errors { --card-preview: url('../previews/errors.png'); }
+.see-also-tiles .card--evaluation { --card-preview: url('../previews/evaluation.png'); }
+.see-also-tiles .card--importance { --card-preview: url('../previews/importance.png');}
+.see-also-tiles .card--relationship { --card-preview: url('../previews/relationship.png');}
+
+/* Dark mode: stronger shadow only */
+html[data-theme="dark"] .see-also-tiles .sd-card:hover{
+  box-shadow: 0 10px 22px rgba(0,0,0,.35);
+}
+
+/* Full API — base soft tint */
+.see-also-tiles .see-also-accent{
+  /* Adjust these two numbers to taste */
+  --api-tint-rest: 10%;
+  --api-tint-border: 25%;
+  background: color-mix(in srgb, #2166F3 var(--api-tint-rest), var(--color-background-secondary));
+  border-color: color-mix(in srgb, #2166F3 var(--api-tint-border), var(--color-border));
+}
+
+/* Stronger tint on hover (still no image) */
+.see-also-tiles .sd-card.see-also-accent:hover{
+  --api-tint-hover: 22%;
+  background: color-mix(in srgb, #2166F3 var(--api-tint-hover), var(--color-background-secondary));
+  border-color: #2166F3;
+  color: var(--color-foreground-primary) !important; /* keep text readable */
+}
+
+/* No preview image for this tile */
+.see-also-tiles .sd-card.see-also-accent::before{ display:none !important; }
+
+/* OPTIONAL: add a subtle blue overlay tint (comment out if not wanted) */
+.see-also-tiles .sd-card.see-also-accent::after{
+  content:"";
+  position:absolute; inset:0; z-index:1; pointer-events:none;
+  background: linear-gradient(135deg, rgba(33,102,243,.10), rgba(33,102,243,0) 60%);
+  opacity: 1; /* set to 0 and add :hover {opacity:1} if you want it only on hover */
+}
+
+/* 
+ * Card Preview Popups
+*/
+
+.seealso-card {
+    /* This creates a positioning context for the popup */
+    position: relative;
+    /* Ensures the popup can appear 'outside' the card's bounds */
+    overflow: visible;
+}
+
+.card-preview-popup {
+    position: absolute;
+    bottom: 95%; /* Starting position for the animation */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 280px; /* You can adjust this width as needed */
+    z-index: 100;
+    pointer-events: none; /* Prevents the popup from flickering or stealing mouse focus */
+
+    opacity: 0;
+    transition: opacity 0.2s ease-out, bottom 0.2s ease-out;
+}
+
+.card-preview-popup img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 2px solid var(--color-background-primary);
+    box-shadow: 0 10px 30px -5px rgba(0,0,0,0.3);
+}
+
+/* Popup skin (JS provides layout/animation inline so this is purely visual) */
+.card-preview-popup {
+  border: 1px solid color-mix(in srgb, var(--color-brand-tertiary) 25%, var(--color-border));
+  background: var(--color-background-primary);
+}
+.card-preview-popup img {
+  display: block;
+}
+
+/* Ensure seealso cards can host absolute children (belt & suspenders) */
+.see-also-tiles .seealso-card { position: relative; }
+
+/*
+ * Remove the html Raw htm line 
+*/
+hr.hr-spacer{
+  margin: 1.5em 0 2em !important;
+  border: 0 !important;           /* remove the stroke */
+  height: 0 !important;           /* neutralize UA defaults */
+  background: transparent !important;
+}
+

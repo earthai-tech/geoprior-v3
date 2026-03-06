@@ -1,0 +1,77 @@
+name: Python Package (GeoPrior-v3)
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build-test-linux:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Miniforge (conda)
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-variant: Miniforge3
+          miniforge-version: latest
+          use-mamba: true
+          activate-environment: geoprior-v3-dev
+          environment-file: environment.yml
+          python-version: ${{ matrix.python-version }}
+
+      - name: Show conda info
+        run: |
+          conda info
+          conda list
+          python -V
+          pip -V
+
+      # Install deps from pyproject (single source of truth)
+      - name: Install package (dev extras from pyproject)
+        run: |
+          python -m pip install -U pip
+          pip install -e .[dev]
+
+      - name: Lint (Ruff)
+        run: |
+          ruff check .
+
+      - name: Test with pytest + coverage
+        env:
+          TF_CPP_MIN_LOG_LEVEL: "2"
+          TF_ENABLE_ONEDNN_OPTS: "0"
+        run: |
+          pytest -n auto --cov=geoprior --cov-report=xml --cov-report=term-missing tests/
+
+      - name: Upload coverage to Codecov
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false }}
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          name: linux-py${{ matrix.python-version }}
+          flags: unittests
+          fail_ci_if_error: true
+
+      - name: Print Debug Info on Failure
+        if: failure()
+        run: |
+          echo "::group::Debug Information"
+          echo "PATH=$PATH"
+          conda info
+          conda list
+          pip list
+          echo "::endgroup::"

@@ -1,0 +1,1767 @@
+# -*- coding: utf-8 -*-
+
+#   License: BSD-3-Clause
+#   Author: LKouadio Laurent <etanoyau@gmail.com>
+#
+#   Source: Adapted from earthai-tech/gofast (https://github.com/earthai-tech/gofast)
+#   This module is included in the FusionLab package, with modifications
+#   to fit FusionLab’s API and documentation conventions.
+
+"""
+Provides core components and utilities for generating standardized docstrings
+across the gofast API, enhancing consistency and readability in documentation.
+
+Adapted for FusionLab from the original gofast implementation.
+"""
+
+from __future__ import annotations
+
+import re
+from textwrap import dedent 
+from typing import Callable 
+
+
+__all__ = [
+    '_core_params',
+    'refglossary',
+    '_core_docs',
+    '_shared_nn_params',
+    '_shared_docs', 
+    'DocstringComponents',
+    'filter_docs', 
+    'doc'
+]
+
+class DocstringComponents:
+    r"""
+    A class for managing and cleaning docstring components for classes, methods,
+    or functions. It provides structured access to raw docstrings by parsing 
+    them from a dictionary, optionally stripping outer whitespace, and allowing
+    dot access to the components.
+
+    This class is typically used to standardize, clean, and manage the 
+    docstrings for different components of a codebase (such as methods or classes),
+    particularly when docstrings contain multiple components that need to be 
+    extracted, cleaned, and accessed easily.
+
+    Parameters
+    ----------
+    comp_dict : dict
+        A dictionary where the keys are component names and the values are 
+        the raw docstring contents. The dictionary may contain entries such as 
+        "description", "parameters", "returns", etc.
+
+    strip_whitespace : bool, optional, default=True
+        If True, it will remove leading and trailing whitespace from each
+        entry in the `comp_dict`. If False, the whitespace will be retained.
+
+    Attributes
+    ----------
+    entries : dict
+        A dictionary containing the cleaned or raw docstring components after 
+        parsing, depending on the `strip_whitespace` flag. These components 
+        are accessible via dot notation.
+
+    Methods
+    -------
+    __getattr__(attr)
+        Provides dot access to the components in `self.entries`. If the requested
+        attribute exists in `self.entries`, it is returned. Otherwise, it attempts
+        to look for the attribute normally or raise an error if not found.
+
+    from_nested_components(cls, **kwargs)
+        A class method that allows combining multiple sub-sets of docstring
+        components into a single `DocstringComponents` instance.
+
+    Examples
+    --------
+    # Example 1: Creating a DocstringComponents object with basic docstrings
+    doc_dict = {
+        "description": "This function adds two numbers.",
+        "parameters": "a : int\n    First number.\nb : int\n    Second number.",
+        "returns": "int\n    The sum of a and b."
+    }
+
+    doc_comp = DocstringComponents(doc_dict)
+    print(doc_comp.description)
+    # Output: This function adds two numbers.
+
+    # Example 2: Using `from_nested_components` to add multiple sub-sets
+    sub_dict_1 = {
+        "description": "This function multiplies two numbers.",
+        "parameters": "a : int\n    First number.\nb : int\n    Second number.",
+        "returns": "int\n    The product of a and b."
+    }
+    sub_dict_2 = {
+        "example": "example_func(2, 3) # Returns 6"
+    }
+
+    doc_comp = DocstringComponents.from_nested_components(sub_dict_1, sub_dict_2)
+    print(doc_comp.example)
+    # Output: example_func(2, 3) # Returns 6
+    """
+
+    regexp = re.compile(r"\n((\n|.)+)\n\s*", re.MULTILINE)
+
+    def __init__(self, comp_dict, strip_whitespace=True):
+        """Read entries from a dict, optionally stripping outer whitespace."""
+        if strip_whitespace:
+            entries = {}
+            for key, val in comp_dict.items():
+                m = re.match(self.regexp, val)
+                if m is None:
+                    entries[key] = val
+                else:
+                    entries[key] = m.group(1)
+        else:
+            entries = comp_dict.copy()
+
+        self.entries = entries
+
+    def __getattr__(self, attr):
+        """Provide dot access to entries for clean raw docstrings."""
+        if attr in self.entries:
+            return self.entries[attr]
+        else:
+            try:
+                return self.__getattribute__(attr)
+            except AttributeError as err:
+                # If Python is run with -OO, it will strip docstrings and our lookup
+                # from self.entries will fail. We check for __debug__, which is actually
+                # set to False by -O (it is True for normal execution).
+                # But we only want to see an error when building the docs;
+                # not something users should see, so this slight inconsistency is fine.
+                if __debug__:
+                    raise err
+                else:
+                    pass
+
+    @classmethod
+    def from_nested_components(cls, **kwargs):
+        """Add multiple sub-sets of components."""
+        return cls(kwargs, strip_whitespace=False)
+
+def doc(
+    *docstrings: str | Callable, 
+    **params
+    ) -> Callable[[callable], callable]:
+    """
+    A decorator take docstring templates, concatenate them and perform string
+    substitution on it.
+
+    This decorator will add a variable "_docstring_components" to the wrapped
+    callable to keep track the original docstring template for potential usage.
+    If it should be consider as a template, it will be saved as a string.
+    Otherwise, it will be saved as callable, and later user __doc__ and dedent
+    to get docstring.
+
+    Parameters
+    ----------
+    *docstrings : str or callable
+        The string / docstring / docstring template to be appended in order
+        after default docstring under callable.
+    **params
+        The string which would be used to format docstring template.
+    """
+
+    def decorator(decorated: callable) -> callable:
+        # collecting docstring and docstring templates
+        docstring_components: list[str | Callable] = []
+        if decorated.__doc__:
+            docstring_components.append(dedent(decorated.__doc__))
+
+        for docstring in docstrings:
+            if hasattr(docstring, "_docstring_components"):
+                # error: Item "str" of "Union[str, Callable[..., Any]]" has no attribute
+                # "_docstring_components"
+                # error: Item "function" of "Union[str, Callable[..., Any]]" has no
+                # attribute "_docstring_components"
+                docstring_components.extend(
+                    docstring._docstring_components  # type: ignore[union-attr]
+                )
+            elif isinstance(docstring, str) or docstring.__doc__:
+                docstring_components.append(docstring)
+
+        # formatting templates and concatenating docstring
+        decorated.__doc__ = "".join(
+            [
+                component.format(**params)
+                if isinstance(component, str)
+                else dedent(component.__doc__ or "")
+                for component in docstring_components
+            ]
+        )
+
+        # error: "F" has no attribute "_docstring_components"
+        decorated._docstring_components = (  # type: ignore[attr-defined]
+            docstring_components
+        )
+        return decorated
+
+    return decorator
+
+def filter_docs(keys, input_dict=None):
+    """
+    Filters a dictionary to include only the key-value pairs where 
+    the key is present in the specified list of keys. By default, 
+    filters from the global `_shared_docs` dictionary.
+
+    Parameters
+    ----------
+    keys : list of str
+        A list of keys to keep in the resulting filtered dictionary.
+
+    input_dict : dict, optional, default=_shared_docs
+        The dictionary to be filtered. If not provided, uses the global 
+        `_shared_docs` dictionary.
+
+    Returns
+    -------
+    dict
+        A new dictionary containing only the key-value pairs where the 
+        key is present in the specified `keys` list.
+
+    Examples
+    --------
+    >>> _shared_docs = {
+    >>>     'y_true': [1, 2, 3],
+    >>>     'y_pred': [1, 2, 3],
+    >>>     'y_t': [1, 2, 3]
+    >>> }
+    >>> filtered_dict = filter_dict_by_keys(['y_true', 'y_pred'])
+    >>> print(filtered_dict)
+    {'y_true': [1, 2, 3], 'y_pred': [1, 2, 3]}
+
+    Notes
+    -----
+    This function returns a new dictionary with only the specified keys
+    and their corresponding values. If a key is not found in the original 
+    dictionary, it is ignored.
+    """
+    input_dict = input_dict or _shared_docs  # Default to _shared_docs if None
+    return dict(filter(lambda item: item[0] in keys, input_dict.items()))
+
+# ------------------------core params ------------------------------------------
+
+_core_params= dict ( 
+    data =r"""
+data: str, filepath_or_buffer, or :class:`pandas.core.DataFrame`
+    Data source, which can be a path-like object, a DataFrame, or a file-like object.
+    - For path-like objects, data is read, asserted, and validated. Accepts 
+    any valid string path, including URLs. Supported URL schemes: http, ftp, 
+    s3, gs, and file. For file URLs, a host is expected (e.g., 'file://localhost/path/to/table.csv'). 
+    - os.PathLike objects are also accepted.
+    - File-like objects should have a `read()` method (
+        e.g., opened via the `open` function or `StringIO`).
+    When a path-like object is provided, the data is loaded and validated. 
+    This flexibility allows for various data sources, including local files or 
+    files hosted on remote servers.
+
+    """, 
+    X = r"""
+X: ndarray of shape (M, N), where M = m-samples and N = n-features
+    Training data; represents observed data at both training and prediction 
+    times, used as independent variables in learning. The uppercase notation 
+    signifies that it typically represents a matrix. In a matrix form, each 
+    sample is represented by a feature vector. Alternatively, X may not be a 
+    matrix and could require a feature extractor or a pairwise metric for 
+    transformation. It's critical to ensure data consistency and compatibility 
+    with the chosen learning model.
+    """,
+    y = r"""
+y: array-like of shape (m,), where M = m-samples
+    Training target; signifies the dependent variable in learning, observed 
+    during training but unavailable at prediction time. The target is often 
+    the main focus of prediction in supervised learning models. Ensuring the 
+    correct alignment and representation of target data is crucial for effective 
+    model training.
+    """,
+    Xt = r"""
+Xt: ndarray, shape (M, N), where M = m-samples and N = n-features
+    Test set; denotes data observed during testing and prediction, used as 
+    independent variables in learning. Like X, Xt is typically a matrix where 
+    each sample corresponds to a feature vector. The consistency between the 
+    training set (X) and the test set (Xt) in terms of feature representation 
+    and preprocessing is essential for accurate model evaluation.
+    """,
+    yt = r"""
+yt: array-like, shape (M,), where M = m-samples
+    Test target; represents the dependent variable in learning, akin to 'y' 
+    but for the testing phase. While yt is observed during training, it is used
+    to evaluate the performance of predictive models. The test target helps 
+    in assessing the generalization capabilities of the model to unseen data.
+    """,
+    target_name = r"""
+target_name: str
+    Target name or label used in supervised learning. It serves as the reference name 
+    for the target variable (`y`) or label. Accurate identification of `target_name` is 
+    crucial for model training and interpretation, especially in datasets with multiple 
+    potential targets.
+""",
+
+   z = r"""
+z: array-like 1D or pandas.Series
+    Represents depth values in a 1D array or pandas series. Multi-dimensional arrays 
+    are not accepted. If `z` is provided as a DataFrame and `zname` is unspecified, 
+    an error is raised. In such cases, `zname` is necessary for extracting the depth 
+    column from the DataFrame.
+""",
+    zname = r"""
+zname: str or int
+    Specifies the column name or index for depth values within a DataFrame. If an 
+    integer is provided, it is interpreted as the column index for depth values. 
+    The integer value should be within the DataFrame's column range. `zname` is 
+    essential when the depth information is part of a larger DataFrame.
+""",
+    kname = r"""
+kname: str or int
+    Identifies the column name or index for permeability coefficient ('K') within a 
+    DataFrame. An integer value represents the column index for 'K'. It must be within 
+    the DataFrame's column range. `kname` is required when permeability data is 
+    integrated into a DataFrame, ensuring correct retrieval and processing of 'K' values.
+""",
+   k = r"""
+k: array-like 1D or pandas.Series
+    Array or series containing permeability coefficient ('K') values. Multi-dimensional 
+    arrays are not supported. If `K` is provided as a DataFrame without specifying 
+    `kname`, an error is raised. `kname` is used to extract 'K' values from the DataFrame 
+    and overwrite the original `K` input.
+""",
+    target = r"""
+target: Array-like or pandas.Series
+    The dependent variable in supervised (and semi-supervised) learning, usually 
+    denoted as `y` in an estimator's fit method. Also known as the dependent variable, 
+    outcome variable, response variable, ground truth, or label. Scikit-learn handles 
+    targets with minimal structure: a class from a finite set, a finite real-valued 
+    number, multiple classes, or multiple numbers. In this library, `target` is 
+    conceptualized as a pandas Series with `target_name` as its name, combining the 
+    identifier and the variable `y`.
+    Refer to Scikit-learn's documentation on target types for more details:
+    [Scikit-learn Target Types](https://scikit-learn.org/stable/glossary.html#glossary-target-types).
+""",
+    model=r"""
+model: callable, always as a function,    
+    A model estimator. An object which manages the estimation and decoding 
+    of a model. The model is estimated as a deterministic function of:
+        * parameters provided in object construction or with set_params;
+        * the global numpy.random random state if the estimator’s random_state 
+            parameter is set to None; and
+        * any data or sample properties passed to the most recent call to fit, 
+            fit_transform or fit_predict, or data similarly passed in a sequence 
+            of calls to partial_fit.
+    The estimated model is stored in public and private attributes on the 
+    estimator instance, facilitating decoding through prediction and 
+    transformation methods.
+    Estimators must provide a fit method, and should provide `set_params` and 
+    `get_params`, although these are usually provided by inheritance from 
+    `base.BaseEstimator`.
+    The core functionality of some estimators may also be available as a ``function``.
+    """,
+    clf=r"""
+clf :callable, always as a function, classifier estimator
+    A supervised (or semi-supervised) predictor with a finite set of discrete 
+    possible output values. A classifier supports modeling some of binary, 
+    multiclass, multilabel, or multiclass multioutput targets. Within scikit-learn, 
+    all classifiers support multi-class classification, defaulting to using a 
+    one-vs-rest strategy over the binary classification problem.
+    Classifiers must store a classes_ attribute after fitting, and usually 
+    inherit from base.ClassifierMixin, which sets their _estimator_type attribute.
+    A classifier can be distinguished from other estimators with is_classifier.
+    It must implement::
+        * fit
+        * predict
+        * score
+    It may also be appropriate to implement decision_function, predict_proba 
+    and predict_log_proba.    
+    """,
+    reg=r"""
+reg: callable, always as a function
+    A regression estimator; Estimators must provide a fit method, and should 
+    provide `set_params` and 
+    `get_params`, although these are usually provided by inheritance from 
+    `base.BaseEstimator`. The estimated model is stored in public and private 
+    attributes on the estimator instance, facilitating decoding through prediction 
+    and transformation methods.
+    The core functionality of some estimators may also be available as a
+    ``function``.
+    """,
+    cv=r"""
+cv: float,    
+    A cross validation splitting strategy. It used in cross-validation based 
+    routines. cv is also available in estimators such as multioutput. 
+    ClassifierChain or calibration.CalibratedClassifierCV which use the 
+    predictions of one estimator as training data for another, to not overfit 
+    the training supervision.
+    Possible inputs for cv are usually::
+        * An integer, specifying the number of folds in K-fold cross validation. 
+            K-fold will be stratified over classes if the estimator is a classifier
+            (determined by base.is_classifier) and the targets may represent a 
+            binary or multiclass (but not multioutput) classification problem 
+            (determined by utils.multiclass.type_of_target).
+        * A cross-validation splitter instance. Refer to the User Guide for 
+            splitters available within `Scikit-learn`_
+        * An iterable yielding train/test splits.
+    With some exceptions (especially where not using cross validation at all 
+                          is an option), the default is ``4-fold``.
+    .. _Scikit-learn: https://scikit-learn.org/stable/glossary.html#glossary
+    """,
+    scoring=r"""
+scoring: str, callable
+    Specifies the score function to be maximized (usually by :ref:`cross
+    validation <cross_validation>`), or -- in some cases -- multiple score
+    functions to be reported. The score function can be a string accepted
+    by :func:`sklearn.metrics.get_scorer` or a callable :term:`scorer`, not to 
+    be confused with an :term:`evaluation metric`, as the latter have a more
+    diverse API.  ``scoring`` may also be set to None, in which case the
+    estimator's :term:`score` method is used.  See `slearn.scoring_parameter`
+    in the `Scikit-learn`_ User Guide.
+    """, 
+    random_state=r"""
+random_state : int, RandomState instance or None, default=None
+    Controls the shuffling applied to the data before applying the split.
+    Pass an int for reproducible output across multiple function calls..    
+    """,
+    test_size=r"""
+test_size : float or int, default=None
+    If float, should be between 0.0 and 1.0 and represent the proportion
+    of the dataset to include in the test split. If int, represents the
+    absolute number of test samples. If None, the value is set to the
+    complement of the train size. If ``train_size`` is also None, it will
+    be set to 0.25.    
+    """, 
+    n_jobs=r"""
+n_jobs: int, 
+    is used to specify how many concurrent processes or threads should be 
+    used for routines that are parallelized with joblib. It specifies the maximum 
+    number of concurrently running workers. If 1 is given, no joblib parallelism 
+    is used at all, which is useful for debugging. If set to -1, all CPUs are 
+    used. For instance::
+        * `n_jobs` below -1, (n_cpus + 1 + n_jobs) are used. 
+        
+        * `n_jobs`=-2, all CPUs but one are used. 
+        * `n_jobs` is None by default, which means unset; it will generally be 
+            interpreted as n_jobs=1 unless the current joblib.Parallel backend 
+            context specifies otherwise.
+
+    Note that even if n_jobs=1, low-level parallelism (via Numpy and OpenMP) 
+    might be used in some configuration.  
+    """,
+    verbose=r"""
+verbose: int, `default` is ``0``    
+    Control the level of verbosity. Higher value lead to more messages. 
+    """  
+) 
+
+_core_docs = dict(
+    params=DocstringComponents(_core_params),
+)
+
+
+refglossary =type ('refglossary', (), dict (
+    __doc__="""\
+
+.. _GeekforGeeks: https://www.geeksforgeeks.org/style-plots-using-matplotlib/#:~:text=Matplotlib%20is%20the%20most%20popular,without%20using%20any%20other%20GUIs
+
+.. _IUPAC nommenclature: https://en.wikipedia.org/wiki/IUPAC_nomenclature_of_inorganic_chemistry
+
+.. _Matplotlib scatter: https://matplotlib.org/3.5.0/api/_as_gen/matplotlib.pyplot.scatter.html
+.. _Matplotlib plot: https://matplotlib.org/3.5.0/api/_as_gen/matplotlib.pyplot.plot.html
+.. _Matplotlib pyplot: https://matplotlib.org/3.5.0/api/_as_gen/matplotlib.pyplot.plot.html
+.. _Matplotlib figure: https://matplotlib.org/3.5.0/api/_as_gen/matplotlib.pyplot.figure.html
+.. _Matplotlib figsuptitle: https://matplotlib.org/3.5.0/api/_as_gen/matplotlib.pyplot.suptitle.html
+
+.. _Properties of water: https://en.wikipedia.org/wiki/Properties_of_water#Electrical_conductivity 
+.. _pandas DataFrame: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html
+.. _pandas Series: https://pandas.pydata.org/docs/reference/api/pandas.Series.html
+
+.. _scipy.optimize.curve_fit: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html
+
+"""
+    ) 
+)
+
+
+# -------------------------- Share params docs  ------------- -----------------
+# common parameter docs for spatial plotting
+_spatial_params = dict(
+    spatial_cols=r"""
+    spatial_cols : Optional[Tuple[str, str]]
+        A pair of column names in `df` that represent the x- and
+        y-coordinates to be used for plotting.  If you do not
+        specify this, the default is ('coord_x', 'coord_y').
+        Example: ('longitude', 'latitude').
+    """,
+    dt_col=r"""
+    dt_col : Optional[str]
+        The name of the column in `df` that holds your time or
+        slice identifier (e.g., year, month).  If provided, the
+        function will group and plot one map per unique value,
+        inferring `dt_values` automatically if you haven’t passed
+        them explicitly.
+    """,
+    dt_values=r"""
+    dt_values : Optional[List[Union[int, str]]]
+        A list of specific time‐slice identifiers to plot (e.g.,
+        [2020, 2021, 2022]).  If left as None and `dt_col` is
+        given, the function will pull all unique values from
+        `df[dt_col]`.  If neither `dt_col` nor `dt_values` is
+        provided, an error is raised.
+    """,
+    cmap=r"""
+    cmap : str
+        A Matplotlib colormap name (e.g. 'viridis', 'plasma',
+        'inferno', 'coolwarm').  Determines how your numeric
+        `value_col` is translated into colors on the map.
+    """,
+    marker_size=r"""
+    marker_size : int
+        The size (area) of each scatter point in the plot.
+        Larger numbers mean bigger dots.
+    """,
+    alpha=r"""
+    alpha : float
+        Opacity level of the scatter points (0.0 = fully
+        transparent, 1.0 = fully opaque).
+    """,
+    vmin=r"""
+    vmin : Optional[float]
+        The minimum data value that the colormap will cover.
+        If None, it is set to the minimum of the plotted values
+        (either globally or per‐slice, depending on `cbar`).
+    """,
+    vmax=r"""
+    vmax : Optional[float]
+        The maximum data value that the colormap will cover.
+        If None, it is set to the maximum of the plotted values.
+    """,
+    show_grid=r"""
+    show_grid : bool
+        Whether to draw grid lines on each subplot.  Defaults
+        to True.  Grid style can be customized via `grid_props`.
+    """,
+    grid_props=r"""
+    grid_props : Optional[dict]
+        A dict of keyword arguments passed to `ax.grid()`,
+        e.g. {'linestyle': '--', 'alpha': 0.5}.  If None,
+        defaults to {'linestyle': ':', 'alpha': 0.7}.
+    """,
+    savefig=r"""
+    savefig : Optional[str]
+        Base filename (with or without extension) used to save
+        the figure(s).  If provided, each resulting figure will
+        be written to disk.
+    """,
+    save_fmts="""
+    save_fmts : Union[str, List[str]]
+        File extension(s) for saving the figure.  Can be a single
+        string like '.png' or a list ['.png', '.pdf'].
+    """,
+    max_cols="""
+    max_cols : int
+        Maximum number of columns in each row of subplots.
+        If you have more `dt_values` than `max_cols`, additional
+        rows will be created.
+    """,
+    prefix="""
+    prefix : str
+        A string inserted between the base of `savefig` and
+        the file extension.  Useful for tagging different runs,
+        e.g. prefix='_roi'.
+    """,
+    verbose="""
+    verbose : int
+        Verbosity level for internal logging via `vlog()`.  0
+        is silent, 1 prints high-level messages, higher values
+        can print more detail.
+    """,
+    cbar="""
+    cbar : str
+        Colorbar mode.  'uniform' draws a single colorbar per
+        figure (spanning all subplots in that figure).  Any
+        other value will draw an individual colorbar on each
+        subplot.
+    """,
+    show_axis="""
+    show_axis : Union[str, bool]
+        Controls axis visibility.  If set to 'off' or False,
+        each subplot’s axis (ticks, spine, labels) is hidden.
+        Otherwise axes remain visible.
+    """,
+    _logger="""
+    _logger : Optional[logging.Logger]
+        A Python `logging.Logger` instance.  If provided,
+        `vlog()` will send its messages there instead of
+        just printing to stdout.
+    """,
+)
+
+_shared_nn_params = dict(
+    input_dim = r"""
+input_dim: int
+    The dimensionality of each input variable. This defines the number of
+    features (or the length of the feature vector) for each individual input.
+    For scalar features, this value is typically ``1``. However, for more
+    complex data types such as embeddings, images, or time series, the input
+    dimension can be greater than 1, reflecting the number of dimensions in
+    the input vectors or feature matrices. This parameter is important for
+    ensuring the correct shape and consistency of input data when training
+    the model.
+
+    Example:
+    - For a single scalar feature per sample, ``input_dim = 1``.
+    - For a word embedding with a 300-dimensional vector for each word, 
+      ``input_dim = 300``.
+    - For time-series data with 10 features at each time step, 
+      ``input_dim = 10``.
+    """, 
+    
+    units = r"""
+units: int
+    The number of units in the attention layer. This parameter defines
+    the dimensionality of the output space for the attention mechanism.
+    It determines the size of the internal representation for each input
+    and plays a significant role in model capacity and performance.
+    Larger values provide more capacity to capture complex patterns,
+    but may also lead to higher computational costs. The number of units
+    influences how well the model can learn complex representations from
+    the input data. A larger number of units can improve performance on 
+    more challenging tasks, but it can also increase memory and 
+    computational requirements, so tuning this parameter is important.
+    """,
+
+    num_heads = r"""
+num_heads: int
+    The number of attention heads in the multi-head attention mechanism.
+    Multiple attention heads allow the model to focus on different aspects
+    of the input data, capturing more complex relationships within the
+    data. More heads provide better representation power but increase
+    computational costs. This parameter is crucial in self-attention
+    mechanisms where each head can attend to different parts of the input
+    data in parallel, improving the model's ability to capture diverse
+    features. For example, in natural language processing, multiple heads
+    allow the model to attend to different semantic aspects of the text.
+    Using more heads can increase the model's capacity to learn complex
+    features, but it also requires more memory and computational power.
+    """,
+
+    dropout_rate = r"""
+dropout_rate: float, optional
+    The dropout rate applied during training to prevent overfitting.
+    Dropout is a regularization technique where a fraction of input units
+    is randomly set to zero at each training step to prevent the model from
+    relying too heavily on any one feature. This helps improve generalization
+    and can make the model more robust. Dropout is particularly effective
+    in deep learning models where overfitting is a common issue. The value
+    should be between 0.0 and 1.0, where a value of ``0.0`` means no dropout
+    is applied and a value of ``1.0`` means that all units are dropped. 
+    A typical value for ``dropout_rate`` ranges from 0.1 to 0.5.
+    """,
+
+    activation = r"""
+activation: str, optional
+    The activation function to use in the Gated Recurrent Networks (GRNs).
+    The activation function defines how the model's internal representations
+    are transformed before being passed to the next layer. Supported values
+    include:
+    
+    - ``'elu'``: Exponential Linear Unit (ELU), a variant of ReLU that
+      improves training performance by preventing dying neurons. ELU provides
+      a smooth output for negative values, which can help mitigate the issue 
+      of vanishing gradients. The mathematical formulation for ELU is:
+      
+      .. math:: 
+          f(x) = 
+          \begin{cases}
+          x & \text{if } x > 0 \\
+          \alpha (\exp(x) - 1) & \text{if } x \leq 0
+          \end{cases}
+      
+      where \(\alpha\) is a constant (usually 1.0).
+
+    - ``'relu'``: Rectified Linear Unit (ReLU), a widely used activation
+      function that outputs zero for negative input and the input itself for
+      positive values. It is computationally efficient and reduces the risk
+      of vanishing gradients. The mathematical formulation for ReLU is:
+      
+      .. math:: 
+          f(x) = \max(0, x)
+      
+      where \(x\) is the input value.
+
+    - ``'tanh'``: Hyperbolic Tangent, which squashes the outputs into a range 
+      between -1 and 1. It is useful when preserving the sign of the input
+      is important, but can suffer from vanishing gradients for large inputs.
+      The mathematical formulation for tanh is:
+      
+      .. math::
+          f(x) = \frac{2}{1 + \exp(-2x)} - 1
+
+    - ``'sigmoid'``: Sigmoid function, commonly used for binary classification
+      tasks, maps outputs between 0 and 1, making it suitable for probabilistic
+      outputs. The mathematical formulation for sigmoid is:
+      
+      .. math:: 
+          f(x) = \frac{1}{1 + \exp(-x)}
+
+    - ``'linear'``: No activation (identity function), often used in regression
+      tasks where no non-linearity is needed. The output is simply the input value:
+      
+      .. math:: 
+          f(x) = x
+
+    The default activation function is ``'elu'``.
+    """,
+
+    use_batch_norm = r"""
+use_batch_norm: bool, optional
+    Whether to use batch normalization in the Gated Recurrent Networks (GRNs).
+    Batch normalization normalizes the input to each layer, stabilizing and
+    accelerating the training process. When set to ``True``, it normalizes the
+    activations by scaling and shifting them to maintain a stable distribution
+    during training. This technique can help mitigate issues like vanishing and
+    exploding gradients, making it easier to train deep networks. Batch normalization
+    also acts as a form of regularization, reducing the need for other techniques
+    like dropout. By default, batch normalization is turned off (``False``).
+    
+    """, 
+    
+    hidden_units = """
+hidden_units: int
+    The number of hidden units in the model's layers. This parameter 
+    defines the size of the hidden layers throughout the model, including 
+    Gated Recurrent Networks (GRNs), Long Short-Term Memory (LSTM) layers, 
+    and fully connected layers. Increasing the value of ``hidden_units`` 
+    enhances the model's capacity to capture more complex relationships and 
+    patterns from the data. However, it also increases computational costs 
+    due to a higher number of parameters. The choice of hidden units should 
+    balance model capacity and computational feasibility, depending on the 
+    complexity of the problem and available resources.
+    """,
+
+quantiles = """
+quantiles: list of float or None, optional
+    A list of quantiles to predict for each time step. For example, 
+    specifying ``[0.1, 0.5, 0.9]`` would result in the model predicting 
+    the 10th, 50th, and 90th percentiles of the target variable at each 
+    time step. This is useful for estimating prediction intervals and 
+    capturing uncertainty in forecasting tasks. If set to ``None``, the model 
+    performs point forecasting and predicts a single value (e.g., the mean 
+    or most likely value) for each time step. Quantile forecasting is commonly 
+    used for applications where it is important to predict not just the 
+    most likely outcome, but also the range of possible outcomes.
+    """
+)
+    
+# ---------------------------------------------------------------------
+# Shared docstring snippets used across FusionLab metric‑plotting
+# utilities.
+# ---------------------------------------------------------------------
+_shared_metric_plot_params = dict(
+
+    y_true="""
+y_true : ndarray of shape (n_samples, …)
+    Ground‑truth target values.  Depending on the metric a 1‑D
+    array (global aggregation), a 2‑D array *(n_samples, n_outputs)*,
+    or a 3‑D array *(n_samples, n_horizons, n_outputs)* may be
+    expected.""",
+
+    y_pred="""
+y_pred : ndarray
+    Point‑forecast predictions with the same shape semantics as
+    `y_true`.  Used by deterministic metrics such as MAE or RMSE as
+    well as for plotting point predictions alongside intervals.""",
+
+    y_median="""
+y_median : ndarray
+    Median (50‑th quantile) of a probabilistic forecast.  The array
+    must align with `y_true` along every sampled dimension.""",
+
+    y_lower="""
+y_lower : ndarray
+    Lower‑bound quantile (e.g. 0.05 or 0.10) for an uncertainty
+    interval.  Shape must mirror `y_true`.  Required by coverage,
+    interval‑width, and WIS plots.""",
+
+    y_upper="""
+y_upper : ndarray
+    Upper‑bound quantile (e.g. 0.95 or 0.90) paired with `y_lower`.
+    Must share the same shape and broadcast semantics as `y_true`. """,
+
+    y_pred_quantiles="""
+y_pred_quantiles : ndarray
+    Stack of predictive quantiles.  Typical shape is
+    *(n_samples, n_horizons, n_quantiles)* or
+    *(n_samples, n_quantiles)* for horizon‑aggregated diagnostics.""",
+
+    quantiles="""
+quantiles : 1‑D ndarray
+    Numeric array of the quantile levels represented in
+    `y_pred_quantiles`, sorted in ascending order
+    (e.g. ``np.array([0.1, 0.5, 0.9])``).""",
+
+    alphas="""
+alphas : 1‑D ndarray
+    Alpha levels *α = 2 × min(q, 1−q)* that define the nominal
+    coverage *(1 − α)* of each prediction interval used in Weighted
+    Interval Score (WIS) computations.""",
+
+    metric_values="""
+metric_values : float or ndarray, default=None
+    Pre‑computed metric value(s).  Supply this to skip internal
+    calculation and plot the given numbers directly.""",
+
+    metric_kws="""
+metric_kws : dict, default=None
+    Extra keyword arguments forwarded verbatim to the underlying
+    metric function (e.g. `coverage_score`).  Use this to tweak
+    nan‑handling, sample‑weights, or multi‑output behaviour.""",
+
+    kind="""
+kind : {'summary_bar', 'intervals', 'reliability_diagram', ...}
+    High‑level style of plot to produce.  The accepted values depend
+    on the specific helper, and unsupported kinds raise
+    ``ValueError``.""",
+
+    output_idx="""
+output_idx : int, optional
+    Index of the target variable to visualise when the model
+    predicts multiple outputs.  If *None*, the first output or an
+    aggregated view is plotted, depending on the function.""",
+
+    sample_idx="""
+sample_idx : int, default=0
+    Index of the time series (row) to highlight in sample‑wise
+    plots (e.g. CRPS ECDF per sample).""",
+
+    figsize="""
+figsize : tuple of float, optional
+    Size of the figure in inches *(width, height)*.  If omitted the
+    helper chooses sensible defaults such as ``(8, 6)``.""",
+
+    title="""
+title : str, optional
+    Main title for the figure.  If *None*, a context‑aware default
+    is generated from the metric name and input parameters.""",
+
+    xlabel="""
+xlabel : str, optional
+    Label for the x‑axis.  If *None*, a function‑specific default is
+    applied.""",
+
+    ylabel="""
+ylabel : str, optional
+    Label for the y‑axis.  If *None*, a context‑sensitive default is
+    used (e.g. 'Coverage', 'Score').""",
+
+    bar_color="""
+bar_color : str or list of str, optional
+    Bar face‑colour(s).  Accepts any Matplotlib‑recognised colour
+    spec or a list for multi‑bar plots.""",
+
+    bar_width="""
+bar_width : float, default=0.8
+    Relative width of bars in bar‑type plots (0 < bar_width ≤ 1).""",
+
+    score_annotation_format="""
+score_annotation_format : str, default='{:.4f}'
+    Python format string used for numeric annotations.  Examples:
+    ``'{:.4f}'`` → 0.1234, ``'{:.2%}'`` → 12.34 %. """,
+
+    show_score_on_title="""
+show_score_on_title : bool, default=True
+    If *True*, appends the aggregated metric value to the plot
+    title.""",
+
+    show_score="""
+show_score : bool, default=True
+    Whether to display individual metric values (e.g. bar labels or
+    legend entries) on the plot.""",
+
+    show_grid="""
+show_grid : bool, default=True
+    Toggle the background grid on the plot axes.""",
+
+    grid_props="""
+grid_props : dict, optional
+    Keyword arguments forwarded to ``Axes.grid`` for fine‑grained
+    grid style control (linestyle, linewidth, alpha, etc.).""",
+
+    ax="""
+ax : matplotlib.axes.Axes, optional
+    Existing Matplotlib axes to draw on.  If *None*, a new figure
+    and axes are created internally.""",
+
+    verbose="""
+verbose : int, default=0
+    Verbosity level.  0 ⇒ silent, 1 ⇒ basic info, 2+ ⇒ debug
+    details printed to stdout.""",
+
+    kwargs="""
+**kwargs
+    Additional keyword arguments passed directly to the underlying
+    Matplotlib primitives (``plot``, ``scatter``, ``bar``,
+    ``fill_between`` …) for low‑level aesthetic control."""
+)
+    
+# --------------------------------------------------------------------------- #
+# Centralised parameter‑descriptions for evaluation / radar‑style plots.
+# Each entry is a reStructuredText‑ready snippet that can be injected into
+# docstrings via ``.format`` – exactly the pattern used for
+# `_shared_metric_plot_params`.
+# --------------------------------------------------------------------------- #
+
+_evaluation_plot_params = dict(
+
+    forecast_df="""
+forecast_df : pandas.DataFrame
+    Long‑format table of predictions.  Must contain
+    ``'sample_idx'`` and ``'forecast_step'`` plus the prediction,
+    {segment_col}, and actual columns (for instance
+    ``'{target_name}_actual'``).""",
+
+    segment_col="""
+segment_col : str
+    Column whose unique values form the radar spokes
+    (e.g. ``'ItemID'``, ``'Month'`` or ``'DayOfWeek'``).""",
+
+    metric="""
+metric : str or Callable, default ``'mae'``
+    Metric to compute per segment.
+    Accepted names: ``'mae'``, ``'mse'``, ``'rmse'``,
+    ``'mape'``, ``'smape'``.
+    For a custom metric pass a function ``f(y_true, y_pred) -> float``.
+    When *quantiles* are supplied the median prediction is forwarded
+    to that callable.""",
+
+    target_name="""
+target_name : str, default ``"target"``
+    Base name used to assemble prediction / actual column names.""",
+
+    quantiles="""
+quantiles : list[float], optional
+    Quantiles included in *forecast_df* (e.g. ``[0.1, 0.5, 0.9]``).
+    If present and a generic metric is chosen the median
+    (``0.5`` or nearest) prediction is employed as ``y_pred``.
+    Omit for point forecasts.""",
+
+    output_dim="""
+output_dim : int, default ``1``
+    Number of target dimensions.  A separate radar is generated
+    for each dimension when ``output_dim > 1``.""",
+
+    actual_col_pattern="""
+actual_col_pattern : str, default ``"{target_name}_actual"``
+    Format string for locating actual columns.
+    Place‑holders: ``{target_name}``, ``{o_idx}``.""",
+
+    pred_col_pattern_point="""
+pred_col_pattern_point : str, default ``"{target_name}_pred"``
+    Format string for point‑forecast columns.""",
+
+    pred_col_pattern_quantile="""
+pred_col_pattern_quantile : str, default
+    ``"{target_name}_q{quantile_int}"``
+    Format string for quantile columns.
+    Place‑holders: ``{target_name}``, ``{o_idx}``, ``{quantile_int}``.""",
+
+    aggregate_across_horizon="""
+aggregate_across_horizon : bool, default ``True``
+    If *True* the metric is computed on all time‑steps per segment.
+    If *False* the caller must provide pre‑aggregated values or expect
+    one metric per step (rare for radar plots).""",
+
+    scaler="""
+scaler : Any, optional
+    Fitted scikit‑learn‑style transformer used to inverse‑scale data
+    before metric evaluation.""",
+
+    scaler_feature_names="""
+scaler_feature_names : list[str], optional
+    Full feature order that *scaler* was trained on.
+    Mandatory when *scaler* is given.""",
+
+    target_idx_in_scaler="""
+target_idx_in_scaler : int, optional
+    Position of *target_name* inside *scaler_feature_names*.
+    Mandatory when *scaler* is given.""",
+
+    figsize="""
+figsize : tuple[float, float], default ``(8, 8)``
+    Width and height of each radar chart in inches.""",
+
+    max_segments_to_plot="""
+max_segments_to_plot : int, optional
+    Hard cap on the number of segments shown on one radar.
+    Defaults to ``12`` – exceeding this might overcrowd the figure.""",
+
+    verbose="""
+verbose : int, default ``0``
+    Controls diagnostic output.  ``0`` = silent.""",
+
+    plot_kwargs="""
+**plot_kwargs : Any
+    Extra arguments forwarded to the underlying Matplotlib
+    ``ax.plot`` / ``ax.fill`` calls (e.g. ``color``, ``linewidth``,
+    ``alpha``).""",
+)
+
+# Common parameter docs reused by XTFTTuner / TFTTuner
+_tuner_common_params = dict(
+
+    model_name="""
+model_name : str, optional
+    Identifier of the model variant to tune.  Must match one of
+    the names accepted by the respective tuner class.  Case is
+    ignored.  Defaults to ``"xtft"`` for :class:`XTFTTuner` and
+    ``"tft"`` for :class:`TFTTuner`.  Validation occurs before
+    the base class initialiser is called.
+""",
+
+    param_space="""
+param_space : dict, optional
+    Dictionary mapping hyper‑parameter names to search options
+    understood by Keras Tuner (e.g. lists, ranges, Int/Float
+    distributions).  When *None* a built‑in default space is
+    employed.
+""",
+
+    max_trials="""
+max_trials : int, default ``10``
+    Upper bound on the number of trial configurations that the
+    tuner explores.  Must be a positive integer.
+""",
+
+    objective="""
+objective : str, default ``'val_loss'``
+    Metric name that the tuner seeks to minimise (or maximise if
+    prefixed with ``'max'``).  Any Keras history key is valid.
+""",
+
+    epochs="""
+epochs : int, default ``10``
+    Training epochs for the *refit* phase carried out on the best
+    hyper‑parameters of each batch‑size loop.
+""",
+
+    batch_sizes="""
+batch_sizes : list[int], default ``[32]``
+    Ensemble of batch sizes to iterate over.  A separate tuning
+    run is executed for every value.
+""",
+
+    validation_split="""
+validation_split : float, default ``0.2``
+    Fraction of the training data reserved for validation inside
+    both the search and refit stages.  Must fall in ``(0, 1)``.
+""",
+
+    tuner_dir="""
+tuner_dir : str, optional
+    Root directory where Keras Tuner artefacts are written
+    (trial summaries, checkpoints, logs).  A path within the
+    current working directory is autogenerated if omitted.
+""",
+
+    project_name="""
+project_name : str, optional
+    Folder name under *tuner_dir* used to isolate results of one
+    tuning job.  Defaults to a slug derived from the model type
+    and run description.
+""",
+
+    tuner_type="""
+tuner_type : {'random', 'bayesian'}, default ``'random'``
+    Search strategy.  *'random'* draws configurations uniformly;
+    *'bayesian'* performs probabilistic optimisation of the
+    objective.
+""",
+
+    callbacks="""
+callbacks : list[keras.callbacks.Callback], optional
+    Extra Keras callbacks active during both the search and refit
+    phases.  When *None* a sensible :class:`EarlyStopping` is
+    injected automatically.
+""",
+
+    model_builder="""
+model_builder : Callable[[kt.HyperParameters], Model], optional
+    Custom factory returning a compiled Keras model from a
+    hyper‑parameter set.  If missing an internal builder
+    covering the canonical search space is substituted.
+""",
+
+    verbose="""
+verbose : int, default ``1``
+    Controls console logging produced by the tuner wrapper:
+    ``0`` = silent · ``1`` = high‑level · ``2`` = per‑step
+    details · ``≥3`` = debug.
+""",
+)
+
+_pinn_tuner_common_params = dict(
+
+    fixed_model_params="""
+fixed_model_params : dict
+    Dictionary of parameters that are fixed for this tuning session.
+    These parameters are *not* searched over by the tuner but are passed
+    directly to the model constructor. Typical entries include:
+      - `static_input_dim`: dimensionality of static (time‐invariant) inputs.
+      - `dynamic_input_dim`: dimensionality of dynamic (time‐varying) inputs.
+      - `future_input_dim`: dimensionality of future covariates (if any).
+      - `output_subsidence_dim`: output dimension for subsidence predictions.
+      - `output_gwl_dim`: output dimension for groundwater level predictions.
+      - `forecast_horizon`: number of time steps ahead to predict.
+      - `quantiles`: list of quantiles (e.g. [0.1, 0.5, 0.9]) for quantile loss.
+      - Any other model‐specific settings (e.g., `use_vsn`, `use_batch_norm`).
+    These values are required; there is no default. The tuner will treat
+    them as constants while varying only the hyperparameters in `param_space`.
+""",
+
+    param_space="""
+param_space : dict, optional
+    A mapping from hyperparameter names (strings) to search‐space
+    definitions understood by Keras Tuner. For example:
+      - For integer ranges: `{"embed_dim": {"min_value": 32,
+        "max_value": 128, "step": 32}}`
+      - For choices:     `{"activation": ["relu", "gelu"]}`
+      - For floats:      `{"dropout_rate": {"min_value": 0.05,
+        "max_value": 0.3, "step": 0.05}}`
+    When set to `None`, the tuner will rely on defaults defined in the
+    subclass’s `build(hp)` method. Users may omit this to use built‐in
+    defaults or supply a custom search space dictionary here.
+""",
+
+    objective="""
+objective : str or keras_tuner.Objective, optional
+    The metric that the tuner should optimize. Examples:
+      - `"val_loss"`: minimize validation loss.
+      - `"val_total_loss"`: minimize combined validation loss
+        if the model reports multiple loss terms.
+    If passed as a raw string, any name containing `"loss"` is treated
+    as a minimization objective; otherwise it is maximized. For more
+    control (e.g. to override direction or specify a threshold), supply
+    a `keras_tuner.Objective("metric_name", direction="max")` instance.
+    Defaults:
+      - `"val_loss"` in `PINNTunerBase`.
+      - `"val_total_loss"` in `PIHALTuner`.
+""",
+
+    max_trials="""
+max_trials : int, optional
+    The maximum number of hyperparameter combinations (trials) to explore
+    during the search. Each trial corresponds to one sampled set of
+    hyperparameters, built, trained, and evaluated. Must be a positive
+    integer. Defaults:
+      - 10 in `PINNTunerBase`.
+      - 20 in `PIHALTuner`.
+    Larger values increase search coverage but proportionally increase
+    total computation time.
+""",
+
+    project_name="""
+project_name : str, optional
+    Name of the subdirectory under `directory` in which tuner artifacts
+    are stored (trial summaries, checkpoints, logs). If omitted, the tuner
+    will generate a slug from the class name and a timestamp. This folder
+    will contain model checkpoints, best‐hyperparameters logs, and any
+    JSON summaries for each trial.
+""",
+
+    directory="""
+directory : str, optional
+    Root directory where Keras Tuner stores results for this project.
+    All tuner artifacts (checkpoints, logs, JSON summaries) for every
+    trial are saved under `directory/project_name`. Defaults:
+      - `"pinn_tuner_results"` for `PINNTunerBase`.
+      - `"pihalnet_tuner_results"` for `PIHALTuner`.
+    Specify a writable path if you wish to archive or inspect tuning runs.
+""",
+
+    executions_per_trial="""
+executions_per_trial : int, optional
+    Number of models to build and fit for each trial. Each execution will
+    initialize and train a separate model with the same hyperparameters,
+    then compute the average (or aggregated) objective to reduce variance
+    due to random initialization. Defaults to 1. Setting >1 is useful
+    when each trial’s performance is noisy and you want more robust
+    ranking of hyperparameter sets.
+""",
+
+    tuner_type="""
+tuner_type : str, optional
+    Search strategy to use. Supported values:
+      - `"randomsearch"`: sample uniformly at random.
+      - `"bayesianoptimization"`: use Bayesian optimization to propose
+        hyperparameters based on past trial results.
+      - `"hyperband"`: use Hyperband to adaptively allocate resources
+        among trials based on early performance.
+    Defaults to `"randomsearch"`. Choose `"bayesianoptimization"` if you
+    want more sample‐efficient search (may require specifying a prior).
+""",
+
+    seed="""
+seed : int, optional
+    Random seed for reproducibility. Controls:
+      - Hyperparameter sampling (for random search).
+      - Initial model weight initialization.
+    If `None`, Keras Tuner’s default seeding logic is used. Setting a
+    fixed seed ensures that repeated runs with the same configuration
+    produce identical trial order and model initializations.
+""",
+
+    overwrite_tuner="""
+overwrite_tuner : bool, optional
+    If `True`, any existing tuner directory with the same `project_name`
+    under `directory` will be removed and replaced. Use this to restart a
+    fresh tuning run without retaining previous trials. Defaults to `True`.
+    If set to `False`, existing trial results may be reused if present.
+""",
+
+    tuner_kwargs="""
+**tuner_kwargs : dict
+    Additional keyword arguments to pass directly to the chosen Keras
+    Tuner constructor. Examples:
+      - For `BayesianOptimization`: `{"beta": 2.0}` to control exploration.
+      - For `Hyperband`: `{"hyperband_iterations": 3}` to set bracket depth.
+      - For `RandomSearch`: `{"overwrite": False}` or other tuner‐specific
+        flags. Any argument accepted by the underlying tuner API is valid.
+"""
+)
+
+
+_halnet_core_params = dict(
+    static_input_dim="""
+static_input_dim : int
+    Dimensionality of the static (time-invariant) input features.
+    These are features that do not change over time for a given
+    sample, such as a sensor's location ID, soil type, or a product
+    category. If 0, no static features are used.
+""",
+    dynamic_input_dim="""
+dynamic_input_dim : int
+    Dimensionality of the dynamic (time-varying) input features
+    that are known in the past (the "lookback" window). This is a
+    required parameter and typically includes the target variable
+    itself (lagged) and other historical drivers like rainfall,
+    temperature, or sales figures.
+""",
+    future_input_dim="""
+future_input_dim : int
+    Dimensionality of the time-varying features for which values
+    are known in advance for the forecast period. Examples include
+    holidays, scheduled promotions, or day-of-week indicators.
+    If 0, no future features are used.
+""",
+    embed_dim="""
+embed_dim : int, default 32
+    The base dimensionality for the internal feature space of the
+    model. Various input features (static, dynamic, future) are
+    projected into this common dimension to allow for meaningful
+    interactions within downstream layers like LSTMs and attention
+    mechanisms. It's a key parameter for controlling model capacity.
+""",
+    hidden_units="""
+hidden_units : int, default 64
+    The number of units in the hidden layers of the Gated Residual
+    Networks (GRNs). GRNs are core components used for non-linear
+    transformations throughout the architecture. A larger value
+    increases the model's capacity to learn complex patterns.
+""",
+    lstm_units="""
+lstm_units : int, default 64
+    The number of hidden units in each LSTM layer within the
+    :class:`~fusionlab.nn.components.MultiScaleLSTM` block. This
+    parameter determines the memory capacity of the recurrent cells
+    processing the historical sequence data.
+""",
+    attention_units="""
+attention_units : int, default 32
+    The dimensionality of the output space for the various attention
+    mechanisms (e.g., `CrossAttention`, `HierarchicalAttention`).
+    This is also often referred to as the model's dimension, :math:`d_{model}`.
+    It must be divisible by `num_heads`.
+""",
+    num_heads="""
+num_heads : int, default 4
+    The number of attention heads in each `MultiHeadAttention`
+    sub-layer. Using multiple heads allows the model to jointly
+    attend to information from different representation subspaces at
+    different positions, which can improve learning.
+""",
+    dropout_rate="""
+dropout_rate : float, default 0.1
+    The dropout rate applied within various components like Gated
+    Residual Networks (GRNs) and after some attention layers to
+    prevent overfitting. It must be a float between 0.0 and 1.0.
+""",
+    max_window_size="""
+max_window_size : int, default 10
+    The number of past time steps (the lookback window) that the
+    model considers. This should directly correspond to the
+    `time_steps` parameter used during data preparation and is used by
+    components like :class:`~fusionlab.nn.components.DynamicTimeWindow`.
+""",
+    memory_size="""
+memory_size : int, default 100
+    The number of memory slots in the
+    :class:`~fusionlab.nn.components.MemoryAugmentedAttention` layer.
+    This external memory allows the model to learn and access
+    patterns over very long-range dependencies that might be missed
+    by standard LSTMs or attention.
+""",
+    scales="""
+scales : list of int, optional
+    A list of scale factors for the
+    :class:`~fusionlab.nn.components.MultiScaleLSTM`. Each scale
+    `s` creates an LSTM that processes the input sequence by taking
+    every `s`-th time step. For example, `scales=[1, 3]` would
+    process the sequence at its original resolution and at a coarser,
+    every-third-timestep resolution. If `None` or 'auto', defaults to `[1]`.
+""",
+    multi_scale_agg="""
+multi_scale_agg : {'last', 'average', 'concat', ...}, default 'last'
+    The strategy used by the aggregation function to combine the
+    outputs from the different LSTMs in `MultiScaleLSTM`.
+    - ``'concat'``: (For 3D output) Pads sequences from different
+      scales to the same length and concatenates them along the
+      feature axis. This is the primary mode for creating a rich
+      sequence representation for downstream attention layers in an
+      encoder-decoder setup.
+    - ``'last'`` or ``'auto'``: (For 2D output) Creates a context
+      vector by taking the last hidden state from each LSTM scale and
+      concatenating them.
+    - ``'average'`` or ``'sum'``: Create a 2D context vector by
+      averaging or summing over the time dimension for each scale.
+""",
+    final_agg="""
+final_agg : {'last', 'average', 'flatten'}, default 'last'
+    The aggregation strategy used to collapse the final temporal
+    feature map (which has a time dimension equal to `forecast_horizon`)
+    into a single feature vector before the final decoding step.
+""",
+    activation=r"""
+activation : str, default 'relu'
+    The name of the activation function to use in Dense layers and
+    Gated Residual Networks (GRNs) throughout the model. Common
+    choices include 'relu', 'gelu', 'swish', and 'tanh'.
+""",
+    use_residuals="""
+use_residuals : bool, default True
+    If `True`, enables residual "add & norm" connections after key
+    sub-layers (like attention and GRNs). These shortcut connections
+    are crucial for training very deep networks as they help prevent
+    vanishing gradients and ease the optimization process.
+""",
+    use_batch_norm="""
+use_batch_norm : bool, default False
+    If `True`, `BatchNormalization` is used within Gated Residual
+    Networks (GRNs). If `False` (default), `LayerNormalization` is
+    used instead. `LayerNormalization` is often more stable and
+    effective for time series data with varying sequence lengths.
+""",
+    use_vsn="""
+use_vsn : bool, default True
+    If `True`, the model uses
+    :class:`~fusionlab.nn.components.VariableSelectionNetwork` (VSN)
+    layers at the input stage. VSNs perform intelligent, learnable
+    feature selection, allowing the model to up-weight or down-weight
+    the importance of each input variable. This can improve performance
+    and provide insights into which features are most impactful. If
+    `False`, simpler `Dense` layers are used for initial projection.
+""",
+    vsn_units="""
+vsn_units : int, optional
+    The number of units in the internal Gated Residual Networks (GRNs)
+    of the Variable Selection Networks. This parameter controls the
+    capacity of the feature selection sub-networks. If `None`, it often
+    defaults to a value based on `hidden_units`.
+"""
+)
+
+#---------------------------------Share docs ----------------------------------
+
+_shared_docs: dict[str, str] = {}
+
+_shared_docs[
+    "data"
+] = """data : array-like, pandas.DataFrame, str, dict, or Path-like
+    The input `data`, which can be either an array-like object (e.g., 
+    list, tuple, or numpy array), a pandas DataFrame, a file path 
+    (string or Path-like), or a dictionary. The function will 
+    automatically convert it into a pandas DataFrame for further 
+    processing based on its type. Here's how each type is handled:
+
+    1. **Array-like (list, tuple, numpy array)**:
+       If `data` is array-like (e.g., a list, tuple, or numpy array), 
+       it will be converted to a pandas DataFrame. Each element in 
+       the array will correspond to a row in the resulting DataFrame. 
+       The columns can be specified manually if desired, or pandas 
+       will auto-generate column names.
+
+       Example:
+       >>> data = [ [1, 2, 3], [4, 5, 6], [7, 8, 9] ]
+       >>> df = pd.DataFrame(data, columns=['A', 'B', 'C'])
+       >>> print(df)
+          A  B  C
+       0  1  2  3
+       1  4  5  6
+       2  7  8  9
+
+    2. **pandas.DataFrame**:
+       If `data` is already a pandas DataFrame, it will be returned as 
+       is without any modification. This allows flexibility for cases 
+       where the input data is already in DataFrame format.
+
+       Example:
+       >>> data = pd.DataFrame({'A': [1, 2], 'B': [3, 4]})
+       >>> print(data)
+          A  B
+       0  1  3
+       1  2  4
+
+    3. **File path object (str or Path-like)**:
+       If `data` is a file path (either a string or Path-like object), 
+       it will be read and converted into a pandas DataFrame. Supported 
+       file formats include CSV, Excel, and other file formats that can 
+       be read by pandas' `read_*` methods. This enables seamless 
+       reading of data directly from files.
+
+       Example:
+       >>> data = "data.csv"
+       >>> df = pd.read_csv(data)
+       >>> print(df)
+          A  B  C
+       0  1  2  3
+       1  4  5  6
+
+    4. **Dictionary**:
+       If `data` is a dictionary, it will be converted into a pandas 
+       DataFrame. The dictionary's keys become the column names, and 
+       the values become the corresponding rows. This is useful when 
+       the data is already structured as key-value pairs.
+
+       Example:
+       >>> data = {'A': [1, 2, 3], 'B': [4, 5, 6]}
+       >>> df = pd.DataFrame(data)
+       >>> print(df)
+          A  B
+       0  1  4
+       1  2  5
+       2  3  6
+
+    The `data` parameter can accept a variety of input types and will 
+    be converted into a pandas DataFrame accordingly. In case of invalid 
+    types or unsupported formats, a `ValueError` will be raised to notify 
+    the user of the issue.
+
+    Notes
+    ------
+    If `data` is an unsupported type or cannot be converted into a 
+    pandas DataFrame, a `ValueError` will be raised with a clear 
+    error message describing the issue.
+
+    The `data` parameter will be returned as a pandas DataFrame, 
+    regardless of its initial format.
+    
+"""
+
+_shared_docs[
+    "y_true"
+] = """y_true : array-like of shape (n_samples,) or (n_samples, n_outputs)
+        True labels or binary label indicators for the regression or 
+        classification problem.
+    
+        The `y_true` parameter represents the ground truth values. It can be either:
+        - A 1D array for binary classification or single-label classification, 
+          where each element represents the true class label for a sample.
+        - A 2D array for multilabel classification, where each row corresponds to 
+          the true labels for a sample in a multi-output problem.
+
+        Example:
+        1. ** Regression problem 
+        
+        >>> y_true = [1.20, 0.62, 0.78, 0.02]
+        >>> print(y_true)
+        [1.20, 0.62, 0.78, 0.02]
+        
+        2. **Binary classification (1D array)**:
+    
+        >>> y_true = [0, 1, 0, 1]
+        >>> print(y_true)
+        [0, 1, 0, 1]
+
+        3. **Multilabel classification (2D array)**:
+    
+        >>> y_true = [[0, 1], [1, 0], [0, 1], [1, 0]]
+        >>> print(y_true)
+        [[0, 1], [1, 0], [0, 1], [1, 0]]
+"""
+
+_shared_docs[
+    "y_pred"
+] = """y_pred : array-like of shape (n_samples,) or (n_samples, n_outputs)
+        Predicted labels or probabilities, as returned by a classifier.
+        
+        The `y_pred` parameter contains the predictions made by a classifier. 
+        It can be:
+        - Predicted class labels (in the case of classification).
+        - Probabilities representing the likelihood that each sample belongs 
+        to each class. If probabilities are provided, a threshold can be used 
+        to convert these into binary labels (e.g., class 1 if the probability 
+        exceeds the threshold, otherwise class 0).
+        
+        Example:
+        1. **Predicted regression labels 
+        
+        >>> y_pred = [1.21, 0.60, 0.76, 0.50]
+        >>> print(y_pred)
+        [1.21, 0.60, 0.76, 0.50]
+        
+        1. **Predicted class labels for binary classification (1D array)**:
+       
+        >>> y_pred = [0, 1, 0, 1]
+        >>> print(y_pred)
+        [0, 1, 0, 1]
+        
+        2. **Predicted probabilities for binary classification (1D array)**:
+       
+        >>> y_pred = [0.1, 0.9, 0.2, 0.7]
+        >>> print(y_pred)
+        [0.1, 0.9, 0.2, 0.7]
+    
+        3. **Predicted class labels for multilabel classification (2D array)**:
+        
+        >>> y_pred = [[0.1, 0.9], [0.8, 0.2], [0.2, 0.8], [0.7, 0.3]]
+        >>> print(y_pred)
+        [[0.1, 0.9], [0.8, 0.2], [0.2, 0.8], [0.7, 0.3]]
+"""
+
+_shared_docs[
+    "alpha"
+] = """alpha : float, default={value}
+    Decay factor for time weighting, controlling the emphasis on 
+    more recent predictions.
+
+    The `alpha` parameter determines how much weight should be assigned to recent 
+    predictions when computing metrics. It is used to apply a time-based decay, 
+    where a higher value gives more weight to the most recent predictions. 
+    `alpha` must be a value in the range (0, 1).
+
+    A higher `alpha` (close to 1) means recent predictions are more heavily 
+    weighted, whereas a lower `alpha` (closer to 0) means older predictions 
+    are treated more equally.
+
+    Example:
+    >>> alpha = 0.95  # Recent predictions are given higher weight.
+    >>> alpha = 0.5   # All predictions are treated more equally.
+"""
+
+_shared_docs[
+    "sample_weight"
+] = """sample_weight : array-like of shape (n_samples,), default=None
+    Sample weights for computing a weighted accuracy.
+
+    The `sample_weight` parameter allows the user to assign individual weights 
+    to each sample in the dataset, which will be taken into account when 
+    computing the accuracy or other metrics. This is particularly useful when 
+    some samples should have more importance than others. 
+
+    If provided, `sample_weight` is combined with time weights (if any) 
+    to compute a weighted accuracy or other metrics. The values in `sample_weight` 
+    should correspond to the samples in `y_true` and `y_pred`.
+
+    Example:
+    >>> sample_weight = [1, 1.5, 1, 1.2]  # Sample weights for each sample.
+    >>> sample_weight = [0.8, 1.0, 1.2]   # Different weight for each sample.
+"""
+
+
+_shared_docs[
+    "threshold"
+] = """threshold : float, default=%s
+    Threshold value for converting probabilities to binary labels 
+    in binary or multilabel classification tasks.
+
+    In binary classification or multilabel classification, classifiers 
+    often output a probability score for each class. The `threshold` 
+    parameter determines the cutoff point for converting these probabilities 
+    into binary labels (0 or 1). If the predicted probability for a class 
+    exceeds the given `threshold`, the label is assigned to that class (i.e., 
+    it is classified as 1). Otherwise, the label is assigned to the alternative 
+    class (i.e., 0).
+
+    For example, in a binary classification task where the model outputs 
+    probabilities, if the `threshold` is set to `{value}`, any prediction with 
+    a probability greater than or equal to `0.5` is classified as class 1, 
+    while predictions below `{value}` are classified as class 0.
+
+    If `y_pred` contains probabilities for multiple classes (in multilabel 
+    classification), the same logic applies for each class independently.
+
+    Example:
+    >>> threshold = 0.7  # Convert probabilities greater than 0.7 to class 1.
+    >>> y_pred = [0.4, 0.8, 0.6, 0.2]  # Example predicted probabilities.
+    >>> labels = [1 if p > threshold else 0 for p in y_pred]
+    >>> print(labels)
+    [0, 1, 1, 0]  # Labels are assigned based on threshold of 0.7.
+"""
+
+_shared_docs[
+    "strategy"
+] = """strategy : str, optional, default='%s'
+    Computation strategy used for multiclass classification. Can be one of 
+    two strategies: ``'ovr'`` (one-vs-rest) or ``'ovo'`` (one-vs-one).
+
+    The `strategy` parameter defines how the classifier handles multiclass or 
+    multilabel classification tasks. 
+
+    - **'ovr'** (One-vs-Rest): In this strategy, the classifier compares 
+      each class individually against all other classes collectively. For each 
+      class, the classifier trains a binary classifier that distinguishes that 
+      class from the rest. This is the default strategy and is commonly used 
+      in multiclass classification problems.
+
+    - **'ovo'** (One-vs-One): In this strategy, a binary classifier is trained 
+      for every pair of classes. This approach can be computationally expensive 
+      when there are many classes but might offer better performance in some 
+      situations, as it evaluates all possible class pairings.
+
+    Example:
+    >>> strategy = 'ovo'  # One-vs-one strategy for multiclass classification.
+    >>> strategy = 'ovr'  # One-vs-rest strategy for multiclass classification.
+    >>> # 'ovo' will train a separate binary classifier for each pair of classes.
+"""
+
+
+_shared_docs[
+    "epsilon"
+] = """epsilon : float, optional, default=1e-8
+    A small constant added to the denominator to prevent division by 
+    zero. This parameter helps maintain numerical stability, especially 
+    when dealing with very small numbers in computations that might lead 
+    to division by zero errors. 
+
+    In machine learning tasks, especially when calculating metrics like 
+    log-likelihood or probabilities, small values are often involved in 
+    the computation. The `epsilon` value ensures that these operations 
+    do not result in infinite values or errors caused by dividing by zero. 
+    The default value is typically `1e-8`, but users can specify their 
+    own value.
+
+    Additionally, if the `epsilon` value is set to ``'auto'``, the system 
+    will automatically select a suitable epsilon based on the input data 
+    or computation method. This ensures that numerical stability is 
+    preserved without the need for manual tuning.
+
+    Example:
+    >>> epsilon = 1e-6  # A small value to improve numerical stability.
+    >>> epsilon = 'auto'  # Automatically selected epsilon based on the input.
+"""
+
+_shared_docs[
+    "multioutput"
+] = """multioutput : str, optional, default='uniform_average'
+    Determines how to return the output: ``'uniform_average'`` or 
+    ``'raw_values'``. 
+
+    - **'uniform_average'**: This option computes the average of the 
+      metrics across all classes, treating each class equally. This is useful 
+      when you want an overall average performance score, ignoring individual 
+      class imbalances.
+
+    - **'raw_values'**: This option returns the metric for each individual 
+      class. This is helpful when you want to analyze the performance of each 
+      class separately, especially in multiclass or multilabel classification.
+
+    By using this parameter, you can control whether you get a summary of 
+    the metrics across all classes or whether you want detailed metrics for 
+    each class separately.
+
+    Example:
+    >>> multioutput = 'uniform_average'  # Average metrics across all classes.
+    >>> multioutput = 'raw_values'  # Get separate metrics for each class.
+"""
+
+
+_shared_docs[
+    "detailed_output"
+] = """detailed_output : bool, optional, default=False
+    If ``True``, returns a detailed output including individual sensitivity 
+    and specificity values for each class or class pair. This is particularly 
+    useful for detailed statistical analysis and diagnostics, allowing you 
+    to assess the performance of the classifier at a granular level.
+
+    When ``detailed_output`` is enabled, you can inspect the performance 
+    for each class separately, including metrics like True Positive Rate, 
+    False Positive Rate, and other class-specific statistics. This can help 
+    identify if the model performs unevenly across different classes, which 
+    is crucial for multiclass or multilabel classification tasks.
+
+    Example:
+    >>> detailed_output = True  # Return individual class metrics for analysis.
+"""
+
+_shared_docs[
+    "zero_division"
+] = """zero_division : str, optional, default='warn'
+    Defines how to handle division by zero errors during metric calculations: 
+    - ``'warn'``: Issues a warning when division by zero occurs, but allows 
+      the computation to proceed.
+    - ``'ignore'``: Suppresses division by zero warnings and proceeds 
+      with the computation. In cases where division by zero occurs, 
+      it may return infinity or a default value (depending on the operation).
+    - ``'raise'``: Throws an error if division by zero is encountered, 
+      halting the computation.
+
+    This parameter gives you control over how to deal with potential issues 
+    during metric calculations, especially in cases where numerical instability 
+    could arise, like when a sample has no positive labels.
+
+    Example:
+    >>> zero_division = 'ignore'  # Ignore division by zero warnings.
+    >>> zero_division = 'warn'  # Warn on division by zero, but continue.
+    >>> zero_division = 'raise'  # Raise an error on division by zero.
+"""
+
+_shared_docs[
+    "nan_policy"
+] = """nan_policy : str, {'omit', 'propagate', 'raise'}, optional, default='%s'
+    Defines how to handle NaN (Not a Number) values in the input arrays
+    (`y_true` or `y_pred`):
+    
+    - ``'omit'``: Ignores any NaN values in the input arrays (`y_true` or
+      `y_pred`). This option is useful when you want to exclude samples 
+      with missing or invalid data from the metric calculation, effectively 
+      removing them from the analysis. If this option is chosen, NaN values 
+      are treated as non-existent, and the metric is computed using only the 
+      valid samples. It is a common choice in cases where the data set has 
+      sparse missing values and you do not want these missing values to affect 
+      the result.
+      
+    - ``'propagate'``: Leaves NaN values in the input data unchanged. This 
+      option allows NaNs to propagate through the metric calculation. When 
+      this option is selected, any NaN values encountered during the computation 
+      process will result in the entire metric (or output) being set to NaN. 
+      This is useful when you want to track the occurrence of NaNs or understand 
+      how their presence affects the metric. It can be helpful when debugging 
+      models or when NaN values themselves are of interest in the analysis.
+      
+    - ``'raise'``: Raises an error if any NaN values are found in the input 
+      arrays. This option is ideal for scenarios where you want to ensure that 
+      NaN values do not go unnoticed and potentially disrupt the calculation. 
+      Selecting this option enforces data integrity, ensuring that the analysis 
+      will only proceed if all input values are valid and non-missing. If a NaN 
+      value is encountered, it raises an exception (typically a `ValueError`), 
+      allowing you to catch and handle such cases immediately.
+
+    This parameter is especially useful in situations where missing or 
+    invalid data is a concern. Depending on how you want to handle incomplete 
+    data, you can choose one of the options that best suits your needs.
+
+    Example:
+    >>> nan_policy = 'omit'  # Ignore NaNs in `y_true` or `y_pred` and 
+    >>> nan_policy = 'propagate'  # Let NaNs propagate; if any NaN is 
+    >>> nan_policy = 'raise'  # Raise an error if NaNs are found in the 
+"""
+
+
