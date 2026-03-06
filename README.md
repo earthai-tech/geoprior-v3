@@ -10,16 +10,13 @@
       <img alt="Docs" src="https://img.shields.io/badge/docs-coming%20soon-blue?style=flat-square">
     </a>
     <a href="https://github.com/earthai-tech/geoprior-v3/blob/main/LICENSE">
-      <img alt="License" src="https://img.shields.io/github/license/earthai-tech/geoprior-v3?style=flat-square&logo=apache&color=purple">
+      <img alt="License" src="https://img.shields.io/github/license/earthai-tech/geoprior-v3?style=plastic&logo=Apache&logoColor=0492C2&color=FBB040">
     </a>
     <a href="https://github.com/psf/black">
       <img alt="Black" src="https://img.shields.io/badge/code%20style-Black-000000.svg?style=flat-square">
     </a>
     <a href="https://github.com/earthai-tech/geoprior-v3/blob/main/CONTRIBUTING.md">
       <img alt="Contributions" src="https://img.shields.io/badge/Contributions-Welcome-brightgreen?style=flat-square">
-    </a>
-    <a href="https://github.com/earthai-tech/geoprior-v3/releases/latest">
-      <img alt="GitHub Release" src="https://img.shields.io/github/v/release/earthai-tech/geoprior-v3">
     </a>
   </p>
 
