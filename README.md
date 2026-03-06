@@ -10,7 +10,7 @@
       <img alt="Docs" src="https://img.shields.io/badge/docs-coming%20soon-blue?style=flat-square">
     </a>
     <a href="https://github.com/earthai-tech/geoprior-v3/blob/main/LICENSE">
-      <img alt="License" src=<img alt="GitHub License" src="https://img.shields.io/github/license/earthai-tech/geoprior-v3?style=plastic&logo=Apache&logoColor=0492C2&color=FBB040">
+      <img alt="License" src="https://img.shields.io/github/license/earthai-tech/geoprior-v3?style=plastic&logo=Apache&logoColor=0492C2&color=FBB040">
     </a>
     <a href="https://github.com/psf/black">
       <img alt="Black" src="https://img.shields.io/badge/code%20style-Black-000000.svg?style=flat-square">
