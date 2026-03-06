@@ -1,0 +1,3 @@
+# Sphinx and Core Extensions
+# Install geoprior-v3 with its docs extra from pyproject.toml
+-e .[docs]

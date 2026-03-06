@@ -1,0 +1,267 @@
+# Frozen configuration used for GeoPrior-v3 (GeoPriorSubsNet v3.2 paper runs).
+# This YAML is a human-readable snapshot of nat.com/config.py.
+# City-specific overrides are in configs/nansha.yaml and configs/zhongshan.yaml.
+
+Meta:
+  CONFIG_NAME: paper_v3_2
+  MODEL_FAMILY: GeoPriorSubsNet
+  VERSION_TAG: v3.2
+
+Run:
+  CITY_NAME: nansha
+  MODEL_NAME: GeoPriorSubsNet
+  DEBUG: false
+  TRAINING_STRATEGY: data_first
+  IDENTIFIABILITY_REGIME: null
+
+Paths:
+  DATA_DIR: ".."
+  DATASET_VARIANT: with_zsurf
+  BIG_FN_TEMPLATE: "{city}_final_main_std.harmonized.cleaned.{variant}.csv"
+  SMALL_FN_TEMPLATE: "{city}_2000.cleaned.{variant}.csv"
+  BIG_FN: nansha_final_main_std.harmonized.cleaned.with_zsurf.csv
+  SMALL_FN: nansha_2000.cleaned.with_zsurf.csv
+  ALL_CITIES_PARQUET: null
+  SEARCH_PATHS: null
+  FALLBACK_PATHS: null
+  BASE_OUTPUT_DIR: null
+
+Schema:
+  TIME_COL: year
+  LON_COL: longitude
+  LAT_COL: latitude
+  SUBSIDENCE_COL: subsidence_cum
+  GWL_COL: GWL_depth_bgs_m
+  Z_SURF_COL: z_surf_m
+  HEAD_COL: head_m
+  H_FIELD_COL_NAME: soil_thickness
+
+Temporal:
+  TIME_UNITS: year
+  TIME_STEPS: 5
+  FORECAST_START_YEAR: 2023
+  FORECAST_HORIZON_YEARS: 3
+  TRAIN_END_YEAR: 2022
+  MODE: tft_like
+
+Coordinates:
+  COORD_MODE: degrees
+  COORD_SRC_EPSG: 4326
+  NORMALIZE_COORDS: true
+  KEEP_COORDS_RAW: false
+
+Preprocessing:
+  BUILD_FUTURE_NPZ: false
+  SCALE_GWL: false
+  SCALE_H_FIELD: false
+  SCALE_Z_SURF: false
+  ALREADY_NORMALIZED_FEATURES:
+    - urban_load_global
+
+Features:
+  # Optional drivers (aliases allowed; Stage-1 resolves what exists in CSV)
+  OPTIONAL_NUMERIC_FEATURES:
+    - [rainfall_mm, rainfall, rain_mm, precip_mm]
+    - [urban_load_global, normalized_density, urban_load]
+  OPTIONAL_CATEGORICAL_FEATURES:
+    - [lithology, geology]
+    - lithology_class
+
+  # Future-known drivers used by Stage-1
+  FUTURE_DRIVER_FEATURES:
+    - [rainfall_mm, rainfall, rain_mm, precip_mm]
+
+  INCLUDE_Z_SURF_AS_STATIC: true
+  INCLUDE_SUBS_HIST_DYNAMIC: true
+  INCLUDE_CENSOR_FLAGS_AS_DYNAMIC: true
+  INCLUDE_CENSOR_FLAGS_AS_FUTURE: false
+
+Censoring:
+  # Stage-1 prefers CENSORING_SPECS if present; Stage-2 can read censoring.specs
+  CENSORING_SPECS:
+    - col: soil_thickness
+      direction: right
+      cap: 30.0
+      tol: 1.0e-6
+      flag_suffix: _censored
+      eff_suffix: _eff
+      eff_mode: clip
+      eps: 0.02
+      impute:
+        by: [year]
+        func: median
+      flag_threshold: 0.5
+
+  censoring:
+    flag_threshold: 0.5
+    flags_as_dynamic: true
+    use_effective_h_field: true
+    specs:
+      - col: soil_thickness
+        direction: right
+        cap: 30.0
+        tol: 1.0e-6
+        flag_suffix: _censored
+        eff_suffix: _eff
+        eff_mode: clip
+        eps: 0.02
+        impute:
+          by: [year]
+          func: median
+        flag_threshold: 0.5
+
+Model:
+  EMBED_DIM: 32
+  ATTENTION_UNITS: 64
+  ATTENTION_LEVELS: [cross, hierarchical, memory]
+  DROPOUT_RATE: 0.1
+
+  # Heads / blocks
+  NUMBER_HEADS: 2
+  HIDDEN_UNITS: 64
+  LSTM_UNITS: 64
+
+  # Stage-2 defaults if absent in nat.com/config.py
+  USE_VSN: true
+  VSN_UNITS: 32
+  USE_BATCH_NORM: false
+  MEMORY_SIZE: 50
+  SCALES: [1, 2]
+
+Training:
+  EPOCHS: 20
+  BATCH_SIZE: 32
+  LEARNING_RATE: 0.001
+  CLIP_GLOBAL_NORM: 5.0
+  USE_IN_MEMORY_MODEL: false
+  USE_TF_SAVEDMODEL: false
+
+Probabilistic:
+  QUANTILES: [0.1, 0.5, 0.9]
+  SUBS_WEIGHTS:
+    0.1: 3.0
+    0.5: 1.0
+    0.9: 3.0
+  GWL_WEIGHTS:
+    0.1: 1.5
+    0.5: 1.0
+    0.9: 1.5
+
+  # Stage-2 default snapshot
+  LOSS_WEIGHT_GWL: 0.5
+  LOG_Q_DIAGNOSTICS: false
+
+Units:
+  SUBS_UNIT_TO_SI: 0.001
+  HEAD_UNIT_TO_SI: 1.0
+  THICKNESS_UNIT_TO_SI: 1.0
+  Z_SURF_UNIT_TO_SI: 1.0
+
+Physics:
+  PDE_MODE_CONFIG: on
+  SCALE_PDE_RESIDUALS: true
+
+  # Residuals & scaling
+  GW_RESIDUAL_UNITS: second
+  CONSOLIDATION_RESIDUAL_UNITS: second
+  DT_MIN_UNITS: 1.0e-6
+  CONS_SCALE_FLOOR: 3.0e-11
+  GW_SCALE_FLOOR: 1.0e-12
+
+  # Drawdown & consolidation settings
+  DRAINAGE_MODE: double
+  CONS_DRAWDOWN_MODE: auto
+  CONS_DRAWDOWN_RULE: auto
+  CONS_DRAWDOWN_ZERO_AT_ORIGIN: true
+  CONS_DRAWDOWN_CLIP_MAX: null
+  CONS_RELU_BETA: 20.0
+  CONS_STOP_GRAD_REF: true
+  CONSOLIDATION_STEP_RESIDUAL_METHOD: autodiff
+
+  # GeoPrior closure knobs
+  GEOPRIOR_USE_EFFECTIVE_H: true
+  USE_EFFECTIVE_H_FIELD: true
+  GEOPRIOR_H_REF: auto
+  GEOPRIOR_HD_FACTOR: 0.6
+  GEOPRIOR_KAPPA_MODE: kb
+  GEOPRIOR_INIT_KAPPA: 1.0
+  GEOPRIOR_INIT_MV: 1.0e-7
+  GEOPRIOR_GAMMA_W: 9810.0
+
+  # Bounds & regularization
+  PHYSICS_BOUNDS_MODE: soft
+  PHYSICS_BOUNDS:
+    H_min: 0.1
+    H_max: 30.0
+    K_min: 1.0e-12
+    K_max: 1.0e-7
+    Ss_min: 1.0e-6
+    Ss_max: 1.0e-3
+    tau_min: 604800.0
+    tau_max: 9467085600.0
+
+  LAMBDA_CONS: 1.0
+  LAMBDA_GW: 0.1
+  LAMBDA_PRIOR: 0.2
+  LAMBDA_SMOOTH: 0.01
+  LAMBDA_MV: 0.01
+  LAMBDA_BOUNDS: 0.05
+  LAMBDA_Q: 0.0
+
+  # Strategy-specific schedule knobs (kept for exact reproducibility)
+  PHYSICS_BASELINE_MODE: none
+  PHYSICS_WARMUP_STEPS: 1800
+  PHYSICS_RAMP_STEPS: 4800
+
+  Q_POLICY_DATA_FIRST: warmup_off
+  Q_WARMUP_EPOCHS_DATA_FIRST: 2
+  Q_RAMP_EPOCHS_DATA_FIRST: 6
+  Q_POLICY_PHYSICS_FIRST: warmup_off
+  Q_WARMUP_EPOCHS_PHYSICS_FIRST: 5
+  Q_RAMP_EPOCHS_PHYSICS_FIRST: 5
+
+  SUBS_RESID_POLICY_DATA_FIRST: warmup_off
+  SUBS_RESID_WARMUP_EPOCHS_DATA_FIRST: 1
+  SUBS_RESID_RAMP_EPOCHS_DATA_FIRST: 4
+  SUBS_RESID_POLICY_PHYSICS_FIRST: warmup_off
+  SUBS_RESID_WARMUP_EPOCHS_PHYSICS_FIRST: 5
+  SUBS_RESID_RAMP_EPOCHS_PHYSICS_FIRST: 5
+
+  # Offset scheduler (kept; default off)
+  USE_LAMBDA_OFFSET_SCHEDULER: false
+  LAMBDA_OFFSET: 1.0
+  LAMBDA_OFFSET_UNIT: epoch
+  LAMBDA_OFFSET_WHEN: null
+  LAMBDA_OFFSET_SCHEDULE: null
+  LAMBDA_OFFSET_WARMUP: null
+  LAMBDA_OFFSET_START: null
+  LAMBDA_OFFSET_END: null
+
+Hydrology:
+  GWL_KIND: depth_bgs
+  GWL_SIGN: down_positive
+  Q_KIND: per_volume
+  Q_IN_SI: false
+  Q_IN_PER_SECOND: false
+  Q_LENGTH_IN_SI: false
+  Q_WRT_NORMALIZED_TIME: false
+
+MV:
+  MV_WEIGHT: 0.001
+  MV_ALPHA_DISP: 0.1
+  MV_HUBER_DELTA: 1.0
+  MV_PRIOR_MODE: calibrate
+  MV_PRIOR_UNITS: strict
+  MV_SCHEDULE_UNIT: epoch
+  MV_WARMUP_EPOCHS: 2
+  MV_DELAY_EPOCHS: 1
+  MV_WARMUP_STEPS: null
+  MV_DELAY_STEPS: null
+  MV_LR_MULT: 1.0
+
+Tracking:
+  TRACK_AUX_METRICS: false
+  TRACK_ADD_ON_METRICS: true
+  LOG_Q_DIAGNOSTICS: false
+  DEBUG_PHYSICS_GRADS: false
+  ALLOW_SUBS_RESIDUAL: true

@@ -1,0 +1,78 @@
+# MANIFEST.in for k-diagram project
+
+# Include essential root files
+include LICENSE
+include README.md
+# include CITATION.cff  
+include pyproject.toml 
+include MANIFEST.in
+include setup.py
+# include setup.cfg     
+
+# --- Include files needed for PyPI description (README rendering) ---
+# Include everything in the _static directory (contains logo)
+recursive-include docs/source/_static *
+# Include specific images referenced in README.md 
+# This looks for files like 'readme_*.png' directly inside 'docs/source/images/'
+# include docs/source/images/readme_*.png
+
+# --- Include documentation source files  ---
+recursive-include docs/source *.rst
+recursive-include docs/source *.py
+# Note: _static is already included above
+recursive-include docs/source/_templates *
+recursive-exclude docs/source/images *
+
+include docs/Makefile
+include docs/make.bat
+include docs/requirements.txt # Include requirements needed to build docs
+
+# --- Include package data ---
+# Include the dataset bundled with the package
+include kdiagram/datasets/data/min_zhongshan.csv
+
+# --- Include examples directory (if it exists) ---
+# recursive-include examples *.py *.ipynb *.csv *.md
+
+# --- Exclusions ---
+
+# Exclude compiled Python files, caches, compiled extensions
+global-exclude *.py[cod] __pycache__/* *.so *.dylib *.o *.a *.dll *.lib
+
+# Exclude the test suite from the source distribution
+recursive-exclude tests *
+exclude .coverage
+exclude coverage.xml
+exclude .pytest_cache
+
+# Exclude development / CI / environment files
+exclude .gitignore
+exclude .gitattributes
+# exclude .readthedocs.yml
+# exclude environment.yml  
+recursive-exclude .github *
+
+# Exclude common virtual environment directories
+recursive-exclude venv *
+recursive-exclude .venv *
+
+# Exclude common IDE directories and other hidden files/dirs like .git
+recursive-exclude .*
+
+# Exclude build artifacts explicitly
+recursive-exclude build *
+recursive-exclude dist *
+recursive-exclude *.egg-info *
+recursive-exclude docs/_build *
+
+# Exclude benchmark or maintenance tool directories if they exist
+# recursive-exclude benchmarks *
+# recursive-exclude maint_tools *
+
+# Prune empty directories resulting from exclusions
+prune docs/_build
+# prune tests/__pycache__ # Example
+
+# remove the JOSS paper artefact 
+# exclude paper.md
+# exclude paper.bib

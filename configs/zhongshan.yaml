@@ -1,0 +1,13 @@
+# City override for Zhongshan (paper v3.2).
+# Base: configs/paper_v3_2.yaml
+
+Meta:
+  CONFIG_NAME: zhongshan
+  BASE_CONFIG: paper_v3_2.yaml
+
+Run:
+  CITY_NAME: zhongshan
+
+Paths:
+  BIG_FN: zhongshan_final_main_std.harmonized.cleaned.with_zsurf.csv
+  SMALL_FN: zhongshan_2000.cleaned.with_zsurf.csv

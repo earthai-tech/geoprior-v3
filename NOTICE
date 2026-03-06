@@ -1,0 +1,21 @@
+GeoPrior-v3 (GeoPriorSubsNet v3)
+Copyright 2026-present Laurent Kouadio
+and the GeoPrior-v3 contributors
+
+This product includes software developed by earthai-tech and its
+contributors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+A copy of the License is provided in the LICENSE file in this repository.
+
+------------------------------------------------------------
+Third-party notices
+------------------------------------------------------------
+
+fusionlab-learn (BSD-3-Clause)
+  Source: https://github.com/earthai-tech/fusionlab-learn
+  License: BSD-3-Clause
+  Notes: GeoPrior-v3 includes a small number of files adapted from
+         fusionlab-learn. See: third_party/licenses/
+         fusionlab-learn_BSD-3-Clause.txt

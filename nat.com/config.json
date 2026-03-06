@@ -1,0 +1,498 @@
+{
+  "city": "nansha",
+  "model": "GeoPriorSubsNet",
+  "config": {
+    "CITY_NAME": "nansha",
+    "MODEL_NAME": "GeoPriorSubsNet",
+    "DATA_DIR": "..",
+    "DATASET_VARIANT": "with_zsurf",
+    "BIG_FN_TEMPLATE": "{city}_final_main_std.harmonized.cleaned.{variant}.csv",
+    "SMALL_FN_TEMPLATE": "{city}_2000.cleaned.{variant}.csv",
+    "BIG_FN": "nansha_final_main_std.harmonized.cleaned.with_zsurf.csv",
+    "SMALL_FN": "nansha_2000.cleaned.with_zsurf.csv",
+    "ALL_CITIES_PARQUET": "natcom_all_cities.parquet",
+    "TRAIN_END_YEAR": 2022,
+    "FORECAST_START_YEAR": 2023,
+    "FORECAST_HORIZON_YEARS": 3,
+    "TIME_STEPS": 5,
+    "MODE": "tft_like",
+    "TIME_COL": "year",
+    "LON_COL": "longitude",
+    "LAT_COL": "latitude",
+    "SUBSIDENCE_COL": "subsidence_cum",
+    "H_FIELD_COL_NAME": "soil_thickness",
+    "GWL_COL": "GWL_depth_bgs_m",
+    "GWL_KIND": "depth_bgs",
+    "GWL_SIGN": "down_positive",
+    "USE_HEAD_PROXY": false,
+    "Z_SURF_COL": "z_surf_m",
+    "INCLUDE_Z_SURF_AS_STATIC": true,
+    "HEAD_COL": "head_m",
+    "NORMALIZE_COORDS": true,
+    "KEEP_COORDS_RAW": false,
+    "SHIFT_RAW_COORDS": true,
+    "SCALE_H_FIELD": false,
+    "SCALE_GWL": false,
+    "SCALE_Z_SURF": false,
+    "SUBSIDENCE_KIND": "cumulative",
+    "OPTIONAL_NUMERIC_FEATURES": [
+      [
+        "rainfall_mm",
+        "rainfall",
+        "rain_mm",
+        "precip_mm"
+      ],
+      [
+        "urban_load_global",
+        "normalized_density",
+        "urban_load"
+      ]
+    ],
+    "OPTIONAL_CATEGORICAL_FEATURES": [
+      [
+        "lithology",
+        "geology"
+      ],
+      "lithology_class"
+    ],
+    "ALREADY_NORMALIZED_FEATURES": [
+      "urban_load_global"
+    ],
+    "FUTURE_DRIVER_FEATURES": [
+      [
+        "rainfall_mm",
+        "rainfall",
+        "rain_mm",
+        "precip_mm"
+      ]
+    ],
+    "CENSORING_SPECS": [
+      {
+        "col": "soil_thickness",
+        "direction": "right",
+        "cap": 30.0,
+        "tol": 1e-06,
+        "flag_suffix": "_censored",
+        "eff_suffix": "_eff",
+        "eff_mode": "clip",
+        "eps": 0.02,
+        "impute": {
+          "by": [
+            "year"
+          ],
+          "func": "median"
+        },
+        "flag_threshold": 0.5
+      }
+    ],
+    "INCLUDE_CENSOR_FLAGS_AS_DYNAMIC": true,
+    "INCLUDE_CENSOR_FLAGS_AS_FUTURE": false,
+    "USE_EFFECTIVE_H_FIELD": true,
+    "BUILD_FUTURE_NPZ": false,
+    "SPLIT_SEED": 42,
+    "VAL_FRAC": 0.2,
+    "TEST_FRAC": 0.1,
+    "HOLDOUT_STRATEGY": "random",
+    "HOLDOUT_BLOCK_M": 2000.0,
+    "ATTENTION_LEVELS": [
+      "cross",
+      "hierarchical",
+      "memory"
+    ],
+    "EMBED_DIM": 32,
+    "HIDDEN_UNITS": 64,
+    "LSTM_UNITS": 64,
+    "ATTENTION_UNITS": 64,
+    "NUMBER_HEADS": 2,
+    "DROPOUT_RATE": 0.1,
+    "QUANTILES": [
+      0.1,
+      0.5,
+      0.9
+    ],
+    "SUBS_WEIGHTS": {
+      "0.1": 3.0,
+      "0.5": 1.0,
+      "0.9": 3.0
+    },
+    "GWL_WEIGHTS": {
+      "0.1": 1.5,
+      "0.5": 1.0,
+      "0.9": 1.5
+    },
+    "PDE_MODE_CONFIG": "on",
+    "PHYSICS_BASELINE_MODE": "none",
+    "SCALE_PDE_RESIDUALS": true,
+    "LAMBDA_CONS": 1.0,
+    "LAMBDA_GW": 0.1,
+    "LAMBDA_PRIOR": 0.2,
+    "LAMBDA_SMOOTH": 0.01,
+    "LAMBDA_BOUNDS": 0.05,
+    "LAMBDA_MV": 0.01,
+    "LAMBDA_Q": 0.0,
+    "PHYSICS_WARMUP_STEPS": 1800,
+    "PHYSICS_RAMP_STEPS": 4800,
+    "OFFSET_MODE": "mul",
+    "LAMBDA_OFFSET": 1.0,
+    "USE_LAMBDA_OFFSET_SCHEDULER": false,
+    "LAMBDA_OFFSET_UNIT": "epoch",
+    "LAMBDA_OFFSET_WHEN": "begin",
+    "LAMBDA_OFFSET_WARMUP": 5,
+    "LAMBDA_OFFSET_START": 0.1,
+    "LAMBDA_OFFSET_END": 1.0,
+    "MV_LR_MULT": 1.0,
+    "KAPPA_LR_MULT": 5.0,
+    "MV_PRIOR_MODE": "calibrate",
+    "MV_WEIGHT": 0.001,
+    "MV_PRIOR_UNITS": "strict",
+    "MV_ALPHA_DISP": 0.1,
+    "MV_HUBER_DELTA": 1.0,
+    "MV_SCHEDULE_UNIT": "epoch",
+    "MV_DELAY_EPOCHS": 1,
+    "MV_WARMUP_EPOCHS": 2,
+    "TRACK_AUX_METRICS": false,
+    "TRAINING_STRATEGY": "data_first",
+    "Q_POLICY_PHYSICS_FIRST": "warmup_off",
+    "Q_WARMUP_EPOCHS_PHYSICS_FIRST": 5,
+    "Q_RAMP_EPOCHS_PHYSICS_FIRST": 5,
+    "SUBS_RESID_POLICY_PHYSICS_FIRST": "warmup_off",
+    "SUBS_RESID_WARMUP_EPOCHS_PHYSICS_FIRST": 5,
+    "SUBS_RESID_RAMP_EPOCHS_PHYSICS_FIRST": 5,
+    "LOSS_WEIGHT_GWL_PHYSICS_FIRST": 0.5,
+    "LAMBDA_Q_PHYSICS_FIRST": 1e-05,
+    "LOSS_WEIGHT_GWL_DATA_FIRST": 0.8,
+    "LAMBDA_Q_DATA_FIRST": 0.0005,
+    "Q_POLICY_DATA_FIRST": "warmup_off",
+    "Q_WARMUP_EPOCHS_DATA_FIRST": 2,
+    "Q_RAMP_EPOCHS_DATA_FIRST": 6,
+    "SUBS_RESID_POLICY_DATA_FIRST": "warmup_off",
+    "SUBS_RESID_WARMUP_EPOCHS_DATA_FIRST": 1,
+    "SUBS_RESID_RAMP_EPOCHS_DATA_FIRST": 4,
+    "LOG_Q_DIAGNOSTICS": true,
+    "PHYSICS_BOUNDS": {
+      "H_min": 0.1,
+      "H_max": 30.0,
+      "K_min": 1e-12,
+      "K_max": 1e-07,
+      "Ss_min": 1e-06,
+      "Ss_max": 0.001,
+      "tau_min": 604800.0,
+      "tau_max": 9467085600.0
+    },
+    "PHYSICS_BOUNDS_MODE": "soft",
+    "BOUNDS_LOSS_KIND": "both",
+    "BOUNDS_BETA": 20.0,
+    "BOUNDS_GUARD": 5.0,
+    "BOUNDS_W": 1.0,
+    "BOUNDS_INCLUDE_TAU": true,
+    "BOUNDS_TAU_W": 1.0,
+    "TIME_UNITS": "year",
+    "DEBUG_PHYSICS_GRADS": false,
+    "CONS_DRAWDOWN_MODE": "smooth_relu",
+    "CONS_DRAWDOWN_RULE": "ref_minus_mean",
+    "CONS_STOP_GRAD_REF": true,
+    "CONS_DRAWDOWN_ZERO_AT_ORIGIN": false,
+    "CONS_RELU_BETA": 20.0,
+    "HEAD_UNIT_TO_SI": 1.0,
+    "SUBS_SCALE_SI": 1.0,
+    "SUBS_BIAS_SI": 0.0,
+    "Z_SURF_UNIT_TO_SI": 1.0,
+    "SUBS_UNIT_TO_SI": 0.001,
+    "THICKNESS_UNIT_TO_SI": 1.0,
+    "H_FIELD_MIN_SI": 0.1,
+    "AUTO_SI_AFFINE_FROM_STAGE1": true,
+    "COORD_MODE": "degrees",
+    "UTM_EPSG": 32649,
+    "COORD_SRC_EPSG": 4326,
+    "GEOPRIOR_INIT_MV": 1e-07,
+    "GEOPRIOR_INIT_KAPPA": 1.0,
+    "GEOPRIOR_GAMMA_W": 9810.0,
+    "GEOPRIOR_KAPPA_MODE": "kb",
+    "GEOPRIOR_USE_EFFECTIVE_H": true,
+    "GEOPRIOR_HD_FACTOR": 0.6,
+    "GEOPRIOR_H_REF": "auto",
+    "CONSOLIDATION_STEP_RESIDUAL_METHOD": "exact",
+    "CONSOLIDATION_RESIDUAL_UNITS": "second",
+    "CONS_SCALE_FLOOR": 3e-11,
+    "GW_RESIDUAL_UNITS": "second",
+    "GW_SCALE_FLOOR": 1e-12,
+    "ALLOW_SUBS_RESIDUAL": true,
+    "DT_MIN_UNITS": 1e-06,
+    "Q_WRT_NORMALIZED_TIME": false,
+    "Q_IN_SI": false,
+    "Q_IN_PER_SECOND": false,
+    "Q_KIND": "per_volume",
+    "Q_LENGTH_IN_SI": false,
+    "DRAINAGE_MODE": "double",
+    "SCALING_ERROR_POLICY": "raise",
+    "CLIP_GLOBAL_NORM": 5.0,
+    "EPOCHS": 20,
+    "BATCH_SIZE": 32,
+    "LEARNING_RATE": 0.001,
+    "VERBOSE": 1,
+    "TF_DEVICE_MODE": "auto",
+    "TF_GPU_ALLOW_GROWTH": true,
+    "USE_TF_SAVEDMODEL": false,
+    "USE_IN_MEMORY_MODEL": false,
+    "DEBUG": true,
+    "AUDIT_STAGES": "*",
+    "EVAL_JSON_UNITS_MODE": "si",
+    "EVAL_JSON_UNITS_SCOPE": "all",
+    "TUNER_SEARCH_SPACE_BASE_V32": {
+      "embed_dim": [
+        32,
+        48,
+        64
+      ],
+      "hidden_units": [
+        64,
+        96,
+        128
+      ],
+      "lstm_units": [
+        64,
+        96
+      ],
+      "attention_units": [
+        32,
+        48
+      ],
+      "num_heads": [
+        2,
+        4
+      ],
+      "dropout_rate": {
+        "type": "float",
+        "min_value": 0.05,
+        "max_value": 0.25,
+        "step": 0.05
+      },
+      "max_window_size": [
+        8,
+        10,
+        12
+      ],
+      "memory_size": [
+        50,
+        100
+      ],
+      "learning_rate": {
+        "type": "float",
+        "min_value": 0.0003,
+        "max_value": 0.003,
+        "sampling": "log"
+      },
+      "lambda_gw": {
+        "type": "float",
+        "min_value": 0.01,
+        "max_value": 0.2
+      },
+      "lambda_cons": {
+        "type": "float",
+        "min_value": 0.05,
+        "max_value": 0.3
+      },
+      "lambda_prior": {
+        "type": "float",
+        "min_value": 0.02,
+        "max_value": 0.3
+      },
+      "lambda_smooth": {
+        "type": "float",
+        "min_value": 1e-05,
+        "max_value": 0.005,
+        "sampling": "log"
+      },
+      "lambda_bounds": {
+        "type": "float",
+        "min_value": 0.0001,
+        "max_value": 1.0,
+        "sampling": "log"
+      },
+      "lambda_mv": {
+        "type": "float",
+        "min_value": 0.0,
+        "max_value": 0.05
+      },
+      "lambda_q": {
+        "type": "choice",
+        "values": [
+          0.0,
+          1e-05,
+          5e-05,
+          0.0001,
+          0.0005,
+          0.001
+        ]
+      },
+      "mv_lr_mult": {
+        "type": "float",
+        "min_value": 0.5,
+        "max_value": 2.0
+      },
+      "kappa_lr_mult": {
+        "type": "float",
+        "min_value": 2.0,
+        "max_value": 8.0
+      },
+      "scale_mv_with_offset": {
+        "type": "choice",
+        "values": [
+          false,
+          true
+        ]
+      },
+      "scale_q_with_offset": {
+        "type": "choice",
+        "values": [
+          true,
+          false
+        ]
+      }
+    },
+    "TUNER_SEARCH_SPACE": {
+      "embed_dim": [
+        32,
+        48,
+        64
+      ],
+      "hidden_units": [
+        64,
+        96,
+        128
+      ],
+      "lstm_units": [
+        64,
+        96
+      ],
+      "attention_units": [
+        32,
+        48
+      ],
+      "num_heads": [
+        2,
+        4
+      ],
+      "dropout_rate": {
+        "type": "float",
+        "min_value": 0.05,
+        "max_value": 0.25,
+        "step": 0.05
+      },
+      "max_window_size": [
+        8,
+        10,
+        12
+      ],
+      "memory_size": [
+        50,
+        100
+      ],
+      "learning_rate": {
+        "type": "float",
+        "min_value": 0.0003,
+        "max_value": 0.003,
+        "sampling": "log"
+      },
+      "lambda_gw": {
+        "type": "float",
+        "min_value": 0.01,
+        "max_value": 0.2
+      },
+      "lambda_cons": {
+        "type": "float",
+        "min_value": 0.05,
+        "max_value": 0.3
+      },
+      "lambda_prior": {
+        "type": "float",
+        "min_value": 0.02,
+        "max_value": 0.3
+      },
+      "lambda_smooth": {
+        "type": "float",
+        "min_value": 1e-05,
+        "max_value": 0.005,
+        "sampling": "log"
+      },
+      "lambda_bounds": {
+        "type": "float",
+        "min_value": 0.0001,
+        "max_value": 1.0,
+        "sampling": "log"
+      },
+      "lambda_mv": {
+        "type": "float",
+        "min_value": 0.0,
+        "max_value": 0.05
+      },
+      "lambda_q": {
+        "type": "choice",
+        "values": [
+          0.0,
+          1e-05,
+          5e-05,
+          0.0001,
+          0.0005,
+          0.001
+        ]
+      },
+      "mv_lr_mult": {
+        "type": "float",
+        "min_value": 0.5,
+        "max_value": 2.0
+      },
+      "kappa_lr_mult": {
+        "type": "float",
+        "min_value": 2.0,
+        "max_value": 8.0
+      },
+      "scale_mv_with_offset": {
+        "type": "choice",
+        "values": [
+          false,
+          true
+        ]
+      },
+      "scale_q_with_offset": {
+        "type": "choice",
+        "values": [
+          true,
+          false
+        ]
+      },
+      "lambda_offset": {
+        "type": "float",
+        "min_value": 0.1,
+        "max_value": 50.0,
+        "sampling": "log"
+      }
+    },
+    "censoring": {
+      "specs": [
+        {
+          "col": "soil_thickness",
+          "direction": "right",
+          "cap": 30.0,
+          "tol": 1e-06,
+          "flag_suffix": "_censored",
+          "eff_suffix": "_eff",
+          "eff_mode": "clip",
+          "eps": 0.02,
+          "impute": {
+            "by": [
+              "year"
+            ],
+            "func": "median"
+          },
+          "flag_threshold": 0.5
+        }
+      ],
+      "use_effective_h_field": true,
+      "include_flags_as_dynamic": true
+    }
+  },
+  "__meta__": {
+    "config_py_hash": "598ead1129f654482d9531dfa753e0a58343d7d5db9e53d4697e8ec3072948bc"
+  }
+}

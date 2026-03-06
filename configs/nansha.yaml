@@ -1,0 +1,13 @@
+# City override for Nansha (paper v3.2).
+# Base: configs/paper_v3_2.yaml
+
+Meta:
+  CONFIG_NAME: nansha
+  BASE_CONFIG: paper_v3_2.yaml
+
+Run:
+  CITY_NAME: nansha
+
+Paths:
+  BIG_FN: nansha_final_main_std.harmonized.cleaned.with_zsurf.csv
+  SMALL_FN: nansha_2000.cleaned.with_zsurf.csv

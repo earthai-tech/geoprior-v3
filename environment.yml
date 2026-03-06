@@ -1,0 +1,11 @@
+name: geoprior-v3-dev
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.9
+  - pip
+  - pip:
+      - -e .[dev]        # or .[dev,docs] to add docs building
+
+
+

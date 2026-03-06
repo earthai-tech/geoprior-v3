@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 450.1 120.18">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #0492c2;
+        font-family: CooperBlack, 'Cooper Black';
+        font-size: 48px;
+        stroke: #1c75bc;
+        stroke-width: 2px;
+      }
+
+      .cls-1, .cls-2, .cls-3, .cls-4 {
+        stroke-miterlimit: 10;
+      }
+
+      .cls-2 {
+        stroke: #0492c2;
+      }
+
+      .cls-2, .cls-4 {
+        fill: none;
+        stroke-width: 6px;
+      }
+
+      .cls-3 {
+        fill: #d05e00;
+        font-family: MVBoli, 'MV Boli';
+        font-size: 80px;
+        stroke: #000;
+      }
+
+      .cls-4 {
+        stroke: #fbb040;
+      }
+    </style>
+  </defs>
+  <text class="cls-3" transform="translate(105.58 79.41)"><tspan x="0" y="0">Geoprior</tspan></text>
+  <text class="cls-1" transform="translate(390.18 107.14)"><tspan x="0" y="0">v3</tspan></text>
+  <polyline class="cls-4" points="24.93 23.4 49.47 19.72 40.27 35.67 72.17 35.67 2.23 113.58"/>
+  <polyline class="cls-2" points="46.88 79.41 78.94 42.06 81.62 67.61 136.59 1.93"/>
+</svg>
