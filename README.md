@@ -148,11 +148,16 @@ Documentation is under active development.
 
 ---
 
-## 💻 Premium GUI (separate/private)
+## 💻 Premium GUI
 
-GeoPrior’s **research core** is open-source.
-The **GUI/application layer** is developed separately (private),
-so the public repository remains focused on reproducible science.
+The **GeoPrior research core** is released as open-source software to
+support reproducible science.
+The **premium GUI/application layer** is developed separately and is not
+included in the public repository, which is intentionally kept focused
+on the scientific and reproducible components of the project.
+
+For information regarding access to the **GUI version**, please
+**contact the author** directly.
 
 ---
 
