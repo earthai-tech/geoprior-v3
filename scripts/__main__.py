@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 Â— https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
@@ -131,6 +131,11 @@ _CMD: Dict[str, _CmdSpec] = {
         "plot_hotspot_analytics",
         "plot_hotspot_analytics_main",
         "Hotspot analytics (maps + timeline).",
+    ),
+    "plot-external-validation": _CmdSpec(
+        "plot_external_validation",
+        "plot_external_validation_main",
+        "External point-support validation figure.",
     ),
     # Tables / summaries
     "compute-brier-exceedance": _CmdSpec(

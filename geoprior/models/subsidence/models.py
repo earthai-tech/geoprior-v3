@@ -45,8 +45,7 @@ from ..components import (
 )
 from ..custom_metrics import GeoPriorTrackers
 from ..op import process_pinn_inputs
-from ..utils import process_pde_modes
-
+from ..utils import PDE_MODE_ALIASES, process_pde_modes
 
 from .batch_io import _align_true_for_loss, _canonicalize_targets
 from .debugs import (
@@ -164,7 +163,7 @@ tf_autograph.set_verbosity(0)
 
 
 # Module logger + shared docs
-DEP_MSG = dependency_message("nn.pinn.geoprior.models")
+DEP_MSG = dependency_message("models.subsidence.models")
 
 logger = get_logger(__name__)
 logger.addFilter(OncePerMessageFilter())
@@ -176,7 +175,7 @@ _param_docs = DocstringComponents.from_nested_components(
 __all__ = ["GeoPriorSubsNet", "PoroElasticSubsNet"]
 
 @register_keras_serializable(
-    'geoprior.nn.pinn', name="GeoPriorSubsNet") 
+    'models.subsidence.models', name="GeoPriorSubsNet") 
 class GeoPriorSubsNet(BaseAttentive):
     
     OUTPUT_KEYS = ("subs_pred", "gwl_pred")
@@ -190,16 +189,7 @@ class GeoPriorSubsNet(BaseAttentive):
                 Interval(Integral, 1, None, closed="left"),
             ],
             "pde_mode": [
-                StrOptions(
-                    {
-                        "consolidation",
-                        "gw_flow",
-                        "both",
-                        "none",
-                        "on",
-                        "off",
-                    }
-                ),
+                StrOptions(PDE_MODE_ALIASES | {"consolidation", "gw_flow"}),
                 "array-like",
                 None,
             ],
@@ -4348,7 +4338,7 @@ class GeoPriorSubsNet(BaseAttentive):
 GeoPriorSubsNet.__doc__ = GEOPRIOR_SUBSNET_DOC
 
 @register_keras_serializable(
-    "geoprior.nn.pinn.models.geoprior",
+    "models.subsidence.models",
     name="PoroElasticSubsNet"
  )
 class PoroElasticSubsNet(GeoPriorSubsNet):
