@@ -38,9 +38,12 @@ from .pinn import (
     format_pihalnet_predictions, 
     extract_txy_in, 
     process_pde_modes, 
+    PDE_MODE_ALIASES,
 )
 
 __all__=[
+    'PDE_MODE_ALIASES',
+    
      'compute_anomaly_scores',
      'compute_forecast_horizon',
      'create_sequences',

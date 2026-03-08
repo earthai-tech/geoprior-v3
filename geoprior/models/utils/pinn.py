@@ -8,10 +8,14 @@
 """
 Physics-Informed Neural Network (PINN) Utility functions.
 """
+
+from __future__ import annotations
+
 import os
 import logging 
 from typing import List, Tuple, Optional, Union, Dict, Any
 from typing import Sequence,  Callable
+from typing import Final
 import warnings # noqa 
 import matplotlib.pyplot as plt
 from matplotlib.cm import ScalarMappable  
@@ -65,7 +69,385 @@ all__= [
         'extract_txy_in', 
         'extract_txy', 
         'plot_hydraulic_head',
+        'PDE_MODE_ALIASES'
 ]
+
+
+
+_PDE_NONE_ALIASES = {
+    "none",
+    "off",
+    "false",
+    "0",
+    "disable",
+    "disabled",
+    "",
+}
+
+_PDE_BOTH_ALIASES = {
+    "both",
+    "on",
+    "all",
+    "true",
+    "1",
+}
+
+_PDE_TOKEN_ALIASES = {
+    "consolidation": "consolidation",
+    "cons": "consolidation",
+    "gw_flow": "gw_flow",
+    "gw": "gw_flow",
+    "groundwater": "gw_flow",
+    "groundwater_flow": "gw_flow",
+}
+
+_PDE_ORDER = ("consolidation", "gw_flow")
+
+
+PDE_CANONICAL_MODES: Final[frozenset[str]] = frozenset(
+    {
+        "consolidation",
+        "gw_flow",
+        "both",
+        "none",
+    }
+)
+
+PDE_MODE_ALIASES: Final[frozenset[str]] = frozenset(
+    PDE_CANONICAL_MODES
+    | _PDE_NONE_ALIASES
+    | _PDE_BOTH_ALIASES
+)
+
+# Optional: strict public set for places where only canonical
+# labels should be accepted after normalization.
+PDE_ACTIVE_MODES: Final[frozenset[str]] = frozenset(
+    {
+        "consolidation",
+        "gw_flow",
+        "none",
+    }
+)
+
+def _flatten_mode_input(
+    value: Union[str, Sequence[str], None]
+) -> List[str]:
+    """
+    Convert the raw pde_mode input into a flat list of lowercase tokens.
+    """
+    if value is None:
+        return ["none"]
+
+    if isinstance(value, str):
+        # support comma-separated strings like "consolidation,gw_flow"
+        parts = [p.strip().lower() for p in value.split(",")]
+        parts = [p for p in parts if p != ""]
+        return parts or ["none"]
+
+    if isinstance(value, (list, tuple, set)):
+        out: List[str] = []
+        for item in value:
+            if item is None:
+                out.append("none")
+            else:
+                s = str(item).strip().lower()
+                if s:
+                    out.append(s)
+                else:
+                    out.append("none")
+        return out or ["none"]
+
+    raise TypeError(
+        "`pde_mode` must be a string, a sequence of strings, or None."
+    )
+
+
+def _normalize_pde_tokens(tokens: Sequence[str]) -> List[str]:
+    """
+    Normalize aliases into canonical tokens.
+
+    Canonical tokens are:
+    - 'none'
+    - 'consolidation'
+    - 'gw_flow'
+    - 'both' (intermediate token, later expanded)
+    """
+    normalized: List[str] = []
+
+    for tok in tokens:
+        if tok in _PDE_NONE_ALIASES:
+            normalized.append("none")
+        elif tok in _PDE_BOTH_ALIASES:
+            normalized.append("both")
+        elif tok in _PDE_TOKEN_ALIASES:
+            normalized.append(_PDE_TOKEN_ALIASES[tok])
+        else:
+            raise ValueError(
+                f"Unsupported pde_mode token: {tok!r}. "
+                "Allowed values are: "
+                "'none'/'off', 'consolidation', 'gw_flow', 'both'/'on'."
+            )
+
+    return normalized
+
+
+def _canonicalize_pde_modes(tokens: Sequence[str]) -> List[str]:
+    """
+    Convert normalized tokens into the final active-mode list.
+
+    Rules
+    -----
+    - 'none' cannot be combined with any active PDE mode.
+    - 'both' expands to ['consolidation', 'gw_flow'].
+    - duplicates are removed while preserving canonical order.
+    """
+    toks = list(tokens)
+
+    has_none = "none" in toks
+    has_both = "both" in toks #noqa
+
+    # Expand "both" first conceptually, but reject ambiguous combinations.
+    if has_none:
+        non_none = [t for t in toks if t != "none"]
+        if non_none:
+            raise ValueError(
+                "Ambiguous pde_mode: 'none/off' cannot be combined with "
+                f"other modes: {non_none!r}."
+            )
+        return ["none"]
+
+    active = set()
+
+    for tok in toks:
+        if tok == "both":
+            active.update(("consolidation", "gw_flow"))
+        elif tok in ("consolidation", "gw_flow"):
+            active.add(tok)
+        else:
+            raise ValueError(
+                f"Unexpected normalized token: {tok!r}."
+            )
+
+    if not active:
+        return ["none"]
+
+    return [mode for mode in _PDE_ORDER if mode in active]
+
+
+def _collapse_pde_modes_to_label(active_modes: Sequence[str]) -> str:
+    """
+    Convert a canonical active-mode list back to a single label.
+    """
+    modes = list(active_modes)
+
+    if modes == ["none"]:
+        return "none"
+    if modes == ["consolidation"]:
+        return "consolidation"
+    if modes == ["gw_flow"]:
+        return "gw_flow"
+    if modes == ["consolidation", "gw_flow"]:
+        return "both"
+
+    raise ValueError(
+        f"Cannot collapse unexpected active mode list: {modes!r}"
+    )
+
+
+def process_pde_modes(
+    pde_mode: Union[str, Sequence[str], None],
+    enforce_consolidation: bool = False,
+    pde_mode_config: Union[str, Sequence[str], None] = None,
+    solo_return: bool = False,
+) -> Union[List[str], str]:
+    r"""
+    Normalize and validate PDE mode selection.
+
+    Parameters
+    ----------
+    pde_mode : str, sequence of str, or None
+        Requested PDE mode(s).
+
+        Accepted canonical values are:
+        - ``"none"``
+        - ``"consolidation"``
+        - ``"gw_flow"``
+        - ``"both"``
+
+        Accepted aliases:
+        - ``None``, ``"off"`` -> ``"none"``
+        - ``"on"`` -> ``"both"``
+    enforce_consolidation : bool, default=False
+        If True, any resolved mode other than exact ``["consolidation"]``
+        is coerced to ``["consolidation"]`` and a warning is emitted.
+
+        This includes:
+        - ``["none"]``
+        - ``["gw_flow"]``
+        - ``["consolidation", "gw_flow"]``
+    pde_mode_config : str, sequence of str, or None, optional
+        Optional override. If provided, this value takes precedence over
+        ``pde_mode``.
+    solo_return : bool, default=False
+        If False, return a canonical list of active modes.
+
+        If True, return a single canonical label:
+        - ``"none"``
+        - ``"consolidation"``
+        - ``"gw_flow"``
+        - ``"both"``
+
+    Returns
+    -------
+    list of str or str
+        Canonical PDE mode(s), either as a list or a single label.
+
+    Raises
+    ------
+    TypeError
+        If the input type is invalid.
+    ValueError
+        If a token is unsupported or the mode selection is ambiguous.
+
+    Examples
+    --------
+    >>> process_pde_modes(None)
+    ['none']
+
+    >>> process_pde_modes("off")
+    ['none']
+
+    >>> process_pde_modes("on")
+    ['consolidation', 'gw_flow']
+
+    >>> process_pde_modes("both", solo_return=True)
+    'both'
+
+    >>> process_pde_modes("gw_flow", enforce_consolidation=True)
+    ['consolidation']
+    """
+    source = pde_mode_config if pde_mode_config is not None else pde_mode
+
+    raw_tokens = _flatten_mode_input(source)
+    normalized_tokens = _normalize_pde_tokens(raw_tokens)
+    active_modes = _canonicalize_pde_modes(normalized_tokens)
+
+    if enforce_consolidation and active_modes != ["consolidation"]:
+        warnings.warn(
+            "This model requires PDE mode 'consolidation'. "
+            f"Received {active_modes!r}; coercing to ['consolidation'].",
+            UserWarning,
+            stacklevel=2,
+        )
+        active_modes = ["consolidation"]
+
+    if solo_return:
+        return _collapse_pde_modes_to_label(active_modes)
+
+    return active_modes
+
+def _process_pde_modes(
+    pde_mode: Union[str, list, None], 
+    enforce_consolidation: bool = False,
+    pde_mode_config: Union[str, list, None] = None, 
+    solo_return: bool=False, 
+) -> list:
+    r"""
+    Process and validate the `pde_mode` argument to determine the active PDE modes.
+
+    This function handles `pde_mode` inputs and processes them according to
+    the following rules:
+    - If the input is 'none', only the mode 'none' will be active.
+    - If the input is 'both', it will set both 'consolidation' and 'gw_flow'.
+    - If the input is not 'consolidation' and `enforce_consolidation` is True,
+      it will issue a warning and fallback to using only 'consolidation'.
+    - If `pde_mode_config` is provided, it overrides any other mode setting.
+
+    Parameters
+    ----------
+    pde_mode : str, list of str, or None
+        The desired PDE modes. Can be:
+        - A string (e.g., 'consolidation', 'gw_flow', etc.)
+        - A list of strings (e.g., ['consolidation', 'gw_flow'])
+        - None (to set no active modes)
+    enforce_consolidation : bool, default=False
+        If True, the function ensures that 'consolidation' is the only
+        mode active and issues a warning if another mode is passed.
+    pde_mode_config : str, list of str, or None, optional
+        If provided, overrides the `pde_mode` argument.
+
+    Returns
+    -------
+    list of str
+        A list of active PDE modes. The list will contain the modes in lowercase.
+        If 'none' or 'both' is specified, these will be processed according to the logic.
+
+    Raises
+    ------
+    TypeError
+        If `pde_mode` is neither a string, a list of strings, nor None.
+
+    Warnings
+    --------
+    If `enforce_consolidation` is True and a mode other than 'consolidation'
+    is passed, a warning will be issued, and 'consolidation' will be used
+    as the active mode instead.
+    """
+    # If pde_mode_config is provided, use it, otherwise fall back to pde_mode
+    if pde_mode_config:
+        pde_mode = pde_mode_config
+
+
+    if isinstance(pde_mode, str):
+        if pde_mode.lower()=="on": 
+            pde_mode ="both"
+        pde_modes_active = [pde_mode.lower()]
+        
+    elif isinstance(pde_mode, list):
+        pde_modes_active = [str(p_type).lower() for p_type in pde_mode]
+    elif pde_mode is None:
+        pde_modes_active = ['none']  # Explicitly 'none' if None is provided
+    else:
+        raise TypeError("`pde_mode` must be a string, list of strings, or None.")
+
+    # Handle special cases for "none" and "both"
+    if "none" in pde_modes_active or "off" in pde_modes_active:  # If 'none' is present, override others
+        pde_modes_active = ['none']
+    if "both" in pde_modes_active or "on" in pde_modes_active:  # If 'both' is present, use both modes
+        pde_modes_active = ['consolidation', 'gw_flow']
+
+    # Enforce consolidation mode if specified
+    if enforce_consolidation and 'consolidation' not in pde_modes_active:
+        warnings.warn(
+            "You have passed a mode other than 'consolidation'. "
+            "Falling back to 'consolidation' as the active mode.",
+            UserWarning
+        )
+        pde_modes_active = ['consolidation']
+
+    # Ensure 'consolidation' is the only active mode if it was defaulted,
+    # or if user explicitly selected only unsupported modes.
+        
+    if any(unsupported in pde_modes_active 
+           for unsupported in {
+                   'consolidation', 'gw_flow', 
+                   'both', 'none', 'on', 
+                   'off'}
+          ):
+        # This case means decorator didn't force 'consolidation', so we do it here
+        logger.info(
+            f"Unsupported pde_mode '{pde_mode}' "
+            "selected without 'consolidation'. "
+            "Model will use 'consolidation' mode."
+        )
+        # pde_modes_active = ['consolidation']
+
+    if solo_return: 
+        pde_modes_active = pde_modes_active[0]
+        
+    # Return the processed pde_modes_active
+    return pde_modes_active
+
 
 @SaveFile 
 def format_pinn_predictions(
@@ -2341,103 +2723,6 @@ def prepare_pinn_data_sequences(
     
     return inputs_dict, targets_dict
 
-
-def process_pde_modes(
-    pde_mode: Union[str, list, None], 
-    enforce_consolidation: bool = False,
-    pde_mode_config: Union[str, list, None] = None, 
-    solo_return: bool=False, 
-) -> list:
-    r"""
-    Process and validate the `pde_mode` argument to determine the active PDE modes.
-
-    This function handles `pde_mode` inputs and processes them according to
-    the following rules:
-    - If the input is 'none', only the mode 'none' will be active.
-    - If the input is 'both', it will set both 'consolidation' and 'gw_flow'.
-    - If the input is not 'consolidation' and `enforce_consolidation` is True,
-      it will issue a warning and fallback to using only 'consolidation'.
-    - If `pde_mode_config` is provided, it overrides any other mode setting.
-
-    Parameters
-    ----------
-    pde_mode : str, list of str, or None
-        The desired PDE modes. Can be:
-        - A string (e.g., 'consolidation', 'gw_flow', etc.)
-        - A list of strings (e.g., ['consolidation', 'gw_flow'])
-        - None (to set no active modes)
-    enforce_consolidation : bool, default=False
-        If True, the function ensures that 'consolidation' is the only
-        mode active and issues a warning if another mode is passed.
-    pde_mode_config : str, list of str, or None, optional
-        If provided, overrides the `pde_mode` argument.
-
-    Returns
-    -------
-    list of str
-        A list of active PDE modes. The list will contain the modes in lowercase.
-        If 'none' or 'both' is specified, these will be processed according to the logic.
-
-    Raises
-    ------
-    TypeError
-        If `pde_mode` is neither a string, a list of strings, nor None.
-
-    Warnings
-    --------
-    If `enforce_consolidation` is True and a mode other than 'consolidation'
-    is passed, a warning will be issued, and 'consolidation' will be used
-    as the active mode instead.
-    """
-    # If pde_mode_config is provided, use it, otherwise fall back to pde_mode
-    if pde_mode_config:
-        pde_mode = pde_mode_config
-
-    if isinstance(pde_mode, str):
-        pde_modes_active = [pde_mode.lower()]
-    elif isinstance(pde_mode, list):
-        pde_modes_active = [str(p_type).lower() for p_type in pde_mode]
-    elif pde_mode is None:
-        pde_modes_active = ['none']  # Explicitly 'none' if None is provided
-    else:
-        raise TypeError("`pde_mode` must be a string, list of strings, or None.")
-
-    # Handle special cases for "none" and "both"
-    if "none" in pde_modes_active or "off" in pde_modes_active:  # If 'none' is present, override others
-        pde_modes_active = ['none']
-    if "both" in pde_modes_active or "on" in pde_modes_active:  # If 'both' is present, use both modes
-        pde_modes_active = ['consolidation', 'gw_flow']
-
-    # Enforce consolidation mode if specified
-    if enforce_consolidation and 'consolidation' not in pde_modes_active:
-        warnings.warn(
-            "You have passed a mode other than 'consolidation'. "
-            "Falling back to 'consolidation' as the active mode.",
-            UserWarning
-        )
-        pde_modes_active = ['consolidation']
-
-    # Ensure 'consolidation' is the only active mode if it was defaulted,
-    # or if user explicitly selected only unsupported modes.
-    if any(unsupported in pde_modes_active 
-           for unsupported in {
-                   'consolidation', 'gw_flow', 
-                   'both', 'none', 'on', 
-                   'off'}
-          ):
-        # This case means decorator didn't force 'consolidation', so we do it here
-        logger.info(
-            f"Unsupported pde_mode '{pde_mode}' "
-            "selected without 'consolidation'. "
-            "Model will use 'consolidation' mode."
-        )
-        # pde_modes_active = ['consolidation']
-
-    if solo_return: 
-        pde_modes_active = pde_modes_active[0]
-        
-    # Return the processed pde_modes_active
-    return pde_modes_active
 
 def check_and_rename_keys(inputs, y): # ranem to check_input_keys 
     r"""
