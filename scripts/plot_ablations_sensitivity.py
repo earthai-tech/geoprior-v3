@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -36,8 +35,9 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any
 
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
@@ -46,7 +46,6 @@ import pandas as pd
 
 from . import config as cfg
 from . import utils
-
 
 _LOWER_IS_BETTER = {
     "mae",
@@ -61,7 +60,7 @@ _LOWER_IS_BETTER = {
 # ---------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------
-def _parse_args(argv: List[str] | None) -> argparse.Namespace:
+def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         prog="plot-ablations-sensitivity",
         description="Supplement S6: Ablations & sensitivities",
@@ -107,7 +106,12 @@ def _parse_args(argv: List[str] | None) -> argparse.Namespace:
         "--map-kind",
         type=str,
         default="heatmap",
-        choices=["heatmap", "smooth", "contour", "tricontour"],
+        choices=[
+            "heatmap",
+            "smooth",
+            "contour",
+            "tricontour",
+        ],
         help=(
             "Map rendering style. 'heatmap' uses imshow on the lambda "
             "grid. 'tricontour' gives a density-like smooth surface and "
@@ -227,7 +231,6 @@ def _parse_args(argv: List[str] | None) -> argparse.Namespace:
         default="false",
         help="Disable automatic best-cell marker (true/false).",
     )
-
 
     p.add_argument(
         "--pareto",
@@ -374,8 +377,8 @@ def _parse_args(argv: List[str] | None) -> argparse.Namespace:
 # ---------------------------------------------------------------------
 # I/O
 # ---------------------------------------------------------------------
-def _read_jsonl(fp: Path) -> List[Dict[str, Any]]:
-    rows: List[Dict[str, Any]] = []
+def _read_jsonl(fp: Path) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
     with fp.open("r", encoding="utf-8") as f:
         for ln in f:
             s = ln.strip()
@@ -433,7 +436,7 @@ def _scan_records(root: Path) -> pd.DataFrame:
         cfg.PATTERNS.get("ablation_record_jsonl", ()),
     )
 
-    blocks: List[pd.DataFrame] = []
+    blocks: list[pd.DataFrame] = []
     for fp in files:
         df = _load_one_input(fp)
         if not df.empty:
@@ -446,7 +449,7 @@ def _scan_records(root: Path) -> pd.DataFrame:
 
 def _load_records(args: argparse.Namespace) -> pd.DataFrame:
     if args.input:
-        blocks: List[pd.DataFrame] = []
+        blocks: list[pd.DataFrame] = []
         for s in args.input:
             p = utils.as_path(s)
             if p.exists():
@@ -493,7 +496,9 @@ def _canon_cols(df: pd.DataFrame) -> pd.DataFrame:
     utils.ensure_columns(df, aliases=aliases)
 
     if "city" in df.columns:
-        df["city"] = df["city"].astype(str).map(utils.canonical_city)
+        df["city"] = (
+            df["city"].astype(str).map(utils.canonical_city)
+        )
 
     if "pde_mode" in df.columns:
         df["pde_mode"] = df["pde_mode"].map(_canon_pde_mode)
@@ -617,7 +622,9 @@ def _dedupe_prefer_best(df: pd.DataFrame) -> pd.DataFrame:
     return df.drop(columns=["_score"], errors="ignore")
 
 
-def _filter_models(df: pd.DataFrame, models: str) -> pd.DataFrame:
+def _filter_models(
+    df: pd.DataFrame, models: str
+) -> pd.DataFrame:
     s = str(models or "").strip()
     if not s or "model" not in df.columns:
         return df
@@ -629,10 +636,12 @@ def _filter_models(df: pd.DataFrame, models: str) -> pd.DataFrame:
     return df.loc[df["model"].astype(str).isin(keep)].copy()
 
 
-def _resolve_cities(args: argparse.Namespace) -> List[str]:
+def _resolve_cities(args: argparse.Namespace) -> list[str]:
     raw = str(args.cities or "").strip()
     if raw:
-        parts = [p.strip() for p in raw.split(",") if p.strip()]
+        parts = [
+            p.strip() for p in raw.split(",") if p.strip()
+        ]
         return [utils.canonical_city(p) for p in parts]
 
     a = utils.canonical_city(args.city_a)
@@ -640,13 +649,15 @@ def _resolve_cities(args: argparse.Namespace) -> List[str]:
     return [a, b]
 
 
-def _resolve_map_metrics(args: argparse.Namespace) -> List[str]:
+def _resolve_map_metrics(
+    args: argparse.Namespace,
+) -> list[str]:
     raw = str(args.heatmap_metrics or "").strip()
     if not raw:
         return [str(args.heatmap_metric)]
     mets = [m.strip() for m in raw.split(",") if m.strip()]
     # unique, stable order
-    out: List[str] = []
+    out: list[str] = []
     for m in mets:
         if m not in out:
             out.append(m)
@@ -689,7 +700,9 @@ def _axes_cleanup(ax: plt.Axes) -> None:
     ax.spines["right"].set_visible(False)
 
 
-def _best_ij(arr: np.ndarray, *, metric: str) -> Optional[Tuple[int, int]]:
+def _best_ij(
+    arr: np.ndarray, *, metric: str
+) -> tuple[int, int] | None:
     try:
         a = np.asarray(arr, dtype=float)
         if not np.isfinite(a).any():
@@ -724,13 +737,17 @@ def _bars_by_lambda(
         ax.set_axis_off()
         return
 
-    keep = sub.loc[sub["pde_bucket"].isin(["none", "both"])].copy()
+    keep = sub.loc[
+        sub["pde_bucket"].isin(["none", "both"])
+    ].copy()
     if keep.empty:
         ax.set_axis_off()
         return
 
     grp = (
-        keep.groupby(["pde_bucket", "lambda_prior"], dropna=False)[metric]
+        keep.groupby(
+            ["pde_bucket", "lambda_prior"], dropna=False
+        )[metric]
         .mean()
         .reset_index()
     )
@@ -753,7 +770,8 @@ def _bars_by_lambda(
     for i, m in enumerate(modes):
         y = [
             grp.loc[
-                (grp["pde_bucket"] == m) & (grp["lambda_prior"] == x),
+                (grp["pde_bucket"] == m)
+                & (grp["lambda_prior"] == x),
                 metric,
             ].mean()
             for x in xs
@@ -771,7 +789,7 @@ def _bars_by_lambda(
         )
 
         if annotate:
-            for xi, yi in zip(xloc, y):
+            for xi, yi in zip(xloc, y, strict=False):
                 if pd.notna(yi):
                     ax.text(
                         xi,
@@ -814,12 +832,18 @@ def _lambda_grid(
     df: pd.DataFrame,
     *,
     cities: Iterable[str],
-) -> Tuple[List[float], List[float]]:
-    sub = df.loc[df["city"].astype(str).isin([str(c) for c in cities])].copy()
+) -> tuple[list[float], list[float]]:
+    sub = df.loc[
+        df["city"].astype(str).isin([str(c) for c in cities])
+    ].copy()
     sub = sub.loc[sub["pde_bucket"].eq("both")].copy()
     sub = sub.dropna(subset=["lambda_cons", "lambda_prior"])
-    lc = sorted(set(float(x) for x in sub["lambda_cons"].unique()))
-    lp = sorted(set(float(x) for x in sub["lambda_prior"].unique()))
+    lc = sorted(
+        set(float(x) for x in sub["lambda_cons"].unique())
+    )
+    lp = sorted(
+        set(float(x) for x in sub["lambda_prior"].unique())
+    )
     return lc, lp
 
 
@@ -827,8 +851,8 @@ def _pivot_grid(
     sub: pd.DataFrame,
     *,
     metric: str,
-    lc_grid: Optional[List[float]],
-    lp_grid: Optional[List[float]],
+    lc_grid: list[float] | None,
+    lp_grid: list[float] | None,
 ) -> pd.DataFrame:
     piv = sub.pivot_table(
         index="lambda_cons",
@@ -851,10 +875,10 @@ def _pivot_grid(
 def _maybe_mark_point(
     ax: plt.Axes,
     *,
-    lc_ticks: List[float],
-    lp_ticks: List[float],
-    mark_lc: Optional[float],
-    mark_lp: Optional[float],
+    lc_ticks: list[float],
+    lp_ticks: list[float],
+    mark_lc: float | None,
+    mark_lp: float | None,
 ) -> None:
     if mark_lc is None or mark_lp is None:
         return
@@ -882,8 +906,8 @@ def _plot_map_on_grid(
     map_kind: str,
     levels: int,
     contour_lines: bool,
-    vmin: Optional[float],
-    vmax: Optional[float],
+    vmin: float | None,
+    vmax: float | None,
 ) -> Any:
     """
     Returns an artist usable for colorbar (Image/ContourSet).
@@ -899,7 +923,9 @@ def _plot_map_on_grid(
     lc = list(piv.index.astype(float))
 
     if map_kind in {"heatmap", "smooth"}:
-        interp = "nearest" if map_kind == "heatmap" else "bicubic"
+        interp = (
+            "nearest" if map_kind == "heatmap" else "bicubic"
+        )
         im = ax.imshow(
             mdata,
             aspect="auto",
@@ -946,14 +972,16 @@ def _plot_map_tricontour(
     cmap: str,
     levels: int,
     contour_lines: bool,
-    vmin: Optional[float],
-    vmax: Optional[float],
+    vmin: float | None,
+    vmax: float | None,
 ) -> Any:
     """
     Tricontour view from scattered (lambda_prior, lambda_cons) points.
     Handles missing lambda grid cells gracefully.
     """
-    s = sub.dropna(subset=["lambda_cons", "lambda_prior", metric]).copy()
+    s = sub.dropna(
+        subset=["lambda_cons", "lambda_prior", metric]
+    ).copy()
     if s.empty:
         return None
 
@@ -994,17 +1022,17 @@ def _heatmap_one(
     map_kind: str,
     levels: int,
     contour_lines: bool,
-    lc_grid: Optional[List[float]],
-    lp_grid: Optional[List[float]],
-    vmin: Optional[float],
-    vmax: Optional[float],
+    lc_grid: list[float] | None,
+    lp_grid: list[float] | None,
+    vmin: float | None,
+    vmax: float | None,
     show_labels: bool,
     show_ticks: bool,
     show_title: bool,
     mark_best: bool,
-    mark_lc: Optional[float],
-    mark_lp: Optional[float],
-) -> Optional[Any]:
+    mark_lc: float | None,
+    mark_lp: float | None,
+) -> Any | None:
     sub = df.loc[df["city"].astype(str).eq(str(city))].copy()
     sub = sub.loc[sub["pde_bucket"].eq("both")].copy()
 
@@ -1037,7 +1065,9 @@ def _heatmap_one(
             set(float(x) for x in sub["lambda_cons"].unique())
         )
         lp_ticks = lp_grid or sorted(
-            set(float(x) for x in sub["lambda_prior"].unique())
+            set(
+                float(x) for x in sub["lambda_prior"].unique()
+            )
         )
         if show_ticks:
             ax.set_xticks(lp_ticks)
@@ -1065,8 +1095,12 @@ def _heatmap_one(
 
         # "best" marker: approximate by pivoting to the aligned grid
         if mark_best:
-            piv = _pivot_grid(sub, metric=metric,
-                              lc_grid=lc_grid, lp_grid=lp_grid)
+            piv = _pivot_grid(
+                sub,
+                metric=metric,
+                lc_grid=lc_grid,
+                lp_grid=lp_grid,
+            )
             if not piv.empty:
                 ij = _best_ij(piv.values, metric=metric)
                 if ij is not None:
@@ -1132,8 +1166,12 @@ def _heatmap_one(
         ax.set_xticks(range(piv.shape[1]))
         ax.set_yticks(range(piv.shape[0]))
         if show_ticks:
-            ax.set_xticklabels([f"{c:.2g}" for c in piv.columns])
-            ax.set_yticklabels([f"{r:.2g}" for r in piv.index])
+            ax.set_xticklabels(
+                [f"{c:.2g}" for c in piv.columns]
+            )
+            ax.set_yticklabels(
+                [f"{r:.2g}" for r in piv.index]
+            )
         else:
             ax.set_xticklabels([])
             ax.set_yticklabels([])
@@ -1169,7 +1207,9 @@ def _heatmap_one(
 
     if mark_lc is not None and mark_lp is not None:
         if map_kind == "contour":
-            if (mark_lc in piv.index) and (mark_lp in piv.columns):
+            if (mark_lc in piv.index) and (
+                mark_lp in piv.columns
+            ):
                 ax.scatter(
                     [float(mark_lp)],
                     [float(mark_lc)],
@@ -1188,12 +1228,11 @@ def _heatmap_one(
                 mark_lp=mark_lp,
             )
 
-
     _axes_cleanup(ax)
     return artist
 
 
-def _resolve_out(*, out: str, out_dir: Optional[str]) -> Path:
+def _resolve_out(*, out: str, out_dir: str | None) -> Path:
     if out_dir:
         base = Path(out_dir).expanduser()
         return (base / Path(out).expanduser()).resolve()
@@ -1203,9 +1242,9 @@ def _resolve_out(*, out: str, out_dir: Optional[str]) -> Path:
 def _compute_clim(
     df: pd.DataFrame,
     *,
-    cities: List[str],
+    cities: list[str],
     metric: str,
-) -> Tuple[Optional[float], Optional[float]]:
+) -> tuple[float | None, float | None]:
     """
     Compute a robust vmin/vmax for a metric across the selected cities
     (physics-on bucket only).
@@ -1213,7 +1252,9 @@ def _compute_clim(
     if metric not in df.columns:
         return None, None
 
-    sub = df.loc[df["city"].astype(str).isin([str(c) for c in cities])].copy()
+    sub = df.loc[
+        df["city"].astype(str).isin([str(c) for c in cities])
+    ].copy()
     sub = sub.loc[sub["pde_bucket"].eq("both")].copy()
     v = pd.to_numeric(sub[metric], errors="coerce").dropna()
     if v.empty:
@@ -1239,7 +1280,9 @@ def _to_min_obj(metric: str, v: np.ndarray) -> np.ndarray:
     return -v
 
 
-def _pareto_front_mask(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+def _pareto_front_mask(
+    x: np.ndarray, y: np.ndarray
+) -> np.ndarray:
     """
     Non-dominated points for 2D minimization objectives.
     Returns a boolean mask of points on the Pareto front.
@@ -1250,7 +1293,11 @@ def _pareto_front_mask(x: np.ndarray, y: np.ndarray) -> np.ndarray:
         if not keep[i]:
             continue
         # dominated if exists j with xj<=xi and yj<=yi and one strict
-        dom = (x <= x[i]) & (y <= y[i]) & ((x < x[i]) | (y < y[i]))
+        dom = (
+            (x <= x[i])
+            & (y <= y[i])
+            & ((x < x[i]) | (y < y[i]))
+        )
         if np.any(dom):
             keep[i] = False
     return keep
@@ -1265,13 +1312,13 @@ def _pareto_panel(
     y_metric: str,
     c_metric: str,
     cmap: str,
-    c_norm: Optional[Any],
+    c_norm: Any | None,
     s: float,
     alpha: float,
     show_labels: bool,
     show_title: bool,
-    mark_lc: Optional[float],
-    mark_lp: Optional[float],
+    mark_lc: float | None,
+    mark_lp: float | None,
     show_front: bool,
     density: bool,
     density_gridsize: int,
@@ -1279,11 +1326,17 @@ def _pareto_panel(
     density_cmap: str,
     density_alpha: float,
     density_mincnt: int,
-) -> Optional[Any]:
+) -> Any | None:
     sub = df.loc[df["city"].astype(str).eq(str(city))].copy()
     sub = sub.loc[sub["pde_bucket"].eq("both")].copy()
 
-    need = [x_metric, y_metric, c_metric, "lambda_cons", "lambda_prior"]
+    need = [
+        x_metric,
+        y_metric,
+        c_metric,
+        "lambda_cons",
+        "lambda_prior",
+    ]
     for c in need:
         if c not in sub.columns:
             ax.set_axis_off()
@@ -1294,9 +1347,15 @@ def _pareto_panel(
         ax.set_axis_off()
         return None
 
-    x = pd.to_numeric(sub[x_metric], errors="coerce").to_numpy()
-    y = pd.to_numeric(sub[y_metric], errors="coerce").to_numpy()
-    c = pd.to_numeric(sub[c_metric], errors="coerce").to_numpy()
+    x = pd.to_numeric(
+        sub[x_metric], errors="coerce"
+    ).to_numpy()
+    y = pd.to_numeric(
+        sub[y_metric], errors="coerce"
+    ).to_numpy()
+    c = pd.to_numeric(
+        sub[c_metric], errors="coerce"
+    ).to_numpy()
 
     ok = np.isfinite(x) & np.isfinite(y) & np.isfinite(c)
     x, y, c = x[ok], y[ok], c[ok]
@@ -1328,10 +1387,14 @@ def _pareto_panel(
                     vals = np.log10(counts + 1.0)
                     hb.set_array(vals)
                     vmax = float(np.nanmax(vals))
-                    hb.set_clim(0.0, vmax if vmax > 0 else 1.0)
+                    hb.set_clim(
+                        0.0, vmax if vmax > 0 else 1.0
+                    )
                 else:
                     vmax = float(np.nanmax(counts))
-                    hb.set_clim(0.0, vmax if vmax > 0 else 1.0)
+                    hb.set_clim(
+                        0.0, vmax if vmax > 0 else 1.0
+                    )
         except Exception:
             pass
 
@@ -1374,8 +1437,14 @@ def _pareto_panel(
     # Mark chosen (lambda_cons, lambda_prior) point if present
     if mark_lc is not None and mark_lp is not None:
         sel = sub.loc[
-            (sub["lambda_cons"].astype(float) == float(mark_lc))
-            & (sub["lambda_prior"].astype(float) == float(mark_lp))
+            (
+                sub["lambda_cons"].astype(float)
+                == float(mark_lc)
+            )
+            & (
+                sub["lambda_prior"].astype(float)
+                == float(mark_lp)
+            )
         ]
         if not sel.empty:
             xv = float(np.nanmean(sel[x_metric].to_numpy()))
@@ -1405,27 +1474,50 @@ def _pareto_panel(
     return sc
 
 
-
 # ---------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------
-def plot_ablations_sensivity_main(argv: List[str] | None = None) -> None:
+def plot_ablations_sensivity_main(
+    argv: list[str] | None = None,
+) -> None:
     args = _parse_args(argv)
 
-    utils.set_paper_style(fontsize=int(args.font), dpi=int(args.dpi))
+    utils.set_paper_style(
+        fontsize=int(args.font), dpi=int(args.dpi)
+    )
 
-    show_legend = utils.str_to_bool(args.show_legend, default=True)
-    show_labels = utils.str_to_bool(args.show_labels, default=True)
-    show_ticks = utils.str_to_bool(args.show_ticklabels, default=True)
-    show_title = utils.str_to_bool(args.show_title, default=True)
-    show_pan_t = utils.str_to_bool(args.show_panel_titles, default=True)
+    show_legend = utils.str_to_bool(
+        args.show_legend, default=True
+    )
+    show_labels = utils.str_to_bool(
+        args.show_labels, default=True
+    )
+    show_ticks = utils.str_to_bool(
+        args.show_ticklabels, default=True
+    )
+    show_title = utils.str_to_bool(
+        args.show_title, default=True
+    )
+    show_pan_t = utils.str_to_bool(
+        args.show_panel_titles, default=True
+    )
 
-    annotate = not utils.str_to_bool(args.mute_values, default=False)
-    show_cb = not utils.str_to_bool(args.no_colorbar, default=False)
+    annotate = not utils.str_to_bool(
+        args.mute_values, default=False
+    )
+    show_cb = not utils.str_to_bool(
+        args.no_colorbar, default=False
+    )
     no_bars = utils.str_to_bool(args.no_bars, default=False)
-    align_grid = utils.str_to_bool(args.align_grid, default=True)
-    contour_lines = utils.str_to_bool(args.contour_lines, default=False)
-    mark_best = not utils.str_to_bool(args.no_best_marker, default=False)
+    align_grid = utils.str_to_bool(
+        args.align_grid, default=True
+    )
+    contour_lines = utils.str_to_bool(
+        args.contour_lines, default=False
+    )
+    mark_best = not utils.str_to_bool(
+        args.no_best_marker, default=False
+    )
 
     df = _load_records(args)
     if df.empty:
@@ -1464,20 +1556,33 @@ def plot_ablations_sensivity_main(argv: List[str] | None = None) -> None:
         x_metric = str(args.pareto_x)
         y_metric = str(args.pareto_y)
         c_metric = str(args.pareto_color)
-        show_front = utils.str_to_bool(args.pareto_front, default=True)
+        show_front = utils.str_to_bool(
+            args.pareto_front, default=True
+        )
         density_on = utils.str_to_bool(
             getattr(args, "pareto_density", "false"),
             default=False,
         )
-        density_gridsize = int(getattr(args, "pareto_density_gridsize", 35))
-        density_bins = str(getattr(args, "pareto_density_bins", "log"))
-        density_cmap = str(getattr(args, "pareto_density_cmap", "Greys"))
-        density_alpha = float(getattr(args, "pareto_density_alpha", 0.25))
-        density_mincnt = int(getattr(args, "pareto_density_mincnt", 1))
-
+        density_gridsize = int(
+            getattr(args, "pareto_density_gridsize", 35)
+        )
+        density_bins = str(
+            getattr(args, "pareto_density_bins", "log")
+        )
+        density_cmap = str(
+            getattr(args, "pareto_density_cmap", "Greys")
+        )
+        density_alpha = float(
+            getattr(args, "pareto_density_alpha", 0.25)
+        )
+        density_mincnt = int(
+            getattr(args, "pareto_density_mincnt", 1)
+        )
 
         # Shared color scale across cities for comparability
-        cmin, cmax = _compute_clim(df, cities=[city_a, city_b], metric=c_metric)
+        cmin, cmax = _compute_clim(
+            df, cities=[city_a, city_b], metric=c_metric
+        )
         c_norm = None
         if cmin is not None and cmax is not None:
             c_norm = plt.Normalize(vmin=cmin, vmax=cmax)
@@ -1551,7 +1656,9 @@ def plot_ablations_sensivity_main(argv: List[str] | None = None) -> None:
 
         if show_title:
             default = "Supplement S6 • Pareto trade-offs"
-            ttl = utils.resolve_title(default=default, title=args.title)
+            ttl = utils.resolve_title(
+                default=default, title=args.title
+            )
             fig.suptitle(ttl, fontsize=11, fontweight="bold")
 
         utils.save_figure(fig, out)
@@ -1561,10 +1668,12 @@ def plot_ablations_sensivity_main(argv: List[str] | None = None) -> None:
         no_bars = True
 
     # Build a shared lambda grid if requested
-    lc_grid: Optional[List[float]] = None
-    lp_grid: Optional[List[float]] = None
+    lc_grid: list[float] | None = None
+    lp_grid: list[float] | None = None
     if align_grid:
-        lc_grid, lp_grid = _lambda_grid(df, cities=[city_a, city_b])
+        lc_grid, lp_grid = _lambda_grid(
+            df, cities=[city_a, city_b]
+        )
 
     # -----------------------------------------------------------------
     # Layout
@@ -1612,7 +1721,9 @@ def plot_ablations_sensivity_main(argv: List[str] | None = None) -> None:
         )
 
         metric = map_metrics[0]
-        vmin, vmax = _compute_clim(df, cities=[city_a, city_b], metric=metric)
+        vmin, vmax = _compute_clim(
+            df, cities=[city_a, city_b], metric=metric
+        )
 
         ax21 = fig.add_subplot(gs[1, 0])
         im_a = _heatmap_one(
@@ -1689,9 +1800,9 @@ def plot_ablations_sensivity_main(argv: List[str] | None = None) -> None:
         )
 
         # Precompute per-metric color ranges and store artists for cbar
-        artists: List[Any] = []
-        top_axes: List[plt.Axes] = []
-        bottom_axes: List[plt.Axes] = []
+        artists: list[Any] = []
+        top_axes: list[plt.Axes] = []
+        bottom_axes: list[plt.Axes] = []
 
         for j, metric in enumerate(map_metrics):
             vmin, vmax = _compute_clim(
@@ -1785,8 +1896,14 @@ def plot_ablations_sensivity_main(argv: List[str] | None = None) -> None:
         if show_cb:
             for j, metric in enumerate(map_metrics):
                 art = artists[j] if j < len(artists) else None
-                axA = top_axes[j] if j < len(top_axes) else None
-                axB = bottom_axes[j] if j < len(bottom_axes) else None
+                axA = (
+                    top_axes[j] if j < len(top_axes) else None
+                )
+                axB = (
+                    bottom_axes[j]
+                    if j < len(bottom_axes)
+                    else None
+                )
                 if art is None or axA is None or axB is None:
                     continue
                 cbar = fig.colorbar(
@@ -1803,13 +1920,15 @@ def plot_ablations_sensivity_main(argv: List[str] | None = None) -> None:
     # -----------------------------------------------------------------
     if show_title:
         default = "Supplement S6 • Extended ablations & sensitivities"
-        ttl = utils.resolve_title(default=default, title=args.title)
+        ttl = utils.resolve_title(
+            default=default, title=args.title
+        )
         fig.suptitle(ttl, fontsize=11, fontweight="bold")
 
     utils.save_figure(fig, out)
 
 
-def main(argv: List[str] | None = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     plot_ablations_sensivity_main(argv)
 
 

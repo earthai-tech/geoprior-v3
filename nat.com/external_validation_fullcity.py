@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 external_validation_fullcity.py
 
@@ -16,7 +15,7 @@ import argparse
 import json
 import math
 import os
-from typing import Dict, List, Optional, Sequence, Tuple
+from collections.abc import Sequence
 
 import joblib
 import numpy as np
@@ -37,15 +36,14 @@ from geoprior.params import (
 )
 from geoprior.utils import make_tf_dataset
 
-
-ArrayDict = Dict[str, np.ndarray]
+ArrayDict = dict[str, np.ndarray]
 
 
 # ---------------------------------------------------------------------
 # Generic I/O helpers
 # ---------------------------------------------------------------------
 def read_json(path: str) -> dict:
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -64,32 +62,35 @@ def ensure_dir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
 
 
-def is_readable_file(path: Optional[str]) -> bool:
+def is_readable_file(path: str | None) -> bool:
     if not isinstance(path, str) or not path:
         return False
     try:
-        return os.path.isfile(path) and os.access(path, os.R_OK)
+        return os.path.isfile(path) and os.access(
+            path, os.R_OK
+        )
     except OSError:
         return False
+
 
 # ---------------------------------------------------------------------
 # Path rebasing for stale Stage-1 manifests
 # ---------------------------------------------------------------------
-def split_after_artifacts(path: str) -> Optional[str]:
+def split_after_artifacts(path: str) -> str | None:
     norm = path.replace("/", "\\")
     key = "\\artifacts\\"
     low = norm.lower()
     i = low.find(key)
     if i < 0:
         return None
-    return norm[i + len(key):].replace("\\", os.sep)
+    return norm[i + len(key) :].replace("\\", os.sep)
 
 
 def resolve_stage1_artifact(
     stage1_manifest_path: str,
-    recorded_path: Optional[str],
-    explicit: Optional[str] = None,
-) -> Optional[str]:
+    recorded_path: str | None,
+    explicit: str | None = None,
+) -> str | None:
     if explicit and is_readable_file(explicit):
         return explicit
 
@@ -99,16 +100,26 @@ def resolve_stage1_artifact(
     if not isinstance(recorded_path, str):
         return None
 
-    stage1_dir = os.path.dirname(os.path.abspath(stage1_manifest_path))
+    stage1_dir = os.path.dirname(
+        os.path.abspath(stage1_manifest_path)
+    )
     artifacts_dir = os.path.join(stage1_dir, "artifacts")
 
-    cands: List[str] = []
+    cands: list[str] = []
     rel = split_after_artifacts(recorded_path)
     if rel:
         cands.append(os.path.join(artifacts_dir, rel))
 
-    cands.append(os.path.join(stage1_dir, os.path.basename(recorded_path)))
-    cands.append(os.path.join(artifacts_dir, os.path.basename(recorded_path)))
+    cands.append(
+        os.path.join(
+            stage1_dir, os.path.basename(recorded_path)
+        )
+    )
+    cands.append(
+        os.path.join(
+            artifacts_dir, os.path.basename(recorded_path)
+        )
+    )
 
     for cand in cands:
         if is_readable_file(cand):
@@ -119,14 +130,16 @@ def resolve_stage1_artifact(
 
 def resolve_stage1_inputs_paths(
     stage1_manifest_path: str,
-    train_inputs: Optional[str],
-    val_inputs: Optional[str],
-    test_inputs: Optional[str],
-    coord_scaler: Optional[str],
-) -> Tuple[str, str, Optional[str], Optional[str], dict]:
+    train_inputs: str | None,
+    val_inputs: str | None,
+    test_inputs: str | None,
+    coord_scaler: str | None,
+) -> tuple[str, str, str | None, str | None, dict]:
     manifest = read_json(stage1_manifest_path)
     npz = (manifest.get("artifacts") or {}).get("numpy") or {}
-    enc = (manifest.get("artifacts") or {}).get("encoders") or {}
+    enc = (manifest.get("artifacts") or {}).get(
+        "encoders"
+    ) or {}
 
     train_path = resolve_stage1_artifact(
         stage1_manifest_path,
@@ -160,7 +173,13 @@ def resolve_stage1_inputs_paths(
             "Pass --val-inputs explicitly."
         )
 
-    return train_path, val_path, test_path, coord_path, manifest
+    return (
+        train_path,
+        val_path,
+        test_path,
+        coord_path,
+        manifest,
+    )
 
 
 # ---------------------------------------------------------------------
@@ -185,7 +204,9 @@ def make_full_inputs_npz(
 
     full: ArrayDict = {}
     for k in sorted(first_keys):
-        full[k] = np.concatenate([d[k] for d in parts], axis=0)
+        full[k] = np.concatenate(
+            [d[k] for d in parts], axis=0
+        )
 
     save_npz_dict(out_npz, full)
     return out_npz
@@ -195,26 +216,34 @@ def make_full_inputs_npz(
 # Stage-2 model resolution / loading
 # ---------------------------------------------------------------------
 def resolve_run_dir(
-    stage2_run_dir: Optional[str],
-    stage2_manifest_path: Optional[str],
-) -> Optional[str]:
+    stage2_run_dir: str | None,
+    stage2_manifest_path: str | None,
+) -> str | None:
     if stage2_run_dir and os.path.isdir(stage2_run_dir):
         return stage2_run_dir
 
-    if stage2_manifest_path and is_readable_file(stage2_manifest_path):
+    if stage2_manifest_path and is_readable_file(
+        stage2_manifest_path
+    ):
         m = read_json(stage2_manifest_path)
-        run_dir = ((m.get("paths") or {}).get("run_dir"))
-        if isinstance(run_dir, str) and os.path.isdir(run_dir):
+        run_dir = (m.get("paths") or {}).get("run_dir")
+        if isinstance(run_dir, str) and os.path.isdir(
+            run_dir
+        ):
             return run_dir
 
-        man_dir = os.path.dirname(os.path.abspath(stage2_manifest_path))
+        man_dir = os.path.dirname(
+            os.path.abspath(stage2_manifest_path)
+        )
         if os.path.isdir(man_dir):
             return man_dir
 
     return None
 
 
-def _search_run_dir_for_model_files(run_dir: str) -> Dict[str, Optional[str]]:
+def _search_run_dir_for_model_files(
+    run_dir: str,
+) -> dict[str, str | None]:
     out = {
         "final_keras": None,
         "best_keras": None,
@@ -247,10 +276,10 @@ def _search_run_dir_for_model_files(run_dir: str) -> Dict[str, Optional[str]]:
 
 
 def resolve_stage2_bundle(
-    model_path: Optional[str],
-    stage2_manifest_path: Optional[str],
-    stage2_run_dir: Optional[str],
-) -> Dict[str, Optional[str]]:
+    model_path: str | None,
+    stage2_manifest_path: str | None,
+    stage2_run_dir: str | None,
+) -> dict[str, str | None]:
     out = {
         "model_path": None,
         "weights_path": None,
@@ -261,13 +290,19 @@ def resolve_stage2_bundle(
     if model_path and is_readable_file(model_path):
         out["model_path"] = model_path
 
-    run_dir = resolve_run_dir(stage2_run_dir, stage2_manifest_path)
+    run_dir = resolve_run_dir(
+        stage2_run_dir, stage2_manifest_path
+    )
     out["run_dir"] = run_dir
 
-    if stage2_manifest_path and is_readable_file(stage2_manifest_path):
+    if stage2_manifest_path and is_readable_file(
+        stage2_manifest_path
+    ):
         m = read_json(stage2_manifest_path)
         paths = m.get("paths") or {}
-        man_dir = os.path.dirname(os.path.abspath(stage2_manifest_path))
+        man_dir = os.path.dirname(
+            os.path.abspath(stage2_manifest_path)
+        )
 
         for key in (
             "final_keras",
@@ -278,18 +313,29 @@ def resolve_stage2_bundle(
         ):
             p = paths.get(key)
             if is_readable_file(p):
-                if key in ("final_keras", "best_keras") and out["model_path"] is None:
+                if (
+                    key in ("final_keras", "best_keras")
+                    and out["model_path"] is None
+                ):
                     out["model_path"] = p
                 elif key in ("best_weights", "weights_h5"):
                     out["weights_path"] = p
                 elif key == "model_init_manifest":
                     out["model_init_manifest"] = p
             elif isinstance(p, str):
-                rebased = os.path.join(man_dir, os.path.basename(p))
+                rebased = os.path.join(
+                    man_dir, os.path.basename(p)
+                )
                 if is_readable_file(rebased):
-                    if key in ("final_keras", "best_keras") and out["model_path"] is None:
+                    if (
+                        key in ("final_keras", "best_keras")
+                        and out["model_path"] is None
+                    ):
                         out["model_path"] = rebased
-                    elif key in ("best_weights", "weights_h5"):
+                    elif key in (
+                        "best_weights",
+                        "weights_h5",
+                    ):
                         out["weights_path"] = rebased
                     elif key == "model_init_manifest":
                         out["model_init_manifest"] = rebased
@@ -297,10 +343,15 @@ def resolve_stage2_bundle(
     if run_dir:
         found = _search_run_dir_for_model_files(run_dir)
         if out["model_path"] is None:
-            out["model_path"] = found["final_keras"] or found["best_keras"]
-        out["weights_path"] = out["weights_path"] or found["weights_h5"]
+            out["model_path"] = (
+                found["final_keras"] or found["best_keras"]
+            )
+        out["weights_path"] = (
+            out["weights_path"] or found["weights_h5"]
+        )
         out["model_init_manifest"] = (
-            out["model_init_manifest"] or found["model_init_manifest"]
+            out["model_init_manifest"]
+            or found["model_init_manifest"]
         )
 
     if out["model_path"] is None:
@@ -312,7 +363,7 @@ def resolve_stage2_bundle(
     return out
 
 
-def build_custom_objects() -> Dict[str, object]:
+def build_custom_objects() -> dict[str, object]:
     return {
         "GeoPriorSubsNet": GeoPriorSubsNet,
         "PoroElasticSubsNet": PoroElasticSubsNet,
@@ -324,26 +375,32 @@ def build_custom_objects() -> Dict[str, object]:
     }
 
 
-def _model_class_from_name(name: Optional[str]):
+def _model_class_from_name(name: str | None):
     name = (name or "").strip()
     if name == "PoroElasticSubsNet":
         return PoroElasticSubsNet
     return GeoPriorSubsNet
 
 
-def _builder_from_init_manifest(model_init_manifest_path: str):
+def _builder_from_init_manifest(
+    model_init_manifest_path: str,
+):
     init_m = read_json(model_init_manifest_path)
-    dims = (init_m.get("dims") or {})
-    cfg = (init_m.get("config") or {})
-    gp = (cfg.get("geoprior") or {})
-    model_cls = _model_class_from_name(init_m.get("model_class"))
+    dims = init_m.get("dims") or {}
+    cfg = init_m.get("config") or {}
+    gp = cfg.get("geoprior") or {}
+    model_cls = _model_class_from_name(
+        init_m.get("model_class")
+    )
 
     def builder(_manifest: dict):
         return model_cls(
             static_input_dim=int(dims["static_input_dim"]),
             dynamic_input_dim=int(dims["dynamic_input_dim"]),
             future_input_dim=int(dims["future_input_dim"]),
-            output_subsidence_dim=int(dims["output_subsidence_dim"]),
+            output_subsidence_dim=int(
+                dims["output_subsidence_dim"]
+            ),
             output_gwl_dim=int(dims["output_gwl_dim"]),
             forecast_horizon=int(dims["forecast_horizon"]),
             quantiles=cfg.get("quantiles"),
@@ -353,29 +410,45 @@ def _builder_from_init_manifest(model_init_manifest_path: str):
             embed_dim=int(cfg.get("embed_dim", 32)),
             hidden_units=int(cfg.get("hidden_units", 64)),
             lstm_units=int(cfg.get("lstm_units", 64)),
-            attention_units=int(cfg.get("attention_units", 64)),
+            attention_units=int(
+                cfg.get("attention_units", 64)
+            ),
             num_heads=int(cfg.get("num_heads", 2)),
             dropout_rate=float(cfg.get("dropout_rate", 0.1)),
             memory_size=int(cfg.get("memory_size", 50)),
             scales=list(cfg.get("scales") or [1, 2]),
-            use_residuals=bool(cfg.get("use_residuals", True)),
-            use_batch_norm=bool(cfg.get("use_batch_norm", False)),
+            use_residuals=bool(
+                cfg.get("use_residuals", True)
+            ),
+            use_batch_norm=bool(
+                cfg.get("use_batch_norm", False)
+            ),
             use_vsn=bool(cfg.get("use_vsn", True)),
             vsn_units=int(cfg.get("vsn_units", 32))
             if cfg.get("vsn_units") is not None
             else None,
-            mv=LearnableMV(initial_value=float(gp.get("init_mv", 1e-7))),
-            kappa=LearnableKappa(initial_value=float(gp.get("init_kappa", 1.0))),
-            gamma_w=FixedGammaW(value=float(gp.get("gamma_w", 9810.0))),
+            mv=LearnableMV(
+                initial_value=float(gp.get("init_mv", 1e-7))
+            ),
+            kappa=LearnableKappa(
+                initial_value=float(gp.get("init_kappa", 1.0))
+            ),
+            gamma_w=FixedGammaW(
+                value=float(gp.get("gamma_w", 9810.0))
+            ),
             h_ref=FixedHRef(
                 value=float(gp.get("h_ref_value", 0.0)),
                 mode=gp.get("h_ref_mode"),
             ),
             kappa_mode=gp.get("kappa_mode", "bar"),
-            use_effective_h=bool(gp.get("use_effective_h", True)),
+            use_effective_h=bool(
+                gp.get("use_effective_h", True)
+            ),
             hd_factor=float(gp.get("hd_factor", 0.6)),
             offset_mode=gp.get("offset_mode", "mul"),
-            scaling_kwargs=dict(cfg.get("scaling_kwargs") or {}),
+            scaling_kwargs=dict(
+                cfg.get("scaling_kwargs") or {}
+            ),
             verbose=0,
         )
 
@@ -383,7 +456,7 @@ def _builder_from_init_manifest(model_init_manifest_path: str):
 
 
 def load_inference_bundle(
-    bundle: Dict[str, Optional[str]],
+    bundle: dict[str, str | None],
     build_inputs: dict,
 ):
     custom_objects = build_custom_objects()
@@ -405,7 +478,9 @@ def load_inference_bundle(
 
     # Bundle fallback
     if weights_path and model_init_manifest:
-        builder = _builder_from_init_manifest(model_init_manifest)
+        builder = _builder_from_init_manifest(
+            model_init_manifest
+        )
         model = load_inference_model(
             keras_path=model_path,
             weights_path=weights_path,
@@ -418,7 +493,9 @@ def load_inference_bundle(
             log_fn=print,
             use_in_memory_model=False,
         )
-        print("[OK] Loaded inference model via compat bundle loader.")
+        print(
+            "[OK] Loaded inference model via compat bundle loader."
+        )
         return model
 
     raise RuntimeError(
@@ -442,7 +519,9 @@ def get_dataset_mode(stage1_manifest: dict) -> str:
     )
 
 
-def get_forecast_horizon(stage1_manifest: dict, fallback_h: int) -> int:
+def get_forecast_horizon(
+    stage1_manifest: dict, fallback_h: int
+) -> int:
     cfg = stage1_manifest.get("config") or {}
     nested_model = cfg.get("model") or {}
     val = (
@@ -454,7 +533,9 @@ def get_forecast_horizon(stage1_manifest: dict, fallback_h: int) -> int:
     return int(val)
 
 
-def get_feature_names(stage1_manifest: dict) -> Tuple[List[str], List[str]]:
+def get_feature_names(
+    stage1_manifest: dict,
+) -> tuple[list[str], list[str]]:
     cfg = stage1_manifest.get("config") or {}
     features = cfg.get("features") or {}
     dyn = list(features.get("dynamic") or [])
@@ -468,7 +549,7 @@ def get_feature_names(stage1_manifest: dict) -> Tuple[List[str], List[str]]:
 def export_fullcity_payload(
     stage1_manifest: dict,
     full_inputs_npz: str,
-    bundle: Dict[str, Optional[str]],
+    bundle: dict[str, str | None],
     out_payload: str,
     batch_size: int,
 ) -> str:
@@ -478,7 +559,9 @@ def export_fullcity_payload(
 
     dyn_names, fut_names = get_feature_names(stage1_manifest)
     mode = get_dataset_mode(stage1_manifest)
-    forecast_h = get_forecast_horizon(stage1_manifest, fallback_h=H)
+    forecast_h = get_forecast_horizon(
+        stage1_manifest, fallback_h=H
+    )
 
     y_dummy = {
         "subs_pred": np.zeros((n, H, 1), dtype=np.float32),
@@ -503,7 +586,9 @@ def export_fullcity_payload(
         build_inputs = xb
         break
     if build_inputs is None:
-        raise RuntimeError("Could not get a build batch from ds_full.")
+        raise RuntimeError(
+            "Could not get a build batch from ds_full."
+        )
 
     model = load_inference_bundle(bundle, build_inputs)
 
@@ -515,7 +600,9 @@ def export_fullcity_payload(
         overwrite=True,
         metadata={
             "split": "full_city_union",
-            "source_inputs_npz": os.path.abspath(full_inputs_npz),
+            "source_inputs_npz": os.path.abspath(
+                full_inputs_npz
+            ),
         },
     )
 
@@ -537,7 +624,7 @@ def export_fullcity_payload(
 # ---------------------------------------------------------------------
 def inverse_txy(
     coords_bh3: np.ndarray,
-    coord_scaler_path: Optional[str],
+    coord_scaler_path: str | None,
 ) -> np.ndarray:
     first = np.asarray(coords_bh3[:, 0, :], dtype=float)
     if not coord_scaler_path:
@@ -580,7 +667,7 @@ def reduce_horizon(
 def build_pixel_table(
     inputs_npz: str,
     payload_npz: str,
-    coord_scaler_path: Optional[str],
+    coord_scaler_path: str | None,
     horizon_reducer: str,
     site_reducer: str,
 ) -> pd.DataFrame:
@@ -640,7 +727,11 @@ def build_pixel_table(
     if h_payload is not None:
         num_cols.append("H_payload_m")
 
-    agg_fun = "mean" if str(site_reducer).lower() == "mean" else "median"
+    agg_fun = (
+        "mean"
+        if str(site_reducer).lower() == "mean"
+        else "median"
+    )
     pix = (
         df.groupby(["x", "y"], as_index=False)[num_cols]
         .agg(agg_fun)
@@ -655,7 +746,7 @@ def nearest_match(
     sx: float,
     sy: float,
     allow_swapped_xy: bool = True,
-) -> Tuple[str, float, float, float, int]:
+) -> tuple[str, float, float, float, int]:
     px = pixels["x"].to_numpy(dtype=float)
     py = pixels["y"].to_numpy(dtype=float)
 
@@ -698,6 +789,7 @@ def nearest_match(
 # Metrics
 # ---------------------------------------------------------------------
 
+
 def spearman_rho(x: np.ndarray, y: np.ndarray) -> float:
     x = np.asarray(x, dtype=float)
     y = np.asarray(y, dtype=float)
@@ -709,8 +801,16 @@ def spearman_rho(x: np.ndarray, y: np.ndarray) -> float:
     if x.size != y.size or x.size < 2:
         return float("nan")
 
-    xr = pd.Series(x).rank(method="average").to_numpy(dtype=float)
-    yr = pd.Series(y).rank(method="average").to_numpy(dtype=float)
+    xr = (
+        pd.Series(x)
+        .rank(method="average")
+        .to_numpy(dtype=float)
+    )
+    yr = (
+        pd.Series(y)
+        .rank(method="average")
+        .to_numpy(dtype=float)
+    )
 
     if np.ptp(xr) == 0.0 or np.ptp(yr) == 0.0:
         return float("nan")
@@ -723,6 +823,7 @@ def spearman_rho(x: np.ndarray, y: np.ndarray) -> float:
         return float("nan")
 
     return float(np.sum(xs * ys) / den)
+
 
 def mae(x: np.ndarray, y: np.ndarray) -> float:
     x = np.asarray(x, dtype=float)
@@ -766,7 +867,7 @@ def compute_external_metrics(
     validation_csv: str,
     full_inputs_npz: str,
     full_payload_npz: str,
-    coord_scaler_path: Optional[str],
+    coord_scaler_path: str | None,
     outdir: str,
     x_col: str,
     y_col: str,
@@ -789,9 +890,13 @@ def compute_external_metrics(
 
     sites = pd.read_csv(validation_csv)
     if x_col not in sites.columns:
-        raise KeyError(f"x column {x_col!r} not found in validation CSV.")
+        raise KeyError(
+            f"x column {x_col!r} not found in validation CSV."
+        )
     if y_col not in sites.columns:
-        raise KeyError(f"y column {y_col!r} not found in validation CSV.")
+        raise KeyError(
+            f"y column {y_col!r} not found in validation CSV."
+        )
     if productivity_col not in sites.columns:
         raise KeyError(
             f"productivity column {productivity_col!r} "
@@ -826,8 +931,12 @@ def compute_external_metrics(
         rows.append(out)
 
     site_df = pd.DataFrame(rows)
-    site_df["dx_m"] = site_df["matched_pixel_x"] - site_df[x_col]
-    site_df["dy_m"] = site_df["matched_pixel_y"] - site_df[y_col]
+    site_df["dx_m"] = (
+        site_df["matched_pixel_x"] - site_df[x_col]
+    )
+    site_df["dy_m"] = (
+        site_df["matched_pixel_y"] - site_df[y_col]
+    )
 
     validate_site_matches(
         site_df,
@@ -835,7 +944,9 @@ def compute_external_metrics(
         min_unique_pixels,
     )
 
-    obs_h = site_df["approx_compressible_thickness_m"].to_numpy(dtype=float)
+    obs_h = site_df[
+        "approx_compressible_thickness_m"
+    ].to_numpy(dtype=float)
     mod_h = site_df["model_H_eff_m"].to_numpy(dtype=float)
     prod = site_df[productivity_col].to_numpy(dtype=float)
     mod_k = site_df["model_K_mps"].to_numpy(dtype=float)
@@ -856,15 +967,27 @@ def compute_external_metrics(
             "site_reducer": site_reducer,
         },
         "match_summary": {
-            "unique_pixels": int(site_df["pixel_idx"].nunique()),
-            "min_distance_m": float(site_df["match_distance_m"].min()),
-            "median_distance_m": float(site_df["match_distance_m"].median()),
-            "max_distance_m": float(site_df["match_distance_m"].max()),
+            "unique_pixels": int(
+                site_df["pixel_idx"].nunique()
+            ),
+            "min_distance_m": float(
+                site_df["match_distance_m"].min()
+            ),
+            "median_distance_m": float(
+                site_df["match_distance_m"].median()
+            ),
+            "max_distance_m": float(
+                site_df["match_distance_m"].max()
+            ),
         },
         "files": {
             "validation_csv": os.path.abspath(validation_csv),
-            "full_inputs_npz": os.path.abspath(full_inputs_npz),
-            "full_payload_npz": os.path.abspath(full_payload_npz),
+            "full_inputs_npz": os.path.abspath(
+                full_inputs_npz
+            ),
+            "full_payload_npz": os.path.abspath(
+                full_payload_npz
+            ),
             "coord_scaler": (
                 os.path.abspath(coord_scaler_path)
                 if coord_scaler_path
@@ -959,32 +1082,40 @@ def main() -> None:
     args = build_parser().parse_args()
     ensure_dir(args.outdir)
 
-    train_inputs, val_inputs, test_inputs, coord_scaler, stage1_manifest = (
-        resolve_stage1_inputs_paths(
-            args.stage1_manifest,
-            train_inputs=args.train_inputs,
-            val_inputs=args.val_inputs,
-            test_inputs=args.test_inputs,
-            coord_scaler=args.coord_scaler,
-        )
+    (
+        train_inputs,
+        val_inputs,
+        test_inputs,
+        coord_scaler,
+        stage1_manifest,
+    ) = resolve_stage1_inputs_paths(
+        args.stage1_manifest,
+        train_inputs=args.train_inputs,
+        val_inputs=args.val_inputs,
+        test_inputs=args.test_inputs,
+        coord_scaler=args.coord_scaler,
     )
 
-    full_inputs_npz = (
-        args.full_inputs_npz
-        or os.path.join(args.outdir, "full_inputs.npz")
+    full_inputs_npz = args.full_inputs_npz or os.path.join(
+        args.outdir, "full_inputs.npz"
     )
     if not is_readable_file(full_inputs_npz):
         parts = [train_inputs, val_inputs]
         if test_inputs:
             parts.append(test_inputs)
-        full_inputs_npz = make_full_inputs_npz(parts, full_inputs_npz)
-        print(f"[OK] Saved full-city inputs -> {full_inputs_npz}")
+        full_inputs_npz = make_full_inputs_npz(
+            parts, full_inputs_npz
+        )
+        print(
+            f"[OK] Saved full-city inputs -> {full_inputs_npz}"
+        )
     else:
-        print(f"[OK] Reusing full-city inputs -> {full_inputs_npz}")
+        print(
+            f"[OK] Reusing full-city inputs -> {full_inputs_npz}"
+        )
 
-    full_payload_npz = (
-        args.full_payload_npz
-        or os.path.join(args.outdir, "physics_payload_fullcity.npz")
+    full_payload_npz = args.full_payload_npz or os.path.join(
+        args.outdir, "physics_payload_fullcity.npz"
     )
     if not args.skip_export:
         bundle = resolve_stage2_bundle(
@@ -1005,7 +1136,9 @@ def main() -> None:
             raise FileNotFoundError(
                 "--skip-export was set but full payload file does not exist."
             )
-        print(f"[OK] Reusing full-city payload -> {full_payload_npz}")
+        print(
+            f"[OK] Reusing full-city payload -> {full_payload_npz}"
+        )
 
     site_df, metrics = compute_external_metrics(
         validation_csv=args.validation_csv,

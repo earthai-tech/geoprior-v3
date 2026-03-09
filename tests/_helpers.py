@@ -6,7 +6,6 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-
 MODULE_CANDIDATES = {
     "identifiability": [
         "geoprior.models.subsidence.identifiability",
@@ -38,7 +37,9 @@ def import_module_group(key: str):
         try:
             return importlib.import_module(name)
         except Exception as exc:  # pragma: no cover
-            errs.append(f"{name}: {type(exc).__name__}: {exc}")
+            errs.append(
+                f"{name}: {type(exc).__name__}: {exc}"
+            )
     pytest.skip(
         f"Could not import module group {key!r}. Tried: "
         + " | ".join(errs)
@@ -55,7 +56,9 @@ def to_scalar(x):
 
 
 class DummyLayer:
-    def __init__(self, trainable: bool = True, name: str = "layer"):
+    def __init__(
+        self, trainable: bool = True, name: str = "layer"
+    ):
         self.trainable = trainable
         self.name = name
 

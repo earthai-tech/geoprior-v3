@@ -1,19 +1,21 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3  https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
 from __future__ import annotations
-from typing import Optional, Dict, Any
+
+from typing import Any
 
 import numpy as np
 
-from ....logging import get_logger, OncePerMessageFilter
+from ....logging import OncePerMessageFilter, get_logger
 from ... import KERAS_DEPS, dependency_message
 from .model import GeoPriorSubsNet
 
-register_keras_serializable = KERAS_DEPS.register_keras_serializable
+register_keras_serializable = (
+    KERAS_DEPS.register_keras_serializable
+)
 
 logger = get_logger(__name__)
 logger.addFilter(OncePerMessageFilter())
@@ -23,7 +25,9 @@ DEP_MSG = dependency_message("nn.pinn.models")
 __all__ = ["PoroElasticSubsNet"]
 
 
-@register_keras_serializable("geoprior.nn.pinn", name="PoroElasticSubsNet")
+@register_keras_serializable(
+    "geoprior.nn.pinn", name="PoroElasticSubsNet"
+)
 class PoroElasticSubsNet(GeoPriorSubsNet):
     """
     Poroelastic surrogate variant of GeoPriorSubsNet.
@@ -50,7 +54,7 @@ class PoroElasticSubsNet(GeoPriorSubsNet):
         hd_factor: float = 0.6,
         kappa_mode: str = "bar",
         scale_pde_residuals: bool = True,
-        scaling_kwargs: Optional[Dict[str, Any]] = None,
+        scaling_kwargs: dict[str, Any] | None = None,
         name: str = "PoroElasticSubsNet",
         **kwargs,
     ):
@@ -104,7 +108,7 @@ class PoroElasticSubsNet(GeoPriorSubsNet):
     def compile(
         self,
         lambda_cons: float = 1.0,
-        lambda_gw: float = 0.0,   # gw_flow off by default for surrogate
+        lambda_gw: float = 0.0,  # gw_flow off by default for surrogate
         lambda_prior: float = 5.0,
         lambda_smooth: float = 1.0,
         lambda_mv: float = 0.1,

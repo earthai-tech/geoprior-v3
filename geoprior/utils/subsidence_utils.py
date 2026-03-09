@@ -1,22 +1,22 @@
-# -*- coding: utf-8 -*-
 # License: Apache-2.0
 # Copyright (c) 2026-present
 # Author: LKouadio <etanoyau@gmail.com>
 
 from __future__ import annotations
-from typing import ( 
-    Dict, Iterable, Tuple, 
-    Any, Optional, Literal, 
-    Mapping, Union, Sequence 
+
+import json
+import math
+import os
+import warnings
+from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import dataclass
+from typing import (
+    Any,
+    Literal,
 )
-import os 
-import json 
-import math 
+
 import numpy as np
 import pandas as pd
-
-from dataclasses import dataclass
-import warnings
 
 ShiftMode = Literal["none", "min", "mean", "value"]
 Mode = Literal["add", "overwrite"]
@@ -39,7 +39,7 @@ def _looks_like_zscore_name(col: str) -> bool:
 def _first_present(
     cols: set,
     candidates: Sequence[str],
-) -> Optional[str]:
+) -> str | None:
     for c in candidates:
         if c and c in cols:
             return c
@@ -48,11 +48,11 @@ def _first_present(
 
 def normalize_gwl_alias(
     df: pd.DataFrame,
-    gwl_col_user: Optional[str],
+    gwl_col_user: str | None,
     *,
     prefer_depth_bgs: bool = True,
     verbose: bool = True,
-) -> Tuple[pd.DataFrame, Optional[str]]:
+) -> tuple[pd.DataFrame, str | None]:
     """Normalize common GWL naming aliases.
 
     Naming-only: unit conversion happens later.
@@ -98,8 +98,7 @@ def normalize_gwl_alias(
     if u in aliases_depth and "GWL_depth_bgs" in cols:
         if verbose and user != "GWL_depth_bgs":
             print(
-                "  [GWL] Alias "
-                f"{user!r} -> 'GWL_depth_bgs'."
+                f"  [GWL] Alias {user!r} -> 'GWL_depth_bgs'."
             )
         return df, "GWL_depth_bgs"
 
@@ -123,9 +122,11 @@ def normalize_gwl_alias(
                 )
             return df, alt
 
-    if user == "GWL" and ("GWL" in cols) and _first_present(
-        cols, depth_m + depth
-    ) is None:
+    if (
+        user == "GWL"
+        and ("GWL" in cols)
+        and _first_present(cols, depth_m + depth) is None
+    ):
         if "GWL_depth_bgs" not in cols:
             if verbose:
                 print(
@@ -143,12 +144,12 @@ def normalize_gwl_alias(
 
 def resolve_gwl_for_physics(
     df: pd.DataFrame,
-    gwl_col_user: Optional[str],
+    gwl_col_user: str | None,
     *,
     prefer_depth_bgs: bool = True,
     allow_keep_zscore_as_ml: bool = True,
     verbose: bool = True,
-) -> Tuple[str, Optional[str]]:
+) -> tuple[str, str | None]:
     """Pick meters GWL for physics; keep z-score ML-only."""
     df, gwl_col_user = normalize_gwl_alias(
         df,
@@ -264,9 +265,9 @@ def resolve_head_column(
     *,
     depth_col: str,
     head_col: str = "head_m",
-    z_surf_col: Optional[str] = None,
+    z_surf_col: str | None = None,
     use_head_proxy: bool = True,
-) -> Tuple[str, Optional[str]]:
+) -> tuple[str, str | None]:
     """Resolve a head column, creating one if needed."""
     cols = set(df.columns)
 
@@ -289,10 +290,9 @@ def resolve_head_column(
 
     if z_used is not None:
         new_head = "head_m"
-        df[new_head] = (
-            pd.to_numeric(df[z_used], errors="coerce")
-            - pd.to_numeric(df[depth_col], errors="coerce")
-        )
+        df[new_head] = pd.to_numeric(
+            df[z_used], errors="coerce"
+        ) - pd.to_numeric(df[depth_col], errors="coerce")
         return new_head, z_used
 
     if use_head_proxy:
@@ -307,6 +307,7 @@ def resolve_head_column(
         "Cannot resolve head. Provide 'head_m' "
         "or z_surf, or enable USE_HEAD_PROXY."
     )
+
 
 def _norm_unit(unit: str | None) -> str:
     u = (unit or "").strip().lower()
@@ -348,9 +349,7 @@ def _as_float(x: object) -> float:
         ) from e
 
     if not math.isfinite(v):
-        raise ValueError(
-            f"Non-finite value: {v!r}."
-        )
+        raise ValueError(f"Non-finite value: {v!r}.")
     return float(v)
 
 
@@ -598,7 +597,9 @@ def finalize_si_scaling_kwargs(
 
     kw["subs_unit_to_si"] = _f("subs_unit_to_si", 1.0)
     kw["head_unit_to_si"] = _f("head_unit_to_si", 1.0)
-    kw["thickness_unit_to_si"] = _f("thickness_unit_to_si", 1.0)
+    kw["thickness_unit_to_si"] = _f(
+        "thickness_unit_to_si", 1.0
+    )
 
     kw.setdefault("subs_scale_si", None)
     kw.setdefault("subs_bias_si", None)
@@ -629,6 +630,7 @@ def finalize_si_scaling_kwargs(
                 f"{name} already SI but {unit_key}={cur}. "
                 f"Setting {unit_key}=1.0.",
                 RuntimeWarning,
+                stacklevel=2,
             )
         kw[unit_key] = 1.0
 
@@ -665,6 +667,7 @@ def finalize_si_scaling_kwargs(
 
     return kw
 
+
 # Backward-compat alias (no duplicate body)
 finalize_si_affines_and_units = finalize_si_scaling_kwargs
 
@@ -693,8 +696,8 @@ def lonlat_to_utm_m(
     lat_deg: np.ndarray,
     *,
     src_epsg: int = 4326,
-    target_epsg: Optional[int] = None,
-) -> Tuple[np.ndarray, np.ndarray, int]:
+    target_epsg: int | None = None,
+) -> tuple[np.ndarray, np.ndarray, int]:
     """
     Convert lon/lat degrees to UTM meters using pyproj.
 
@@ -722,14 +725,18 @@ def lonlat_to_utm_m(
         always_xy=True,
     )
     x_m, y_m = tr.transform(lon, lat)
-    return np.asarray(x_m, float), np.asarray(y_m, float), int(target_epsg)
+    return (
+        np.asarray(x_m, float),
+        np.asarray(y_m, float),
+        int(target_epsg),
+    )
 
 
 def _shift_1d(
     a: np.ndarray,
     mode: ShiftMode,
-    value: Optional[float] = None,
-) -> Tuple[np.ndarray, float]:
+    value: float | None = None,
+) -> tuple[np.ndarray, float]:
     """
     Shift array by min/mean/custom value (translation only, not scaling).
     """
@@ -744,7 +751,9 @@ def _shift_1d(
         return a - s, s
     if mode == "value":
         if value is None:
-            raise ValueError("shift mode 'value' requires shift_value.")
+            raise ValueError(
+                "shift mode 'value' requires shift_value."
+            )
         s = float(value)
         return a - s, s
     raise ValueError(f"Unknown shift mode: {mode!r}")
@@ -752,10 +761,14 @@ def _shift_1d(
 
 @dataclass
 class CoordsPack:
-    coords: np.ndarray                  # (B, H, 3) float32
-    coord_mins: Dict[str, float]        # {"t":..., "x":..., "y":...} (original mins/means used)
-    coord_ranges: Dict[str, float]      # {"t":..., "x":..., "y":...} (after shifting; ranges)
-    meta: Dict[str, Any]                # epsg, shift modes, etc.
+    coords: np.ndarray  # (B, H, 3) float32
+    coord_mins: dict[
+        str, float
+    ]  # {"t":..., "x":..., "y":...} (original mins/means used)
+    coord_ranges: dict[
+        str, float
+    ]  # {"t":..., "x":..., "y":...} (after shifting; ranges)
+    meta: dict[str, Any]  # epsg, shift modes, etc.
 
 
 def make_txy_coords(
@@ -765,9 +778,9 @@ def make_txy_coords(
     *,
     time_shift: ShiftMode = "min",
     xy_shift: ShiftMode = "min",
-    time_shift_value: Optional[float] = None,
-    x_shift_value: Optional[float] = None,
-    y_shift_value: Optional[float] = None,
+    time_shift_value: float | None = None,
+    x_shift_value: float | None = None,
+    y_shift_value: float | None = None,
     dtype: str = "float32",
 ) -> CoordsPack:
     """
@@ -788,7 +801,9 @@ def make_txy_coords(
     y = np.asarray(y, dtype=float)
 
     if t.shape != x.shape or t.shape != y.shape:
-        raise ValueError(f"t, x, y must have same shape. Got {t.shape}, {x.shape}, {y.shape}")
+        raise ValueError(
+            f"t, x, y must have same shape. Got {t.shape}, {x.shape}, {y.shape}"
+        )
 
     t2, t0 = _shift_1d(t, time_shift, time_shift_value)
     x2, x0 = _shift_1d(x, xy_shift, x_shift_value)
@@ -799,7 +814,9 @@ def make_txy_coords(
     x_rng = float(np.nanmax(x2) - np.nanmin(x2))
     y_rng = float(np.nanmax(y2) - np.nanmin(y2))
 
-    coords = np.concatenate([t2[..., None], x2[..., None], y2[..., None]], axis=-1).astype(dtype)
+    coords = np.concatenate(
+        [t2[..., None], x2[..., None], y2[..., None]], axis=-1
+    ).astype(dtype)
 
     return CoordsPack(
         coords=coords,
@@ -812,20 +829,22 @@ def make_txy_coords(
     )
 
 
-
-
 def detect_subsidence_mode(
     df: pd.DataFrame,
     *,
     rate_col: str = "subsidence",
     cum_col: str = "subsidence_cum",
     time_col: str = "year",
-    group_cols: Iterable[str] = ("longitude", "latitude", "city"),
+    group_cols: Iterable[str] = (
+        "longitude",
+        "latitude",
+        "city",
+    ),
     tol_rel: float = 0.05,
     min_points: int = 3,
     max_groups: int = 200,
     random_state: int = 42,
-) -> Dict:
+) -> dict:
     """
     Infer whether subsidence columns represent 'rate', 'cumulative',
     or an inconsistent pair.
@@ -847,28 +866,47 @@ def detect_subsidence_mode(
     has_cum = cum_col in cols
 
     if has_cum and not has_rate:
-        return {"mode": "cumulative", "details": {"reason": "cum_col present only"}}
+        return {
+            "mode": "cumulative",
+            "details": {"reason": "cum_col present only"},
+        }
     if has_rate and not has_cum:
-        return {"mode": "rate", "details": {"reason": "rate_col present only"}}
+        return {
+            "mode": "rate",
+            "details": {"reason": "rate_col present only"},
+        }
     if not (has_rate and has_cum):
-        return {"mode": "unknown", "details": {"reason": "neither column present"}}
+        return {
+            "mode": "unknown",
+            "details": {"reason": "neither column present"},
+        }
 
     gcols = [c for c in group_cols if c in cols]
     if not gcols:
         return {
             "mode": "unknown",
-            "details": {"reason": "no valid group_cols found in df"},
+            "details": {
+                "reason": "no valid group_cols found in df"
+            },
         }
 
     # sample groups for speed
     groups = df.groupby(gcols, sort=False)
     keys = list(groups.groups.keys())
     if not keys:
-        return {"mode": "unknown", "details": {"reason": "no groups"}}
+        return {
+            "mode": "unknown",
+            "details": {"reason": "no groups"},
+        }
 
     rng = np.random.default_rng(random_state)
     if len(keys) > max_groups:
-        keys = [keys[i] for i in rng.choice(len(keys), size=max_groups, replace=False)]
+        keys = [
+            keys[i]
+            for i in rng.choice(
+                len(keys), size=max_groups, replace=False
+            )
+        ]
 
     rel_errs = []
     used_groups = 0
@@ -879,9 +917,15 @@ def detect_subsidence_mode(
         if len(g) < min_points:
             continue
 
-        t = pd.to_numeric(g[time_col], errors="coerce").to_numpy(float)
-        r = pd.to_numeric(g[rate_col], errors="coerce").to_numpy(float)
-        c = pd.to_numeric(g[cum_col], errors="coerce").to_numpy(float)
+        t = pd.to_numeric(
+            g[time_col], errors="coerce"
+        ).to_numpy(float)
+        r = pd.to_numeric(
+            g[rate_col], errors="coerce"
+        ).to_numpy(float)
+        c = pd.to_numeric(
+            g[cum_col], errors="coerce"
+        ).to_numpy(float)
 
         m = np.isfinite(t) & np.isfinite(r) & np.isfinite(c)
         t, r, c = t[m], r[m], c[m]
@@ -892,7 +936,12 @@ def detect_subsidence_mode(
         dc = np.diff(c)
         r_next = r[1:]
 
-        m2 = np.isfinite(dt) & np.isfinite(dc) & np.isfinite(r_next) & (dt != 0)
+        m2 = (
+            np.isfinite(dt)
+            & np.isfinite(dc)
+            & np.isfinite(r_next)
+            & (dt != 0)
+        )
         if m2.sum() < (min_points - 1):
             continue
 
@@ -907,7 +956,12 @@ def detect_subsidence_mode(
         used_points += int(m2.sum())
 
     if used_groups == 0:
-        return {"mode": "unknown", "details": {"reason": "insufficient data per group"}}
+        return {
+            "mode": "unknown",
+            "details": {
+                "reason": "insufficient data per group"
+            },
+        }
 
     med = float(np.median(rel_errs))
     out = {
@@ -922,13 +976,18 @@ def detect_subsidence_mode(
         return {"mode": "pair-consistent", "details": out}
     return {"mode": "unknown", "details": out}
 
+
 def rate_to_cumulative(
     df: pd.DataFrame,
     *,
     rate_col: str = "subsidence",
     cum_col: str = "subsidence_cum",
     time_col: str = "year",
-    group_cols: Iterable[str] = ("longitude", "latitude", "city"),
+    group_cols: Iterable[str] = (
+        "longitude",
+        "latitude",
+        "city",
+    ),
     initial: str = "first_equals_rate_dt",
     inplace: bool = False,
 ) -> pd.DataFrame:
@@ -960,10 +1019,16 @@ def rate_to_cumulative(
 
     out[cum_col] = np.nan
 
-    for _, gidx in out.groupby(gcols, sort=False).groups.items():
+    for _, gidx in out.groupby(
+        gcols, sort=False
+    ).groups.items():
         g = out.loc[gidx].sort_values(time_col)
-        t = pd.to_numeric(g[time_col], errors="coerce").to_numpy(float)
-        r = pd.to_numeric(g[rate_col], errors="coerce").to_numpy(float)
+        t = pd.to_numeric(
+            g[time_col], errors="coerce"
+        ).to_numpy(float)
+        r = pd.to_numeric(
+            g[rate_col], errors="coerce"
+        ).to_numpy(float)
 
         m = np.isfinite(t) & np.isfinite(r)
         t, r = t[m], r[m]
@@ -971,7 +1036,11 @@ def rate_to_cumulative(
             continue
 
         dt = np.diff(t)
-        dt_ref = float(np.median(dt[np.isfinite(dt) & (dt != 0)])) if t.size > 1 else 1.0
+        dt_ref = (
+            float(np.median(dt[np.isfinite(dt) & (dt != 0)]))
+            if t.size > 1
+            else 1.0
+        )
         if not np.isfinite(dt_ref) or dt_ref == 0:
             dt_ref = 1.0
 
@@ -981,11 +1050,17 @@ def rate_to_cumulative(
         elif initial == "first_equals_rate_dt":
             c[0] = r[0] * dt_ref
         else:
-            raise ValueError("initial must be 'zero' or 'first_equals_rate_dt'.")
+            raise ValueError(
+                "initial must be 'zero' or 'first_equals_rate_dt'."
+            )
 
         if r.size > 1:
             dt_i = np.diff(t)
-            dt_i = np.where((~np.isfinite(dt_i)) | (dt_i == 0), dt_ref, dt_i)
+            dt_i = np.where(
+                (~np.isfinite(dt_i)) | (dt_i == 0),
+                dt_ref,
+                dt_i,
+            )
             c[1:] = c[0] + np.cumsum(r[1:] * dt_i)
 
         # write back aligned to original rows in this group
@@ -993,13 +1068,18 @@ def rate_to_cumulative(
 
     return out
 
+
 def cumulative_to_rate(
     df: pd.DataFrame,
     *,
     cum_col: str = "subsidence_cum",
     rate_col: str = "subsidence",
     time_col: str = "year",
-    group_cols: Iterable[str] = ("longitude", "latitude", "city"),
+    group_cols: Iterable[str] = (
+        "longitude",
+        "latitude",
+        "city",
+    ),
     first: str = "cum_over_dtref",
     inplace: bool = False,
 ) -> pd.DataFrame:
@@ -1024,10 +1104,16 @@ def cumulative_to_rate(
 
     out[rate_col] = np.nan
 
-    for _, gidx in out.groupby(gcols, sort=False).groups.items():
+    for _, gidx in out.groupby(
+        gcols, sort=False
+    ).groups.items():
         g = out.loc[gidx].sort_values(time_col)
-        t = pd.to_numeric(g[time_col], errors="coerce").to_numpy(float)
-        c = pd.to_numeric(g[cum_col], errors="coerce").to_numpy(float)
+        t = pd.to_numeric(
+            g[time_col], errors="coerce"
+        ).to_numpy(float)
+        c = pd.to_numeric(
+            g[cum_col], errors="coerce"
+        ).to_numpy(float)
 
         m = np.isfinite(t) & np.isfinite(c)
         t, c = t[m], c[m]
@@ -1035,7 +1121,11 @@ def cumulative_to_rate(
             continue
 
         dt = np.diff(t)
-        dt_ref = float(np.median(dt[np.isfinite(dt) & (dt != 0)])) if t.size > 1 else 1.0
+        dt_ref = (
+            float(np.median(dt[np.isfinite(dt) & (dt != 0)]))
+            if t.size > 1
+            else 1.0
+        )
         if not np.isfinite(dt_ref) or dt_ref == 0:
             dt_ref = 1.0
 
@@ -1046,17 +1136,22 @@ def cumulative_to_rate(
         elif first == "cum_over_dtref":
             r[0] = c[0] / dt_ref
         else:
-            raise ValueError("first must be 'nan' or 'cum_over_dtref'.")
+            raise ValueError(
+                "first must be 'nan' or 'cum_over_dtref'."
+            )
 
         if c.size > 1:
             dt_i = np.diff(t)
-            dt_i = np.where((~np.isfinite(dt_i)) | (dt_i == 0), dt_ref, dt_i)
+            dt_i = np.where(
+                (~np.isfinite(dt_i)) | (dt_i == 0),
+                dt_ref,
+                dt_i,
+            )
             r[1:] = np.diff(c) / dt_i
 
         out.loc[g.index[m], rate_col] = r
 
     return out
-
 
 
 # ---------------------------------------------------------------------
@@ -1091,7 +1186,9 @@ _TIME_UNIT_TO_SECONDS: dict[str, float] = {
 }
 
 
-def _cfg_to_mapping(cfg: object | None) -> Mapping[str, object]:
+def _cfg_to_mapping(
+    cfg: object | None,
+) -> Mapping[str, object]:
     if cfg is None:
         return {}
     if isinstance(cfg, Mapping):
@@ -1125,9 +1222,9 @@ def _seconds_per_time_unit(time_units: str | None) -> float:
 
 
 def _is_number(x: object) -> bool:
-    if isinstance(x, (bool,)):
+    if isinstance(x, bool):
         return False
-    return isinstance(x, (int, float, np.number))
+    return isinstance(x, int | float | np.number)
 
 
 def _scale_obj(obj: object, factor: float) -> object:
@@ -1141,15 +1238,19 @@ def _scale_obj(obj: object, factor: float) -> object:
         return float(obj) * float(factor)
 
     if isinstance(obj, dict):
-        return {k: _scale_obj(v, factor) for k, v in obj.items()}
+        return {
+            k: _scale_obj(v, factor) for k, v in obj.items()
+        }
 
-    if isinstance(obj, (list, tuple)):
-        return [ _scale_obj(v, factor) for v in obj ]
+    if isinstance(obj, list | tuple):
+        return [_scale_obj(v, factor) for v in obj]
 
     return obj
 
 
-def _set_scaled(d: dict[str, Any], key: str, factor: float) -> None:
+def _set_scaled(
+    d: dict[str, Any], key: str, factor: float
+) -> None:
     if key not in d:
         return
     d[key] = _scale_obj(d[key], factor)
@@ -1225,11 +1326,14 @@ def convert_eval_payload_units(
     The helper records unit provenance under ``payload["units"]``.
     """
     if payload is None:
-        raise ValueError("payload must be a mapping, got None.")
+        raise ValueError(
+            "payload must be a mapping, got None."
+        )
 
     out: dict[str, Any]
     if copy_payload:
         import copy as _copy
+
         out = _copy.deepcopy(dict(payload))
     else:
         out = dict(payload)  # shallow
@@ -1258,21 +1362,25 @@ def convert_eval_payload_units(
     if not isinstance(out["units"], dict):
         out["units"] = {}
 
-    out["units"].update({
-        # Core provenance the user asked for
-        "subs_unit_to_si": float(u2si),
-        "subs_factor_si_to_real": float(subs_from_si),
-        "subs_metrics_unit": (
-            native_u if mode == "interpretable" else "m"
-        ),
-        # Extra helpful metadata
-        "time_units": str(time_units),
-        "seconds_per_time_unit": float(sec_per),
-    })
+    out["units"].update(
+        {
+            # Core provenance the user asked for
+            "subs_unit_to_si": float(u2si),
+            "subs_factor_si_to_real": float(subs_from_si),
+            "subs_metrics_unit": (
+                native_u if mode == "interpretable" else "m"
+            ),
+            # Extra helpful metadata
+            "time_units": str(time_units),
+            "seconds_per_time_unit": float(sec_per),
+        }
+    )
 
     if mode != "interpretable":
         if savefile:
-            _write_payload(out, savefile, fmt=fmt, indent=indent)
+            _write_payload(
+                out, savefile, fmt=fmt, indent=indent
+            )
         return out
 
     # -----------------------------------------------------------------
@@ -1294,8 +1402,12 @@ def convert_eval_payload_units(
                     continue
 
                 if "mse" in lk:
-                    me[k] = float(v) * (subs_from_si ** 2)
-                elif ("mae" in lk) or ("rmse" in lk) or ("sharpness" in lk):
+                    me[k] = float(v) * (subs_from_si**2)
+                elif (
+                    ("mae" in lk)
+                    or ("rmse" in lk)
+                    or ("sharpness" in lk)
+                ):
                     me[k] = float(v) * subs_from_si
 
         # point_metrics: (mae, mse, r2)
@@ -1304,7 +1416,7 @@ def convert_eval_payload_units(
             if "mae" in pm:
                 _set_scaled(pm, "mae", subs_from_si)
             if "mse" in pm:
-                _set_scaled(pm, "mse", subs_from_si ** 2)
+                _set_scaled(pm, "mse", subs_from_si**2)
             if "rmse" in pm:
                 _set_scaled(pm, "rmse", subs_from_si)
 
@@ -1316,9 +1428,13 @@ def convert_eval_payload_units(
                     continue
                 lk = str(metric_name).lower()
                 if lk in ("mae", "rmse", "sharpness"):
-                    ph[metric_name] = _scale_obj(series, subs_from_si)
+                    ph[metric_name] = _scale_obj(
+                        series, subs_from_si
+                    )
                 elif lk == "mse":
-                    ph[metric_name] = _scale_obj(series, subs_from_si ** 2)
+                    ph[metric_name] = _scale_obj(
+                        series, subs_from_si**2
+                    )
 
         # interval_calibration: only *_phys sharpness is physical
         ic = out.get("interval_calibration")
@@ -1327,7 +1443,9 @@ def convert_eval_payload_units(
                 if not _is_number(v):
                     continue
                 lk = k.lower()
-                if ("sharpness" in lk) and lk.endswith("_phys"):
+                if ("sharpness" in lk) and lk.endswith(
+                    "_phys"
+                ):
                     ic[k] = float(v) * subs_from_si
 
         # censor_stratified: mae_* values
@@ -1340,43 +1458,61 @@ def convert_eval_payload_units(
                 if lk.startswith("mae_") or ("mae" == lk):
                     cs[k] = float(v) * subs_from_si
                 elif lk.startswith("mse_") or ("mse" == lk):
-                    cs[k] = float(v) * (subs_from_si ** 2)
+                    cs[k] = float(v) * (subs_from_si**2)
 
     # -----------------------------------------------------------------
     # 2) Physics residual rates (SI -> interpretable)
     # -----------------------------------------------------------------
     do_phys = scope in ("all", "physics")
     if do_phys:
-        unit_rate = f"{native_u}/{_norm_time_units(str(time_units))}"
+        unit_rate = (
+            f"{native_u}/{_norm_time_units(str(time_units))}"
+        )
         # Prefer converting *_raw variants (scaled eps are often dimensionless)
         me = out.get("metrics_evaluate")
         if isinstance(me, dict):
-            if "epsilon_cons_raw" in me and _is_number(me["epsilon_cons_raw"]):
+            if "epsilon_cons_raw" in me and _is_number(
+                me["epsilon_cons_raw"]
+            ):
                 me["epsilon_cons_raw"] = (
                     float(me["epsilon_cons_raw"])
                     * subs_from_si
                     * sec_per
                 )
-                out["units"]["epsilon_cons_raw_unit"] = unit_rate
+                out["units"]["epsilon_cons_raw_unit"] = (
+                    unit_rate
+                )
 
-            if "epsilon_gw_raw" in me and _is_number(me["epsilon_gw_raw"]):
-                me["epsilon_gw_raw"] = float(me["epsilon_gw_raw"]) * sec_per
+            if "epsilon_gw_raw" in me and _is_number(
+                me["epsilon_gw_raw"]
+            ):
+                me["epsilon_gw_raw"] = (
+                    float(me["epsilon_gw_raw"]) * sec_per
+                )
                 out["units"]["epsilon_gw_raw_unit"] = (
                     f"1/{_norm_time_units(str(time_units))}"
                 )
 
         pdg = out.get("physics_diagnostics")
         if isinstance(pdg, dict):
-            if "epsilon_cons_raw" in pdg and _is_number(pdg["epsilon_cons_raw"]):
+            if "epsilon_cons_raw" in pdg and _is_number(
+                pdg["epsilon_cons_raw"]
+            ):
                 pdg["epsilon_cons_raw"] = (
                     float(pdg["epsilon_cons_raw"])
                     * subs_from_si
                     * sec_per
                 )
-                out["units"]["epsilon_cons_raw_unit"] = unit_rate
+                out["units"]["epsilon_cons_raw_unit"] = (
+                    unit_rate
+                )
 
-            if "epsilon_gw_raw" in pdg and _is_number(pdg["epsilon_gw_raw"]):
-                pdg["epsilon_gw_raw"] = float(pdg["epsilon_gw_raw"]) * sec_per
+            if "epsilon_gw_raw" in pdg and _is_number(
+                pdg["epsilon_gw_raw"]
+            ):
+                pdg["epsilon_gw_raw"] = (
+                    float(pdg["epsilon_gw_raw"]) * sec_per
+                )
                 out["units"]["epsilon_gw_raw_unit"] = (
                     f"1/{_norm_time_units(str(time_units))}"
                 )
@@ -1397,7 +1533,8 @@ def _json_default(x: object) -> object:
     # pandas scalars
     try:
         import pandas as _pd  # local
-        if isinstance(x, (_pd.Timestamp,)):
+
+        if isinstance(x, _pd.Timestamp):
             return x.isoformat()
     except Exception:
         pass
@@ -1429,7 +1566,9 @@ def _write_payload(
 
     fmt0 = (fmt or "").strip().lower()
     if not fmt0:
-        ext = os.path.splitext(savefile)[1].lstrip(".").lower()
+        ext = (
+            os.path.splitext(savefile)[1].lstrip(".").lower()
+        )
         fmt0 = ext or "json"
 
     if fmt0 != "json":
@@ -1448,16 +1587,16 @@ def _write_payload(
 
 
 def _lonlat_to_local_xy_m(
-    lon: Union[np.ndarray, pd.Series],
-    lat: Union[np.ndarray, pd.Series],
-) -> Tuple[np.ndarray, np.ndarray]:
+    lon: np.ndarray | pd.Series,
+    lat: np.ndarray | pd.Series,
+) -> tuple[np.ndarray, np.ndarray]:
     """Local XY meters from lon/lat (fast, city-scale)."""
     lon = np.asarray(lon, dtype=float)
     lat = np.asarray(lat, dtype=float)
 
     lat0 = np.nanmedian(lat)
     lon0 = np.nanmedian(lon)
-    
+
     # meters per degree approx
     m_per_deg_lat = 110_540.0
     m_per_deg_lon = 111_320.0 * np.cos(np.deg2rad(lat0))
@@ -1468,9 +1607,9 @@ def _lonlat_to_local_xy_m(
 
 
 def _knn_impute(
-    values: Union[np.ndarray, pd.Series],
-    x: Union[np.ndarray, pd.Series],
-    y: Union[np.ndarray, pd.Series],
+    values: np.ndarray | pd.Series,
+    x: np.ndarray | pd.Series,
+    y: np.ndarray | pd.Series,
     good_mask: np.ndarray,
     k: int = 20,
 ) -> np.ndarray:
@@ -1490,7 +1629,7 @@ def _knn_impute(
         filled = values.copy()
         filled[bad_idx] = np.nanmedian(values)
         return filled
-    
+
     # If too few good points, fallback
     need = max(5, min(int(k), 20))
     if good_idx.size < need:
@@ -1504,25 +1643,26 @@ def _knn_impute(
     filled = values.copy()
     n_nei = int(min(int(k), good_idx.size))
 
-    try: # sklearn
+    try:  # sklearn
         from sklearn.neighbors import NearestNeighbors
+
         nn = NearestNeighbors(
             n_neighbors=n_nei,
             algorithm="kd_tree",
         )
         nn.fit(p_good)
         neigh = nn.kneighbors(p_bad, return_distance=False)
-        
+
         for j, nbrs in enumerate(neigh):
             src = good_idx[nbrs]
             filled[bad_idx[j]] = np.nanmedian(values[src])
         return filled
-    except: 
-        pass 
-    
+    except:
+        pass
 
-    try: # scipy
+    try:  # scipy
         from scipy.spatial import cKDTree
+
         tree = cKDTree(p_good)
         _, ii = tree.query(p_bad, k=n_nei)
 
@@ -1533,13 +1673,14 @@ def _knn_impute(
             src = good_idx[nbrs]
             filled[bad_idx[j]] = np.nanmedian(values[src])
         return filled
-    
+
     except:
         pass
-    
+
     # last resort
     filled[bad_idx] = np.nanmedian(values[good_idx])
     return filled
+
 
 def _infer_gwl_scale_auto(
     g: np.ndarray,
@@ -1567,7 +1708,10 @@ def _infer_gwl_scale_auto(
     # Ambiguous middle zone: default to meters.
     return 1.0
 
-def _resolve_save_path(savefile: Optional[str]) -> Optional[str]:
+
+def _resolve_save_path(
+    savefile: str | None,
+) -> str | None:
     """Return a CSV path or None."""
     if not savefile:
         return None
@@ -1585,6 +1729,7 @@ def _resolve_save_path(savefile: Optional[str]) -> Optional[str]:
 
     return path
 
+
 def clean_gwl_zsurf(
     df: pd.DataFrame,
     *,
@@ -1592,16 +1737,16 @@ def clean_gwl_zsurf(
     lat_col: str = "latitude",
     z_col: str = "z_surf",
     gwl_col: str = "GWL_depth_bgs",
-    gwl_scale: Union[str, float] = "auto",
+    gwl_scale: str | float = "auto",
     max_depth_m: float = 50.0,
     z_outlier_iqr_mult: float = 3.0,
     knn_k: int = 25,
     return_report: bool = True,
-    savefile: Optional[str] = None,
-) -> Tuple[pd.DataFrame, Optional[Dict[str, Any]], Optional[str]]:
+    savefile: str | None = None,
+) -> tuple[pd.DataFrame, dict[str, Any] | None, str | None]:
     """Fix GWL units + robust z_surf, then recompute head_m."""
     df = df.copy()
-    
+
     # --- 0) Basic checks
     required = (lon_col, lat_col, z_col, gwl_col)
     for c in required:
@@ -1610,14 +1755,13 @@ def clean_gwl_zsurf(
 
     gwl_raw = f"{gwl_col}_raw"
     z_raw = f"{z_col}_raw"
-    
 
     # Keep raw
     if gwl_raw not in df.columns:
         df[gwl_raw] = df[gwl_col]
     if z_raw not in df.columns:
         df[z_raw] = df[z_col]
-        
+
     # --- 1) Infer GWL scale
     if gwl_scale == "auto":
         g = df[gwl_col].to_numpy(dtype=float)
@@ -1627,7 +1771,7 @@ def clean_gwl_zsurf(
 
         # # Your case: always <=100 and city is low-lying -> cm is the safest default
         # # If discover the collector used decimeters, set gwl_scale=0.1 manually.
-        
+
         # if (gmax <= 120.0) and (gmed >= 5.0):
         #     gwl_scale_val = 0.01  # cm -> m
         # else:
@@ -1659,7 +1803,7 @@ def clean_gwl_zsurf(
     hi = float(q3 + z_outlier_iqr_mult * iqr)
 
     good = np.isfinite(zvals) & (zvals >= lo) & (zvals <= hi)
-    
+
     # --- 5) Spatial kNN impute for outliers
     x, y = _lonlat_to_local_xy_m(
         z_loc[lon_col].to_numpy(),
@@ -1673,21 +1817,27 @@ def clean_gwl_zsurf(
         good_mask=good,
         k=int(knn_k),
     )
-    
+
     # Extra safety: clip to robust bounds after imputation
     z_filled = np.clip(z_filled, lo, hi)
 
     z_loc["z_surf_corr"] = z_filled
     z_loc["z_surf_flag_outlier"] = ~good
-    
+
     # --- 6) Merge corrected z_surf back
     df = df.merge(
-        z_loc[[lon_col, lat_col, "z_surf_corr",
-               "z_surf_flag_outlier"]],
+        z_loc[
+            [
+                lon_col,
+                lat_col,
+                "z_surf_corr",
+                "z_surf_flag_outlier",
+            ]
+        ],
         on=[lon_col, lat_col],
         how="left",
     )
-    
+
     # Prefer corrected z_surf everywhere
     df["z_surf_m"] = df["z_surf_corr"].astype(float)
     df["head_m"] = df["z_surf_m"] - df["GWL_depth_bgs_m"]
@@ -1696,7 +1846,7 @@ def clean_gwl_zsurf(
     if saved_path is not None:
         df.to_csv(saved_path, index=False)
 
-    report: Optional[Dict[str, Any]] = None
+    report: dict[str, Any] | None = None
     if return_report:
         pct = [0.01, 0.05, 0.5, 0.95, 0.99]
 
@@ -1724,16 +1874,16 @@ def clean_gwl_zsurf(
 
 
 def postprocess_eval_json(
-    eval_json: Union[str, Mapping[str, Any]],
+    eval_json: str | Mapping[str, Any],
     *,
-    cfg: Optional[Mapping[str, object]] = None,
+    cfg: Mapping[str, object] | None = None,
     scope: Literal["all", "subsidence", "physics"] = "all",
-    out_path: Optional[str] = None,
+    out_path: str | None = None,
     overwrite: bool = False,
     add_rmse: bool = True,
     force: bool = False,
     indent: int = 2,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Post-hoc convert a Stage-2 evaluation JSON from SI to interpretable units.
 
@@ -1778,9 +1928,9 @@ def postprocess_eval_json(
     # 1) Load payload if needed
     # ----------------------------
     src_path = None
-    if isinstance(eval_json, (str, os.PathLike)):
+    if isinstance(eval_json, str | os.PathLike):
         src_path = os.fspath(eval_json)
-        with open(src_path, "r", encoding="utf-8") as f:
+        with open(src_path, encoding="utf-8") as f:
             payload = json.load(f)
     else:
         payload = dict(eval_json)
@@ -1788,18 +1938,26 @@ def postprocess_eval_json(
     # ----------------------------
     # 2) Build minimal cfg if needed
     # ----------------------------
-    cfg_eff: Dict[str, object] = dict(cfg or {})
+    cfg_eff: dict[str, object] = dict(cfg or {})
     units = payload.get("units", {})
     if isinstance(units, dict):
         # Help `subs_unit_to_si(cfg)` by providing SUBS_UNIT_TO_SI when missing.
-        if "SUBS_UNIT_TO_SI" not in cfg_eff and "subs_unit_to_si" in units:
+        if (
+            "SUBS_UNIT_TO_SI" not in cfg_eff
+            and "subs_unit_to_si" in units
+        ):
             try:
-                cfg_eff["SUBS_UNIT_TO_SI"] = float(units["subs_unit_to_si"])
+                cfg_eff["SUBS_UNIT_TO_SI"] = float(
+                    units["subs_unit_to_si"]
+                )
             except Exception:
                 pass
 
         # Help time-rate conversions (epsilon_*_raw) if present.
-        if "TIME_UNITS" not in cfg_eff and "time_units" in units:
+        if (
+            "TIME_UNITS" not in cfg_eff
+            and "time_units" in units
+        ):
             cfg_eff["TIME_UNITS"] = str(units["time_units"])
 
     # ----------------------------
@@ -1807,11 +1965,18 @@ def postprocess_eval_json(
     # ----------------------------
     already_unit = ""
     if isinstance(units, dict):
-        already_unit = str(units.get("subs_metrics_unit", "")).strip().lower()
+        already_unit = (
+            str(units.get("subs_metrics_unit", ""))
+            .strip()
+            .lower()
+        )
 
     # If already interpretable (e.g. "mm"), do nothing unless forced.
     # Note: in your payloads, SI mode sets subs_metrics_unit="m".
-    do_convert = force or (already_unit not in ("mm", "millimeter", "millimeters"))
+    do_convert = force or (
+        already_unit
+        not in ("mm", "millimeter", "millimeters")
+    )
 
     out = payload
     if do_convert:
@@ -1821,7 +1986,7 @@ def postprocess_eval_json(
             cfg_eff,
             mode="interpretable",
             scope=scope,
-            savefile=None,   # we handle writing ourselves below
+            savefile=None,  # we handle writing ourselves below
             fmt="json",
             indent=indent,
             copy_payload=True,
@@ -1831,7 +1996,8 @@ def postprocess_eval_json(
     # 4) Add RMSE fields (optional)
     # ----------------------------
     if add_rmse:
-        def _safe_sqrt(x: Any) -> Optional[float]:
+
+        def _safe_sqrt(x: Any) -> float | None:
             try:
                 v = float(x)
             except Exception:
@@ -1843,11 +2009,17 @@ def postprocess_eval_json(
         me = out.get("metrics_evaluate")
         if isinstance(me, dict):
             # q50 convenience
-            if "subs_pred_mse_q50" in me and "subs_pred_rmse_q50" not in me:
+            if (
+                "subs_pred_mse_q50" in me
+                and "subs_pred_rmse_q50" not in me
+            ):
                 r = _safe_sqrt(me.get("subs_pred_mse_q50"))
                 if r is not None:
                     me["subs_pred_rmse_q50"] = r
-            if "gwl_pred_mse_q50" in me and "gwl_pred_rmse_q50" not in me:
+            if (
+                "gwl_pred_mse_q50" in me
+                and "gwl_pred_rmse_q50" not in me
+            ):
                 r = _safe_sqrt(me.get("gwl_pred_mse_q50"))
                 if r is not None:
                     me["gwl_pred_rmse_q50"] = r
@@ -1860,10 +2032,14 @@ def postprocess_eval_json(
                     pm["rmse"] = r
 
         ph = out.get("per_horizon")
-        if isinstance(ph, dict) and "mse" in ph and "rmse" not in ph:
+        if (
+            isinstance(ph, dict)
+            and "mse" in ph
+            and "rmse" not in ph
+        ):
             mse_map = ph.get("mse")
             if isinstance(mse_map, dict):
-                rmse_map: Dict[str, float] = {}
+                rmse_map: dict[str, float] = {}
                 for k, v in mse_map.items():
                     r = _safe_sqrt(v)
                     if r is not None:
@@ -1880,7 +2056,9 @@ def postprocess_eval_json(
             # If caller gave a directory, build a filename.
             base = "geoprior_eval_interpretable.json"
             if src_path:
-                root = os.path.splitext(os.path.basename(src_path))[0]
+                root = os.path.splitext(
+                    os.path.basename(src_path)
+                )[0]
                 base = f"{root}_interpretable.json"
             dst = os.path.join(dst, base)
 
@@ -1889,9 +2067,12 @@ def postprocess_eval_json(
 
         # Keep UTF-8 friendly (matches your writer style elsewhere).
         with open(dst, "w", encoding="utf-8") as f:
-            json.dump(out, f, indent=int(indent), ensure_ascii=False)
+            json.dump(
+                out, f, indent=int(indent), ensure_ascii=False
+            )
 
     return dict(out)
+
 
 # # -----------------------
 # # Recommended usage
@@ -1911,4 +2092,3 @@ def postprocess_eval_json(
 #     gwl_col="GWL_depth_bgs",
 #     gwl_scale="auto",   # should pick 1.0
 # )
-

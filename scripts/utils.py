@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -13,21 +12,18 @@
 from __future__ import annotations
 
 import json
-import matplotlib.pyplot as plt
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import ( 
-    List, Any, Dict, 
-    Iterable, Optional,
-    Sequence, 
-    Tuple
+from typing import (
+    Any,
 )
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
 from . import config as cfg
-
 
 _TRUE = {"1", "true", "yes", "y", "t", "on"}
 _FALSE = {"0", "false", "no", "n", "f", "off"}
@@ -131,7 +127,8 @@ def add_plot_text_args(
         default=None,
         help="Override suptitle text.",
     )
-    
+
+
 def add_render_args(
     ap,
     *,
@@ -206,13 +203,14 @@ def add_render_args(
         default=4,
         help="Min points needed to fit trend.",
     )
-    
+
+
 def find_all(
     src: Any,
     patterns: Sequence[str],
     *,
     must_exist: bool = False,
-) -> List[Path]:
+) -> list[Path]:
     """
     Find all files matching any pattern under src.
 
@@ -240,7 +238,7 @@ def find_all(
             raise FileNotFoundError(str(p))
         return []
 
-    out: Dict[str, Path] = {}
+    out: dict[str, Path] = {}
     for pat in patterns:
         for fp in p.rglob(pat):
             if fp.exists():
@@ -257,15 +255,16 @@ def find_all(
 def resolve_title(
     *,
     default: str,
-    title: Optional[str],
+    title: str | None,
 ) -> str:
     if title is None:
         return default
     t = str(title).strip()
     return default if not t else t
 
-def resolve_cities(args) -> List[str]:
-    picked: List[str] = []
+
+def resolve_cities(args) -> list[str]:
+    picked: list[str] = []
     if getattr(args, "use_ns", False):
         picked.append("Nansha")
     if getattr(args, "use_zh", False):
@@ -276,7 +275,7 @@ def resolve_cities(args) -> List[str]:
 
     raw = str(getattr(args, "cities", "") or "")
     parts = [p.strip().lower() for p in raw.split(",")]
-    out: List[str] = []
+    out: list[str] = []
     for p in parts:
         if not p:
             continue
@@ -287,6 +286,7 @@ def resolve_cities(args) -> List[str]:
         else:
             out.append(p.title())
     return out
+
 
 def resolve_fig_out(out: str) -> Path:
     """
@@ -300,8 +300,8 @@ def resolve_fig_out(out: str) -> Path:
 
 
 def _norm_fig_formats(
-    formats: Optional[Sequence[str]],
-) -> Tuple[str, ...]:
+    formats: Sequence[str] | None,
+) -> tuple[str, ...]:
     if not formats:
         return ("png", "svg", "pdf", "eps")
 
@@ -332,15 +332,15 @@ def save_figure(
     fig: Any,
     out: Any,
     *,
-    formats: Optional[Sequence[str]] = None,
-    dpi: Optional[int] = None,
+    formats: Sequence[str] | None = None,
+    dpi: int | None = None,
     bbox_inches: str = "tight",
     pad_inches: float = 0.02,
     transparent: bool = False,
     close: bool = True,
     verbose: bool = True,
     strict: bool = False,
-) -> Dict[str, Path]:
+) -> dict[str, Path]:
     """
     Save a Matplotlib figure to multiple formats.
 
@@ -376,13 +376,13 @@ def save_figure(
 
     raster = {"png", "jpg", "jpeg", "tif", "tiff"}
 
-    written: Dict[str, Path] = {}
-    failed: Dict[str, str] = {}
+    written: dict[str, Path] = {}
+    failed: dict[str, str] = {}
 
     for ext in fmts:
         p = stem.with_suffix("." + ext)
 
-        kw: Dict[str, Any] = dict(
+        kw: dict[str, Any] = dict(
             bbox_inches=bbox_inches,
             pad_inches=float(pad_inches),
             transparent=bool(transparent),
@@ -411,11 +411,12 @@ def save_figure(
 
     return written
 
+
 def ensure_columns(
     df: pd.DataFrame,
     *,
-    aliases: Dict[str, Tuple[str, ...]],
-) -> Dict[str, str]:
+    aliases: dict[str, tuple[str, ...]],
+) -> dict[str, str]:
     """
     Ensure canonical columns exist by copying from
     the first available alias.
@@ -423,7 +424,7 @@ def ensure_columns(
     Returns:
       mapping canonical -> source column used
     """
-    used: Dict[str, str] = {}
+    used: dict[str, str] = {}
 
     for canon, alts in (aliases or {}).items():
         if canon in df.columns:
@@ -446,7 +447,7 @@ def ensure_columns(
 def load_dataset_any(
     src: Path,
     *,
-    file: Optional[str] = None,
+    file: str | None = None,
     ns_file: str = "nansha_dataset.final.ready.csv",
     zh_file: str = "zhongshan_dataset.final.ready.csv",
 ) -> pd.DataFrame:
@@ -503,8 +504,8 @@ def filter_year(
 def sample_df(
     df: pd.DataFrame,
     *,
-    sample_frac: Optional[float],
-    sample_n: Optional[int],
+    sample_frac: float | None,
+    sample_n: int | None,
     seed: int = 42,
 ) -> pd.DataFrame:
     if sample_n is not None:
@@ -518,6 +519,7 @@ def sample_df(
             return df.sample(frac=f, random_state=seed)
 
     return df
+
 
 # -------------------------------------------------------------------
 # Small helpers
@@ -602,12 +604,13 @@ def _iter_candidates(
     for pat in patterns:
         yield from root.rglob(pat)
 
+
 def find_preferred(
     src: Any,
     patterns: Sequence[str],
     *,
     must_exist: bool = False,
-) -> Optional[Path]:
+) -> Path | None:
     """
     Try patterns in order, returning the first match.
 
@@ -631,18 +634,19 @@ def find_preferred(
     return None
 
 
-def find_eval_diag_json(src: Any) -> Optional[Path]:
+def find_eval_diag_json(src: Any) -> Path | None:
     pats = cfg.PATTERNS.get("eval_diag_json", ())
     if not pats:
         return None
     return find_preferred(src, pats)
+
 
 def find_latest(
     src: Any,
     patterns: Sequence[str],
     *,
     must_exist: bool = False,
-) -> Optional[Path]:
+) -> Path | None:
     """
     Find newest file matching any of patterns under src.
 
@@ -687,14 +691,15 @@ def _glob_match(name: str, pattern: str) -> bool:
 @dataclass
 class Artifacts:
     src: Path
-    phys_json: Optional[Path] = None
-    eval_diag_json: Optional[Path] = None
-    forecast_test_csv: Optional[Path] = None
-    forecast_test_future_csv: Optional[Path] = None
-    forecast_val_csv: Optional[Path] = None
-    forecast_future_csv: Optional[Path] = None
-    physics_payload: Optional[Path] = None
-    coords_npz: Optional[Path] = None
+    phys_json: Path | None = None
+    eval_diag_json: Path | None = None
+    forecast_test_csv: Path | None = None
+    forecast_test_future_csv: Path | None = None
+    forecast_val_csv: Path | None = None
+    forecast_future_csv: Path | None = None
+    physics_payload: Path | None = None
+    coords_npz: Path | None = None
+
 
 def detect_artifacts(src: Any) -> Artifacts:
     """
@@ -712,7 +717,9 @@ def detect_artifacts(src: Any) -> Artifacts:
 
     out = Artifacts(src=root)
 
-    out.phys_json = find_latest(root, cfg.PATTERNS["phys_json"])
+    out.phys_json = find_latest(
+        root, cfg.PATTERNS["phys_json"]
+    )
     out.eval_diag_json = find_eval_diag_json(root)
 
     out.forecast_val_csv = find_latest(
@@ -727,7 +734,7 @@ def detect_artifacts(src: Any) -> Artifacts:
     #     root,
     #     cfg.PATTERNS["forecast_val_csv"],
     # )
-    
+
     # out.forecast_test_csv = find_preferred(
     #     root,
     #     cfg.PATTERNS["forecast_test_csv"],
@@ -745,14 +752,16 @@ def detect_artifacts(src: Any) -> Artifacts:
         root,
         cfg.PATTERNS["forecast_test_future_csv"],
     )
-    out.coords_npz = find_latest(root, cfg.PATTERNS["coords_npz"])
+    out.coords_npz = find_latest(
+        root, cfg.PATTERNS["coords_npz"]
+    )
     return out
 
 
 # -------------------------------------------------------------------
 # Loading helpers (JSON / CSV)
 # -------------------------------------------------------------------
-def safe_load_json(path: Optional[Any]) -> Dict[str, Any]:
+def safe_load_json(path: Any | None) -> dict[str, Any]:
     if not path:
         return {}
     p = as_path(path)
@@ -802,7 +811,7 @@ def load_forecast_csv(path: Any) -> pd.DataFrame:
                 "Use *_eval*_calibrated.csv."
             )
         raise KeyError(f"Missing columns in {p}: {missing}")
-    
+
     for c in [
         "subsidence_q10",
         "subsidence_q50",
@@ -827,7 +836,8 @@ def load_forecast_csv(path: Any) -> pd.DataFrame:
 # We standardize to "mm" for plotting/tables.
 # -------------------------------------------------------------------
 
-def phys_json_to_mm(meta: Dict[str, Any]) -> Dict[str, Any]:
+
+def phys_json_to_mm(meta: dict[str, Any]) -> dict[str, Any]:
     """
     Normalize GeoPrior phys JSON to "mm" subs metrics.
 
@@ -850,7 +860,7 @@ def phys_json_to_mm(meta: Dict[str, Any]) -> Dict[str, Any]:
         return {}
 
     out = dict(meta)
-    units = dict((out.get("units") or {}))
+    units = dict(out.get("units") or {})
 
     u = str(units.get("subs_metrics_unit", "")).lower()
     if u == "mm":
@@ -869,22 +879,22 @@ def phys_json_to_mm(meta: Dict[str, Any]) -> Dict[str, Any]:
 
     scale2 = float(scale) ** 2
 
-    def _scale_dist(d: Dict[str, Any], key: str) -> None:
+    def _scale_dist(d: dict[str, Any], key: str) -> None:
         v = d.get(key, None)
-        if isinstance(v, (int, float)) and np.isfinite(v):
+        if isinstance(v, int | float) and np.isfinite(v):
             d[key] = float(v) * float(scale)
 
-    def _scale_mse(d: Dict[str, Any], key: str) -> None:
+    def _scale_mse(d: dict[str, Any], key: str) -> None:
         v = d.get(key, None)
-        if isinstance(v, (int, float)) and np.isfinite(v):
+        if isinstance(v, int | float) and np.isfinite(v):
             d[key] = float(v) * float(scale2)
 
     def _scale_map(
-        d: Dict[str, Any],
+        d: dict[str, Any],
         *,
-        dist_keys: Tuple[str, ...],
-        mse_keys: Tuple[str, ...],
-    ) -> Dict[str, Any]:
+        dist_keys: tuple[str, ...],
+        mse_keys: tuple[str, ...],
+    ) -> dict[str, Any]:
         if not isinstance(d, dict):
             return {}
         dd = dict(d)
@@ -899,7 +909,7 @@ def phys_json_to_mm(meta: Dict[str, Any]) -> Dict[str, Any]:
     # ---------------------------------------------------------
     # metrics_evaluate (subs_pred_*)
     # ---------------------------------------------------------
-    me = dict((out.get("metrics_evaluate") or {}))
+    me = dict(out.get("metrics_evaluate") or {})
     if isinstance(me, dict) and me:
         for k in list(me.keys()):
             if not str(k).startswith("subs_pred_"):
@@ -913,11 +923,7 @@ def phys_json_to_mm(meta: Dict[str, Any]) -> Dict[str, Any]:
                 continue
 
             # distance-like: mae/rmse/sharpness, incl *_q50.
-            if (
-                "mae" in kk
-                or "rmse" in kk
-                or "sharp" in kk
-            ):
+            if "mae" in kk or "rmse" in kk or "sharp" in kk:
                 _scale_dist(me, k)
 
         out["metrics_evaluate"] = me
@@ -925,7 +931,7 @@ def phys_json_to_mm(meta: Dict[str, Any]) -> Dict[str, Any]:
     # ---------------------------------------------------------
     # point_metrics
     # ---------------------------------------------------------
-    pm = dict((out.get("point_metrics") or {}))
+    pm = dict(out.get("point_metrics") or {})
     if isinstance(pm, dict) and pm:
         pm = _scale_map(
             pm,
@@ -938,14 +944,18 @@ def phys_json_to_mm(meta: Dict[str, Any]) -> Dict[str, Any]:
     # per_horizon metrics
     # (only scale numeric dict-of-dict blocks)
     # ---------------------------------------------------------
-    ph = dict((out.get("per_horizon") or {}))
+    ph = dict(out.get("per_horizon") or {})
     if isinstance(ph, dict) and ph:
         ph2 = dict(ph)
 
-        def _scale_hdict(hd: Dict[str, Any], mul: float) -> Dict[str, Any]:
+        def _scale_hdict(
+            hd: dict[str, Any], mul: float
+        ) -> dict[str, Any]:
             outd = dict(hd)
             for hk, hv in outd.items():
-                if isinstance(hv, (int, float)) and np.isfinite(hv):
+                if isinstance(
+                    hv, int | float
+                ) and np.isfinite(hv):
                     outd[hk] = float(hv) * float(mul)
             return outd
 
@@ -965,7 +975,7 @@ def phys_json_to_mm(meta: Dict[str, Any]) -> Dict[str, Any]:
     # ---------------------------------------------------------
     # interval_metrics (if present)
     # ---------------------------------------------------------
-    im = dict((out.get("interval_metrics") or {}))
+    im = dict(out.get("interval_metrics") or {})
     if isinstance(im, dict) and im:
         for k in list(im.keys()):
             if "sharp" in str(k).lower():
@@ -978,7 +988,7 @@ def phys_json_to_mm(meta: Dict[str, Any]) -> Dict[str, Any]:
     # Raw JSON can store these in meters; scale all sharpness*
     # keys to mm to make plotting consistent.
     # ---------------------------------------------------------
-    ic = dict((out.get("interval_calibration") or {}))
+    ic = dict(out.get("interval_calibration") or {})
     if isinstance(ic, dict) and ic:
         for k in list(ic.keys()):
             if "sharp" in str(k).lower():
@@ -987,16 +997,18 @@ def phys_json_to_mm(meta: Dict[str, Any]) -> Dict[str, Any]:
 
     units["subs_metrics_unit"] = "mm"
     out["units"] = units
-    
+
     return out
+
+
 # -------------------------------------------------------------------
 # Metric picking (GeoPrior JSON = primary; eval_diag = fallback)
 # Mirrors your Figure-2 collection logic.
 # -------------------------------------------------------------------
 def pick_point_metrics(
-    phys_json: Dict[str, Any],
-    fallback: Dict[str, Any],
-) -> Tuple[float, float, float]:
+    phys_json: dict[str, Any],
+    fallback: dict[str, Any],
+) -> tuple[float, float, float]:
     r2 = mae = mse = np.nan
 
     if phys_json:
@@ -1022,10 +1034,11 @@ def pick_point_metrics(
 
     return (to_float(r2), to_float(mae), to_float(mse))
 
+
 def pick_interval_metrics(
-    phys_json: Dict[str, Any],
-    fallback: Dict[str, Any],
-) -> Tuple[float, float]:
+    phys_json: dict[str, Any],
+    fallback: dict[str, Any],
+) -> tuple[float, float]:
     """
     Pick interval metrics with calibrated preference.
 
@@ -1054,7 +1067,9 @@ def pick_interval_metrics(
         fv = to_float(v)
         return fv if np.isfinite(fv) else cur
 
-    def _take_tag(cur: float, v: Any, tag: str) -> Tuple[float, str]:
+    def _take_tag(
+        cur: float, v: Any, tag: str
+    ) -> tuple[float, str]:
         if np.isfinite(cur):
             return cur, tag
         fv = to_float(v)
@@ -1160,9 +1175,10 @@ def pick_interval_metrics(
 
     return (float(cov), float(shp))
 
+
 def flatten_eval_diag(
-    diag: Dict[str, Any],
-) -> Dict[str, float]:
+    diag: dict[str, Any],
+) -> dict[str, float]:
     """
     Flatten eval diagnostics into keys used by plots.
 
@@ -1177,7 +1193,7 @@ def flatten_eval_diag(
     if not diag:
         return {}
 
-    out: Dict[str, float] = {}
+    out: dict[str, float] = {}
 
     def _set_if(dst: str, v: Any) -> None:
         if dst in out:
@@ -1228,7 +1244,8 @@ def to_float(x: Any) -> float:
         return float(x)
     except Exception:
         return float("nan")
-    
+
+
 def resolve_out_out(out: str) -> Path:
     """
     If out is relative, write under scripts/out/.
@@ -1239,7 +1256,7 @@ def resolve_out_out(out: str) -> Path:
     return p
 
 
-def find_phys_json(src: Any) -> Optional[Path]:
+def find_phys_json(src: Any) -> Path | None:
     """
     Prefer interpretable GeoPrior JSON when available.
     """

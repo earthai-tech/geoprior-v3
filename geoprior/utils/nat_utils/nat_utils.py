@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -8,29 +7,24 @@
 
 from __future__ import annotations
 
+import datetime as dt
 import hashlib
 import importlib.util
 import json
 import os
-import joblib
+from collections.abc import Mapping
 from pathlib import Path
-import datetime as dt
-from typing import ( 
-    Any, 
-    Dict, 
-    Tuple, 
-    Optional, 
-    Mapping, 
-    Union, 
-    TYPE_CHECKING
+from typing import (
+    TYPE_CHECKING,
+    Any,
 )
 
+import joblib
 import numpy as np
-
 
 # --- Optional TensorFlow import for GeoPrior helpers -----------------------
 try:  # pragma: no cover - defensive import
-    import tensorflow as tf # noqa
+    import tensorflow as tf  # noqa
     from tensorflow.keras.optimizers import Adam
 
     TF_AVAILABLE = True
@@ -81,18 +75,18 @@ def _project_root() -> str:
         geoprior-learn/
             geoprior/
                 utils/
-                    nat_utils/nat_utils.py   
+                    nat_utils/nat_utils.py
             nat.com/
                 config.py
     """
     here = os.path.abspath(__file__)
-    utils_dir = os.path.dirname (os.path.dirname(here))
+    utils_dir = os.path.dirname(os.path.dirname(here))
     fusionlab_dir = os.path.dirname(utils_dir)
     root = os.path.dirname(fusionlab_dir)
     return root
 
 
-def get_natcom_dir(root ="nat.com") -> str:
+def get_natcom_dir(root="nat.com") -> str:
     """
     Directory containing NATCOM scripts and configuration,
     typically `<repo_root>/nat.com`.
@@ -100,14 +94,15 @@ def get_natcom_dir(root ="nat.com") -> str:
     return os.path.join(_project_root(), root)
 
 
-def get_config_paths(root="nat.com") -> Tuple[str, str]:
+def get_config_paths(root="nat.com") -> tuple[str, str]:
     """
     Return `(config_py_path, config_json_path)` for NATCOM.
     """
-    nat_dir = get_natcom_dir(root = root)
+    nat_dir = get_natcom_dir(root=root)
     config_py = os.path.join(nat_dir, "config.py")
     config_json = os.path.join(nat_dir, "config.json")
     return config_py, config_json
+
 
 def get_default_runs_root(
     root: str = "nat.com",
@@ -129,6 +124,7 @@ def get_default_runs_root(
     runs_root = os.path.join(proj_root, runs_dir_name)
     os.makedirs(runs_root, exist_ok=True)
     return runs_root
+
 
 # -------------------------------------------------------------------
 # Low-level helpers
@@ -156,9 +152,13 @@ def _import_config_module(config_py: str):
             f"NATCOM config.py not found at: {config_py}"
         )
 
-    spec = importlib.util.spec_from_file_location("nat_config", config_py)
+    spec = importlib.util.spec_from_file_location(
+        "nat_config", config_py
+    )
     if spec is None or spec.loader is None:
-        raise ImportError(f"Could not load spec for {config_py!r}")
+        raise ImportError(
+            f"Could not load spec for {config_py!r}"
+        )
 
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)  # type: ignore[attr-defined]
@@ -169,10 +169,12 @@ def _is_basic_jsonable(value: Any) -> bool:
     """
     Return True if the value is a simple JSON-serialisable type.
     """
-    return isinstance(value, (int, float, str, bool, list, dict))
+    return isinstance(
+        value, int | float | str | bool | list | dict
+    )
 
 
-def _extract_config_dict(module) -> Dict[str, Any]:
+def _extract_config_dict(module) -> dict[str, Any]:
     """
     Extract a flat configuration dictionary from the `config`
     module by selecting suitable global variables.
@@ -184,7 +186,7 @@ def _extract_config_dict(module) -> Dict[str, Any]:
     Environment variables (CITY, MODEL_NAME_OVERRIDE,
     JUPYTER_PROJECT_ROOT) can override some keys.
     """
-    cfg: Dict[str, Any] = {}
+    cfg: dict[str, Any] = {}
 
     for name, value in vars(module).items():
         if name.startswith("_"):
@@ -229,7 +231,7 @@ def _extract_config_dict(module) -> Dict[str, Any]:
 # -------------------------------------------------------------------
 # Public API
 # -------------------------------------------------------------------
-def _refresh_city_files(cfg: Dict[str, Any]) -> None:
+def _refresh_city_files(cfg: dict[str, Any]) -> None:
     city = str(cfg.get("CITY_NAME", "")).strip().lower()
     var = str(cfg.get("DATASET_VARIANT", "")).strip()
 
@@ -243,7 +245,9 @@ def _refresh_city_files(cfg: Dict[str, Any]) -> None:
         cfg["SMALL_FN"] = stmp.format(city=city, variant=var)
 
 
-def _apply_env_overrides(cfg: Dict[str, Any]) -> Dict[str, Any]:
+def _apply_env_overrides(
+    cfg: dict[str, Any],
+) -> dict[str, Any]:
     changed = False
 
     city_env = os.getenv("CITY", "").strip()
@@ -267,7 +271,9 @@ def _apply_env_overrides(cfg: Dict[str, Any]) -> Dict[str, Any]:
     return cfg
 
 
-def ensure_config_json(root: str = "nat.com") -> Tuple[Dict[str, Any], str]:
+def ensure_config_json(
+    root: str = "nat.com",
+) -> tuple[dict[str, Any], str]:
     """
     Ensure that `nat.com/config.json` exists and is consistent
     with `nat.com/config.py`.
@@ -287,19 +293,23 @@ def ensure_config_json(root: str = "nat.com") -> Tuple[Dict[str, Any], str]:
       changed, it is regenerated.
     - Otherwise the existing JSON file is reused.
     """
-    
+
     config_py, config_json = get_config_paths(root=root)
     py_hash = _hash_file(config_py)
 
-    payload: Optional[Dict[str, Any]] = None
+    payload: dict[str, Any] | None = None
     if os.path.exists(config_json):
         try:
-            with open(config_json, "r", encoding="utf-8") as f:
+            with open(config_json, encoding="utf-8") as f:
                 payload = json.load(f)
         except Exception:
             payload = None
 
-    meta = payload.get("__meta__", {}) if isinstance(payload, dict) else {}
+    meta = (
+        payload.get("__meta__", {})
+        if isinstance(payload, dict)
+        else {}
+    )
     if (
         isinstance(payload, dict)
         and meta.get("config_py_hash") == py_hash
@@ -327,8 +337,7 @@ def ensure_config_json(root: str = "nat.com") -> Tuple[Dict[str, Any], str]:
     return cfg, config_json
 
 
-
-def load_nat_config(root="nat.com") -> Dict[str, Any]:
+def load_nat_config(root="nat.com") -> dict[str, Any]:
     """
     High-level helper used by NATCOM scripts.
 
@@ -343,7 +352,7 @@ def load_nat_config(root="nat.com") -> Dict[str, Any]:
     return cfg
 
 
-def load_nat_config_payload(root="nat.com") -> Dict[str, Any]:
+def load_nat_config_payload(root="nat.com") -> dict[str, Any]:
     """
     Return the full `config.json` payload, including `city`,
     `model` and `__meta__` fields.
@@ -354,7 +363,7 @@ def load_nat_config_payload(root="nat.com") -> Dict[str, Any]:
     config_py, config_json = get_config_paths(root=root)
     if not os.path.exists(config_json):
         ensure_config_json(root=root)
-    with open(config_json, "r", encoding="utf-8") as f:
+    with open(config_json, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -364,12 +373,15 @@ def _as_float1(x):
     arr = np.asarray(x).reshape(-1)
     return float(arr[0])
 
+
 def affine_from_scaler(scaler, idx: int = 0):
-    if hasattr(scaler, "data_min_") and hasattr(scaler, "data_max_"):
+    if hasattr(scaler, "data_min_") and hasattr(
+        scaler, "data_max_"
+    ):
         data_min = np.asarray(scaler.data_min_).reshape(-1)
         data_max = np.asarray(scaler.data_max_).reshape(-1)
         scale = float((data_max - data_min)[idx])
-        bias  = float(data_min[idx])
+        bias = float(data_min[idx])
         return scale, bias
 
     if hasattr(scaler, "scale_") and hasattr(scaler, "mean_"):
@@ -377,13 +389,16 @@ def affine_from_scaler(scaler, idx: int = 0):
         mu = np.asarray(scaler.mean_).reshape(-1)
         return float(sc[idx]), float(mu[idx])
 
-    if hasattr(scaler, "scale_") and hasattr(scaler, "center_"):
+    if hasattr(scaler, "scale_") and hasattr(
+        scaler, "center_"
+    ):
         sc = np.asarray(scaler.scale_).reshape(-1)
         ce = np.asarray(scaler.center_).reshape(-1)
         return float(sc[idx]), float(ce[idx])
 
     raise TypeError(
-        f"Unsupported scaler type for affine inference: {type(scaler)}")
+        f"Unsupported scaler type for affine inference: {type(scaler)}"
+    )
 
 
 def resolve_si_affine(
@@ -391,21 +406,21 @@ def resolve_si_affine(
     scaler_info: dict,
     *,
     target_name: str,
-    prefix: str,              # "SUBS" or "HEAD"
-    unit_factor_key: str,     # "SUBS_UNIT_TO_SI" or "HEAD_UNIT_TO_SI"
-    scale_key: str,           # "SUBS_SCALE_SI" / "HEAD_SCALE_SI"
-    bias_key: str,            # "SUBS_BIAS_SI"  / "HEAD_BIAS_SI"
+    prefix: str,  # "SUBS" or "HEAD"
+    unit_factor_key: str,  # "SUBS_UNIT_TO_SI" or "HEAD_UNIT_TO_SI"
+    scale_key: str,  # "SUBS_SCALE_SI" / "HEAD_SCALE_SI"
+    bias_key: str,  # "SUBS_BIAS_SI"  / "HEAD_BIAS_SI"
 ):
     # 1) explicit overrides win
     scale = cfg.get(scale_key, None)
-    bias  = cfg.get(bias_key, None)
+    bias = cfg.get(bias_key, None)
 
     unit_factor = float(cfg.get(unit_factor_key, 1.0))
     auto = bool(cfg.get("AUTO_SI_AFFINE_FROM_STAGE1", True))
 
     if (scale is None or bias is None) and auto:
         info = scaler_info.get(target_name) or {}
-        idx  = int(info.get("idx", 0))
+        idx = int(info.get("idx", 0))
         scaler = info.get("scaler")
         if scaler is None and "scaler_path" in info:
             # load happens elsewhere in your code; keep it simple here
@@ -424,12 +439,14 @@ def resolve_si_affine(
     # 2) apply unit conversion into the affine
     #    y_SI = (y_scaled*scale + bias) * unit_factor
     scale_si = float(scale) * unit_factor
-    bias_si  = float(bias)  * unit_factor
+    bias_si = float(bias) * unit_factor
     return scale_si, bias_si
+
 
 # -------------------------------------------------------------------------
 # NATCOM training helpers
 # -------------------------------------------------------------------------
+
 
 def map_targets_for_training(
     y_dict: dict,
@@ -482,7 +499,7 @@ def map_targets_for_training(
     if subs_key in y_dict and gwl_key in y_dict:
         return {
             subs_pred_key: y_dict[subs_key],
-            gwl_pred_key:  y_dict[gwl_key],
+            gwl_pred_key: y_dict[gwl_key],
         }
 
     # Case 2: already in compiled form.
@@ -545,7 +562,9 @@ def ensure_input_shapes(
     # Static features: if missing, create a (N, 0) placeholder so
     # the model signature always includes a static input.
     if out.get("static_features") is None:
-        out["static_features"] = np.zeros((N, 0), dtype=np.float32)
+        out["static_features"] = np.zeros(
+            (N, 0), dtype=np.float32
+        )
 
     # Future features: similar logic – guarantee an array with
     # zero feature width, but correct time length.
@@ -554,7 +573,9 @@ def ensure_input_shapes(
             t_future = out["dynamic_features"].shape[1]
         else:
             t_future = int(forecast_horizon)
-        out["future_features"] = np.zeros((N, t_future, 0), dtype=np.float32)
+        out["future_features"] = np.zeros(
+            (N, t_future, 0), dtype=np.float32
+        )
 
     return out
 
@@ -562,7 +583,7 @@ def ensure_input_shapes(
 def _np_nonfinite_report(
     arr: np.ndarray,
     max_items: int = 5,
-) -> Optional[dict[str, Any]]:
+) -> dict[str, Any] | None:
     """Return a small report if arr has NaN/Inf."""
     bad = ~np.isfinite(arr)
     n_bad = int(bad.sum())
@@ -598,7 +619,7 @@ def _np_nonfinite_report(
 def check_npz_dict_finite(
     d: dict,
     name: str,
-    feature_names_last_dim: Optional[list[str]] = None,
+    feature_names_last_dim: list[str] | None = None,
     max_bad_channels: int = 30,
     max_print: int = 20,
 ) -> None:
@@ -694,19 +715,18 @@ def scan_tf_dataset_finite(
             if v.dtype.is_floating or v.dtype.is_complex:
                 tf.debugging.assert_all_finite(
                     v,
-                    f"{name}: X[{k}] NaN/Inf "
-                    f"at batch {b}",
+                    f"{name}: X[{k}] NaN/Inf at batch {b}",
                 )
 
         for k, v in yb.items():
             if v.dtype.is_floating or v.dtype.is_complex:
                 tf.debugging.assert_all_finite(
                     v,
-                    f"{name}: y[{k}] NaN/Inf "
-                    f"at batch {b}",
+                    f"{name}: y[{k}] NaN/Inf at batch {b}",
                 )
 
     print(f"[OK] {name}: first {max_batches} batches ok.")
+
 
 def make_tf_dataset(
     X_np: dict,
@@ -723,9 +743,9 @@ def make_tf_dataset(
     check_npz_finite: bool = False,
     check_finite: bool = False,
     scan_finite_batches: int = 0,
-    dynamic_feature_names: Optional[list[str]] = None,
-    future_feature_names: Optional[list[str]] = None,
-) -> "Any":
+    dynamic_feature_names: list[str] | None = None,
+    future_feature_names: list[str] | None = None,
+) -> Any:
     """
     Build a `tf.data.Dataset` using NATCOM
     conventions.
@@ -753,7 +773,7 @@ def make_tf_dataset(
         Model mode passed to :func:`ensure_input_shapes`.
     forecast_horizon : int
         Forecast horizon passed to :func:`ensure_input_shapes`.
-        
+
     check_npz_finite : bool
         If True, checks Xin/Yin numpy arrays
         for NaN/Inf before building ds.
@@ -777,8 +797,8 @@ def make_tf_dataset(
     TensorFlow is imported lazily inside the function so that
     this module remains importable in environments where TF is
     not installed (for example, for tooling or static analysis).
-        
-        
+
+
     """
     try:
         import tensorflow as tf  # type: ignore
@@ -808,10 +828,7 @@ def make_tf_dataset(
                 feature_names_last_dim=dynamic_feature_names,
             )
 
-        if (
-            future_feature_names
-            and "future_features" in Xin
-        ):
+        if future_feature_names and "future_features" in Xin:
             check_npz_dict_finite(
                 {"future_features": Xin["future_features"]},
                 "Xin.future_features",
@@ -880,6 +897,7 @@ def make_tf_dataset(
 
     return ds
 
+
 def load_scaler_info(encoders_block: dict) -> dict | None:
     """
     Load the ``scaler_info`` mapping from an encoders block.
@@ -932,10 +950,10 @@ def build_censor_mask(
     idx: int | None,
     thresh: float = 0.5,
     *,
-    source: str = "dynamic",          # {"dynamic", "future"}
-    reduce_time: str = "any",         # {"any", "last", "all"}
-    align: str = "broadcast",         # {"broadcast", "crop", "pad_false", "pad_edge", "error"}
-) -> "tf.Tensor":
+    source: str = "dynamic",  # {"dynamic", "future"}
+    reduce_time: str = "any",  # {"any", "last", "all"}
+    align: str = "broadcast",  # {"broadcast", "crop", "pad_false", "pad_edge", "error"}
+) -> tf.Tensor:
     """
     Build a censor mask aligned to the forecast horizon: (B, H, 1).
 
@@ -969,14 +987,22 @@ def build_censor_mask(
     if "coords" in xb:
         B = tf.shape(xb["coords"])[0]
     else:
-        B = tf.shape(xb.get("dynamic_features", xb.get("future_features")))[0]
+        B = tf.shape(
+            xb.get(
+                "dynamic_features", xb.get("future_features")
+            )
+        )[0]
 
     H = tf.cast(H, tf.int32)
 
     if idx is None:
         return tf.zeros((B, H, 1), dtype=tf.bool)
 
-    key = "dynamic_features" if source == "dynamic" else "future_features"
+    key = (
+        "dynamic_features"
+        if source == "dynamic"
+        else "future_features"
+    )
     feat = xb.get(key, None)
     if feat is None:
         return tf.zeros((B, H, 1), dtype=tf.bool)
@@ -993,23 +1019,33 @@ def build_censor_mask(
             return tf.tile(step, [1, H, 1])
 
         if align == "error":
-            tf.debugging.assert_equal(T, H, message=f"{key} length != H")
+            tf.debugging.assert_equal(
+                T, H, message=f"{key} length != H"
+            )
             return m
 
         if align == "crop":
             # if T < H, this cannot increase length -> would still mismatch
-            return tf.cond(T >= H, lambda: m[:, -H:, :], lambda: m)
+            return tf.cond(
+                T >= H, lambda: m[:, -H:, :], lambda: m
+            )
 
         if align == "pad_false":
             # pad at front so last steps line up
             pad = tf.maximum(H - T, 0)
-            m2 = tf.pad(m, paddings=[[0, 0], [pad, 0], [0, 0]], constant_values=False)
+            m2 = tf.pad(
+                m,
+                paddings=[[0, 0], [pad, 0], [0, 0]],
+                constant_values=False,
+            )
             return m2[:, -H:, :]
 
         if align == "pad_edge":
             pad = tf.maximum(H - T, 0)
             last = m[:, -1:, :]
-            m2 = tf.concat([tf.tile(last, [1, pad, 1]), m], axis=1)
+            m2 = tf.concat(
+                [tf.tile(last, [1, pad, 1]), m], axis=1
+            )
             return m2[:, -H:, :]
 
         # default: "broadcast"
@@ -1021,13 +1057,15 @@ def build_censor_mask(
         )
 
     def _build():
-        m = (feat[..., idx:idx + 1] > thresh)  # (B, T, 1)
+        m = feat[..., idx : idx + 1] > thresh  # (B, T, 1)
 
         # If source is dynamic, we usually want a sample-level censor label.
         if source == "dynamic":
             if reduce_time == "any":
-                one = tf.reduce_any(m, axis=1, keepdims=True)   # (B,1,1)
-                return tf.tile(one, [1, H, 1])                  # (B,H,1)
+                one = tf.reduce_any(
+                    m, axis=1, keepdims=True
+                )  # (B,1,1)
+                return tf.tile(one, [1, H, 1])  # (B,H,1)
             if reduce_time == "all":
                 one = tf.reduce_all(m, axis=1, keepdims=True)
                 return tf.tile(one, [1, H, 1])
@@ -1040,12 +1078,13 @@ def build_censor_mask(
 
     return tf.cond(tf.less(idx, nfeat), _build, _all_false)
 
+
 def build_censor_mask_from_dynamic(
     xb: dict,
     H: int,
     dyn_idx: int | None,
     thresh: float = 0.5,
-) -> "tf.Tensor":
+) -> tf.Tensor:
     """
     Build a boolean censoring mask from the dynamic features.
 
@@ -1061,11 +1100,11 @@ def build_censor_mask_from_dynamic(
       last ``H`` steps (consistent with the forecasting horizon).
     - If no dynamic features or index are available, returns an
       all-False mask of shape ``(B, H, 1)``.
-      
+
     If the censor flag only exists on the history window (T_dyn=TIME_STEPS),
     but the evaluation is done on the forecast horizon (H=FORECAST_HORIZON),
     we must broadcast/pad because slicing cannot increase length.
-    
+
     Parameters
     ----------
     xb : dict
@@ -1107,12 +1146,13 @@ def build_censor_mask_from_dynamic(
 
     # Defensive: dyn_idx range (works even if dyn.shape[-1] is None)
     nfeat = tf.shape(dyn)[-1]
+
     def _all_false():
         return tf.zeros((B, H, 1), dtype=tf.bool)
 
     def _build():
         # (B, T_dyn, 1)
-        m_dyn = (dyn[..., dyn_idx:dyn_idx + 1] > thresh)
+        m_dyn = dyn[..., dyn_idx : dyn_idx + 1] > thresh
         T_dyn = tf.shape(m_dyn)[1]
 
         # Case 1: exact match
@@ -1125,8 +1165,8 @@ def build_censor_mask_from_dynamic(
 
         # Case 3: history shorter than horizon → broadcast last observed flag
         def _broadcast_last():
-            last = m_dyn[:, -1:, :]              # (B,1,1)
-            return tf.tile(last, [1, H, 1])      # (B,H,1)
+            last = m_dyn[:, -1:, :]  # (B,1,1)
+            return tf.tile(last, [1, H, 1])  # (B,H,1)
 
         return tf.case(
             [
@@ -1138,11 +1178,15 @@ def build_censor_mask_from_dynamic(
             exclusive=True,
         )
 
-    return tf.cond(tf.less(dyn_idx, nfeat), _build, _all_false)
+    return tf.cond(
+        tf.less(dyn_idx, nfeat), _build, _all_false
+    )
+
 
 # -------------------------------------------------------------------------
 # Public helpers for Stage-1/Stage-2 NPZ handling and tuned model recovery
 # -------------------------------------------------------------------------
+
 
 def pick_npz_for_dataset(
     manifest: dict,
@@ -1214,7 +1258,10 @@ def pick_npz_for_dataset(
         y = dict(np.load(tt)) if tt else None
         return x, y
 
-    raise ValueError("split must be one of {'train', 'val', 'test'}.")
+    raise ValueError(
+        "split must be one of {'train', 'val', 'test'}."
+    )
+
 
 def infer_input_dims_from_X(X: dict) -> tuple[int, int, int]:
     """
@@ -1257,10 +1304,18 @@ def infer_input_dims_from_X(X: dict) -> tuple[int, int, int]:
     dynamic_dim = int(dyn.shape[-1])
 
     static = X.get("static_features", None)
-    static_dim = int(np.asarray(static).shape[-1]) if static is not None else 0
+    static_dim = (
+        int(np.asarray(static).shape[-1])
+        if static is not None
+        else 0
+    )
 
     fut = X.get("future_features", None)
-    future_dim = int(np.asarray(fut).shape[-1]) if fut is not None else 0
+    future_dim = (
+        int(np.asarray(fut).shape[-1])
+        if fut is not None
+        else 0
+    )
 
     return static_dim, dynamic_dim, future_dim
 
@@ -1275,33 +1330,36 @@ def sanitize_inputs_np(X: dict) -> dict:
         if v.ndim > 0 and np.isfinite(v).any():
             p99 = np.percentile(v, 99)
             if p99 > 0:
-                v = np.clip(v, -10*p99, 10*p99)
+                v = np.clip(v, -10 * p99, 10 * p99)
         X[k] = v
     if "H_field" in X:
-        X["H_field"] = np.maximum(X["H_field"], 1e-3).astype(np.float32)
+        X["H_field"] = np.maximum(X["H_field"], 1e-3).astype(
+            np.float32
+        )
     return X
 
 
-
-def _npz_to_dict(path: Path) -> Dict[str, np.ndarray]:
+def _npz_to_dict(path: Path) -> dict[str, np.ndarray]:
     path = Path(path)
     with np.load(str(path), allow_pickle=False) as z:
         return {k: z[k] for k in z.files}
 
 
-def _strip_prefix(name: str, prefixes: Tuple[str, ...]) -> str:
+def _strip_prefix(
+    name: str, prefixes: tuple[str, ...]
+) -> str:
     low = name.lower()
     for p in prefixes:
         if low.startswith(p):
-            return name[len(p):]
+            return name[len(p) :]
     return name
 
 
 def _split_bundle_npz(
     data: Mapping[str, np.ndarray],
-) -> Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray]]:
-    x: Dict[str, np.ndarray] = {}
-    y: Dict[str, np.ndarray] = {}
+) -> tuple[dict[str, np.ndarray], dict[str, np.ndarray]]:
+    x: dict[str, np.ndarray] = {}
+    y: dict[str, np.ndarray] = {}
 
     for k, v in data.items():
         lk = k.lower()
@@ -1320,8 +1378,8 @@ def _split_bundle_npz(
 
         x[k] = v
 
-    x2: Dict[str, np.ndarray] = {}
-    y2: Dict[str, np.ndarray] = {}
+    x2: dict[str, np.ndarray] = {}
+    y2: dict[str, np.ndarray] = {}
 
     for k, v in x.items():
         nk = _strip_prefix(
@@ -1366,8 +1424,8 @@ def _infer_targets_path(inputs_path: Path) -> Path:
 
 
 def load_windows_npz(
-    path: Union[str, Path, Mapping[str, str]],
-) -> Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray]]:
+    path: str | Path | Mapping[str, str],
+) -> tuple[dict[str, np.ndarray], dict[str, np.ndarray]]:
     """
     Load Stage-1 windows as (x, y).
 
@@ -1439,10 +1497,9 @@ def load_windows_npz(
     tp = _infer_targets_path(p)
     return x, _npz_to_dict(tp)
 
+
 def resolve_hybrid_config(
-    manifest_cfg: dict,
-    live_cfg: dict,
-    verbose: bool = True
+    manifest_cfg: dict, live_cfg: dict, verbose: bool = True
 ) -> dict:
     """
     Merge Manifest config (Data Authority) with Live config (Physics Authority).
@@ -1474,84 +1531,130 @@ def resolve_hybrid_config(
     # 2. Define "Safe" keys that Stage 2 is allowed to override.
     #    (Everything that does NOT affect input data shapes or target columns)
     OVERRIDABLE_KEYS = {
-        # track City Name , so we can switch to change city as well 
-        "CITY_NAME", "CITY", "MODEL_NAME", 
-        
-        "USE_IN_MEMORY_MODEL", "DEBUG", "USE_TF_SAVEDMODEL", 
-        
-        "TRACK_AUX_METRICS", 
+        # track City Name , so we can switch to change city as well
+        "CITY_NAME",
+        "CITY",
+        "MODEL_NAME",
+        "USE_IN_MEMORY_MODEL",
+        "DEBUG",
+        "USE_TF_SAVEDMODEL",
+        "TRACK_AUX_METRICS",
         # --- 1. Architecture (Safe to tune if model is rebuilt) ---
-        "EMBED_DIM", "HIDDEN_UNITS", "LSTM_UNITS", "ATTENTION_UNITS",
-        "NUMBER_HEADS", "DROPOUT_RATE", "MEMORY_SIZE", "SCALES",
-        "USE_RESIDUALS", "USE_BATCH_NORM", "USE_VSN", "VSN_UNITS",
+        "EMBED_DIM",
+        "HIDDEN_UNITS",
+        "LSTM_UNITS",
+        "ATTENTION_UNITS",
+        "NUMBER_HEADS",
+        "DROPOUT_RATE",
+        "MEMORY_SIZE",
+        "SCALES",
+        "USE_RESIDUALS",
+        "USE_BATCH_NORM",
+        "USE_VSN",
+        "VSN_UNITS",
         "ATTENTION_LEVELS",
-
         # --- 2. Physics Toggles & Math ---
-        "PDE_MODE_CONFIG", "SCALE_PDE_RESIDUALS",
+        "PDE_MODE_CONFIG",
+        "SCALE_PDE_RESIDUALS",
         "CONSOLIDATION_STEP_RESIDUAL_METHOD",
-        "ALLOW_SUBS_RESIDUAL", "OFFSET_MODE",
-        "PHYSICS_BOUNDS_MODE", "TIME_UNITS",
-        
+        "ALLOW_SUBS_RESIDUAL",
+        "OFFSET_MODE",
+        "PHYSICS_BOUNDS_MODE",
+        "TIME_UNITS",
         # --- 3. Physics Parameters & Initialization ---
-        "GEOPRIOR_INIT_MV", "GEOPRIOR_INIT_KAPPA", 
-        "GEOPRIOR_GAMMA_W", "GEOPRIOR_H_REF",
-        "GEOPRIOR_KAPPA_MODE", "GEOPRIOR_USE_EFFECTIVE_H",
-        "GEOPRIOR_HD_FACTOR", "PHYSICS_BOUNDS",
-
+        "GEOPRIOR_INIT_MV",
+        "GEOPRIOR_INIT_KAPPA",
+        "GEOPRIOR_GAMMA_W",
+        "GEOPRIOR_H_REF",
+        "GEOPRIOR_KAPPA_MODE",
+        "GEOPRIOR_USE_EFFECTIVE_H",
+        "GEOPRIOR_HD_FACTOR",
+        "PHYSICS_BOUNDS",
         # --- 4. Loss Weights (Lambdas) ---
-        "LAMBDA_CONS", "LAMBDA_GW", "LAMBDA_PRIOR", 
-        "LAMBDA_SMOOTH", "LAMBDA_BOUNDS", "LAMBDA_MV", 
-        "LAMBDA_Q", "LAMBDA_OFFSET", 
+        "LAMBDA_CONS",
+        "LAMBDA_GW",
+        "LAMBDA_PRIOR",
+        "LAMBDA_SMOOTH",
+        "LAMBDA_BOUNDS",
+        "LAMBDA_MV",
+        "LAMBDA_Q",
+        "LAMBDA_OFFSET",
         "LOSS_WEIGHT_GWL",
-        "MV_LR_MULT", "KAPPA_LR_MULT",
-        "SUBS_WEIGHTS", "GWL_WEIGHTS",  # Safe: weights don't change shape
-
+        "MV_LR_MULT",
+        "KAPPA_LR_MULT",
+        "SUBS_WEIGHTS",
+        "GWL_WEIGHTS",  # Safe: weights don't change shape
         # --- 5. Scaling, Stability & Units ---
-        "CONS_SCALE_FLOOR", "GW_SCALE_FLOOR",
-        "GW_RESIDUAL_UNITS", "CONSOLIDATION_RESIDUAL_UNITS",
-        "DT_MIN_UNITS", "Q_WRT_NORMALIZED_TIME",
-        "Q_IN_SI", "Q_IN_PER_SECOND", "Q_KIND", "Q_LENGTH_IN_SI",
-        "DRAINAGE_MODE", "CLIP_GLOBAL_NORM",
-        "DEBUG_PHYSICS_GRADS", "SCALING_ERROR_POLICY",
-
+        "CONS_SCALE_FLOOR",
+        "GW_SCALE_FLOOR",
+        "GW_RESIDUAL_UNITS",
+        "CONSOLIDATION_RESIDUAL_UNITS",
+        "DT_MIN_UNITS",
+        "Q_WRT_NORMALIZED_TIME",
+        "Q_IN_SI",
+        "Q_IN_PER_SECOND",
+        "Q_KIND",
+        "Q_LENGTH_IN_SI",
+        "DRAINAGE_MODE",
+        "CLIP_GLOBAL_NORM",
+        "DEBUG_PHYSICS_GRADS",
+        "SCALING_ERROR_POLICY",
         # --- 6. Consolidation Drawdown Gates ---
-        "CONS_DRAWDOWN_MODE", "CONS_DRAWDOWN_RULE", 
-        "CONS_STOP_GRAD_REF", "CONS_DRAWDOWN_ZERO_AT_ORIGIN", 
-        "CONS_DRAWDOWN_CLIP_MAX", "CONS_RELU_BETA",
-
+        "CONS_DRAWDOWN_MODE",
+        "CONS_DRAWDOWN_RULE",
+        "CONS_STOP_GRAD_REF",
+        "CONS_DRAWDOWN_ZERO_AT_ORIGIN",
+        "CONS_DRAWDOWN_CLIP_MAX",
+        "CONS_RELU_BETA",
         # --- 7. MV Prior Strategy ---
-        "MV_PRIOR_UNITS", "MV_ALPHA_DISP", "MV_HUBER_DELTA",
-        "MV_PRIOR_MODE", "MV_WEIGHT", "MV_SCHEDULE_UNIT",
-        "MV_DELAY_EPOCHS", "MV_WARMUP_EPOCHS", 
-        "MV_DELAY_STEPS", "MV_WARMUP_STEPS",
-
+        "MV_PRIOR_UNITS",
+        "MV_ALPHA_DISP",
+        "MV_HUBER_DELTA",
+        "MV_PRIOR_MODE",
+        "MV_WEIGHT",
+        "MV_SCHEDULE_UNIT",
+        "MV_DELAY_EPOCHS",
+        "MV_WARMUP_EPOCHS",
+        "MV_DELAY_STEPS",
+        "MV_WARMUP_STEPS",
         # --- 8. Training Strategy & Gates (Physics-First vs Data-First) ---
         "TRAINING_STRATEGY",
         # Physics-First specific overrides
-        "Q_POLICY_PHYSICS_FIRST", 
-        "Q_WARMUP_EPOCHS_PHYSICS_FIRST", "Q_RAMP_EPOCHS_PHYSICS_FIRST",
-        "SUBS_RESID_POLICY_PHYSICS_FIRST", 
-        "SUBS_RESID_WARMUP_EPOCHS_PHYSICS_FIRST", "SUBS_RESID_RAMP_EPOCHS_PHYSICS_FIRST",
-        "LAMBDA_Q_PHYSICS_FIRST", "LOSS_WEIGHT_GWL_PHYSICS_FIRST",
+        "Q_POLICY_PHYSICS_FIRST",
+        "Q_WARMUP_EPOCHS_PHYSICS_FIRST",
+        "Q_RAMP_EPOCHS_PHYSICS_FIRST",
+        "SUBS_RESID_POLICY_PHYSICS_FIRST",
+        "SUBS_RESID_WARMUP_EPOCHS_PHYSICS_FIRST",
+        "SUBS_RESID_RAMP_EPOCHS_PHYSICS_FIRST",
+        "LAMBDA_Q_PHYSICS_FIRST",
+        "LOSS_WEIGHT_GWL_PHYSICS_FIRST",
         # Data-First specific overrides
-        "LOSS_WEIGHT_GWL_DATA_FIRST", "LAMBDA_Q_DATA_FIRST",
-        "Q_POLICY_DATA_FIRST", 
-        "Q_WARMUP_EPOCHS_DATA_FIRST", "Q_RAMP_EPOCHS_DATA_FIRST",
-        "SUBS_RESID_POLICY_DATA_FIRST", 
-        "SUBS_RESID_WARMUP_EPOCHS_DATA_FIRST", "SUBS_RESID_RAMP_EPOCHS_DATA_FIRST",
-
+        "LOSS_WEIGHT_GWL_DATA_FIRST",
+        "LAMBDA_Q_DATA_FIRST",
+        "Q_POLICY_DATA_FIRST",
+        "Q_WARMUP_EPOCHS_DATA_FIRST",
+        "Q_RAMP_EPOCHS_DATA_FIRST",
+        "SUBS_RESID_POLICY_DATA_FIRST",
+        "SUBS_RESID_WARMUP_EPOCHS_DATA_FIRST",
+        "SUBS_RESID_RAMP_EPOCHS_DATA_FIRST",
         # --- 9. Lambda Offset Scheduler ---
-        "USE_LAMBDA_OFFSET_SCHEDULER", "LAMBDA_OFFSET_UNIT",
-        "LAMBDA_OFFSET_WHEN", "LAMBDA_OFFSET_WARMUP",
-        "LAMBDA_OFFSET_START", "LAMBDA_OFFSET_END", 
+        "USE_LAMBDA_OFFSET_SCHEDULER",
+        "LAMBDA_OFFSET_UNIT",
+        "LAMBDA_OFFSET_WHEN",
+        "LAMBDA_OFFSET_WARMUP",
+        "LAMBDA_OFFSET_START",
+        "LAMBDA_OFFSET_END",
         "LAMBDA_OFFSET_SCHEDULE",
-
         # --- 10. Training Loop & Logging ---
-        "EPOCHS", "BATCH_SIZE", "LEARNING_RATE", "PATIENCE",
-        "LOG_Q_DIAGNOSTICS", "AUDIT_STAGES",
-        "EVAL_JSON_UNITS_MODE", "EVAL_JSON_UNITS_SCOPE", 
-        
-        "VERBOSE"
+        "EPOCHS",
+        "BATCH_SIZE",
+        "LEARNING_RATE",
+        "PATIENCE",
+        "LOG_Q_DIAGNOSTICS",
+        "AUDIT_STAGES",
+        "EVAL_JSON_UNITS_MODE",
+        "EVAL_JSON_UNITS_SCOPE",
+        "VERBOSE",
     }
 
     updates = []
@@ -1560,19 +1663,22 @@ def resolve_hybrid_config(
         if key in live_cfg:
             current_val = merged.get(key)
             new_val = live_cfg[key]
-            
+
             # Update only if different (or if manifest didn't have it)
             if new_val != current_val:
                 merged[key] = new_val
                 updates.append(key)
 
     if verbose and updates:
-        print(f"[Config] Applied {len(updates)} physics/training overrides from config.py:")
+        print(
+            f"[Config] Applied {len(updates)} physics/training overrides from config.py:"
+        )
         # Print a few examples
         sample = updates[:4]
         print(f"         {', '.join(sample)} ...")
-    
+
     return merged
+
 
 # -------------------------------------------------------------------------
 # Backward-compatible aliases for old private helper names

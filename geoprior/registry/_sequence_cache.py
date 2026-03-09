@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # https://lkouadio.com
@@ -6,27 +5,37 @@
 # Author: LKouadio <etanoyau@gmail.com>
 
 from __future__ import annotations
-import json, hashlib, joblib, logging
-from pathlib import Path
-from typing import Any, Optional, Literal 
 
+import hashlib
+import json
+import logging
+from pathlib import Path
+from typing import Any, Literal
+
+import joblib
 from platformdirs import user_cache_dir
+
 _log = logging.getLogger("geoprior.seqcache")
 
-_APP_NAME   = "geoprior-v3"
+_APP_NAME = "geoprior-v3"
 _APP_AUTHOR = "earthai-tech"
 
 
-__all__=[
-    'ensure_sequence_cache_dir', 'get_sequence_cache_dir', 'load_seq_cache',
-    'resolve_sequence_cache', 'save_seq_cache', 'user_runs_root'
-   ]
+__all__ = [
+    "ensure_sequence_cache_dir",
+    "get_sequence_cache_dir",
+    "load_seq_cache",
+    "resolve_sequence_cache",
+    "save_seq_cache",
+    "user_runs_root",
+]
+
 
 def resolve_sequence_cache(
     run_dir: str | Path | None = None,
     *,
     mode: Literal["get", "ensure"] = "get",
-) -> Optional[Path]:
+) -> Path | None:
     """
     Unified helper to **get** or **make** the `<run_dir>/sequence_cache` folder.
 
@@ -53,7 +62,9 @@ def resolve_sequence_cache(
     >>> resolve_sequence_cache("~/runs/exp-42")   # "get" is default
     PosixPath('/home/name/runs/exp-42/sequence_cache')
     """
-    run_dir = Path(run_dir or _runs_root()).expanduser().resolve()
+    run_dir = (
+        Path(run_dir or _runs_root()).expanduser().resolve()
+    )
     seq_dir = run_dir / "sequence_cache"
 
     if mode == "ensure":
@@ -63,11 +74,18 @@ def resolve_sequence_cache(
     if mode == "get":
         return seq_dir if seq_dir.exists() else None
 
-    raise ValueError(f"mode must be 'get' or 'ensure', not {mode!r}")
+    raise ValueError(
+        f"mode must be 'get' or 'ensure', not {mode!r}"
+    )
+
 
 def user_runs_root() -> Path:
     """Return the OS-appropriate *runs* cache root."""
-    root = Path(user_cache_dir(appname=_APP_NAME, appauthor=_APP_AUTHOR))
+    root = Path(
+        user_cache_dir(
+            appname=_APP_NAME, appauthor=_APP_AUTHOR
+        )
+    )
     return (root / "runs").expanduser().resolve()
 
 
@@ -82,13 +100,19 @@ def ensure_sequence_cache_dir(run_dir: str | Path) -> Path:
     return cache_dir
 
 
-def get_sequence_cache_dir(run_dir: str | Path) -> Optional[Path]:
+def get_sequence_cache_dir(
+    run_dir: str | Path,
+) -> Path | None:
     """
     Return `<run_dir>/sequence_cache` **only if it already exists**,
     else return `None` (do *not* create anything).
     """
-    cache_dir = Path(run_dir).expanduser().resolve() / "sequence_cache"
+    cache_dir = (
+        Path(run_dir).expanduser().resolve()
+        / "sequence_cache"
+    )
     return cache_dir if cache_dir.exists() else None
+
 
 def _runs_root() -> Path:
     """
@@ -98,7 +122,9 @@ def _runs_root() -> Path:
     * macOS   →  ~/Library/Caches/earthai-tech/geoprior-v3/runs
     * Linux   →  ~/.cache/earthai-tech/geoprior-v3/runs
     """
-    return (Path(user_cache_dir(_APP_NAME, _APP_AUTHOR)) / "runs").resolve()
+    return (
+        Path(user_cache_dir(_APP_NAME, _APP_AUTHOR)) / "runs"
+    ).resolve()
 
 
 def _sha1_of(obj: Any) -> str:
@@ -109,7 +135,10 @@ def _sha1_of(obj: Any) -> str:
 
 def _cache_dir_for_run(run_dir: str | Path) -> Path:
     """<run_dir>/sequence_cache  (created lazily)."""
-    p = Path(run_dir).expanduser().resolve() / "sequence_cache"
+    p = (
+        Path(run_dir).expanduser().resolve()
+        / "sequence_cache"
+    )
     p.mkdir(parents=True, exist_ok=True)
     return p
 
@@ -122,8 +151,8 @@ def _cache_path(run_dir: str | Path, signature: dict) -> Path:
 def save_seq_cache(
     *,
     signature: dict,
-    payload:   dict,
-    run_dir:   str | Path,
+    payload: dict,
+    run_dir: str | Path,
     overwrite: bool = False,
 ) -> Path:
     """
@@ -133,10 +162,16 @@ def save_seq_cache(
     """
     fp = _cache_path(run_dir, signature)
     if fp.exists() and not overwrite:
-        _log.debug("sequence cache already exists: %s", fp.name)
+        _log.debug(
+            "sequence cache already exists: %s", fp.name
+        )
         return fp
 
-    joblib.dump({"signature": signature, "payload": payload}, fp, compress="lz4")
+    joblib.dump(
+        {"signature": signature, "payload": payload},
+        fp,
+        compress="lz4",
+    )
     _log.info("sequence cache saved: %s", fp.name)
     return fp
 
@@ -144,9 +179,9 @@ def save_seq_cache(
 def load_seq_cache(
     *,
     signature: dict,
-    run_dir:   str | Path,
-    drop_bad:  bool = True,
-) -> Optional[dict]:
+    run_dir: str | Path,
+    drop_bad: bool = True,
+) -> dict | None:
     """
     Try loading a cached payload.  Returns **dict** or **None**.
 
@@ -162,8 +197,10 @@ def load_seq_cache(
         if blob.get("signature") != signature:
             raise ValueError("signature mismatch")
         return blob.get("payload")
-    except Exception as exc:           # corrupted or mismatching
-        _log.warning("invalid sequence cache %s (%s)", fp.name, exc)
+    except Exception as exc:  # corrupted or mismatching
+        _log.warning(
+            "invalid sequence cache %s (%s)", fp.name, exc
+        )
         if drop_bad:
             try:
                 fp.unlink()

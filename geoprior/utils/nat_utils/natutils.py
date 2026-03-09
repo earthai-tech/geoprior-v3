@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -7,19 +6,19 @@
 
 from __future__ import annotations
 
+import datetime as dt
+import glob
 import json
 import os
-import glob
-from typing import Any 
-import datetime as dt 
 from collections.abc import Mapping, Sequence
+from typing import Any
 
 import numpy as np
-import pandas as pd 
+import pandas as pd
 
 # --- Optional TensorFlow import for GeoPrior helpers -----------------------
 try:  # pragma: no cover - defensive import
-    import tensorflow as tf # noqa
+    import tensorflow as tf  # noqa
     from tensorflow.keras.optimizers import Adam
 
     TF_AVAILABLE = True
@@ -36,7 +35,8 @@ except Exception:  # pragma: no cover
             )
 
     Adam = _AdamStub  # type: ignore[assignment]
-    
+
+
 def save_ablation_record(
     outdir: str,
     city: str,
@@ -46,7 +46,7 @@ def save_ablation_record(
     phys_diag: dict | None = None,
     per_h_mae: dict | None = None,
     per_h_r2: dict | None = None,
-    log_fn = None, 
+    log_fn=None,
 ) -> None:
     """
     Append a single ablation record to ``ablation_record.jsonl``.
@@ -91,19 +91,23 @@ def save_ablation_record(
     The output file is a JSON-Lines file, so it can be loaded
     with :func:`load_ablation_jsonl`.
     """
-    if log_fn is None: 
-        log_fn =print 
-        
+    if log_fn is None:
+        log_fn = print
+
     # eval_dict = eval_dict or {}
     metrics = dict(eval_dict or {})
 
     rec = {
-        "timestamp": dt.datetime.now().strftime("%Y%m%d-%H%M%S"),
+        "timestamp": dt.datetime.now().strftime(
+            "%Y%m%d-%H%M%S"
+        ),
         "city": city,
         "model": model_name,
         # Physics toggles / weights
         "pde_mode": cfg.get("PDE_MODE_CONFIG"),
-        "use_effective_h": bool(cfg.get("GEOPRIOR_USE_EFFECTIVE_H", True)),
+        "use_effective_h": bool(
+            cfg.get("GEOPRIOR_USE_EFFECTIVE_H", True)
+        ),
         "kappa_mode": cfg.get("GEOPRIOR_KAPPA_MODE", "bar"),
         "hd_factor": cfg.get("GEOPRIOR_HD_FACTOR", 0.6),
         "lambda_cons": cfg.get("LAMBDA_CONS"),
@@ -125,7 +129,6 @@ def save_ablation_record(
         "rmse": metrics.get("rmse"),
         "coverage80": metrics.get("coverage80"),
         "sharpness80": metrics.get("sharpness80"),
-
     }
     # Keep the full metrics payload (post-hoc vs evaluate(), units, etc.)
     rec["metrics"] = metrics
@@ -181,13 +184,14 @@ def load_ablation_jsonl(path: str) -> pd.DataFrame:
     >>> df_abl.head()
     """
     rows = []
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line:
                 continue
             rows.append(json.loads(line))
     return pd.DataFrame(rows)
+
 
 def name_of(obj: object) -> str:
     """
@@ -280,34 +284,43 @@ def serialize_subs_params(
         return None
 
     if "mv" in out:
-        mv_val = _extract_scalar(out["mv"], "GEOPRIOR_INIT_MV")
+        mv_val = _extract_scalar(
+            out["mv"], "GEOPRIOR_INIT_MV"
+        )
         out["mv"] = {
             "type": "LearnableMV",
             "initial_value": mv_val,
         }
 
     if "kappa" in out:
-        kap_val = _extract_scalar(out["kappa"], "GEOPRIOR_INIT_KAPPA")
+        kap_val = _extract_scalar(
+            out["kappa"], "GEOPRIOR_INIT_KAPPA"
+        )
         out["kappa"] = {
             "type": "LearnableKappa",
             "initial_value": kap_val,
         }
 
     if "gamma_w" in out:
-        gw_val = _extract_scalar(out["gamma_w"], "GEOPRIOR_GAMMA_W")
+        gw_val = _extract_scalar(
+            out["gamma_w"], "GEOPRIOR_GAMMA_W"
+        )
         out["gamma_w"] = {
             "type": "FixedGammaW",
             "value": gw_val,
         }
 
     if "h_ref" in out:
-        href_val = _extract_scalar(out["h_ref"], "GEOPRIOR_H_REF")
+        href_val = _extract_scalar(
+            out["h_ref"], "GEOPRIOR_H_REF"
+        )
         out["h_ref"] = {
             "type": "FixedHRef",
             "value": href_val,
         }
 
     return out
+
 
 def best_epoch_and_metrics(
     history: dict,
@@ -353,7 +366,8 @@ def best_epoch_and_metrics(
         if len(v) > be
     }
     return be, metrics_at_best
-    
+
+
 def load_or_rebuild_geoprior_model(
     model_path: str,
     manifest: dict,
@@ -420,17 +434,21 @@ def load_or_rebuild_geoprior_model(
         ) from e
 
     try:
-        from geoprior.nn.pinn.models import GeoPriorSubsNet  # type: ignore
-        from geoprior.params import (  # type: ignore
-            LearnableMV,
-            LearnableKappa,
-            FixedGammaW,
-            FixedHRef,
-        )
-        from geoprior.nn.losses import make_weighted_pinball  # type: ignore
         from geoprior.nn.keras_metrics import (  # type: ignore
             coverage80_fn,
             sharpness80_fn,
+        )
+        from geoprior.nn.losses import (
+            make_weighted_pinball,  # type: ignore
+        )
+        from geoprior.nn.pinn.models import (
+            GeoPriorSubsNet,  # type: ignore
+        )
+        from geoprior.params import (  # type: ignore
+            FixedGammaW,
+            FixedHRef,
+            LearnableKappa,
+            LearnableMV,
         )
     except Exception as e:  # pragma: no cover - env dependent
         raise ImportError(
@@ -455,10 +473,14 @@ def load_or_rebuild_geoprior_model(
     # ------------------- 1) Try direct load_model -------------------------
     with custom_object_scope(custom_objects):
         if verbose:
-            print(f"[Model] Attempting to load model from: {model_path}")
+            print(
+                f"[Model] Attempting to load model from: {model_path}"
+            )
 
         try:
-            model = load_model(model_path, compile=compile_on_load)
+            model = load_model(
+                model_path, compile=compile_on_load
+            )
             if verbose:
                 print(
                     f"[Model] Successfully loaded model for {label_city} "
@@ -518,8 +540,13 @@ def load_or_rebuild_geoprior_model(
 
         # Build a minimal best_hps dict so compile_for_eval can recover the
         # training-time physics weights and learning rate.
-        compile_block = training_summary.get("compile", {}) or {}
-        phys = compile_block.get("physics_loss_weights", {}) or {}
+        compile_block = (
+            training_summary.get("compile", {}) or {}
+        )
+        phys = (
+            compile_block.get("physics_loss_weights", {})
+            or {}
+        )
         lr = compile_block.get("learning_rate", None)
 
         hps_from_train: dict[str, float] = {}
@@ -603,7 +630,9 @@ def build_geoprior_from_training_summary(
         Reconstructed model (uncompiled).
     """
     try:
-        from geoprior.nn.pinn.models import GeoPriorSubsNet  # type: ignore
+        from geoprior.nn.pinn.models import (
+            GeoPriorSubsNet,  # type: ignore
+        )
     except Exception as e:  # pragma: no cover - env dependent
         raise ImportError(
             "build_geoprior_from_training_summary requires "
@@ -614,7 +643,9 @@ def build_geoprior_from_training_summary(
     cfg = manifest.get("config", {}) or {}
 
     # Infer input dims from the NPZ sample
-    static_dim, dynamic_dim, future_dim = infer_input_dims_from_X(X_sample)
+    static_dim, dynamic_dim, future_dim = (
+        infer_input_dims_from_X(X_sample)
+    )
 
     hp_init = training_summary.get("hp_init", {}) or {}
     model_init = hp_init.get("model_init_params", {}) or {}
@@ -627,7 +658,10 @@ def build_geoprior_from_training_summary(
         "attention_levels",
         hp_init.get(
             "attention_levels",
-            cfg.get("ATTENTION_LEVELS", ["cross", "hierarchical", "memory"]),
+            cfg.get(
+                "ATTENTION_LEVELS",
+                ["cross", "hierarchical", "memory"],
+            ),
         ),
     )
 
@@ -642,7 +676,9 @@ def build_geoprior_from_training_summary(
             ),
         )
     )
-    pde_mode = hp_init.get("pde_mode", cfg.get("PDE_MODE_CONFIG", "both"))
+    pde_mode = hp_init.get(
+        "pde_mode", cfg.get("PDE_MODE_CONFIG", "both")
+    )
     kappa_mode = model_init.get(
         "kappa_mode",
         cfg.get("GEOPRIOR_KAPPA_MODE", "bar"),
@@ -655,20 +691,29 @@ def build_geoprior_from_training_summary(
     embed_dim = int(model_init.get("embed_dim", 32))
     hidden_units = int(model_init.get("hidden_units", 96))
     lstm_units = int(model_init.get("lstm_units", 96))
-    attention_units = int(model_init.get("attention_units", 32))
+    attention_units = int(
+        model_init.get("attention_units", 32)
+    )
     num_heads = int(model_init.get("num_heads", 4))
     dropout_rate = float(model_init.get("dropout_rate", 0.1))
 
     use_vsn = bool(
-        model_init.get("use_vsn", hp_init.get("use_vsn", True))
+        model_init.get(
+            "use_vsn", hp_init.get("use_vsn", True)
+        )
     )
     vsn_units = int(
-        model_init.get("vsn_units", hp_init.get("vsn_units", 32))
+        model_init.get(
+            "vsn_units", hp_init.get("vsn_units", 32)
+        )
     )
     use_batch_norm = bool(
         model_init.get(
             "use_batch_norm",
-            hp_init.get("use_batch_norm", cfg.get("USE_BATCH_NORM", True)),
+            hp_init.get(
+                "use_batch_norm",
+                cfg.get("USE_BATCH_NORM", True),
+            ),
         )
     )
 
@@ -698,8 +743,12 @@ def build_geoprior_from_training_summary(
     mv_spec = model_init.get("mv", {})
     kappa_spec = model_init.get("kappa", {})
 
-    mv_init = _extract_initial(mv_spec, "GEOPRIOR_INIT_MV", 5e-7)
-    kappa_init = _extract_initial(kappa_spec, "GEOPRIOR_INIT_KAPPA", 1.0)
+    mv_init = _extract_initial(
+        mv_spec, "GEOPRIOR_INIT_MV", 5e-7
+    )
+    kappa_init = _extract_initial(
+        kappa_spec, "GEOPRIOR_INIT_KAPPA", 1.0
+    )
 
     # Pack the remaining architectural knobs into `architecture_config`
     known_keys = {
@@ -724,7 +773,9 @@ def build_geoprior_from_training_summary(
         "time_steps",
     }
     architecture_config = {
-        k: v for k, v in model_init.items() if k not in known_keys
+        k: v
+        for k, v in model_init.items()
+        if k not in known_keys
     }
 
     model = GeoPriorSubsNet(
@@ -764,6 +815,7 @@ def build_geoprior_from_training_summary(
         f"future_dim={future_dim}, horizon={horizon}, mode={mode}"
     )
     return model
+
 
 def load_geoprior_for_inference(
     model_path: str,
@@ -863,7 +915,9 @@ def load_training_summary_near_model(
     try:
         for fname in os.listdir(run_dir):
             if fname.endswith("_training_summary.json"):
-                candidates.append(os.path.join(run_dir, fname))
+                candidates.append(
+                    os.path.join(run_dir, fname)
+                )
     except FileNotFoundError:
         return None
 
@@ -874,11 +928,15 @@ def load_training_summary_near_model(
         seen.add(path)
         if os.path.exists(path):
             try:
-                with open(path, "r", encoding="utf-8") as f:
+                with open(path, encoding="utf-8") as f:
                     ts = json.load(f)
-                print(f"[TrainSummary] Loaded training_summary from: {path}")
+                print(
+                    f"[TrainSummary] Loaded training_summary from: {path}"
+                )
                 return ts
-            except Exception as e:  # pragma: no cover - defensive
+            except (
+                Exception
+            ) as e:  # pragma: no cover - defensive
                 print(
                     f"[Warn] Could not read training_summary JSON at {path!r}: {e}"
                 )
@@ -906,7 +964,7 @@ def extract_preds(
 
     If `strict=True`, list/tuple outputs *must* be mappable via
     output names; otherwise we raise to avoid silent swaps.
-    
+
 
     This helper normalizes the output interface across two
     GeoPrior generation families:
@@ -1025,7 +1083,9 @@ def extract_preds(
         if "data_final" in out and hasattr(
             model, "split_data_predictions"
         ):
-            return model.split_data_predictions(out["data_final"])
+            return model.split_data_predictions(
+                out["data_final"]
+            )
 
         # Single-key wrapper: unwrap one level and retry
         if len(out) == 1:
@@ -1047,7 +1107,7 @@ def extract_preds(
     # ---------------------------------------------------------
     # 2) predict() outputs as list/tuple
     # ---------------------------------------------------------
-    if isinstance(out, (list, tuple)):
+    if isinstance(out, list | tuple):
         names = None
         if output_names is not None:
             names = list(output_names)
@@ -1055,7 +1115,7 @@ def extract_preds(
             names = getattr(model, "output_names", None)
 
         if names and len(names) == len(out):
-            mapped = dict(zip(names, out))
+            mapped = dict(zip(names, out, strict=False))
             return extract_preds(
                 model,
                 mapped,
@@ -1080,7 +1140,9 @@ def extract_preds(
     )
 
 
-def subs_point_from_out(model, out, quantiles=None, med_idx=None):
+def subs_point_from_out(
+    model, out, quantiles=None, med_idx=None
+):
     r"""
     Convert model output into a subsidence point forecast.
 
@@ -1179,9 +1241,7 @@ def subs_point_from_out(model, out, quantiles=None, med_idx=None):
     subs_pred, _ = extract_preds(model, out)
 
     if subs_pred is None:
-        raise ValueError(
-            "Model output 'subs_pred' is None."
-        )
+        raise ValueError("Model output 'subs_pred' is None.")
 
     # has_rank = hasattr(subs_pred, "shape") and (
     #     getattr(subs_pred.shape, "rank", None) is not None
@@ -1189,14 +1249,18 @@ def subs_point_from_out(model, out, quantiles=None, med_idx=None):
     # is_quantile_tensor = has_rank and (subs_pred.shape.rank == 4)
     rank = None
     if hasattr(subs_pred, "shape"):
-        rank = getattr(subs_pred.shape, "rank", None)  # TF tensors
+        rank = getattr(
+            subs_pred.shape, "rank", None
+        )  # TF tensors
         if rank is None:
             try:
-                rank = len(subs_pred.shape)            # NumPy arrays / tuples
+                rank = len(
+                    subs_pred.shape
+                )  # NumPy arrays / tuples
             except Exception:
                 rank = None
-    
-    is_quantile_tensor = (rank == 4)
+
+    is_quantile_tensor = rank == 4
 
     if not is_quantile_tensor:
         return subs_pred
@@ -1220,6 +1284,7 @@ def subs_point_from_out(model, out, quantiles=None, med_idx=None):
     # Quantile outputs assumed (B, H, Q, 1)
     return subs_pred[:, :, int(med_idx), :]
 
+
 def _extract_allowed_hps(
     obj: object,
     *,
@@ -1233,12 +1298,13 @@ def _extract_allowed_hps(
                 if isinstance(k, str) and k in allowed:
                     out[k] = v
                 _walk(v)
-        elif isinstance(x, (list, tuple)):
+        elif isinstance(x, list | tuple):
             for it in x:
                 _walk(it)
 
     _walk(obj)
     return {k: out[k] for k in allowed if k in out}
+
 
 def load_tuned_hps_near_model(
     model_path: str,
@@ -1247,7 +1313,6 @@ def load_tuned_hps_near_model(
     required: bool = True,
     log_fn=None,
 ) -> dict:
-
     log = log_fn if callable(log_fn) else None
 
     def _msg(s: str) -> None:
@@ -1255,7 +1320,7 @@ def load_tuned_hps_near_model(
             log(s)
 
     def _load_json(p: str) -> dict:
-        with open(p, "r", encoding="utf-8") as f:
+        with open(p, encoding="utf-8") as f:
             return json.load(f)
 
     mp = os.path.abspath(str(model_path))
@@ -1276,9 +1341,15 @@ def load_tuned_hps_near_model(
 
     cands: list[str] = []
     if stem:
-        cands.append(os.path.join(run_dir, stem + "_best_hps.json"))
+        cands.append(
+            os.path.join(run_dir, stem + "_best_hps.json")
+        )
     cands.append(os.path.join(run_dir, "tuning_summary.json"))
-    cands.extend(glob.glob(os.path.join(run_dir, "*tuning_summary*.json")))
+    cands.extend(
+        glob.glob(
+            os.path.join(run_dir, "*tuning_summary*.json")
+        )
+    )
 
     for p in cands:
         if not os.path.exists(p):
@@ -1297,6 +1368,7 @@ def load_tuned_hps_near_model(
         )
     return {}
 
+
 def load_trained_hps_near_model(
     model_path: str,
     *,
@@ -1304,7 +1376,6 @@ def load_trained_hps_near_model(
     required: bool = False,
     log_fn=None,
 ) -> dict:
-
     log = log_fn if callable(log_fn) else None
 
     def _msg(s: str) -> None:
@@ -1312,7 +1383,7 @@ def load_trained_hps_near_model(
             log(s)
 
     def _load_json(p: str) -> object:
-        with open(p, "r", encoding="utf-8") as f:
+        with open(p, encoding="utf-8") as f:
             return json.load(f)
 
     mp = os.path.abspath(str(model_path))
@@ -1345,6 +1416,7 @@ def load_trained_hps_near_model(
         )
     return {}
 
+
 def load_hps_auto_near_model(
     model_path: str,
     *,
@@ -1353,7 +1425,6 @@ def load_hps_auto_near_model(
     required: bool = False,
     log_fn=None,
 ) -> dict:
-
     mp = os.path.abspath(str(model_path))
     run_dir = mp if os.path.isdir(mp) else os.path.dirname(mp)
 
@@ -1362,7 +1433,9 @@ def load_hps_auto_near_model(
         glob.glob(os.path.join(run_dir, "*_best_hps.json"))
     )
     tuned_hits.extend(
-        glob.glob(os.path.join(run_dir, "*tuning_summary*.json"))
+        glob.glob(
+            os.path.join(run_dir, "*tuning_summary*.json")
+        )
     )
     is_tuned = bool(tuned_hits) or ("tuning" in run_dir)
 
@@ -1380,6 +1453,7 @@ def load_hps_auto_near_model(
         required=required,
         log_fn=log_fn,
     )
+
 
 def load_best_hps_near_model(
     model_path: str,
@@ -1435,7 +1509,7 @@ def load_best_hps_near_model(
             log(s)
 
     def _load_json(p: str) -> dict:
-        with open(p, "r", encoding="utf-8") as f:
+        with open(p, encoding="utf-8") as f:
             return json.load(f)
 
     def _newest(paths: list[str]) -> str | None:
@@ -1466,9 +1540,7 @@ def load_best_hps_near_model(
             pats.append(
                 os.path.join(run_dir, "*_H*_best.keras")
             )
-            pats.append(
-                os.path.join(run_dir, "*_best.keras")
-            )
+            pats.append(os.path.join(run_dir, "*_best.keras"))
         else:
             if model_name:
                 pats.append(
@@ -1650,6 +1722,7 @@ def load_best_hps_near_model(
         "Looked for *_best_hps.json + summaries."
     )
 
+
 def coerce_quantile_weights(
     d: dict | None,
     default: dict,
@@ -1689,6 +1762,7 @@ def coerce_quantile_weights(
             q = k
         out[q] = float(v)
     return out
+
 
 def compile_for_eval(
     model: Any,
@@ -1738,8 +1812,12 @@ def compile_for_eval(
 
     # Local imports so nat_utils.py itself stays lightweight
     from geoprior.nn.losses import make_weighted_pinball
+
     if include_metrics:
-        from geoprior.nn.keras_metrics import coverage80_fn, sharpness80_fn
+        from geoprior.nn.keras_metrics import (
+            coverage80_fn,
+            sharpness80_fn,
+        )
 
     cfg = manifest.get("config", {}) or {}
     best_hps = best_hps or {}
@@ -1763,8 +1841,12 @@ def compile_for_eval(
 
     if quantiles:
         loss_dict = {
-            "subs_pred": make_weighted_pinball(quantiles, subs_w),
-            "gwl_pred": make_weighted_pinball(quantiles, gwl_w),
+            "subs_pred": make_weighted_pinball(
+                quantiles, subs_w
+            ),
+            "gwl_pred": make_weighted_pinball(
+                quantiles, gwl_w
+            ),
         }
     else:
         mse = tf.keras.losses.MeanSquaredError()
@@ -1773,8 +1855,13 @@ def compile_for_eval(
     loss_weights = {"subs_pred": 1.0, "gwl_pred": 0.5}
 
     # ---- 2. Physics weights: prefer best_hps, fall back to config --------
-    def _hp_or_cfg(hp_key: str, cfg_key: str, default: float) -> float:
-        if hp_key in best_hps and best_hps[hp_key] is not None:
+    def _hp_or_cfg(
+        hp_key: str, cfg_key: str, default: float
+    ) -> float:
+        if (
+            hp_key in best_hps
+            and best_hps[hp_key] is not None
+        ):
             return float(best_hps[hp_key])
         if cfg_key in cfg and cfg[cfg_key] is not None:
             return float(cfg[cfg_key])
@@ -1783,12 +1870,24 @@ def compile_for_eval(
     lr = _hp_or_cfg("learning_rate", "LEARNING_RATE", 1e-4)
 
     physics_kwargs = {
-        "lambda_gw": _hp_or_cfg("lambda_gw", "LAMBDA_GW", 1.0),
-        "lambda_cons": _hp_or_cfg("lambda_cons", "LAMBDA_CONS", 1.0),
-        "lambda_prior": _hp_or_cfg("lambda_prior", "LAMBDA_PRIOR", 0.1),
-        "lambda_smooth": _hp_or_cfg("lambda_smooth", "LAMBDA_SMOOTH", 0.01),
-        "lambda_mv": _hp_or_cfg("lambda_mv", "LAMBDA_MV", 0.0),
-        "mv_lr_mult": _hp_or_cfg("mv_lr_mult", "MV_LR_MULT", 1.0),
+        "lambda_gw": _hp_or_cfg(
+            "lambda_gw", "LAMBDA_GW", 1.0
+        ),
+        "lambda_cons": _hp_or_cfg(
+            "lambda_cons", "LAMBDA_CONS", 1.0
+        ),
+        "lambda_prior": _hp_or_cfg(
+            "lambda_prior", "LAMBDA_PRIOR", 0.1
+        ),
+        "lambda_smooth": _hp_or_cfg(
+            "lambda_smooth", "LAMBDA_SMOOTH", 0.01
+        ),
+        "lambda_mv": _hp_or_cfg(
+            "lambda_mv", "LAMBDA_MV", 0.0
+        ),
+        "mv_lr_mult": _hp_or_cfg(
+            "mv_lr_mult", "MV_LR_MULT", 1.0
+        ),
         "kappa_lr_mult": _hp_or_cfg(
             "kappa_lr_mult", "KAPPA_LR_MULT", 1.0
         ),
@@ -1804,13 +1903,18 @@ def compile_for_eval(
     if include_metrics:
         metrics_dict = {
             "subs_pred": ["mae", "mse"]
-            + ([coverage80_fn, sharpness80_fn] if quantiles else []),
+            + (
+                [coverage80_fn, sharpness80_fn]
+                if quantiles
+                else []
+            ),
             "gwl_pred": ["mae", "mse"],
         }
         compile_kwargs["metrics"] = metrics_dict
 
     model.compile(**compile_kwargs)
     return model
+
 
 def compile_geoprior_for_eval(
     model: Any,  # type: ignore[override]
@@ -1866,7 +1970,9 @@ def compile_geoprior_for_eval(
     # Lazy imports so nat_utils.py is importable without TensorFlow
     try:
         import tensorflow as tf  # type: ignore
-        from tensorflow.keras.optimizers import Adam  # type: ignore
+        from tensorflow.keras.optimizers import (
+            Adam,  # type: ignore
+        )
     except Exception as e:  # pragma: no cover - env dependent
         raise ImportError(
             "compile_geoprior_for_eval requires TensorFlow. "
@@ -1874,7 +1980,9 @@ def compile_geoprior_for_eval(
         ) from e
 
     try:
-        from geoprior.nn.losses import make_weighted_pinball  # type: ignore
+        from geoprior.nn.losses import (
+            make_weighted_pinball,  # type: ignore
+        )
     except Exception as e:  # pragma: no cover - env dependent
         raise ImportError(
             "compile_geoprior_for_eval requires "
@@ -1886,8 +1994,12 @@ def compile_geoprior_for_eval(
     loss_weights = {"subs_pred": 1.0, "gwl_pred": 0.5}
 
     # Quantile-specific weights from config (with robust defaults)
-    subs_raw = cfg.get("SUBS_WEIGHTS", {0.1: 3.0, 0.5: 1.0, 0.9: 3.0})
-    gwl_raw = cfg.get("GWL_WEIGHTS", {0.1: 1.5, 0.5: 1.0, 0.9: 1.5})
+    subs_raw = cfg.get(
+        "SUBS_WEIGHTS", {0.1: 3.0, 0.5: 1.0, 0.9: 3.0}
+    )
+    gwl_raw = cfg.get(
+        "GWL_WEIGHTS", {0.1: 1.5, 0.5: 1.0, 0.9: 1.5}
+    )
 
     subs_weights = coerce_quantile_weights(
         subs_raw, {0.1: 3.0, 0.5: 1.0, 0.9: 3.0}
@@ -1897,8 +2009,12 @@ def compile_geoprior_for_eval(
     )
 
     if quantiles:
-        loss_subs = make_weighted_pinball(quantiles, subs_weights)
-        loss_gwl = make_weighted_pinball(quantiles, gwl_weights)
+        loss_subs = make_weighted_pinball(
+            quantiles, subs_weights
+        )
+        loss_gwl = make_weighted_pinball(
+            quantiles, gwl_weights
+        )
     else:
         loss_subs = tf.keras.losses.MSE
         loss_gwl = tf.keras.losses.MSE
@@ -1911,16 +2027,34 @@ def compile_geoprior_for_eval(
     optimizer = Adam(learning_rate=lr)
 
     # Physics loss weights and LR multipliers
-    lambda_gw = float(best_hps.get("lambda_gw", cfg.get("LAMBDA_GW", 1.0)))
-    lambda_cons = float(best_hps.get("lambda_cons", cfg.get("LAMBDA_CONS", 1.0)))
-    lambda_prior = float(best_hps.get("lambda_prior", cfg.get("LAMBDA_PRIOR", 1.0)))
-    lambda_smooth = float(
-        best_hps.get("lambda_smooth", cfg.get("LAMBDA_SMOOTH", 1.0))
+    lambda_gw = float(
+        best_hps.get("lambda_gw", cfg.get("LAMBDA_GW", 1.0))
     )
-    lambda_mv = float(best_hps.get("lambda_mv", cfg.get("LAMBDA_MV", 0.0)))
-    mv_lr_mult = float(best_hps.get("mv_lr_mult", cfg.get("MV_LR_MULT", 1.0)))
+    lambda_cons = float(
+        best_hps.get(
+            "lambda_cons", cfg.get("LAMBDA_CONS", 1.0)
+        )
+    )
+    lambda_prior = float(
+        best_hps.get(
+            "lambda_prior", cfg.get("LAMBDA_PRIOR", 1.0)
+        )
+    )
+    lambda_smooth = float(
+        best_hps.get(
+            "lambda_smooth", cfg.get("LAMBDA_SMOOTH", 1.0)
+        )
+    )
+    lambda_mv = float(
+        best_hps.get("lambda_mv", cfg.get("LAMBDA_MV", 0.0))
+    )
+    mv_lr_mult = float(
+        best_hps.get("mv_lr_mult", cfg.get("MV_LR_MULT", 1.0))
+    )
     kappa_lr_mult = float(
-        best_hps.get("kappa_lr_mult", cfg.get("KAPPA_LR_MULT", 1.0))
+        best_hps.get(
+            "kappa_lr_mult", cfg.get("KAPPA_LR_MULT", 1.0)
+        )
     )
 
     model.compile(
@@ -1998,7 +2132,9 @@ def build_geoprior_from_hps(
         If GeoPriorSubsNet cannot be imported from geoprior.
     """
     try:
-        from geoprior.nn.pinn.models import GeoPriorSubsNet  # type: ignore
+        from geoprior.nn.pinn.models import (
+            GeoPriorSubsNet,  # type: ignore
+        )
     except Exception as e:  # pragma: no cover - env dependent
         raise ImportError(
             "build_geoprior_from_hps requires "
@@ -2009,7 +2145,9 @@ def build_geoprior_from_hps(
     cfg = manifest.get("config", {}) or {}
 
     # Infer input dims directly from NPZ
-    static_dim, dynamic_dim, future_dim = infer_input_dims_from_X(X_sample)
+    static_dim, dynamic_dim, future_dim = (
+        infer_input_dims_from_X(X_sample)
+    )
 
     # Attention stack: fall back to a sensible default if not present
     attention_levels = cfg.get(
@@ -2019,7 +2157,9 @@ def build_geoprior_from_hps(
 
     # Whether we used effective H during Stage-2
     censor_cfg = cfg.get("censoring", {}) or {}
-    use_effective_h = censor_cfg.get("use_effective_h_field", True)
+    use_effective_h = censor_cfg.get(
+        "use_effective_h_field", True
+    )
 
     # Feature-processing mode controlled by tuned HPs
     use_vsn = bool(best_hps.get("use_vsn", True))
@@ -2044,19 +2184,25 @@ def build_geoprior_from_hps(
         quantiles=quantiles,
         # physics switches from best_hps
         pde_mode=best_hps.get("pde_mode", "both"),
-        scale_pde_residuals=bool(best_hps.get("scale_pde_residuals", True)),
+        scale_pde_residuals=bool(
+            best_hps.get("scale_pde_residuals", True)
+        ),
         kappa_mode=best_hps.get("kappa_mode", "bar"),
         use_effective_h=use_effective_h,
         # architecture hyperparameters
         embed_dim=int(best_hps.get("embed_dim", 32)),
         hidden_units=int(best_hps.get("hidden_units", 96)),
         lstm_units=int(best_hps.get("lstm_units", 96)),
-        attention_units=int(best_hps.get("attention_units", 32)),
+        attention_units=int(
+            best_hps.get("attention_units", 32)
+        ),
         num_heads=int(best_hps.get("num_heads", 4)),
         dropout_rate=float(best_hps.get("dropout_rate", 0.1)),
         use_vsn=use_vsn,
         vsn_units=int(best_hps.get("vsn_units", 32)),
-        use_batch_norm=bool(best_hps.get("use_batch_norm", True)),
+        use_batch_norm=bool(
+            best_hps.get("use_batch_norm", True)
+        ),
         # geomechanical priors (floats interpreted internally by the model)
         mv=float(best_hps.get("mv", 5e-7)),
         kappa=float(best_hps.get("kappa", 1.0)),
@@ -2077,6 +2223,7 @@ def build_geoprior_from_hps(
         f"future_dim={future_dim}, horizon={horizon}, mode={mode}"
     )
     return model
+
 
 def build_geoprior_from_cfg(
     manifest: dict,
@@ -2116,7 +2263,9 @@ def build_geoprior_from_cfg(
         Compiled model instance ready for prediction/eval.
     """
     try:
-        from geoprior.nn.pinn.models import GeoPriorSubsNet  # type: ignore
+        from geoprior.nn.pinn.models import (
+            GeoPriorSubsNet,  # type: ignore
+        )
     except Exception as e:  # pragma: no cover - env dependent
         raise ImportError(
             "build_geoprior_from_cfg requires "
@@ -2127,7 +2276,9 @@ def build_geoprior_from_cfg(
     cfg = manifest.get("config", {}) or {}
 
     # --- Input dims inferred from X_sample ----------------------------
-    static_dim, dynamic_dim, future_dim = infer_input_dims_from_X(X_sample)
+    static_dim, dynamic_dim, future_dim = (
+        infer_input_dims_from_X(X_sample)
+    )
 
     # --- Attention stack / effective-H flag ---------------------------
     attention_levels = cfg.get(
@@ -2142,9 +2293,14 @@ def build_geoprior_from_cfg(
     )
 
     # --- Physics switches ---------------------------------------------
-    pde_mode = cfg.get("PDE_MODE_CONFIG", cfg.get("PDE_MODE", "both"))
+    pde_mode = cfg.get(
+        "PDE_MODE_CONFIG", cfg.get("PDE_MODE", "both")
+    )
     scale_pde_residuals = bool(
-        cfg.get("SCALE_PDE_RESIDUALS", cfg.get("SCALE_PDE_RES", True))
+        cfg.get(
+            "SCALE_PDE_RESIDUALS",
+            cfg.get("SCALE_PDE_RES", True),
+        )
     )
     kappa_mode = cfg.get(
         "GEOPRIOR_KAPPA_MODE",
@@ -2177,9 +2333,15 @@ def build_geoprior_from_cfg(
         return bool(default)
 
     # --- Architecture hyperparams (config-side defaults) --------------
-    embed_dim = _cfg_int(32, "EMBED_DIM", "GEOPRIOR_EMBED_DIM")
-    hidden_units = _cfg_int(96, "HIDDEN_UNITS", "GEOPRIOR_HIDDEN_UNITS")
-    lstm_units = _cfg_int(96, "LSTM_UNITS", "GEOPRIOR_LSTM_UNITS")
+    embed_dim = _cfg_int(
+        32, "EMBED_DIM", "GEOPRIOR_EMBED_DIM"
+    )
+    hidden_units = _cfg_int(
+        96, "HIDDEN_UNITS", "GEOPRIOR_HIDDEN_UNITS"
+    )
+    lstm_units = _cfg_int(
+        96, "LSTM_UNITS", "GEOPRIOR_LSTM_UNITS"
+    )
     attention_units = _cfg_int(
         32, "ATTENTION_UNITS", "GEOPRIOR_ATTENTION_UNITS"
     )
@@ -2190,7 +2352,9 @@ def build_geoprior_from_cfg(
         0.1, "DROPOUT_RATE", "GEOPRIOR_DROPOUT_RATE"
     )
     use_vsn = _cfg_bool(True, "USE_VSN", "GEOPRIOR_USE_VSN")
-    vsn_units = _cfg_int(32, "VSN_UNITS", "GEOPRIOR_VSN_UNITS")
+    vsn_units = _cfg_int(
+        32, "VSN_UNITS", "GEOPRIOR_VSN_UNITS"
+    )
     use_batch_norm = _cfg_bool(
         True, "USE_BATCH_NORM", "GEOPRIOR_USE_BATCH_NORM"
     )
@@ -2252,6 +2416,7 @@ def build_geoprior_from_cfg(
     )
     return model
 
+
 def infer_best_weights_path(model_path: str) -> str | None:
     """
     Infer the best-weights checkpoint path for a tuned GeoPrior model.
@@ -2280,16 +2445,20 @@ def infer_best_weights_path(model_path: str) -> str | None:
     run_dir = os.path.dirname(os.path.abspath(model_path))
 
     # 1) Preferred: tuning_summary.json
-    summary_path = os.path.join(run_dir, "tuning_summary.json")
+    summary_path = os.path.join(
+        run_dir, "tuning_summary.json"
+    )
     if os.path.exists(summary_path):
         try:
-            with open(summary_path, "r", encoding="utf-8") as f:
+            with open(summary_path, encoding="utf-8") as f:
                 summary = json.load(f)
             w = summary.get("best_weights_path")
             if w and os.path.exists(w):
                 return w
         except Exception as e:  # pragma: no cover - defensive
-            print(f"[Warn] Could not read tuning_summary.json for weights: {e}")
+            print(
+                f"[Warn] Could not read tuning_summary.json for weights: {e}"
+            )
 
     # 2) Name-based guess from the .keras path
     root, ext = os.path.splitext(model_path)
@@ -2414,17 +2583,21 @@ def _load_or_rebuild_geoprior_model(
         ) from e
 
     try:
-        from geoprior.nn.pinn.models import GeoPriorSubsNet  # type: ignore
-        from geoprior.params import (  # type: ignore
-            LearnableMV,
-            LearnableKappa,
-            FixedGammaW,
-            FixedHRef,
-        )
-        from geoprior.nn.losses import make_weighted_pinball  # type: ignore
         from geoprior.nn.keras_metrics import (  # type: ignore
             coverage80_fn,
             sharpness80_fn,
+        )
+        from geoprior.nn.losses import (
+            make_weighted_pinball,  # type: ignore
+        )
+        from geoprior.nn.pinn.models import (
+            GeoPriorSubsNet,  # type: ignore
+        )
+        from geoprior.params import (  # type: ignore
+            FixedGammaW,
+            FixedHRef,
+            LearnableKappa,
+            LearnableMV,
         )
     except Exception as e:  # pragma: no cover - env dependent
         raise ImportError(
@@ -2451,13 +2624,19 @@ def _load_or_rebuild_geoprior_model(
 
     with custom_object_scope(custom_objects):
         if verbose:
-            print(f"[Model] Attempting to load tuned model from: {model_path}")
-        
+            print(
+                f"[Model] Attempting to load tuned model from: {model_path}"
+            )
+
         # try:
-        model = load_model(model_path, compile=compile_on_load)
+        model = load_model(
+            model_path, compile=compile_on_load
+        )
         if verbose:
-            print(f"[Model] Successfully loaded tuned model for {label_city} "
-                  f"from: {model_path}")
+            print(
+                f"[Model] Successfully loaded tuned model for {label_city} "
+                f"from: {model_path}"
+            )
         return model, best_hps
         # except Exception as e_load:
         #     if verbose:
@@ -2526,9 +2705,10 @@ def _load_or_rebuild_geoprior_model(
 
     return model, best_hps
 
+
 def infer_input_dims_from_X(X: dict) -> tuple[int, int, int]:
     """
-    Infer (static_input_dim, dynamic_input_dim, future_input_dim) 
+    Infer (static_input_dim, dynamic_input_dim, future_input_dim)
     from NPZ inputs.
 
     This is a public, defensive version of the former
@@ -2568,16 +2748,26 @@ def infer_input_dims_from_X(X: dict) -> tuple[int, int, int]:
     dynamic_dim = int(dyn.shape[-1])
 
     static = X.get("static_features", None)
-    static_dim = int(np.asarray(static).shape[-1]) if static is not None else 0
+    static_dim = (
+        int(np.asarray(static).shape[-1])
+        if static is not None
+        else 0
+    )
 
     fut = X.get("future_features", None)
-    future_dim = int(np.asarray(fut).shape[-1]) if fut is not None else 0
+    future_dim = (
+        int(np.asarray(fut).shape[-1])
+        if fut is not None
+        else 0
+    )
 
     return static_dim, dynamic_dim, future_dim
+
+
 # -------------------------------------------------------------------------
 # Backward-compatible aliases for old private helper names
 # -------------------------------------------------------------------------
-safe_compile = compile_for_eval 
+safe_compile = compile_for_eval
 
 _infer_input_dims_from_X = infer_input_dims_from_X
 _load_best_hps_near_model = load_best_hps_near_model

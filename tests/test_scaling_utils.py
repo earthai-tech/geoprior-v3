@@ -25,24 +25,44 @@ def test_get_sk_tries_aliases_and_casts_values():
     assert mod.get_sk(sk, "missing", default="x") == "x"
 
 
-def test_load_scaling_kwargs_supports_mapping_json_string_and_path(tmp_path: Path):
-    payload = {"time_units": "year", "coords_normalized": False}
+def test_load_scaling_kwargs_supports_mapping_json_string_and_path(
+    tmp_path: Path,
+):
+    payload = {
+        "time_units": "year",
+        "coords_normalized": False,
+    }
     p = tmp_path / "scaling.json"
     p.write_text(json.dumps(payload), encoding="utf-8")
 
-    assert mod.load_scaling_kwargs(payload)["time_units"] == "year"
-    assert mod.load_scaling_kwargs(json.dumps(payload))["time_units"] == "year"
+    assert (
+        mod.load_scaling_kwargs(payload)["time_units"]
+        == "year"
+    )
+    assert (
+        mod.load_scaling_kwargs(json.dumps(payload))[
+            "time_units"
+        ]
+        == "year"
+    )
     assert mod.load_scaling_kwargs(p)["time_units"] == "year"
-    assert mod.load_scaling_kwargs(str(p))["time_units"] == "year"
+    assert (
+        mod.load_scaling_kwargs(str(p))["time_units"]
+        == "year"
+    )
 
 
-def test_load_scaling_kwargs_rejects_bad_inputs(tmp_path: Path):
+def test_load_scaling_kwargs_rejects_bad_inputs(
+    tmp_path: Path,
+):
     bad_json = "[1, 2, 3]"
     with pytest.raises(ValueError):
         mod.load_scaling_kwargs(bad_json)
 
     with pytest.raises(FileNotFoundError):
-        mod.load_scaling_kwargs(str(tmp_path / "missing.json"))
+        mod.load_scaling_kwargs(
+            str(tmp_path / "missing.json")
+        )
 
     with pytest.raises(TypeError):
         mod.load_scaling_kwargs(object())
@@ -73,7 +93,9 @@ def test_enforce_scaling_alias_consistency_warns_or_raises():
 
 def test_validate_scaling_kwargs_requires_time_units_and_coord_rules():
     with pytest.raises(ValueError, match="time_units"):
-        mod.validate_scaling_kwargs({"coords_normalized": False})
+        mod.validate_scaling_kwargs(
+            {"coords_normalized": False}
+        )
 
     with pytest.raises(ValueError, match="coord_ranges"):
         mod.validate_scaling_kwargs(

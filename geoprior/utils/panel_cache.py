@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
-# https://lkouadio.com
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
-# Author: LKouadio <etanoyau@gmail.com>
+# Author: LKouadio <https://lkouadio.com>
 
 """
 geoprior.utils.panel_cache
@@ -26,12 +24,11 @@ This module helps you:
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Optional, Sequence
 
 import numpy as np
 import pandas as pd
-
 
 __all__ = [
     "min_required_len",
@@ -165,9 +162,7 @@ def feasible_group_keys(
         group_cols=group_cols,
         decimals=decimals,
     )
-    tmp = pd.DataFrame(
-        {"__k__": keys, "__t__": df[time_col]}
-    )
+    tmp = pd.DataFrame({"__k__": keys, "__t__": df[time_col]})
     tmp = tmp.drop_duplicates(["__k__", "__t__"])
     cnt = tmp.groupby("__k__")["__t__"].nunique()
     ok = cnt[cnt >= int(min_len)].index.to_numpy()
@@ -186,13 +181,14 @@ class PanelKeyCache:
     The cache stores counts of distinct times per key.
     You can query feasible keys for any `min_len`.
     """
+
     group_cols: Sequence[str]
     time_col: str
     decimals: int = 8
 
-    _counts: Optional[pd.Series] = None
+    _counts: pd.Series | None = None
 
-    def fit(self, df: pd.DataFrame) -> "PanelKeyCache":
+    def fit(self, df: pd.DataFrame) -> PanelKeyCache:
         """
         Compute distinct-time counts per group key.
         """

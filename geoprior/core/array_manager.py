@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Author: LKouadio <etanoyau@gmail.com>
 # Adapted from: earthai-tech/gofast — https://github.com/earthai-tech/gofast
@@ -12,74 +11,87 @@ Ensures consistent array-like formats across the package.
 Adapted from the original fusionlab.core module.
 """
 
-from __future__ import print_function, annotations
-import re
+from __future__ import annotations
+
 import copy
 import hashlib
 import itertools
-import warnings
 import logging
+import re
+import warnings
 
 import numpy as np
 import pandas as pd
 
 from ..api.types import (
-    Any, Dict, Union, Series, Tuple, Optional, Set,
-    _T, _F, ArrayLike, List, DataFrame, NDArray
-)
-from .utils import (
-    is_iterable,
-    _assert_all_types,
-    sanitize_frame_cols,
-    listing_items_format,
-    smart_format,
-    error_policy,
+    _F,
+    _T,
+    Any,
+    ArrayLike,
+    DataFrame,
+    Dict,
+    List,
+    NDArray,
+    Optional,
+    Series,
+    Set,
+    Tuple,
+    Union,
 )
 from .checks import (
-    assert_ratio, is_in_if,
-    str2columns,
-    is_numeric_dtype,
     are_all_frames_valid,
+    assert_ratio,
     ensure_same_shape,
+    is_in_if,
+    is_numeric_dtype,
+    str2columns,
     validate_axis,
+)
+from .utils import (
+    _assert_all_types,
+    error_policy,
+    is_iterable,
+    listing_items_format,
+    sanitize_frame_cols,
+    smart_format,
 )
 
 __all__ = [
-    'convert_to_structured_format',
-    'denormalize',
-    'to_numeric_dtypes',
-    'reshape',
-    'squeeze_specific_dim',
-    'split_list',
-    'split_train_test',
-    'split_train_test_by_id',
-    'make_arr_consistent',
-    'process_and_extract_data',
-    'to_series_if',
-    'test_set_check_id',
-    'decode_sparse_data',
-    'map_specific_columns',
-    'reduce_dimensions',
-    'smart_ts_detector',
-    'extract_array_from',
-    'drop_nan_in',
-    'to_array',
-    'to_arrays',
-    'array_preserver',
-    'return_if_preserver_failed',
+    "convert_to_structured_format",
+    "denormalize",
+    "to_numeric_dtypes",
+    "reshape",
+    "squeeze_specific_dim",
+    "split_list",
+    "split_train_test",
+    "split_train_test_by_id",
+    "make_arr_consistent",
+    "process_and_extract_data",
+    "to_series_if",
+    "test_set_check_id",
+    "decode_sparse_data",
+    "map_specific_columns",
+    "reduce_dimensions",
+    "smart_ts_detector",
+    "extract_array_from",
+    "drop_nan_in",
+    "to_array",
+    "to_arrays",
+    "array_preserver",
+    "return_if_preserver_failed",
 ]
 
 
 def to_array(
     arr: Any,
     accept: Optional[str] = None,
-    error: str = 'raise',
+    error: str = "raise",
     force_conversion: bool = False,
     axis: int = 0,
     mode: str = "keep_origin",
-    as_frame: bool=False, 
+    as_frame: bool = False,
     verbose: int = 0,
-    **kwargs
+    **kwargs,
 ) -> Union[np.ndarray, pd.Series, pd.DataFrame]:
     """
     Convert various array-like objects to the desired dimensionality.
@@ -293,6 +305,7 @@ def to_array(
     .. [3] Pandas Development Team. (2023). *pandas documentation*. 
            https://pandas.pydata.org/pandas-docs/stable/
     """
+
     # Helper function to determine the number of dimensions
     def _get_ndim(obj: Any) -> int:
         """Return the number of dimensions of the input object."""
@@ -314,11 +327,11 @@ def to_array(
     # Helper function to handle errors
     def _handle_error(message: str):
         """Handle errors based on the 'error' parameter."""
-        if error == 'raise':
+        if error == "raise":
             raise ValueError(message)
-        elif error == 'warn':
-            warnings.warn(message)
-        elif error == 'ignore':
+        elif error == "warn":
+            warnings.warn(message, stacklevel=2)
+        elif error == "ignore":
             pass
         else:
             raise ValueError(
@@ -329,110 +342,143 @@ def to_array(
     # Helper function to convert to numpy array
     def _convert_to_numpy(obj: Any) -> np.ndarray:
         """Convert list or tuple to NumPy array."""
-        if isinstance(obj, (list, tuple)):
-            _verbose_print("Converting list/tuple to NumPy array.", level=1)
+        if isinstance(obj, list | tuple):
+            _verbose_print(
+                "Converting list/tuple to NumPy array.",
+                level=1,
+            )
             return np.array(obj)
         return obj
 
     # Helper function to reshape NumPy array
-    def _reshape_numpy(arr_np: np.ndarray, target_dim: int) -> np.ndarray:
+    def _reshape_numpy(
+        arr_np: np.ndarray, target_dim: int
+    ) -> np.ndarray:
         """Reshape NumPy array to the target dimension."""
         try:
             if target_dim == 1:
                 return arr_np.flatten()
             elif target_dim == 2:
-                return arr_np.reshape(-1, 1) if axis == 0 else arr_np.reshape(1, -1)
+                return (
+                    arr_np.reshape(-1, 1)
+                    if axis == 0
+                    else arr_np.reshape(1, -1)
+                )
             elif target_dim == 3:
                 return arr_np.reshape(arr_np.shape[0], -1, 1)
             elif target_dim > 3:
                 extra_dims = target_dim - arr_np.ndim
-                return arr_np.reshape(*arr_np.shape, *(1,) * extra_dims)
+                return arr_np.reshape(
+                    *arr_np.shape, *(1,) * extra_dims
+                )
         except Exception as e:
-            _handle_error(f"Failed to reshape array to {target_dim}D. Error: {e}")
+            _handle_error(
+                f"Failed to reshape array to {target_dim}D. Error: {e}"
+            )
         return arr_np
-    
-    # Helper function to Pandas Series to dataframe if target_dim is 2d 
-    # else return Numpy array for reshaping in higher dimension. 
-    def _reshape_series(series: pd.Series, target_dim: int, axis: int = 0):
+
+    # Helper function to Pandas Series to dataframe if target_dim is 2d
+    # else return Numpy array for reshaping in higher dimension.
+    def _reshape_series(
+        series: pd.Series, target_dim: int, axis: int = 0
+    ):
         """
-        Reshape a Pandas Series into a DataFrame or NumPy array based 
+        Reshape a Pandas Series into a DataFrame or NumPy array based
         on the target dimension.
-    
+
         Parameters:
         - series (pd.Series): The Pandas Series to reshape.
         - target_dim (int): The desired number of dimensions after reshaping.
         - axis (int, optional): The axis along which to reshape. Defaults to 0.
-    
+
         Returns:
-        - pd.DataFrame or np.ndarray: The reshaped Series as a DataFrame 
+        - pd.DataFrame or np.ndarray: The reshaped Series as a DataFrame
          if target_dim is 2,
           or as a NumPy array for higher dimensions.
         """
-        if isinstance (series, pd.Series): 
+        if isinstance(series, pd.Series):
             if axis == 0:
                 if target_dim == 2:
                     _verbose_print(
-                        "Reshaping Series to DataFrame.", level=2
+                        "Reshaping Series to DataFrame.",
+                        level=2,
                     )
-                    return series.to_frame() # Convert Series to DataFrame
-                
+                    return (
+                        series.to_frame()
+                    )  # Convert Series to DataFrame
+
                 elif target_dim > 2:
                     _verbose_print(
                         "Series detected. Converting to NumPy array for"
-                        " dimensions exceeding 2.", level=2
+                        " dimensions exceeding 2.",
+                        level=2,
                     )
-                    raise # force to ball back to numpy array conversion 
-                else: # for 1d dimension, no conversion is performed. 
-                    return series 
-                
+                    raise  # force to ball back to numpy array conversion
+                else:  # for 1d dimension, no conversion is performed.
+                    return series
+
             elif axis == 1:
                 _verbose_print(
                     "Series detected with conversion axis=1. Conversion to"
                     " DataFrame is only supported with axis=0. "
-                    "Falling back to NumPy reshaping.", level=2
+                    "Falling back to NumPy reshaping.",
+                    level=2,
                 )
-                raise # Fallback to numpy array conversion.
-        else: 
-            raise 
-    
+                raise  # Fallback to numpy array conversion.
+        else:
+            raise
+
     # Convert list or tuple to NumPy array if necessary
     arr = _convert_to_numpy(arr)
-    
-    # keep original types for futher conversion 
-    collected = array_preserver(arr, action='collect')
-   
+
+    # keep original types for futher conversion
+    collected = array_preserver(arr, action="collect")
+
     # Handle 'keep_origin' operation mode
     if mode == "keep_origin":
-        if accept in ['2d', 'only_2d'] and isinstance(arr, pd.DataFrame):
-            _verbose_print("Keeping original Pandas DataFrame as it is 2D.", level=2)
+        if accept in ["2d", "only_2d"] and isinstance(
+            arr, pd.DataFrame
+        ):
+            _verbose_print(
+                "Keeping original Pandas DataFrame as it is 2D.",
+                level=2,
+            )
             return arr
-        elif accept in ['1d', 'only_1d'] and isinstance(arr, pd.Series):
-            _verbose_print("Keeping original Pandas Series as it is 1D.", level=2)
+        elif accept in ["1d", "only_1d"] and isinstance(
+            arr, pd.Series
+        ):
+            _verbose_print(
+                "Keeping original Pandas Series as it is 1D.",
+                level=2,
+            )
             return arr
 
     # Determine current number of dimensions
     current_ndim = _get_ndim(arr)
-    _verbose_print(f"Current number of dimensions: {current_ndim}", level=3)
+    _verbose_print(
+        f"Current number of dimensions: {current_ndim}",
+        level=3,
+    )
 
     # Define acceptable dimensions based on 'accept' parameter
     if accept:
         # Mapping for 'accept' values to desired dimensions
         dim_map = {
-            '1d': 1,
-            '2d': 2,
-            '3d': 3,
-            '>3d': 4  # Any dimension greater than 3
+            "1d": 1,
+            "2d": 2,
+            "3d": 3,
+            ">3d": 4,  # Any dimension greater than 3
         }
 
         # Check for 'only_' prefix to enforce strict acceptance
         only = False
-        if accept.startswith('only_'):
+        if accept.startswith("only_"):
             only = True
-            accept_dim = accept.split('_', 1)[1]
-        elif accept.startswith('>only_'):
+            accept_dim = accept.split("_", 1)[1]
+        elif accept.startswith(">only_"):
             # Handle cases like 'only_>3d'
             only = True
-            accept_dim = accept.split('_', 1)[1]
+            accept_dim = accept.split("_", 1)[1]
         else:
             accept_dim = accept
 
@@ -440,8 +486,8 @@ def to_array(
         min_dim = dim_map.get(accept_dim, None)
 
         # Handle cases where 'accept' specifies dimensions greater than a threshold
-        if accept_dim.startswith('>'):
-            min_dim = int(accept_dim.strip('>d'))
+        if accept_dim.startswith(">"):
+            min_dim = int(accept_dim.strip(">d"))
             condition = current_ndim > min_dim
             if only and not condition:
                 message = (
@@ -459,8 +505,7 @@ def to_array(
                     )
                     _handle_error(message)
             else:
-                
-                # Allow dimensions greater than or equal to the minimum 
+                # Allow dimensions greater than or equal to the minimum
                 # required when 'only_' is not specified
                 if min_dim and current_ndim < min_dim:
                     if force_conversion:
@@ -468,24 +513,34 @@ def to_array(
                         # for intelligent handling
                         _verbose_print(
                             f"Attempting to reshape array to {accept_dim}"
-                            " using _reshape_series.", level=2
+                            " using _reshape_series.",
+                            level=2,
                         )
                         try:
                             arr = _reshape_series(
-                                arr, target_dim=dim_map[accept_dim], axis=axis)
+                                arr,
+                                target_dim=dim_map[
+                                    accept_dim
+                                ],
+                                axis=axis,
+                            )
                             current_ndim = _get_ndim(arr)
                             _verbose_print(
                                 "Reshaping successful. Current dimensions:"
-                                f" {current_ndim}D.", level=2
+                                f" {current_ndim}D.",
+                                level=2,
                             )
                         except Exception as e:
-                            if isinstance (arr, pd.Series) :
-                                arr= arr.values 
+                            if isinstance(arr, pd.Series):
+                                arr = arr.values
                             _verbose_print(
                                 f"Reshaping with _reshape_series failed: {e}."
-                                " Falling back to NumPy reshaping.", level=2
+                                " Falling back to NumPy reshaping.",
+                                level=2,
                             )
-                            arr = _reshape_numpy(arr, dim_map[accept_dim])
+                            arr = _reshape_numpy(
+                                arr, dim_map[accept_dim]
+                            )
                             current_ndim = _get_ndim(arr)
                     else:
                         error_message = (
@@ -499,71 +554,97 @@ def to_array(
         # Convert Pandas DataFrame to NumPy array if needed
         if isinstance(arr, pd.DataFrame):
             arr = arr.values
-            _verbose_print("Converted Pandas DataFrame to NumPy array.", level=2)
+            _verbose_print(
+                "Converted Pandas DataFrame to NumPy array.",
+                level=2,
+            )
 
         # Convert Pandas Series to NumPy array if needed
         elif isinstance(arr, pd.Series):
             arr = arr.values
-            _verbose_print("Converted Pandas Series to NumPy array.", level=2)
+            _verbose_print(
+                "Converted Pandas Series to NumPy array.",
+                level=2,
+            )
 
         # Handle NumPy array dimensionality adjustments
         if isinstance(arr, np.ndarray):
-            target_dim =min_dim 
-            # if only: 
+            target_dim = min_dim
+            # if only:
             #     target_dim = dim_map.get(accept.split('_')[1], None)
-            # else : 
+            # else :
             #     target_dim = dim_map.get(accept.split('_')[0], None)
-           
+
             if target_dim:
-                if accept in ['1d', 'only_1d']:
+                if accept in ["1d", "only_1d"]:
                     if arr.ndim == 2:
-                        if arr.shape[0] == 1 or arr.shape[1] == 1:
+                        if (
+                            arr.shape[0] == 1
+                            or arr.shape[1] == 1
+                        ):
                             arr = arr.flatten()
-                            _verbose_print("Flattened 2D NumPy array to 1D.", 
-                                           level=3)
+                            _verbose_print(
+                                "Flattened 2D NumPy array to 1D.",
+                                level=3,
+                            )
                         elif force_conversion:
                             arr = arr.ravel()
-                            _verbose_print("Raveled NumPy array to 1D.", 
-                                           level=3)
+                            _verbose_print(
+                                "Raveled NumPy array to 1D.",
+                                level=3,
+                            )
                     elif arr.ndim > 1 and force_conversion:
                         arr = arr.flatten()
                         _verbose_print(
                             "Flattened higher-dimensional NumPy array to 1D.",
-                            level=3)
-
-                elif accept in ['2d', 'only_2d']:
-                    if arr.ndim == 1 and force_conversion:
-                        arr = arr.reshape(-1, 1) if axis == 0 else arr.reshape(1, -1)
-                        _verbose_print(
-                            f"Reshaped 1D NumPy array to 2D with shape {arr.shape}.",
-                            level=3
+                            level=3,
                         )
 
-                elif accept in ['3d', 'only_3d']:
+                elif accept in ["2d", "only_2d"]:
+                    if arr.ndim == 1 and force_conversion:
+                        arr = (
+                            arr.reshape(-1, 1)
+                            if axis == 0
+                            else arr.reshape(1, -1)
+                        )
+                        _verbose_print(
+                            f"Reshaped 1D NumPy array to 2D with shape {arr.shape}.",
+                            level=3,
+                        )
+
+                elif accept in ["3d", "only_3d"]:
                     if arr.ndim < 3 and force_conversion:
                         arr = _reshape_numpy(arr, 3)
                         _verbose_print(
                             f"Reshaped array to 3D with shape {arr.shape}.",
-                            level=3)
+                            level=3,
+                        )
 
-                elif accept.startswith('>'):
+                elif accept.startswith(">"):
                     # Handle greater than dimensions
-                    required_dim = int(accept.strip('>d'))
-                    if arr.ndim <= required_dim and force_conversion:
-                        arr = _reshape_numpy(arr, required_dim + 1)
+                    required_dim = int(accept.strip(">d"))
+                    if (
+                        arr.ndim <= required_dim
+                        and force_conversion
+                    ):
+                        arr = _reshape_numpy(
+                            arr, required_dim + 1
+                        )
                         _verbose_print(
                             f"Reshaped array to exceed {required_dim}"
                             f" dimensions with shape {arr.shape}.",
-                            level=3
+                            level=3,
                         )
 
     # Final validation of dimensions
     if accept:
         final_ndim = _get_ndim(arr)
-        expected_dim = min_dim # dim_map.get(accept.split('_')[0], None)
-        
-        if accept.startswith('>'):
-            min_dim = int(accept.strip('>d'))
+        expected_dim = (
+            min_dim  # dim_map.get(accept.split('_')[0], None)
+        )
+
+        if accept.startswith(">"):
+            min_dim = int(accept.strip(">d"))
             if not final_ndim > min_dim:
                 message = (
                     f"Final array has {final_ndim} dimensions, which does not exceed "
@@ -571,7 +652,7 @@ def to_array(
                 )
                 _handle_error(message)
         else:
-            if 'only_' in accept:
+            if "only_" in accept:
                 if final_ndim != expected_dim:
                     message = (
                         f"Final array has {final_ndim} dimensions, expected exactly "
@@ -588,42 +669,51 @@ def to_array(
 
     # Maintain original type if ops_mode is 'keep_origin' and no conversion was done
     if mode == "keep_origin":
-        collected['processed'] = [arr]
-        arr = array_preserver(collected, action='restore', solo_return= True)
-    
-    if isinstance(arr, np.ndarray) and as_frame: 
-        # Then try to convert array to frame 
-        if accept in ['2d', 'only_2d'] and arr.ndim == 2:
+        collected["processed"] = [arr]
+        arr = array_preserver(
+            collected, action="restore", solo_return=True
+        )
+
+    if isinstance(arr, np.ndarray) and as_frame:
+        # Then try to convert array to frame
+        if accept in ["2d", "only_2d"] and arr.ndim == 2:
             # Attempt to keep as DataFrame if possible
             try:
                 arr = pd.DataFrame(arr)
-                _verbose_print("Converted NumPy array back to Pandas DataFrame.", 
-                               level=2)
+                _verbose_print(
+                    "Converted NumPy array back to Pandas DataFrame.",
+                    level=2,
+                )
             except Exception as e:
                 _handle_error(
-                    f"Failed to convert NumPy array to DataFrame. Error: {e}")
-        elif accept in ['1d', 'only_1d'] and arr.ndim == 1:
+                    f"Failed to convert NumPy array to DataFrame. Error: {e}"
+                )
+        elif accept in ["1d", "only_1d"] and arr.ndim == 1:
             # Attempt to keep as Series if possible
             try:
                 arr = pd.Series(arr)
                 _verbose_print(
-                    "Converted NumPy array back to Pandas Series.", level=2)
+                    "Converted NumPy array back to Pandas Series.",
+                    level=2,
+                )
             except Exception as e:
                 _handle_error(
-                    f"Failed to convert NumPy array to Series. Error: {e}")
+                    f"Failed to convert NumPy array to Series. Error: {e}"
+                )
 
     return arr
+
 
 def to_arrays(
     *arrays: Any,
     accept: Optional[str] = None,
-    error: str = 'raise',
+    error: str = "raise",
     force_conversion: bool = False,
     axis: int = 0,
     verbose: int = 0,
     mode: str = "keep_origin",
-    as_frame: bool=False, 
-    **kwargs
+    as_frame: bool = False,
+    **kwargs,
 ) -> Tuple[Union[np.ndarray, pd.Series, pd.DataFrame], ...]:
     """
     Convert multiple array-like objects to desired dimensionality 
@@ -840,7 +930,7 @@ def to_arrays(
 
     # Initialize a list to store the converted arrays
     converted_arrays = []
-    
+
     # Iterate over each input array
     for idx, arr in enumerate(arrays):
         try:
@@ -852,25 +942,26 @@ def to_arrays(
                 force_conversion=force_conversion,
                 axis=axis,
                 mode=mode,
-                **kwargs
+                **kwargs,
             )
             # Append the converted array to the list
             converted_arrays.append(converted)
         except Exception as e:
             # Handle exceptions based on the 'error' parameter
-            if error == 'raise':
+            if error == "raise":
                 # Raise the exception to halt execution
                 raise ValueError(
                     f"Error converting array at position {idx}: {e}"
                 ) from e
-            elif error == 'warn':
+            elif error == "warn":
                 # Issue a warning and append the original array
                 warnings.warn(
                     f"Warning converting array at position {idx}: {e}. "
-                    "Appending the original array without conversion."
+                    "Appending the original array without conversion.",
+                    stacklevel=2,
                 )
                 converted_arrays.append(arr)
-            elif error == 'ignore':
+            elif error == "ignore":
                 # Silently append the original array without conversion
                 converted_arrays.append(arr)
             else:
@@ -879,77 +970,78 @@ def to_arrays(
                     f"Invalid error handling mode: '{error}'. "
                     "Choose from 'raise', 'warn', or 'ignore'."
                 )
-    
+
     # Return the converted arrays as a tuple to maintain immutability
     return tuple(converted_arrays)
+
 
 def smart_ts_detector(
     df,
     dt_col,
-    return_types='format',
+    return_types="format",
     to_datetime=None,
-    error='raise',
-    as_index=False, 
-    verbose=0
+    error="raise",
+    as_index=False,
+    verbose=0,
 ):
     r"""
-    Intelligently determine the temporal resolution or format of a 
-    given date/time column in a DataFrame, and optionally convert 
-    it to a proper datetime representation. The function can detect 
-    if `<dt_col>` is already a datetime-like column, infer time 
-    frequency if possible, or guess the temporal granularity from 
-    numeric values (e.g., treating them as years, months, weeks, 
+    Intelligently determine the temporal resolution or format of a
+    given date/time column in a DataFrame, and optionally convert
+    it to a proper datetime representation. The function can detect
+    if `<dt_col>` is already a datetime-like column, infer time
+    frequency if possible, or guess the temporal granularity from
+    numeric values (e.g., treating them as years, months, weeks,
     minutes, etc.) when no datetime format is found.
 
-    Let the date column be represented by :math:`d = \{d_1, d_2, 
-    \ldots, d_n\}`. The goal is to determine the format type 
-    :math:`f(d)`, such as `year`, `month`, `week`, `day`, `minute`, 
-    or `second`, based on the range and nature of these values. 
-    Formally, if `d` is datetime-like, we attempt to infer frequency 
-    using heuristics. If numeric, we decide the format by the value 
-    ranges (e.g., values = 12 might suggest months, values = 52 
-    might suggest weeks, etc.). If `to_datetime` is provided, the 
+    Let the date column be represented by :math:`d = \{d_1, d_2,
+    \ldots, d_n\}`. The goal is to determine the format type
+    :math:`f(d)`, such as `year`, `month`, `week`, `day`, `minute`,
+    or `second`, based on the range and nature of these values.
+    Formally, if `d` is datetime-like, we attempt to infer frequency
+    using heuristics. If numeric, we decide the format by the value
+    ranges (e.g., values = 12 might suggest months, values = 52
+    might suggest weeks, etc.). If `to_datetime` is provided, the
     function attempts to convert the column accordingly.
 
     Parameters
     ----------
     df : pandas.DataFrame
-        The DataFrame containing the `<dt_col>`. This column is 
-        expected to either be datetime-like, numeric, or convertible 
+        The DataFrame containing the `<dt_col>`. This column is
+        expected to either be datetime-like, numeric, or convertible
         to a known temporal format.
     dt_col : str
-        The name of the column in `df` representing date or 
+        The name of the column in `df` representing date or
         time-related data. If not found, handling depends on `<error>`.
     return_types: {'format', 'dt_col', 'df'}, optional
         Determines the return value:
-        
-        - ``'format'``: Returns a string representing the inferred 
+
+        - ``'format'``: Returns a string representing the inferred
           date/time format (e.g., 'years', 'months', 'weeks', 'datetime').
         - ``'dt_col'``: Returns the transformed or original date column.
-        - ``'df'``: Returns the entire DataFrame with the `<dt_col>` 
+        - ``'df'``: Returns the entire DataFrame with the `<dt_col>`
           modified if necessary.
-          
+
     to_datetime : {None, 'auto', 'Y', 'M', 'W', 'D', 'H', 'min', 's'}, optional
-    
+
         Controls how the column is converted if not already datetime:
         - None: No conversion, only format detection.
         - 'auto': Automatically infer and convert based on rules.
-        - Explicit codes like 'Y', 'M', 'W', 'min', 's' attempt to 
+        - Explicit codes like 'Y', 'M', 'W', 'min', 's' attempt to
           convert according to those units.
     error : {'raise', 'ignore', 'warn'}, optional
-        Defines behavior if `<dt_col>` is not found or cannot be 
+        Defines behavior if `<dt_col>` is not found or cannot be
         interpreted:
-        
+
         - 'raise': Raise a ValueError.
         - 'ignore': Return without modification or raise.
         - 'warn': Issue a warning and proceed (if possible).
-    as_index: bool, 
-       Whether to return the entire dataset and set as index the `dt_col`. This 
-       is done when `return_types='df'. 
-       
+    as_index: bool,
+       Whether to return the entire dataset and set as index the `dt_col`. This
+       is done when `return_types='df'.
+
     verbose : int, optional
         Verbosity level for logging:
-        
+
         - 0: No output.
         - 1: Basic info.
         - 2: More details on reasoning steps.
@@ -959,26 +1051,26 @@ def smart_ts_detector(
     -------
     str or pandas.Series or pandas.DataFrame
         Depending on `<return_types>`:
-        
+
         - If `'format'`, returns a string like `'years'`, `'months'`,
           `'weeks'`, `'datetime'`, etc.
         - If `'dt_col'`, returns the possibly converted date column.
-        - If `'df'`, returns the entire DataFrame with `<dt_col>` 
+        - If `'df'`, returns the entire DataFrame with `<dt_col>`
           modified accordingly.
 
     Notes
     -----
     If `<dt_col>` is already a datetime-like column (np.datetime64),
-    this function attempts to infer frequency using `pd.infer_freq` 
-    or heuristics. If `<to_datetime>` is 'auto', it tries to guess 
-    the best format. If numeric, the function deduces format based 
-    on value ranges. If strings or other types are found, it attempts 
-    conversion if `<to_datetime>` is specified or, otherwise, 
+    this function attempts to infer frequency using `pd.infer_freq`
+    or heuristics. If `<to_datetime>` is 'auto', it tries to guess
+    the best format. If numeric, the function deduces format based
+    on value ranges. If strings or other types are found, it attempts
+    conversion if `<to_datetime>` is specified or, otherwise,
     handles them according to `<error>`.
 
-    Handling missing or non-convertible values depends on `<error>`. 
-    If 'raise', errors are raised when conversion fails or `<dt_col>` 
-    is absent. If 'warn', issues a warning. If 'ignore', quietly 
+    Handling missing or non-convertible values depends on `<error>`.
+    If 'raise', errors are raised when conversion fails or `<dt_col>`
+    is absent. If 'warn', issues a warning. If 'ignore', quietly
     returns what is possible.
 
     Examples
@@ -1010,33 +1102,48 @@ def smart_ts_detector(
 
     # Helper function to raise/warn/ignore errors
     def handle_error(msg, e=error):
-        if e == 'raise':
+        if e == "raise":
             raise ValueError(msg)
-        elif e == 'warn':
-            warnings.warn(msg)
+        elif e == "warn":
+            warnings.warn(msg, stacklevel=2)
         # if ignore, do nothing
-        
+
     are_all_frames_valid(df)
     # Check if dt_col in df
     if dt_col not in df.columns:
-        handle_error(f"Column {dt_col!r} not found in DataFrame.", e='raise')
+        handle_error(
+            f"Column {dt_col!r} not found in DataFrame.",
+            e="raise",
+        )
         # If ignoring, just return None or df as is
-        if return_types=='df':
+        if return_types == "df":
             return df
-        elif return_types=='dt_col':
+        elif return_types == "dt_col":
             return df[dt_col] if dt_col in df else None
         else:
             return None
 
     series = df[dt_col]
-    
+
     # validate to_datetime format is passed
-    valid_formats ={'auto', 'Y', 'M', 'W', 'D', 'H', 'min', 's'}
-    
-    if to_datetime is not None and to_datetime not in valid_formats: 
+    valid_formats = {
+        "auto",
+        "Y",
+        "M",
+        "W",
+        "D",
+        "H",
+        "min",
+        "s",
+    }
+
+    if (
+        to_datetime is not None
+        and to_datetime not in valid_formats
+    ):
         raise ValueError(
-           f"Invalid `to_datetime` format '{to_datetime}'."
-            f" Expect one of {smart_format(valid_formats,'or')}"
+            f"Invalid `to_datetime` format '{to_datetime}'."
+            f" Expect one of {smart_format(valid_formats, 'or')}"
         )
     # Check if already datetime
     if np.issubdtype(series.dtype, np.datetime64):
@@ -1052,29 +1159,31 @@ def smart_ts_detector(
         # If all differ at daily scale -> daily,
         # If differ at weekly scale -> weekly
         # If differ by year boundaries -> year
-        # This could be complex. Let's just return 'datetime' if no 
+        # This could be complex. Let's just return 'datetime' if no
         # to_datetime specified unless we are forced to guess granularity.
 
         # If to_datetime is not None and is not 'auto', try converting
         # but we already have datetime, so no need actually
-        if to_datetime is None or to_datetime=='auto':
+        if to_datetime is None or to_datetime == "auto":
             # Just guess a rough format by checking frequency
             # Let's convert to period and see the smallest freq
             try:
-                inferred = pd.infer_freq(series.dropna().sort_values())
+                inferred = pd.infer_freq(
+                    series.dropna().sort_values()
+                )
                 # infer_freq might return 'M','W','A-DEC' for annual, etc.
                 # We'll map this to a format
                 if inferred is None:
                     # no freq inferred, just call it 'datetime'
-                    dt_format = 'datetime'
+                    dt_format = "datetime"
                 else:
                     # map freq code to something nicer
                     # For simplicity just return inferred
                     dt_format = inferred
             except:
-                dt_format = 'datetime'
+                dt_format = "datetime"
         else:
-            # if to_datetime is explicitly something like 'Y','M','W' 
+            # if to_datetime is explicitly something like 'Y','M','W'
             # we won't reconvert since already datetime
             # Just set dt_format to that
             dt_format = to_datetime
@@ -1087,7 +1196,7 @@ def smart_ts_detector(
             sdrop = series.dropna()
             if sdrop.empty:
                 # empty? can't infer
-                dt_format = 'unknown'
+                dt_format = "unknown"
             else:
                 min_val = sdrop.min()
                 max_val = sdrop.max()
@@ -1096,25 +1205,28 @@ def smart_ts_detector(
                 # if to_datetime is None, we just guess format and not convert
                 # If to_datetime given explicitly, just convert to that
 
-                if to_datetime is None or to_datetime=='auto':
+                if (
+                    to_datetime is None
+                    or to_datetime == "auto"
+                ):
                     # guess
                     # if max_val <=12 and min_val>=1 -> months
                     # if max_val<=52 -> weeks
                     # if looks like a year range: (e.g. between 1900 and 2100)
                     # if max_val<=60 -> could be minutes or seconds
-                    # guess priority: 
+                    # guess priority:
                     # If all values less or equal 12 and >=1 -> months
-                    if max_val<=12 and min_val>=1:
-                        dt_format='months'
-                    elif max_val<=52 and min_val>=1:
-                        dt_format='weeks'
-                    elif max_val>1900 and max_val<2100:
-                        dt_format='years'
-                    elif max_val<=60:
+                    if max_val <= 12 and min_val >= 1:
+                        dt_format = "months"
+                    elif max_val <= 52 and min_val >= 1:
+                        dt_format = "weeks"
+                    elif max_val > 1900 and max_val < 2100:
+                        dt_format = "years"
+                    elif max_val <= 60:
                         # could be minutes or seconds, let's say 'minutes'
-                        dt_format='minutes'
+                        dt_format = "minutes"
                     else:
-                        dt_format='unknown'
+                        dt_format = "unknown"
                 else:
                     # to_datetime given explicitly
                     dt_format = to_datetime
@@ -1124,14 +1236,15 @@ def smart_ts_detector(
             # else error
             if to_datetime is None:
                 handle_error(
-                    "dt_col is not datetime or numeric and to_datetime is None.")
-                dt_format='unknown'
+                    "dt_col is not datetime or numeric and to_datetime is None."
+                )
+                dt_format = "unknown"
             else:
-                dt_format=to_datetime
+                dt_format = to_datetime
 
         # If we have dt_format and to_datetime='auto' or explicit format,
         # convert if possible
-        if to_datetime is not None and to_datetime=='auto':
+        if to_datetime is not None and to_datetime == "auto":
             # Try convert based on dt_format
             # Let's implement a simple converter:
             # if dt_format='years' and numeric: convert as year: pd.to_datetime(series, format='%Y')
@@ -1148,161 +1261,186 @@ def smart_ts_detector(
             # if seconds: likewise
 
             try:
-                if dt_format=='years':
+                if dt_format == "years":
                     # year as int: e.g. 2020 -> '2020'
                     series_dt = pd.to_datetime(
-                        series.astype(int).astype(str), format='%Y', errors='coerce')
+                        series.astype(int).astype(str),
+                        format="%Y",
+                        errors="coerce",
+                    )
                     if series_dt.isna().any():
-                        handle_error("Cannot convert to years datetime from given values.")
+                        handle_error(
+                            "Cannot convert to years datetime from given values."
+                        )
                     series = series_dt
-                elif dt_format=='months':
+                elif dt_format == "months":
                     # month as int 1-12
                     # create a dummy date: '2000-{month}-01'
                     series_dt = pd.to_datetime(
-                        '2000-'+series.astype(int).astype(str)+'-01',
-                        format='%Y-%m-%d', errors='coerce')
+                        "2000-"
+                        + series.astype(int).astype(str)
+                        + "-01",
+                        format="%Y-%m-%d",
+                        errors="coerce",
+                    )
                     if series_dt.isna().any():
-                        handle_error("Cannot convert to months datetime from given values.")
+                        handle_error(
+                            "Cannot convert to months datetime from given values."
+                        )
                     series = series_dt
-                elif dt_format=='weeks':
+                elif dt_format == "weeks":
                     # weeks as int 1-52
                     # interpret as week number in year 2000 starting from first Monday of 2000
                     # This is trickier
                     # Let's assume '2000' + week number *7 days
-                    base = pd.Timestamp('2000-01-01')
+                    base = pd.Timestamp("2000-01-01")
                     # series as int *7 days
-                    series_dt = [base + pd.Timedelta(weeks=int(w)) for w in series]
+                    series_dt = [
+                        base + pd.Timedelta(weeks=int(w))
+                        for w in series
+                    ]
                     series = pd.to_datetime(series_dt)
-                elif dt_format=='minutes':
+                elif dt_format == "minutes":
                     # interpret as minutes since 2000-01-01
-                    base = pd.Timestamp('2000-01-01')
-                    series_dt = [base + pd.Timedelta(minutes=float(m)) for m in series]
+                    base = pd.Timestamp("2000-01-01")
+                    series_dt = [
+                        base + pd.Timedelta(minutes=float(m))
+                        for m in series
+                    ]
                     series = pd.to_datetime(series_dt)
-                elif dt_format=='seconds':
+                elif dt_format == "seconds":
                     # same logic as minutes but seconds
-                    base = pd.Timestamp('2000-01-01')
-                    series_dt = [base + pd.Timedelta(seconds=float(s)) for s in series]
+                    base = pd.Timestamp("2000-01-01")
+                    series_dt = [
+                        base + pd.Timedelta(seconds=float(s))
+                        for s in series
+                    ]
                     series = pd.to_datetime(series_dt)
                 else:
                     # unknown format, try to_datetime directly
-                    series_dt = pd.to_datetime(series, errors='coerce')
+                    series_dt = pd.to_datetime(
+                        series, errors="coerce"
+                    )
                     if series_dt.isna().any():
-                        handle_error("Cannot convert to datetime with given format guess.")
+                        handle_error(
+                            "Cannot convert to datetime with given format guess."
+                        )
                     series = series_dt
             except Exception as e:
                 handle_error(f"Conversion failed: {e}")
     # if return_types is 'format', return dt_format
-    if return_types=='format':
+    if return_types == "format":
         return dt_format
-    elif return_types=='dt_col':
+    elif return_types == "dt_col":
         return series
-    elif return_types=='df':
+    elif return_types == "df":
         df = df.copy()
         df[dt_col] = series
-        if as_index: 
-            df.set_index (dt_col, inplace=True)
-            
+        if as_index:
+            df.set_index(dt_col, inplace=True)
+
         return df
     else:
         return dt_format
 
+
 def extract_array_from(
     df,
     *col_names,
-    handle_unknown='passthrough',
+    handle_unknown="passthrough",
     asarray=False,
     check_size=False,
     ravel=None,
-    error='raise'
+    error="raise",
 ):
     r"""
-    Extract one or multiple arrays from a pandas DataFrame based on 
-    specified column names or arrays. This function provides flexible 
-    handling of column names, nested lists of column names, and direct 
-    array-like objects. By default, it returns the extracted data as 
-    DataFrame, Series, or the original objects unless `asarray` is True, 
-    in which case arrays are returned as NumPy arrays. 
-    
-    The mathematical essence of extraction involves indexing the 
+    Extract one or multiple arrays from a pandas DataFrame based on
+    specified column names or arrays. This function provides flexible
+    handling of column names, nested lists of column names, and direct
+    array-like objects. By default, it returns the extracted data as
+    DataFrame, Series, or the original objects unless `asarray` is True,
+    in which case arrays are returned as NumPy arrays.
+
+    The mathematical essence of extraction involves indexing the
     DataFrame or passing through objects. Let:
-    
+
     .. math::
        X = \text{DataFrame}
-    
-    and suppose we have a set of column names :math:`C = \{c_1, \ldots, c_k\}` 
+
+    and suppose we have a set of column names :math:`C = \{c_1, \ldots, c_k\}`
     or nested structures. The extraction aims to produce:
-    
+
     .. math::
        X_{\text{subset}} = X[:, C_{\text{valid}}]
-    
-    for valid column names. For array-like inputs not corresponding to 
+
+    for valid column names. For array-like inputs not corresponding to
     columns, behavior depends on `<handle_unknown>`.
-    
+
     Parameters
     ----------
     df: pandas.DataFrame
-        The DataFrame from which columns are extracted. If `names` 
-        includes references to columns not in `df`, handling depends 
+        The DataFrame from which columns are extracted. If `names`
+        includes references to columns not in `df`, handling depends
         on `<handle_unknown>` and `<error>`.
     *col_names : str, list of str, or array-like
         The column names or arrays to extract. This can be:
-        
+
         - A single string `name` representing a single column.
-        - A list of strings `[col1, col2, ...]` representing multiple 
+        - A list of strings `[col1, col2, ...]` representing multiple
           columns.
-        - An array-like object (non-string) that is passed through if 
+        - An array-like object (non-string) that is passed through if
           `<handle_unknown>` is `'passthrough'`.
         - A nested combination like `[col1, [col2, col3], col4, ...]`.
-        
-        If `<asarray>` is False, columns are returned as DataFrame or 
-        Series. If `<asarray>` is True, they are converted to NumPy 
+
+        If `<asarray>` is False, columns are returned as DataFrame or
+        Series. If `<asarray>` is True, they are converted to NumPy
         arrays.
     handle_unknown : {'passthrough', None}, optional
         Controls how to handle unknown columns or non-column arrays.
-        
-        - `'passthrough'`: Return the unknown entries as-is (if arrays) 
+
+        - `'passthrough'`: Return the unknown entries as-is (if arrays)
           or skip missing columns.
-        - `None`: Ignore unknown columns silently. If `<error>` is 
+        - `None`: Ignore unknown columns silently. If `<error>` is
           `'raise'`, an error is raised for missing columns.
     asarray : bool, optional
-        If True, convert extracted results to NumPy arrays. If False, 
+        If True, convert extracted results to NumPy arrays. If False,
         return them as DataFrame/Series or as provided arrays.
     check_size : bool, optional
-        If True, checks that all extracted arrays have the same length. 
+        If True, checks that all extracted arrays have the same length.
         If a mismatch is found, a ValueError is raised.
     ravel : {None, '1d', '2d', 'all'}, optional
         Controls reshaping of arrays if `<asarray>` is True:
-        
+
         - `None`: No reshaping performed.
         - `'1d'`: If an array has shape (n,1), it is raveled to (n,).
         - `'2d'`: If an array has shape (n,), it is reshaped to (n,1).
-        - `'all'` or `'*'`: Applies '1d' logic to (n,1) arrays. 
+        - `'all'` or `'*'`: Applies '1d' logic to (n,1) arrays.
           Leaves (n,) as is.
     error : {'raise', ...}, optional
-        If `'raise'`, a ValueError is raised if expected columns are 
-        missing. If otherwise (not specified), silently skip or 
+        If `'raise'`, a ValueError is raised if expected columns are
+        missing. If otherwise (not specified), silently skip or
         passthrough.
 
     Returns
     -------
     object or list
-        The extracted arrays. If multiple items are extracted, a list 
-        is returned. If a single item is extracted, that item is 
-        returned directly. If no items are extracted, `None` is 
+        The extracted arrays. If multiple items are extracted, a list
+        is returned. If a single item is extracted, that item is
+        returned directly. If no items are extracted, `None` is
         returned.
-    
+
     Notes
     -----
-    When `<names>` contain nested lists, each element is resolved. 
-    Numeric columns are extracted directly. Non-numeric or unknown 
-    columns handling depends on `<handle_unknown>`. The `<ravel>` 
-    parameter applies only when `<asarray>` is True, adjusting the 
+    When `<names>` contain nested lists, each element is resolved.
+    Numeric columns are extracted directly. Non-numeric or unknown
+    columns handling depends on `<handle_unknown>`. The `<ravel>`
+    parameter applies only when `<asarray>` is True, adjusting the
     shape of extracted arrays.
-    
-    If `<check_size>` is True and multiple arrays are extracted, all 
-    must share the same first dimension length. Otherwise, a ValueError 
+
+    If `<check_size>` is True and multiple arrays are extracted, all
+    must share the same first dimension length. Otherwise, a ValueError
     is raised.
-    
+
     Examples
     --------
     >>> from fusionlab.core.array_manager import extract_array_from
@@ -1327,7 +1465,7 @@ def extract_array_from(
     >>> result = extract_array_from(df, 'Z', handle_unknown='passthrough')
     >>> print(result)
     Z
-    
+
     >>> # Check size consistency:
     >>> arrs = extract_array_from(df, 'A', ['B','C'], asarray=True,
     ...                           check_size=True)
@@ -1351,12 +1489,14 @@ def extract_array_from(
     # if name is array-like (not string), just pass through if allowed by handle_unknown
     # ravel='1d', '2d', 'all', None means how to reshape arrays if asarray=True
     # check_size means ensure all extracted have same length
-    # check the dataframe 
+    # check the dataframe
     are_all_frames_valid(df)
-    
+
     # Helper to check if something is array-like but not a string
     def is_array_like(x):
-        return hasattr(x, '__iter__') and not isinstance(x, str)
+        return hasattr(x, "__iter__") and not isinstance(
+            x, str
+        )
 
     extracted = []
     all_lengths = []
@@ -1365,12 +1505,16 @@ def extract_array_from(
         if isinstance(nm, str):
             # single column name
             if nm in df.columns:
-                res = df[[nm]] if asarray is False else df[[nm]].values
+                res = (
+                    df[[nm]]
+                    if asarray is False
+                    else df[[nm]].values
+                )
                 # if single col and asarray=True, res shape (n,1)
                 # if asarray=False, res is a dataframe with 1 col
             else:
                 # column not found
-                if handle_unknown == 'passthrough':
+                if handle_unknown == "passthrough":
                     # return as is the name
                     res = nm
                 elif handle_unknown is None:
@@ -1380,16 +1524,20 @@ def extract_array_from(
                     # and if warn?
                     # There's no warn param given actually. Let's just skip col
                     # or if error='raise', raise
-                    if error=='raise':
-                        raise ValueError(f"Column {nm!r} not found in df.")
+                    if error == "raise":
+                        raise ValueError(
+                            f"Column {nm!r} not found in df."
+                        )
                     else:
                         # skip silently
                         continue
                 else:
                     # if handle_unknown='passthrough', done above
                     # no other logic given, let's default to skipping if unknown scenario
-                    if error=='raise':
-                        raise ValueError(f"Column {nm!r} not found in df.")
+                    if error == "raise":
+                        raise ValueError(
+                            f"Column {nm!r} not found in df."
+                        )
                     else:
                         continue
         elif is_array_like(nm):
@@ -1397,10 +1545,14 @@ def extract_array_from(
             # check if list of strings
             if all(isinstance(x, str) for x in nm):
                 # multiple column extraction
-                valid_cols = [c for c in nm if c in df.columns]
-                missing_cols = [c for c in nm if c not in df.columns]
+                valid_cols = [
+                    c for c in nm if c in df.columns
+                ]
+                missing_cols = [
+                    c for c in nm if c not in df.columns
+                ]
                 if missing_cols:
-                    if handle_unknown == 'passthrough':
+                    if handle_unknown == "passthrough":
                         # keep the missing as they are?
                         # The instructions are not super clear
                         # Just return array with found and missing as original strings?
@@ -1408,51 +1560,74 @@ def extract_array_from(
                         # we can just return the subset we found and add the missing as is?
                         # Or we skip missing?
                         # Let's skip missing silently or if error='raise', raise
-                        if error=='raise':
-                            raise ValueError(f"Columns {missing_cols} not found in df.")
-                        elif error=='warn': 
-                            warnings.warn(f"Columns {missing_cols} not found in df."
-                                          " Skip them.")
+                        if error == "raise":
+                            raise ValueError(
+                                f"Columns {missing_cols} not found in df."
+                            )
+                        elif error == "warn":
+                            warnings.warn(
+                                f"Columns {missing_cols} not found in df."
+                                " Skip them.",
+                                stacklevel=2,
+                            )
                         # else skip them
                     else:
                         # if None then just skip them
-                        if error=='raise':
-                            raise ValueError(f"Columns {missing_cols} not found in df.")
-                        elif error=='warn': 
-                            warnings.warn(f"Columns {missing_cols} not found in df."
-                                          " Skip them.")
+                        if error == "raise":
+                            raise ValueError(
+                                f"Columns {missing_cols} not found in df."
+                            )
+                        elif error == "warn":
+                            warnings.warn(
+                                f"Columns {missing_cols} not found in df."
+                                " Skip them.",
+                                stacklevel=2,
+                            )
                         # else skip them
                 if valid_cols:
-                    res = df[valid_cols] if asarray is False else df[valid_cols].values
+                    res = (
+                        df[valid_cols]
+                        if asarray is False
+                        else df[valid_cols].values
+                    )
                 else:
                     # no valid cols found
                     # return empty?
-                    res = np.array([]) if asarray else df.iloc[[], :]
+                    res = (
+                        np.array([])
+                        if asarray
+                        else df.iloc[[], :]
+                    )
             else:
                 # nm is array-like but not all strings - treat as passthrough if allowed
                 # If handle_unknown='passthrough', just return as array (if asarray=True)
                 # else return nm as is
-                if handle_unknown == 'passthrough':
+                if handle_unknown == "passthrough":
                     res = np.array(nm) if asarray else nm
                 else:
                     # if None or others?
                     # if error='raise', raise an error that we have unknown data
-                    if error=='raise':
-                        raise ValueError("Found array-like non-string not handled.")
-                    elif error=='warn': 
+                    if error == "raise":
+                        raise ValueError(
+                            "Found array-like non-string not handled."
+                        )
+                    elif error == "warn":
                         warnings.warn(
-                            "Found array-like non-string not handled. Skip it."
+                            "Found array-like non-string not handled. Skip it.",
+                            stacklevel=2,
                         )
                     # skip
                     continue
         else:
             # nm is not string, not iterable means unknown
             # handle_unknown='passthrough'?
-            if handle_unknown == 'passthrough':
+            if handle_unknown == "passthrough":
                 res = np.array([nm]) if asarray else nm
             else:
-                if error=='raise':
-                    raise ValueError(f"Unsupported type {type(nm)}.")
+                if error == "raise":
+                    raise ValueError(
+                        f"Unsupported type {type(nm)}."
+                    )
                 else:
                     continue
 
@@ -1460,21 +1635,27 @@ def extract_array_from(
         if asarray and isinstance(res, np.ndarray):
             if ravel is not None:
                 # ravel logic
-                if ravel == '1d':
+                if ravel == "1d":
                     # if shape is (n,1), ravel to (n,)
-                    if len(res.shape)==2 and res.shape[1]==1:
+                    if (
+                        len(res.shape) == 2
+                        and res.shape[1] == 1
+                    ):
                         res = res.ravel()
-                elif ravel == '2d':
+                elif ravel == "2d":
                     # if shape is (n,), expand to (n,1)
-                    if len(res.shape)==1:
+                    if len(res.shape) == 1:
                         res = res.reshape(-1, 1)
-                elif ravel in ('all','*'):
+                elif ravel in ("all", "*"):
                     # if (n,1)->(n,), if (n,)->(n,1)
                     # this contradict each other though
                     # Let's assume 'all' means just ravel 1D arrays
-                    if len(res.shape)==2 and res.shape[1]==1:
+                    if (
+                        len(res.shape) == 2
+                        and res.shape[1] == 1
+                    ):
                         res = res.ravel()
-                    elif len(res.shape)==1:
+                    elif len(res.shape) == 1:
                         # keep as is if 1D
                         pass
                 # else no action
@@ -1486,39 +1667,53 @@ def extract_array_from(
                 all_lengths.append(res.shape[0])
             else:
                 # if not array, if dataframe or series
-                if hasattr(res, 'shape'):
+                if hasattr(res, "shape"):
                     all_lengths.append(res.shape[0])
-                elif isinstance(res, (list, tuple)):
+                elif isinstance(res, list | tuple):
                     all_lengths.append(len(res))
                 else:
                     # single element maybe?
                     all_lengths.append(1)
 
     # After extraction, if check_size=True verify lengths
-    if check_size and len(all_lengths)>1:
-        if len(set(all_lengths))>1:
+    if check_size and len(all_lengths) > 1:
+        if len(set(all_lengths)) > 1:
             # mismatch
-            raise ValueError(f"Mismatched lengths in extracted arrays: {all_lengths}")
+            raise ValueError(
+                f"Mismatched lengths in extracted arrays: {all_lengths}"
+            )
 
-    return extracted if len(extracted)>1 else extracted[0] if extracted else None
+    return (
+        extracted
+        if len(extracted) > 1
+        else extracted[0]
+        if extracted
+        else None
+    )
+
 
 # Check if something is array-like but not a string
 def is_array_like(x):
     """Check if object `x` is array-like but not a string."""
-    return hasattr(x, '__iter__') and not isinstance(x, str)
+    return hasattr(x, "__iter__") and not isinstance(x, str)
+
 
 def reduce_dimensions(
     arr: np.ndarray,
     z: Union[List, np.ndarray],
     x: Union[List, np.ndarray],
-    ops: str = 'reduce',
-    axis_names: Tuple[str, str] = ('Z', 'X'),
-    error: str ='raise', 
+    ops: str = "reduce",
+    axis_names: Tuple[str, str] = ("Z", "X"),
+    error: str = "raise",
     strict: bool = False,
-    logger: Optional[logging.Logger] = None
+    logger: Optional[logging.Logger] = None,
 ) -> Union[
-    bool, 
-    Tuple[np.ndarray, Union[List, np.ndarray], Union[List, np.ndarray]]
+    bool,
+    Tuple[
+        np.ndarray,
+        Union[List, np.ndarray],
+        Union[List, np.ndarray],
+    ],
 ]:
     """
     Reduce or Check the Dimensionality of a 2D Data Array.
@@ -1689,19 +1884,19 @@ def reduce_dimensions(
            estimator: L2 theory. *Probability Theory and Related Fields*, 57(5), 
            453-476.
     """
-    
+
     # Set up logger
     if logger is None:
         logger = logging.getLogger(__name__)
         if not logger.handlers:
             handler = logging.StreamHandler()
             formatter = logging.Formatter(
-                '%(levelname)s:%(name)s:%(message)s'
+                "%(levelname)s:%(name)s:%(message)s"
             )
             handler.setFormatter(formatter)
             logger.addHandler(handler)
             logger.setLevel(logging.DEBUG)
-    
+
     # Validate input types
     arr = np.asarray(arr)
     if not isinstance(arr, np.ndarray):
@@ -1713,41 +1908,41 @@ def reduce_dimensions(
             f"'data' must be a 2D array, got {arr.ndim}D array."
         )
 
-    if not isinstance(z, (list, np.ndarray, pd.Series)):
+    if not isinstance(z, list | np.ndarray | pd.Series):
         raise TypeError(
             f"'z' must be a list or numpy.ndarray, got {type(z).__name__}."
         )
-    if not isinstance(x, (list, np.ndarray, pd.Series)):
+    if not isinstance(x, list | np.ndarray | pd.Series):
         raise TypeError(
             f"'x' must be a list or numpy.ndarray, got {type(x).__name__}."
         )
-    
+
     # Validate 'ops' parameter
-    if ops not in {'check_only', 'reduce'}:
+    if ops not in {"check_only", "reduce"}:
         raise ValueError(
             f"Invalid 'ops' value '{ops}'. Expected 'check_only' or 'reduce'."
         )
-    
+
     # Define helper function to adjust axis lengths
     def adjust_axis_length(
-        desired_length: int, 
-        current_axis: Union[List, np.ndarray], 
-        axis_name: str
+        desired_length: int,
+        current_axis: Union[List, np.ndarray],
+        axis_name: str,
     ) -> Tuple[int, Union[List, np.ndarray]]:
         """
         Adjust the length of an axis to match the desired length.
-        
+
         Parameters
         ----------
         desired_length : `int`
             The target length for the axis.
-        
+
         current_axis : Union[`List`, `numpy.ndarray`]
             The current axis data to be adjusted.
-        
+
         axis_name : `str`
             The name of the axis for logging purposes.
-        
+
         Returns
         -------
         Tuple[int, Union[`List`, `numpy.ndarray`]]
@@ -1766,12 +1961,12 @@ def reduce_dimensions(
                     f"Cannot pad ``{axis_name}`` to match desired length "
                     f"{desired_length}."
                 )
-                if ops == 'reduce':
+                if ops == "reduce":
                     raise ValueError(msg)
-                elif error == 'raise':
+                elif error == "raise":
                     raise ValueError(msg)
                 else:
-                    warnings.warn(msg)
+                    warnings.warn(msg, stacklevel=2)
                     return desired_length, current_axis
             adjusted_axis = list(current_axis) + [None] * (
                 desired_length - original_length
@@ -1787,8 +1982,8 @@ def reduce_dimensions(
                 f"length {desired_length}."
             )
         return desired_length, adjusted_axis
-    
-    if ops == 'check_only':
+
+    if ops == "check_only":
         z_matches = len(z) == arr.shape[0]
         x_matches = len(x) == arr.shape[1]
         if z_matches and x_matches:
@@ -1807,75 +2002,78 @@ def reduce_dimensions(
                 msg += f" ``z`` has length {len(z)} vs {arr.shape[0]}."
             else:
                 msg += f" ``x`` has length {len(x)} vs {arr.shape[1]}."
-            if error == 'raise':
+            if error == "raise":
                 raise ValueError(msg)
             else:
-                warnings.warn(msg)
+                warnings.warn(msg, stacklevel=2)
                 return False
-    
-    elif ops == 'reduce':
+
+    elif ops == "reduce":
         # Determine new lengths based on current data shape and axis lengths
         new_z_length = min(len(z), arr.shape[0])
         new_x_length = min(len(x), arr.shape[1])
-        
+
         # Adjust 'z' axis
         sz0, z_adjusted = adjust_axis_length(
-            desired_length=new_z_length, 
-            current_axis=z, 
-            axis_name=axis_names[0]
+            desired_length=new_z_length,
+            current_axis=z,
+            axis_name=axis_names[0],
         )
-        
+
         # Adjust 'x' axis
         sx0, x_adjusted = adjust_axis_length(
-            desired_length=new_x_length, 
-            current_axis=x, 
-            axis_name=axis_names[1]
+            desired_length=new_x_length,
+            current_axis=x,
+            axis_name=axis_names[1],
         )
-        
+
         # Slice the data accordingly
         data_reduced = arr[:sz0, :sx0]
         logger.debug(
             "Data, ``z``, and ``x`` have been reduced to match dimensions."
         )
         return data_reduced, z_adjusted, x_adjusted
-    
-def decode_sparse_data(sparse_data: pd.Series) -> pd.DataFrame:
+
+
+def decode_sparse_data(
+    sparse_data: pd.Series,
+) -> pd.DataFrame:
     """
-    Decode a sparse matrix represented as strings in a pandas Series 
+    Decode a sparse matrix represented as strings in a pandas Series
     back into a dense pandas DataFrame.
-    
-    Each entry in the `sparse_data` Series should contain multiple lines, 
+
+    Each entry in the `sparse_data` Series should contain multiple lines,
     where each line represents a non-zero entry in the format:
     `(row_index, column_index)\tvalue`.
-    
-    **Note:** This function assumes that the row indices within the strings 
-    are always `(0, column_index)`. The Series index is used as the actual 
+
+    **Note:** This function assumes that the row indices within the strings
+    are always `(0, column_index)`. The Series index is used as the actual
     row index in the decoded DataFrame.
-    
+
     Parameters
     ----------
     sparse_data : pd.Series
-        A pandas Series where each element is a string representing a 
-        sparse matrix row. Each string contains entries separated by 
-        newline characters (`\n`), and each entry is in the format 
+        A pandas Series where each element is a string representing a
+        sparse matrix row. Each string contains entries separated by
+        newline characters (`\n`), and each entry is in the format
         `(row, col)\tvalue`.
-    
+
     Returns
     -------
     pd.DataFrame
         A dense pandas DataFrame reconstructed from the sparse representation.
-    
+
     Raises
     ------
     ValueError
-        If an entry in `sparse_data` is not a string or does not follow the 
+        If an entry in `sparse_data` is not a string or does not follow the
         expected format.
-    
+
     Examples
     --------
     >>> from fusionlab.core.array_manager import decode_sparse_data
     >>> import pandas as pd
-    >>> 
+    >>>
     >>> # Sample sparse data as a pandas Series
     >>> sparse_data = pd.Series([
     ...     "(0, 0)\t-1.6752467319482305\n(0, 1)\t1.515...",
@@ -1884,7 +2082,7 @@ def decode_sparse_data(sparse_data: pd.Series) -> pd.DataFrame:
     ...     "(0, 0)\t-1.3286439598210102\n(0, 1)\t0.912...",
     ...     "(0, 0)\t-1.2131097024452704\n(0, 1)\t-0.41..."
     ... ])
-    >>> 
+    >>>
     >>> # Decode the sparse data
     >>> decoded_df = decode_sparse_data(sparse_data)
     >>> print(decoded_df)
@@ -1894,49 +2092,55 @@ def decode_sparse_data(sparse_data: pd.Series) -> pd.DataFrame:
         2 -1.444 -1.410
         3 -1.329  0.912
         4 -1.213 -0.410
-    
+
     Notes
     -----
-    - **Input Structure:** Each entry in the `sparse_data` Series should be a 
-      string containing multiple `(row, column)\tvalue` pairs separated by 
+    - **Input Structure:** Each entry in the `sparse_data` Series should be a
+      string containing multiple `(row, column)\tvalue` pairs separated by
       newline characters.
-    - **Row Mapping:** The Series index is used as the row index in the 
-      decoded DataFrame. The row index specified within each string is 
+    - **Row Mapping:** The Series index is used as the row index in the
+      decoded DataFrame. The row index specified within each string is
       ignored and assumed to be `0`.
-    - **Memory Consideration:** Decoding large sparse matrices into dense 
-      DataFrames can consume significant memory. Consider using sparse 
+    - **Memory Consideration:** Decoding large sparse matrices into dense
+      DataFrames can consume significant memory. Consider using sparse
       DataFrame representations if memory usage is a concern.
-    
+
     References
     ----------
     - pandas.DataFrame: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html
     - scipy.sparse.coo_matrix: https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.coo_matrix.html
     """
     from scipy.sparse import coo_matrix
-    
-    if isinstance ( sparse_data, pd.DataFrame): 
-        # try to squeeze the dataframe if has a single column 
-        sparse_data = sparse_data.squeeze() 
-        
+
+    if isinstance(sparse_data, pd.DataFrame):
+        # try to squeeze the dataframe if has a single column
+        sparse_data = sparse_data.squeeze()
+
     if not isinstance(sparse_data, pd.Series):
-        raise ValueError("Input `sparse_data` must be a pandas Series.")
-    
+        raise ValueError(
+            "Input `sparse_data` must be a pandas Series."
+        )
+
     rows = []
     cols = []
     data = []
-    
+
     for series_idx, row in sparse_data.items():
         if not isinstance(row, str):
             row = str(row)  # Convert to string if possible
-        
-        for entry in row.split('\n'):
+
+        for entry in row.split("\n"):
             entry = entry.strip()
             if entry:
                 try:
-                    col_row, value = entry.split('\t')
+                    col_row, value = entry.split("\t")
                     # Remove parentheses and split into row and column
-                    _, col_idx = map(int, col_row.strip('()').split(','))
-                    rows.append(series_idx)  # Use Series index as row index
+                    _, col_idx = map(
+                        int, col_row.strip("()").split(",")
+                    )
+                    rows.append(
+                        series_idx
+                    )  # Use Series index as row index
                     cols.append(col_idx)
                     data.append(float(value))
                 except Exception as e:
@@ -1944,60 +2148,61 @@ def decode_sparse_data(sparse_data: pd.Series) -> pd.DataFrame:
                         f"Error parsing entry '{entry}'"
                         f" in Series index {series_idx}: {e}"
                     )
-    
+
     if not rows:
         raise ValueError("No data found to decode.")
-    
+
     # Determine the size of the matrix
     max_row = max(rows) + 1
     max_col = max(cols) + 1
-    
+
     # Create a COO sparse matrix
     sparse_matrix = coo_matrix(
         (data, (rows, cols)), shape=(max_row, max_col)
     )
-    
+
     # Convert to a dense NumPy array
     dense_array = sparse_matrix.toarray()
-    
+
     # Convert to a pandas DataFrame
     df = pd.DataFrame(dense_array)
-    
+
     return df
 
+
 def process_and_extract_data(
-    *args: ArrayLike, 
+    *args: ArrayLike,
     columns: Optional[List[Union[str, int]]] = None,
-    enforce_extraction: bool = True, 
-    allow_split: bool = False, 
+    enforce_extraction: bool = True,
+    allow_split: bool = False,
     search_multiple: bool = False,
-    ensure_uniform_length: bool = False, 
+    ensure_uniform_length: bool = False,
     to_array: bool = False,
-    on_error: str = 'raise',
+    on_error: str = "raise",
 ) -> List[np.ndarray]:
     """
-    Extracts and processes data from various input types, focusing on column 
-    extraction from pandas DataFrames and conversion of inputs to numpy 
+    Extracts and processes data from various input types, focusing on column
+    extraction from pandas DataFrames and conversion of inputs to numpy
     arrays or pandas Series.
 
     Parameters
     ----------
     *args : ArrayLike
-        A variable number of inputs, each can be a list, numpy array, pandas 
+        A variable number of inputs, each can be a list, numpy array, pandas
         Series,dictionary, or pandas DataFrame.
     columns : List[Union[str, int]], optional
-        Specific columns to extract from pandas DataFrames. If not provided, 
+        Specific columns to extract from pandas DataFrames. If not provided,
         the function behaves differently based on `allow_split`.
     enforce_extraction : bool, default=True
-        Forces the function to try extracting `columns` from DataFrames. 
-        If False, DataFrames are returned without column extraction unless 
+        Forces the function to try extracting `columns` from DataFrames.
+        If False, DataFrames are returned without column extraction unless
         `allow_split` is True.
         Removing non-conforming elements if True.
     allow_split : bool, default=False
-        If True and a DataFrame is provided without `columns`, splits the 
+        If True and a DataFrame is provided without `columns`, splits the
         DataFrame into its constituent columns.
     search_multiple : bool, default=False
-        Allows searching for `columns` across multiple DataFrame inputs. Once 
+        Allows searching for `columns` across multiple DataFrame inputs. Once
         a column is found, it is not searched for in subsequent DataFrames.
     ensure_uniform_length : bool, default=False
         Checks that all extracted arrays have the same length. Raises an error
@@ -2005,20 +2210,20 @@ def process_and_extract_data(
     to_array : bool, default=False
         Converts all extracted pandas Series to numpy arrays.
     on_error : str, {'raise', 'ignore'}, default='raise'
-        Determines how to handle errors during column extraction or when 
-        enforcing uniform length. 'raise' will raise an error, 'ignore' will 
+        Determines how to handle errors during column extraction or when
+        enforcing uniform length. 'raise' will raise an error, 'ignore' will
         skip the problematic input.
 
     Returns
     -------
     List[np.ndarray]
-        A list of numpy arrays or pandas Series extracted based 
+        A list of numpy arrays or pandas Series extracted based
         on the specified conditions.
 
     Examples
     --------
-    >>> import numpy as np 
-    >>> import pandas as pd 
+    >>> import numpy as np
+    >>> import pandas as pd
     >>> from fusionlab.core.array_manager import process_and_extract_data
     >>> data = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
     >>> process_and_extract_data(data, columns=['A'], to_array=True)
@@ -2032,7 +2237,7 @@ def process_and_extract_data(
     Extracting columns from multiple DataFrames:
 
     >>> data2 = pd.DataFrame({'C': [7, 8, 9], 'D': [10, 11, 12]})
-    >>> process_and_extract_data(data, data2, columns=['A', 'C'], 
+    >>> process_and_extract_data(data, data2, columns=['A', 'C'],
                                   search_multiple=True, to_array=True)
     [array([1, 2, 3]), array([7, 8, 9])]
 
@@ -2040,7 +2245,7 @@ def process_and_extract_data(
 
     >>> process_and_extract_data([1, 2, 3], {'E': [13, 14, 15]}, to_array=True)
     [array([1, 2, 3]), array([13, 14, 15])]
-    
+
     Extracting columns from multiple DataFrames and enforcing uniform length:
     >>> data2 = pd.DataFrame({'C': [7, 8, 9, 10], 'D': [11, 12, 13, 14]})
     >>> result = process_and_extract_data(
@@ -2052,17 +2257,22 @@ def process_and_extract_data(
     columns_found: Set[Union[str, int]] = set()
 
     def _process_input(
-            input_data: ArrayLike,
-            target_columns: Optional[List[Union[str, int]]], 
-            to_array: bool) -> Optional[np.ndarray]:
+        input_data: ArrayLike,
+        target_columns: Optional[List[Union[str, int]]],
+        to_array: bool,
+    ) -> Optional[np.ndarray]:
         """
-        Processes each input based on its type, extracting specified columns 
+        Processes each input based on its type, extracting specified columns
         if necessary, and converting to numpy array if specified.
         """
-        if isinstance(input_data, (list, tuple)):
+        if isinstance(input_data, list | tuple):
             input_data = np.array(input_data)
-            return input_data if len(input_data.shape
-                                     ) == 1 or not enforce_extraction else None
+            return (
+                input_data
+                if len(input_data.shape) == 1
+                or not enforce_extraction
+                else None
+            )
 
         elif isinstance(input_data, dict):
             input_data = pd.DataFrame(input_data)
@@ -2071,54 +2281,84 @@ def process_and_extract_data(
             if target_columns:
                 for col in target_columns:
                     if col in input_data.columns and (
-                            search_multiple or col not in columns_found):
-                        data_to_add = input_data[col].to_numpy(
-                            ) if to_array else input_data[col]
+                        search_multiple
+                        or col not in columns_found
+                    ):
+                        data_to_add = (
+                            input_data[col].to_numpy()
+                            if to_array
+                            else input_data[col]
+                        )
                         extracted_data.append(data_to_add)
                         columns_found.add(col)
-                    elif on_error == 'raise':
-                        raise ValueError(f"Column {col} not found in DataFrame.")
+                    elif on_error == "raise":
+                        raise ValueError(
+                            f"Column {col} not found in DataFrame."
+                        )
             elif allow_split:
                 for col in input_data.columns:
-                    data_to_add = input_data[col].to_numpy(
-                        ) if to_array else input_data[col]
+                    data_to_add = (
+                        input_data[col].to_numpy()
+                        if to_array
+                        else input_data[col]
+                    )
                     extracted_data.append(data_to_add)
             return None
 
         if isinstance(input_data, np.ndarray):
             if input_data.ndim > 1 and allow_split:
-                input_data = np.hsplit(input_data, input_data.shape[1])
+                input_data = np.hsplit(
+                    input_data, input_data.shape[1]
+                )
                 for arr in input_data:
                     extracted_data.append(arr.squeeze())
                 return None
-            elif input_data.ndim > 1 and enforce_extraction and on_error == 'raise':
-                raise ValueError("Multidimensional array found while "
-                                 "`enforce_extraction` is True.")
-            return input_data if to_array else np.squeeze(input_data)
+            elif (
+                input_data.ndim > 1
+                and enforce_extraction
+                and on_error == "raise"
+            ):
+                raise ValueError(
+                    "Multidimensional array found while "
+                    "`enforce_extraction` is True."
+                )
+            return (
+                input_data
+                if to_array
+                else np.squeeze(input_data)
+            )
 
-        return input_data.to_numpy() if to_array and isinstance(
-            input_data, pd.Series) else input_data
+        return (
+            input_data.to_numpy()
+            if to_array and isinstance(input_data, pd.Series)
+            else input_data
+        )
 
     for arg in args:
         result = _process_input(arg, columns, to_array)
         if result is not None:
             extracted_data.append(result)
 
-    if ensure_uniform_length and not all(len(x) == len(
-            extracted_data[0]) for x in extracted_data):
-        if on_error == 'raise':
-            raise ValueError("Extracted data arrays do not have uniform length.")
+    if ensure_uniform_length and not all(
+        len(x) == len(extracted_data[0])
+        for x in extracted_data
+    ):
+        if on_error == "raise":
+            raise ValueError(
+                "Extracted data arrays do not have uniform length."
+            )
         else:
             return []
 
     return extracted_data
 
+
 def to_series_if(
-    *values: Any, 
-    value_names: Optional[List[str]] = None, 
+    *values: Any,
+    value_names: Optional[List[str]] = None,
     name: Optional[str] = None,
-    error: str = 'ignore',
-    **kws
+    error: str = "ignore",
+    **kws,
 ) -> Series:
     """
     Constructs a pandas Series from given values, optionally naming 
@@ -2166,121 +2406,148 @@ def to_series_if(
     """
     # Validate input lengths and types
     if value_names and len(value_names) != len(values):
-        if error == 'raise':
-            raise ValueError("Length of `value_names` does not"
-                             " match the number of values.")
+        if error == "raise":
+            raise ValueError(
+                "Length of `value_names` does not"
+                " match the number of values."
+            )
         value_names = None  # Reset to default indexing
     # Attempt to construct series
     try:
         # Flatten array-like inputs to avoid creating Series of lists/arrays
-        flattened_values = [val[0] if isinstance(
-            val, (list,tuple,  np.ndarray, pd.Series)) 
-            and len(val) == 1 else val for val in values]
+        flattened_values = [
+            val[0]
+            if isinstance(
+                val, list | tuple | np.ndarray | pd.Series
+            )
+            and len(val) == 1
+            else val
+            for val in values
+        ]
         series = pd.Series(
-            flattened_values, index=value_names, name=name, **kws)
+            flattened_values,
+            index=value_names,
+            name=name,
+            **kws,
+        )
     except Exception as e:
-        if error == 'raise':
-            raise ValueError(f"Failed to construct series due to: {e}")
+        if error == "raise":
+            raise ValueError(
+                f"Failed to construct series due to: {e}"
+            )
         return values  # Return the original values if series construction fails
 
     return series
 
-def make_arr_consistent (
-        refarr, arr, fill_value = np.nan, return_index = False, 
-        method='naive'): 
+
+def make_arr_consistent(
+    refarr,
+    arr,
+    fill_value=np.nan,
+    return_index=False,
+    method="naive",
+):
     """
-    Make `arr` to be consistent with the reference array `refarr`. Fill the 
-    missing value with param `fill_value`. 
-    
-    Note that it does care of the position of the value in the array. Use 
-    Numpy digitize to compute the bins. The array caveat here is the bins 
+    Make `arr` to be consistent with the reference array `refarr`. Fill the
+    missing value with param `fill_value`.
+
+    Note that it does care of the position of the value in the array. Use
+    Numpy digitize to compute the bins. The array caveat here is the bins
     must be monotonically decreasing or increasing.
-    
-    If the values in `arr` are present in `refarr`, the position of `arr` 
-    in new consistent array should be located decreasing or increasing order. 
-    
-    Parameters 
+
+    If the values in `arr` are present in `refarr`, the position of `arr`
+    in new consistent array should be located decreasing or increasing order.
+
+    Parameters
     ------------
-    arr: array-like 1d, 
-        Array to extended with fill value. It should be  shorter than the 
+    arr: array-like 1d,
+        Array to extended with fill value. It should be  shorter than the
         `refarr`.
-        
-    refarr: array-like- the reference array. It should have a greater 
-        length than the array `arr`.  
-    fill_value: float, 
-        Value to fill the `arr` to match the length of the `refarr`. 
-    return_index: bool or str, default=True 
+
+    refarr: array-like- the reference array. It should have a greater
+        length than the array `arr`.
+    fill_value: float,
+        Value to fill the `arr` to match the length of the `refarr`.
+    return_index: bool or str, default=True
          index of the position of the  elements in `refarr`.
-         Default is ``False``. If ``mask`` should  return the 
+         Default is ``False``. If ``mask`` should  return the
         mask of existing element in reference array
     method: str, default="naive"
         Is the method used to find the right position of items in `arr`
-        based on the reference array. 
-        - ``naive``, considers the length of ``arr`` must fit the number of 
-            items that should be visible in the consistent array. This method 
-            erases the remaining bins values out of length of `arr`. 
-        - ``strict` did the same but rather than considering the length, 
+        based on the reference array.
+        - ``naive``, considers the length of ``arr`` must fit the number of
+            items that should be visible in the consistent array. This method
+            erases the remaining bins values out of length of `arr`.
+        - ``strict` did the same but rather than considering the length,
             it considers the maximum values in the `arr`. It assumes that `arr`
-            is sorted in ascending order. This methods is usefull for plotting 
-            a specific stations since the station loactions are sorted in 
-            ascending order. 
-        
-    Returns 
+            is sorted in ascending order. This methods is usefull for plotting
+            a specific stations since the station loactions are sorted in
+            ascending order.
+
+    Returns
     ---------
-    non_zero_index , mask or t  
-        index: indices of the position of `arr` items in ``refarr``. 
+    non_zero_index , mask or t
+        index: indices of the position of `arr` items in ``refarr``.
         mask: bool of the position `arr` items in ``refarr``
         t: new consistent array with the same length as ``refarr``
-    
-    Examples 
+
+    Examples
     ----------
-    >>> import numpy as np 
+    >>> import numpy as np
     >>> from fusionlab.core.array_manager import make_arr_consistent
-    >>> refarr = np.arange (12) 
-    >>> arr = np.arange (7, 10) 
-    >>> make_arr_consistent (refarr, arr ) 
+    >>> refarr = np.arange (12)
+    >>> arr = np.arange (7, 10)
+    >>> make_arr_consistent (refarr, arr )
     Out[84]: array([nan, nan, nan, nan, nan, nan, nan,  7.,  8.,  9., nan, nan])
     >>> make_arr_consistent (refarr, arr , return_index =True )
     Out[104]: array([7, 8, 9], dtype=int64)
     >>> make_arr_consistent (refarr, arr , return_index ="mask" )
-    Out[105]: 
+    Out[105]:
     array([False, False, False, False, False, False, False,  True,  True,
             True, False, False])
-    >>> a = np.arange ( 12 ); b = np.linspace (7, 10 , 7) 
-    >>> make_arr_consistent (a, b ) 
+    >>> a = np.arange ( 12 ); b = np.linspace (7, 10 , 7)
+    >>> make_arr_consistent (a, b )
     Out[112]: array([nan, nan, nan, nan, nan, nan, nan,  7.,  8.,  9., 10., 11.])
-    >>> make_arr_consistent (a, b ,method='strict') 
+    >>> make_arr_consistent (a, b ,method='strict')
     Out[114]: array([nan, nan, nan, nan, nan, nan, nan,  7.,  8.,  9., 10., nan])
     """
-    try : 
-        refarr = reshape( refarr).shape[1] 
-        arr= reshape( arr).shape[1] 
-    except :pass 
-    else: raise TypeError ("Expects one-dimensional arrays for both arrays.")
+    try:
+        refarr = reshape(refarr).shape[1]
+        arr = reshape(arr).shape[1]
+    except:
+        pass
+    else:
+        raise TypeError(
+            "Expects one-dimensional arrays for both arrays."
+        )
 
-    t = np.full_like( refarr, fill_value = np.nan, dtype =float )
-    temp_arr = np.digitize( refarr, arr) 
-    non_zero_index = reshape (np.argwhere (temp_arr!=0 ) ) 
-    t[non_zero_index] = refarr [non_zero_index] 
-    # force value to keep only 
-    # value in array 
-    if method=='strict':
-        index = reshape ( np.argwhere (  (max( arr)  - t) < 0 ) ) 
-        t [index ]= np.nan 
-    else: 
-        if len (t[~np.isnan (t)]) > len(arr): 
-            t [ - (len(t[~np.isnan (t)])-len(arr)):]= np.nan 
-    # update the non_zeros index 
-    non_zero_index= reshape ( np.argwhere (~np.isnan (t)))
-    # now replace all NaN value by filled value 
-    t [np.isnan(t)] = fill_value 
+    t = np.full_like(refarr, fill_value=np.nan, dtype=float)
+    temp_arr = np.digitize(refarr, arr)
+    non_zero_index = reshape(np.argwhere(temp_arr != 0))
+    t[non_zero_index] = refarr[non_zero_index]
+    # force value to keep only
+    # value in array
+    if method == "strict":
+        index = reshape(np.argwhere((max(arr) - t) < 0))
+        t[index] = np.nan
+    else:
+        if len(t[~np.isnan(t)]) > len(arr):
+            t[-(len(t[~np.isnan(t)]) - len(arr)) :] = np.nan
+    # update the non_zeros index
+    non_zero_index = reshape(np.argwhere(~np.isnan(t)))
+    # now replace all NaN value by filled value
+    t[np.isnan(t)] = fill_value
 
-    return  refarr == t  if return_index =='mask' else (
-        non_zero_index if return_index else t )
+    return (
+        refarr == t
+        if return_index == "mask"
+        else (non_zero_index if return_index else t)
+    )
+
 
 def split_train_test(
-        data: DataFrame, test_ratio: float = 0.2
-        ) -> Tuple[DataFrame, DataFrame]:
+    data: DataFrame, test_ratio: float = 0.2
+) -> Tuple[DataFrame, DataFrame]:
     """
     Split a DataFrame into train and test sets based on a given ratio.
 
@@ -2316,8 +2583,10 @@ def split_train_test(
 
     return data.iloc[train_indices], data.iloc[test_indices]
 
+
 def test_set_check_id(
-        identifier: int, test_ratio: float, hash: _F[_T]) -> bool:
+    identifier: int, test_ratio: float, hash: _F[_T]
+) -> bool:
     """
     Check if an instance should be in the test set based on its unique identifier.
 
@@ -2329,11 +2598,11 @@ def test_set_check_id(
         The ratio of instances to put in the test set. Default is 0.2 (20%).
     hash : callable
         A hash function to generate a hash from the identifier.
-        Secure hashes and message digests algorithm. Can be 
-        SHA1, SHA224, SHA256, SHA384, and SHA512 (defined in FIPS 180-2) 
-        as well as RSA’s MD5 algorithm (defined in Internet RFC 1321). 
-        
-        Please refer to :ref:`<https://docs.python.org/3/library/hashlib.html>` 
+        Secure hashes and message digests algorithm. Can be
+        SHA1, SHA224, SHA256, SHA384, and SHA512 (defined in FIPS 180-2)
+        as well as RSA’s MD5 algorithm (defined in Internet RFC 1321).
+
+        Please refer to :ref:`<https://docs.python.org/3/library/hashlib.html>`
         for futher details.
 
     Returns
@@ -2353,14 +2622,21 @@ def test_set_check_id(
     #     hash_val = int(hash_function(str(identifier).encode()).hexdigest(), 16)
     #     # Use the hash value to decide test set membership
     #     return hash_val % 10000 / 10000.0 < ratio
-    
+
     #     hashed_id = hash_function(identifier.encode('utf-8')).digest()
     #     return np.frombuffer(hashed_id, dtype=np.uint8).sum() < 256 * test_ratio
-    return hash(np.int64(identifier)).digest()[-1] < 256 * test_ratio
+    return (
+        hash(np.int64(identifier)).digest()[-1]
+        < 256 * test_ratio
+    )
+
 
 def split_train_test_by_id(
-    data: DataFrame, test_ratio: float, id_column: Optional[List[str]] = None,
-    keep_colindex: bool = True, hash: _F = hashlib.md5
+    data: DataFrame,
+    test_ratio: float,
+    id_column: Optional[List[str]] = None,
+    keep_colindex: bool = True,
+    hash: _F = hashlib.md5,
 ) -> Tuple[DataFrame, DataFrame]:
     """
     Split a DataFrame into train and test sets while ensuring data consistency
@@ -2396,34 +2672,50 @@ def split_train_test_by_id(
     >>> len(train_set), len(test_set)
     (4, 1)
     """
-    drop_tmp_index=False
+    drop_tmp_index = False
     if id_column is None:
         # Check if the index is integer-based; if not, create a temporary integer index.
         if not data.index.is_integer():
-            data['_tmp_hash_index'] = np.arange(len(data))
-            ids = data['_tmp_hash_index']
+            data["_tmp_hash_index"] = np.arange(len(data))
+            ids = data["_tmp_hash_index"]
             drop_tmp_index = True
         else:
             ids = data.index.to_series()
             drop_tmp_index = False
     else:
         # Use specified id columns as unique identifiers, combining them if necessary.
-        ids = data[id_column].astype(str).apply(
-            lambda row: '_'.join(row), axis=1) if isinstance(
-                id_column, list) else data[id_column]
+        ids = (
+            data[id_column]
+            .astype(str)
+            .apply(lambda row: "_".join(row), axis=1)
+            if isinstance(id_column, list)
+            else data[id_column]
+        )
 
-    in_test_set = ids.apply(lambda id_: test_set_check_id(id_, test_ratio, hash))
+    in_test_set = ids.apply(
+        lambda id_: test_set_check_id(id_, test_ratio, hash)
+    )
 
     train_set = data.loc[~in_test_set].copy()
     test_set = data.loc[in_test_set].copy()
 
-    if drop_tmp_index or (id_column is None and not keep_colindex):
+    if drop_tmp_index or (
+        id_column is None and not keep_colindex
+    ):
         # Remove the temporary index or reset the index as needed
-        train_set.drop(columns=['_tmp_hash_index'], errors='ignore', inplace=True)
-        test_set.drop(columns=['_tmp_hash_index'], errors='ignore', inplace=True)
-        # for consistency if '_tmp_has_index' 
-        if '_tmp_hash_index' in data.columns: 
-            data.drop (columns='_tmp_hash_index', inplace =True)
+        train_set.drop(
+            columns=["_tmp_hash_index"],
+            errors="ignore",
+            inplace=True,
+        )
+        test_set.drop(
+            columns=["_tmp_hash_index"],
+            errors="ignore",
+            inplace=True,
+        )
+        # for consistency if '_tmp_has_index'
+        if "_tmp_hash_index" in data.columns:
+            data.drop(columns="_tmp_hash_index", inplace=True)
     elif id_column is None and keep_colindex:
         # If keeping the original index and it was integer-based, no action needed
         pass
@@ -2432,9 +2724,7 @@ def split_train_test_by_id(
 
 
 def split_list(
-    lst: List[Any],
-    val: int,
-    fill_value: Optional[Any] = None
+    lst: List[Any], val: int, fill_value: Optional[Any] = None
 ) -> List[List[Any]]:
     """
     Split a one‑dimensional list into contiguous chunks of length
@@ -2508,56 +2798,44 @@ def split_list(
        creating iterators for efficient looping*.
        https://docs.python.org/3/library/itertools.html
     """
-    # 1. Ensure *lst* is a proper list (exclude bare strings).   
+    # 1. Ensure *lst* is a proper list (exclude bare strings).
     lst = is_iterable(
-        lst,
-        exclude_string=True,
-        transform=True
+        lst, exclude_string=True, transform=True
     )
 
-    # 2. Validate and normalise *val*.                           
-    val = int(
-        _assert_all_types(
-            val,
-            int,
-            float
-        )
-    )
+    # 2. Validate and normalise *val*.
+    val = int(_assert_all_types(val, int, float))
 
-    # 3. Attempt numeric grouping via itertools.groupby.         
+    # 3. Attempt numeric grouping via itertools.groupby.
     try:
         grouped = [
             list(group)
             for _, group in itertools.groupby(
-                lst,
-                key=lambda x: (x - 1) // val
+                lst, key=lambda x: (x - 1) // val
             )
         ]
     except Exception:
-
-        # Non‑numeric elements: fallback to zip_longest,         
-        # padding with *fill_value* when the last chunk          
-        # under‑flows.                                           
+        # Non‑numeric elements: fallback to zip_longest,
+        # padding with *fill_value* when the last chunk
+        # under‑flows.
         grouped = list(
             itertools.zip_longest(
-                *(
-                    iter(lst),
-                ) * val,
-                fillvalue=fill_value
+                *(iter(lst),) * val, fillvalue=fill_value
             )
         )
         # Remove trailing pad if present in the final chunk
         if fill_value is None:
             grouped[-1] = [
-                item for item in grouped[-1]
+                item
+                for item in grouped[-1]
                 if item is not None
             ]
 
     return grouped
 
+
 def squeeze_specific_dim(
-    arr: np.ndarray,
-    axis: Optional[int] = -1
+    arr: np.ndarray, axis: Optional[int] = -1
 ) -> np.ndarray:
     """
     Remove single‑dimension axes from *arr* along a chosen
@@ -2572,7 +2850,7 @@ def squeeze_specific_dim(
     arr : numpy.ndarray
         Input array to be reshaped.
     axis : int or None, default ``-1``
-        * If ``None`` all singleton axes are removed.  
+        * If ``None`` all singleton axes are removed.
         * If an integer, only that axis is squeezed provided
           its length equals 1.  Negative indices follow NumPy
           convention.
@@ -2622,9 +2900,9 @@ def squeeze_specific_dim(
         # Axis length ≠ 1 → return original array
         return arr
 
+
 def reshape(
-    arr: Any,
-    axis: Optional[int] = None
+    arr: Any, axis: Optional[int] = None
 ) -> np.ndarray:
     """
     Reshape a 1‑D or 2‑D array to match a desired orientation
@@ -2639,8 +2917,8 @@ def reshape(
     arr : array_like
         Input data with at most two dimensions.
     axis : {0, 1, -1, None}, optional
-        * ``0``   → ensure column‑vector shape ``(N, 1)``  
-        * ``1``   → ensure row‑vector shape ``(1, N)``  
+        * ``0``   → ensure column‑vector shape ``(N, 1)``
+        * ``1``   → ensure row‑vector shape ``(1, N)``
         * ``None`` or ``-1`` → flatten to ``(N,)``
 
     Returns
@@ -2674,26 +2952,25 @@ def reshape(
     """
     arr = np.asarray(arr)
 
-    # 1. Sanity checks                                       
+    # 1. Sanity checks
     if arr.ndim > 2:
         raise ValueError(
-            "Expect an array with ndim ≤ 2, got "
-            f"{arr.ndim}."
+            f"Expect an array with ndim ≤ 2, got {arr.ndim}."
         )
     if axis not in (0, 1, -1, None):
-        raise ValueError(
-            f"Unsupported axis value {axis!r}."
-        )
+        raise ValueError(f"Unsupported axis value {axis!r}.")
     if axis == -1:
         axis = None
 
-    # 2. Branch on original dimensionality                  
+    # 2. Branch on original dimensionality
     if arr.ndim == 1:
         n = arr.shape[0]
         return (
-            arr.reshape(1, n) if axis == 1 else
-            arr.reshape(n, 1) if axis == 0 else
-            arr
+            arr.reshape(1, n)
+            if axis == 1
+            else arr.reshape(n, 1)
+            if axis == 0
+            else arr
         )
 
     # arr.ndim == 2
@@ -2709,35 +2986,37 @@ def reshape(
     # If reshape is not feasible, return original
     return arr
 
+
 def to_numeric_dtypes(
-    arr: Union[NDArray, DataFrame], *, 
-    columns: Optional[List[str]] = None, 
-    return_feature_types: bool = False, 
-    missing_values: float = np.nan, 
-    pop_cat_features: bool = False, 
-    sanitize_columns: bool = False, 
-    regex: Optional[re.Pattern] = None, 
-    fill_pattern: str = '_', 
-    drop_nan_columns: bool = ..., 
-    how: str = 'all', 
-    reset_index: bool = False, 
-    drop_index: bool = ..., 
-    verbose: bool = False
+    arr: Union[NDArray, DataFrame],
+    *,
+    columns: Optional[List[str]] = None,
+    return_feature_types: bool = False,
+    missing_values: float = np.nan,
+    pop_cat_features: bool = False,
+    sanitize_columns: bool = False,
+    regex: Optional[re.Pattern] = None,
+    fill_pattern: str = "_",
+    drop_nan_columns: bool = ...,
+    how: str = "all",
+    reset_index: bool = False,
+    drop_index: bool = ...,
+    verbose: bool = False,
 ) -> Union[DataFrame, Tuple[DataFrame, List[str], List[str]]]:
     """
-    Convert input array or DataFrame into a numeric-friendly DataFrame by 
-    coercing values to numeric data types where applicable and identifying 
+    Convert input array or DataFrame into a numeric-friendly DataFrame by
+    coercing values to numeric data types where applicable and identifying
     feature types.
 
-    This utility function is essential for pre-processing mixed-type data, 
-    such as datasets containing both numeric and categorical values, often 
-    encountered in data science pipelines. It offers advanced options for 
-    sanitizing column names, handling missing values, and dynamically 
+    This utility function is essential for pre-processing mixed-type data,
+    such as datasets containing both numeric and categorical values, often
+    encountered in data science pipelines. It offers advanced options for
+    sanitizing column names, handling missing values, and dynamically
     identifying and extracting numeric versus categorical features.
 
-    The core mechanism iteratively attempts to convert each column of the 
-    input array to :class:`float64` using a fallback strategy to preserve 
-    categorical columns that cannot be converted. The classification of 
+    The core mechanism iteratively attempts to convert each column of the
+    input array to :class:`float64` using a fallback strategy to preserve
+    categorical columns that cannot be converted. The classification of
     features is guided by :func:`is_numeric_dtype`.
 
     .. math::
@@ -2753,20 +3032,20 @@ def to_numeric_dtypes(
     Parameters
     ----------
     arr : NDArray or DataFrame
-        Input data to be processed. If not already a DataFrame, the input is 
-        coerced into one. Each row corresponds to a sample and each column to 
+        Input data to be processed. If not already a DataFrame, the input is
+        coerced into one. Each row corresponds to a sample and each column to
         a feature. Arrays must be two-dimensional.
-    
+
     columns : list of str, optional
-        Names to assign to the DataFrame columns when the input `arr` is a 
-        NumPy array. The list must have the same length as the number of 
-        columns in `arr`. If `arr` is already a DataFrame, this parameter 
+        Names to assign to the DataFrame columns when the input `arr` is a
+        NumPy array. The list must have the same length as the number of
+        columns in `arr`. If `arr` is already a DataFrame, this parameter
         is ignored unless explicitly specified.
-    
+
     return_feature_types : bool, default=False
-        Whether to return feature type classification. If ``True``, the 
+        Whether to return feature type classification. If ``True``, the
         function returns a tuple of:
-        
+
             - Processed DataFrame
             - List of numeric feature names
             - List of categorical feature names
@@ -2774,22 +3053,22 @@ def to_numeric_dtypes(
         This is useful for downstream feature engineering tasks.
 
     missing_values : float, default=np.nan
-        Placeholder value to assign to cells that contain empty strings or 
+        Placeholder value to assign to cells that contain empty strings or
         whitespace-only values. Typically set to :attr:`np.nan`.
 
     pop_cat_features : bool, default=False
-        Whether to exclude all categorical features from the output. If 
+        Whether to exclude all categorical features from the output. If
         ``True``, the returned DataFrame will only contain numeric columns.
 
     sanitize_columns : bool, default=False
-        If ``True``, column names are cleaned using the pattern specified by 
-        `regex`. This replaces non-alphanumeric characters and ensures 
-        standardized column labels, especially useful when importing data 
+        If ``True``, column names are cleaned using the pattern specified by
+        `regex`. This replaces non-alphanumeric characters and ensures
+        standardized column labels, especially useful when importing data
         from varied sources.
 
     regex : re.Pattern or str, optional
-        Regular expression pattern for identifying non-alphanumeric 
-        characters to be replaced in column names. If not provided, the 
+        Regular expression pattern for identifying non-alphanumeric
+        characters to be replaced in column names. If not provided, the
         default pattern is::
 
             >>> import re
@@ -2798,54 +3077,54 @@ def to_numeric_dtypes(
         This pattern captures special characters and whitespace sequences.
 
     fill_pattern : str, default='_'
-        Replacement string used for matching patterns in `regex`. Common 
+        Replacement string used for matching patterns in `regex`. Common
         choices are ``'_'`` or ``'-'`` depending on the naming convention.
 
     drop_nan_columns : bool, default=True
-        If ``True``, columns containing only NaN values are removed. Combined 
+        If ``True``, columns containing only NaN values are removed. Combined
         with the `how` parameter, it also enables dropping fully-NaN rows.
 
     how : {'all', 'any'}, default='all'
         Strategy to drop rows with NaN values:
-        
+
             - ``'all'``: Drop rows where *all* elements are NaN.
             - ``'any'``: Drop rows with *any* NaN.
 
         Used in conjunction with `drop_nan_columns`.
 
     reset_index : bool, default=False
-        Whether to reset the index of the DataFrame. If enabled, the old 
+        Whether to reset the index of the DataFrame. If enabled, the old
         index is dropped or kept based on the `drop_index` flag.
 
     drop_index : bool, default=True
-        Specifies whether the original index should be dropped when 
-        `reset_index` is applied. If ``False``, the index becomes a column 
+        Specifies whether the original index should be dropped when
+        `reset_index` is applied. If ``False``, the index becomes a column
         in the new DataFrame.
 
     verbose : bool, default=False
-        If ``True``, prints detailed logs during processing including any 
+        If ``True``, prints detailed logs during processing including any
         dropped columns or type conversions.
 
     Returns
     -------
     DataFrame or tuple of DataFrame, List[str], List[str]
-        A cleaned DataFrame with numeric data types where applicable. If 
+        A cleaned DataFrame with numeric data types where applicable. If
         `return_feature_types` is ``True``, a 3-element tuple is returned:
-        
+
             - Cleaned DataFrame
             - List of numeric column names
             - List of categorical column names
 
     Notes
     -----
-    This function facilitates safe type coercion and preprocessing before 
-    applying ML algorithms which typically require numeric data. By isolating 
-    numeric and categorical types, it supports modular feature transformation 
+    This function facilitates safe type coercion and preprocessing before
+    applying ML algorithms which typically require numeric data. By isolating
+    numeric and categorical types, it supports modular feature transformation
     pipelines and helps prevent common data-related errors.
 
-    Empty string values are interpreted as missing and replaced by the 
-    `missing_values` value before type coercion. Columns are attempted to be 
-    casted to :class:`float64`, and non-convertible columns are preserved as 
+    Empty string values are interpreted as missing and replaced by the
+    `missing_values` value before type coercion. Columns are attempted to be
+    casted to :class:`float64`, and non-convertible columns are preserved as
     categorical or string types.
 
     Examples
@@ -2878,91 +3157,109 @@ def to_numeric_dtypes(
 
     References
     ----------
-    .. [1] VanderPlas, J. (2016). *Python Data Science Handbook: Essential 
+    .. [1] VanderPlas, J. (2016). *Python Data Science Handbook: Essential
            Tools for Working with Data*. O'Reilly Media.
-    .. [2] McKinney, W. (2012). *Python for Data Analysis: Data Wrangling with 
+    .. [2] McKinney, W. (2012). *Python for Data Analysis: Data Wrangling with
            Pandas, NumPy, and IPython*. O'Reilly Media.
-    .. [3] Pedregosa, F., et al. (2011). Scikit-learn: Machine Learning in 
+    .. [3] Pedregosa, F., et al. (2011). Scikit-learn: Machine Learning in
            Python. *Journal of Machine Learning Research*, 12, 2825–2830.
     """
-    if not is_iterable (arr, exclude_string=True): 
-        raise TypeError(f"Expect array. Got {type (arr).__name__!r}")
+    if not is_iterable(arr, exclude_string=True):
+        raise TypeError(
+            f"Expect array. Got {type(arr).__name__!r}"
+        )
 
-    if hasattr ( arr, '__array__') and hasattr ( arr, 'columns'): 
+    if hasattr(arr, "__array__") and hasattr(arr, "columns"):
         df = arr.copy()
-        if columns is not None: 
-            if verbose: 
-                print("Dataframe is passed. Columns should be replaced.")
-            df =pd.DataFrame ( np.array (arr), columns =columns )
-            
-    else: df = pd.DataFrame (arr, columns =columns  ) 
-        
-    # sanitize columns 
-    if sanitize_columns: 
-        # Pass in the case columns are all integer values. 
-        if not is_numeric_dtype(df.columns , to_array=True): 
-           # for consistency reconvert to str 
-           df.columns = df.columns.astype(str) 
-           df = sanitize_frame_cols(
-               df, regex=regex, fill_pattern=fill_pattern ) 
+        if columns is not None:
+            if verbose:
+                print(
+                    "Dataframe is passed. Columns should be replaced."
+                )
+            df = pd.DataFrame(np.array(arr), columns=columns)
 
-    #replace empty string by Nan if NaN exist in dataframe  
-    df= df.replace(r'^\s*$', missing_values, regex=True)
-    
-    # check the possibililty to cast all 
-    # the numerical data 
-    for serie in df.columns: 
-        try: 
-            df= df.astype(
-                {serie:np.float64})
-        except:continue
-    
-    # drop nan  columns if exists 
-    if drop_nan_columns: 
-        if verbose: 
-            nan_columns = df.columns [ df.isna().all()].tolist() 
+    else:
+        df = pd.DataFrame(arr, columns=columns)
+
+    # sanitize columns
+    if sanitize_columns:
+        # Pass in the case columns are all integer values.
+        if not is_numeric_dtype(df.columns, to_array=True):
+            # for consistency reconvert to str
+            df.columns = df.columns.astype(str)
+            df = sanitize_frame_cols(
+                df, regex=regex, fill_pattern=fill_pattern
+            )
+
+    # replace empty string by Nan if NaN exist in dataframe
+    df = df.replace(r"^\s*$", missing_values, regex=True)
+
+    # check the possibililty to cast all
+    # the numerical data
+    for serie in df.columns:
+        try:
+            df = df.astype({serie: np.float64})
+        except:
+            continue
+
+    # drop nan  columns if exists
+    if drop_nan_columns:
+        if verbose:
+            nan_columns = df.columns[df.isna().all()].tolist()
             print("No NaN column found.") if len(
-                nan_columns)==0 else listing_items_format (nan_columns, 
-                    "NaN columns found in the data",
-                    " ", inline =True, lstyle='.')                               
-        # drop rows and columns with NaN values everywhere.                                                   
-        df.dropna (axis=1, how='all', inplace =True)
-        if str(how).lower()=='all': 
-            df.dropna ( axis=0, how='all', inplace =True)
-    
+                nan_columns
+            ) == 0 else listing_items_format(
+                nan_columns,
+                "NaN columns found in the data",
+                " ",
+                inline=True,
+                lstyle=".",
+            )
+        # drop rows and columns with NaN values everywhere.
+        df.dropna(axis=1, how="all", inplace=True)
+        if str(how).lower() == "all":
+            df.dropna(axis=0, how="all", inplace=True)
+
     # reset_index of the dataframe
     # This is useful after droping rows
-    if reset_index: 
-        df.reset_index (inplace =True, drop = drop_index )
-    # collect numeric and non-numeric data 
-    nf, cf =[], []    
-    for serie in df.columns: 
-        if is_numeric_dtype(df[serie], to_array =True ): 
+    if reset_index:
+        df.reset_index(inplace=True, drop=drop_index)
+    # collect numeric and non-numeric data
+    nf, cf = [], []
+    for serie in df.columns:
+        if is_numeric_dtype(df[serie], to_array=True):
             nf.append(serie)
-        else: cf.append(serie)
+        else:
+            cf.append(serie)
 
-    if pop_cat_features: 
-        [ df.pop(item) for item in cf ] 
-        if verbose: 
-            msg ="Dataframe does not contain any categorial features."
-            b= f"Feature{'s' if len(cf)>1 else ''}"
-            e = (f"{'have' if len(cf) >1 else 'has'} been dropped"
-                 " from the dataframe.")
-            print(msg) if len(cf)==0 else listing_items_format (
-                cf , b, e ,lstyle ='.', inline=True)
-            
-        return df 
-    
-    return (df, nf, cf) if return_feature_types else df 
+    if pop_cat_features:
+        [df.pop(item) for item in cf]
+        if verbose:
+            msg = "Dataframe does not contain any categorial features."
+            b = f"Feature{'s' if len(cf) > 1 else ''}"
+            e = (
+                f"{'have' if len(cf) > 1 else 'has'} been dropped"
+                " from the dataframe."
+            )
+            print(msg) if len(
+                cf
+            ) == 0 else listing_items_format(
+                cf, b, e, lstyle=".", inline=True
+            )
+
+        return df
+
+    return (df, nf, cf) if return_feature_types else df
+
 
 def denormalize(
     data: ArrayLike, min_value: float, max_value: float
-    ) -> ArrayLike:
+) -> ArrayLike:
     """
     Denormalizes data from a normalized scale back to its original scale.
 
-    This function is useful when data has been normalized to a different 
-    scale (e.g., [0, 1]) and needs to be converted back to its original scale 
+    This function is useful when data has been normalized to a different
+    scale (e.g., [0, 1]) and needs to be converted back to its original scale
     for interpretation or further processing.
 
     Parameters
@@ -2997,24 +3294,25 @@ def denormalize(
         `data_norm = (data - min_value) / (max_value - min_value)`
     The denormalize function uses the inverse of this formula to restore the data.
     """
-    if not isinstance (data, (pd.Series, pd.DataFrame)): 
-        data = np.asarray( data )
-        
+    if not isinstance(data, pd.Series | pd.DataFrame):
+        data = np.asarray(data)
+
     return data * (max_value - min_value) + min_value
 
- 
+
 def convert_to_structured_format(
-    *arrays: Any, as_frame: bool = True, 
-    skip_sparse: bool =True,
-    cols_as_str: bool=False, 
-    solo_return: bool=False, 
-    ) -> List[Union[ArrayLike, DataFrame, Series]]:
+    *arrays: Any,
+    as_frame: bool = True,
+    skip_sparse: bool = True,
+    cols_as_str: bool = False,
+    solo_return: bool = False,
+) -> List[Union[ArrayLike, DataFrame, Series]]:
     """
     Converts input objects to structured numpy arrays or pandas DataFrame/Series
     based on their shapes and the `as_frame` flag. If conversion to a structured
     format fails, the original objects are returned. When `as_frame` is False,
     attempts are made to convert inputs to numpy arrays.
-    
+
     Parameters
     ----------
     *arrays : Any
@@ -3023,29 +3321,29 @@ def convert_to_structured_format(
     as_frame : bool, default=True
         If True, attempts to convert arrays to DataFrame or Series; otherwise,
         attempts to standardize as numpy arrays.
-    skip_sparse: bool, default=True 
-        Dont convert any sparse matrix and keept it as is. 
-    cols_as_str: bool, default=False 
-       If ``True``, convert numeric columns to string when pandas dataframe 
-       is created. This is useful to avoid operations with litteral columns 
-       already set as string or object dtype. 
+    skip_sparse: bool, default=True
+        Dont convert any sparse matrix and keept it as is.
+    cols_as_str: bool, default=False
+       If ``True``, convert numeric columns to string when pandas dataframe
+       is created. This is useful to avoid operations with litteral columns
+       already set as string or object dtype.
     solo_return : bool, default=False
         If ``True`` and exactly one array, the function returns that array
         directly rather than as a tuple of length 1. If multiple
         arrays are provided then `solo_return` does no work even is ``True``.
-       
+
     Returns
     -------
     List[Union[np.ndarray, pd.DataFrame, pd.Series]]
         A list containing the original objects, numpy arrays, DataFrames, or
         Series, depending on each object's structure and the `as_frame` flag.
-    
+
     Examples
     --------
     Converting to pandas DataFrame/Series:
     >>> from fusionlab.core.array_manager import convert_to_structured_format
-    >>> import numpy as np 
-    >>> import pandas as pd 
+    >>> import numpy as np
+    >>> import pandas as pd
     >>> features= {"feature_1": range (7), "feature_2":['1', 2, 9, 35, "0", "76", 'r']}
     >>> target= pd.Series(data=range(10), name="target")
     >>> convert_to_structured_format( features, target, as_frame=True)
@@ -3074,105 +3372,117 @@ def convert_to_structured_format(
     def attempt_conversion_to_numpy(arr: Any) -> np.ndarray:
         """Attempts to convert an object to a numpy array."""
         try:
-            arr= np.array(arr)
+            arr = np.array(arr)
         except Exception:
             return arr
-        
-        if arr.ndim==2 and arr.shape[1] ==1: 
-            arr = arr.flatten () 
-        
-        return arr 
+
+        if arr.ndim == 2 and arr.shape[1] == 1:
+            arr = arr.flatten()
+
+        return arr
 
     def attempt_conversion_to_pandas(
-            arr: np.ndarray) -> Union[np.ndarray, pd.DataFrame, pd.Series]:
+        arr: np.ndarray,
+    ) -> Union[np.ndarray, pd.DataFrame, pd.Series]:
         """Attempts to convert an array to a DataFrame or Series based on shape."""
         from scipy.sparse import issparse
+
         try:
-            if issparse(arr) and skip_sparse: 
-                raise # dont perform any convertion 
-            if hasattr(arr, '__array__'): 
+            if issparse(arr) and skip_sparse:
+                raise  # dont perform any convertion
+            if hasattr(arr, "__array__"):
                 if arr.ndim == 1:
                     return pd.Series(arr)
                 elif arr.ndim == 2:
                     if arr.shape[1] == 1:
                         return pd.Series(arr.squeeze())
                     else:
-                        arr= pd.DataFrame(arr)
-                        if cols_as_str: 
-                            arr.columns = arr.columns.astype(str) 
-                        return arr 
-            else: 
-                arr= pd.DataFrame(arr)
-                if cols_as_str: 
-                    arr.columns = arr.columns.astype(str) 
-                    
+                        arr = pd.DataFrame(arr)
+                        if cols_as_str:
+                            arr.columns = arr.columns.astype(
+                                str
+                            )
+                        return arr
+            else:
+                arr = pd.DataFrame(arr)
+                if cols_as_str:
+                    arr.columns = arr.columns.astype(str)
+
         except Exception:
             pass
         return arr
 
     if as_frame:
-        arrays= [attempt_conversion_to_pandas(arr) for arr in arrays]
+        arrays = [
+            attempt_conversion_to_pandas(arr)
+            for arr in arrays
+        ]
     else:
         # Try to convert everything to numpy arrays, return as is if it fails
-        arrays= [attempt_conversion_to_numpy(attempt_conversion_to_pandas(arr)
-                                            ) for arr in arrays]
-    if solo_return and len(arrays)==1: 
+        arrays = [
+            attempt_conversion_to_numpy(
+                attempt_conversion_to_pandas(arr)
+            )
+            for arr in arrays
+        ]
+    if solo_return and len(arrays) == 1:
         return arrays[0]
-    
-    return arrays 
 
-def map_specific_columns ( 
-    data: DataFrame, 
-    ufunc:_F , 
-    columns_to_skip:List[str]=None,   
-    pattern:str=None, 
-    inplace:bool= False, 
-    **kws
-    ): 
-    """ Apply function to a specific columns is the dataframe. 
-    
-    It is possible to skip some columns that we want operation to not be 
+    return arrays
+
+
+def map_specific_columns(
+    data: DataFrame,
+    ufunc: _F,
+    columns_to_skip: List[str] = None,
+    pattern: str = None,
+    inplace: bool = False,
+    **kws,
+):
+    """Apply function to a specific columns is the dataframe.
+
+    It is possible to skip some columns that we want operation to not be
     performed.
-    
-    Parameters 
+
+    Parameters
     -----------
-    data: dataframe, 
-        pandas dataframe with valid columns 
-    ufunc: callable, 
-        Universal function that can be applying to the dataframe. 
-    columns_to_skip: list or str , 
+    data: dataframe,
+        pandas dataframe with valid columns
+    ufunc: callable,
+        Universal function that can be applying to the dataframe.
+    columns_to_skip: list or str ,
         List of columns to skip. If given as string and separed by the default
-        pattern items, it should be converted to a list and make sure the 
-        columns name exist in the dataframe. Otherwise an error with 
+        pattern items, it should be converted to a list and make sure the
+        columns name exist in the dataframe. Otherwise an error with
         raise.
-        
+
     pattern: str, default = '[#&*@!,;\s]\s*'
         The base pattern to split the text in `column2skip` into a columns
-        For instance, the following string coulb be splitted to:: 
-            
-            'depth_top, thickness, sp, gamma_gamma' -> 
+        For instance, the following string coulb be splitted to::
+
+            'depth_top, thickness, sp, gamma_gamma' ->
             ['depth_top', 'thickness', 'sp', 'gamma_gamma']
-        
-        Refer to :func:`~.str2columns` for further details. 
-    inplace: bool, default=True 
-        Modified dataframe in place and return None, otherwise return a 
-        new dataframe 
-    kws: dict, 
-        Keywords argument passed to :func: `pandas.DataFrame.apply` function 
-        
-    Returns 
+
+        Refer to :func:`~.str2columns` for further details.
+    inplace: bool, default=True
+        Modified dataframe in place and return None, otherwise return a
+        new dataframe
+    kws: dict,
+        Keywords argument passed to :func: `pandas.DataFrame.apply` function
+
+    Returns
     ---------
-    X: Dataframe or None 
-        Dataframe modified inplace with values computed using the given 
-        `func`except the skipped columns, or ``None`` if `inplace` is ``True``. 
-        
-    Examples 
+    X: Dataframe or None
+        Dataframe modified inplace with values computed using the given
+        `func`except the skipped columns, or ``None`` if `inplace` is ``True``.
+
+    Examples
     ---------
-    >>> from fusionlab.datasets import load_hlogs 
-    >>> from fusionlab.utils.plotutils import map_specific_columns 
-    >>> X0, _= load_hlogs (as_frame =True ) 
-    >>> # let visualize the  first3 values of `sp` and `resistivity` keys 
-    >>> X0['sp'][:3] , X0['resistivity'][:3]  
+    >>> from fusionlab.datasets import load_hlogs
+    >>> from fusionlab.utils.plotutils import map_specific_columns
+    >>> X0, _= load_hlogs (as_frame =True )
+    >>> # let visualize the  first3 values of `sp` and `resistivity` keys
+    >>> X0['sp'][:3] , X0['resistivity'][:3]
     ... (0   -1.580000
          1   -1.580000
          2   -1.922632
@@ -3181,10 +3491,10 @@ def map_specific_columns (
          1    16.000000
          2    24.422316
          Name: resistivity, dtype: float64)
-    >>> column2skip = ['hole_id','depth_top', 'depth_bottom', 
+    >>> column2skip = ['hole_id','depth_top', 'depth_bottom',
                       'strata_name', 'rock_name', 'well_diameter', 'sp']
     >>> map_specific_columns (X0, ufunc = np.log10, column2skip)
-    >>> # now let visualize the same keys values 
+    >>> # now let visualize the same keys values
     >>> X0['sp'][:3] , X0['resistivity'][:3]
     ... (0   -1.580000
          1   -1.580000
@@ -3194,43 +3504,57 @@ def map_specific_columns (
          1    1.204120
          2    1.387787
          Name: resistivity, dtype: float64)
-    >>> # it is obvious the `resistiviy` values is log10 
-    >>> # while `sp` stil remains the same 
-      
+    >>> # it is obvious the `resistiviy` values is log10
+    >>> # while `sp` stil remains the same
+
     """
     X = _assert_all_types(data, pd.DataFrame)
-    if not callable(ufunc): 
-        raise TypeError ("Expect a function for `ufunc`; "
-                         f"got {type(ufunc).__name__!r}")
-        
-    pattern = pattern or r'[#&*@!,;\s]\s*'
-    if not is_iterable( columns_to_skip): 
-        raise TypeError ("Columns  to skip expect an iterable object;"
-                         f" got {type(columns_to_skip).__name__!r}")
-        
+    if not callable(ufunc):
+        raise TypeError(
+            "Expect a function for `ufunc`; "
+            f"got {type(ufunc).__name__!r}"
+        )
+
+    pattern = pattern or r"[#&*@!,;\s]\s*"
+    if not is_iterable(columns_to_skip):
+        raise TypeError(
+            "Columns  to skip expect an iterable object;"
+            f" got {type(columns_to_skip).__name__!r}"
+        )
+
     if isinstance(columns_to_skip, str):
-        columns_to_skip = str2columns (columns_to_skip, pattern=pattern  )
-    #assert whether column to skip is in 
+        columns_to_skip = str2columns(
+            columns_to_skip, pattern=pattern
+        )
+    # assert whether column to skip is in
     if columns_to_skip:
         cskip = copy.deepcopy(columns_to_skip)
-        columns_to_skip = is_in_if(X.columns, columns_to_skip, return_diff= True)
-        if len(columns_to_skip) ==len (X.columns): 
-            warnings.warn("Value(s) to skip are not detected.")
-    elif columns_to_skip is None: 
-        columns_to_skip = list(X.columns) 
-        
-    if inplace : 
-        X[columns_to_skip] = X[columns_to_skip].apply (
-            ufunc , **kws)
-        X.drop (columns = cskip , inplace =True )
-        return 
-    if not inplace: 
-        X0 = X.copy() 
-        X0[columns_to_skip] = X0[columns_to_skip].apply (
-            ufunc , **kws)
-    
-        return  X0   
-    
+        columns_to_skip = is_in_if(
+            X.columns, columns_to_skip, return_diff=True
+        )
+        if len(columns_to_skip) == len(X.columns):
+            warnings.warn(
+                "Value(s) to skip are not detected.",
+                stacklevel=2,
+            )
+    elif columns_to_skip is None:
+        columns_to_skip = list(X.columns)
+
+    if inplace:
+        X[columns_to_skip] = X[columns_to_skip].apply(
+            ufunc, **kws
+        )
+        X.drop(columns=cskip, inplace=True)
+        return
+    if not inplace:
+        X0 = X.copy()
+        X0[columns_to_skip] = X0[columns_to_skip].apply(
+            ufunc, **kws
+        )
+
+        return X0
+
+
 def concat_array_from_list(list_of_array, concat_axis=0):
     """
     Concatenate arrays from a list and replace `None` values with `NaN`.
@@ -3238,16 +3562,16 @@ def concat_array_from_list(list_of_array, concat_axis=0):
     Parameters
     ----------
     list_of_array : list of array-like
-        A list containing arrays that will be concatenated. If an element 
+        A list containing arrays that will be concatenated. If an element
         is `None`, it will be replaced with a `NaN` array.
     concat_axis : int, optional
-        The axis along which to concatenate the arrays. Must be either `0` 
+        The axis along which to concatenate the arrays. Must be either `0`
         (rows) or `1` (columns). Default is `0`.
 
     Returns
     -------
     np.ndarray
-        The concatenated array with shape determined by the length of the 
+        The concatenated array with shape determined by the length of the
         arrays in the list and the specified `concat_axis`.
 
     Raises
@@ -3276,51 +3600,81 @@ def concat_array_from_list(list_of_array, concat_axis=0):
 
     Notes
     -----
-    - The function will reshape one-dimensional arrays to two 
+    - The function will reshape one-dimensional arrays to two
       dimensions if necessary, depending on the `concat_axis` value.
-    - If the list contains only one array, it will return the reshaped 
+    - If the list contains only one array, it will return the reshaped
       array without concatenation.
     """
-    concat_axis = int(_assert_all_types(concat_axis, int, float))
-    
+    concat_axis = int(
+        _assert_all_types(concat_axis, int, float)
+    )
+
     if concat_axis not in (0, 1):
-        raise ValueError(f'Unable to understand axis: {str(concat_axis)!r}')
-    
+        raise ValueError(
+            f"Unable to understand axis: {str(concat_axis)!r}"
+        )
+
     # Replace None with NaN arrays
-    list_of_array = list(map(
-        lambda e: np.array([np.nan]) if e is None else np.array(e), 
-        list_of_array
-    ))
+    list_of_array = list(
+        map(
+            lambda e: np.array([np.nan])
+            if e is None
+            else np.array(e),
+            list_of_array,
+        )
+    )
 
     # If the list has only one element, reshape it accordingly
     if len(list_of_array) == 1:
-        ar = (list_of_array[0].reshape(
-                (1, len(list_of_array[0]))
-            ) if concat_axis == 0 else list_of_array[0].reshape(
-                (len(list_of_array[0]), 1)
+        ar = (
+            (
+                list_of_array[0].reshape(
+                    (1, len(list_of_array[0]))
+                )
+                if concat_axis == 0
+                else list_of_array[0].reshape(
+                    (len(list_of_array[0]), 1)
+                )
             )
-        ) if list_of_array[0].ndim == 1 else list_of_array[0]
+            if list_of_array[0].ndim == 1
+            else list_of_array[0]
+        )
         return ar
 
     # Reshape arrays if necessary before concatenation
-    list_of_array = list(map(
-        lambda e: e.reshape(e.shape[0], 1) if e.ndim == 1 else e, 
-        list_of_array
-    )) if concat_axis == 1 else list(map(
-        lambda e: e.reshape(1, e.shape[0]) if e.ndim == 1 else e, 
-        list_of_array
-    ))
+    list_of_array = (
+        list(
+            map(
+                lambda e: e.reshape(e.shape[0], 1)
+                if e.ndim == 1
+                else e,
+                list_of_array,
+            )
+        )
+        if concat_axis == 1
+        else list(
+            map(
+                lambda e: e.reshape(1, e.shape[0])
+                if e.ndim == 1
+                else e,
+                list_of_array,
+            )
+        )
+    )
 
     return np.concatenate(list_of_array, axis=concat_axis)
 
+
 def drop_nan_in(
     *arrays: Union[np.ndarray, pd.DataFrame],
-    ref_array: Optional[Union[np.ndarray, pd.DataFrame]] = None,
+    ref_array: Optional[
+        Union[np.ndarray, pd.DataFrame]
+    ] = None,
     columns: Optional[List[str]] = None,
     reset_index: bool = True,
     axis: Union[int, str] = 0,
-    error: str = 'raise', 
-    solo_return=False, 
+    error: str = "raise",
+    solo_return=False,
 ) -> List[Union[np.ndarray, pd.DataFrame]]:
     """
     Drop rows or columns containing NaNs across multiple arrays consistently.
@@ -3496,20 +3850,25 @@ def drop_nan_in(
        Nature, vol. 585, no. 7825, 2020, pp. 357–362.
     """
     # Validate and standardize the axis parameter
-    axis = validate_axis(axis , accept_axis_none= False)
+    axis = validate_axis(axis, accept_axis_none=False)
 
     # Validate the error handling parameter
     error = error_policy(error)
-    
+
     # Ensure all arrays have the same size along the specified axis
     arrays = ensure_same_shape(
-        *arrays, axis = axis, ops ='validate', solo_return=False )
-    
+        *arrays, axis=axis, ops="validate", solo_return=False
+    )
+
     # Process the reference array if provided
-    ref_df, ref_is_df = _process_reference_array(ref_array, axis, reset_index)
+    ref_df, ref_is_df = _process_reference_array(
+        ref_array, axis, reset_index
+    )
 
     # Convert all input arrays to DataFrames for uniform processing
-    df_arrays, original_types = _convert_arrays_to_df(arrays, reset_index)
+    df_arrays, original_types = _convert_arrays_to_df(
+        arrays, reset_index
+    )
 
     # If ref_array is provided and not a DataFrame, convert it to DataFrame
     if ref_df is not None and not ref_is_df:
@@ -3520,46 +3879,55 @@ def drop_nan_in(
         df_arrays, ref_df, ref_is_df, columns, axis
     )
     # Identify the specific labels (indices or columns) to drop
-    labels_to_drop = na_mask[na_mask].index 
+    labels_to_drop = na_mask[na_mask].index
 
     # Drop the identified labels from each DataFrame
     processed_dfs = [
         _drop_labels_from_df(
-            df, labels_to_drop, 
-            axis, 
-            reset_index, 
-            ref_df, 
-            ref_is_df, 
-            error, 
-            df_arrays, 
-        ) for df in df_arrays
+            df,
+            labels_to_drop,
+            axis,
+            reset_index,
+            ref_df,
+            ref_is_df,
+            error,
+            df_arrays,
+        )
+        for df in df_arrays
     ]
 
     # Convert the processed DataFrames back to their original types
     final_arrays = _convert_back_to_original_types(
-        processed_dfs, original_types, solo_return, 
+        processed_dfs,
+        original_types,
+        solo_return,
     )
 
     return final_arrays
 
+
 def _process_reference_array(
     ref_array: Optional[Union[np.ndarray, pd.DataFrame]],
-    axis: int, 
-    reset_index : bool, 
+    axis: int,
+    reset_index: bool,
 ) -> Tuple[Optional[pd.DataFrame], bool]:
     """
     Process the reference array and determine its type.
     """
-    if isinstance (ref_array, (list, tuple)): 
-        ref_array = np.asarray( ref_array)
-        
+    if isinstance(ref_array, list | tuple):
+        ref_array = np.asarray(ref_array)
+
     if ref_array is not None:
         if isinstance(ref_array, pd.DataFrame):
-            if reset_index: 
-                ref_array.reset_index(drop=True, inplace =True)
+            if reset_index:
+                ref_array.reset_index(drop=True, inplace=True)
             return ref_array.copy(), True
         elif isinstance(ref_array, np.ndarray):
-            flattened = ref_array.flatten() if axis == 0 else ref_array
+            flattened = (
+                ref_array.flatten()
+                if axis == 0
+                else ref_array
+            )
             return flattened, False
         else:
             raise TypeError(
@@ -3573,7 +3941,7 @@ def _determine_na_mask(
     ref_df: Optional[pd.DataFrame],
     ref_is_df: bool,
     columns: Optional[List[str]],
-    axis: int
+    axis: int,
 ) -> pd.Series:
     """
     Determine which rows or columns contain NaNs based on the criteria.
@@ -3586,14 +3954,20 @@ def _determine_na_mask(
             if columns is not None:
                 # Check if all specified columns exist in the reference DataFrame
                 missing_cols = [
-                    col for col in columns if col not in ref_df.columns
+                    col
+                    for col in columns
+                    if col not in ref_df.columns
                 ]
                 if missing_cols:
                     raise ValueError(
                         f"Columns {missing_cols} not found in reference DataFrame"
                     )
                 # Identify rows or columns with NaNs in specified columns
-                na_mask = ref_df[columns].isna().any(axis=pandas_axis)
+                na_mask = (
+                    ref_df[columns]
+                    .isna()
+                    .any(axis=pandas_axis)
+                )
             else:
                 # Identify rows or columns with any NaNs in the reference DataFrame
                 na_mask = ref_df.isna().any(axis=pandas_axis)
@@ -3604,7 +3978,9 @@ def _determine_na_mask(
                 )
             # Identify rows or columns with NaNs in the reference ndarray
             na_mask = pd.Series(
-                np.isnan(ref_df) if axis == 0 else np.isnan(ref_df).any(axis=0)
+                np.isnan(ref_df)
+                if axis == 0
+                else np.isnan(ref_df).any(axis=0)
             )
     else:
         # Combine NaN masks from all arrays
@@ -3613,20 +3989,29 @@ def _determine_na_mask(
             if columns is not None:
                 # Check if all specified columns exist in the current DataFrame
                 missing_cols = [
-                    col for col in columns if col not in df.columns
+                    col
+                    for col in columns
+                    if col not in df.columns
                 ]
                 if missing_cols:
                     raise ValueError(
                         f"Columns {missing_cols} not found in one of the DataFrames"
                     )
                 # Identify rows or columns with NaNs in specified columns
-                na_masks.append(df[columns].isna().any(axis=pandas_axis))
+                na_masks.append(
+                    df[columns].isna().any(axis=pandas_axis)
+                )
             else:
                 # Identify rows or columns with any NaNs in the current DataFrame
-                na_masks.append(df.isna().any(axis=pandas_axis))
+                na_masks.append(
+                    df.isna().any(axis=pandas_axis)
+                )
         # Combine all masks using logical OR to identify overall NaNs
-        na_mask = pd.concat(na_masks, axis=1).any(axis=0 if axis == 1 else 1)
+        na_mask = pd.concat(na_masks, axis=1).any(
+            axis=0 if axis == 1 else 1
+        )
     return na_mask
+
 
 def _drop_labels_from_df(
     df: pd.DataFrame,
@@ -3636,7 +4021,7 @@ def _drop_labels_from_df(
     ref_df: Optional[pd.DataFrame],
     ref_is_df: bool,
     error: str,
-    df_arrays:List[pd.DataFrame]
+    df_arrays: List[pd.DataFrame],
 ) -> pd.DataFrame:
     """
     Drop the specified labels from the DataFrame based on the axis.
@@ -3646,43 +4031,51 @@ def _drop_labels_from_df(
             # Dropping rows
             if reset_index:
                 # Drop rows and reset index
-                return df.drop(labels=labels_to_drop, axis=0).reset_index(drop=True)
-     
+                return df.drop(
+                    labels=labels_to_drop, axis=0
+                ).reset_index(drop=True)
+
             if ref_df is not None:
                 # Define the expected index based on the reference
-                expected_index = ref_df.index if ref_is_df else pd.RangeIndex(
-                    start=0, stop=len(df), step=1
+                expected_index = (
+                    ref_df.index
+                    if ref_is_df
+                    else pd.RangeIndex(
+                        start=0, stop=len(df), step=1
+                    )
                 )
                 if not df.index.equals(expected_index):
-                    if error == 'raise':
+                    if error == "raise":
                         raise ValueError(
                             "Indices of all arrays must match when "
                             "reset_index is False and ref_array is provided"
                         )
-                    elif error == 'warn':
+                    elif error == "warn":
                         warnings.warn(
                             "Indices do not match. Skipping drop for this array.",
-                            UserWarning
+                            UserWarning,
+                            stacklevel=2,
                         )
                         return df.copy()
-                    elif error == 'ignore':
+                    elif error == "ignore":
                         return df.copy()
                 # Drop rows based on labels_to_drop
                 return df.drop(labels=labels_to_drop, axis=0)
             else:
                 # Without ref_array, assume all DataFrames have the same index
                 if not df.index.equals(df_arrays[0].index):
-                    if error == 'raise':
+                    if error == "raise":
                         raise ValueError(
                             "All arrays must have the same index when reset_index is False"
                         )
-                    elif error == 'warn':
+                    elif error == "warn":
                         warnings.warn(
                             "Indices do not match. Skipping drop for this array.",
-                            UserWarning
+                            UserWarning,
+                            stacklevel=2,
                         )
                         return df.copy()
-                    elif error == 'ignore':
+                    elif error == "ignore":
                         return df.copy()
                 # Drop rows based on labels_to_drop
                 return df.drop(labels=labels_to_drop, axis=0)
@@ -3690,59 +4083,73 @@ def _drop_labels_from_df(
             # Dropping columns
             if reset_index:
                 # Drop columns and reset index
-                return df.drop(labels=labels_to_drop, axis=1).reset_index(drop=True)
-     
+                return df.drop(
+                    labels=labels_to_drop, axis=1
+                ).reset_index(drop=True)
+
             if ref_df is not None:
                 # Ensure columns to drop exist in the current DataFrame
-                existing_cols = labels_to_drop.intersection(df.columns)
-                missing_cols = labels_to_drop.difference(df.columns)
+                existing_cols = labels_to_drop.intersection(
+                    df.columns
+                )
+                missing_cols = labels_to_drop.difference(
+                    df.columns
+                )
                 if missing_cols:
-                    if error == 'raise':
+                    if error == "raise":
                         raise ValueError(
                             "Columns to drop not found in one of the "
                             "DataFrames when reset_index is False"
                         )
-                    elif error == 'warn':
+                    elif error == "warn":
                         warnings.warn(
                             f"Some columns to drop not found: {missing_cols}. "
                             f"Dropping existing columns: {existing_cols}",
-                            UserWarning
+                            UserWarning,
+                            stacklevel=2,
                         )
                 # Drop existing columns based on labels_to_drop
                 return df.drop(labels=existing_cols, axis=1)
             else:
                 # Without ref_array, assume all DataFrames have the same columns
-                if not df.columns.equals(df_arrays[0].columns):
-                    if error == 'raise':
+                if not df.columns.equals(
+                    df_arrays[0].columns
+                ):
+                    if error == "raise":
                         raise ValueError(
                             "All arrays must have the same columns when reset_index is False"
                         )
-                    elif error == 'warn':
+                    elif error == "warn":
                         warnings.warn(
                             "Columns do not match. Skipping drop for this array.",
-                            UserWarning
+                            UserWarning,
+                            stacklevel=2,
                         )
                         return df.copy()
-                    elif error == 'ignore':
+                    elif error == "ignore":
                         return df.copy()
                 # Drop columns based on labels_to_drop
                 return df.drop(labels=labels_to_drop, axis=1)
     except KeyError as e:
         # Handle KeyError based on the error parameter
-        if error == 'raise':
+        if error == "raise":
             raise ValueError(f"Key error while dropping: {e}")
-        elif error == 'warn':
+        elif error == "warn":
             warnings.warn(
                 f"Key error while dropping: {e}. Skipping drop for this array.",
-                UserWarning
+                UserWarning,
+                stacklevel=2,
             )
             return df.copy()
-        elif error == 'ignore':
+        elif error == "ignore":
             return df.copy()
 
+
 def _convert_arrays_to_df(
-    arrays: Tuple[Union[np.ndarray, pd.DataFrame, pd.Series], ...], 
-    reset_index: bool=True , 
+    arrays: Tuple[
+        Union[np.ndarray, pd.DataFrame, pd.Series], ...
+    ],
+    reset_index: bool = True,
 ) -> Tuple[List[pd.DataFrame], List[str]]:
     """
     Convert all input arrays to DataFrames and track their original types.
@@ -3764,39 +4171,42 @@ def _convert_arrays_to_df(
     df_arrays = []
     original_types = []
     for arr in arrays:
-        if isinstance (arr, (list, tuple)): 
+        if isinstance(arr, list | tuple):
             arr = np.asarray(arr)
-            
+
         if isinstance(arr, pd.DataFrame):
             # If the array is already a DataFrame, make a copy to avoid
             # modifying the original data.
             df_arrays.append(arr.copy())
-            original_types.append('df')
+            original_types.append("df")
         elif isinstance(arr, pd.Series):
             # Convert Series to DataFrame with the Series name as the column name.
             df_arrays.append(arr.to_frame())
-            original_types.append('series')
+            original_types.append("series")
         elif isinstance(arr, np.ndarray):
             # Convert NumPy ndarray to DataFrame.
             df = pd.DataFrame(arr)
             df_arrays.append(df)
-            original_types.append('ndarray')
+            original_types.append("ndarray")
         else:
             # Raise an error if the array type is unsupported.
             raise TypeError(
                 "All arrays must be pandas DataFrames,"
                 " Series, or numpy ndarrays"
             )
-    if reset_index: 
-        # If reset index, reset index to avoid mismatching 
-        df_arrays = [df.reset_index (drop =True ) for df in df_arrays]
-        
+    if reset_index:
+        # If reset index, reset index to avoid mismatching
+        df_arrays = [
+            df.reset_index(drop=True) for df in df_arrays
+        ]
+
     return df_arrays, original_types
+
 
 def _convert_back_to_original_types(
     processed_dfs: List[pd.DataFrame],
-    original_types: List[str], 
-    solo_return: bool=False, 
+    original_types: List[str],
+    solo_return: bool = False,
 ) -> List[Union[np.ndarray, pd.DataFrame, pd.Series]]:
     """
     Convert the processed DataFrames back to their original types.
@@ -3809,9 +4219,9 @@ def _convert_back_to_original_types(
     original_types : List[str]
         A list indicating the original type of each DataFrame
         ('df' for DataFrame, 'ndarray' for NumPy ndarray, 'series' for Series).
-        
-    solo_return: bool, Default=False 
-       If ``True``, remove  the single array from the final processed list 
+
+    solo_return: bool, Default=False
+       If ``True``, remove  the single array from the final processed list
        and return it.
 
     Returns
@@ -3829,14 +4239,16 @@ def _convert_back_to_original_types(
         columns.
     """
     final_arrays = []
-    for df, original_type in zip(processed_dfs, original_types):
-        if original_type == 'df':
+    for df, original_type in zip(
+        processed_dfs, original_types, strict=False
+    ):
+        if original_type == "df":
             # If original was DataFrame, retain as DataFrame.
             final_arrays.append(df)
-        elif original_type == 'ndarray':
+        elif original_type == "ndarray":
             # If original was ndarray, convert DataFrame back to ndarray.
             final_arrays.append(df.to_numpy())
-        elif original_type == 'series':
+        elif original_type == "series":
             # If original was Series, convert DataFrame back to Series.
             if df.shape[1] == 1:
                 # Successfully convert to Series if only one column exists.
@@ -3845,7 +4257,13 @@ def _convert_back_to_original_types(
                 # If all columns were dropped, return an empty
                 # Series with the original name.
                 final_arrays.append(
-                    pd.Series([], name=df.columns[0] if not df.empty else None))
+                    pd.Series(
+                        [],
+                        name=df.columns[0]
+                        if not df.empty
+                        else None,
+                    )
+                )
             else:
                 # Raise an error if multiple columns exist, cannot convert to Series.
                 raise ValueError(
@@ -3856,17 +4274,18 @@ def _convert_back_to_original_types(
             raise TypeError(
                 f"Unsupported original type '{original_type}'."
             )
-    if solo_return and len(final_arrays)==1: 
-        return final_arrays [0]
-    
+    if solo_return and len(final_arrays) == 1:
+        return final_arrays[0]
+
     return final_arrays
+
 
 def array_preserver(
     *arrays: Any,
-    action: str = 'collect',
-    error: str = 'warn',
-    deep_restore: bool = False, 
-    solo_return: bool=True, 
+    action: str = "collect",
+    error: str = "warn",
+    deep_restore: bool = False,
+    solo_return: bool = True,
 ) -> Union[Dict[str, List[Any]], List[Any]]:
     """
     Collect and restore array-like objects while preserving their 
@@ -4027,16 +4446,18 @@ def array_preserver(
     """
 
     # Validate the 'action' parameter
-    if action not in ['collect', 'restore']:
-        raise ValueError("Invalid action. Choose 'collect' or 'restore'.")
+    if action not in ["collect", "restore"]:
+        raise ValueError(
+            "Invalid action. Choose 'collect' or 'restore'."
+        )
 
     # Define acceptable error handling modes
-    if error not in ['raise', 'warn', 'ignore']:
+    if error not in ["raise", "warn", "ignore"]:
         raise ValueError(
             "Invalid error handling mode. Choose from 'raise', 'warn', or 'ignore'."
         )
 
-    if action == 'collect':
+    if action == "collect":
         processed: List[Any] = []
         metadata: List[Dict[str, Any]] = []
 
@@ -4045,36 +4466,38 @@ def array_preserver(
 
             # Determine the type and capture relevant metadata
             if isinstance(arr, pd.DataFrame):
-                meta['type'] = 'DataFrame'
-                meta['columns'] = arr.columns.tolist()
-                meta['index'] = arr.index.tolist()
+                meta["type"] = "DataFrame"
+                meta["columns"] = arr.columns.tolist()
+                meta["index"] = arr.index.tolist()
 
             elif isinstance(arr, pd.Series):
-                meta['type'] = 'Series'
-                meta['name'] = arr.name
-                meta['index'] = arr.index.tolist()
+                meta["type"] = "Series"
+                meta["name"] = arr.name
+                meta["index"] = arr.index.tolist()
 
             elif isinstance(arr, list):
-                meta['type'] = 'list'
+                meta["type"] = "list"
 
             elif isinstance(arr, tuple):
-                meta['type'] = 'tuple'
+                meta["type"] = "tuple"
 
             elif isinstance(arr, np.ndarray):
-                meta['type'] = 'ndarray'
-                meta['shape'] = arr.shape
+                meta["type"] = "ndarray"
+                meta["shape"] = arr.shape
 
             else:
-                meta['type'] = type(arr).__name__
+                meta["type"] = type(arr).__name__
 
             # Store the array as-is
-            processed_arr = arr.copy() if hasattr(arr, 'copy') else arr
+            processed_arr = (
+                arr.copy() if hasattr(arr, "copy") else arr
+            )
             processed.append(processed_arr)
             metadata.append(meta)
 
-        return {'processed': processed, 'metadata': metadata}
+        return {"processed": processed, "metadata": metadata}
 
-    elif action == 'restore':
+    elif action == "restore":
         # Expect exactly one argument: the container with 'processed' and 'metadata'
         if len(arrays) != 1:
             raise ValueError(
@@ -4089,38 +4512,60 @@ def array_preserver(
                 "For 'restore' action, the container must be a dictionary"
                 " with 'processed' and 'metadata' keys."
             )
-        if 'processed' not in container or 'metadata' not in container:
+        if (
+            "processed" not in container
+            or "metadata" not in container
+        ):
             raise ValueError(
-                "The container must have 'processed' and 'metadata' keys.")
+                "The container must have 'processed' and 'metadata' keys."
+            )
 
-        processed: List[Any] = container['processed']
-        metadata: List[Dict[str, Any]] = container['metadata']
+        processed: List[Any] = container["processed"]
+        metadata: List[Dict[str, Any]] = container["metadata"]
 
-        if not isinstance(processed, list) or not isinstance(metadata, list):
+        if not isinstance(processed, list) or not isinstance(
+            metadata, list
+        ):
             raise ValueError(
-                "'processed' and 'metadata' must be lists within the container.")
+                "'processed' and 'metadata' must be lists within the container."
+            )
 
         restored: List[Any] = []
 
-        for proc_arr, meta in zip(processed, metadata):
-            orig_type = meta.get('type')
+        for proc_arr, meta in zip(
+            processed, metadata, strict=False
+        ):
+            orig_type = meta.get("type")
 
             try:
-                if orig_type == 'DataFrame':
+                if orig_type == "DataFrame":
                     # Restore Pandas DataFrame
-                    columns = meta.get('columns')
-                    index = meta.get('index') if deep_restore else None
-                    df = pd.DataFrame(proc_arr, columns=columns)
+                    columns = meta.get("columns")
+                    index = (
+                        meta.get("index")
+                        if deep_restore
+                        else None
+                    )
+                    df = pd.DataFrame(
+                        proc_arr, columns=columns
+                    )
                     if deep_restore and index is not None:
                         df.index = index
                     restored.append(df)
 
-                elif orig_type == 'Series':
+                elif orig_type == "Series":
                     # Restore Pandas Series
-                    name = meta.get('name')
-                    index = meta.get('index') if deep_restore else None
+                    name = meta.get("name")
+                    index = (
+                        meta.get("index")
+                        if deep_restore
+                        else None
+                    )
 
-                    if isinstance(proc_arr, pd.DataFrame) and proc_arr.shape[1] == 1:
+                    if (
+                        isinstance(proc_arr, pd.DataFrame)
+                        and proc_arr.shape[1] == 1
+                    ):
                         # Convert single-column DataFrame back to Series
                         s = proc_arr.iloc[:, 0]
                         if deep_restore and index is not None:
@@ -4146,8 +4591,8 @@ def array_preserver(
                     elif isinstance(proc_arr, list):
                         # Convert list to Series
                         s = pd.Series(proc_arr, name=name)
-                        if deep_restore and 'index' in meta:
-                            s.index = meta['index']
+                        if deep_restore and "index" in meta:
+                            s.index = meta["index"]
                         restored.append(s)
 
                     else:
@@ -4157,15 +4602,15 @@ def array_preserver(
                             s.index = index
                         restored.append(s)
 
-                elif orig_type == 'list':
+                elif orig_type == "list":
                     # Restore list
                     restored.append(list(proc_arr))
 
-                elif orig_type == 'tuple':
+                elif orig_type == "tuple":
                     # Restore tuple
                     restored.append(tuple(proc_arr))
 
-                elif orig_type == 'ndarray':
+                elif orig_type == "ndarray":
                     # Restore NumPy ndarray
                     restored.append(proc_arr)
 
@@ -4174,28 +4619,31 @@ def array_preserver(
                     restored.append(proc_arr)
 
             except Exception as e:
-                message = f"Failed to restore {orig_type}: {e}"
-                if error == 'raise':
+                message = (
+                    f"Failed to restore {orig_type}: {e}"
+                )
+                if error == "raise":
                     raise ValueError(message)
-                elif error == 'warn':
-                    warnings.warn(message)
+                elif error == "warn":
+                    warnings.warn(message, stacklevel=2)
                     restored.append(proc_arr)
-                elif error == 'ignore':
+                elif error == "ignore":
                     restored.append(proc_arr)
-        
-        if solo_return and len(restored) ==1: 
-            return restored[0] 
-        
+
+        if solo_return and len(restored) == 1:
+            return restored[0]
+
         return restored
+
 
 def index_based_selector(
     *dfs,
     ref_df,
     reset_index: bool = False,
-    error: str = 'raise',
+    error: str = "raise",
     as_series: bool = True,
     return_ref: bool = False,
-    check_size: bool = False
+    check_size: bool = False,
 ):
     """
     Align multiple dataframes to the index of a reference dataframe
@@ -4223,7 +4671,7 @@ def index_based_selector(
         ``ref_df``. These dataframes must be validated as real
         DataFrame objects. An error is raised if any is invalid
         unless otherwise specified by `check_size`.
-    
+
     ref_df : pandas.DataFrame
         The reference dataframe whose index determines the row
         selection. Rows in each dataframe from ``*dfs`` are
@@ -4237,7 +4685,7 @@ def index_based_selector(
     error : {'raise', 'warn', 'ignore'}, default='raise'
         Controls how to handle missing indices. If some reference
         indices are not found in a dataframe:
-        
+
         - ``'raise'``: Halt and raise a ValueError.
         - ``'warn'``: Warn the user, skip the missing indices,
           and continue.
@@ -4343,13 +4791,13 @@ def index_based_selector(
     #    they're DataFrames and optionally check if they have the same
     #    length if `check_size=True`. The `error='raise'` here means
     #    that any invalid condition immediately raises an error.
-    
-    dfs= are_all_frames_valid(
+
+    dfs = are_all_frames_valid(
         *dfs,
         df_only=True,
-        check_size=check_size, 
-        to_df =True, 
-        ops='validate', 
+        check_size=check_size,
+        to_df=True,
+        ops="validate",
     )
 
     # 2) If `reset_index` is True, reset the index of `ref_df` and
@@ -4382,18 +4830,19 @@ def index_based_selector(
 
         # If there are missing indexes, handle according to `error`.
         if not missing_idx.empty:
-            if error == 'raise':
+            if error == "raise":
                 raise ValueError(
                     f"Reference index not fully found in "
                     f"DataFrame at position {idx}. Missing "
                     f"indices: {list(missing_idx)}."
                 )
-            elif error == 'warn':
+            elif error == "warn":
                 warnings.warn(
                     f"Some indices from reference dataframe not "
                     f"found in DataFrame at position {idx}. "
                     f"Missing: {list(missing_idx)}. Those indices "
-                    f"are skipped."
+                    f"are skipped.",
+                    stacklevel=2,
                 )
 
         # Subset the dataframe by intersection with reference index.
@@ -4425,10 +4874,11 @@ def index_based_selector(
 
     return out_dfs
 
+
 def to_series(
     data,
     name=None,
-    handle_2d="raise", 
+    handle_2d="raise",
 ):
     """
     Convert the provided data to a one-dimensional pandas Series,
@@ -4540,9 +4990,9 @@ def to_series(
     # then extract that column as a Series.
     if isinstance(data, pd.DataFrame):
         if data.shape[1] != 1:
-            if handle_2d=="passthrough": 
-                return data 
-            
+            if handle_2d == "passthrough":
+                return data
+
             raise ValueError(
                 "DataFrame must have exactly one"
                 " column to be converted to Series."
@@ -4552,12 +5002,12 @@ def to_series(
         # If user provided a name, use it; otherwise use the column name.
         if name is not None:
             s = s.rename(name)
-        else: 
-            s = pd.Series (s, name = series_col, index=s.index)
+        else:
+            s = pd.Series(s, name=series_col, index=s.index)
         return s
 
     # If data is a list or tuple, convert to a numpy array for uniform handling.
-    if isinstance(data, (list, tuple)):
+    if isinstance(data, list | tuple):
         data = np.array(data)
 
     # If data is a numpy array, ensure it is one-dimensional or reshaped to (n,).
@@ -4569,17 +5019,17 @@ def to_series(
             elif data.shape[1] == 1 and data.shape[0] >= 1:
                 data = data.reshape(-1)
             else:
-                if handle_2d=="passthrough": 
-                    return data 
-                
+                if handle_2d == "passthrough":
+                    return data
+
                 raise ValueError(
                     "NumPy array must be one-dimensional or reshapeable to (n,). "
                     f"Current shape: {data.shape}"
                 )
         elif len(data.shape) > 2:
-            if handle_2d=="passthrough": 
-                return data 
-            
+            if handle_2d == "passthrough":
+                return data
+
             raise ValueError(
                 "NumPy array must be one-dimensional or reshapeable to (n,). "
                 f"Current shape: {data.shape}"
@@ -4593,56 +5043,71 @@ def to_series(
     raise ValueError(
         f"Cannot convert data of type {type(data)} to a Series."
     )
-    
+
+
 def return_if_preserver_failed(
-    d, to_numpy=False, 
-    error="ignore", 
-    verbose=0
-    ):
-    """ Return processed data types as is if failed to convert to its original 
+    d, to_numpy=False, error="ignore", verbose=0
+):
+    """Return processed data types as is if failed to convert to its original
     types with :func:`array_preserver`."""
-    
-    
-    emsg =("Array preserver failed to properly revert the processed"
-          f" data type {type(d).__name__!r} to its original types.")
-    
-    if error =='raise': 
-        raise TypeError(emsg) 
-    elif error=='warn': 
-        warnings.warn(emsg) 
-        
-    # Check for DataFrame input    
-    if isinstance(d, pd.DataFrame): 
-        if d.shape[1] == 1: 
+
+    emsg = (
+        "Array preserver failed to properly revert the processed"
+        f" data type {type(d).__name__!r} to its original types."
+    )
+
+    if error == "raise":
+        raise TypeError(emsg)
+    elif error == "warn":
+        warnings.warn(emsg, stacklevel=2)
+
+    # Check for DataFrame input
+    if isinstance(d, pd.DataFrame):
+        if d.shape[1] == 1:
             if verbose > 0:
-                print("Converting DataFrame with 1 column to Series.")
-            d = to_series(d)  # Convert DataFrame with 1 column to Series
-            
+                print(
+                    "Converting DataFrame with 1 column to Series."
+                )
+            d = to_series(
+                d
+            )  # Convert DataFrame with 1 column to Series
+
         # Handle numpy conversion
         if to_numpy:
             if verbose > 0:
                 print("Converting to numpy array.")
-            return d.to_numpy() if not isinstance(d, np.ndarray) else d
+            return (
+                d.to_numpy()
+                if not isinstance(d, np.ndarray)
+                else d
+            )
         return d
-    
+
     # Handle non-DataFrame inputs and conversion to numpy
     if to_numpy:
         if verbose > 0:
             print("Converting input to numpy array.")
-        return np.asarray(d) if not isinstance(d, np.ndarray) else d
-    
+        return (
+            np.asarray(d)
+            if not isinstance(d, np.ndarray)
+            else d
+        )
+
     # Handle invalid types with error handling
-    if not isinstance(d, (np.ndarray, pd.Series, pd.DataFrame, list, tuple)):
+    if not isinstance(
+        d,
+        np.ndarray | pd.Series | pd.DataFrame | list | tuple,
+    ):
         msg = "Invalid input type: Expected a DataFrame, Series, ndarray, or list."
-        
+
         if verbose > 0:
             print(f"{msg}")
-        
+
         if error == "raise":
             raise ValueError(msg)
         elif error == "warn":
-            warnings.warn(msg, UserWarning)
+            warnings.warn(msg, UserWarning, stacklevel=2)
         elif error == "ignore":
             return d  # Return the original value if error is ignored
-    
+
     return d

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -9,11 +8,10 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import List, Optional, Tuple
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 
 from . import config as cfg
@@ -26,7 +24,7 @@ def robust_trend(
     *,
     nbins: int = 30,
     min_n: int = 20,
-) -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
+) -> tuple[np.ndarray | None, np.ndarray | None]:
     xv = pd.to_numeric(x, errors="coerce").to_numpy()
     yv = pd.to_numeric(y, errors="coerce").to_numpy()
 
@@ -40,8 +38,8 @@ def robust_trend(
     q = np.linspace(0.0, 1.0, nbins + 1)
     bx = np.quantile(xv, q)
 
-    xi: List[float] = []
-    yi: List[float] = []
+    xi: list[float] = []
+    yi: list[float] = []
 
     for k in range(nbins):
         lo = bx[k]
@@ -127,8 +125,8 @@ def _panel(
 def plot_driver_response(
     df: pd.DataFrame,
     *,
-    cities: List[str],
-    drivers: List[str],
+    cities: list[str],
+    drivers: list[str],
     ycol: str,
     sharey: str,
     out: str,
@@ -142,7 +140,7 @@ def plot_driver_response(
     show_ticklabels: bool,
     show_title: bool,
     show_panel_titles: bool,
-    title: Optional[str],
+    title: str | None,
 ) -> None:
     utils.ensure_script_dirs()
     utils.set_paper_style()
@@ -161,9 +159,8 @@ def plot_driver_response(
         hspace=0.35,
     )
 
-    axes: List[List[object]] = [
-        [None for _ in range(ncols)]
-        for _ in range(nrows)
+    axes: list[list[object]] = [
+        [None for _ in range(ncols)] for _ in range(nrows)
     ]
 
     axes[0][0] = fig.add_subplot(gs[0, 0])
@@ -191,7 +188,9 @@ def plot_driver_response(
         dfi = df.loc[df["city"] == city].copy()
 
         for j, xcol in enumerate(drivers):
-            show_ylabel = (j == 0) and (sharey != "all" or i == 0)
+            show_ylabel = (j == 0) and (
+                sharey != "all" or i == 0
+            )
 
             hb = _panel(
                 axes[i][j],
@@ -257,7 +256,7 @@ def plot_driver_response(
     print(f"[OK] wrote {base}.png/.svg")
 
 
-def _parse_list(s: str) -> List[str]:
+def _parse_list(s: str) -> list[str]:
     parts = [p.strip() for p in str(s).split(",")]
     return [p for p in parts if p]
 
@@ -370,7 +369,7 @@ def _add_plot_driver_response_args(ap) -> None:
 
 
 def plot_driver_response_main(
-    argv: Optional[List[str]] = None,
+    argv: list[str] | None = None,
 ) -> None:
     ap = argparse.ArgumentParser(
         prog="plot-driver-response",
@@ -458,8 +457,9 @@ def plot_driver_response_main(
         show_panel_titles=show_panels,
         title=args.title,
     )
-    
-def main(argv: Optional[List[str]] = None) -> None:
+
+
+def main(argv: list[str] | None = None) -> None:
     plot_driver_response_main(argv)
 
 

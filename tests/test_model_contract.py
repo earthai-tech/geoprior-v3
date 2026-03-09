@@ -10,12 +10,26 @@ mod = import_module_group("models")
 GeoPriorSubsNet = mod.GeoPriorSubsNet
 
 
-def test_export_physics_payload_delegates_to_helpers(monkeypatch, tmp_path: Path):
+def test_export_physics_payload_delegates_to_helpers(
+    monkeypatch, tmp_path: Path
+):
     calls = []
-    base_payload = {"tau": [1, 2], "metrics": {"eps_prior_rms": 0.0}}
+    base_payload = {
+        "tau": [1, 2],
+        "metrics": {"eps_prior_rms": 0.0},
+    }
 
-    def fake_gather(self, dataset, max_batches, float_dtype, log_fn, **kwargs):
-        calls.append(("gather", dataset, max_batches, float_dtype))
+    def fake_gather(
+        self,
+        dataset,
+        max_batches,
+        float_dtype,
+        log_fn,
+        **kwargs,
+    ):
+        calls.append(
+            ("gather", dataset, max_batches, float_dtype)
+        )
         return dict(base_payload)
 
     def fake_subsample(payload, frac):
@@ -28,14 +42,26 @@ def test_export_physics_payload_delegates_to_helpers(monkeypatch, tmp_path: Path
         calls.append(("meta",))
         return {"source": "auto"}
 
-    def fake_save(payload, meta, save_path, format, overwrite, log_fn):
-        calls.append(("save", save_path, format, overwrite, meta))
+    def fake_save(
+        payload, meta, save_path, format, overwrite, log_fn
+    ):
+        calls.append(
+            ("save", save_path, format, overwrite, meta)
+        )
         return str(save_path)
 
-    monkeypatch.setattr(mod, "gather_physics_payload", fake_gather)
-    monkeypatch.setattr(mod, "_maybe_subsample", fake_subsample)
-    monkeypatch.setattr(mod, "default_meta_from_model", fake_default_meta)
-    monkeypatch.setattr(mod, "save_physics_payload", fake_save)
+    monkeypatch.setattr(
+        mod, "gather_physics_payload", fake_gather
+    )
+    monkeypatch.setattr(
+        mod, "_maybe_subsample", fake_subsample
+    )
+    monkeypatch.setattr(
+        mod, "default_meta_from_model", fake_default_meta
+    )
+    monkeypatch.setattr(
+        mod, "save_physics_payload", fake_save
+    )
 
     dummy = DummyModel()
     save_path = tmp_path / "physics_payload.npz"
@@ -59,18 +85,24 @@ def test_export_physics_payload_delegates_to_helpers(monkeypatch, tmp_path: Path
     assert calls[3][4]["city"] == "nansha"
 
 
-def test_load_physics_payload_staticmethod_forwards(monkeypatch):
+def test_load_physics_payload_staticmethod_forwards(
+    monkeypatch,
+):
     monkeypatch.setattr(
         mod,
         "load_physics_payload",
         lambda path: ({"ok": True}, {"path": path}),
     )
-    payload, meta = GeoPriorSubsNet.load_physics_payload("demo.npz")
+    payload, meta = GeoPriorSubsNet.load_physics_payload(
+        "demo.npz"
+    )
     assert payload["ok"] is True
     assert meta["path"] == "demo.npz"
 
 
-def test_from_config_deserializes_and_drops_legacy_keys(monkeypatch):
+def test_from_config_deserializes_and_drops_legacy_keys(
+    monkeypatch,
+):
     class FakeGeoPrior(GeoPriorSubsNet):
         def __init__(self, **kwargs):
             self.received = kwargs
@@ -78,7 +110,9 @@ def test_from_config_deserializes_and_drops_legacy_keys(monkeypatch):
     monkeypatch.setattr(
         mod,
         "deserialize_keras_object",
-        lambda obj, custom_objects=None: {"deserialized": obj["class_name"]},
+        lambda obj, custom_objects=None: {
+            "deserialized": obj["class_name"]
+        },
     )
 
     cfg = {
@@ -87,8 +121,14 @@ def test_from_config_deserializes_and_drops_legacy_keys(monkeypatch):
         "future_input_dim": 3,
         "time_units": "year",
         "mv": {"class_name": "LearnableMV", "config": {}},
-        "kappa": {"class_name": "LearnableKappa", "config": {}},
-        "gamma_w": {"class_name": "FixedGammaW", "config": {}},
+        "kappa": {
+            "class_name": "LearnableKappa",
+            "config": {},
+        },
+        "gamma_w": {
+            "class_name": "FixedGammaW",
+            "config": {},
+        },
         "h_ref": {"class_name": "FixedHRef", "config": {}},
         "scaling_kwargs": {
             "class_name": "GeoPriorScalingConfig",
@@ -105,8 +145,12 @@ def test_from_config_deserializes_and_drops_legacy_keys(monkeypatch):
 
     obj = FakeGeoPrior.from_config(dict(cfg))
 
-    assert obj.received["mv"] == {"deserialized": "LearnableMV"}
-    assert obj.received["kappa"] == {"deserialized": "LearnableKappa"}
+    assert obj.received["mv"] == {
+        "deserialized": "LearnableMV"
+    }
+    assert obj.received["kappa"] == {
+        "deserialized": "LearnableKappa"
+    }
     assert obj.received["scaling_kwargs"] == {
         "deserialized": "GeoPriorScalingConfig"
     }
@@ -139,7 +183,9 @@ def test_model_smoke_init_and_config_roundtrip():
             verbose=0,
         )
     except Exception as exc:  # pragma: no cover
-        pytest.skip(f"Full model stack not available for smoke test: {exc}")
+        pytest.skip(
+            f"Full model stack not available for smoke test: {exc}"
+        )
 
     cfg = model.get_config()
     assert cfg["output_subsidence_dim"] == 1
@@ -148,6 +194,8 @@ def test_model_smoke_init_and_config_roundtrip():
     try:
         rebuilt = type(model).from_config(dict(cfg))
     except Exception as exc:  # pragma: no cover
-        pytest.skip(f"Roundtrip needs full serialization stack: {exc}")
+        pytest.skip(
+            f"Roundtrip needs full serialization stack: {exc}"
+        )
 
     assert isinstance(rebuilt, GeoPriorSubsNet)

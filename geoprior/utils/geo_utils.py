@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # https://lkouadio.com
@@ -6,24 +5,29 @@
 # Author: LKouadio <etanoyau@gmail.com>
 
 
-from __future__ import annotations 
+from __future__ import annotations
 
 import os
-from typing import List, Optional, Dict, Any, Iterable, Union,  Literal
-import warnings 
+import warnings
+from collections.abc import Iterable
 from pathlib import Path
-import pandas as pd
+from typing import (
+    Any,
+    Literal,
+    Union,
+)
+
 import numpy as np
+import pandas as pd
 
-from ..logging import get_logger 
-from ..core.checks import ( 
-    exist_features, 
-    check_spatial_columns 
-    )
+from ..core.checks import (
+    check_spatial_columns,
+    exist_features,
+)
 from ..core.handlers import columns_manager
-from ..core.io import SaveFile 
-
-from .generic_utils import vlog 
+from ..core.io import SaveFile
+from ..logging import get_logger
+from .generic_utils import vlog
 
 logger = get_logger(__name__)
 
@@ -32,17 +36,19 @@ DataSource = Union[PathLike, pd.DataFrame]
 
 
 __all__ = [
-    'augment_city_spatiotemporal_data','augment_series_features',
-    'augment_spatiotemporal_data','generate_dummy_pinn_data',
-    'interpolate_temporal_gaps', 'resolve_spatial_columns', 
-    'merge_frames_to_file', 'unpack_frames_from_file'
-    ]
+    "augment_city_spatiotemporal_data",
+    "augment_series_features",
+    "augment_spatiotemporal_data",
+    "generate_dummy_pinn_data",
+    "interpolate_temporal_gaps",
+    "resolve_spatial_columns",
+    "merge_frames_to_file",
+    "unpack_frames_from_file",
+]
+
 
 def resolve_spatial_columns(
-    df,
-    spatial_cols=None,
-    lon_col=None,
-    lat_col=None
+    df, spatial_cols=None, lon_col=None, lat_col=None
 ):
     """
     Helper to validate and resolve spatial columns.
@@ -85,29 +91,24 @@ def resolve_spatial_columns(
             warnings.warn(
                 "Both lon_col/lat_col and spatial_cols set;"
                 " spatial_cols will be ignored.",
-                UserWarning
+                UserWarning,
+                stacklevel=2,
             )
         exist_features(
             df,
             features=[lon_col, lat_col],
-            name="Longitude/Latitude"
+            name="Longitude/Latitude",
         )
         return lon_col, lat_col
 
     # Case 2: spatial_cols provided
     if spatial_cols:
         spatial_cols = columns_manager(
-            spatial_cols,
-            empty_as_none=False
+            spatial_cols, empty_as_none=False
         )
-        check_spatial_columns(
-            df,
-            spatial_cols=spatial_cols
-        )
+        check_spatial_columns(df, spatial_cols=spatial_cols)
         exist_features(
-            df,
-            features=spatial_cols,
-            name="Spatial columns"
+            df, features=spatial_cols, name="Spatial columns"
         )
         if len(spatial_cols) != 2:
             raise ValueError(
@@ -123,17 +124,18 @@ def resolve_spatial_columns(
         " must be provided."
     )
 
-@SaveFile 
+
+@SaveFile
 def interpolate_temporal_gaps(
     series_df: pd.DataFrame,
     time_col: str,
-    value_cols: List[str],
-    freq: Optional[str] = None,
-    method: str = 'linear',
-    order: Optional[int] = None,
-    fill_limit: Optional[int] = None,
-    fill_limit_direction: str = 'forward', 
-    savefile: Optional[str] =None, 
+    value_cols: list[str],
+    freq: str | None = None,
+    method: str = "linear",
+    order: int | None = None,
+    fill_limit: int | None = None,
+    fill_limit_direction: str = "forward",
+    savefile: str | None = None,
 ) -> pd.DataFrame:
     r"""
     Interpolates missing values in specified columns of a time series
@@ -249,12 +251,15 @@ def interpolate_temporal_gaps(
     pandas.DataFrame.asfreq : Reindex DataFrame to fixed frequency.
     """
     if not isinstance(series_df, pd.DataFrame):
-        raise TypeError("Input 'series_df' must be a pandas DataFrame.")
-    if (
-        not isinstance(value_cols, list)
-        or not all(isinstance(col, str) for col in value_cols)
+        raise TypeError(
+            "Input 'series_df' must be a pandas DataFrame."
+        )
+    if not isinstance(value_cols, list) or not all(
+        isinstance(col, str) for col in value_cols
     ):
-        raise TypeError("'value_cols' must be a list of strings.")
+        raise TypeError(
+            "'value_cols' must be a list of strings."
+        )
     if time_col not in series_df.columns:
         raise ValueError(
             f"Time column '{time_col}' not found in DataFrame."
@@ -276,9 +281,13 @@ def interpolate_temporal_gaps(
     df_interpolated = df_interpolated.sort_values(by=time_col)
     # Store original index name if it exists, to restore it later if needed.
     original_index_name = df_interpolated.index.name
-    df_interpolated = df_interpolated.set_index(time_col, drop=False)
+    df_interpolated = df_interpolated.set_index(
+        time_col, drop=False
+    )
 
-    original_columns = series_df.columns.tolist()  # Keep track of original columns
+    original_columns = (
+        series_df.columns.tolist()
+    )  # Keep track of original columns
 
     if freq:
         try:
@@ -304,11 +313,15 @@ def interpolate_temporal_gaps(
             # filled from the new index.
             if time_col not in df_interpolated.columns:
                 # if it was dropped
-                df_interpolated[time_col] = df_interpolated.index
+                df_interpolated[time_col] = (
+                    df_interpolated.index
+                )
             else:
                 # if it was kept, ensure it is also ffilled from the new
                 # index
-                df_interpolated[time_col] = df_interpolated.index
+                df_interpolated[time_col] = (
+                    df_interpolated.index
+                )
 
         except ValueError as e:
             logger.error(
@@ -338,7 +351,9 @@ def interpolate_temporal_gaps(
             f"these."
         )
         value_cols = [
-            vc for vc in value_cols if vc in df_interpolated.columns
+            vc
+            for vc in value_cols
+            if vc in df_interpolated.columns
         ]
 
     if not value_cols:
@@ -350,23 +365,27 @@ def interpolate_temporal_gaps(
         # ffilled
         # If not, it's a copy of series_df with sorted datetime index
         df_to_return = df_interpolated.reset_index(drop=True)
-        if original_index_name:  # Restore original index name if it existed
+        if (
+            original_index_name
+        ):  # Restore original index name if it existed
             df_to_return.index.name = original_index_name
         return df_to_return
 
     interpolate_kwargs = {
-        'method': method,
-        'limit': fill_limit,
-        'limit_direction': fill_limit_direction
+        "method": method,
+        "limit": fill_limit,
+        "limit_direction": fill_limit_direction,
     }
-    if method in ['polynomial', 'spline']:
+    if method in ["polynomial", "spline"]:
         if order is None:
             raise ValueError(
                 f"Order must be specified for '{method}' interpolation."
             )
-        interpolate_kwargs['order'] = order
-    if method == 'time':
-        if not isinstance(df_interpolated.index, pd.DatetimeIndex):
+        interpolate_kwargs["order"] = order
+    if method == "time":
+        if not isinstance(
+            df_interpolated.index, pd.DatetimeIndex
+        ):
             logger.warning(
                 "Interpolation method 'time' requires a DatetimeIndex. "
                 "Consider setting `freq` or ensuring `time_col` is a "
@@ -391,7 +410,9 @@ def interpolate_temporal_gaps(
 
     # Reset index to restore time_col as a column and get default integer index
     df_interpolated = df_interpolated.reset_index(drop=True)
-    if original_index_name:  # Restore original index name if it existed
+    if (
+        original_index_name
+    ):  # Restore original index name if it existed
         df_interpolated.index.name = original_index_name
 
     # Ensure original column order if possible, and all original columns
@@ -412,14 +433,14 @@ def interpolate_temporal_gaps(
     return df_interpolated[final_cols_ordered]
 
 
-@SaveFile 
+@SaveFile
 def augment_series_features(
     series_df: pd.DataFrame,
-    feature_cols: List[str],
+    feature_cols: list[str],
     noise_level: float = 0.01,
-    noise_type: str = 'gaussian',
-    random_seed: Optional[int] = None, 
-    savefile: Optional[str] =None,
+    noise_type: str = "gaussian",
+    random_seed: int | None = None,
+    savefile: str | None = None,
 ) -> pd.DataFrame:
     r"""
     Augments specified feature columns in a time series DataFrame by adding noise.
@@ -504,20 +525,27 @@ def augment_series_features(
     sklearn.utils.resample : Resampling utilities for data augmentation.
     """
     if not isinstance(series_df, pd.DataFrame):
-        raise TypeError("Input 'series_df' must be a pandas DataFrame.")
-    if (
-        not isinstance(feature_cols, list)
-        or not all(isinstance(col, str) for col in feature_cols)
+        raise TypeError(
+            "Input 'series_df' must be a pandas DataFrame."
+        )
+    if not isinstance(feature_cols, list) or not all(
+        isinstance(col, str) for col in feature_cols
     ):
-        raise TypeError("'feature_cols' must be a list of strings.")
+        raise TypeError(
+            "'feature_cols' must be a list of strings."
+        )
 
-    missing_cols = [col for col in feature_cols if col not in series_df.columns]
+    missing_cols = [
+        col
+        for col in feature_cols
+        if col not in series_df.columns
+    ]
     if missing_cols:
         raise ValueError(
             f"Feature columns not found in DataFrame: {missing_cols}"
         )
 
-    if noise_type not in ['gaussian', 'uniform']:
+    if noise_type not in ["gaussian", "uniform"]:
         raise ValueError(
             f"Invalid noise_type: '{noise_type}'. "
             "Choose 'gaussian' or 'uniform'."
@@ -529,7 +557,9 @@ def augment_series_features(
     df_augmented = series_df.copy()
 
     for col in feature_cols:
-        if not pd.api.types.is_numeric_dtype(df_augmented[col]):
+        if not pd.api.types.is_numeric_dtype(
+            df_augmented[col]
+        ):
             logger.warning(
                 f"Column '{col}' is not numeric. "
                 "Skipping noise augmentation for this column."
@@ -537,10 +567,12 @@ def augment_series_features(
             continue
 
         feature_values = df_augmented[col].values
-        if noise_type == 'gaussian':
+        if noise_type == "gaussian":
             # Scale noise by the standard deviation of the feature
             col_std = np.std(feature_values)
-            if col_std == 0 or np.isnan(col_std):  # Avoid division by zero
+            if col_std == 0 or np.isnan(
+                col_std
+            ):  # Avoid division by zero
                 noise = 0
                 if np.isnan(col_std):
                     logger.debug(
@@ -548,14 +580,18 @@ def augment_series_features(
                     )
             else:
                 noise = np.random.normal(
-                    0, col_std * noise_level, size=feature_values.shape
+                    0,
+                    col_std * noise_level,
+                    size=feature_values.shape,
                 )
-        elif noise_type == 'uniform':
+        elif noise_type == "uniform":
             # Scale noise by the range of the feature
             col_min = np.min(feature_values)
             col_max = np.max(feature_values)
             col_range = col_max - col_min
-            if col_range == 0 or np.isnan(col_range):  # Avoid zero range
+            if col_range == 0 or np.isnan(
+                col_range
+            ):  # Avoid zero range
                 noise = 0
                 if np.isnan(col_range):
                     logger.debug(
@@ -565,27 +601,28 @@ def augment_series_features(
                 noise = np.random.uniform(
                     -col_range * noise_level / 2.0,
                     col_range * noise_level / 2.0,
-                    size=feature_values.shape
+                    size=feature_values.shape,
                 )
 
-        df_augmented[col] = (
-            feature_values + noise.astype(feature_values.dtype)
+        df_augmented[col] = feature_values + noise.astype(
+            feature_values.dtype
         )  # Ensure dtype consistency
 
     return df_augmented
 
-@SaveFile 
+
+@SaveFile
 def augment_spatiotemporal_data(
     df: pd.DataFrame,
     mode: str,
-    group_by_cols: Optional[List[str]] = None,
-    time_col: Optional[str] = None,
-    value_cols_interpolate: Optional[List[str]] = None,
-    feature_cols_augment: Optional[List[str]] = None,
-    interpolation_kwargs: Optional[Dict[str, Any]] = None,
-    augmentation_kwargs: Optional[Dict[str, Any]] = None,
-    savefile: Optional[str] =None,
-    verbose: bool = False
+    group_by_cols: list[str] | None = None,
+    time_col: str | None = None,
+    value_cols_interpolate: list[str] | None = None,
+    feature_cols_augment: list[str] | None = None,
+    interpolation_kwargs: dict[str, Any] | None = None,
+    augmentation_kwargs: dict[str, Any] | None = None,
+    savefile: str | None = None,
+    verbose: bool = False,
 ) -> pd.DataFrame:
     r"""
     Applies temporal interpolation and/or feature augmentation to a
@@ -605,7 +642,7 @@ def augment_spatiotemporal_data(
     includes interpolation, we compute:
 
     .. math::
-       \text{interpolated\_df}_g = 
+       \text{interpolated\_df}_g =
        \text{interpolate\_temporal\_gaps}(
          \text{series\_df}_g,\;\dots
        )
@@ -613,7 +650,7 @@ def augment_spatiotemporal_data(
     Then if mode includes augmentation, we compute:
 
     .. math::
-       \text{augmented\_df}_g = 
+       \text{augmented\_df}_g =
        \text{augment\_series\_features}(
          \text{interpolated\_df}_g,\;\dots
        )
@@ -654,8 +691,8 @@ def augment_spatiotemporal_data(
     augmentation_kwargs : dict or None, default None
         Keyword arguments passed to
         :func:`augment_series_features` (e.g., {'noise_level': 0.02}).
-    savefile: str, optional, 
-        Save the dataframe into the csv format by default. 
+    savefile: str, optional,
+        Save the dataframe into the csv format by default.
     verbose : bool, default False
         If True, prints progress messages (via print). Otherwise,
         relies on logger.
@@ -710,7 +747,11 @@ def augment_spatiotemporal_data(
     interpolate_temporal_gaps : Fill temporal gaps per group.
     augment_series_features : Add noise to feature columns.
     """
-    if mode not in ['interpolate', 'augment_features', 'both']:
+    if mode not in [
+        "interpolate",
+        "augment_features",
+        "both",
+    ]:
         raise ValueError(
             "Invalid mode. Choose from 'interpolate', "
             "'augment_features', or 'both'."
@@ -720,8 +761,10 @@ def augment_spatiotemporal_data(
     interpolation_kwargs = interpolation_kwargs or {}
     augmentation_kwargs = augmentation_kwargs or {}
 
-    if mode in ['interpolate', 'both']:
-        if not all([group_by_cols, time_col, value_cols_interpolate]):
+    if mode in ["interpolate", "both"]:
+        if not all(
+            [group_by_cols, time_col, value_cols_interpolate]
+        ):
             raise ValueError(
                 "For 'interpolate' or 'both' mode, 'group_by_cols', "
                 "'time_col', and 'value_cols_interpolate' must be provided."
@@ -740,15 +783,15 @@ def augment_spatiotemporal_data(
         for i, (name, group_df) in enumerate(grouped):
             if verbose:  # Simple print for progress, logger can be used too
                 print(
-                    f"  Interpolating group {i+1}/{num_groups}: {name}",
-                    end='\r'
+                    f"  Interpolating group {i + 1}/{num_groups}: {name}",
+                    end="\r",
                 )
 
             interpolated_group = interpolate_temporal_gaps(
                 series_df=group_df,
                 time_col=time_col,
                 value_cols=value_cols_interpolate,
-                **interpolation_kwargs
+                **interpolation_kwargs,
             )
             interpolated_groups.append(interpolated_group)
 
@@ -759,13 +802,15 @@ def augment_spatiotemporal_data(
             processed_df = pd.concat(
                 interpolated_groups, ignore_index=True
             )
-            logger.info("Temporal interpolation applied to all groups.")
+            logger.info(
+                "Temporal interpolation applied to all groups."
+            )
         else:
             logger.warning(
                 "No groups found for interpolation or all groups were empty."
             )
 
-    if mode in ['augment_features', 'both']:
+    if mode in ["augment_features", "both"]:
         if not feature_cols_augment:
             raise ValueError(
                 "For 'augment_features' or 'both' mode, "
@@ -778,28 +823,28 @@ def augment_spatiotemporal_data(
         processed_df = augment_series_features(
             series_df=processed_df,
             feature_cols=feature_cols_augment,
-            **augmentation_kwargs
+            **augmentation_kwargs,
         )
         logger.info("Feature augmentation applied.")
 
     return processed_df
 
-    
+
 def augment_city_spatiotemporal_data(
     df: pd.DataFrame,
     city: str,
-    mode: str = 'interpolate',
-    group_by_cols: Optional[List[str]] = None,  
-    time_col: Optional[str] = None,            
-    value_cols_interpolate: Optional[List[str]] = None,
-    feature_cols_augment: Optional[List[str]] = None,  
-    interpolation_config: Optional[Dict[str, Any]] = None,
-    augmentation_config: Optional[Dict[str, Any]] = None,
-    target_name: Optional[str] = None,
+    mode: str = "interpolate",
+    group_by_cols: list[str] | None = None,
+    time_col: str | None = None,
+    value_cols_interpolate: list[str] | None = None,
+    feature_cols_augment: list[str] | None = None,
+    interpolation_config: dict[str, Any] | None = None,
+    augmentation_config: dict[str, Any] | None = None,
+    target_name: str | None = None,
     interpolate_target: bool = False,
-    verbose: bool = True,  
-    coordinate_precision: Optional[int] = None,
-    savefile: Optional[str] = None,
+    verbose: bool = True,
+    coordinate_precision: int | None = None,
+    savefile: str | None = None,
 ) -> pd.DataFrame:
     r"""
     A robust and versatile function to augment spatiotemporal data for
@@ -935,30 +980,45 @@ def augment_city_spatiotemporal_data(
     """
     # Validate DataFrame type
     if not isinstance(df, pd.DataFrame):
-        raise TypeError("Input 'df' must be a pandas DataFrame.")
+        raise TypeError(
+            "Input 'df' must be a pandas DataFrame."
+        )
 
     # Validate city parameter
     city_lower = city.strip().lower()
-    if city_lower not in ['nansha', 'zhongshan']:
-        raise ValueError("`city` must be 'nansha' or 'zhongshan'.")
-    logger.info(f"Processing data for city: {city_lower.capitalize()}.")
+    if city_lower not in ["nansha", "zhongshan"]:
+        raise ValueError(
+            "`city` must be 'nansha' or 'zhongshan'."
+        )
+    logger.info(
+        f"Processing data for city: {city_lower.capitalize()}."
+    )
 
     # Copy input to avoid modifying original
     df_city = df.copy()
 
     # Ensure 'year' (or specified time_col) is datetime
     # Default time_col for processing, can be overridden by user
-    _time_col = time_col or 'year'
+    _time_col = time_col or "year"
     if _time_col not in df_city.columns:
-        raise ValueError(f"Time column '{_time_col}' not found in DataFrame.")
+        raise ValueError(
+            f"Time column '{_time_col}' not found in DataFrame."
+        )
     try:
         # Attempt to convert to datetime if not already.
         # If 'year' is int like 2015, format='%Y' makes it YYYY-01-01
         first_val = df_city[_time_col].iloc[0]
-        if pd.api.types.is_integer(first_val) and 1000 < first_val < 3000:
-            df_city[_time_col] = pd.to_datetime(df_city[_time_col], format='%Y')
+        if (
+            pd.api.types.is_integer(first_val)
+            and 1000 < first_val < 3000
+        ):
+            df_city[_time_col] = pd.to_datetime(
+                df_city[_time_col], format="%Y"
+            )
         else:
-            df_city[_time_col] = pd.to_datetime(df_city[_time_col])
+            df_city[_time_col] = pd.to_datetime(
+                df_city[_time_col]
+            )
         logger.debug(f"Ensured '{_time_col}' is datetime.")
     except Exception as e:
         logger.warning(
@@ -967,14 +1027,21 @@ def augment_city_spatiotemporal_data(
         )
 
     # --- Define default parameters ---
-    _group_by_cols = group_by_cols or ['longitude', 'latitude']
-    
-    _group_by_cols = columns_manager(_group_by_cols, empty_as_none=False)
+    _group_by_cols = group_by_cols or [
+        "longitude",
+        "latitude",
+    ]
+
+    _group_by_cols = columns_manager(
+        _group_by_cols, empty_as_none=False
+    )
     # Default columns to exclude from auto-selection
     default_exclude_cols = set(_group_by_cols + [_time_col])
     # Add known categorical or ID-like columns (expand as needed)
     known_non_numeric_or_id_cols = {
-        'lithology', 'city', 'lithology_class',
+        "lithology",
+        "city",
+        "lithology_class",
         # 'density_concentration', 'rainfall_category',
         # 'building_concentration', 'soil_thickness'
     }
@@ -985,14 +1052,22 @@ def augment_city_spatiotemporal_data(
             # Exclude target from interpolation by default
             default_exclude_cols.add(target_name)
 
-    numeric_cols = df_city.select_dtypes(include=np.number).columns.tolist()
+    numeric_cols = df_city.select_dtypes(
+        include=np.number
+    ).columns.tolist()
 
     _value_cols_interpolate = value_cols_interpolate
     if _value_cols_interpolate is None:
         _value_cols_interpolate = [
-            col for col in numeric_cols if col not in default_exclude_cols
+            col
+            for col in numeric_cols
+            if col not in default_exclude_cols
         ]
-        if interpolate_target and target_name and target_name in numeric_cols:
+        if (
+            interpolate_target
+            and target_name
+            and target_name in numeric_cols
+        ):
             _value_cols_interpolate.append(target_name)
         logger.info(
             f"Defaulting 'value_cols_interpolate' to: "
@@ -1005,7 +1080,9 @@ def augment_city_spatiotemporal_data(
         if target_name:
             augment_exclude_cols.add(target_name)
         _feature_cols_augment = [
-            col for col in numeric_cols if col not in augment_exclude_cols
+            col
+            for col in numeric_cols
+            if col not in augment_exclude_cols
         ]
         logger.info(
             f"Defaulting 'feature_cols_augment' to: "
@@ -1013,26 +1090,33 @@ def augment_city_spatiotemporal_data(
         )
 
     _interpolation_config = interpolation_config or {
-        'freq': 'AS',
-        'method': 'linear'
+        "freq": "AS",
+        "method": "linear",
     }
     _augmentation_config = augmentation_config or {
-        'noise_level': 0.01,
-        'noise_type': 'gaussian',
-        'random_seed': None
+        "noise_level": 0.01,
+        "noise_type": "gaussian",
+        "random_seed": None,
     }
 
     # --- Coordinate Precision ---
     if coordinate_precision is not None:
-        if not (isinstance(coordinate_precision, int) and
-                coordinate_precision >= 0):
-            raise ValueError("'coordinate_precision' must be a "
-                             "non-negative integer.")
-        if 'longitude' in df_city.columns and 'latitude' in df_city.columns:
-            df_city['longitude'] = df_city['longitude'].round(
+        if not (
+            isinstance(coordinate_precision, int)
+            and coordinate_precision >= 0
+        ):
+            raise ValueError(
+                "'coordinate_precision' must be a "
+                "non-negative integer."
+            )
+        if (
+            "longitude" in df_city.columns
+            and "latitude" in df_city.columns
+        ):
+            df_city["longitude"] = df_city["longitude"].round(
                 coordinate_precision
             )
-            df_city['latitude'] = df_city['latitude'].round(
+            df_city["latitude"] = df_city["latitude"].round(
                 coordinate_precision
             )
             logger.info(
@@ -1060,7 +1144,7 @@ def augment_city_spatiotemporal_data(
             feature_cols_augment=_feature_cols_augment,
             interpolation_kwargs=_interpolation_config,
             augmentation_kwargs=_augmentation_config,
-            verbose=verbose
+            verbose=verbose,
         )
         logger.info(
             f"Augmented DataFrame shape: {df_augmented.shape}"
@@ -1100,15 +1184,19 @@ def augment_city_spatiotemporal_data(
         )
         raise
 
+
 def generate_dummy_pinn_data(
     n_samples: int,
     *,
     year_range: tuple[float, float] | None = None,
-    coords_range: tuple[tuple[float, float], tuple[float, float]] | None = None,
+    coords_range: tuple[
+        tuple[float, float], tuple[float, float]
+    ]
+    | None = None,
     subs_range: tuple[float, float] | None = None,
     gwl_range: tuple[float, float] | None = None,
     rainfall_range: tuple[float, float] | None = None,
-    vars_range: dict | None = None
+    vars_range: dict | None = None,
 ) -> dict[str, np.ndarray]:
     """
     Generate dummy PINN data dictionary with specified or default ranges.
@@ -1155,21 +1243,31 @@ def generate_dummy_pinn_data(
 
     # Merge vars_range if provided
     vr = vars_range or {}
-    yr_rng = (year_range
-              if year_range is not None
-              else vr.get("year_range", _def_year))
-    crd_rng = (coords_range
-               if coords_range is not None
-               else vr.get("coords_range", _def_coords))
-    sbs_rng = (subs_range
-               if subs_range is not None
-               else vr.get("subs_range", _def_subs))
-    gwl_rng = (gwl_range
-               if gwl_range is not None
-               else vr.get("gwl_range", _def_gwl))
-    rnf_rng = (rainfall_range
-               if rainfall_range is not None
-               else vr.get("rainfall_range", _def_rain))
+    yr_rng = (
+        year_range
+        if year_range is not None
+        else vr.get("year_range", _def_year)
+    )
+    crd_rng = (
+        coords_range
+        if coords_range is not None
+        else vr.get("coords_range", _def_coords)
+    )
+    sbs_rng = (
+        subs_range
+        if subs_range is not None
+        else vr.get("subs_range", _def_subs)
+    )
+    gwl_rng = (
+        gwl_range
+        if gwl_range is not None
+        else vr.get("gwl_range", _def_gwl)
+    )
+    rnf_rng = (
+        rainfall_range
+        if rainfall_range is not None
+        else vr.get("rainfall_range", _def_rain)
+    )
 
     # Unpack ranges
     yr_min, yr_max = float(yr_rng[0]), float(yr_rng[1])
@@ -1220,17 +1318,23 @@ def merge_frames_to_file(
     sources: Iterable[DataSource],
     output_path: PathLike,
     *,
-    output_format: Literal["parquet", "csv", "feather", "pickle"] = "parquet",
-    compression: Optional[str] = "snappy",
-    check_columns: Literal["strict", "subset", "union"] = "strict",
-    excel_mode: Literal["all_sheets", "first_sheet"] = "all_sheets",
-    sheet_names: Optional[Iterable[str]] = None,
+    output_format: Literal[
+        "parquet", "csv", "feather", "pickle"
+    ] = "parquet",
+    compression: str | None = "snappy",
+    check_columns: Literal[
+        "strict", "subset", "union"
+    ] = "strict",
+    excel_mode: Literal[
+        "all_sheets", "first_sheet"
+    ] = "all_sheets",
+    sheet_names: Iterable[str] | None = None,
     add_source_label: bool = True,
     source_col: str = "source",
-    sort_by: Optional[Iterable[str]] = None,
+    sort_by: Iterable[str] | None = None,
     drop_duplicates: bool = False,
     reset_index: bool = True,
-    save_kwargs: Optional[Dict[str, Any]] = None,
+    save_kwargs: dict[str, Any] | None = None,
     verbose: int = 1,
 ) -> pd.DataFrame:
     """
@@ -1337,7 +1441,7 @@ def merge_frames_to_file(
     ValueError
         If ``check_columns='strict'`` or ``'subset'`` and a column
         mismatch is detected.
-    Examples 
+    Examples
     ----------
     >>> from geoprior.utils.geo_utils import merge_frames_to_file
     >>> merge_frames_to_file(
@@ -1364,7 +1468,9 @@ def merge_frames_to_file(
     save_kwargs = dict(save_kwargs or {})
     sources = list(sources)
     if not sources:
-        raise ValueError("No sources provided to merge_city_frames_to_file().")
+        raise ValueError(
+            "No sources provided to merge_city_frames_to_file()."
+        )
 
     out_path = Path(output_path)
     fmt = output_format.lower()
@@ -1377,7 +1483,7 @@ def merge_frames_to_file(
 
     def _iter_frames_from_source(
         src: DataSource,
-    ) -> List[pd.DataFrame]:
+    ) -> list[pd.DataFrame]:
         """Internal: expand a single source into one or more frames."""
         if isinstance(src, pd.DataFrame):
             label = "<in_memory>"
@@ -1388,7 +1494,9 @@ def merge_frames_to_file(
             raise FileNotFoundError(f"Source not found: {p}")
 
         suffix = p.suffix.lower()
-        frames_with_labels: List[tuple[pd.DataFrame, str]] = []
+        frames_with_labels: list[
+            tuple[pd.DataFrame, str]
+        ] = []
 
         if suffix in {".csv", ".txt"}:
             df = pd.read_csv(p)
@@ -1398,18 +1506,25 @@ def merge_frames_to_file(
             if sheet_names is not None:
                 sheets_to_read = list(sheet_names)
             elif excel_mode == "first_sheet":
-                sheets_to_read = [0]  # first sheet by position
+                sheets_to_read = [
+                    0
+                ]  # first sheet by position
             else:  # 'all_sheets'
                 # Read all sheets into a dict
                 all_sheets = pd.read_excel(p, sheet_name=None)
                 for sh_name, sh_df in all_sheets.items():
-                    frames_with_labels.append((sh_df, f"{p.name}:{sh_name}"))
+                    frames_with_labels.append(
+                        (sh_df, f"{p.name}:{sh_name}")
+                    )
                 return [*frames_with_labels]
 
             for sh in sheets_to_read:
                 sh_df = pd.read_excel(p, sheet_name=sh)
-                label = f"{p.name}:{sh}" if not isinstance(
-                    sh, int) else f"{p.name}:sheet{sh}"
+                label = (
+                    f"{p.name}:{sh}"
+                    if not isinstance(sh, int)
+                    else f"{p.name}:sheet{sh}"
+                )
                 frames_with_labels.append((sh_df, label))
         else:
             raise ValueError(
@@ -1420,7 +1535,7 @@ def merge_frames_to_file(
         return frames_with_labels
 
     # 1) Collect and validate/align columns
-    frames: List[pd.DataFrame] = []
+    frames: list[pd.DataFrame] = []
     base_cols = None
 
     for src in sources:
@@ -1447,7 +1562,9 @@ def merge_frames_to_file(
                             f"  Extra in {label}: {extra}"
                         )
                     # Align column order
-                    df_chunk = df_chunk.reindex(columns=base_cols)
+                    df_chunk = df_chunk.reindex(
+                        columns=base_cols
+                    )
                 elif check_columns == "subset":
                     # ensure *required* columns (base) exist
                     missing = sorted(set_base - set_now)
@@ -1457,7 +1574,9 @@ def merge_frames_to_file(
                             f"  Missing required in {label}: {missing}"
                         )
                     # drop any extra columns and align order
-                    df_chunk = df_chunk.reindex(columns=base_cols)
+                    df_chunk = df_chunk.reindex(
+                        columns=base_cols
+                    )
                 elif check_columns == "union":
                     # union columns so far; fill missing with NaN
                     union_cols = list(set_base | set_now)
@@ -1471,7 +1590,9 @@ def merge_frames_to_file(
                                 if c not in f.columns:
                                     frames[i][c] = pd.NA
                         base_cols = union_cols
-                    df_chunk = df_chunk.reindex(columns=base_cols)
+                    df_chunk = df_chunk.reindex(
+                        columns=base_cols
+                    )
                 else:
                     raise ValueError(
                         f"Unknown check_columns={check_columns!r}"
@@ -1480,22 +1601,32 @@ def merge_frames_to_file(
             if add_source_label:
                 if source_col in df_chunk.columns:
                     # avoid clobbering an existing column silently
-                    df_chunk[f"{source_col}_orig"] = df_chunk[source_col]
+                    df_chunk[f"{source_col}_orig"] = df_chunk[
+                        source_col
+                    ]
                 df_chunk[source_col] = label
 
             frames.append(df_chunk)
 
     if not frames:
-        raise RuntimeError("No frames were collected from the given sources.")
+        raise RuntimeError(
+            "No frames were collected from the given sources."
+        )
 
     # 2) Concatenate and post-process
-    merged = pd.concat(frames, axis=0, ignore_index=reset_index)
+    merged = pd.concat(
+        frames, axis=0, ignore_index=reset_index
+    )
 
     if sort_by:
-        merged = merged.sort_values(list(sort_by), ignore_index=reset_index)
+        merged = merged.sort_values(
+            list(sort_by), ignore_index=reset_index
+        )
 
     if drop_duplicates:
-        merged = merged.drop_duplicates(ignore_index=reset_index)
+        merged = merged.drop_duplicates(
+            ignore_index=reset_index
+        )
 
     if not reset_index:
         merged = merged  # keep concatenated index as-is
@@ -1556,23 +1687,25 @@ def merge_frames_to_file(
 
 
 def unpack_frames_from_file(
-    merged: Union[PathLike, pd.DataFrame],
+    merged: PathLike | pd.DataFrame,
     *,
     group_col: str = "city",
-    output_dir: Optional[PathLike] = None,
-    output_format: Literal["csv", "parquet", "feather", "pickle"] = "csv",
-    compression: Optional[str] = None,
+    output_dir: PathLike | None = None,
+    output_format: Literal[
+        "csv", "parquet", "feather", "pickle"
+    ] = "csv",
+    compression: str | None = None,
     use_source_col: bool = True,
     source_col: str = "source",
     filename_pattern: str = "{group_value}_split",
-    drop_columns: Optional[Iterable[str]] = None,
-    keep_columns: Optional[Iterable[str]] = None,
+    drop_columns: Iterable[str] | None = None,
+    keep_columns: Iterable[str] | None = None,
     save: bool = True,
     return_dict: bool = True,
-    save_kwargs: Optional[Dict[str, Any]] = None,
+    save_kwargs: dict[str, Any] | None = None,
     verbose: int = 1,
-    logger : None, 
-) -> Dict[Any, pd.DataFrame]:
+    logger: None,
+) -> dict[Any, pd.DataFrame]:
     """
     Reverse of `merge_city_frames_to_file`: split an aggregated NATCOM
     dataset into per-city frames (and optionally write them to disk).
@@ -1679,8 +1812,8 @@ def unpack_frames_from_file(
     ------
     ValueError
         If ``group_col`` is not present in the merged dataset.
-        
-    Examples 
+
+    Examples
     ---------
     >>> from geoprior.utils.geo_utils import unpack_frames_from_file
     >>> unpack_frames_from_file(
@@ -1692,21 +1825,24 @@ def unpack_frames_from_file(
     #    'zhongshan_final_main_std.harmonized.csv' (if `source` labels exist),
     #    and returns a dict: {'Nansha': df_nansha, 'Zhongshan': df_zhongshan}
     """
-    def _log (mess, verbose =verbose, logger = logger): 
-        vlog (mess, verbose = verbose, logger = logger)
+
+    def _log(mess, verbose=verbose, logger=logger):
+        vlog(mess, verbose=verbose, logger=logger)
 
     save_kwargs = dict(save_kwargs or {})
 
     # 1) Load merged DataFrame
     df: pd.DataFrame
-    merged_path: Optional[Path] = None
+    merged_path: Path | None = None
 
     if isinstance(merged, pd.DataFrame):
         df = merged.copy()
     else:
         merged_path = Path(merged)
         if not merged_path.exists():
-            raise FileNotFoundError(f"Merged file not found: {merged_path}")
+            raise FileNotFoundError(
+                f"Merged file not found: {merged_path}"
+            )
 
         suffix = merged_path.suffix.lower()
         if suffix == ".parquet":
@@ -1774,7 +1910,7 @@ def unpack_frames_from_file(
         return stem + ext
 
     # 3) Split, post-process, and save
-    out_frames: Dict[Any, pd.DataFrame] = {}
+    out_frames: dict[Any, pd.DataFrame] = {}
 
     groups = df.groupby(group_col, dropna=False)
     if verbose:
@@ -1788,21 +1924,22 @@ def unpack_frames_from_file(
 
         # Optional column dropping/keeping
         if drop_columns:
-            cols_to_drop = [c for c in drop_columns if c in chunk.columns]
+            cols_to_drop = [
+                c for c in drop_columns if c in chunk.columns
+            ]
             if cols_to_drop:
                 chunk = chunk.drop(columns=cols_to_drop)
 
         if keep_columns is not None:
-            keep_set = [c for c in keep_columns if c in chunk.columns]
+            keep_set = [
+                c for c in keep_columns if c in chunk.columns
+            ]
             chunk = chunk[keep_set]
 
         # Decide file name
-        filename: Optional[str] = None
+        filename: str | None = None
         if save:
-            if (
-                use_source_col
-                and source_col in gdf.columns
-            ):
+            if use_source_col and source_col in gdf.columns:
                 labels = (
                     gdf[source_col]
                     .dropna()
@@ -1811,7 +1948,9 @@ def unpack_frames_from_file(
                 )
                 if labels.size == 1:
                     # Nice case: one clear source label for this group
-                    filename = _filename_from_source_label(labels[0], gval)
+                    filename = _filename_from_source_label(
+                        labels[0], gval
+                    )
                 elif labels.size > 1 and verbose:
                     _log(
                         f"[unpack_{group_col}_frames] Group {group_col}={gval!r} "
@@ -1826,8 +1965,16 @@ def unpack_frames_from_file(
                     group_value=gv_str,
                     group_col=group_col,
                 )
-                if not any(base.lower().endswith(ext) for ext in
-                           [".csv", ".parquet", ".feather", ".pkl", ".pickle"]):
+                if not any(
+                    base.lower().endswith(ext)
+                    for ext in [
+                        ".csv",
+                        ".parquet",
+                        ".feather",
+                        ".pkl",
+                        ".pickle",
+                    ]
+                ):
                     base += _ext_for_format()
                 filename = base
 
@@ -1842,8 +1989,12 @@ def unpack_frames_from_file(
             # Save according to format
             if fmt == "csv":
                 if compression is not None:
-                    save_kwargs.setdefault("compression", compression)
-                chunk.to_csv(out_path, index=False, **save_kwargs)
+                    save_kwargs.setdefault(
+                        "compression", compression
+                    )
+                chunk.to_csv(
+                    out_path, index=False, **save_kwargs
+                )
             elif fmt == "parquet":
                 chunk.to_parquet(
                     out_path,

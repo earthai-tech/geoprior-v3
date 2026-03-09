@@ -1,27 +1,28 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2026-present Laurent Kouadio
 
 
 import subprocess
 import sys
+import warnings
 
 from tqdm import tqdm
-import warnings 
 
-_WARNING_MSG =(
-     "Standalone Keras is installed but TensorFlow is not. While "
-     "some functionalities may work, the primary backend for "
-     "`geoprior-v3` is `tensorflow.keras`. For full "
-     "functionality and future compatibility, please install "
-     "TensorFlow. The standalone Keras fallback may be deprecated."
-    )
-     
+_WARNING_MSG = (
+    "Standalone Keras is installed but TensorFlow is not. While "
+    "some functionalities may work, the primary backend for "
+    "`geoprior-v3` is `tensorflow.keras`. For full "
+    "functionality and future compatibility, please install "
+    "TensorFlow. The standalone Keras fallback may be deprecated."
+)
+
+
 class Config:
     INSTALL_DEPS = False
     DEPS = None
-    WARN_STATUS = 'warn'
-    USE_CONDA=False
+    WARN_STATUS = "warn"
+    USE_CONDA = False
+
 
 def install_package(package_name):
     """
@@ -32,15 +33,29 @@ def install_package(package_name):
     package_name : str
         The name of the package to install.
     """
+
     def progress_bar():
-        pbar = tqdm(total=100, desc=f"Installing {package_name}", ascii=True)
+        pbar = tqdm(
+            total=100,
+            desc=f"Installing {package_name}",
+            ascii=True,
+        )
         while True:
             pbar.update(1)
             if pbar.n >= 100:
                 break
 
-    process = subprocess.Popen([sys.executable, "-m", "pip", "install", package_name],
-                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            package_name,
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     progress_thread = progress_bar()
 
     stdout, stderr = process.communicate()
@@ -48,7 +63,12 @@ def install_package(package_name):
 
     if process.returncode != 0:
         raise subprocess.CalledProcessError(
-            process.returncode, process.args, output=stdout, stderr=stderr)
+            process.returncode,
+            process.args,
+            output=stdout,
+            stderr=stderr,
+        )
+
 
 def is_package_installed(package_name):
     """
@@ -64,9 +84,11 @@ def is_package_installed(package_name):
     bool
         True if the package is installed, False otherwise.
     """
-    import importlib.util  
+    import importlib.util
+
     package_spec = importlib.util.find_spec(package_name)
     return package_spec is not None
+
 
 def configure_dependencies(install_dependencies=True):
     """
@@ -79,24 +101,29 @@ def configure_dependencies(install_dependencies=True):
         If True, installs TensorFlow or Keras if they are not already installed.
         Default is True.
     """
-    required_packages = ['tensorflow', 'keras']
+    required_packages = ["tensorflow", "keras"]
     if Config.DEPS:
         required_packages = [Config.DEPS]
-    else : 
-        return 
-    
-    installed_packages = {pkg: is_package_installed(pkg) for pkg in required_packages}
+    else:
+        return
+
+    installed_packages = {
+        pkg: is_package_installed(pkg)
+        for pkg in required_packages
+    }
 
     if not any(installed_packages.values()):
         if install_dependencies:
             try:
                 for pkg in required_packages:
-                    print(f"Installing {pkg} as it is required for this package...")
+                    print(
+                        f"Installing {pkg} as it is required for this package..."
+                    )
                     install_package(pkg)
             except Exception as e:
-                if Config.WARN_STATUS == 'warn':
+                if Config.WARN_STATUS == "warn":
                     print(f"Warning: {e}")
-                elif Config.WARN_STATUS == 'ignore':
+                elif Config.WARN_STATUS == "ignore":
                     pass
                 else:
                     raise e
@@ -106,10 +133,8 @@ def configure_dependencies(install_dependencies=True):
                 "Please install one of these packages to use the `nn` sub-package."
             )
 
-def import_keras_dependencies(
-    extra_msg=None,
-    error='warn'
-):
+
+def import_keras_dependencies(extra_msg=None, error="warn"):
     """
     Dynamically loads Keras/TensorFlow dependencies or a dummy object.
 
@@ -124,35 +149,33 @@ def import_keras_dependencies(
     # Prioritize TensorFlow as the primary backend
     if importlib.util.find_spec("tensorflow"):
         from .tf import KerasDependencies
+
         return KerasDependencies(extra_msg, error)
 
     # If TensorFlow is not found, check for standalone Keras as a fallback
     elif importlib.util.find_spec("keras"):
-        warnings.warn(
-            _WARNING_MSG,
-            UserWarning,
-            stacklevel=2
-        )
+        warnings.warn(_WARNING_MSG, UserWarning, stacklevel=2)
         # Still return the real dependency loader, which should handle this
         from .tf import KerasDependencies
+
         return KerasDependencies(
-             extra_msg=extra_msg, error = error 
-         )
+            extra_msg=extra_msg, error=error
+        )
 
     # If neither backend is found,
     # return the dummy object generator
     else:
         if extra_msg:
             warnings.warn(
-                str(extra_msg), ImportWarning, stacklevel=2)
-            
-        from .._dummies import DummyKerasDeps
-        return DummyKerasDeps()
-    
+                str(extra_msg), ImportWarning, stacklevel=2
+            )
 
-def check_keras_backend(
-    error='warn'
-):
+        from .._dummies import DummyKerasDeps
+
+        return DummyKerasDeps()
+
+
+def check_keras_backend(error="warn"):
     """
     Checks for the presence of 'tensorflow' or 'keras' and returns the
     name of the available backend.
@@ -173,30 +196,28 @@ def check_keras_backend(
     str or None
         Returns 'tensorflow' or 'keras' if found, otherwise returns None.
     """
-    
+
     import importlib.util
 
     try:
         importlib.util.find_spec("tensorflow")
-        return 'tensorflow'
+        return "tensorflow"
     except ImportError:
         try:
             importlib.util.find_spec("keras")
             ## If TensorFlow is not found, check for standalone Keras
             # Issue a clear warning that TensorFlow is preferred
             warnings.warn(
-                _WARNING_MSG,
-                UserWarning,
-                stacklevel=2
+                _WARNING_MSG, UserWarning, stacklevel=2
             )
-            return 'keras'
-        
+            return "keras"
+
         except ImportError as e:
             message = (
                 "Neither TensorFlow nor Keras is installed."
             )
-            if error == 'warn':
-                warnings.warn(message)
-            elif error == 'raise':
+            if error == "warn":
+                warnings.warn(message, stacklevel=2)
+            elif error == "raise":
                 raise ImportError(message) from e
             return None

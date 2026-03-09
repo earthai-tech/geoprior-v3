@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -21,24 +20,27 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import (
+    Any,
+)
 
-import numpy as np
-import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 from . import config as cfg
 from . import utils
-
 
 _CITY_A = cfg.CITY_CANON.get("ns", "Nansha")
 _CITY_B = cfg.CITY_CANON.get("zh", "Zhongshan")
 
 
 GeoDF = Any
+
 
 def _slug_city(city: str) -> str:
     return str(city).strip().lower().replace(" ", "_")
@@ -136,6 +138,7 @@ def _canonize(
     _require_cols(df, list(required), where=where)
     return df
 
+
 # def _load_exposure(
 #     path: str,
 #     *,
@@ -171,13 +174,17 @@ def _canonize(
 #     df["sample_idx"] = df["sample_idx"].astype(int)
 #     return df[["sample_idx", col]].copy()
 
+
 def _load_exposure(path: str, *, col: str) -> pd.DataFrame:
     p = utils.as_path(path)
     df = pd.read_csv(p)
 
     utils.ensure_columns(
         df,
-        aliases={"sample_idx": ("sample_idx", "sample_id"), col: (col,)},
+        aliases={
+            "sample_idx": ("sample_idx", "sample_id"),
+            col: (col,),
+        },
     )
 
     if "sample_idx" not in df.columns:
@@ -185,7 +192,9 @@ def _load_exposure(path: str, *, col: str) -> pd.DataFrame:
     if col not in df.columns:
         raise KeyError(f"exposure: missing {col}")
 
-    df["sample_idx"] = pd.to_numeric(df["sample_idx"], errors="coerce")
+    df["sample_idx"] = pd.to_numeric(
+        df["sample_idx"], errors="coerce"
+    )
     df[col] = pd.to_numeric(df[col], errors="coerce")
     df = df.dropna(subset=["sample_idx", col]).copy()
     df["sample_idx"] = df["sample_idx"].astype(int)
@@ -198,9 +207,10 @@ def _load_exposure(path: str, *, col: str) -> pd.DataFrame:
     )
     return df[["sample_idx", col]]
 
+
 def _attach_exposure(
     pts: pd.DataFrame,
-    expo: Optional[pd.DataFrame],
+    expo: pd.DataFrame | None,
     *,
     col: str,
     default: float,
@@ -304,7 +314,7 @@ def _load_future_df(path: str) -> pd.DataFrame:
 def _pick_eval_path(
     art: utils.Artifacts,
     split: str,
-) -> Tuple[Optional[Path], str]:
+) -> tuple[Path | None, str]:
     if split == "val":
         return (art.forecast_val_csv, "val")
     if split == "test":
@@ -317,7 +327,7 @@ def _pick_eval_path(
 def _pick_future_path(
     art: utils.Artifacts,
     split: str,
-) -> Tuple[Optional[Path], str]:
+) -> tuple[Path | None, str]:
     if split == "val":
         return (art.forecast_future_csv, "val")
     if split == "test":
@@ -330,12 +340,12 @@ def _pick_future_path(
 def _resolve_city(
     *,
     city: str,
-    src: Optional[str],
-    eval_csv: Optional[str],
-    future_csv: Optional[str],
+    src: str | None,
+    eval_csv: str | None,
+    future_csv: str | None,
     split: str,
-) -> Dict[str, Any]:
-    out: Dict[str, Any] = {"name": city}
+) -> dict[str, Any]:
+    out: dict[str, Any] = {"name": city}
     out["color"] = cfg.CITY_COLORS.get(city, "#333333")
 
     if eval_csv and future_csv:
@@ -368,10 +378,13 @@ def _resolve_city(
     out["eval_df"] = _load_eval_df(str(e_p))
     out["future_df"] = _load_future_df(str(f_p))
     out["split"] = e_lab
-    out["src_note"] = f"{e_p.name} + {f_p.name} ({e_lab}/{f_lab})"
+    out["src_note"] = (
+        f"{e_p.name} + {f_p.name} ({e_lab}/{f_lab})"
+    )
     return out
 
-def _try_load_boundaries(path: Optional[str]):
+
+def _try_load_boundaries(path: str | None):
     if not path:
         return None
     try:
@@ -387,11 +400,12 @@ def _try_load_boundaries(path: Optional[str]):
         print(f"[WARN] boundary load failed: {e}")
         return None
 
+
 def _filter_boundary_for_city(
     gdf: GeoDF,
     *,
     city: str,
-    name_field: Optional[str] = None,
+    name_field: str | None = None,
 ) -> GeoDF:
     """
     Try to filter a boundary GeoDataFrame to the requested city.
@@ -428,18 +442,19 @@ def _filter_boundary_for_city(
     except:
         return gdf
 
+
 def _resolve_boundary_map(
     *,
-    boundary: Optional[str],
-    ns_boundary: Optional[str],
-    zh_boundary: Optional[str],
-    boundary_name_field: Optional[str],
+    boundary: str | None,
+    ns_boundary: str | None,
+    zh_boundary: str | None,
+    boundary_name_field: str | None,
     cities: Sequence[str],
-) -> Optional[Dict[str, GeoDF]]:
+) -> dict[str, GeoDF] | None:
     """
     Return a per-city boundary mapping {city: GeoDataFrame}.
     """
-    out: Dict[str, GeoDF] = {}
+    out: dict[str, GeoDF] = {}
 
     g_ns = _try_load_boundaries(ns_boundary)
     if g_ns is not None:
@@ -463,6 +478,8 @@ def _resolve_boundary_map(
     # drop Nones
     out = {k: v for k, v in out.items() if v is not None}
     return out if out else None
+
+
 # ---------------------------------------------------------------------
 # Annual conversion (subsidence-kind aware)
 # ---------------------------------------------------------------------
@@ -477,7 +494,9 @@ def _annual_from_cumulative(
     orig_idx = d.index
 
     d[year_col] = pd.to_numeric(d[year_col], errors="coerce")
-    d[value_col] = pd.to_numeric(d[value_col], errors="coerce")
+    d[value_col] = pd.to_numeric(
+        d[value_col], errors="coerce"
+    )
     d = d.dropna(subset=[id_col, year_col, value_col])
     d[year_col] = d[year_col].astype(int)
 
@@ -509,9 +528,15 @@ def _annual_series(
 # ---------------------------------------------------------------------
 # Raster + clustering
 # ---------------------------------------------------------------------
-def _extent(df: pd.DataFrame) -> Tuple[float, float, float, float]:
-    x = pd.to_numeric(df["coord_x"], errors="coerce").to_numpy(float)
-    y = pd.to_numeric(df["coord_y"], errors="coerce").to_numpy(float)
+def _extent(
+    df: pd.DataFrame,
+) -> tuple[float, float, float, float]:
+    x = pd.to_numeric(
+        df["coord_x"], errors="coerce"
+    ).to_numpy(float)
+    y = pd.to_numeric(
+        df["coord_y"], errors="coerce"
+    ).to_numpy(float)
     x = x[np.isfinite(x)]
     y = y[np.isfinite(y)]
     if x.size == 0 or y.size == 0:
@@ -530,13 +555,15 @@ def _grid_mean(
     v: np.ndarray,
     *,
     res: int,
-    extent: Tuple[float, float, float, float],
-) -> Tuple[np.ndarray, Tuple[float, float, float, float]]:
+    extent: tuple[float, float, float, float],
+) -> tuple[np.ndarray, tuple[float, float, float, float]]:
     xmin, xmax, ymin, ymax = extent
     xb = np.linspace(xmin, xmax, int(res) + 1)
     yb = np.linspace(ymin, ymax, int(res) + 1)
 
-    sumv, _, _ = np.histogram2d(x, y, bins=[xb, yb], weights=v)
+    sumv, _, _ = np.histogram2d(
+        x, y, bins=[xb, yb], weights=v
+    )
     cnts, _, _ = np.histogram2d(x, y, bins=[xb, yb])
 
     with np.errstate(invalid="ignore", divide="ignore"):
@@ -544,14 +571,15 @@ def _grid_mean(
     z[cnts == 0] = np.nan
     return (z.T, extent)
 
+
 def _grid_hotspot_mask(
     z_d: np.ndarray,
     z_p: np.ndarray,
     *,
     thr: float,
     hotspot_rule: str,
-    hotspot_abs: Optional[float],
-    risk_min: Optional[float],
+    hotspot_abs: float | None,
+    risk_min: float | None,
 ) -> np.ndarray:
     r = str(hotspot_rule).strip().lower()
 
@@ -563,11 +591,15 @@ def _grid_hotspot_mask(
 
     if r == "combo":
         m1 = (
-            np.isfinite(z_d) & (z_d >= float(hotspot_abs))
-        ) if hotspot_abs is not None else np.zeros_like(z_d, bool)
+            (np.isfinite(z_d) & (z_d >= float(hotspot_abs)))
+            if hotspot_abs is not None
+            else np.zeros_like(z_d, bool)
+        )
         m2 = (
-            np.isfinite(z_p) & (z_p >= float(risk_min))
-        ) if risk_min is not None else np.zeros_like(z_p, bool)
+            (np.isfinite(z_p) & (z_p >= float(risk_min)))
+            if risk_min is not None
+            else np.zeros_like(z_p, bool)
+        )
         m = m1 | m2
         if np.any(m):
             return m
@@ -575,18 +607,21 @@ def _grid_hotspot_mask(
     # percentile fallback
     return np.isfinite(z_d) & (z_d >= float(thr))
 
+
 def _compute_persistence_grid(
     *,
     dfp: pd.DataFrame,
     dfy: pd.DataFrame,
     years: Sequence[int],
-    extent: Tuple[float, float, float, float],
+    extent: tuple[float, float, float, float],
     grid_res: int,
     hotspot_rule: str,
-    hotspot_abs: Optional[float],
-    risk_min: Optional[float],
+    hotspot_abs: float | None,
+    risk_min: float | None,
     mode: str,
-) -> Tuple[np.ndarray, Tuple[float, float, float, float], int]:
+) -> tuple[
+    np.ndarray, tuple[float, float, float, float], int
+]:
     """
     Compute per-cell hotspot persistence across years.
 
@@ -596,7 +631,9 @@ def _compute_persistence_grid(
     """
     yrs = sorted({int(y) for y in years})
     if not yrs:
-        z = np.full((int(grid_res), int(grid_res)), np.nan, float)
+        z = np.full(
+            (int(grid_res), int(grid_res)), np.nan, float
+        )
         return z, extent, 0
 
     # shape will be inferred from first grid we compute
@@ -609,10 +646,18 @@ def _compute_persistence_grid(
         if sub.empty:
             continue
 
-        x = pd.to_numeric(sub["coord_x"], errors="coerce").to_numpy(float)
-        y = pd.to_numeric(sub["coord_y"], errors="coerce").to_numpy(float)
-        d = pd.to_numeric(sub["delta_abs"], errors="coerce").to_numpy(float)
-        p = pd.to_numeric(sub["p_exceed"], errors="coerce").to_numpy(float)
+        x = pd.to_numeric(
+            sub["coord_x"], errors="coerce"
+        ).to_numpy(float)
+        y = pd.to_numeric(
+            sub["coord_y"], errors="coerce"
+        ).to_numpy(float)
+        d = pd.to_numeric(
+            sub["delta_abs"], errors="coerce"
+        ).to_numpy(float)
+        p = pd.to_numeric(
+            sub["p_exceed"], errors="coerce"
+        ).to_numpy(float)
 
         ok = np.isfinite(x) & np.isfinite(y)
         x = x[ok]
@@ -620,17 +665,27 @@ def _compute_persistence_grid(
         d = d[ok]
         p = p[ok]
 
-        z_d, ext2 = _grid_mean(x, y, d, res=grid_res, extent=extent)
-        z_p, _ = _grid_mean(x, y, p, res=grid_res, extent=extent)
+        z_d, ext2 = _grid_mean(
+            x, y, d, res=grid_res, extent=extent
+        )
+        z_p, _ = _grid_mean(
+            x, y, p, res=grid_res, extent=extent
+        )
 
         thr = float("nan")
         if "T_q" in dfy.columns:
-            tsub = dfy.loc[dfy["year"].astype(int).eq(int(yy))]
+            tsub = dfy.loc[
+                dfy["year"].astype(int).eq(int(yy))
+            ]
             if not tsub.empty:
                 thr = float(tsub["T_q"].iloc[0])
         if not np.isfinite(thr):
             d2 = d[np.isfinite(d)]
-            thr = float(np.nanquantile(d2, 0.90)) if d2.size else float("nan")
+            thr = (
+                float(np.nanquantile(d2, 0.90))
+                if d2.size
+                else float("nan")
+            )
         mask = _grid_hotspot_mask(
             z_d,
             z_p,
@@ -650,12 +705,14 @@ def _compute_persistence_grid(
         valid_cnt += valid.astype(float)
 
     if pers_cnt is None or valid_cnt is None:
-        z = np.full((int(grid_res), int(grid_res)), np.nan, float)
+        z = np.full(
+            (int(grid_res), int(grid_res)), np.nan, float
+        )
         return z, extent, len(yrs)
 
     z = pers_cnt.copy()
     z[valid_cnt == 0] = np.nan
-    
+
     mm = str(mode).strip().lower()
     if mm == "fraction":
         with np.errstate(invalid="ignore", divide="ignore"):
@@ -663,6 +720,7 @@ def _compute_persistence_grid(
         z[valid_cnt == 0] = np.nan
 
     return z, ext2, len(yrs)
+
 
 def _label_components(mask: np.ndarray) -> np.ndarray:
     m = np.asarray(mask, dtype=bool)
@@ -679,7 +737,12 @@ def _label_components(mask: np.ndarray) -> np.ndarray:
             lab[iy, ix] = cur
             while stack:
                 y0, x0 = stack.pop()
-                for dy, dx in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+                for dy, dx in (
+                    (-1, 0),
+                    (1, 0),
+                    (0, -1),
+                    (0, 1),
+                ):
                     y1 = y0 + dy
                     x1 = x0 + dx
                     if y1 < 0 or y1 >= h or x1 < 0 or x1 >= w:
@@ -693,9 +756,9 @@ def _label_components(mask: np.ndarray) -> np.ndarray:
 
 
 def _cell_centers(
-    extent: Tuple[float, float, float, float],
-    shape: Tuple[int, int],
-) -> Tuple[np.ndarray, np.ndarray]:
+    extent: tuple[float, float, float, float],
+    shape: tuple[int, int],
+) -> tuple[np.ndarray, np.ndarray]:
     xmin, xmax, ymin, ymax = extent
     ny, nx = shape
     dx = (xmax - xmin) / float(nx)
@@ -711,7 +774,7 @@ def _cluster_summary(
     lab: np.ndarray,
     metric: np.ndarray,
     risk: np.ndarray,
-    extent: Tuple[float, float, float, float],
+    extent: tuple[float, float, float, float],
     city: str,
     year: int,
     rank_by: str,
@@ -734,7 +797,7 @@ def _cluster_summary(
         return pd.DataFrame(columns=cols)
 
     xx, yy = _cell_centers(extent, lab.shape)
-    rows: List[Dict[str, Any]] = []
+    rows: list[dict[str, Any]] = []
     for k in labs:
         m = lab == int(k)
         mv = metric[m]
@@ -753,8 +816,16 @@ def _cluster_summary(
                 "n_cells": int(np.sum(m)),
                 "metric_mean": float(np.nanmean(mv)),
                 "metric_max": float(np.nanmax(mv)),
-                "risk_mean": float(np.nanmean(rv)) if rv.size else float("nan"),
-                "risk_max": float(np.nanmax(rv)) if rv.size else float("nan"),
+                "risk_mean": (
+                    float(np.nanmean(rv))
+                    if rv.size
+                    else float("nan")
+                ),
+                "risk_max": (
+                    float(np.nanmax(rv))
+                    if rv.size
+                    else float("nan")
+                ),
                 "centroid_x": cx,
                 "centroid_y": cy,
             }
@@ -769,7 +840,7 @@ def _cluster_summary(
     key = "metric_mean"
     if str(rank_by).strip().lower() == "risk":
         key = "risk_mean"
-    
+
     out = out.sort_values(
         [key, "n_cells"],
         ascending=[False, False],
@@ -786,12 +857,13 @@ def _cluster_summary(
 class CityHotspotData:
     city: str
     color: str
-    years: List[int]
+    years: list[int]
     base_year: int
     df_points: pd.DataFrame
     df_years: pd.DataFrame
-    extent: Tuple[float, float, float, float]
-    
+    extent: tuple[float, float, float, float]
+
+
 def _choose_hotspot_mask(
     pts: pd.DataFrame,
     *,
@@ -819,22 +891,23 @@ def _choose_hotspot_mask(
         return m_abs | m_rsk
     return m_pct
 
+
 def build_hotspot_tables(
     *,
     city: str,
     color: str,
     eval_df: pd.DataFrame,
     fut_df: pd.DataFrame,
-    years: List[int],
+    years: list[int],
     base_year: int,
     subsidence_kind: str,
     hotspot_q: float,
     risk_threshold: float,
     use_abs_risk: bool,
     hotspot_rule: str,
-    hotspot_abs: Optional[float],
-    risk_min: Optional[float],
-    exposure_df: Optional[pd.DataFrame],
+    hotspot_abs: float | None,
+    risk_min: float | None,
+    exposure_df: pd.DataFrame | None,
     exposure_col: str,
     exposure_default: float,
 ) -> CityHotspotData:
@@ -865,7 +938,9 @@ def build_hotspot_tables(
 
     # ---- eval: clean year + ids
     ev = eval_df.copy()
-    ev["coord_t"] = pd.to_numeric(ev["coord_t"], errors="coerce")
+    ev["coord_t"] = pd.to_numeric(
+        ev["coord_t"], errors="coerce"
+    )
     ev = ev.dropna(subset=["coord_t"]).copy()
     ev["coord_t"] = ev["coord_t"].astype(int)
 
@@ -894,14 +969,20 @@ def build_hotspot_tables(
                 )
             )
             .dropna(subset=["sample_idx"])
-            .assign(sample_idx=lambda d: d["sample_idx"].astype(int))
+            .assign(
+                sample_idx=lambda d: d["sample_idx"].astype(
+                    int
+                )
+            )
             .set_index("sample_idx")["subsidence_actual"]
             .astype(float)
         )
 
     # ---- future: coerce year + keep needed years
     fu = fut_df.copy()
-    fu["coord_t"] = pd.to_numeric(fu["coord_t"], errors="coerce")
+    fu["coord_t"] = pd.to_numeric(
+        fu["coord_t"], errors="coerce"
+    )
     fu = fu.dropna(subset=["coord_t"]).copy()
     fu["coord_t"] = fu["coord_t"].astype(int)
 
@@ -914,12 +995,16 @@ def build_hotspot_tables(
     # ---- for cumulative: ensure we have y_prev rows per sample
     # Prefer future rows; fill missing from eval quantiles at y_prev.
     if is_cum:
-        have_prev = fu.loc[fu["coord_t"].eq(y_prev), "sample_idx"]
+        have_prev = fu.loc[
+            fu["coord_t"].eq(y_prev), "sample_idx"
+        ]
         have_prev = pd.to_numeric(have_prev, errors="coerce")
         have_prev = have_prev.dropna().astype(int)
         have_prev_ids = set(have_prev.to_list())
 
-        need_prev = fu.loc[fu["coord_t"].eq(y_min), "sample_idx"]
+        need_prev = fu.loc[
+            fu["coord_t"].eq(y_min), "sample_idx"
+        ]
         need_prev = pd.to_numeric(need_prev, errors="coerce")
         need_prev = need_prev.dropna().astype(int)
         need_prev_ids = set(need_prev.to_list())
@@ -940,8 +1025,15 @@ def build_hotspot_tables(
 
             anchor = ev.loc[
                 ev["coord_t"].eq(y_prev),
-                ["sample_idx", "coord_t", "coord_x", "coord_y", c10,
-                 "subsidence_q50", c90],
+                [
+                    "sample_idx",
+                    "coord_t",
+                    "coord_x",
+                    "coord_y",
+                    c10,
+                    "subsidence_q50",
+                    c90,
+                ],
             ].copy()
 
             anchor = anchor.rename(
@@ -954,16 +1046,26 @@ def build_hotspot_tables(
             anchor["sample_idx"] = pd.to_numeric(
                 anchor["sample_idx"], errors="coerce"
             )
-            anchor = anchor.dropna(subset=["sample_idx"]).copy()
-            anchor["sample_idx"] = anchor["sample_idx"].astype(int)
+            anchor = anchor.dropna(
+                subset=["sample_idx"]
+            ).copy()
+            anchor["sample_idx"] = anchor[
+                "sample_idx"
+            ].astype(int)
 
-            anchor = anchor.loc[anchor["sample_idx"].isin(miss_ids)]
+            anchor = anchor.loc[
+                anchor["sample_idx"].isin(miss_ids)
+            ]
             if not anchor.empty:
-                fu = pd.concat([fu, anchor], ignore_index=True)
+                fu = pd.concat(
+                    [fu, anchor], ignore_index=True
+                )
 
     # ---- aggregate duplicates safely, then annualize
     fu = fu.copy()
-    fu["sample_idx"] = pd.to_numeric(fu["sample_idx"], errors="coerce")
+    fu["sample_idx"] = pd.to_numeric(
+        fu["sample_idx"], errors="coerce"
+    )
     fu = fu.dropna(subset=["sample_idx"]).copy()
     fu["sample_idx"] = fu["sample_idx"].astype(int)
 
@@ -980,9 +1082,15 @@ def build_hotspot_tables(
         .reset_index(drop=True)
     )
 
-    q10_a = _annual_series(fu, value_col="subsidence_q10", kind=knd)
-    q50_a = _annual_series(fu, value_col="subsidence_q50", kind=knd)
-    q90_a = _annual_series(fu, value_col="subsidence_q90", kind=knd)
+    q10_a = _annual_series(
+        fu, value_col="subsidence_q10", kind=knd
+    )
+    q50_a = _annual_series(
+        fu, value_col="subsidence_q50", kind=knd
+    )
+    q90_a = _annual_series(
+        fu, value_col="subsidence_q90", kind=knd
+    )
 
     fu = fu.copy()
     fu["s_q10"] = q10_a.to_numpy(float)
@@ -992,8 +1100,15 @@ def build_hotspot_tables(
     # Keep only requested years for outputs
     pts = fu.loc[
         fu["coord_t"].isin(set(years_req)),
-        ["sample_idx", "coord_t", "coord_x", "coord_y",
-         "s_q10", "s_q50", "s_q90"],
+        [
+            "sample_idx",
+            "coord_t",
+            "coord_x",
+            "coord_y",
+            "s_q10",
+            "s_q50",
+            "s_q90",
+        ],
     ].copy()
 
     # ---- anomaly vs baseline annual actual
@@ -1033,9 +1148,11 @@ def build_hotspot_tables(
     )
 
     # ---- percentile thresholds per year (T_q)
-    thr_map: Dict[int, float] = {}
+    thr_map: dict[int, float] = {}
     for yy, g in pts.groupby("coord_t", dropna=False):
-        a = pd.to_numeric(g["delta_abs"], errors="coerce").to_numpy(float)
+        a = pd.to_numeric(
+            g["delta_abs"], errors="coerce"
+        ).to_numpy(float)
         a = a[np.isfinite(a)]
         if a.size == 0:
             thr_map[int(yy)] = float("nan")
@@ -1057,14 +1174,14 @@ def build_hotspot_tables(
     )
 
     if hotspot_abs is not None:
-        pts["is_hotspot_abs"] = (
-            pts["delta_abs"].to_numpy(float) >= float(hotspot_abs)
-        )
+        pts["is_hotspot_abs"] = pts["delta_abs"].to_numpy(
+            float
+        ) >= float(hotspot_abs)
 
     if risk_min is not None:
-        pts["is_hotspot_risk"] = (
-            pts["p_exceed"].to_numpy(float) >= float(risk_min)
-        )
+        pts["is_hotspot_risk"] = pts["p_exceed"].to_numpy(
+            float
+        ) >= float(risk_min)
 
     pts["is_hotspot"] = _choose_hotspot_mask(
         pts,
@@ -1120,14 +1237,14 @@ def build_hotspot_tables(
     #         }
     #     )
     # ---- per-year summary (requested years only)
-    rows_y: List[Dict[str, Any]] = []
+    rows_y: list[dict[str, Any]] = []
     ever_set: set[int] = set()
-    
+
     for yy in years_req:
         g = pts.loc[pts["coord_t"].eq(int(yy))].copy()
         if g.empty:
             continue
-    
+
         # robust unique sets (never sum booleans)
         sel_ids = set(
             pd.to_numeric(
@@ -1139,7 +1256,7 @@ def build_hotspot_tables(
             .unique()
             .tolist()
         )
-    
+
         pct_ids = set(
             pd.to_numeric(
                 g.loc[g["is_hotspot_pct"], "sample_idx"],
@@ -1150,7 +1267,7 @@ def build_hotspot_tables(
             .unique()
             .tolist()
         )
-    
+
         abs_ids = None
         if "is_hotspot_abs" in g.columns:
             abs_ids = set(
@@ -1163,7 +1280,7 @@ def build_hotspot_tables(
                 .unique()
                 .tolist()
             )
-    
+
         rsk_ids = None
         if "is_hotspot_risk" in g.columns:
             rsk_ids = set(
@@ -1176,36 +1293,60 @@ def build_hotspot_tables(
                 .unique()
                 .tolist()
             )
-    
+
         # ever/new based on SELECTED rule
         new_ids = sel_ids - ever_set
         ever_set |= sel_ids
-    
-        a = pd.to_numeric(g["delta_abs"], errors="coerce").to_numpy(float)
-        p = pd.to_numeric(g["p_exceed"], errors="coerce").to_numpy(float)
+
+        a = pd.to_numeric(
+            g["delta_abs"], errors="coerce"
+        ).to_numpy(float)
+        p = pd.to_numeric(
+            g["p_exceed"], errors="coerce"
+        ).to_numpy(float)
         a2 = a[np.isfinite(a)]
         p2 = p[np.isfinite(p)]
-    
+
         rows_y.append(
             {
                 "city": str(city),
                 "year": int(yy),
                 "T_q": float(thr_map.get(int(yy), np.nan)),
-    
                 # timeline variants
-                "n_hotspots": int(len(sel_ids)),           # current
-                "n_hotspots_ever": int(len(ever_set)),     # monotone
-                "n_hotspots_new": int(len(new_ids)),       # additions
-    
+                "n_hotspots": int(len(sel_ids)),  # current
+                "n_hotspots_ever": int(
+                    len(ever_set)
+                ),  # monotone
+                "n_hotspots_new": int(
+                    len(new_ids)
+                ),  # additions
                 # keep rule-specific counts for transparency
                 "n_hotspots_pct": int(len(pct_ids)),
-                "n_hotspots_abs": int(len(abs_ids)) if abs_ids is not None else -1,
-                "n_hotspots_risk": int(len(rsk_ids)) if rsk_ids is not None else -1,
-    
-                "delta_mean": float(np.nanmean(a2)) if a2.size else float("nan"),
-                "delta_max": float(np.nanmax(a2)) if a2.size else float("nan"),
-                "p_mean": float(np.nanmean(p2)) if p2.size else float("nan"),
-    
+                "n_hotspots_abs": (
+                    int(len(abs_ids))
+                    if abs_ids is not None
+                    else -1
+                ),
+                "n_hotspots_risk": (
+                    int(len(rsk_ids))
+                    if rsk_ids is not None
+                    else -1
+                ),
+                "delta_mean": (
+                    float(np.nanmean(a2))
+                    if a2.size
+                    else float("nan")
+                ),
+                "delta_max": (
+                    float(np.nanmax(a2))
+                    if a2.size
+                    else float("nan")
+                ),
+                "p_mean": (
+                    float(np.nanmean(p2))
+                    if p2.size
+                    else float("nan")
+                ),
                 "risk_sum": float(
                     np.nansum(
                         pd.to_numeric(
@@ -1216,7 +1357,7 @@ def build_hotspot_tables(
                 ),
             }
         )
-        
+
     df_years = pd.DataFrame(rows_y)
     ext = _extent(pts)
 
@@ -1230,6 +1371,7 @@ def build_hotspot_tables(
         extent=ext,
     )
 
+
 # ---------------------------------------------------------------------
 # Plot
 # ---------------------------------------------------------------------
@@ -1240,8 +1382,10 @@ def _axes_cleanup(ax: plt.Axes) -> None:
         ax.spines[s].set_visible(False)
 
 
-def _clip_bounds(vals: List[np.ndarray], clip: float) -> Tuple[float, float]:
-    good: List[np.ndarray] = []
+def _clip_bounds(
+    vals: list[np.ndarray], clip: float
+) -> tuple[float, float]:
+    good: list[np.ndarray] = []
     for v in vals:
         a = np.asarray(v)
         a = a[np.isfinite(a)]
@@ -1260,7 +1404,7 @@ def _clip_bounds(vals: List[np.ndarray], clip: float) -> Tuple[float, float]:
 
 def plot_hotspot_analytics(
     *,
-    cities: List[CityHotspotData],
+    cities: list[CityHotspotData],
     focus_year: int,
     grid_res: int,
     clip: float,
@@ -1272,26 +1416,25 @@ def plot_hotspot_analytics(
     show_legend: bool,
     show_title: bool,
     show_panel_titles: bool,
-    title: Optional[str],
+    title: str | None,
     out: str,
-    out_points: Optional[str],
-    out_years: Optional[str],
-    out_clusters: Optional[str],
+    out_points: str | None,
+    out_years: str | None,
+    out_clusters: str | None,
     timeline_mode: str,
     timeline_overlay_current: bool,
     dpi: int,
     font: int,
-    cluster_rank: str, 
+    cluster_rank: str,
     add_persistence: bool,
-    add_compare: bool, 
+    add_compare: bool,
     compare_metric: str,
-    hotspot_rule:str, 
-    hotspot_abs:Optional[float],
-    risk_min: Optional[float], 
-    ns_future_b: Optional[str] = None, 
-    zh_future_b: Optional[str] = None, 
-    gdf: Optional[Union[GeoDF, Dict[str, GeoDF]]] = None,
-
+    hotspot_rule: str,
+    hotspot_abs: float | None,
+    risk_min: float | None,
+    ns_future_b: str | None = None,
+    zh_future_b: str | None = None,
+    gdf: GeoDF | dict[str, GeoDF] | None = None,
 ) -> None:
     utils.ensure_script_dirs()
     utils.set_paper_style(fontsize=int(font), dpi=int(dpi))
@@ -1299,7 +1442,7 @@ def plot_hotspot_analytics(
     cmap1 = plt.get_cmap(str(cmap_metric))
     cmap2 = plt.get_cmap(str(cmap_prob))
 
-    dvals: List[np.ndarray] = []
+    dvals: list[np.ndarray] = []
     for c in cities:
         dvals.append(
             pd.to_numeric(
@@ -1312,15 +1455,16 @@ def plot_hotspot_analytics(
     n_cols = 4
     if add_persistence:
         n_cols += 1
-    
-    have_b = ( 
-        ns_future_b is not None 
-        or zh_future_b is not None  # or since we can compare for one city only 
-        # and if we want to compare both cities obligatory 
+
+    have_b = (
+        ns_future_b is not None
+        or zh_future_b
+        is not None  # or since we can compare for one city only
+        # and if we want to compare both cities obligatory
     )
     if add_compare and have_b:
         n_cols += 1
-        
+
     fig_w = 2.4 * n_cols + 1.8
     fig_h = 2.5 * n_rows + 1.2
 
@@ -1341,7 +1485,7 @@ def plot_hotspot_analytics(
     #     hspace=0.25,
     # )
     plot_right = 0.88 if show_legend else 0.98
-    
+
     plt.subplots_adjust(
         left=0.06,
         right=plot_right,
@@ -1351,9 +1495,9 @@ def plot_hotspot_analytics(
         hspace=0.25,
     )
 
-    all_points: List[pd.DataFrame] = []
-    all_years: List[pd.DataFrame] = []
-    all_clusters: List[pd.DataFrame] = []
+    all_points: list[pd.DataFrame] = []
+    all_years: list[pd.DataFrame] = []
+    all_clusters: list[pd.DataFrame] = []
 
     for r, c in enumerate(cities):
         dfp = c.df_points.copy()
@@ -1366,11 +1510,17 @@ def plot_hotspot_analytics(
         ext = c.extent
 
         # sub = dfp.loc[dfp["coord_t"].astype(int).eq(int(focus_year))]
-        sub = dfp.loc[dfp["coord_t"].astype(int).eq(int(focus_year))]
+        sub = dfp.loc[
+            dfp["coord_t"].astype(int).eq(int(focus_year))
+        ]
         focus_y = int(focus_year)
         if sub.empty:
-            focus_y = int(np.nanmax(dfp["coord_t"].to_numpy(int)))
-            sub = dfp.loc[dfp["coord_t"].astype(int).eq(int(focus_y))]
+            focus_y = int(
+                np.nanmax(dfp["coord_t"].to_numpy(int))
+            )
+            sub = dfp.loc[
+                dfp["coord_t"].astype(int).eq(int(focus_y))
+            ]
 
         # x = pd.to_numeric(sub["coord_x"], errors="coerce").to_numpy(float)
         # y = pd.to_numeric(sub["coord_y"], errors="coerce").to_numpy(float)
@@ -1386,20 +1536,20 @@ def plot_hotspot_analytics(
 
         # # z_d, ext2 = _grid_mean(x, y, d, res=grid_res, extent=ext)
         # z_d, ext2 = _grid_mean(x, y, d, res=grid_res, extent=ext)
-        
+
         # z_p, _ = _grid_mean(x, y, p, res=grid_res, extent=ext)
         # # z_r, _ = _grid_mean(x, y, d * p, res=grid_res, extent=ext)
         # rs = pd.to_numeric(
         # sub["risk_score"], errors="coerce"
         #     ).to_numpy(float)
-        
+
         # ok = np.isfinite(x) & np.isfinite(y) & np.isfinite(d)
         # # also require rs for risk grid
         # rs = rs[ok]
-        
+
         # z_r, _ = _grid_mean(x, y, rs,
         #     res=grid_res, extent=ext)
-        
+
         x = pd.to_numeric(
             sub["coord_x"], errors="coerce"
         ).to_numpy(float)
@@ -1415,23 +1565,21 @@ def plot_hotspot_analytics(
         rs = pd.to_numeric(
             sub["risk_score"], errors="coerce"
         ).to_numpy(float)
-        
+
         ok = np.isfinite(x) & np.isfinite(y) & np.isfinite(d)
         x = x[ok]
         y = y[ok]
         d = d[ok]
         p = p[ok]
         rs = rs[ok]
-        
+
         p = np.where(np.isfinite(p), p, 0.0)
         rs = np.where(np.isfinite(rs), rs, 0.0)
-        
+
         z_d, ext2 = _grid_mean(
             x, y, d, res=grid_res, extent=ext
         )
-        z_p, _ = _grid_mean(
-            x, y, p, res=grid_res, extent=ext
-        )
+        z_p, _ = _grid_mean(x, y, p, res=grid_res, extent=ext)
         z_r, _ = _grid_mean(
             x, y, rs, res=grid_res, extent=ext
         )
@@ -1452,7 +1600,7 @@ def plot_hotspot_analytics(
             hotspot_abs=hotspot_abs,
             risk_min=risk_min,
         )
-    
+
         lab = _label_components(mask)
 
         cl = _cluster_summary(
@@ -1465,14 +1613,18 @@ def plot_hotspot_analytics(
             rank_by=cluster_rank,
         )
         all_clusters.append(cl)
-        
+
         # boundaries per city (optional)
         gdf_here = None
         if isinstance(gdf, dict):
             gdf_here = gdf.get(city)
-            if gdf_here is None or getattr(gdf_here, "empty", False):
+            if gdf_here is None or getattr(
+                gdf_here, "empty", False
+            ):
                 g_alt = gdf.get(_slug_city(city))
-                if g_alt is not None and not getattr(g_alt, "empty", False):
+                if g_alt is not None and not getattr(
+                    g_alt, "empty", False
+                ):
                     gdf_here = g_alt
         else:
             gdf_here = gdf
@@ -1482,16 +1634,18 @@ def plot_hotspot_analytics(
         pers_ext = ext2
         n_pers_years = 0
         if add_persistence:
-            z_pers, pers_ext, n_pers_years = _compute_persistence_grid(
-                dfp=dfp,
-                dfy=dfy,
-                years=c.years,
-                extent=ext,
-                grid_res=int(grid_res),
-                hotspot_rule=str(hotspot_rule),
-                hotspot_abs=hotspot_abs,
-                risk_min=risk_min,
-                mode=str(persistence_mode),
+            z_pers, pers_ext, n_pers_years = (
+                _compute_persistence_grid(
+                    dfp=dfp,
+                    dfy=dfy,
+                    years=c.years,
+                    extent=ext,
+                    grid_res=int(grid_res),
+                    hotspot_rule=str(hotspot_rule),
+                    hotspot_abs=hotspot_abs,
+                    risk_min=risk_min,
+                    mode=str(persistence_mode),
+                )
             )
 
         # (1) anomaly map
@@ -1577,7 +1731,7 @@ def plot_hotspot_analytics(
             )
         except Exception:
             pass
-        
+
         _axes_cleanup(ax1)
 
         # (3) timeline
@@ -1586,7 +1740,7 @@ def plot_hotspot_analytics(
         yrs = t["year"].to_numpy(int)
 
         mode = str(timeline_mode).strip().lower()
-        
+
         col_map = {
             "current": "n_hotspots",
             "ever": "n_hotspots_ever",
@@ -1595,16 +1749,20 @@ def plot_hotspot_analytics(
         k = col_map.get(mode, "n_hotspots")
         if k not in t.columns:
             k = "n_hotspots"
-        
-        nh = pd.to_numeric(t[k], errors="coerce").to_numpy(float)
+
+        nh = pd.to_numeric(t[k], errors="coerce").to_numpy(
+            float
+        )
         nh_cur = pd.to_numeric(
             t.get("n_hotspots", np.nan),
             errors="coerce",
         ).to_numpy(float)
-        
+
         rgba_bar = mpl.colors.to_rgba(col, 0.25)
-        bar_lab = mode if mode in ("ever", "new") else "current"
-        
+        bar_lab = (
+            mode if mode in ("ever", "new") else "current"
+        )
+
         ax2.bar(
             yrs,
             nh,
@@ -1615,12 +1773,12 @@ def plot_hotspot_analytics(
             zorder=2,
             label=bar_lab,
         )
-        
+
         ax2.set_axisbelow(True)
         ax2.grid(True, axis="y", alpha=0.20, zorder=0)
         for s in ("top", "right"):
             ax2.spines[s].set_visible(False)
-        
+
         if mode == "ever":
             yl = "# hotspots (ever)"
         elif mode == "new":
@@ -1628,14 +1786,14 @@ def plot_hotspot_analytics(
         else:
             yl = "# hotspots (current)"
         ax2.set_ylabel(yl)
-        
+
         # ---- optional overlay: dashed current line
         do_overlay = (
             bool(timeline_overlay_current)
             and mode in ("ever", "new")
             and np.any(np.isfinite(nh_cur))
         )
-        
+
         if do_overlay:
             rgba_line = mpl.colors.to_rgba(col, 0.90)
             ax2.plot(
@@ -1649,7 +1807,7 @@ def plot_hotspot_analytics(
                 zorder=3,
                 label="current",
             )
-        
+
             # light, local legend (only for this axis)
             ax2.legend(
                 loc="upper right",
@@ -1658,20 +1816,25 @@ def plot_hotspot_analytics(
                 handlelength=2.0,
             )
 
-
         ax2b = ax2.twinx()
-        tq = pd.to_numeric(t["T_q"], errors="coerce").to_numpy(float)
-        dx = pd.to_numeric(t["delta_max"], errors="coerce").to_numpy(float)
+        tq = pd.to_numeric(
+            t["T_q"], errors="coerce"
+        ).to_numpy(float)
+        dx = pd.to_numeric(
+            t["delta_max"], errors="coerce"
+        ).to_numpy(float)
         # ax2b.plot(yrs, tq, marker="o", linestyle="--")
         # ax2b.plot(yrs, dx, marker="s", linestyle="-")
         ax2b.plot(
-            yrs, tq,
+            yrs,
+            tq,
             marker="o",
             linestyle="--",
             linewidth=1.2,
         )
         ax2b.plot(
-            yrs, dx,
+            yrs,
+            dx,
             marker="s",
             linestyle="-",
             linewidth=1.2,
@@ -1696,7 +1859,7 @@ def plot_hotspot_analytics(
             ax3.spines[s].set_visible(False)
         ax3.set_axisbelow(True)
         ax3.grid(True, axis="x", alpha=0.18)
-        
+
         if cl.empty:
             ax3.text(
                 0.5,
@@ -1710,26 +1873,26 @@ def plot_hotspot_analytics(
             ax3.set_yticks([])
         else:
             topc = cl.head(int(cluster_top)).copy()
-        
+
             key = "metric_mean"
             xlab = r"mean |Δs| (mm yr$^{-1}$)"
             if str(cluster_rank).strip().lower() == "risk":
                 key = "risk_mean"
                 xlab = "mean risk score"
-        
+
             vals = pd.to_numeric(
                 topc[key], errors="coerce"
             ).to_numpy(float)
-        
+
             ylab = []
             for _, rr in topc.iterrows():
                 rk = int(rr["priority_rank"])
                 cid = int(rr["cluster_id"])
                 ylab.append(f"{rk}. C{cid}")
-        
+
             yk = np.arange(len(ylab))
             rgba = mpl.colors.to_rgba(col, 0.75)
-        
+
             bars = ax3.barh(
                 yk,
                 vals,
@@ -1737,19 +1900,23 @@ def plot_hotspot_analytics(
                 edgecolor=col,
                 linewidth=1.0,
             )
-        
+
             ax3.set_yticks(yk)
             ax3.set_yticklabels(ylab)
             ax3.tick_params(axis="y", length=0)
             ax3.invert_yaxis()
-        
+
             ax3.set_xlabel(xlab)
-        
-            vmax = float(np.nanmax(vals)) if np.any(np.isfinite(vals)) else 1.0
+
+            vmax = (
+                float(np.nanmax(vals))
+                if np.any(np.isfinite(vals))
+                else 1.0
+            )
             pad = 0.03 * vmax
             ax3.set_xlim(0.0, vmax + 6.0 * pad)
-        
-            for b, v in zip(bars, vals):
+
+            for b, v in zip(bars, vals, strict=False):
                 if not np.isfinite(v):
                     continue
                 ax3.text(
@@ -1760,7 +1927,7 @@ def plot_hotspot_analytics(
                     ha="left",
                     fontsize=max(7, int(font) - 1),
                 )
-        
+
         # (5) persistence panel (optional)
         if add_persistence:
             ax4 = ax_arr[r, 4]
@@ -1804,7 +1971,11 @@ def plot_hotspot_analytics(
                 fontweight="bold",
                 pad=4,
             )
-            tag = mode if mode in ("current", "ever", "new") else "current"
+            tag = (
+                mode
+                if mode in ("current", "ever", "new")
+                else "current"
+            )
             ax2.set_title(
                 f"{city} • hotspot evolution ({tag})",
                 loc="left",
@@ -1827,12 +1998,11 @@ def plot_hotspot_analytics(
                     pad=4,
                 )
 
-
     if show_legend:
         # Colorbar strip starts just to the right of the subplot grid
         cbar_x = plot_right + 0.02
         cbar_w = 0.012
-    
+
         if add_persistence:
             # 3 stacked bars with comfortable gaps
             cax_d = fig.add_axes([cbar_x, 0.68, cbar_w, 0.22])
@@ -1843,23 +2013,31 @@ def plot_hotspot_analytics(
             cax_d = fig.add_axes([cbar_x, 0.56, cbar_w, 0.30])
             cax_p = fig.add_axes([cbar_x, 0.16, cbar_w, 0.30])
             cax_s = None
-    
+
         cb1 = fig.colorbar(
             mpl.cm.ScalarMappable(
-                norm=mpl.colors.Normalize(vmin=dmin, vmax=dmax),
+                norm=mpl.colors.Normalize(
+                    vmin=dmin, vmax=dmax
+                ),
                 cmap=cmap1,
             ),
             cax=cax_d,
         )
         cb1.set_label(r"|Δs| (mm yr$^{-1}$)")
-    
+
         if add_persistence and cax_s is not None:
             mm = str(persistence_mode).strip().lower()
-            vmaxp = float(max(1, len(cities[0].years))) if mm == "count" else 1.0
-    
+            vmaxp = (
+                float(max(1, len(cities[0].years)))
+                if mm == "count"
+                else 1.0
+            )
+
             cbp = fig.colorbar(
                 mpl.cm.ScalarMappable(
-                    norm=mpl.colors.Normalize(vmin=0.0, vmax=vmaxp),
+                    norm=mpl.colors.Normalize(
+                        vmin=0.0, vmax=vmaxp
+                    ),
                     cmap=cmap2,
                 ),
                 cax=cax_s,
@@ -1869,7 +2047,7 @@ def plot_hotspot_analytics(
                 if mm == "count"
                 else "Hotspot persistence (fraction)"
             )
-    
+
         cb2 = fig.colorbar(
             mpl.cm.ScalarMappable(
                 norm=mpl.colors.Normalize(vmin=0.0, vmax=1.0),
@@ -1878,7 +2056,7 @@ def plot_hotspot_analytics(
             cax=cax_p,
         )
         cb2.set_label(r"P(|s| ≥ T)")
-    
+
     if show_title:
         ttl = utils.resolve_title(
             default="Hotspot analytics — where to act first",
@@ -1887,20 +2065,35 @@ def plot_hotspot_analytics(
         fig.suptitle(ttl, x=0.02, ha="left")
 
     utils.save_figure(fig, out, dpi=int(dpi))
- 
-    p_pts = utils.as_path(out_points) if out_points else \
-        utils.resolve_out_out("hotspot_points.csv")
-    pd.concat(all_points, ignore_index=True).to_csv(p_pts, index=False)
+
+    p_pts = (
+        utils.as_path(out_points)
+        if out_points
+        else utils.resolve_out_out("hotspot_points.csv")
+    )
+    pd.concat(all_points, ignore_index=True).to_csv(
+        p_pts, index=False
+    )
     print(f"[OK] wrote {p_pts}")
 
-    p_yrs = utils.as_path(out_years) if out_years else \
-        utils.resolve_out_out("hotspot_years.csv")
-    pd.concat(all_years, ignore_index=True).to_csv(p_yrs, index=False)
+    p_yrs = (
+        utils.as_path(out_years)
+        if out_years
+        else utils.resolve_out_out("hotspot_years.csv")
+    )
+    pd.concat(all_years, ignore_index=True).to_csv(
+        p_yrs, index=False
+    )
     print(f"[OK] wrote {p_yrs}")
 
-    p_cls = utils.as_path(out_clusters) if out_clusters else \
-        utils.resolve_out_out("hotspot_clusters.csv")
-    pd.concat(all_clusters, ignore_index=True).to_csv(p_cls, index=False)
+    p_cls = (
+        utils.as_path(out_clusters)
+        if out_clusters
+        else utils.resolve_out_out("hotspot_clusters.csv")
+    )
+    pd.concat(all_clusters, ignore_index=True).to_csv(
+        p_cls, index=False
+    )
     print(f"[OK] wrote {p_cls}")
 
 
@@ -1940,16 +2133,24 @@ def _add_args(ap: argparse.ArgumentParser) -> None:
         default="cumulative",
         choices=["cumulative", "rate", "increment"],
     )
-    ap.add_argument("--hotspot-quantile", type=float, default=0.90)
+    ap.add_argument(
+        "--hotspot-quantile", type=float, default=0.90
+    )
 
-    ap.add_argument("--risk-threshold", type=float, default=50.0)
+    ap.add_argument(
+        "--risk-threshold", type=float, default=50.0
+    )
     ap.add_argument("--risk-abs", type=str, default="true")
 
     ap.add_argument("--grid-res", type=int, default=300)
     ap.add_argument("--clip", type=float, default=98.0)
 
-    ap.add_argument("--cmap-metric", type=str, default="magma")
-    ap.add_argument("--cmap-prob", type=str, default="viridis")
+    ap.add_argument(
+        "--cmap-metric", type=str, default="magma"
+    )
+    ap.add_argument(
+        "--cmap-prob", type=str, default="viridis"
+    )
     ap.add_argument("--cluster-top", type=int, default=6)
 
     ap.add_argument("--out-points", type=str, default=None)
@@ -1957,7 +2158,9 @@ def _add_args(ap: argparse.ArgumentParser) -> None:
     ap.add_argument("--out-clusters", type=str, default=None)
 
     ap.add_argument("--dpi", type=int, default=cfg.PAPER_DPI)
-    ap.add_argument("--font", type=int, default=cfg.PAPER_FONT)
+    ap.add_argument(
+        "--font", type=int, default=cfg.PAPER_FONT
+    )
 
     ap.add_argument(
         "--hotspot-rule",
@@ -1974,37 +2177,34 @@ def _add_args(ap: argparse.ArgumentParser) -> None:
             "for counts, clusters, persistence."
         ),
     )
-    
+
     ap.add_argument(
         "--hotspot-abs",
         type=float,
         default=None,
         help="Absolute hotspot: |Δs|>=X (mm/yr).",
     )
-    
+
     ap.add_argument(
         "--risk-min",
         type=float,
         default=None,
         help="Risk hotspot: P(|s|>=T)>=p.",
     )
-    
+
     ap.add_argument(
         "--exposure",
         type=str,
         default=None,
-        help=(
-            "Optional exposure CSV "
-            "(sample_idx,exposure)."
-        ),
+        help=("Optional exposure CSV (sample_idx,exposure)."),
     )
-    
+
     ap.add_argument(
         "--exposure-col",
         type=str,
         default="exposure",
     )
-    
+
     ap.add_argument(
         "--exposure-default",
         type=float,
@@ -2038,7 +2238,7 @@ def _add_args(ap: argparse.ArgumentParser) -> None:
         choices=["delta", "risk"],
         help="Rank clusters by |Δs| or risk score.",
     )
-    
+
     ap.add_argument(
         "--add-persistence",
         action="store_true",
@@ -2055,7 +2255,7 @@ def _add_args(ap: argparse.ArgumentParser) -> None:
             "fraction (0..1) or count (0..N years)."
         ),
     )
-     
+
     ap.add_argument(
         "--boundary",
         type=str,
@@ -2082,26 +2282,26 @@ def _add_args(ap: argparse.ArgumentParser) -> None:
         type=str,
         default=None,
     )
-    
+
     ap.add_argument(
         "--ns-future-b",
         type=str,
         default=None,
     )
-    
+
     ap.add_argument(
         "--zh-future-b",
         type=str,
         default=None,
     )
-    
+
     ap.add_argument(
         "--compare-metric",
         type=str,
         default="risk",
         choices=["risk", "delta", "prob"],
     )
-    
+
     ap.add_argument(
         "--add-compare",
         action="store_true",
@@ -2114,7 +2314,7 @@ def _add_args(ap: argparse.ArgumentParser) -> None:
 
 
 def plot_hotspot_analytics_main(
-    argv: Optional[List[str]] = None,
+    argv: list[str] | None = None,
 ) -> None:
     ap = argparse.ArgumentParser(
         prog="plot-hotspot-analytics",
@@ -2123,10 +2323,16 @@ def plot_hotspot_analytics_main(
     _add_args(ap)
     args = ap.parse_args(argv)
 
-    show_legend = utils.str_to_bool(args.show_legend, default=True)
-    show_title = utils.str_to_bool(args.show_title, default=True)
-    show_pt = utils.str_to_bool(args.show_panel_titles, default=True)
-    
+    show_legend = utils.str_to_bool(
+        args.show_legend, default=True
+    )
+    show_title = utils.str_to_bool(
+        args.show_title, default=True
+    )
+    show_pt = utils.str_to_bool(
+        args.show_panel_titles, default=True
+    )
+
     overlay_cur = utils.str_to_bool(
         args.timeline_overlay_current,
         default=True,
@@ -2135,8 +2341,11 @@ def plot_hotspot_analytics_main(
     years = [int(y) for y in (args.years or [])]
     if not years:
         raise SystemExit("--years must be non-empty")
-    focus_year = int(args.focus_year) if args.focus_year is not None \
+    focus_year = (
+        int(args.focus_year)
+        if args.focus_year is not None
         else int(max(years))
+    )
 
     cities0 = utils.resolve_cities(args)
     if not cities0:
@@ -2147,15 +2356,15 @@ def plot_hotspot_analytics_main(
     if not want_a and not want_b:
         want_a = True
         want_b = True
-        
+
     expo = None
     if args.exposure:
         expo = _load_exposure(
             args.exposure,
             col=str(args.exposure_col),
         )
-    
-    resolved: List[Dict[str, Any]] = []
+
+    resolved: list[dict[str, Any]] = []
     if want_a:
         resolved.append(
             _resolve_city(
@@ -2177,7 +2386,7 @@ def plot_hotspot_analytics_main(
             )
         )
 
-    cities: List[CityHotspotData] = []
+    cities: list[CityHotspotData] = []
     for rc in resolved:
         cities.append(
             build_hotspot_tables(
@@ -2190,14 +2399,15 @@ def plot_hotspot_analytics_main(
                 subsidence_kind=str(args.subsidence_kind),
                 hotspot_q=float(args.hotspot_quantile),
                 risk_threshold=float(args.risk_threshold),
-                use_abs_risk=utils.str_to_bool(args.risk_abs, default=True),
+                use_abs_risk=utils.str_to_bool(
+                    args.risk_abs, default=True
+                ),
                 hotspot_rule=str(args.hotspot_rule),
                 hotspot_abs=args.hotspot_abs,
                 risk_min=args.risk_min,
                 exposure_df=expo,
                 exposure_col=str(args.exposure_col),
                 exposure_default=float(args.exposure_default),
-
             )
         )
     # gdf = _try_load_boundaries(args.boundary)
@@ -2208,7 +2418,7 @@ def plot_hotspot_analytics_main(
         boundary_name_field=args.boundary_name_field,
         cities=[c.city for c in cities],
     )
-    
+
     plot_hotspot_analytics(
         cities=cities,
         focus_year=int(focus_year),
@@ -2242,11 +2452,10 @@ def plot_hotspot_analytics_main(
         zh_future_b=args.zh_future_b,
         compare_metric=str(args.compare_metric),
         gdf=gdf_map,
-
     )
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     plot_hotspot_analytics_main(argv)
 
 

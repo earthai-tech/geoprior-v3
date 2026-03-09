@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Author: LKouadio <etanoyau@gmail.com>
-# Adapted from: earthai-tech/fusionlab-learn — https://github.com/earthai-tech/gofast
-# Modified for GeoPrior-v3 API.
+# Adapted from: earthai-tech/fusionlab-learn https://github.com/earthai-tech/gofast
+# Modified for GeoPrior-v3 API
 
 """
 Temporal modules:
@@ -13,29 +12,28 @@ Temporal modules:
 """
 
 from __future__ import annotations
-from typing import List, Union
 
 from ...api.property import NNLearner
 from ...core.checks import validate_nested_param
 from ...utils.deps_utils import ensure_pkg
-
 from ._config import (
-    LSTM, Layer, 
-    tf_concat, 
-    tf_autograph, register_keras_serializable,
     DEP_MSG,
     KERAS_BACKEND,
+    LSTM,
+    Layer,
+    register_keras_serializable,
+    tf_autograph,
+    tf_concat,
 )
 
 __all__ = [
     "MultiScaleLSTM",
-    "DynamicTimeWindow", 
+    "DynamicTimeWindow",
 ]
 
 
 @register_keras_serializable(
-    'geoprior.nn.components', 
-    name='MultiScaleLSTM'
+    "geoprior.nn.components", name="MultiScaleLSTM"
 )
 class MultiScaleLSTM(Layer, NNLearner):
     r"""
@@ -117,18 +115,16 @@ class MultiScaleLSTM(Layer, NNLearner):
     def __init__(
         self,
         lstm_units: int,
-        scales: Union[str, List[int], None] = None,
+        scales: str | list[int] | None = None,
         return_sequences: bool = False,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
-        if scales is None or scales == 'auto':
+        if scales is None or scales == "auto":
             scales = [1]
         # Validate that scales is a list of int
         scales = validate_nested_param(
-            scales,
-            List[int],
-            'scales'
+            scales, list[int], "scales"
         )
 
         self.lstm_units = lstm_units
@@ -138,8 +134,7 @@ class MultiScaleLSTM(Layer, NNLearner):
         # Create an LSTM for each scale
         self.lstm_layers = [
             LSTM(
-                lstm_units,
-                return_sequences=return_sequences
+                lstm_units, return_sequences=return_sequences
             )
             for _ in scales
         ]
@@ -169,11 +164,12 @@ class MultiScaleLSTM(Layer, NNLearner):
               on the scale sub-sampling.
         """
         outputs = []
-        for scale, lstm in zip(self.scales, self.lstm_layers):
+        for scale, lstm in zip(
+            self.scales, self.lstm_layers, strict=False
+        ):
             scaled_input = inputs[:, ::scale, :]
             lstm_output = lstm(
-                scaled_input,
-                training=training
+                scaled_input, training=training
             )
             outputs.append(lstm_output)
 
@@ -198,11 +194,13 @@ class MultiScaleLSTM(Layer, NNLearner):
             Configuration dictionary.
         """
         config = super().get_config().copy()
-        config.update({
-            'lstm_units': self.lstm_units,
-            'scales': self.scales,
-            'return_sequences': self.return_sequences
-        })
+        config.update(
+            {
+                "lstm_units": self.lstm_units,
+                "scales": self.scales,
+                "return_sequences": self.return_sequences,
+            }
+        )
         return config
 
     @classmethod
@@ -226,8 +224,7 @@ class MultiScaleLSTM(Layer, NNLearner):
 
 
 @register_keras_serializable(
-    'geoprior.nn.components',
-    name="DynamicTimeWindow"
+    "geoprior.nn.components", name="DynamicTimeWindow"
 )
 class DynamicTimeWindow(Layer, NNLearner):
     r"""
@@ -283,9 +280,9 @@ class DynamicTimeWindow(Layer, NNLearner):
 
     References
     ----------
-    .. [1] Lim, B., & Zohren, S. (2021). 
+    .. [1] Lim, B., & Zohren, S. (2021).
            "Time-series forecasting with deep
-           learning: a survey." 
+           learning: a survey."
            *Philosophical Transactions of
            the Royal Society A*, 379(2194),
            20200209.
@@ -320,11 +317,11 @@ class DynamicTimeWindow(Layer, NNLearner):
         Returns
         -------
         tf.Tensor
-            A sliced tensor of shape 
-            :math:`(B, W, D)` where W = 
+            A sliced tensor of shape
+            :math:`(B, W, D)` where W =
             `max_window_size`.
         """
-        return inputs[:, -self.max_window_size:, :]
+        return inputs[:, -self.max_window_size :, :]
 
     def get_config(self):
         r"""
@@ -336,9 +333,9 @@ class DynamicTimeWindow(Layer, NNLearner):
             Contains 'max_window_size'.
         """
         config = super().get_config().copy()
-        config.update({
-            'max_window_size': self.max_window_size
-        })
+        config.update(
+            {"max_window_size": self.max_window_size}
+        )
         return config
 
     @classmethod

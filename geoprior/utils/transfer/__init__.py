@@ -1,10 +1,4 @@
-# -*- coding: utf-8 -*-
-# SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
-# Copyright (c) 2026-present
-# Author: LKouadio <https://lkouadio.com>
-
-"""geoprior.utils.transfer
+"""
 
 Reusable helpers for cross-city transferability analyses.
 
@@ -21,16 +15,18 @@ Typical usage
 >>> from geoprior.utils.transfer import xfer_risk
 """
 
-from . import xfer_io
-from . import xfer_metrics
-from . import xfer_risk
-from . import xfer_utils
-from . import xfer_units
+from . import (
+    xfer_io,
+    xfer_metrics,
+    xfer_risk,
+    xfer_units,
+    xfer_utils,
+)
 
 __all__ = [
     "xfer_io",
     "xfer_metrics",
     "xfer_risk",
-    "xfer_utils", 
-    "xfer_units"
+    "xfer_utils",
+    "xfer_units",
 ]

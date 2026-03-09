@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Author: LKouadio <etanoyau@gmail.com>
 # Adapted from: earthai-tech/fusionlab-learn — https://github.com/earthai-tech/fusionlab-learn
@@ -12,113 +11,121 @@ output suppression, deprecation handling, and feature-importance plotting.
 Adapted for FusionLab from the original geoprior.decorators implementation.
 """
 
-from __future__ import print_function, annotations  
+from __future__ import annotations
+
+import functools
+import inspect
 import os
 import re
-import inspect
 import warnings
-import functools
+from collections.abc import Callable
 from textwrap import dedent
-import numpy as np 
-import pandas as pd
-import matplotlib.pyplot as plt 
+from typing import (
+    Any,
+)
 
-from typing import Any, Union, Optional, Callable, Tuple, Dict, Type 
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
 from .logging import get_logger
+
 try:
     from sklearn.preprocessing import LabelEncoder
 except ImportError:
     LabelEncoder = None
     warnings.warn(
         "scikit-learn not found. LabelEncoding for 'encode_categories' "
-        "will not be available in DynamicMethod."
+        "will not be available in DynamicMethod.",
+        stacklevel=2,
     )
-    
+
 _logger = get_logger(__name__)
 
-__docformat__ = 'restructuredtext'
+__docformat__ = "restructuredtext"
 
 __all__ = [
-    'AppendDocFrom',
-    'AppendDocReferences',
-    'AppendDocSection',
-    'CheckGDALData',
-    'DataTransformer',
-    'Dataify',
-    'Deprecated',
-    'DynamicMethod',
-    'EnsureMethod',
-    'executeWithFallback', 
-    'ExportData',
-    'Extract1dArrayOrSeries',
-    'IsPerformanceData', 
-    'NumpyDocstring',
-    'NumpyDocstringFormatter',
-    'PlotFeatureImportance',
-    'PlotPrediction',
-    'RedirectToNew',
-    'RunReturn', 
-    'SignalFutureChange',
-    'smartFitRun',
-    'SmartProcessor',
-    'Temp2D',
-    'available_if',
-    'isdf',
-    'sanitize_docstring',
-    'copy_doc'
+    "AppendDocFrom",
+    "AppendDocReferences",
+    "AppendDocSection",
+    "CheckGDALData",
+    "DataTransformer",
+    "Dataify",
+    "Deprecated",
+    "DynamicMethod",
+    "EnsureMethod",
+    "executeWithFallback",
+    "ExportData",
+    "Extract1dArrayOrSeries",
+    "IsPerformanceData",
+    "NumpyDocstring",
+    "NumpyDocstringFormatter",
+    "PlotFeatureImportance",
+    "PlotPrediction",
+    "RedirectToNew",
+    "RunReturn",
+    "SignalFutureChange",
+    "smartFitRun",
+    "SmartProcessor",
+    "Temp2D",
+    "available_if",
+    "isdf",
+    "sanitize_docstring",
+    "copy_doc",
 ]
+
 
 class EnsureMethod:
     r"""
-    Decorator class to ensure the prioritized execution of a specified 
-    class method based on configuration. This decorator allows flexibility 
-    in method execution by supporting modes (strict or soft), customizable 
+    Decorator class to ensure the prioritized execution of a specified
+    class method based on configuration. This decorator allows flexibility
+    in method execution by supporting modes (strict or soft), customizable
     method names, and precondition checks.
-    
-    This decorator can be configured to handle cases where `fit` or `run` methods 
-    are missing by specifying an alternative method, handling errors or warnings, 
+
+    This decorator can be configured to handle cases where `fit` or `run` methods
+    are missing by specifying an alternative method, handling errors or warnings,
     and enabling verbose output for debugging.
 
     Parameters
     ----------
     method_name : str, optional
-        The name of an alternative method to execute if neither `run` nor 
-        `fit` is implemented. If specified, the decorator will attempt to 
-        execute this method if available. If no `method_name` is specified, 
+        The name of an alternative method to execute if neither `run` nor
+        `fit` is implemented. If specified, the decorator will attempt to
+        execute this method if available. If no `method_name` is specified,
         the decorator only attempts to execute `fit` or `run`.
-        
+
     error : str, optional
-        Specifies the behavior if neither `run`, `fit`, nor the alternative 
+        Specifies the behavior if neither `run`, `fit`, nor the alternative
         method are implemented. Options include:
             - `"raise"`: Raises an `NotImplementedError`.
-            - `"warn"`: Issues a warning and proceeds without executing any 
+            - `"warn"`: Issues a warning and proceeds without executing any
               method.
-            - `"ignore"`: Silently ignores the absence of `run`, `fit`, or 
+            - `"ignore"`: Silently ignores the absence of `run`, `fit`, or
               alternative methods. Default is `"raise"`.
-              
+
     mode : {'strict', 'soft'}, optional
         Specifies execution mode:
-        - 'strict': checks that a precondition attribute, if defined, 
+        - 'strict': checks that a precondition attribute, if defined,
           is met before calling the method.
         - 'soft': proceeds with execution regardless of precondition.
         Default is 'strict'.
 
     precondition_attr : str, optional
-        Name of an attribute to check before executing the method 
-        (if `mode` is 'strict'). If not specified, preconditions 
+        Name of an attribute to check before executing the method
+        (if `mode` is 'strict'). If not specified, preconditions
         are not checked. Default is ``None``.
-        
+
     verbose : bool, optional
-        If `True`, outputs additional information about the method being 
-        executed. This includes whether `run`, `fit`, or an alternative 
+        If `True`, outputs additional information about the method being
+        executed. This includes whether `run`, `fit`, or an alternative
         method is executed. Useful for debugging. Default is False.
-    
+
     Methods
     -------
     __call__(cls)
-        Applies the decorator to the class, ensuring execution 
+        Applies the decorator to the class, ensuring execution
         according to configuration.
-    
+
     Examples
     --------
     >>> from geoprior.decorators import EnsureMethod
@@ -130,39 +137,39 @@ class EnsureMethod:
     >>> instance = MyClass()
     >>> instance.custom_method()
     "Executing custom method".
-    
+
     Methods
     -------
     __call__(cls)
-        Modifies the class's `__init__` to execute `fit`, `run`, or an alternative 
+        Modifies the class's `__init__` to execute `fit`, `run`, or an alternative
         method if they exist, based on `method_name` and error handling settings.
 
-    
+
     Notes
     -----
-    The decorator aims to prevent runtime issues by ensuring methods 
-    like `fit`, `run`, or a specified `method_name` exist and are 
+    The decorator aims to prevent runtime issues by ensuring methods
+    like `fit`, `run`, or a specified `method_name` exist and are
     executed in a controlled manner, with flexibility for error handling.
 
- 
+
     References
     ----------
-    .. [1] Python Software Foundation. "Python Documentation." Available at: 
+    .. [1] Python Software Foundation. "Python Documentation." Available at:
            https://docs.python.org/3/library/functools.html
 
-    .. [2] John Doe, Jane Smith, "Advanced Python Techniques in OOP", 
+    .. [2] John Doe, Jane Smith, "Advanced Python Techniques in OOP",
        2020, ISBN: 978-3-16-148410-0
 
     """
 
     def __init__(
-        self, 
-        method_name=None, 
-        error="raise", 
-        mode="strict", 
-        precondition_attr=None, 
-        verbose=False
-        ):
+        self,
+        method_name=None,
+        error="raise",
+        mode="strict",
+        precondition_attr=None,
+        verbose=False,
+    ):
         self.method_name = method_name
         self.error = error
         self.mode = mode
@@ -171,36 +178,38 @@ class EnsureMethod:
 
     def __call__(self, cls):
         """
-        Applies the decorator logic to the class, ensuring prioritized 
-        execution of specified methods and managing behavior based on 
+        Applies the decorator logic to the class, ensuring prioritized
+        execution of specified methods and managing behavior based on
         decorator parameters.
 
         Parameters
         ----------
         cls : class
             The target class to which the decorator is applied.
-        
+
         Returns
         -------
         cls : class
             The decorated class with conditional method wrapping.
         """
-        # Check if a specific method name is provided, wrap it, and 
+        # Check if a specific method name is provided, wrap it, and
         # redirect `fit` and `run` if needed
         if self.method_name:
-            self._conditionally_wrap_method(cls, self.method_name)
+            self._conditionally_wrap_method(
+                cls, self.method_name
+            )
             self._redirect_method_if_needed(cls, "fit")
             self._redirect_method_if_needed(cls, "run")
         else:
             # Wrap `fit` and `run` by default if no specific method name
             self._conditionally_wrap_method(cls, "fit")
             self._conditionally_wrap_method(cls, "run")
-        
+
         return cls
 
     def _conditionally_wrap_method(self, cls, method_name):
         r"""
-        Wraps a method in the class based on its existence and the 
+        Wraps a method in the class based on its existence and the
         configuration, prioritizing `method_name` if provided.
 
         Parameters
@@ -209,7 +218,7 @@ class EnsureMethod:
             The target class to which the method wrapping is applied.
 
         method_name : str
-            The name of the method to wrap, either `fit`, `run`, or 
+            The name of the method to wrap, either `fit`, `run`, or
             a custom method.
         """
         original_method = getattr(cls, method_name, None)
@@ -219,41 +228,59 @@ class EnsureMethod:
             @functools.wraps(original_method)
             def wrapped_method(instance, *args, **kwargs):
                 self._log(
-                    f"Executing `{method_name}` on {instance.__class__.__name__}.")
-                
-                if self.mode == "strict" and self.precondition_attr:
-                    if not getattr(instance, self.precondition_attr, False):
+                    f"Executing `{method_name}` on {instance.__class__.__name__}."
+                )
+
+                if (
+                    self.mode == "strict"
+                    and self.precondition_attr
+                ):
+                    if not getattr(
+                        instance,
+                        self.precondition_attr,
+                        False,
+                    ):
                         raise RuntimeError(
                             f"{instance.__class__.__name__}: `{method_name}` "
                             f"cannot be executed because `{self.precondition_attr}"
                             "` is not set to True. Call `fit` or `run` first."
                         )
-                return original_method(instance, *args, **kwargs)
+                return original_method(
+                    instance, *args, **kwargs
+                )
 
             setattr(cls, method_name, wrapped_method)
         else:
             # Placeholder if method is missing and error handling is required
             def placeholder_method(instance, *args, **kwargs):
-                self._handle_missing_method(instance, method_name)
-            
+                self._handle_missing_method(
+                    instance, method_name
+                )
+
             setattr(cls, method_name, placeholder_method)
 
     def _redirect_method_if_needed(self, cls, default_method):
         r"""
-        Redirects calls to `fit` or `run` to the specified `method_name` if 
+        Redirects calls to `fit` or `run` to the specified `method_name` if
         `fit` or `run` is missing but `method_name` is defined.
 
         Parameters
         ----------
         cls : class
             The target class for method redirection.
-        
+
         default_method : str
             The method name to check for redirection (`fit` or `run`).
         """
-        if not callable(getattr(cls, default_method, None)) and self.method_name:
+        if (
+            not callable(getattr(cls, default_method, None))
+            and self.method_name
+        ):
+
             def redirect_method(instance, *args, **kwargs):
-                target_method = getattr(instance, self.method_name, None)
+                target_method = getattr(
+                    instance, self.method_name, None
+                )
                 if callable(target_method):
                     self._log(
                         f"Redirecting `{default_method}` to `{self.method_name}` "
@@ -261,13 +288,17 @@ class EnsureMethod:
                     )
                     return target_method(*args, **kwargs)
                 else:
-                    self._handle_missing_method(instance, self.method_name)
-                    
+                    self._handle_missing_method(
+                        instance, self.method_name
+                    )
+
             setattr(cls, default_method, redirect_method)
 
-    def _handle_missing_method(self, instance, called_method_name):
+    def _handle_missing_method(
+        self, instance, called_method_name
+    ):
         r"""
-        Handles errors or warnings when required methods are missing, based 
+        Handles errors or warnings when required methods are missing, based
         on decorator configuration.
 
         Parameters
@@ -281,19 +312,25 @@ class EnsureMethod:
         cls = instance.__class__
         fit_exists = callable(getattr(instance, "fit", None))
         run_exists = callable(getattr(instance, "run", None))
-        
-        if self.method_name == called_method_name and not callable(
-                getattr(instance, self.method_name, None)):
+
+        if (
+            self.method_name == called_method_name
+            and not callable(
+                getattr(instance, self.method_name, None)
+            )
+        ):
             raise NotImplementedError(
                 f"{cls.__name__}: The `{self.method_name}` method is not implemented. "
                 "Please implement this method or choose a different alternative."
             )
-        
+
         if not fit_exists and not run_exists:
             if self.error == "warn":
                 warnings.warn(
                     f"{cls.__name__}: Neither `fit` nor `run` methods are implemented. "
-                    "Execution will proceed without them.", UserWarning
+                    "Execution will proceed without them.",
+                    UserWarning,
+                    stacklevel=2,
                 )
             elif self.error == "raise":
                 raise NotImplementedError(
@@ -301,9 +338,13 @@ class EnsureMethod:
                     "Please implement one or specify an alternative."
                 )
         elif called_method_name == "run":
-            self._log(f"{cls.__name__}: `run` is missing; acting as a placeholder.")
+            self._log(
+                f"{cls.__name__}: `run` is missing; acting as a placeholder."
+            )
         elif called_method_name == "fit":
-            self._log(f"{cls.__name__}: `fit` is missing; acting as a placeholder.")
+            self._log(
+                f"{cls.__name__}: `fit` is missing; acting as a placeholder."
+            )
 
     def _log(self, msg):
         """
@@ -314,7 +355,7 @@ class EnsureMethod:
         msg : str
             The message to log.
         """
-        if self.verbose: 
+        if self.verbose:
             print(msg)
 
 
@@ -400,37 +441,49 @@ def executeWithFallback(method, *, mode="soft"):
     .. [1] Smith, J., & Doe, A. (2021). *Best Practices in Python 
            Decorators*. Python Developer Journal, 15(3), 20-35.
     """
+
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
         # Check for the availability of 'run' and 'fit' methods
-        has_run = callable(getattr(self, 'run', None))
-        has_fit = callable(getattr(self, 'fit', None))
-        
+        has_run = callable(getattr(self, "run", None))
+        has_fit = callable(getattr(self, "fit", None))
+
         # Fallback to 'run' if only 'run' is available
         if has_run:
-            warnings.warn("'run' method available. Calling 'run' as fallback"
-                          " for 'execute'.", UserWarning)
+            warnings.warn(
+                "'run' method available. Calling 'run' as fallback"
+                " for 'execute'.",
+                UserWarning,
+                stacklevel=2,
+            )
             return self.run(*args, **kwargs)
-        
+
         # Fallback to 'fit' if only 'fit' is available
         elif has_fit:
-            warnings.warn("'fit' method available. Calling 'fit' as fallback"
-                          " for 'execute'.", UserWarning)
+            warnings.warn(
+                "'fit' method available. Calling 'fit' as fallback"
+                " for 'execute'.",
+                UserWarning,
+                stacklevel=2,
+            )
             return self.fit(*args, **kwargs)
-        
+
         # Both methods exist, execute primary logic
         elif has_run and has_fit:
             return method(self, *args, **kwargs)
-        
+
         # Raise an error if neither 'run' nor 'fit' is defined
         else:
-            if mode=="strict": 
-                raise AttributeError("Neither 'run' nor 'fit' methods are "
-                                     "available in the class.")
+            if mode == "strict":
+                raise AttributeError(
+                    "Neither 'run' nor 'fit' methods are "
+                    "available in the class."
+                )
             else:
                 return method(self, *args, **kwargs)
-        
+
     return wrapper
+
 
 class RunReturn:
     r"""
@@ -537,20 +590,21 @@ class RunReturn:
     .. [1] "PEP 318 -- Decorators for Functions and Methods," Python Software Foundation.
            https://peps.python.org/pep-0318/
     """
+
     def __init__(
         self,
-        attribute_name: Optional[str] = None,
-        error_policy: str = 'warn',
-        default_value: Optional[Any] = None,
+        attribute_name: str | None = None,
+        error_policy: str = "warn",
+        default_value: Any | None = None,
         check_callable: bool = False,
-        return_type: str = 'attribute',
-        on_callable_error: str = 'warn',
+        return_type: str = "attribute",
+        on_callable_error: str = "warn",
         allow_private: bool = False,
-        msg: Optional[str] = None,
-        config_return_type: Optional[Union[str, bool]] = None
+        msg: str | None = None,
+        config_return_type: str | bool | None = None,
     ):
         """
-        Initialize the `RunReturn` decorator with various options for handling 
+        Initialize the `RunReturn` decorator with various options for handling
         method return behavior and error policies.
         """
         self.attribute_name = attribute_name
@@ -565,10 +619,10 @@ class RunReturn:
 
     def __call__(self, func: Callable) -> Callable:
         """
-        Make the class callable as a decorator, applying the enhanced return 
+        Make the class callable as a decorator, applying the enhanced return
         logic when the decorated function is executed.
         """
-        
+
         # Preserve the original function's metadata with functools.wraps
         @functools.wraps(func)
         def wrapper(self_obj, *args, **kwargs) -> Any:
@@ -584,7 +638,7 @@ class RunReturn:
 
     def run_return_logic(self, self_obj) -> Any:
         r"""
-        Apply the `run_return` logic based on the specified parameters, either 
+        Apply the `run_return` logic based on the specified parameters, either
         returning `self`, an attribute, or both, with error handling.
 
         Parameters
@@ -595,105 +649,130 @@ class RunReturn:
         Returns
         -------
         Any
-            Returns `self`, the attribute value, or a tuple of both, depending 
+            Returns `self`, the attribute value, or a tuple of both, depending
             on the specified options and availability of the attribute.
 
         Raises
         ------
         AttributeError
-            If the attribute does not exist and `error_policy` is `'raise'`, 
+            If the attribute does not exist and `error_policy` is `'raise'`,
             or if the callable check fails and `on_callable_error` is `'raise'`.
         """
         # Global config return type override
-        if self.config_return_type == 'self':
+        if self.config_return_type == "self":
             return self_obj
-        elif self.config_return_type == 'attribute':
-            return getattr(self_obj, self.attribute_name, self.default_value
-                           ) if self.attribute_name else self_obj
+        elif self.config_return_type == "attribute":
+            return (
+                getattr(
+                    self_obj,
+                    self.attribute_name,
+                    self.default_value,
+                )
+                if self.attribute_name
+                else self_obj
+            )
 
         # Developer-specified logic
         if self.attribute_name:
             # Handle private attribute access restriction
-            if not self.allow_private and self.attribute_name.startswith('_'):
-                custom_msg = self.msg or ( 
+            if (
+                not self.allow_private
+                and self.attribute_name.startswith("_")
+            ):
+                custom_msg = self.msg or (
                     "Access to private attribute"
                     f" '{self.attribute_name}' is not allowed."
-                    )
+                )
                 raise AttributeError(custom_msg)
 
             if hasattr(self_obj, self.attribute_name):
-                attr_value = getattr(self_obj, self.attribute_name)
+                attr_value = getattr(
+                    self_obj, self.attribute_name
+                )
 
                 # Check if the attribute is callable
-                if self.check_callable and isinstance(attr_value, Callable):
+                if self.check_callable and isinstance(
+                    attr_value, Callable
+                ):
                     try:
                         attr_value = attr_value()
                     except Exception as e:
-                        custom_msg = self.msg or ( 
+                        custom_msg = self.msg or (
                             f"Callable attribute '{self.attribute_name}'"
                             f" raised an error: {e}."
-                            )
-                        if self.on_callable_error == 'raise':
+                        )
+                        if self.on_callable_error == "raise":
                             raise e
-                        elif self.on_callable_error == 'warn':
-                            warnings.warn(custom_msg)
+                        elif self.on_callable_error == "warn":
+                            warnings.warn(
+                                custom_msg, stacklevel=2
+                            )
                             return self_obj
-                        elif self.on_callable_error == 'ignore':
+                        elif (
+                            self.on_callable_error == "ignore"
+                        ):
                             return self_obj
 
                 # Determine the return type
-                if self.return_type == 'self':
+                if self.return_type == "self":
                     return self_obj
-                elif self.return_type == 'both':
+                elif self.return_type == "both":
                     return self_obj, attr_value
                 else:
                     return attr_value
             else:
                 # Attribute does not exist, handle based on error policy
-                custom_msg = self.msg or ( 
+                custom_msg = self.msg or (
                     f"'{self_obj.__class__.__name__}' object has"
                     f" no attribute '{self.attribute_name}'."
-                    )
-                if self.error_policy == 'raise':
+                )
+                if self.error_policy == "raise":
                     raise AttributeError(custom_msg)
-                elif self.error_policy == 'warn':
-                    warnings.warn(f"{custom_msg} Returning default value or self.")
-                return self.default_value if self.default_value is not None else self_obj
+                elif self.error_policy == "warn":
+                    warnings.warn(
+                        f"{custom_msg} Returning default value or self.",
+                        stacklevel=2,
+                    )
+                return (
+                    self.default_value
+                    if self.default_value is not None
+                    else self_obj
+                )
         else:
             return self_obj
-        
+
     @classmethod
     def from_decorator(cls, *args, **kwargs) -> Callable:
         r"""
-        Initialize the `RunReturn` decorator, allowing it to be applied with or 
+        Initialize the `RunReturn` decorator, allowing it to be applied with or
         without parentheses.
-    
-        This method provides flexibility by determining whether the decorator 
-        is used directly without parentheses, or if it has been configured with 
-        specific options via parentheses. If no parentheses are provided, it 
+
+        This method provides flexibility by determining whether the decorator
+        is used directly without parentheses, or if it has been configured with
+        specific options via parentheses. If no parentheses are provided, it
         defaults to the standard behavior.
-    
+
         Parameters
         ----------
         *args : tuple
-            If the decorator is used without parentheses, the function itself 
+            If the decorator is used without parentheses, the function itself
             is passed as the first positional argument.
         **kwargs : dict
-            If the decorator is used with parentheses, this will contain the 
-            optional configuration parameters like `attribute_name`, 
+            If the decorator is used with parentheses, this will contain the
+            optional configuration parameters like `attribute_name`,
             `error_policy`, `default_value`, `return_type`, etc.
-    
+
         Returns
         -------
         Callable
-            Returns the decorated function with enhanced return behavior. This 
-            callable can either apply the default behavior or use custom settings 
+            Returns the decorated function with enhanced return behavior. This
+            callable can either apply the default behavior or use custom settings
             provided via `kwargs`.
-    
+
         Examples
         --------
         Usage with parentheses:
-        
+
         >>> from geoprior.decorators import RunReturn
         >>> class MyModel:
         ...     def __init__(self, name):
@@ -705,9 +784,9 @@ class RunReturn:
         >>> model = MyModel(name="example")
         >>> model.process()
         'example'
-    
+
         Usage without parentheses (default behavior):
-    
+
         >>> from geoprior.decorators import RunReturn
         >>> class MyModel:
         ...     def __init__(self, name):
@@ -719,50 +798,52 @@ class RunReturn:
         >>> model = MyModel(name="example")
         >>> model.process()
         <MyModel object at 0x...>
-        
-        In this second case, the `RunReturn` decorator defaults to its standard 
+
+        In this second case, the `RunReturn` decorator defaults to its standard
         behavior (returning `self`) since no specific configurations are provided.
         """
-    
+
         # Check if the decorator is being used without parentheses
         if len(args) == 1 and callable(args[0]):
             return cls()(args[0])
-    
+
         # Otherwise, it was used with parentheses, so initialize as normal
         return cls(*args, **kwargs)
+
 
 # Assign the classmethod to the decorator name,
 # allowing it to be used with or without parentheses
 RunReturn = RunReturn.from_decorator
 
+
 def smartFitRun(cls):
     r"""
-    A class-based decorator that manages the `fit`/`run` method switching 
-    logic. If one method is called but the other is implemented, the correct 
+    A class-based decorator that manages the `fit`/`run` method switching
+    logic. If one method is called but the other is implemented, the correct
     method will be invoked automatically, with a warning issued to the user.
 
-    This is useful for ensuring that a class which only implements one of the 
-    `fit` or `run` methods can still function when the other is called 
-    incorrectly. The system will detect whether `fit` or `run` is available, 
+    This is useful for ensuring that a class which only implements one of the
+    `fit` or `run` methods can still function when the other is called
+    incorrectly. The system will detect whether `fit` or `run` is available,
     issue a warning, and automatically call the available method.
 
     Parameters
     ----------
     cls : class
-        The class being decorated, which should implement either `fit` or 
-        `run` (but not both). The decorator ensures that if the missing method 
+        The class being decorated, which should implement either `fit` or
+        `run` (but not both). The decorator ensures that if the missing method
         is called, the available method is invoked instead.
 
     Returns
     -------
     cls : class
         The decorated class with method switching logic applied.
-    
+
     Notes
     -----
-    This decorator is designed for situations where either the `fit` method or 
-    the `run` method is implemented in a class, but not both. It ensures that 
-    calling the missing method does not result in an error but rather triggers 
+    This decorator is designed for situations where either the `fit` method or
+    the `run` method is implemented in a class, but not both. It ensures that
+    calling the missing method does not result in an error but rather triggers
     the other method.
 
     The method switching logic is as follows:
@@ -773,10 +854,10 @@ def smartFitRun(cls):
     - If only ``run`` is implemented and ``fit`` is called, the decorator will
       call the ``run`` method instead, issuing a warning.
 
-    This behavior is particularly useful when ``fit`` requires a dataset 
-    (typically ``X``, ``y``), while ``run`` operates on pre-fitted models 
+    This behavior is particularly useful when ``fit`` requires a dataset
+    (typically ``X``, ``y``), while ``run`` operates on pre-fitted models
     without needing the same input structure.
-    
+
     Example
     -------
     >>> from geoprior.decorators import smartFitRun
@@ -812,8 +893,8 @@ def smartFitRun(cls):
            https://realpython.com/primer-on-python-decorators/
     """
 
-    original_fit = getattr(cls, 'fit', None)
-    original_run = getattr(cls, 'run', None)
+    original_fit = getattr(cls, "fit", None)
+    original_run = getattr(cls, "run", None)
 
     if original_fit is not None and original_run is None:
         # Only 'fit' is defined
@@ -821,62 +902,65 @@ def smartFitRun(cls):
         def run(self, *args, **kwargs):
             # Temporarily enable warnings if they were disabled
             with warnings.catch_warnings():
-                warnings.simplefilter('once', FutureWarning)
+                warnings.simplefilter("once", FutureWarning)
                 warnings.warn(
                     "`fit` method is required, but `run` was called. "
                     "Automatically switching to `fit`. "
                     "Note: Calling `run` without a `fit` implementation "
                     "might be deprecated.",
-                    FutureWarning, 
+                    FutureWarning,
+                    stacklevel=2,
                 )
             return self.fit(*args, **kwargs)
 
-        setattr(cls, 'run', run)
-        
+        cls.run = run
+
     elif original_run is not None and original_fit is None:
         # Only 'run' is defined
         @functools.wraps(original_run)
         def fit(self, *args, **kwargs):
             with warnings.catch_warnings():
-               warnings.simplefilter('once', FutureWarning)
-               warnings.warn(
-                   "`run` method is required, but `fit` was called. "
-                   "Automatically switching to `run`. "
-                   "In future versions, calling `fit` without a `run` "
-                   "implementation might raise an error.",
-                   FutureWarning
-               )
+                warnings.simplefilter("once", FutureWarning)
+                warnings.warn(
+                    "`run` method is required, but `fit` was called. "
+                    "Automatically switching to `run`. "
+                    "In future versions, calling `fit` without a `run` "
+                    "implementation might raise an error.",
+                    FutureWarning,
+                    stacklevel=2,
+                )
             return self.run(*args, **kwargs)
 
-        setattr(cls, 'fit', fit)
-        
+        cls.fit = fit
+
     return cls
+
 
 class SmartProcessor:
     r"""
-    A decorator class for data processing which selectively excludes specified 
-    columns from the processing step and reintegrates them afterward. This is 
+    A decorator class for data processing which selectively excludes specified
+    columns from the processing step and reintegrates them afterward. This is
     useful for data preprocessing steps like scaling or imputing, where certain
-    columns (e.g., identifiers or target variables) should be omitted from 
+    columns (e.g., identifiers or target variables) should be omitted from
     the processing.
 
     Parameters
     ----------
     func : callable, optional
-        The function to decorate. If not provided at initialization, it must 
-        be provided later as the first positional argument in the call to the 
+        The function to decorate. If not provided at initialization, it must
+        be provided later as the first positional argument in the call to the
         decorator instance.
     param_name : str, optional
-        The name of the keyword argument in the decorated function that 
-        specifies which columns to exclude from processing. 
+        The name of the keyword argument in the decorated function that
+        specifies which columns to exclude from processing.
         Defaults to 'column_to_skip' if not provided.
     fail_silently : bool or 'warn', optional
-        Controls the error handling behavior. If `False` (default), errors 
-        raise exceptions. If `True`, the original data is returned on error. 
+        Controls the error handling behavior. If `False` (default), errors
+        raise exceptions. If `True`, the original data is returned on error.
         If set to 'warn', a warning is issued, and the original data is returned.
     to_dataframe : bool, optional
         If `True`, converts the output to a pandas DataFrame, regardless of the
-        input type. This is useful when working with NumPy arrays but needing 
+        input type. This is useful when working with NumPy arrays but needing
         a DataFrame for the result. Defaults to `False`.
 
     Notes
@@ -914,55 +998,62 @@ class SmartProcessor:
      [ 0.          0.          8.        ]
      [ 1.22474487  1.22474487  9.        ]]
     """
-    def __init__(self, func=None, *, param_name=None, fail_silently=False, 
-                 to_dataframe=False):
+
+    def __init__(
+        self,
+        func=None,
+        *,
+        param_name=None,
+        fail_silently=False,
+        to_dataframe=False,
+    ):
         self.func = func
-        self.param_name = param_name or 'column_to_skip'
+        self.param_name = param_name or "column_to_skip"
         self.fail_silently = fail_silently
         self.to_dataframe = to_dataframe
         if func:
             functools.update_wrapper(self, func)
-            
+
     def __call__(self, *args, **kwargs):
         r"""
-        Call method that makes `SmartProcessor` a callable object which can 
+        Call method that makes `SmartProcessor` a callable object which can
         act as a decorator.
-    
+
         When `SmartProcessor` is used to decorate a function without previously
-        being instantiated with a function, it receives the function as the 
+        being instantiated with a function, it receives the function as the
         first positional argument and returns a new instance of `SmartProcessor`
-        as the decorator. If it was already instantiated with a function, it 
-        processes the input data and handles the exclusion and reintegration of 
+        as the decorator. If it was already instantiated with a function, it
+        processes the input data and handles the exclusion and reintegration of
         specified columns.
-    
+
         Parameters
         ----------
         *args : tuple
-            The positional arguments passed to the function. If called on an 
-            undecorated function, `args[0]` is expected to be the function to 
+            The positional arguments passed to the function. If called on an
+            undecorated function, `args[0]` is expected to be the function to
             decorate.
         **kwargs : dict
             The keyword arguments passed to the function.
-    
+
         Returns
         -------
         callable or object
-            If called without a function, returns a new instance of 
-            `SmartProcessor` with the function to decorate. If called with a 
+            If called without a function, returns a new instance of
+            `SmartProcessor` with the function to decorate. If called with a
             function, returns the wrapper function that processes the data.
-    
+
         Notes
         -----
         This method handles two scenarios:
         1. Initialization of the decorator with a function to decorate.
-        2. Application of the decorator to process data by wrapping the 
-        decorated function and optionally excluding specified columns from 
+        2. Application of the decorator to process data by wrapping the
+        decorated function and optionally excluding specified columns from
         being processed.
-        
-        The actual data processing includes error handling according to the 
-        'fail_silently' attribute, allowing for warnings or silent failures 
+
+        The actual data processing includes error handling according to the
+        'fail_silently' attribute, allowing for warnings or silent failures
         as configured.
-    
+
         Examples
         --------
         >>> from geoprior.decorators import SmartProcessor
@@ -983,102 +1074,143 @@ class SmartProcessor:
         2  1.224745  1.224745  9
         """
         if not self.func:
-            # If the instance is called with a function to decorate, 
+            # If the instance is called with a function to decorate,
             # return a new decorated instance
             return self.__class__(
-                args[0], param_name=self.param_name,
-                fail_silently=self.fail_silently, 
-                to_dataframe=self.to_dataframe
+                args[0],
+                param_name=self.param_name,
+                fail_silently=self.fail_silently,
+                to_dataframe=self.to_dataframe,
             )
-    
+
         def wrapper(data, *args, **kwargs):
-            columns_to_skip = kwargs.get(self.param_name, None)
-            if isinstance(columns_to_skip, ( str, int)): 
+            columns_to_skip = kwargs.get(
+                self.param_name, None
+            )
+            if isinstance(columns_to_skip, str | int):
                 columns_to_skip = [columns_to_skip]
             try:
                 if columns_to_skip is not None:
                     if isinstance(data, pd.DataFrame):
-                        self._check_columns_exist(data, columns_to_skip)
-                        data_to_process, skipped_data = data.drop(
-                            columns=columns_to_skip), data[columns_to_skip]
+                        self._check_columns_exist(
+                            data, columns_to_skip
+                        )
+                        data_to_process, skipped_data = (
+                            data.drop(
+                                columns=columns_to_skip
+                            ),
+                            data[columns_to_skip],
+                        )
                     elif isinstance(data, np.ndarray):
-                        self._check_indices_valid(data, columns_to_skip)
-                        data_to_process = np.delete(data, columns_to_skip, axis=1)
-                        skipped_data = data[:, columns_to_skip]
+                        self._check_indices_valid(
+                            data, columns_to_skip
+                        )
+                        data_to_process = np.delete(
+                            data, columns_to_skip, axis=1
+                        )
+                        skipped_data = data[
+                            :, columns_to_skip
+                        ]
                     else:
                         raise TypeError(
                             "Data must be a pandas DataFrame or a NumPy array."
-                            f" Got {type(data).__name_!r}")
-    
-                    processed_data = self.func(data_to_process, *args, **kwargs)
-    
+                            f" Got {type(data).__name_!r}"
+                        )
+
+                    processed_data = self.func(
+                        data_to_process, *args, **kwargs
+                    )
+
                     if isinstance(data, pd.DataFrame):
-                        result = pd.concat([processed_data, skipped_data], axis=1)
+                        result = pd.concat(
+                            [processed_data, skipped_data],
+                            axis=1,
+                        )
                     elif isinstance(data, np.ndarray):
-                        result = self._reintegrate_skipped_numpy(
-                            data, processed_data, skipped_data, columns_to_skip)
-                    
-                    return result if not self.to_dataframe or not isinstance(
-                        result, pd.DataFrame
-                        ) else self.restore_original_column_order (result)
-                  
+                        result = (
+                            self._reintegrate_skipped_numpy(
+                                data,
+                                processed_data,
+                                skipped_data,
+                                columns_to_skip,
+                            )
+                        )
+
+                    return (
+                        result
+                        if not self.to_dataframe
+                        or not isinstance(
+                            result, pd.DataFrame
+                        )
+                        else self.restore_original_column_order(
+                            result
+                        )
+                    )
+
                 else:
                     return self.func(data, *args, **kwargs)
-    
+
             except Exception as e:
-                if self.fail_silently == 'warn':
-                    warnings.warn(str(e))
+                if self.fail_silently == "warn":
+                    warnings.warn(str(e), stacklevel=2)
                     return data
-                elif not self.fail_silently or self.fail_silently=='raise':
+                elif (
+                    not self.fail_silently
+                    or self.fail_silently == "raise"
+                ):
                     raise
-    
+
         return wrapper(*args, **kwargs)
-    
+
     def _check_columns_exist(self, dataframe, columns):
         r"""
         Check if the specified columns exist in the dataframe.
-    
+
         Parameters
         ----------
         dataframe : pd.DataFrame
             The DataFrame to check for column existence.
         columns : list of str
             List of column names to check in the DataFrame.
-    
+
         Raises
         ------
         ValueError
-            If any of the specified columns do not exist in the DataFrame, a 
+            If any of the specified columns do not exist in the DataFrame, a
             ValueError is raised with an appropriate message.
-    
+
         Notes
         -----
-        This method is used internally by the SmartProcessor class to ensure 
-        that the columns specified to be skipped during processing actually 
-        exist in the input DataFrame. This is crucial for preventing runtime 
+        This method is used internally by the SmartProcessor class to ensure
+        that the columns specified to be skipped during processing actually
+        exist in the input DataFrame. This is crucial for preventing runtime
         errors during data manipulation.
         """
-        self._original_columns= dataframe.columns.tolist() 
-        if any(col not in dataframe.columns for col in columns):
-            raise ValueError("Some columns to skip do not exist in the DataFrame")
-    
+        self._original_columns = dataframe.columns.tolist()
+        if any(
+            col not in dataframe.columns for col in columns
+        ):
+            raise ValueError(
+                "Some columns to skip do not exist in the DataFrame"
+            )
+
     def _check_indices_valid(self, array, indices):
         r"""
         Check if the specified indices are valid for the given NumPy array.
-    
+
         Parameters
         ----------
         array : np.ndarray
             The NumPy array to check indices against.
         indices : list of int
             List of column indices to check in the NumPy array.
-    
+
         Raises
         ------
         ValueError
             If any of the indices are out of the range of the array's second dimension,
             a ValueError is raised.
-    
+
         Notes
         -----
         This method ensures that the indices specified for skipping are within the valid
@@ -1086,14 +1218,21 @@ class SmartProcessor:
         that involve slicing or accessing array elements by index.
         """
         if any(index >= array.shape[1] for index in indices):
-            raise ValueError("Column index out of range. Expect indexes"
-                             f" ranged between [0, {array.shape[1]}).")
-    
+            raise ValueError(
+                "Column index out of range. Expect indexes"
+                f" ranged between [0, {array.shape[1]})."
+            )
+
     def _reintegrate_skipped_numpy(
-            self, original_data, processed_data, skipped_data, columns_to_skip):
+        self,
+        original_data,
+        processed_data,
+        skipped_data,
+        columns_to_skip,
+    ):
         r"""
         Reintegrate skipped data back into the processed NumPy array.
-    
+
         Parameters
         ----------
         original_data : np.ndarray
@@ -1104,19 +1243,19 @@ class SmartProcessor:
             The columns that were skipped during the processing.
         columns_to_skip : list of int
             Indices of the columns that were skipped.
-    
+
         Returns
         -------
         np.ndarray
-            A new NumPy array that combines both the processed and skipped data 
+            A new NumPy array that combines both the processed and skipped data
             in their original column order.
-    
+
         Notes
         -----
         This method handles the reintegration of skipped columns back into the
-        NumPy array after the main processing has been completed. It ensures 
-        that the final output maintains the same structure and order as the 
-        original input array, which is essential for consistency in data 
+        NumPy array after the main processing has been completed. It ensures
+        that the final output maintains the same structure and order as the
+        original input array, which is essential for consistency in data
         processing pipelines.
         """
         full_data = np.empty_like(original_data)
@@ -1124,55 +1263,60 @@ class SmartProcessor:
         for i in range(original_data.shape[1]):
             if i in columns_to_skip:
                 # Place skipped data back in its original position
-                full_data[:, i] = skipped_data[:, columns_to_skip.index(i)]
+                full_data[:, i] = skipped_data[
+                    :, columns_to_skip.index(i)
+                ]
             else:
                 # Insert processed data in the remaining positions
                 full_data[:, i] = processed_data[:, j]
                 j += 1
         return full_data
-    
-    def reoder_dataframe_columns (self , result): 
+
+    def reoder_dataframe_columns(self, result):
         # reoder dataframe columns like the original positions after concatena
-        # tion 
-        if not self.dataframe or isinstance ( result, pd.DataFrame): 
-            return result 
-        else: 
-            result =pd.DataFrame(result) 
-        
-        if hasattr (self, '_original_columns'): 
-            try :
-                # try to place the original columns in order after concatenation. 
-                result = result[ self._original_columns]
-            except : pass # do nothing 
-        
-        return  result 
-    
+        # tion
+        if not self.dataframe or isinstance(
+            result, pd.DataFrame
+        ):
+            return result
+        else:
+            result = pd.DataFrame(result)
+
+        if hasattr(self, "_original_columns"):
+            try:
+                # try to place the original columns in order after concatenation.
+                result = result[self._original_columns]
+            except:
+                pass  # do nothing
+
+        return result
+
     def restore_original_column_order(self, result):
         r"""
         Restore the column order of a DataFrame to match the original column order
         stored in `_original_columns`. If `result` is not a DataFrame, it attempts to
         convert it into one.
-    
+
         Parameters
         ----------
         result : pd.DataFrame or convertible to pd.DataFrame
             The result DataFrame whose columns need to be reordered.
-    
+
         Returns
         -------
         pd.DataFrame
             DataFrame with columns reordered to match the original order, if possible.
-    
+
         Notes
         -----
-        This method relies on the presence of an attribute `_original_columns` which 
-        is expected to be a list of column names in their original order. The method 
+        This method relies on the presence of an attribute `_original_columns` which
+        is expected to be a list of column names in their original order. The method
         only modifies the column order if `result` is a DataFrame and `_original_columns`
         is set.
-    
-        If the reordering process fails (e.g., due to missing columns), the method 
+
+        If the reordering process fails (e.g., due to missing columns), the method
         fails silently and returns the DataFrame as is without reordering.
-    
+
         Examples
         --------
         >>> df = pd.DataFrame({
@@ -1185,21 +1329,21 @@ class SmartProcessor:
         >>> print(restored_df.columns)
         Index(['A', 'B', 'C'], dtype='object')
         """
-        
+
         if not isinstance(result, pd.DataFrame):
             result = pd.DataFrame(result)
-        
-        if hasattr(self, '_original_columns'):
+
+        if hasattr(self, "_original_columns"):
             try:
                 # Try to reorder columns according to the original order
                 result = result[self._original_columns]
             except KeyError:
                 # Fails silently if reordering is not possible due to missing columns
                 pass
-    
+
         return result
-        
-            
+
+
 class DataTransformer:
     r"""
     A decorator class for transforming the output of functions that return
@@ -1212,37 +1356,37 @@ class DataTransformer:
     Parameters
     ----------
     name : str, optional
-        The name of the keyword argument in the decorated function that 
-        contains the data to be transformed. If not specified, the first 
+        The name of the keyword argument in the decorated function that
+        contains the data to be transformed. If not specified, the first
         positional argument is used.
     data_index : int, optional
-        The index of the data within the return value if the return is a 
-        tuple or list. This parameter is only used if the return value is 
-        not a single DataFrame or Series. Default is None, which implies 
+        The index of the data within the return value if the return is a
+        tuple or list. This parameter is only used if the return value is
+        not a single DataFrame or Series. Default is None, which implies
         that the first item in the return tuple/list is used in 'lazy' mode.
     reset_index : bool, optional
         If True, the index of the DataFrame or Series is reset. Default is False.
     mode : {'lazy', 'hardworker'}, optional
-        The mode of operation. In 'lazy' mode, minimal changes are made to the 
-        return value. In 'hardworker' mode, the decorator attempts more 
+        The mode of operation. In 'lazy' mode, minimal changes are made to the
+        return value. In 'hardworker' mode, the decorator attempts more
         extensive transformations. Default is 'lazy'.
     verbose : bool, optional
         If True, the decorator will print information about the transformations
         it performs and any errors or warnings. Default is False.
     set_index : bool, optional
-        If True and `original_attrs` has an 'index', the decorator will set 
+        If True and `original_attrs` has an 'index', the decorator will set
         this index to the return value. Default is False.
     rename_columns : bool, optional
-        If True and `original_attrs` has 'columns', the decorator will rename 
-        the columns of the return value. This is only applicable if the return 
+        If True and `original_attrs` has 'columns', the decorator will rename
+        the columns of the return value. This is only applicable if the return
         value is a DataFrame. Default is False.
-    keep_origin_type: bool, default=False 
+    keep_origin_type: bool, default=False
        If set ``True`` and mode is set to ``lazy``, return as the original data
-       types passed to the decorated function. 
-       
+       types passed to the decorated function.
+
     Examples
     --------
-    Use as a decorator to automatically convert the return value of a function 
+    Use as a decorator to automatically convert the return value of a function
     to a DataFrame and rename columns based on a predefined structure:
 
     >>> import pandas as pd
@@ -1253,22 +1397,23 @@ class DataTransformer:
     ...
     >>> df = process_data()
     DataTransformer: Finished processing the result.
-    
-    The `process_data` function will return a DataFrame with columns renamed 
+
+    The `process_data` function will return a DataFrame with columns renamed
     according to `original_attrs`, if they were collected and `rename_columns`
     was set to True.
 
     """
+
     def __init__(
-        self, 
-        name=None, 
-        data_index=None, 
-        reset_index=False, 
-        mode='lazy', 
-        verbose=False, 
-        set_index=False, 
-        rename_columns=False, 
-        keep_origin_type=False, 
+        self,
+        name=None,
+        data_index=None,
+        reset_index=False,
+        mode="lazy",
+        verbose=False,
+        set_index=False,
+        rename_columns=False,
+        keep_origin_type=False,
     ):
         self.name = name
         self.data_index = data_index
@@ -1277,10 +1422,10 @@ class DataTransformer:
         self.verbose = verbose
         self.set_index = set_index
         self.rename_columns = rename_columns
-        self.keep_origin_type=keep_origin_type 
+        self.keep_origin_type = keep_origin_type
         self.original_attrs = {}
-        self._is_frame=False 
-        
+        self._is_frame = False
+
     def __call__(self, func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -1290,72 +1435,99 @@ class DataTransformer:
             result = func(*args, **kwargs)
             # Post-function execution: Data re-construction and manipulation
             result = self._reconstruct_data(result)
-            if self.verbose: 
-                print( "DataTransformer: Finished processing the result.")
-            
-            if self.mode=='lazy': 
-                if self.keep_origin_type and not self._is_frame: 
+            if self.verbose:
+                print(
+                    "DataTransformer: Finished processing the result."
+                )
+
+            if self.mode == "lazy":
+                if (
+                    self.keep_origin_type
+                    and not self._is_frame
+                ):
                     # keep the data type as is.
                     result = np.asarray(result)
             return result
+
         return wrapper
 
     def _collect_data_attributes(self, *args, **kwargs):
         if self.name:
             data = kwargs.get(self.name)
         else:
-            data = args[0]  # Use the first positional argument if name is not specified
+            data = args[
+                0
+            ]  # Use the first positional argument if name is not specified
         # Use tolist() to ensure JSON serializability if needed
         if isinstance(data, pd.DataFrame):
-            self.original_attrs['columns'] = data.columns.tolist()  
-            self.original_attrs['index'] = data.index.tolist()
-            self._is_frame =True 
+            self.original_attrs["columns"] = (
+                data.columns.tolist()
+            )
+            self.original_attrs["index"] = data.index.tolist()
+            self._is_frame = True
         elif isinstance(data, pd.Series):
-            self.original_attrs['name'] = data.name
-            self.original_attrs['index'] = data.index.tolist()
-            self._is_frame =True 
+            self.original_attrs["name"] = data.name
+            self.original_attrs["index"] = data.index.tolist()
+            self._is_frame = True
 
     def _reconstruct_data(self, result):
-        is_tuple_result = isinstance(result, (tuple, list))
-        data_index = self.data_index if self.data_index is not None else 0
-        
+        is_tuple_result = isinstance(result, tuple | list)
+        data_index = (
+            self.data_index
+            if self.data_index is not None
+            else 0
+        )
+
         if is_tuple_result:
             if data_index >= len(result):
                 if self.verbose:
-                    print(f"DataTransformer: Data position {data_index} is out"
-                          f" of range for the result size {len(result)}.")
+                    print(
+                        f"DataTransformer: Data position {data_index} is out"
+                        f" of range for the result size {len(result)}."
+                    )
                 return result
             data = result[data_index]
         else:
             data = result
-        
+
         # In lazy mode and data is already in the correct format, no need to reconstruct
-        if self.mode == 'lazy' and isinstance(data, (pd.DataFrame, pd.Series)):
+        if self.mode == "lazy" and isinstance(
+            data, pd.DataFrame | pd.Series
+        ):
             return result
 
         data = self._convert_and_adjust_data(data)
-        
+
         # Re-insert transformed data into the original result structure if needed
         if is_tuple_result:
-            result = list(result)  # Convert to list for mutability
+            result = list(
+                result
+            )  # Convert to list for mutability
             result[data_index] = data
-            result = tuple(result)  # Convert back if originally a tuple
+            result = tuple(
+                result
+            )  # Convert back if originally a tuple
         else:
             result = data
-        
+
         return result
 
     def _convert_and_adjust_data(self, data):
         if isinstance(data, np.ndarray):
             data = self._convert_ndarray_to_pandas(data)
-        # Add additional conversion logic here for other data 
+        # Add additional conversion logic here for other data
         # types like lists or dictionaries
 
-        if isinstance(data, pd.DataFrame) and self.rename_columns:
+        if (
+            isinstance(data, pd.DataFrame)
+            and self.rename_columns
+        ):
             data = self._rename_columns(data)
 
-        if (isinstance(data, (pd.DataFrame, pd.Series)
-                       ) and self.set_index) or self.reset_index:
+        if (
+            isinstance(data, pd.DataFrame | pd.Series)
+            and self.set_index
+        ) or self.reset_index:
             data = self._apply_index_and_name_settings(data)
 
         return data
@@ -1363,22 +1535,33 @@ class DataTransformer:
     def _convert_ndarray_to_pandas(self, ndarray):
         try:
             if ndarray.ndim == 1:
-                return pd.Series(ndarray, name=self.original_attrs.get('name'))
+                return pd.Series(
+                    ndarray,
+                    name=self.original_attrs.get("name"),
+                )
             elif ndarray.ndim > 1:
                 return pd.DataFrame(
-                    ndarray, columns=self.original_attrs.get('columns'))
+                    ndarray,
+                    columns=self.original_attrs.get(
+                        "columns"
+                    ),
+                )
         except Exception as e:
             if self.verbose:
-                print("DataTransformer: Error converting"
-                      f" numpy array to DataFrame/Series - {e}")
+                print(
+                    "DataTransformer: Error converting"
+                    f" numpy array to DataFrame/Series - {e}"
+                )
         return ndarray
 
     def _rename_columns(self, dataframe):
         try:
-            dataframe.columns = self.original_attrs['columns']
+            dataframe.columns = self.original_attrs["columns"]
         except Exception as e:
             if self.verbose:
-                print(f"DataTransformer: Error renaming columns - {e}")
+                print(
+                    f"DataTransformer: Error renaming columns - {e}"
+                )
         return dataframe
 
     def _apply_index_and_name_settings(self, data):
@@ -1386,74 +1569,77 @@ class DataTransformer:
             data.reset_index(drop=True, inplace=True)
         elif self.set_index:
             try:
-                data.index = self.original_attrs['index']
+                data.index = self.original_attrs["index"]
             except Exception as e:
                 if self.verbose:
-                    print(f"DataTransformer: Error setting index - {e}")
+                    print(
+                        f"DataTransformer: Error setting index - {e}"
+                    )
         return data
+
 
 class Extract1dArrayOrSeries:
     r"""
-    A decorator and callable that preprocesses input data to ensure it is 
-    provided to the decorated/called function as a one-dimensional NumPy 
+    A decorator and callable that preprocesses input data to ensure it is
+    provided to the decorated/called function as a one-dimensional NumPy
     array or Pandas Series.
 
-    This utility is designed to facilitate data extraction and conversion 
-    from various input formats (lists, dictionaries, Pandas DataFrames, 
-    and NumPy ndarrays) into a one-dimensional array or series. It is 
-    particularly useful for functions expecting standardized input data 
-    formats. The class supports dynamic parameter updates for `column`, 
+    This utility is designed to facilitate data extraction and conversion
+    from various input formats (lists, dictionaries, Pandas DataFrames,
+    and NumPy ndarrays) into a one-dimensional array or series. It is
+    particularly useful for functions expecting standardized input data
+    formats. The class supports dynamic parameter updates for `column`,
     `index`, `axis`, and `verbose` when used as a decorator.
 
     Parameters
     ----------
     func : callable, optional
-        The function to be decorated. If None, the instance acts as a 
+        The function to be decorated. If None, the instance acts as a
         factory for partials with preset parameters.
     column : str or int, optional
         Specifies which column to extract from the input if it is a DataFrame
-        or multidimensional ndarray. Use an integer for index selection or a 
+        or multidimensional ndarray. Use an integer for index selection or a
         string for a DataFrame column name.
     index : int, optional
-        Specifies which row to extract from the input if it is a DataFrame 
+        Specifies which row to extract from the input if it is a DataFrame
         or ndarray.
     axis : int, optional
-        Specifies the axis along which to extract a one-dimensional array 
+        Specifies the axis along which to extract a one-dimensional array
         from an ndarray. Valid values are 0 or 1.
     method : {'strict', 'soft'}, default 'strict'
         Specifies the behavior when a specified column or index is not found,
-        or when no specification is provided. 'soft' uses the first column 
+        or when no specification is provided. 'soft' uses the first column
         if the specified one is missing without raising an error.
     as_series : bool, default False
-        Determines whether the output should be a Pandas Series. If False, 
+        Determines whether the output should be a Pandas Series. If False,
         the output is a NumPy array.
     verbose : int, default 0
-        Controls the verbosity of the process. A value greater than 0 
+        Controls the verbosity of the process. A value greater than 0
         activates verbose output.
     squeeze_arr : bool, default True
-        Determines whether to squeeze the input array to one dimension. 
+        Determines whether to squeeze the input array to one dimension.
         Applicable to ndarrays only.
 
     Returns
     -------
-    The decorator returns the modified function with input data processed 
+    The decorator returns the modified function with input data processed
     according to the specified parameters.
 
     Raises
     ------
     TypeError
-        If the input is not a list, dictionary, Pandas DataFrame, or 
+        If the input is not a list, dictionary, Pandas DataFrame, or
         NumPy ndarray.
     ValueError
-        If the specified conditions (e.g., column/index out of range, 
+        If the specified conditions (e.g., column/index out of range,
         incorrect axis specification) are not met.
 
     Examples
     --------
     Using as a decorator to ensure input data is a one-dimensional array:
 
-    >>> import numpy as np 
-    >>> import pandas as pd 
+    >>> import numpy as np
+    >>> import pandas as pd
     >>> from geoprior.decorators import Extract1dArrayOrSeries
     >>> @Extract1dArrayOrSeries(column=0, as_series=True, verbose=1)
     >>> def compute_average(data):
@@ -1471,7 +1657,7 @@ class Extract1dArrayOrSeries:
     >>> new_df = pd.DataFrame({'A': [10, 20, 30], 'B': [40, 50, 60]})
     >>> # Overriding the 'column' parameter dynamically
     >>> print(summarize_data(new_df, column='B'))
-    
+
     Using as a callable:
 
     >>> def process_data(data):
@@ -1482,17 +1668,19 @@ class Extract1dArrayOrSeries:
     >>> ndarray = np.array([[1, 2, 3], [4, 5, 6]])
     >>> print(decorated_function(ndarray))
     """
+
     def __init__(
-        self, 
-        func=None, *, 
-        column=None, 
-        index=None, 
-        axis=None, 
-        method='strict',
-        as_series=False, 
-        verbose=0, 
-        squeeze_arr=True
-        ):
+        self,
+        func=None,
+        *,
+        column=None,
+        index=None,
+        axis=None,
+        method="strict",
+        as_series=False,
+        verbose=0,
+        squeeze_arr=True,
+    ):
         self.func = func
         self.column = column
         self.index = index
@@ -1501,14 +1689,19 @@ class Extract1dArrayOrSeries:
         self.as_series = as_series
         self.verbose = verbose
         self.squeeze_arr = squeeze_arr
-        
+
         if func is not None:
             functools.wraps(func)(self)
 
     def __call__(self, *args, **kwargs):
-        # Dynamically update only specific 
+        # Dynamically update only specific
         # parameters if they are explicitly passed
-        dynamic_params = ['column', 'index', 'axis', 'verbose']
+        dynamic_params = [
+            "column",
+            "index",
+            "axis",
+            "verbose",
+        ]
         for param in dynamic_params:
             if param in kwargs:
                 setattr(self, param, kwargs[param])
@@ -1522,42 +1715,52 @@ class Extract1dArrayOrSeries:
         @functools.wraps(func)
         def wrapped(*args, **kwargs):
             return self.__class__(
-                func, column=self.column, 
-                index=self.index, 
+                func,
+                column=self.column,
+                index=self.index,
                 axis=self.axis,
-                method=self.method, 
+                method=self.method,
                 as_series=self.as_series,
-                verbose=self.verbose, 
-                squeeze_arr=self.squeeze_arr
+                verbose=self.verbose,
+                squeeze_arr=self.squeeze_arr,
             )(*args, **kwargs)
+
         return wrapped
-    
+
     def _wrapper(self, arr, *args, **kwargs):
         arr = self._convert_input(arr)
-        
-        if isinstance (arr, pd.Series): 
-            result= arr.copy() 
+
+        if isinstance(arr, pd.Series):
+            result = arr.copy()
         elif isinstance(arr, pd.DataFrame):
             result = self._extract_from_dataframe(arr)
         elif isinstance(arr, np.ndarray):
             result = self._extract_from_ndarray(arr)
         else:
             raise TypeError(
-                "The input must be either a Pandas DataFrame or a NumPy ndarray.")
-        
+                "The input must be either a Pandas DataFrame or a NumPy ndarray."
+            )
+
         if self.as_series and isinstance(result, np.ndarray):
             result = pd.Series(result)
-        elif not self.as_series and isinstance(result, pd.Series):
+        elif not self.as_series and isinstance(
+            result, pd.Series
+        ):
             result = result.to_numpy()
-        
+
         return self.func(result, *args, **kwargs)
-    
+
     def __get__(self, instance, owner):
         return self.__class__(
-            self.func.__get__(instance, owner), column=self.column, 
-            index=self.index, axis=self.axis,
-            method=self.method, as_series=self.as_series, verbose=self.verbose, 
-            squeeze_arr=self.squeeze_arr)
+            self.func.__get__(instance, owner),
+            column=self.column,
+            index=self.index,
+            axis=self.axis,
+            method=self.method,
+            as_series=self.as_series,
+            verbose=self.verbose,
+            squeeze_arr=self.squeeze_arr,
+        )
 
     def _convert_input(self, arr):
         """Convert input data to numpy array or pandas DataFrame if
@@ -1567,15 +1770,19 @@ class Extract1dArrayOrSeries:
         elif isinstance(arr, dict):
             arr = pd.DataFrame(arr)
         return arr
-        
+
     def _extract_from_dataframe(self, arr):
-        """Extract data from a pandas DataFrame based on the 
+        """Extract data from a pandas DataFrame based on the
         specified column or index."""
         if self.column is not None:
-            if isinstance(self.column, int):  # Column by integer index
+            if isinstance(
+                self.column, int
+            ):  # Column by integer index
                 self._validate_column_index(arr, self.column)
                 result = arr.iloc[:, self.column]
-            elif isinstance(self.column, str):  # Column by name
+            elif isinstance(
+                self.column, str
+            ):  # Column by name
                 self._validate_column_name(arr, self.column)
                 result = arr[self.column]
         elif self.index is not None:
@@ -1583,48 +1790,58 @@ class Extract1dArrayOrSeries:
         else:
             result = self._default_dataframe_extraction(arr)
         return result
-    
+
     def _extract_from_ndarray(self, arr):
-        """Extract a specific slice from a numpy ndarray based on 
+        """Extract a specific slice from a numpy ndarray based on
         the provided parameters."""
         if arr.ndim > 1:
             result = self._handle_multidimensional_array(arr)
         else:
-            result = np.squeeze(arr) if self.squeeze_arr else arr
+            result = (
+                np.squeeze(arr) if self.squeeze_arr else arr
+            )
         return result
-    
+
     def _validate_column_index(self, arr, index):
         """Validate if the provided column index is within the valid range."""
         if index < 0 or index >= arr.shape[1]:
-            raise ValueError("The specified column index is out of range."
-                             " Please provide a valid index.")
-            
+            raise ValueError(
+                "The specified column index is out of range."
+                " Please provide a valid index."
+            )
+
     def _validate_column_name(self, arr, name):
         """Validate if the provided column name exists in the DataFrame."""
         if name not in arr.columns:
-            raise ValueError(f"The specified column name '{name}' does"
-                             " not exist in the DataFrame.")
-            
+            raise ValueError(
+                f"The specified column name '{name}' does"
+                " not exist in the DataFrame."
+            )
+
     def _default_dataframe_extraction(self, arr):
-        """Extract the first column from a DataFrame by default when no 
+        """Extract the first column from a DataFrame by default when no
         specific column or index is provided."""
-        if self.method == 'soft':
+        if self.method == "soft":
             if self.verbose:
-                print("No specific column or index provided; extracting"
-                      " the first column by default.")
+                print(
+                    "No specific column or index provided; extracting"
+                    " the first column by default."
+                )
             return arr.iloc[:, 0]
         else:
-            raise ValueError("No specific column or index was provided while "
-                             "a DataFrame was passed, and 'soft' method is not"
-                             " enabled.")
-    
+            raise ValueError(
+                "No specific column or index was provided while "
+                "a DataFrame was passed, and 'soft' method is not"
+                " enabled."
+            )
+
     def _handle_multidimensional_array(self, arr):
         """
         Handle the extraction from a multidimensional numpy array
         based on axis and other parameters.
-        
+
         This method takes into account the specified axis, column, index, and
-        the extraction method to retrieve a one-dimensional array from a 
+        the extraction method to retrieve a one-dimensional array from a
         multidimensional numpy array.
         """
         if self.axis is not None:
@@ -1634,63 +1851,91 @@ class Extract1dArrayOrSeries:
                     result = arr[self.index, :]
                 else:
                     if self.method == "soft":
-                        if self.column is not None and isinstance(self.column, int):
-                            self._validate_column_index(arr, self.column)
+                        if (
+                            self.column is not None
+                            and isinstance(self.column, int)
+                        ):
+                            self._validate_column_index(
+                                arr, self.column
+                            )
                             result = arr[:, self.column]
                             if self.verbose:
-                                print("Column specified, extracting based on "
-                                      "column index in 'soft' mode.")
+                                print(
+                                    "Column specified, extracting based on "
+                                    "column index in 'soft' mode."
+                                )
                         else:
-                            raise ValueError("Column must be an integer for "
-                                             "ndarray when 'soft' method is "
-                                             "used and axis=0.")
+                            raise ValueError(
+                                "Column must be an integer for "
+                                "ndarray when 'soft' method is "
+                                "used and axis=0."
+                            )
                     else:
-                        raise ValueError("Column cannot be used for axis=0 "
-                                         "unless method is set to 'soft'.")
+                        raise ValueError(
+                            "Column cannot be used for axis=0 "
+                            "unless method is set to 'soft'."
+                        )
             elif self.axis == 1:
-                if self.column is not None and isinstance(self.column, int):
+                if self.column is not None and isinstance(
+                    self.column, int
+                ):
                     # Extract specific column
-                    self._validate_column_index(arr, self.column)
+                    self._validate_column_index(
+                        arr, self.column
+                    )
                     result = arr[:, self.column]
                 elif self.index is not None:
-                    # Index behaves dually; here it acts 
+                    # Index behaves dually; here it acts
                     # as column extraction for axis=1
                     if self.verbose:
-                        print("Index is treated as column for numpy array when axis=1.")
-                    self._validate_column_index(arr, self.index)
+                        print(
+                            "Index is treated as column for numpy array when axis=1."
+                        )
+                    self._validate_column_index(
+                        arr, self.index
+                    )
                     result = arr[:, self.index]
                 else:
-                    raise ValueError("Either column or index needs to be "
-                                     "specified when axis is 1.")
+                    raise ValueError(
+                        "Either column or index needs to be "
+                        "specified when axis is 1."
+                    )
             else:
                 raise ValueError("Axis must be 0 or 1.")
         else:
             if self.squeeze_arr:
                 result = np.squeeze(arr)
                 if result.ndim >= 2:
-                    # Squeeze failed to convert to 1D; likely 
+                    # Squeeze failed to convert to 1D; likely
                     # a matrix without a specified axis
-                    raise ValueError("Unable to automatically convert 2D array"
-                                     " to 1D without axis specification.")
+                    raise ValueError(
+                        "Unable to automatically convert 2D array"
+                        " to 1D without axis specification."
+                    )
             else:
-                # No squeezing; ensure arr is already 1D or has a 
+                # No squeezing; ensure arr is already 1D or has a
                 # single dimension to be treated as 1D
-                if arr.ndim == 2 and (arr.shape[0] == 1 or arr.shape[1] == 1):
+                if arr.ndim == 2 and (
+                    arr.shape[0] == 1 or arr.shape[1] == 1
+                ):
                     # Treat as 1D if one of the dimensions is 1,
                     # regardless of orientation
                     result = arr.flatten()
                 else:
-                    raise ValueError("Array is multidimensional and requires"
-                                     " axis specification for extraction.")
-        
+                    raise ValueError(
+                        "Array is multidimensional and requires"
+                        " axis specification for extraction."
+                    )
+
         return result
+
 
 class DynamicMethodIn:
     r"""
-    A class-based decorator designed to preprocess data before it's passed to 
-    a function or method. This preprocessing includes filtering data by type, 
+    A class-based decorator designed to preprocess data before it's passed to
+    a function or method. This preprocessing includes filtering data by type,
     selecting specific columns, handling missing values, applying transformations,
-    and executing based on custom conditions. It offers advanced options like 
+    and executing based on custom conditions. It offers advanced options like
     treating integer columns as categorical and encoding categorical columns.
 
     Parameters
@@ -1703,21 +1948,21 @@ class DynamicMethodIn:
         Defaults to ``'numeric'``.
 
     capture_columns : bool, optional
-        If set to True, the decorator filters the DataFrame columns to those 
-        specified in the 'columns' keyword argument passed to the decorated 
-        function. 
+        If set to True, the decorator filters the DataFrame columns to those
+        specified in the 'columns' keyword argument passed to the decorated
+        function.
         Defaults to ``False``.
 
     treat_int_as_categorical : bool, optional
-        When True, integer columns in the DataFrame are treated as categorical 
+        When True, integer columns in the DataFrame are treated as categorical
         data, which can be particularly useful for statistical operations that
-        distinguish between numeric and categorical data types, such as ANOVA 
-        tests. 
+        distinguish between numeric and categorical data types, such as ANOVA
+        tests.
         Defaults to ``False``.
 
     encode_categories : bool, optional
         If True, categorical columns are encoded into integer values. This is
-        especially useful for models that require numerical input for 
+        especially useful for models that require numerical input for
         categorical data.
         Defaults to ``False``.
 
@@ -1728,14 +1973,14 @@ class DynamicMethodIn:
         Defaults to ``False``.
 
     na_axis : Union[int, str], optional
-        Specifies the axis along which to drop missing values. Acceptable 
+        Specifies the axis along which to drop missing values. Acceptable
         values are:
         - 0 or 'row': Drop rows with missing values.
         - 1 or 'col': Drop columns with missing values.
         Defaults to ``0``.
 
     na_thresh : Optional[float], optional
-        Sets a threshold for dropping rows or columns with missing values. 
+        Sets a threshold for dropping rows or columns with missing values.
         This can be specified as an absolute number of non-NA values or a
         proportion (0 < value <= 1) of the total number of values in a row
         or column.
@@ -1743,12 +1988,12 @@ class DynamicMethodIn:
 
     transform_func : Optional[Callable], optional
         A custom function to apply to the DataFrame before passing it to the
-        decorated function. This allows for flexible data transformations 
+        decorated function. This allows for flexible data transformations
         as needed.
         Defaults to ``None``.
 
     condition : Optional[Callable[[pd.DataFrame], bool]], optional
-        A condition function that takes the DataFrame as an argument and 
+        A condition function that takes the DataFrame as an argument and
         returns ``True`` if the decorated function should be executed. This
         enables conditional processing based on the data.
         Defaults to ``None``.
@@ -1757,16 +2002,16 @@ class DynamicMethodIn:
         If True, the DataFrame index is reset before processing. This is useful
         after filtering rows to ensure the index is continuous.
         Defaults to ``False``.
-        
+
     prefixer : str or None, optional
-        A string to prefix the function name with when adding it as a method 
-        to DataFrame and Series objects. If set to "exclude" or 'false' 
-        (case-insensitive), the prefix is omitted, and the original function 
-        name is used. If None or not provided, a default prefix of 'go' is 
+        A string to prefix the function name with when adding it as a method
+        to DataFrame and Series objects. If set to "exclude" or 'false'
+        (case-insensitive), the prefix is omitted, and the original function
+        name is used. If None or not provided, a default prefix of 'go' is
         used to denote the method's origin from the gofast package.
-        
+
     verbose : bool, optional
-        Controls the verbosity of the decoration process. If True, detailed 
+        Controls the verbosity of the decoration process. If True, detailed
         information about the preprocessing steps is printed.
         Defaults to ``False``.
 
@@ -1779,11 +2024,11 @@ class DynamicMethodIn:
     Examples
     --------
     >>> from geoprior.decorators import DynamicMethod
-    >>> @DynamicMethod(expected_type='numeric', capture_columns=True, 
+    >>> @DynamicMethod(expected_type='numeric', capture_columns=True,
     ... verbose=True, drop_na=True, na_axis='row', na_thresh=0.5, reset_index=True)
     ... def calculate_variance(data):
     ...     return data.var(ddof=0).mean()
-    
+
     >>> data = pd.DataFrame({"A": [1, 2, np.nan], "B": [4, np.nan, 6]})
     >>> print(calculate_variance(data))
     # The above example demonstrates preprocessing a DataFrame by dropping rows with
@@ -1797,24 +2042,28 @@ class DynamicMethodIn:
     - The `transform_func` and `condition` parameters allow for custom data transformations
       and conditional execution, adding a layer of customization to the preprocessing steps.
     """
+
     def __init__(
-        self, 
-        expected_type: str = 'numeric', 
+        self,
+        expected_type: str = "numeric",
         capture_columns: bool = False,
-        treat_int_as_categorical: bool = False, 
-        encode_categories: bool = False, 
-        verbose: bool = False, 
-        drop_na: bool = False, 
-        na_axis: Union[int, str] = 0, 
-        na_thresh: Optional[float] = None, 
-        transform_func: Optional[Callable] = None, 
-        condition: Optional[Callable[[pd.DataFrame], bool]] = None, 
+        treat_int_as_categorical: bool = False,
+        encode_categories: bool = False,
+        verbose: bool = False,
+        drop_na: bool = False,
+        na_axis: int | str = 0,
+        na_thresh: float | None = None,
+        transform_func: Callable | None = None,
+        condition: Callable[[pd.DataFrame], bool]
+        | None = None,
         reset_index: bool = False,
-        prefixer:Optional[str]=None, 
-        ):
+        prefixer: str | None = None,
+    ):
         self.expected_type = expected_type
         self.capture_columns = capture_columns
-        self.treat_int_as_categorical = treat_int_as_categorical
+        self.treat_int_as_categorical = (
+            treat_int_as_categorical
+        )
         self.encode_categories = encode_categories
         self.drop_na = drop_na
         self.na_axis = na_axis
@@ -1829,94 +2078,111 @@ class DynamicMethodIn:
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             if self.verbose:
-                print(f"Preprocessing data for {func.__name__}...")
+                print(
+                    f"Preprocessing data for {func.__name__}..."
+                )
 
-            data = self._validate_and_prepare_data(args[0], **kwargs)
+            data = self._validate_and_prepare_data(
+                args[0], **kwargs
+            )
             if data is None:
-                return func(*args, **kwargs)  # Early exit if data validation fails
+                return func(
+                    *args, **kwargs
+                )  # Early exit if data validation fails
 
             data = self._process_data(data, **kwargs)
             return func(data, *args[1:], **kwargs)
-        
-        self._add_method_to_pandas (
-            wrapper, prefixer= self.prefixer)
-        
+
+        self._add_method_to_pandas(
+            wrapper, prefixer=self.prefixer
+        )
+
         return wrapper
 
     def _validate_and_prepare_data(self, data, **kwargs):
         r"""
         Validates the input data and converts it to a pandas DataFrame if
         necessary.
-    
-        This method checks if the first argument is one of the supported types 
-        (pd.DataFrame, dict, np.ndarray, or iterable object) and converts it to 
-        a pandas DataFrame if it's not already one. If `columns` are specified in 
-        kwargs and the data is an np.ndarray or a converted iterable, it attempts 
+
+        This method checks if the first argument is one of the supported types
+        (pd.DataFrame, dict, np.ndarray, or iterable object) and converts it to
+        a pandas DataFrame if it's not already one. If `columns` are specified in
+        kwargs and the data is an np.ndarray or a converted iterable, it attempts
         to use these columns when creating the DataFrame.
-        
+
         Parameters
         ----------
         data : pd.DataFrame, dict, or np.ndarray
             The input data to be validated and possibly converted.
         **kwargs : dict
-            Additional keyword arguments, including 'columns' which may be used 
+            Additional keyword arguments, including 'columns' which may be used
             if the data is an np.ndarray to specify DataFrame column names.
-    
+
         Returns
         -------
         pd.DataFrame
             The validated and prepared pandas DataFrame.
-    
+
         Raises
         ------
         ValueError
             If the input data is not one of the supported types.
         """
         if isinstance(data, dict):
-            data= pd.DataFrame(data)
+            data = pd.DataFrame(data)
         # Convert iterable (not DataFrame or np.ndarray) to DataFrame
-        elif  hasattr(data, '__iter__') and not isinstance(
-                data, ( pd.DataFrame, np.ndarray, pd.Series)):  
+        elif hasattr(data, "__iter__") and not isinstance(
+            data, pd.DataFrame | np.ndarray | pd.Series
+        ):
             try:
-                data =  np.array(data)
+                data = np.array(data)
             except Exception:
                 raise ValueError(
                     "Expect the first argument to be an iterable object"
-                    " with minimum samples equal 2.")
+                    " with minimum samples equal 2."
+                )
         if isinstance(data, np.ndarray):
-            columns = kwargs.get('columns')
-            if isinstance (columns, str): 
-                columns =[columns]
-                
-            data = pd.DataFrame(data, columns=(
-                columns if columns and len(columns) == data.shape[1] else None))
-            
-        elif isinstance ( data, pd.Series): 
-            data = pd.DataFrame ( data)
-            
+            columns = kwargs.get("columns")
+            if isinstance(columns, str):
+                columns = [columns]
+
+            data = pd.DataFrame(
+                data,
+                columns=(
+                    columns
+                    if columns
+                    and len(columns) == data.shape[1]
+                    else None
+                ),
+            )
+
+        elif isinstance(data, pd.Series):
+            data = pd.DataFrame(data)
+
         # Finally validate  whether dataFrame if constructed.
         if not isinstance(data, pd.DataFrame):
             raise ValueError(
                 "Input data must be a pd.DataFrame, dict, np.ndarray,"
-                " or iterable.")
+                " or iterable."
+            )
         return data
-    
+
     def _process_data(self, data: pd.DataFrame, **kwargs):
         r"""
         Applies various preprocessing steps to the data based on the decorator's parameters.
-    
-        This method sequentially processes the data through specified steps: capturing 
-        specified columns, filtering data by type, dropping missing values, applying 
-        a transformation function, checking a condition for execution, and resetting 
+
+        This method sequentially processes the data through specified steps: capturing
+        specified columns, filtering data by type, dropping missing values, applying
+        a transformation function, checking a condition for execution, and resetting
         the index if required.
-    
+
         Parameters
         ----------
         data : pd.DataFrame
             The data to be processed.
         **kwargs : dict
             Additional keyword arguments passed through from the decorator.
-    
+
         Returns
         -------
         None
@@ -1924,7 +2190,7 @@ class DynamicMethodIn:
         """
         if self.capture_columns:
             data = self._capture_columns(data, **kwargs)
-        if self.expected_type in ['numeric', 'categorical']:
+        if self.expected_type in ["numeric", "categorical"]:
             data = self._filter_data_type(data)
         if self.drop_na:
             data = self._drop_na(data)
@@ -1932,175 +2198,200 @@ class DynamicMethodIn:
             data = self.transform_func(data)
         if self.condition and not self.condition(data):
             if self.verbose:
-                print("Condition for execution not met, skipping function call.")
+                print(
+                    "Condition for execution not met, skipping function call."
+                )
             return
         if self.reset_index:
             data = data.reset_index(drop=True)
 
-        return data 
-        
+        return data
+
     def _capture_columns(self, data: pd.DataFrame, **kwargs):
         """
         Filters the columns of the DataFrame based on the specified 'columns' in kwargs.
-    
-        If the 'columns' keyword argument is provided, this method attempts to filter 
-        the DataFrame to include only those columns. If any specified columns do not 
+
+        If the 'columns' keyword argument is provided, this method attempts to filter
+        the DataFrame to include only those columns. If any specified columns do not
         exist in the DataFrame, a warning is printed if verbose output is enabled.
 
         """
-        columns = kwargs.pop('columns', None)
+        columns = kwargs.pop("columns", None)
         if columns is not None:
             try:
                 data = data[columns]
             except KeyError:
                 if self.verbose:
-                    print("Specified columns do not match, ignoring columns.")
-        return data 
-    
+                    print(
+                        "Specified columns do not match, ignoring columns."
+                    )
+        return data
+
     def _filter_data_type(self, data: pd.DataFrame):
         """
         Filters the data based on the expected type ('numeric' or 'categorical').
-    
-        This method filters the DataFrame to include only numeric or categorical 
-        columns based on the `expected_type` parameter. If 'categorical' is specified, 
+
+        This method filters the DataFrame to include only numeric or categorical
+        columns based on the `expected_type` parameter. If 'categorical' is specified,
         it further processes categorical data as per the class parameters.
         """
-        if self.expected_type == 'numeric':
+        if self.expected_type == "numeric":
             data = data.select_dtypes(include=[np.number])
-        elif self.expected_type == 'categorical':
-            data =self._handle_categorical_data(data)
-        
-        return data 
-    
+        elif self.expected_type == "categorical":
+            data = self._handle_categorical_data(data)
+
+        return data
+
     def _handle_categorical_data(self, data: pd.DataFrame):
         """
         Handles categorical data by treating integer columns as categorical
         if specified, and encoding categorical columns if required.
-    
+
         This method processes integer columns as categorical if
-        `treat_int_as_categorical` 
-        is True, and encodes categorical columns into integers if 
+        `treat_int_as_categorical`
+        is True, and encodes categorical columns into integers if
         `encode_categories` is True.
-    
+
         """
         if self.treat_int_as_categorical:
-            int_columns = data.select_dtypes(include=[int]).columns.tolist()
-            data[int_columns] = data[int_columns].astype('category')
+            int_columns = data.select_dtypes(
+                include=[int]
+            ).columns.tolist()
+            data[int_columns] = data[int_columns].astype(
+                "category"
+            )
         if self.encode_categories:
             data = self._encode_categorical_columns(data)
-        
-        return data 
-    
+
+        return data
+
     def _encode_categorical_columns(self, data: pd.DataFrame):
         """
         Encodes categorical columns in the DataFrame into integer values.
-    
-        This method applies Label Encoding to columns in the DataFrame that are 
+
+        This method applies Label Encoding to columns in the DataFrame that are
         identified as categorical (either 'category' or 'object' dtype).
 
         """
         from sklearn.preprocessing import LabelEncoder
-        cat_columns = data.select_dtypes(include=['category', 'object']).columns
+
+        cat_columns = data.select_dtypes(
+            include=["category", "object"]
+        ).columns
         for col in cat_columns:
-            data[col] = LabelEncoder().fit_transform(data[col])
-            
-        return data 
+            data[col] = LabelEncoder().fit_transform(
+                data[col]
+            )
+
+        return data
 
     def _drop_na(self, data: pd.DataFrame):
         """
         Drops rows or columns from the DataFrame based on missing values criteria.
-    
+
         This method drops rows or columns with missing values based on the specified
         `na_axis` and `na_thresh` parameters. `na_axis` determines the axis along which
         to drop (rows or columns), and `na_thresh` specifies the threshold for dropping
         either as an absolute number of non-NA values required to keep a row/column or
         as a proportion of the total number of values.
-    
+
         Parameters
         ----------
         data : pd.DataFrame
-            The DataFrame from which rows or columns will be dropped based 
+            The DataFrame from which rows or columns will be dropped based
             on missing values.
-    
+
         Modifies
         --------
         data : pd.DataFrame
-            The input DataFrame is modified in place by dropping specified 
+            The input DataFrame is modified in place by dropping specified
             rows or columns.
-    
+
         """
         # Convert na_axis from string to integer if necessary
-        na_axis = 0 if self.na_axis in [0, 'row'] else 1 if self.na_axis in [
-            1, 'col'] else self.na_axis
-        
-        # Calculate the threshold for dropping based on the proportion 
+        na_axis = (
+            0
+            if self.na_axis in [0, "row"]
+            else 1
+            if self.na_axis in [1, "col"]
+            else self.na_axis
+        )
+
+        # Calculate the threshold for dropping based on the proportion
         # if specified as a float less than 1
-        if self.na_thresh is None: 
-            thresh= self.na_thresh
+        if self.na_thresh is None:
+            thresh = self.na_thresh
         elif 0 < self.na_thresh <= 1:
-            total_elements = len(data.columns) if na_axis == 0 else len(data)
+            total_elements = (
+                len(data.columns)
+                if na_axis == 0
+                else len(data)
+            )
             thresh = int(total_elements * self.na_thresh)
         else:
             thresh = self.na_thresh
         # Drop missing values based on the specified axis and threshold
         return data.dropna(axis=na_axis, thresh=thresh)
-                                  
+
     def _add_method_to_pandas(self, func, prefixer=None):
         """
-        Dynamically adds a custom method to pandas DataFrame and Series classes. 
-        This enhancement allows for extending pandas objects with additional 
-        functionality in a flexible manner. The method can be optionally prefixed 
-        to denote its origin or purpose, enhancing readability and avoiding 
+        Dynamically adds a custom method to pandas DataFrame and Series classes.
+        This enhancement allows for extending pandas objects with additional
+        functionality in a flexible manner. The method can be optionally prefixed
+        to denote its origin or purpose, enhancing readability and avoiding
         namespace collisions.
-    
-        The method checks if a function, optionally prefixed, already exists 
-        as a method within the pandas DataFrame and Series classes. If the 
-        method does not exist, it is added, making it accessible directly 
+
+        The method checks if a function, optionally prefixed, already exists
+        as a method within the pandas DataFrame and Series classes. If the
+        method does not exist, it is added, making it accessible directly
         from DataFrame and Series instances.
-    
+
         Parameters
         ----------
         func : function
-            The function to be added as a method. This function should accept a 
-            DataFrame or Series as its first argument, followed by any additional 
+            The function to be added as a method. This function should accept a
+            DataFrame or Series as its first argument, followed by any additional
             arguments or keyword arguments the function requires.
         prefixer : str or None, optional
-            A string to prefix the function name with when adding it as a method 
-            to DataFrame and Series objects. If set to "exclude" or 'false' 
-            (case-insensitive), the prefix is omitted, and the original function 
-            name is used. If None or not provided, a default prefix of 'go' is 
+            A string to prefix the function name with when adding it as a method
+            to DataFrame and Series objects. If set to "exclude" or 'false'
+            (case-insensitive), the prefix is omitted, and the original function
+            name is used. If None or not provided, a default prefix of 'go' is
             used to denote the method's origin from the gofast package.
-    
+
         Examples
         --------
-        Suppose `custom_func` is a function intended to be added to DataFrame and 
+        Suppose `custom_func` is a function intended to be added to DataFrame and
         Series objects, and we want to prefix it with 'go_':
-    
+
             >>> def custom_func(df, *args, **kwargs):
             ...     # Implementation here
             ...     pass
             >>> gofast_instance._add_method_to_pandas(custom_func)
-    
+
         Now, `custom_func` can be called on DataFrame and Series objects like so:
-    
+
             >>> df.go_custom_func(*args, **kwargs)
-    
+
         If `dynamic_prefixer` is set to "exclude", the 'go_' prefix is omitted:
-    
+
             >>> gofast_instance._add_method_to_pandas(custom_func, dynamic_prefixer="exclude")
             >>> df.custom_func(*args, **kwargs)
-    
+
         Raises
         ------
         Exception
-            If an error occurs while adding the method, it is caught and a message 
-            is printed. This behavior can be modified to log the error or handle 
+            If an error occurs while adding the method, it is caught and a message
+            is printed. This behavior can be modified to log the error or handle
             it as needed.
         """
         # Determine whether to use a prefix based on `prefixer`
-        method_name = func.__name__ if prefixer in (
-            "exclude", 'false') else "go_" + func.__name__
-    
+        method_name = (
+            func.__name__
+            if prefixer in ("exclude", "false")
+            else "go_" + func.__name__
+        )
+
         # Attempt to add the method to both DataFrame and Series classes
         for cls in [pd.DataFrame, pd.Series]:
             if not hasattr(cls, method_name):
@@ -2108,9 +2399,12 @@ class DynamicMethodIn:
                     setattr(cls, method_name, func)
                 except Exception as e:
                     if self.verbose:
-                        print(f"Failed to add method {method_name}: {e}")
+                        print(
+                            f"Failed to add method {method_name}: {e}"
+                        )
                     # Optionally log or handle the error as needed
-               
+
+
 class DynamicMethod:
     """
     A class-based decorator for preprocessing data before it's
@@ -2118,27 +2412,31 @@ class DynamicMethod:
     identification.
 
     """
+
     def __init__(
         self,
-        expected_type: str = 'numeric',
+        expected_type: str = "numeric",
         capture_columns: bool = False,
         treat_int_as_categorical: bool = False,
         encode_categories: bool = False,
         drop_na: bool = False,
-        na_axis: Union[int, str] = 0,
-        na_thresh: Optional[float] = None,
-        transform_func: Optional[Callable] = None,
-        condition: Optional[Callable[[pd.DataFrame], bool]] = None,
+        na_axis: int | str = 0,
+        na_thresh: float | None = None,
+        transform_func: Callable | None = None,
+        condition: Callable[[pd.DataFrame], bool]
+        | None = None,
         reset_index: bool = False,
-        prefixer: Optional[str] = None, 
-        param: Optional[str] = None, 
+        prefixer: str | None = None,
+        param: str | None = None,
         verbose: bool = False,
-        ):
+    ):
         # Store all initialization parameters
         self.param = param
         self.expected_type = expected_type
         self.capture_columns = capture_columns
-        self.treat_int_as_categorical = treat_int_as_categorical
+        self.treat_int_as_categorical = (
+            treat_int_as_categorical
+        )
         self.encode_categories = encode_categories
         self.drop_na = drop_na
         self.na_axis = na_axis
@@ -2148,10 +2446,16 @@ class DynamicMethod:
         self.reset_index = reset_index
         # Default prefixer to 'go' if None, unless explicitly 'exclude'
         if prefixer is None:
-            self.prefixer = "go" # Default prefix
-        elif isinstance(prefixer, str) and \
-            prefixer.lower() in ("exclude", "false", "none", ""):
-            self.prefixer = "exclude" # No prefix
+            self.prefixer = "go"  # Default prefix
+        elif isinstance(
+            prefixer, str
+        ) and prefixer.lower() in (
+            "exclude",
+            "false",
+            "none",
+            "",
+        ):
+            self.prefixer = "exclude"  # No prefix
         else:
             self.prefixer = prefixer
 
@@ -2159,10 +2463,10 @@ class DynamicMethod:
 
     def _get_data_from_args(
         self,
-        func_name: str, # For logging
-        args: Tuple[Any, ...],
-        kwargs: Dict[str, Any]
-    ) -> Tuple[Any, bool, Optional[int], Optional[str]]:
+        func_name: str,  # For logging
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+    ) -> tuple[Any, bool, int | None, str | None]:
         """
         Identifies the data to be processed from args or kwargs.
 
@@ -2178,14 +2482,16 @@ class DynamicMethod:
         arg_pos_idx = None
         kwarg_name = None
 
-        if self.param: # `param` name is explicitly set
+        if self.param:  # `param` name is explicitly set
             if self.param in kwargs:
                 data_to_process = kwargs[self.param]
                 was_kwarg = True
                 kwarg_name = self.param
                 if self.verbose:
-                    print(f"  DynamicMethod ({func_name}): Data identified "
-                          f"from specified kwarg '{self.param}'.")
+                    print(
+                        f"  DynamicMethod ({func_name}): Data identified "
+                        f"from specified kwarg '{self.param}'."
+                    )
             else:
                 # If `param` is set, it *must* be a keyword argument.
                 # Not finding it is a configuration/usage error.
@@ -2198,88 +2504,136 @@ class DynamicMethod:
                     "function call. Cannot identify data for processing."
                 )
                 # Depending on desired strictness, could raise error or warn
-                warnings.warn(msg, UserWarning)
-                if self.verbose: print(f"  {msg}")
-                return None, False, None, None # No data to process
-            
-        else: # `param` is None, try to infer data argument
-            common_data_keys = ('data', 'df') # 'X', 'x') # Common names
+                warnings.warn(msg, UserWarning, stacklevel=2)
+                if self.verbose:
+                    print(f"  {msg}")
+                return (
+                    None,
+                    False,
+                    None,
+                    None,
+                )  # No data to process
+
+        else:  # `param` is None, try to infer data argument
+            common_data_keys = (
+                "data",
+                "df",
+            )  # 'X', 'x') # Common names
             for key in common_data_keys:
                 if key in kwargs:
                     data_to_process = kwargs[key]
                     was_kwarg = True
                     kwarg_name = key
                     if self.verbose:
-                        print(f"  DynamicMethod ({func_name}): Data "
-                              f"identified from common kwarg '{key}'.")
+                        print(
+                            f"  DynamicMethod ({func_name}): Data "
+                            f"identified from common kwarg '{key}'."
+                        )
                     break
-            if data_to_process is None and args: # Check positional args
+            if (
+                data_to_process is None and args
+            ):  # Check positional args
                 data_to_process = args[0]
-                arg_pos_idx = 0 # It's the first positional argument
+                arg_pos_idx = (
+                    0  # It's the first positional argument
+                )
                 if self.verbose:
-                    print(f"  DynamicMethod ({func_name}): Data "
-                          "identified from args[0].")
+                    print(
+                        f"  DynamicMethod ({func_name}): Data "
+                        "identified from args[0]."
+                    )
 
         if data_to_process is None and self.verbose:
-            print(f"  DynamicMethod ({func_name}): No data argument "
-                  "identified for preprocessing.")
+            print(
+                f"  DynamicMethod ({func_name}): No data argument "
+                "identified for preprocessing."
+            )
 
-        return data_to_process, was_kwarg, arg_pos_idx, kwarg_name
+        return (
+            data_to_process,
+            was_kwarg,
+            arg_pos_idx,
+            kwarg_name,
+        )
 
     def __call__(self, func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             if self.verbose:
-                print(f"DynamicMethod: Preprocessing data for "
-                      f"'{func.__name__}'...")
+                print(
+                    f"DynamicMethod: Preprocessing data for "
+                    f"'{func.__name__}'..."
+                )
 
             # 1. Identify data from args/kwargs
-            original_data, was_kwarg, arg_pos_idx, kwarg_name = \
-                self._get_data_from_args(func.__name__, args, kwargs)
+            (
+                original_data,
+                was_kwarg,
+                arg_pos_idx,
+                kwarg_name,
+            ) = self._get_data_from_args(
+                func.__name__, args, kwargs
+            )
 
             if original_data is None:
                 # No data identified, or `param` was set but not found.
                 # Call original function without preprocessing.
                 if self.verbose:
-                    print(f"  DynamicMethod ({func.__name__}): No data "
-                          "to process or data not found as specified. "
-                          "Calling original function as is.")
+                    print(
+                        f"  DynamicMethod ({func.__name__}): No data "
+                        "to process or data not found as specified. "
+                        "Calling original function as is."
+                    )
                 return func(*args, **kwargs)
 
             # 2. Validate and prepare (convert to DataFrame if needed)
             try:
                 # Pass original_data identified, and kwargs for 'columns'
-                processed_df = self._validate_and_prepare_data(
-                    original_data, func_name=func.__name__, **kwargs
+                processed_df = (
+                    self._validate_and_prepare_data(
+                        original_data,
+                        func_name=func.__name__,
+                        **kwargs,
                     )
+                )
             except ValueError as e:
                 # If validation/preparation fails, call original function
                 if self.verbose:
-                    print(f"  DynamicMethod ({func.__name__}): Data "
-                          f"validation/preparation failed: {e}. "
-                          "Calling original function.")
+                    print(
+                        f"  DynamicMethod ({func.__name__}): Data "
+                        f"validation/preparation failed: {e}. "
+                        "Calling original function."
+                    )
                 return func(*args, **kwargs)
 
-            if processed_df is None: # Should not happen if _validate raises
+            if (
+                processed_df is None
+            ):  # Should not happen if _validate raises
                 if self.verbose:
-                    print(f"  DynamicMethod ({func.__name__}): Data became "
-                          "None after validation. Calling original function.")
+                    print(
+                        f"  DynamicMethod ({func.__name__}): Data became "
+                        "None after validation. Calling original function."
+                    )
                 return func(*args, **kwargs)
 
             # 3. Apply further processing steps defined by decorator params
             # Pass kwargs for _capture_columns to find 'columns' if needed
             processed_df_after_steps = self._process_data(
-                processed_df, func_name=func.__name__, **kwargs
-                )
+                processed_df,
+                func_name=func.__name__,
+                **kwargs,
+            )
 
             if processed_df_after_steps is None:
-                 # This can happen if self.condition in _process_data
-                 # evaluates to False.
-                 if self.verbose:
-                    print(f"  DynamicMethod ({func.__name__}): Condition for "
-                          "execution not met or data became None after "
-                          "processing steps. Calling original function.")
-                 return func(*args, **kwargs)
+                # This can happen if self.condition in _process_data
+                # evaluates to False.
+                if self.verbose:
+                    print(
+                        f"  DynamicMethod ({func.__name__}): Condition for "
+                        "execution not met or data became None after "
+                        "processing steps. Calling original function."
+                    )
+                return func(*args, **kwargs)
 
             # 4. Call the original function with processed data
             final_args = list(args)
@@ -2287,31 +2641,46 @@ class DynamicMethod:
 
             if was_kwarg and kwarg_name:
                 # Data was originally a keyword argument
-                final_kwargs[kwarg_name] = processed_df_after_steps
+                final_kwargs[kwarg_name] = (
+                    processed_df_after_steps
+                )
                 if self.verbose:
-                    print(f"  DynamicMethod ({func.__name__}): Calling with "
-                          f"processed data in kwarg '{kwarg_name}'.")
+                    print(
+                        f"  DynamicMethod ({func.__name__}): Calling with "
+                        f"processed data in kwarg '{kwarg_name}'."
+                    )
             elif arg_pos_idx is not None:
                 # Data was originally a positional argument
-                final_args[arg_pos_idx] = processed_df_after_steps
+                final_args[arg_pos_idx] = (
+                    processed_df_after_steps
+                )
                 if self.verbose:
-                    print(f"  DynamicMethod ({func.__name__}): Calling with "
-                          f"processed data at args[{arg_pos_idx}].")
+                    print(
+                        f"  DynamicMethod ({func.__name__}): Calling with "
+                        f"processed data at args[{arg_pos_idx}]."
+                    )
             else:
                 # This case should not be reached if original_data was found
                 if self.verbose:
-                    print(f"  DynamicMethod ({func.__name__}): Error in "
-                          "reconstructing arguments. Calling original func.")
-                return func(*args, **kwargs) # Fallback
+                    print(
+                        f"  DynamicMethod ({func.__name__}): Error in "
+                        "reconstructing arguments. Calling original func."
+                    )
+                return func(*args, **kwargs)  # Fallback
 
             return func(*final_args, **final_kwargs)
 
         # Add the wrapped function as a method to pandas DataFrame/Series
         # if a prefixer is specified (and not "exclude").
-        if self.prefixer and self.prefixer.lower() != "exclude":
-            self._add_method_to_pandas(wrapper, prefixer=self.prefixer)
-        elif self.prefixer is None: # Default "go" prefix
-             self._add_method_to_pandas(wrapper, prefixer="go")
+        if (
+            self.prefixer
+            and self.prefixer.lower() != "exclude"
+        ):
+            self._add_method_to_pandas(
+                wrapper, prefixer=self.prefixer
+            )
+        elif self.prefixer is None:  # Default "go" prefix
+            self._add_method_to_pandas(wrapper, prefixer="go")
         # If self.prefixer is "exclude", no prefix is used by _add_method_to_pandas
 
         return wrapper
@@ -2319,22 +2688,29 @@ class DynamicMethod:
     def _validate_and_prepare_data(
         self,
         data_obj: Any,
-        func_name: str, # For logging
-        **kwargs
-        ) -> Optional[pd.DataFrame]:
+        func_name: str,  # For logging
+        **kwargs,
+    ) -> pd.DataFrame | None:
         """
         Validates data_obj and converts to DataFrame if possible.
         """
         current_data = data_obj
-        if self.verbose >=2: # More detailed log for this step
-            print(f"    DynamicMethod ({func_name}): Validating data type: "
-                  f"{type(current_data)}")
+        if (
+            self.verbose >= 2
+        ):  # More detailed log for this step
+            print(
+                f"    DynamicMethod ({func_name}): Validating data type: "
+                f"{type(current_data)}"
+            )
 
         if isinstance(current_data, dict):
             current_data = pd.DataFrame(current_data)
-        elif hasattr(current_data, '__iter__') and not isinstance(
-            current_data, (pd.DataFrame, np.ndarray, pd.Series)
-            ):
+        elif hasattr(
+            current_data, "__iter__"
+        ) and not isinstance(
+            current_data,
+            pd.DataFrame | np.ndarray | pd.Series,
+        ):
             try:
                 # Convert iterables (like list of lists) to numpy first
                 current_data = np.array(current_data)
@@ -2343,30 +2719,43 @@ class DynamicMethod:
                     f"DynamicMethod ({func_name}): Data argument is an "
                     "iterable but could not be converted to NumPy array. "
                     f"Error: {e}"
-                    )
-                if self.verbose: print(f"  {msg}")
+                )
+                if self.verbose:
+                    print(f"  {msg}")
                 raise ValueError(msg) from e
 
         if isinstance(current_data, np.ndarray):
             # Check if 'columns' was passed to the decorated function
-            columns_from_kw = kwargs.get('columns')
+            columns_from_kw = kwargs.get("columns")
             if isinstance(columns_from_kw, str):
                 columns_from_kw = [columns_from_kw]
 
             df_columns = None
-            if columns_from_kw and isinstance(columns_from_kw, list):
-                if current_data.ndim == 1 and len(columns_from_kw) == 1:
+            if columns_from_kw and isinstance(
+                columns_from_kw, list
+            ):
+                if (
+                    current_data.ndim == 1
+                    and len(columns_from_kw) == 1
+                ):
                     # Reshape 1D array to 2D for DataFrame creation
                     current_data = current_data.reshape(-1, 1)
                     df_columns = columns_from_kw
-                elif current_data.ndim == 2 and \
-                     len(columns_from_kw) == current_data.shape[1]:
+                elif (
+                    current_data.ndim == 2
+                    and len(columns_from_kw)
+                    == current_data.shape[1]
+                ):
                     df_columns = columns_from_kw
                 elif self.verbose:
-                    print(f"    DynamicMethod ({func_name}): 'columns' kwarg "
-                          "provided but length does not match ndarray shape. "
-                          "Creating DataFrame without explicit column names.")
-            current_data = pd.DataFrame(current_data, columns=df_columns)
+                    print(
+                        f"    DynamicMethod ({func_name}): 'columns' kwarg "
+                        "provided but length does not match ndarray shape. "
+                        "Creating DataFrame without explicit column names."
+                    )
+            current_data = pd.DataFrame(
+                current_data, columns=df_columns
+            )
         elif isinstance(current_data, pd.Series):
             current_data = pd.DataFrame(current_data)
 
@@ -2374,220 +2763,327 @@ class DynamicMethod:
             msg = (
                 f"DynamicMethod ({func_name}): Input data must be, or be "
                 f"convertible to, a pd.DataFrame. Got type: {type(data_obj)}."
-                )
-            if self.verbose: print(f"  {msg}")
+            )
+            if self.verbose:
+                print(f"  {msg}")
             raise ValueError(msg)
 
-        if self.verbose >=2:
-            print(f"    DynamicMethod ({func_name}): Data prepared as "
-                  f"DataFrame. Shape: {current_data.shape}")
+        if self.verbose >= 2:
+            print(
+                f"    DynamicMethod ({func_name}): Data prepared as "
+                f"DataFrame. Shape: {current_data.shape}"
+            )
         return current_data
 
     def _process_data(
         self,
         data: pd.DataFrame,
-        func_name: str, # For logging
-        **kwargs
-        ) -> Optional[pd.DataFrame]:
+        func_name: str,  # For logging
+        **kwargs,
+    ) -> pd.DataFrame | None:
         """
         Applies preprocessing steps like column capture, type filtering,
         NA dropping, custom transform, and condition checking.
         """
         # Make a copy to avoid modifying original DataFrame if passed by ref
         processed_data = data.copy()
-        if self.verbose >=2:
-            print(f"    DynamicMethod ({func_name}): Starting data processing steps...")
+        if self.verbose >= 2:
+            print(
+                f"    DynamicMethod ({func_name}): Starting data processing steps..."
+            )
 
         if self.capture_columns:
             processed_data = self._capture_columns(
                 processed_data, func_name=func_name, **kwargs
-                )
+            )
             if self.verbose >= 3:
-                print(f"      After column capture: {processed_data.shape}, "
-                      f"Cols: {processed_data.columns.tolist()[:5]}...")
+                print(
+                    f"      After column capture: {processed_data.shape}, "
+                    f"Cols: {processed_data.columns.tolist()[:5]}..."
+                )
 
-
-        if self.expected_type in ['numeric', 'categorical', 'both']:
+        if self.expected_type in [
+            "numeric",
+            "categorical",
+            "both",
+        ]:
             # 'both' implies no type filtering, but categorical handling might apply
-            if self.expected_type != 'both':
+            if self.expected_type != "both":
                 processed_data = self._filter_data_type(
                     processed_data, func_name=func_name
-                    )
+                )
                 if self.verbose >= 3:
-                    print(f"      After type filter ('{self.expected_type}'): "
-                          f"{processed_data.shape}")
+                    print(
+                        f"      After type filter ('{self.expected_type}'): "
+                        f"{processed_data.shape}"
+                    )
             # Handle categorical specific transformations even if 'both'
-            if self.treat_int_as_categorical or self.encode_categories:
-                 processed_data = self._handle_categorical_data(
-                     processed_data, func_name=func_name
-                     )
-                 if self.verbose >= 3:
-                     print(f"      After categorical handling: {processed_data.shape}")
+            if (
+                self.treat_int_as_categorical
+                or self.encode_categories
+            ):
+                processed_data = (
+                    self._handle_categorical_data(
+                        processed_data, func_name=func_name
+                    )
+                )
+                if self.verbose >= 3:
+                    print(
+                        f"      After categorical handling: {processed_data.shape}"
+                    )
 
         if self.drop_na:
             original_len = len(processed_data)
-            processed_data = self._drop_na(processed_data, func_name=func_name)
+            processed_data = self._drop_na(
+                processed_data, func_name=func_name
+            )
             if self.verbose >= 3:
-                print(f"      After drop_na: {processed_data.shape}. "
-                      f"Dropped {original_len - len(processed_data)} rows/cols.")
+                print(
+                    f"      After drop_na: {processed_data.shape}. "
+                    f"Dropped {original_len - len(processed_data)} rows/cols."
+                )
 
         if self.transform_func:
-            if self.verbose >= 3: 
-                print("      Applying transform_func...")
-            processed_data = self.transform_func(processed_data)
             if self.verbose >= 3:
-                print(f"      After transform_func: {processed_data.shape}")
+                print("      Applying transform_func...")
+            processed_data = self.transform_func(
+                processed_data
+            )
+            if self.verbose >= 3:
+                print(
+                    f"      After transform_func: {processed_data.shape}"
+                )
 
-
-        if self.condition and not self.condition(processed_data):
+        if self.condition and not self.condition(
+            processed_data
+        ):
             if self.verbose:
-                print(f"  DynamicMethod ({func_name}): Condition for "
-                      "execution not met, skipping function call and "
-                      "returning None from _process_data.")
-            return None # Signal to wrapper to call original func with original data
+                print(
+                    f"  DynamicMethod ({func_name}): Condition for "
+                    "execution not met, skipping function call and "
+                    "returning None from _process_data."
+                )
+            return None  # Signal to wrapper to call original func with original data
 
         if self.reset_index:
-            if self.verbose >= 3: 
+            if self.verbose >= 3:
                 print("      Resetting index...")
-            processed_data = processed_data.reset_index(drop=True)
+            processed_data = processed_data.reset_index(
+                drop=True
+            )
 
-        if self.verbose >=2:
-            print(f"    DynamicMethod ({func_name}): Data processing steps complete.")
+        if self.verbose >= 2:
+            print(
+                f"    DynamicMethod ({func_name}): Data processing steps complete."
+            )
         return processed_data
 
     def _capture_columns(
         self, data: pd.DataFrame, func_name: str, **kwargs
-        ) -> pd.DataFrame:
+    ) -> pd.DataFrame:
         """Filters columns based on 'columns' kwarg."""
-        columns_to_select = kwargs.get('columns') # Do not pop from kwargs here
+        columns_to_select = kwargs.get(
+            "columns"
+        )  # Do not pop from kwargs here
         if columns_to_select is not None:
             if isinstance(columns_to_select, str):
                 columns_to_select = [columns_to_select]
             if not isinstance(columns_to_select, list):
                 if self.verbose:
-                    print(f"    DynamicMethod ({func_name}): 'columns' kwarg "
-                          "is not a list or string, ignoring.")
+                    print(
+                        f"    DynamicMethod ({func_name}): 'columns' kwarg "
+                        "is not a list or string, ignoring."
+                    )
                 return data
             try:
                 # Select only existing columns to avoid KeyError
                 existing_cols_to_select = [
-                    col for col in columns_to_select if col in data.columns
-                    ]
-                if len(existing_cols_to_select) < len(columns_to_select) \
-                        and self.verbose:
-                    missing = set(columns_to_select) - set(existing_cols_to_select)
-                    print(f"    DynamicMethod ({func_name}): Warning - "
-                          f"specified columns not found: {missing}")
-                if not existing_cols_to_select and self.verbose:
-                     print(f"    DynamicMethod ({func_name}): No specified "
-                           "columns found in DataFrame. Returning original.")
-                     return data
+                    col
+                    for col in columns_to_select
+                    if col in data.columns
+                ]
+                if (
+                    len(existing_cols_to_select)
+                    < len(columns_to_select)
+                    and self.verbose
+                ):
+                    missing = set(columns_to_select) - set(
+                        existing_cols_to_select
+                    )
+                    print(
+                        f"    DynamicMethod ({func_name}): Warning - "
+                        f"specified columns not found: {missing}"
+                    )
+                if (
+                    not existing_cols_to_select
+                    and self.verbose
+                ):
+                    print(
+                        f"    DynamicMethod ({func_name}): No specified "
+                        "columns found in DataFrame. Returning original."
+                    )
+                    return data
                 return data[existing_cols_to_select]
-            except Exception as e: # Broad exception for safety
+            except (
+                Exception
+            ) as e:  # Broad exception for safety
                 if self.verbose:
-                    print(f"    DynamicMethod ({func_name}): Error capturing "
-                          f"columns: {e}. Returning original data.")
+                    print(
+                        f"    DynamicMethod ({func_name}): Error capturing "
+                        f"columns: {e}. Returning original data."
+                    )
         return data
 
     def _filter_data_type(
         self, data: pd.DataFrame, func_name: str
-        ) -> pd.DataFrame:
+    ) -> pd.DataFrame:
         """Filters data by expected_type ('numeric' or 'categorical')."""
-        if self.verbose >=3:
-            print(f"      Filtering data to type: '{self.expected_type}'")
-        if self.expected_type == 'numeric':
+        if self.verbose >= 3:
+            print(
+                f"      Filtering data to type: '{self.expected_type}'"
+            )
+        if self.expected_type == "numeric":
             return data.select_dtypes(include=[np.number])
-        elif self.expected_type == 'categorical':
+        elif self.expected_type == "categorical":
             # If treat_int_as_categorical is True, it's handled in
             # _handle_categorical_data. Here, select object/category.
-            return data.select_dtypes(include=['category', 'object'])
-        return data # Should not be reached if type is validated
+            return data.select_dtypes(
+                include=["category", "object"]
+            )
+        return (
+            data  # Should not be reached if type is validated
+        )
 
     def _handle_categorical_data(
         self, data: pd.DataFrame, func_name: str
-        ) -> pd.DataFrame:
+    ) -> pd.DataFrame:
         """Handles int_as_categorical and encoding."""
         df_processed_cat = data
         if self.treat_int_as_categorical:
-            if self.verbose >=3:
-                print("        Treating integer columns as categorical...")
-            int_cols = df_processed_cat.select_dtypes(
-                include=[np.integer] # More specific than int
-                ).columns.tolist()
-            if int_cols:
-                df_processed_cat[int_cols] = \
-                    df_processed_cat[int_cols].astype('category')
-        if self.encode_categories:
-            if self.verbose >=3:
-                print("        Encoding categorical columns to integers...")
-            df_processed_cat = self._encode_categorical_columns(
-                df_processed_cat, func_name=func_name
+            if self.verbose >= 3:
+                print(
+                    "        Treating integer columns as categorical..."
                 )
+            int_cols = df_processed_cat.select_dtypes(
+                include=[np.integer]  # More specific than int
+            ).columns.tolist()
+            if int_cols:
+                df_processed_cat[int_cols] = df_processed_cat[
+                    int_cols
+                ].astype("category")
+        if self.encode_categories:
+            if self.verbose >= 3:
+                print(
+                    "        Encoding categorical columns to integers..."
+                )
+            df_processed_cat = (
+                self._encode_categorical_columns(
+                    df_processed_cat, func_name=func_name
+                )
+            )
         return df_processed_cat
 
     def _encode_categorical_columns(
         self, data: pd.DataFrame, func_name: str
-        ) -> pd.DataFrame:
+    ) -> pd.DataFrame:
         """Encodes categorical columns to integers using LabelEncoder."""
         if LabelEncoder is None:
             if self.verbose:
-                print("      DynamicMethod: LabelEncoder not available "
-                      "(sklearn missing). Skipping categorical encoding.")
+                print(
+                    "      DynamicMethod: LabelEncoder not available "
+                    "(sklearn missing). Skipping categorical encoding."
+                )
             return data
         # Select columns of 'category' or 'object' dtype
         cat_columns = data.select_dtypes(
-            include=['category', 'object']).columns
+            include=["category", "object"]
+        ).columns
         if self.verbose >= 4 and not cat_columns.empty:
-            print(f"        Encoding columns: {cat_columns.tolist()}")
+            print(
+                f"        Encoding columns: {cat_columns.tolist()}"
+            )
         for col in cat_columns:
             le = LabelEncoder()
             try:
                 data[col] = le.fit_transform(data[col])
             except Exception as e:
                 if self.verbose:
-                    print(f"      DynamicMethod ({func_name}): Error "
-                          f"encoding column '{col}': {e}. Skipping column.")
+                    print(
+                        f"      DynamicMethod ({func_name}): Error "
+                        f"encoding column '{col}': {e}. Skipping column."
+                    )
         return data
 
     def _drop_na(
         self, data: pd.DataFrame, func_name: str
-        ) -> pd.DataFrame:
+    ) -> pd.DataFrame:
         """Drops NaNs based on na_axis and na_thresh."""
         # Convert na_axis from string to integer if necessary
         current_na_axis = 0
         if isinstance(self.na_axis, str):
-            if self.na_axis.lower() == 'col' \
-                    or self.na_axis.lower() == 'column':
+            if (
+                self.na_axis.lower() == "col"
+                or self.na_axis.lower() == "column"
+            ):
                 current_na_axis = 1
-            elif self.na_axis.lower() != 'row': # Default to row
-                warnings.warn(f"Invalid na_axis '{self.na_axis}'. "
-                              "Defaulting to 0 (row).")
-        elif isinstance(self.na_axis, int) and self.na_axis in [0, 1]:
+            elif (
+                self.na_axis.lower() != "row"
+            ):  # Default to row
+                warnings.warn(
+                    f"Invalid na_axis '{self.na_axis}'. "
+                    "Defaulting to 0 (row).",
+                    stacklevel=2,
+                )
+        elif isinstance(
+            self.na_axis, int
+        ) and self.na_axis in [0, 1]:
             current_na_axis = self.na_axis
         else:
-            warnings.warn(f"Invalid na_axis type/value '{self.na_axis}'. "
-                          "Defaulting to 0 (row).")
+            warnings.warn(
+                f"Invalid na_axis type/value '{self.na_axis}'. "
+                "Defaulting to 0 (row).",
+                stacklevel=2,
+            )
             current_na_axis = 0
 
         current_thresh = self.na_thresh
-        if current_thresh is not None and 0 < current_thresh <= 1:
+        if (
+            current_thresh is not None
+            and 0 < current_thresh <= 1
+        ):
             # Proportion based threshold
-            axis_len = data.shape[1] if current_na_axis == 0 \
-                else data.shape[0] # Length of rows or columns
+            axis_len = (
+                data.shape[1]
+                if current_na_axis == 0
+                else data.shape[0]
+            )  # Length of rows or columns
             current_thresh = int(axis_len * current_thresh)
             # Ensure threshold is at least 1 if proportion is very small
             current_thresh = max(1, current_thresh)
-        elif current_thresh is not None and not isinstance(current_thresh, int):
-            warnings.warn(f"Invalid na_thresh '{self.na_thresh}'. "
-                          "Must be None, int, or float (0,1]. Ignoring.")
-            current_thresh = None # Revert to default dropna behavior
+        elif current_thresh is not None and not isinstance(
+            current_thresh, int
+        ):
+            warnings.warn(
+                f"Invalid na_thresh '{self.na_thresh}'. "
+                "Must be None, int, or float (0,1]. Ignoring.",
+                stacklevel=2,
+            )
+            current_thresh = (
+                None  # Revert to default dropna behavior
+            )
 
         if self.verbose >= 4:
-            print(f"        Dropping NaNs: axis={current_na_axis}, "
-                  f"thresh={current_thresh}")
-        return data.dropna(axis=current_na_axis, thresh=current_thresh)
+            print(
+                f"        Dropping NaNs: axis={current_na_axis}, "
+                f"thresh={current_thresh}"
+            )
+        return data.dropna(
+            axis=current_na_axis, thresh=current_thresh
+        )
 
-    def _add_method_to_pandas(self, func_to_add, prefixer=None):
+    def _add_method_to_pandas(
+        self, func_to_add, prefixer=None
+    ):
         """Dynamically adds func_to_add as a method to pandas."""
         # Determine method name based on prefixer
         # Default prefix is "go" if self.prefixer was initially None
@@ -2595,42 +3091,54 @@ class DynamicMethod:
         if prefixer == "exclude":
             method_name = func_to_add.__name__
         elif isinstance(prefixer, str):
-            method_name = prefixer + "_" + func_to_add.__name__
-        else: # Should not happen if __init__ logic is correct
+            method_name = (
+                prefixer + "_" + func_to_add.__name__
+            )
+        else:  # Should not happen if __init__ logic is correct
             method_name = "go_" + func_to_add.__name__
-
 
         for cls_to_extend in [pd.DataFrame, pd.Series]:
             if not hasattr(cls_to_extend, method_name):
                 try:
-                    setattr(cls_to_extend, method_name, func_to_add)
+                    setattr(
+                        cls_to_extend,
+                        method_name,
+                        func_to_add,
+                    )
                     if self.verbose >= 2:
-                        print(f"    DynamicMethod: Added method '{method_name}' "
-                              f"to pandas.{cls_to_extend.__name__}")
+                        print(
+                            f"    DynamicMethod: Added method '{method_name}' "
+                            f"to pandas.{cls_to_extend.__name__}"
+                        )
                 except Exception as e:
                     if self.verbose:
-                        print(f"    DynamicMethod: Failed to add method "
-                              f"{method_name} to {cls_to_extend.__name__}: {e}")
-            elif self.verbose >=3:
-                 print(f"    DynamicMethod: Method '{method_name}' already "
-                       f"exists on pandas.{cls_to_extend.__name__}.")
+                        print(
+                            f"    DynamicMethod: Failed to add method "
+                            f"{method_name} to {cls_to_extend.__name__}: {e}"
+                        )
+            elif self.verbose >= 3:
+                print(
+                    f"    DynamicMethod: Method '{method_name}' already "
+                    f"exists on pandas.{cls_to_extend.__name__}."
+                )
+
 
 class ExportData:
     r"""
-    A decorator for exporting data into various formats post-function execution. 
-    It supports exporting pandas DataFrames or other data types to specified 
+    A decorator for exporting data into various formats post-function execution.
+    It supports exporting pandas DataFrames or other data types to specified
     file formats with additional customization through keyword arguments.
 
     Parameters
     ----------
     export_type : str, optional
-        The type of data to export, which can be 'frame' for pandas DataFrames or 'text' 
+        The type of data to export, which can be 'frame' for pandas DataFrames or 'text'
         for text files. Defaults to 'frame'.
     encoding : str, optional
-        The encoding to use for text files. Defaults to 'utf-8'. This parameter is not 
+        The encoding to use for text files. Defaults to 'utf-8'. This parameter is not
         applicable when exporting DataFrames.
     **kwargs : dict
-        Additional keyword arguments to be passed to the pandas export function or 
+        Additional keyword arguments to be passed to the pandas export function or
         the file writing process.
 
     Examples
@@ -2645,8 +3153,10 @@ class ExportData:
     # This will save the DataFrame returned by data_processing_function to a CSV file
     # named 'output_filename.csv' in the './savepath' directory.
     """
-    
-    def __init__(self, export_type='frame', encoding='utf8', **kwargs):
+
+    def __init__(
+        self, export_type="frame", encoding="utf8", **kwargs
+    ):
         self.export_type = export_type
         self.encoding = encoding
         self.kwargs = kwargs
@@ -2655,13 +3165,19 @@ class ExportData:
         @functools.wraps(func)
         def wrapper_func(*args, **func_kwargs):
             # Extracting data and parameters from the decorated function
-            dfs, fname, file_format, savepath, nameof, extra_kwargs = func(
-                *args, **func_kwargs)
-            
-            if self.kwargs.get("file_format") and file_format: 
-                # The priority is given to user format. 
-                _= self.kwargs.pop("file_format", None)
-            
+            (
+                dfs,
+                fname,
+                file_format,
+                savepath,
+                nameof,
+                extra_kwargs,
+            ) = func(*args, **func_kwargs)
+
+            if self.kwargs.get("file_format") and file_format:
+                # The priority is given to user format.
+                _ = self.kwargs.pop("file_format", None)
+
             # Merge decorator's kwargs with function's extra_kwargs,
             # giving precedence to extra_kwargs
             export_kwargs = {**self.kwargs, **extra_kwargs}
@@ -2671,29 +3187,60 @@ class ExportData:
 
             # Setting file format based on extension or provided format
             _, ext = os.path.splitext(fname)
-            file_format = ext.lower() if ext else f".{file_format}"
+            file_format = (
+                ext.lower() if ext else f".{file_format}"
+            )
 
             # Validate file format
-            if self.export_type.lower() == 'frame' and file_format not in ['.csv', '.xlsx']:
-                raise ValueError(f"Unsupported file format for DataFrame export: {file_format}")
+            if (
+                self.export_type.lower() == "frame"
+                and file_format not in [".csv", ".xlsx"]
+            ):
+                raise ValueError(
+                    f"Unsupported file format for DataFrame export: {file_format}"
+                )
 
             # Choose the writer function based on the export type
-            if self.export_type.lower() == 'frame':
-                fnames = self._export_frame(dfs, fname, file_format, savepath, nameof, **export_kwargs)
+            if self.export_type.lower() == "frame":
+                fnames = self._export_frame(
+                    dfs,
+                    fname,
+                    file_format,
+                    savepath,
+                    nameof,
+                    **export_kwargs,
+                )
             else:
-                fnames = self._export_others(dfs, fname, file_format, savepath, nameof, **export_kwargs)
+                fnames = self._export_others(
+                    dfs,
+                    fname,
+                    file_format,
+                    savepath,
+                    nameof,
+                    **export_kwargs,
+                )
 
             # Optionally move files to a designated output directory
             # Assuming move_cfile function exists and is imported correctly
             for fname in fnames:
-                from .utils.ioutils import move_cfile 
-                move_cfile(fname, savepath, dpath='_out')
-                
+                from .utils.ioutils import move_cfile
+
+                move_cfile(fname, savepath, dpath="_out")
+
             # Optionally return the filenames of the exported files
             return fnames
+
         return wrapper_func
-        
-    def _export_frame(self, dfs, fname, file_format, savepath, nameof=None, **kwargs):
+
+    def _export_frame(
+        self,
+        dfs,
+        fname,
+        file_format,
+        savepath,
+        nameof=None,
+        **kwargs,
+    ):
         """
         Handles exporting pandas DataFrame(s) to specified file formats.
         """
@@ -2702,54 +3249,76 @@ class ExportData:
         for i, df in enumerate(dfs):
             if not isinstance(df, pd.DataFrame):
                 continue
-            name_suffix = f"_{nameof[i]}" if nameof and i < len(nameof) else ""
-            output_fname = f"{fname}{name_suffix}{file_format}"
+            name_suffix = (
+                f"_{nameof[i]}"
+                if nameof and i < len(nameof)
+                else ""
+            )
+            output_fname = (
+                f"{fname}{name_suffix}{file_format}"
+            )
             full_path = os.path.join(savepath, output_fname)
-            
-            if file_format == '.xlsx':
+
+            if file_format == ".xlsx":
                 with pd.ExcelWriter(full_path) as writer:
-                    df.to_excel(writer, sheet_name=nameof[i] if nameof and i < len(nameof) else 'Sheet1', **kwargs)
+                    df.to_excel(
+                        writer,
+                        sheet_name=nameof[i]
+                        if nameof and i < len(nameof)
+                        else "Sheet1",
+                        **kwargs,
+                    )
             else:
                 df.to_csv(full_path, **kwargs)
             fnames.append(full_path)
-        
+
         return fnames
 
-    def _export_others(self, data, fname, file_format, savepath, nameof=None,
-                       **kwargs):
+    def _export_others(
+        self,
+        data,
+        fname,
+        file_format,
+        savepath,
+        nameof=None,
+        **kwargs,
+    ):
         """
         Handles exporting non-DataFrame data to files, primarily text files.
         """
         output_fname = f"{fname}{file_format}"
         full_path = os.path.join(savepath, output_fname)
-        
-        with open(full_path, mode='w', encoding=self.encoding) as f:
+
+        with open(
+            full_path, mode="w", encoding=self.encoding
+        ) as f:
             for item in data:
                 f.write(f"{item}\n")
-                
+
         return [full_path]
-  
+
+
 class Temp2D:
     r"""
-    A decorator for creating two-dimensional plots from the outputs of 
-    decorated functions. It integrates seamlessly with matplotlib for 
+    A decorator for creating two-dimensional plots from the outputs of
+    decorated functions. It integrates seamlessly with matplotlib for
     plotting and supports customization through various parameters.
 
     Parameters
     ----------
     reason : str, optional
-        The purpose of the plot. This parameter is for documentation 
+        The purpose of the plot. This parameter is for documentation
         purposes and does not affect the plot's appearance or behavior.
     **kwargs : dict
-        Additional keyword arguments for plot customization. These 
-        arguments are expected to align with the parameters used by 
+        Additional keyword arguments for plot customization. These
+        arguments are expected to align with the parameters used by
         matplotlib and related plotting utilities.
 
     Notes
     -----
-    The decorator uses the last return value of the decorated function as a 
-    dictionary of plotting arguments, which should include keys and values 
-    compatible with `matplotlib.pyplot` functions. If these plotting 
+    The decorator uses the last return value of the decorated function as a
+    dictionary of plotting arguments, which should include keys and values
+    compatible with `matplotlib.pyplot` functions. If these plotting
     arguments are not provided, an AttributeError will be raised.
 
     Examples
@@ -2774,20 +3343,24 @@ class Temp2D:
         def wrapper(*args, **kwargs):
             # Execute the decorated function and expect a tuple where
             # the last item is a dictionary for plot customization
-            *plot_data, plot_customization = func(*args, **kwargs)
+            *plot_data, plot_customization = func(
+                *args, **kwargs
+            )
 
             # Update the plot customization with any additional kwargs
             # provided during the decorator initialization
             plot_customization.update(self.plot_kwargs)
 
             # Call the plot creation method
-            return self.plot2d(*plot_data, **plot_customization)
+            return self.plot2d(
+                *plot_data, **plot_customization
+            )
 
         return wrapper
 
     def plot2d(self, x, y, **kwargs):
         r"""
-        Generates a 2D plot based on the provided x and y data along with 
+        Generates a 2D plot based on the provided x and y data along with
         customizable plotting arguments.
 
         Parameters
@@ -2797,8 +3370,8 @@ class Temp2D:
         y : array-like
             Y-coordinates for the plot.
         **kwargs : dict
-            Additional keyword arguments for customizing the plot, such as 
-            'xlabel', 'ylabel', and any other matplotlib.axes.Axes method 
+            Additional keyword arguments for customizing the plot, such as
+            'xlabel', 'ylabel', and any other matplotlib.axes.Axes method
             arguments.
 
         Returns
@@ -2817,34 +3390,41 @@ class Temp2D:
 
         # Apply customizations from kwargs
         for key, value in kwargs.items():
-            if key in ["ylabel", 'xlabel', 'title']: 
-                key = f"set_{key}" # for Axes 
-            if hasattr(ax, key) and callable(getattr(ax, key)):
+            if key in ["ylabel", "xlabel", "title"]:
+                key = f"set_{key}"  # for Axes
+            if hasattr(ax, key) and callable(
+                getattr(ax, key)
+            ):
                 getattr(ax, key)(value)
             else:
-                print(f"Warning: {key} is not a valid Axes method")
+                print(
+                    f"Warning: {key} is not a valid Axes method"
+                )
 
         plt.show()
         return ax
 
     def __getattr__(self, name):
         # Custom error message for missing attributes
-        msg = (f"{self.__class__.__name__!r} has no attribute {name!r}. "
-               "Ensure plot arguments are supplied as the last return value "
-               "of the decorated function.")
+        msg = (
+            f"{self.__class__.__name__!r} has no attribute {name!r}. "
+            "Ensure plot arguments are supplied as the last return value "
+            "of the decorated function."
+        )
         raise AttributeError(msg)
+
 
 class SignalFutureChange:
     r"""
-    A decorator that signals an upcoming change to a function or class, such 
-    as deprecation or a recommendation to use a more robust alternative. It 
-    allows the function or class to execute normally while optionally logging 
+    A decorator that signals an upcoming change to a function or class, such
+    as deprecation or a recommendation to use a more robust alternative. It
+    allows the function or class to execute normally while optionally logging
     a warning message.
 
     Parameters
     ----------
     message : str, optional
-        A message to be displayed to indicate the reason for the future change. 
+        A message to be displayed to indicate the reason for the future change.
         This could inform about deprecation or suggest using an alternative.
 
     Examples
@@ -2856,38 +3436,42 @@ class SignalFutureChange:
     ...     print("This is an old function.")
     ...
     >>> old_function()
-    # Executes old_function, logging a message about future deprecation or 
+    # Executes old_function, logging a message about future deprecation or
     # recommending an alternative, based on the provided message.
     """
-    
+
     def __init__(self, message=None):
         self.message = message
 
     def __call__(self, cls_or_func):
         if self.message:
             # Log the warning message at the time of decoration, not at call time
-            warnings.warn(self.message, FutureWarning, stacklevel=2)
-        
+            warnings.warn(
+                self.message, FutureWarning, stacklevel=2
+            )
+
         @functools.wraps(cls_or_func)
         def wrapper(*args, **kwargs):
             # Directly return the result of the original function or class call
             return cls_or_func(*args, **kwargs)
+
         return wrapper
+
 
 class AppendDocReferences:
     r"""
-    A decorator for appending reStructuredText references to the docstring 
-    of the decorated function or class, enhancing Sphinx documentation by 
+    A decorator for appending reStructuredText references to the docstring
+    of the decorated function or class, enhancing Sphinx documentation by
     auto-retrieving and replacing values from specified references.
 
-    This allows for dynamic insertion of common documentation elements, 
-    such as glossary terms or external documentation links, into the 
+    This allows for dynamic insertion of common documentation elements,
+    such as glossary terms or external documentation links, into the
     docstrings of multiple functions or classes.
 
     Parameters
     ----------
     docref : str, optional
-        The documentation reference string to be appended to the function's 
+        The documentation reference string to be appended to the function's
         or class's docstring. This should be in reStructuredText format.
 
     Examples
@@ -2903,7 +3487,7 @@ class AppendDocReferences:
     ...     pass
     ...
     >>> print(example_function.__doc__)
-    # The docstring of example_function will now include the replaced 
+    # The docstring of example_function will now include the replaced
     # references to VES and ERP along with their definitions.
     """
 
@@ -2911,18 +3495,19 @@ class AppendDocReferences:
         self.docref = "\n" + docref if docref else ""
 
     def __call__(self, cls_or_func):
-        
-        original_doc = cls_or_func.__doc__ if cls_or_func.__doc__ else ''
+        original_doc = (
+            cls_or_func.__doc__ if cls_or_func.__doc__ else ""
+        )
         # Append the doc reference to the original docstring
         cls_or_func.__doc__ = original_doc + self.docref
-        
+
         @functools.wraps(cls_or_func)
         def wrapper(*args, **kwargs):
             # Directly return the result of the original function or class call
             return cls_or_func(*args, **kwargs)
-        
+
         return wrapper
-    
+
 
 class Deprecated:
     r"""
@@ -2961,28 +3546,35 @@ class Deprecated:
     .../example.py:<line>: DeprecationWarning: [0.9.0] ...
       Use `reshape_xtft_data` instead.
     """
+
     # pylint: disable=too-many-arguments
     def __init__(
         self,
         reason: str,
         *,
-        version: Optional[str] = None,
-        alternative: Optional[str] = None,
-        category: Type[Warning] = DeprecationWarning,
+        version: str | None = None,
+        alternative: str | None = None,
+        category: type[Warning] = DeprecationWarning,
     ) -> None:
         if not reason:
-            raise ValueError("`reason` must be a non‑empty string.")
+            raise ValueError(
+                "`reason` must be a non‑empty string."
+            )
 
         if not issubclass(category, Warning):
-            raise TypeError("`category` must derive from `Warning`.")
+            raise TypeError(
+                "`category` must derive from `Warning`."
+            )
 
         self.reason: str = reason
-        self.version: Optional[str] = version
-        self.alternative: Optional[str] = alternative
-        self.category: Type[Warning] = category
+        self.version: str | None = version
+        self.alternative: str | None = alternative
+        self.category: type[Warning] = category
 
     def __call__(self, obj: Callable) -> Callable:
-        if not (inspect.isfunction(obj) or inspect.isclass(obj)):
+        if not (
+            inspect.isfunction(obj) or inspect.isclass(obj)
+        ):
             raise TypeError(
                 "Deprecated decorator can only be applied to "
                 "functions, methods, or classes."
@@ -3002,15 +3594,18 @@ class Deprecated:
         # wrap the original callable / class
         @functools.wraps(obj)
         def _wrapper(*args, **kwargs):
-            warnings.warn(message, category=self.category, stacklevel=2)
+            warnings.warn(
+                message, category=self.category, stacklevel=2
+            )
             return obj(*args, **kwargs)
 
         return _wrapper
 
+
 class _Deprecated:
     r"""
-    A decorator for marking functions, methods, and classes as deprecated. 
-    It emits a deprecation warning when the decorated item is called or 
+    A decorator for marking functions, methods, and classes as deprecated.
+    It emits a deprecation warning when the decorated item is called or
     instantiated.
 
     Parameters
@@ -3030,36 +3625,53 @@ class _Deprecated:
 
     Note
     ----
-    The warning will point to the location where the deprecated item is 
-    used, making it easier to identify and replace deprecated usage in 
+    The warning will point to the location where the deprecated item is
+    used, making it easier to identify and replace deprecated usage in
     codebases.
     """
-    
+
     def __init__(self, reason, **kws):
         if not reason:
-            raise ValueError("A reason for deprecation must be supplied.")
+            raise ValueError(
+                "A reason for deprecation must be supplied."
+            )
         self.reason = reason
 
     def __call__(self, cls_or_func):
-        if not inspect.isfunction(cls_or_func) and not inspect.isclass(cls_or_func):
-            raise TypeError("Deprecated decorator can only be applied to functions or classes.")
+        if not inspect.isfunction(
+            cls_or_func
+        ) and not inspect.isclass(cls_or_func):
+            raise TypeError(
+                "Deprecated decorator can only be applied to functions or classes."
+            )
 
         fmt = "Call to deprecated {item} {name} ({reason})."
-        item_type = "class" if inspect.isclass(cls_or_func) else "function or method"
-        msg = fmt.format(item=item_type, name=cls_or_func.__name__, reason=self.reason)
+        item_type = (
+            "class"
+            if inspect.isclass(cls_or_func)
+            else "function or method"
+        )
+        msg = fmt.format(
+            item=item_type,
+            name=cls_or_func.__name__,
+            reason=self.reason,
+        )
 
         @functools.wraps(cls_or_func)
         def new_func(*args, **kwargs):
-            warnings.warn(msg, category=DeprecationWarning, stacklevel=2)
+            warnings.warn(
+                msg, category=DeprecationWarning, stacklevel=2
+            )
             return cls_or_func(*args, **kwargs)
 
         return new_func
 
+
 class CheckGDALData:
     r"""
-    A decorator to ensure the availability of GDAL data for functions requiring GDAL. 
-    It checks if the GDAL_DATA environment variable is correctly set and points to an 
-    existing path. Optionally, it can raise an ImportError if the GDAL data is not 
+    A decorator to ensure the availability of GDAL data for functions requiring GDAL.
+    It checks if the GDAL_DATA environment variable is correctly set and points to an
+    existing path. Optionally, it can raise an ImportError if the GDAL data is not
     configured correctly.
 
     Parameters
@@ -3082,8 +3694,8 @@ class CheckGDALData:
 
     Notes
     -----
-    This decorator is particularly useful in environments where GDAL is required but 
-    might not be fully configured, such as in some virtual environments or custom 
+    This decorator is particularly useful in environments where GDAL is required but
+    might not be fully configured, such as in some virtual environments or custom
     installations.
     """
 
@@ -3112,10 +3724,15 @@ class CheckGDALData:
         return wrapper
 
     def _check_gdal_data(self):
-        from subprocess import Popen, PIPE 
-        if 'GDAL_DATA' in os.environ and os.path.exists(os.environ['GDAL_DATA']):
+        from subprocess import PIPE, Popen
+
+        if "GDAL_DATA" in os.environ and os.path.exists(
+            os.environ["GDAL_DATA"]
+        ):
             if self.verbose:
-                _logger.info(f"GDAL_DATA is set to: {os.environ['GDAL_DATA']}")
+                _logger.info(
+                    f"GDAL_DATA is set to: {os.environ['GDAL_DATA']}"
+                )
             self._gdal_data_found = True
         else:
             if self.verbose:
@@ -3126,23 +3743,40 @@ class CheckGDALData:
             # Attempt to locate GDAL data using gdal-config
             try:
                 if self.verbose:
-                    _logger.info("Trying to find gdal-data path ...")
-                process = Popen(['gdal-config', '--datadir'], stdout=PIPE, stderr=PIPE)
+                    _logger.info(
+                        "Trying to find gdal-data path ..."
+                    )
+                process = Popen(
+                    ["gdal-config", "--datadir"],
+                    stdout=PIPE,
+                    stderr=PIPE,
+                )
                 output, err = process.communicate()
-                if process.returncode == 0 and os.path.exists(output.strip()):
-                    os.environ['GDAL_DATA'] = output.strip().decode()
+                if process.returncode == 0 and os.path.exists(
+                    output.strip()
+                ):
+                    os.environ["GDAL_DATA"] = (
+                        output.strip().decode()
+                    )
                     if self.verbose:
-                        _logger.info(f"Found gdal-data path: {os.environ['GDAL_DATA']}")
+                        _logger.info(
+                            f"Found gdal-data path: {os.environ['GDAL_DATA']}"
+                        )
                     self._gdal_data_found = True
             except Exception as e:
                 if self.verbose:
-                    _logger.error(f"Failed to find gdal-data path. Error: {e}")
+                    _logger.error(
+                        f"Failed to find gdal-data path. Error: {e}"
+                    )
                 self._gdal_data_found = False
 
     # Class variable declarations for resources and installation guide
-    _gdal_data_variable_resources = 'https://trac.osgeo.org/gdal/wiki/FAQInstallationAndBuilding#HowtosetGDAL_DATAvariable'
-    _gdal_wheel_resources = 'https://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal'
-    _gdal_installation_guide = 'https://opensourceoptions.com/blog/how-to-install-gdal-for-python-with-pip-on-windows/'
+    _gdal_data_variable_resources = "https://trac.osgeo.org/gdal/wiki/FAQInstallationAndBuilding#HowtosetGDAL_DATAvariable"
+    _gdal_wheel_resources = (
+        "https://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal"
+    )
+    _gdal_installation_guide = "https://opensourceoptions.com/blog/how-to-install-gdal-for-python-with-pip-on-windows/"
+
 
 class RedirectToNew:
     r"""
@@ -3176,9 +3810,13 @@ class RedirectToNew:
 
     def __init__(self, new_target, reason):
         if not callable(new_target):
-            raise TypeError("The new target must be a callable or a class.")
+            raise TypeError(
+                "The new target must be a callable or a class."
+            )
         if not isinstance(reason, str):
-            raise TypeError("Redirect reason must be supplied as a string.")
+            raise TypeError(
+                "Redirect reason must be supplied as a string."
+            )
 
         self.new_target = new_target
         self.reason = reason
@@ -3186,15 +3824,18 @@ class RedirectToNew:
     def __call__(self, cls_or_func):
         @functools.wraps(cls_or_func)
         def wrapper(*args, **kwargs):
-            _logger.warning(f"DEPRECATION WARNING: {self.reason}")
+            _logger.warning(
+                f"DEPRECATION WARNING: {self.reason}"
+            )
             return self.new_target(*args, **kwargs)
 
         return wrapper
-  
+
+
 class PlotPrediction:
     r"""
-    A decorator for plotting predictions and observations using matplotlib. 
-    This decorator enhances functions that return prediction and observation 
+    A decorator for plotting predictions and observations using matplotlib.
+    This decorator enhances functions that return prediction and observation
     data by optionally generating a scatter plot for visual comparison.
 
     Parameters
@@ -3238,20 +3879,41 @@ class PlotPrediction:
 
     """
 
-    def __init__(self, turn='off', **kwargs):
+    def __init__(self, turn="off", **kwargs):
         self.turn = turn
-        self.fig_size = kwargs.pop('fig_size', (16, 8))
-        self.y_pred_kws = kwargs.pop('y_pred_kws', {'c': 'r', 's': 200, 'alpha': 1,
-                                                     'label': 'Predicted flow:y_pred'})
-        self.y_obs_kws = kwargs.pop('y_obs_kws', {'c': 'blue', 's': 100, 'alpha': 0.8,
-                                                   'label': 'Observed flow:y_true'})
-        self.tick_params = kwargs.pop('tick_params', {'axis': 'x', 'labelsize': 10,
-                                                      'rotation': 90})
-        self.xlabel = kwargs.pop('xlabel', 'Boreholes tested')
-        self.ylabel = kwargs.pop('ylabel', 'Flow rates(FR) classes')
-        self.obs_line = kwargs.pop('obs_line', ('off', 'Obs'))
-        self.l_kws = kwargs.pop('l_kws', {'c': 'blue', 'ls': '--', 'lw': 1, 'alpha': 0.5})
-        self.savefig = kwargs.pop('savefig', None)
+        self.fig_size = kwargs.pop("fig_size", (16, 8))
+        self.y_pred_kws = kwargs.pop(
+            "y_pred_kws",
+            {
+                "c": "r",
+                "s": 200,
+                "alpha": 1,
+                "label": "Predicted flow:y_pred",
+            },
+        )
+        self.y_obs_kws = kwargs.pop(
+            "y_obs_kws",
+            {
+                "c": "blue",
+                "s": 100,
+                "alpha": 0.8,
+                "label": "Observed flow:y_true",
+            },
+        )
+        self.tick_params = kwargs.pop(
+            "tick_params",
+            {"axis": "x", "labelsize": 10, "rotation": 90},
+        )
+        self.xlabel = kwargs.pop("xlabel", "Boreholes tested")
+        self.ylabel = kwargs.pop(
+            "ylabel", "Flow rates(FR) classes"
+        )
+        self.obs_line = kwargs.pop("obs_line", ("off", "Obs"))
+        self.l_kws = kwargs.pop(
+            "l_kws",
+            {"c": "blue", "ls": "--", "lw": 1, "alpha": 0.5},
+        )
+        self.savefig = kwargs.pop("savefig", None)
 
     def __call__(self, func):
         @functools.wraps(func)
@@ -3259,7 +3921,7 @@ class PlotPrediction:
             y_true, y_pred, switch = func(*args, **kwargs)
             turn = switch if switch is not None else self.turn
 
-            if turn == 'on':
+            if turn == "on":
                 self._plot(y_true, y_pred)
 
             return y_true, y_pred, switch
@@ -3271,9 +3933,13 @@ class PlotPrediction:
         plt.scatter(y_true.index, y_true, **self.y_obs_kws)
         plt.scatter(y_pred.index, y_pred, **self.y_pred_kws)
 
-        if self.obs_line[0] == 'on':
-            data = y_true if 'true' in self.obs_line[1].lower(
-                ) or 'obs' in self.obs_line[1].lower() else y_pred
+        if self.obs_line[0] == "on":
+            data = (
+                y_true
+                if "true" in self.obs_line[1].lower()
+                or "obs" in self.obs_line[1].lower()
+                else y_pred
+            )
             plt.plot(data.index, data, **self.l_kws)
 
         plt.tick_params(**self.tick_params)
@@ -3289,10 +3955,11 @@ class PlotPrediction:
 
         plt.show()
 
+
 class PlotFeatureImportance:
     r"""
-    A decorator to plot permutation feature importance (PFI) diagrams or dendrogram 
-    figures for feature correlation analysis. It utilizes matplotlib for plotting 
+    A decorator to plot permutation feature importance (PFI) diagrams or dendrogram
+    figures for feature correlation analysis. It utilizes matplotlib for plotting
     and can be customized with various keyword arguments.
 
     Parameters
@@ -3322,16 +3989,27 @@ class PlotFeatureImportance:
     ----
     Ensure matplotlib is installed in your environment to use this decorator.
     """
-    
-    def __init__(self, kind='pfi', turn='off', **kwargs):
+
+    def __init__(self, kind="pfi", turn="off", **kwargs):
         self.kind = kind
         self.turn = turn
-        self.fig_size = kwargs.pop('fig_size', (9, 3))
-        self.savefig = kwargs.pop('savefig', None)
+        self.fig_size = kwargs.pop("fig_size", (9, 3))
+        self.savefig = kwargs.pop("savefig", None)
         # Default keyword arguments for various plots
-        self.barh_kws = kwargs.pop('barh_kws', {'color': 'blue', 'edgecolor': 'k', 'linewidth': 2})
-        self.box_kws = kwargs.pop('box_kws', {'vert': False, 'patch_artist': True})
-        self.dendro_kws = kwargs.pop('dendro_kws', {'leaf_rotation': 90})
+        self.barh_kws = kwargs.pop(
+            "barh_kws",
+            {
+                "color": "blue",
+                "edgecolor": "k",
+                "linewidth": 2,
+            },
+        )
+        self.box_kws = kwargs.pop(
+            "box_kws", {"vert": False, "patch_artist": True}
+        )
+        self.dendro_kws = kwargs.pop(
+            "dendro_kws", {"leaf_rotation": 90}
+        )
         self.plot_kwargs = kwargs  # Remaining kwargs for further customization
 
     def __call__(self, func: Callable):
@@ -3340,26 +4018,42 @@ class PlotFeatureImportance:
             # Execute the decorated function
             results = func(*args, **kwargs)
             # Unpack results based on expected structure
-            X, y_pred, y_true, model, feature_names, switch = results
-            
+            (
+                X,
+                y_pred,
+                y_true,
+                model,
+                feature_names,
+                switch,
+            ) = results
+
             # Update settings based on function return values if provided
-            self.turn = switch if switch is not None else self.turn
-            
+            self.turn = (
+                switch if switch is not None else self.turn
+            )
+
             # Proceed to plot if enabled
-            if self.turn.lower() == 'on':
-                self._plot_results(X, y_pred, y_true, model, feature_names)
-            
+            if self.turn.lower() == "on":
+                self._plot_results(
+                    X, y_pred, y_true, model, feature_names
+                )
+
             return results
 
         return wrapper
 
-    def _plot_results(self, X, y_pred, y_true, model, feature_names):
-        if self.kind == 'pfi':
+    def _plot_results(
+        self, X, y_pred, y_true, model, feature_names
+    ):
+        if self.kind == "pfi":
             self._plot_pfi(X, model, feature_names)
-        elif self.kind == 'dendro':
+        elif self.kind == "dendro":
             self._plot_dendrogram(X, feature_names)
         else:
-            warnings.warn(f"Unknown kind '{self.kind}'. No plot will be generated.")
+            warnings.warn(
+                f"Unknown kind '{self.kind}'. No plot will be generated.",
+                stacklevel=2,
+            )
 
         if self.savefig:
             plt.savefig(self.savefig, **self.plot_kwargs)
@@ -3367,17 +4061,26 @@ class PlotFeatureImportance:
     def _plot_pfi(self, X, model, feature_names):
         # Example PFI plotting.
         plt.figure(figsize=self.fig_size)
-        plt.barh(range(len(feature_names)), model.feature_importances_, **self.barh_kws)
+        plt.barh(
+            range(len(feature_names)),
+            model.feature_importances_,
+            **self.barh_kws,
+        )
         plt.yticks(range(len(feature_names)), feature_names)
         plt.show()
 
     def _plot_dendrogram(self, X, feature_names):
         # Example dendrogram plotting.
-        from scipy.cluster.hierarchy import dendrogram, linkage
-        Z = linkage(X, 'ward')
+        from scipy.cluster.hierarchy import (
+            dendrogram,
+            linkage,
+        )
+
+        Z = linkage(X, "ward")
         plt.figure(figsize=self.fig_size)
         dendrogram(Z, labels=feature_names, **self.dendro_kws)
         plt.show()
+
 
 class AppendDocSection:
     r"""
@@ -3392,7 +4095,7 @@ class AppendDocSection:
     start : str, optional
         The start marker from where to begin appending the docstring.
     end : str, optional
-        The end marker where to stop appending the docstring. If not provided, 
+        The end marker where to stop appending the docstring. If not provided,
         everything from the `start` to the end of the source's docstring is appended.
 
     Examples
@@ -3404,43 +4107,60 @@ class AppendDocSection:
     ...     pass
     ...
     >>> print(new_function.__doc__)
-    # This will include the section of `writedf`'s docstring from 'param reason' 
+    # This will include the section of `writedf`'s docstring from 'param reason'
     # to 'param to_' appended to 'new_function' docstring.
 
     """
-    
+
     def __init__(self, source_func, start=None, end=None):
         if not callable(source_func):
-            raise TypeError("`source_func` must be a callable.")
+            raise TypeError(
+                "`source_func` must be a callable."
+            )
         self.source_func = source_func
         self.start = start
         self.end = end
 
     def __call__(self, target_func):
-        source_doc = inspect.getdoc(self.source_func) or ''
-        target_doc = inspect.getdoc(target_func) or ''
-        
+        source_doc = inspect.getdoc(self.source_func) or ""
+        target_doc = inspect.getdoc(target_func) or ""
+
         # Find the start index
-        start_ix = source_doc.find(self.start) if self.start else 0
-        end_ix = source_doc.find(self.end, start_ix) if self.end else len(source_doc)
-        
+        start_ix = (
+            source_doc.find(self.start) if self.start else 0
+        )
+        end_ix = (
+            source_doc.find(self.end, start_ix)
+            if self.end
+            else len(source_doc)
+        )
+
         # Handle cases where start or end markers are not found
         if self.start and start_ix == -1:
-            warnings.warn(f"Start marker '{self.start}' not found in"
-                          f" `{self.source_func.__name__}` docstring.")
+            warnings.warn(
+                f"Start marker '{self.start}' not found in"
+                f" `{self.source_func.__name__}` docstring.",
+                stacklevel=2,
+            )
             start_ix = 0
         if self.end and end_ix == -1:
-            warnings.warn(f"End marker '{self.end}' not found in"
-                          f" `{self.source_func.__name__}` docstring.")
+            warnings.warn(
+                f"End marker '{self.end}' not found in"
+                f" `{self.source_func.__name__}` docstring.",
+                stacklevel=2,
+            )
             end_ix = len(source_doc)
 
         # Extract the desired docstring section
         doc_section = source_doc[start_ix:end_ix]
 
         # Append the extracted section to the target's docstring
-        target_func.__doc__ = (target_doc + "\n\n" + doc_section).strip()
+        target_func.__doc__ = (
+            target_doc + "\n\n" + doc_section
+        ).strip()
 
         return target_func
+
 
 class AppendDocFrom:
     r"""
@@ -3470,7 +4190,7 @@ class AppendDocFrom:
     ...     pass
     ...
     >>> print(new_func.__doc__)
-    # This will print 'new_func' docstring with the 'func0' docstring section 
+    # This will print 'new_func' docstring with the 'func0' docstring section
     # from 'Parameters' to 'Returns' appended at the 'Parameters' marker.
 
     Note
@@ -3479,34 +4199,45 @@ class AppendDocFrom:
     proper insertion and readability.
 
     """
-    def __init__(self, source, from_, to=None, insert_at='Parameters'):
+
+    def __init__(
+        self, source, from_, to=None, insert_at="Parameters"
+    ):
         self.source = source
         self.from_ = from_
         self.to = to
         self.insert_at = insert_at.lower()
-        
+
     def __call__(self, target):
         self._append_doc(target)
+
         @functools.wraps(target)
         def wrapper(*args, **kwargs):
             return target(*args, **kwargs)
 
         # self._append_doc(target)
         return wrapper
-    
+
     def _append_doc(self, target):
-        source_doc = inspect.getdoc(self.source) or ''
-        target_doc = inspect.getdoc(target) or ''
-        
+        source_doc = inspect.getdoc(self.source) or ""
+        target_doc = inspect.getdoc(target) or ""
+
         start_index = source_doc.find(self.from_)
-        end_index = source_doc.find(self.to, start_index) if self.to else len(source_doc)
-        
+        end_index = (
+            source_doc.find(self.to, start_index)
+            if self.to
+            else len(source_doc)
+        )
+
         if start_index == -1 or (self.to and end_index == -1):
-            warnings.warn(f"Cannot find specified docstring section in `{self.source.__name__}`.")
+            warnings.warn(
+                f"Cannot find specified docstring section in `{self.source.__name__}`.",
+                stacklevel=2,
+            )
             return
-        
+
         doc_section = source_doc[start_index:end_index]
-        
+
         insert_index = target_doc.lower().find(self.insert_at)
         if insert_index == -1:
             target_doc += "\n\n" + doc_section
@@ -3514,8 +4245,9 @@ class AppendDocFrom:
             part1 = target_doc[:insert_index]
             part2 = target_doc[insert_index:]
             target_doc = part1 + doc_section + "\n\n" + part2
-        
+
         target.__doc__ = target_doc
+
 
 class NumpyDocstring:
     r"""
@@ -3556,7 +4288,13 @@ class NumpyDocstring:
         return x * 2
     """
 
-    def __init__(self, func=None, *, enforce_strict=False, custom_sections=None):
+    def __init__(
+        self,
+        func=None,
+        *,
+        enforce_strict=False,
+        custom_sections=None,
+    ):
         self.func = func
         self.enforce_strict = enforce_strict
         self.custom_sections = custom_sections or {}
@@ -3568,15 +4306,21 @@ class NumpyDocstring:
         if self.func:
             return self.func(*args, **kwargs)
         else:
+
             def wrapper(func):
                 self.func = func
                 functools.update_wrapper(self, func)
                 self._update_docstring()
                 return self
+
             return wrapper
 
     def __get__(self, instance, owner):
-        return self if instance is None else functools.partial(self.__call__, instance)
+        return (
+            self
+            if instance is None
+            else functools.partial(self.__call__, instance)
+        )
 
     def _parse_docstring(self, docstring):
         """
@@ -3584,35 +4328,53 @@ class NumpyDocstring:
         """
         # Define the sections and their possible headings in docstrings
         section_headings = {
-            'Parameters': ['parameters', 'args', 'arguments', ':param'],
-            'Returns': ['returns', ':return', ':returns'],
-            'Raises': ['raises', ':raise', ':raises'],
-            'Examples': ['examples', ':example'],
-            'Warnings': ['warnings', ':warning'],
-            'See Also': ['see also', 'references'],
-            'Notes': ['notes']
+            "Parameters": [
+                "parameters",
+                "args",
+                "arguments",
+                ":param",
+            ],
+            "Returns": ["returns", ":return", ":returns"],
+            "Raises": ["raises", ":raise", ":raises"],
+            "Examples": ["examples", ":example"],
+            "Warnings": ["warnings", ":warning"],
+            "See Also": ["see also", "references"],
+            "Notes": ["notes"],
         }
 
         # Initialize sections dictionary
-        sections = {key: '' for key in section_headings}
+        sections = {key: "" for key in section_headings}
 
         # Regular expression to detect section headings
         section_regex = re.compile(
-            r'^\s*(?P<section>' + '|'.join(
-                [f"(?:{'|'.join(headings)})" for headings in section_headings.values()]
-                ) + r')\s*$', re.IGNORECASE)
+            r"^\s*(?P<section>"
+            + "|".join(
+                [
+                    f"(?:{'|'.join(headings)})"
+                    for headings in section_headings.values()
+                ]
+            )
+            + r")\s*$",
+            re.IGNORECASE,
+        )
 
         current_section = None
-        for line in docstring.split('\n'):
+        for line in docstring.split("\n"):
             match = section_regex.match(line.strip())
             if match:
                 # Find which section it belongs to
-                for section, headings in section_headings.items():
-                    if match.group('section').lower() in headings:
+                for (
+                    section,
+                    headings,
+                ) in section_headings.items():
+                    if (
+                        match.group("section").lower()
+                        in headings
+                    ):
                         current_section = section
                         break
             elif current_section:
-                sections[current_section] += line + '\n'
+                sections[current_section] += line + "\n"
 
         # Apply custom sections if any
         for section, content in self.custom_sections.items():
@@ -3625,7 +4387,7 @@ class NumpyDocstring:
         Format a single section with the given title and content.
         """
         if not content.strip():
-            return ''
+            return ""
         return f"{title}\n{'-' * len(title)}\n{content.strip()}\n"
 
     def _update_docstring(self):
@@ -3636,16 +4398,22 @@ class NumpyDocstring:
             return
 
         sections = self._parse_docstring(self.func.__doc__)
-        formatted_docstring = "\n".join(self._format_section(
-            title, content) for title, content in sections.items() if content)
+        formatted_docstring = "\n".join(
+            self._format_section(title, content)
+            for title, content in sections.items()
+            if content
+        )
 
         self.func.__doc__ = formatted_docstring
 
     def __set_name__(self, owner, name):
         self._update_docstring()
         setattr(owner, name, self)
-        
-def sanitize_docstring(enforce_strict=False, custom_sections=None):
+
+
+def sanitize_docstring(
+    enforce_strict=False, custom_sections=None
+):
     r"""
     Decorator factory function that returns an instance of NumpyDocstring.
     This function simplifies the application of the decorator with additional parameters
@@ -3673,17 +4441,26 @@ def sanitize_docstring(enforce_strict=False, custom_sections=None):
     def sample_function(param1, param2):
         \"\"\"This function does something interesting.\"\"\"
         pass
-    
+
     """
+
     def decorator(func):
-        return NumpyDocstring(func, enforce_strict=enforce_strict,
-                              custom_sections=custom_sections)
+        return NumpyDocstring(
+            func,
+            enforce_strict=enforce_strict,
+            custom_sections=custom_sections,
+        )
+
     return decorator
 
 
 class _M:
-    def _m(self): pass
+    def _m(self):
+        pass
+
+
 MethodType = type(_M()._m)
+
 
 class _AvailableIfDescriptor:
     """Implements a conditional property using the descriptor protocol.
@@ -3726,6 +4503,7 @@ class _AvailableIfDescriptor:
 
         return out
 
+
 def available_if(check):
     r"""An attribute that is available only if check returns a truthy value
 
@@ -3759,52 +4537,57 @@ def available_if(check):
     >>> obj.say_hello()
     Hello
     """
-    return lambda fn: _AvailableIfDescriptor(fn, check, attribute_name=fn.__name__)
+    return lambda fn: _AvailableIfDescriptor(
+        fn, check, attribute_name=fn.__name__
+    )
 
 
 def isdf(func):
     r"""
-    Decorator that ensures the first positional argument passed to the 
+    Decorator that ensures the first positional argument passed to the
     decorated callable is a pandas DataFrame. If it's not, attempts to convert
-    it to a DataFrame using an optional `columns` keyword argument. 
-    
-    Function is designed to be flexible and efficient, suitable for 
+    it to a DataFrame using an optional `columns` keyword argument.
+
+    Function is designed to be flexible and efficient, suitable for
     both functions and methods.
     """
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         # Get the signature of the function
         sig = inspect.signature(func)
         params = sig.parameters
         param_list = list(params.values())
-        
+
         # Check if the function has any parameters
         if not param_list:
             # No parameters to process
             return func(*args, **kwargs)
-        
+
         # Determine if we're decorating a method (with 'self' or 'cls')
         is_method = False
         start_idx = 0
-        if param_list[0].name in ('self', 'cls'):
+        if param_list[0].name in ("self", "cls"):
             is_method = True
             start_idx = 1  # Skip 'self' or 'cls'
 
         # Map arguments to their names
         bound_args = sig.bind_partial(*args, **kwargs)
         bound_args.apply_defaults()
-        
+
         # Identify the data parameter name
         # Prefer 'data' if it's among the parameters
         data_param_name = None
-        for idx, param in enumerate(param_list[start_idx:], start=start_idx):
-            if param.name == 'data':
-                data_param_name = 'data'
+        for _idx, param in enumerate(
+            param_list[start_idx:], start=start_idx
+        ):
+            if param.name == "data":
+                data_param_name = "data"
                 break
         else:
             # If 'data' is not a parameter, use the first positional
             # parameter after 'self'/'cls'
-            if ( len(param_list) > start_idx) or is_method:
+            if (len(param_list) > start_idx) or is_method:
                 data_param_name = param_list[start_idx].name
             else:
                 # No parameters left to consider
@@ -3812,16 +4595,20 @@ def isdf(func):
 
         # Get 'data' argument from bound arguments
         data = bound_args.arguments.get(data_param_name, None)
-        columns = bound_args.arguments.get('columns', kwargs.get('columns', None))
+        columns = bound_args.arguments.get(
+            "columns", kwargs.get("columns", None)
+        )
         if isinstance(columns, str):
             columns = [columns]
-        
+
         # Proceed with conversion if necessary
-        if data is not None and not isinstance(data, pd.DataFrame):
+        if data is not None and not isinstance(
+            data, pd.DataFrame
+        ):
             try:
                 if columns and len(columns) != data.shape[1]:
                     data = pd.DataFrame(data)
-                else: 
+                else:
                     data = pd.DataFrame(data, columns=columns)
             except Exception as e:
                 raise ValueError(
@@ -3830,11 +4617,12 @@ def isdf(func):
             data.columns = data.columns.astype(str)
             # Update the bound arguments with the new data
             bound_args.arguments[data_param_name] = data
-        
+
         # Call the original function with the updated arguments
         return func(*bound_args.args, **bound_args.kwargs)
-    
+
     return wrapper
+
 
 class IsPerformanceData:
     r"""
@@ -3842,7 +4630,7 @@ class IsPerformanceData:
 
     The `IsPerformanceData` class can be used both as a decorator and as a
     function to validate performance data, ensuring that the data conforms
-    to expected formats and value ranges. It checks that the data is a 
+    to expected formats and value ranges. It checks that the data is a
     pandas DataFrame or dictionary with numeric values, handles NaN values
     according to the specified policy, and verifies that performance metrics
     are within the range [0, 1].
@@ -3878,7 +4666,7 @@ class IsPerformanceData:
     Methods
     -------
     __call__(*args, **kwargs)
-        Allows the class instance to be called as a function or used as a 
+        Allows the class instance to be called as a function or used as a
         decorator.
 
     actual_validate_performance_data(data)
@@ -3886,9 +4674,9 @@ class IsPerformanceData:
 
     Notes
     -----
-    This class serves both as a decorator and a validator function. When 
+    This class serves both as a decorator and a validator function. When
     used as a decorator, it validates the performance data  passed to the
-    decorated function. When used as a function, it validates the given 
+    decorated function. When used as a function, it validates the given
     data and returns the validated DataFrame.
 
     The validation process includes:
@@ -3936,17 +4724,16 @@ class IsPerformanceData:
 
     """
 
-    def __init__(
-        self,
-        *args,
-        **kwargs
-    ):
+    def __init__(self, *args, **kwargs):
         # Default parameter values
-        self.nan_policy = kwargs.get('nan_policy', 'raise')
-        self.convert_integers = kwargs.get('convert_integers', True)
+        self.nan_policy = kwargs.get("nan_policy", "raise")
+        self.convert_integers = kwargs.get(
+            "convert_integers", True
+        )
         self.check_performance_range = kwargs.get(
-            'check_performance_range', True)
-        self.verbose = kwargs.get('verbose', False)
+            "check_performance_range", True
+        )
+        self.verbose = kwargs.get("verbose", False)
         self.func = None
 
         if args and callable(args[0]):
@@ -4005,25 +4792,40 @@ class IsPerformanceData:
             def wrapper(*args, **kwargs):
                 data = args[0]
                 data = self._is_formatter_data(data)
-                validated_data = self.actual_validate_performance_data(data)
-                return self.func(validated_data, *args[1:], **kwargs)
+                validated_data = (
+                    self.actual_validate_performance_data(
+                        data
+                    )
+                )
+                return self.func(
+                    validated_data, *args[1:], **kwargs
+                )
+
             return wrapper(*args, **kwargs)
         elif args and callable(args[0]):
             # Used as a decorator with arguments
             func = args[0]
+
             @functools.wraps(func)
             def wrapper(*args, **kwargs):
                 data = args[0]
                 data = self._is_formatter_data(data)
-                validated_data = self.actual_validate_performance_data(data)
-                return func(validated_data, *args[1:], **kwargs)
+                validated_data = (
+                    self.actual_validate_performance_data(
+                        data
+                    )
+                )
+                return func(
+                    validated_data, *args[1:], **kwargs
+                )
+
             return wrapper
         else:
             # Called as a function with data
             data = args[0] if args else self.data
             return self.actual_validate_performance_data(data)
 
-    @isdf 
+    @isdf
     def actual_validate_performance_data(self, data):
         r"""
         Performs the actual validation of the performance data.
@@ -4070,8 +4872,10 @@ class IsPerformanceData:
         >>> validated_data = validator.actual_validate_performance_data(data)
 
         """
-        from .utils.validator import convert_to_numeric
-        from .utils.validator import is_valid_policies
+        from .utils.validator import (
+            convert_to_numeric,
+            is_valid_policies,
+        )
 
         # Convert to DataFrame if input is a dictionary
         if isinstance(data, dict):
@@ -4081,29 +4885,38 @@ class IsPerformanceData:
         elif isinstance(data, pd.DataFrame):
             df = data.copy()
         else:
-            raise ValueError("Input data must be either a dictionary "
-                             "or a DataFrame.")
+            raise ValueError(
+                "Input data must be either a dictionary "
+                "or a DataFrame."
+            )
 
         # Ensure all values are float, convert integers to floats if needed
         if self.convert_integers:
             if self.verbose:
-                print("Converting integer values to floats where necessary...")
+                print(
+                    "Converting integer values to floats where necessary..."
+                )
             df = df.applymap(
                 lambda x: convert_to_numeric(
-                    x, preserve_integers=False,
-                    context_description='Performance data')
+                    x,
+                    preserve_integers=False,
+                    context_description="Performance data",
+                )
             )
 
         # Handle NaN values according to nan_policy
         is_valid_policies(
-            self.nan_policy, allowed_policies=['raise', 'omit', 'propagate']
+            self.nan_policy,
+            allowed_policies=["raise", "omit", "propagate"],
         )
 
         if df.isna().any().any():  # Check for NaN values
-            if self.nan_policy == 'raise':
-                raise ValueError("NaN values detected in the data. "
-                                 "Set `nan_policy='omit'` to drop them.")
-            elif self.nan_policy == 'omit':
+            if self.nan_policy == "raise":
+                raise ValueError(
+                    "NaN values detected in the data. "
+                    "Set `nan_policy='omit'` to drop them."
+                )
+            elif self.nan_policy == "omit":
                 if self.verbose:
                     print("Dropping rows with NaN values...")
                 df = df.dropna()
@@ -4113,43 +4926,57 @@ class IsPerformanceData:
 
         # Check if performance values are within the valid range [0, 1]
         if self.check_performance_range:
-            if self.nan_policy == 'propagate':
+            if self.nan_policy == "propagate":
                 df_checked = df.dropna()
             else:
                 df_checked = df
 
             if (df_checked < 0).any().any():
-                raise ValueError("Performance values cannot be negative.")
+                raise ValueError(
+                    "Performance values cannot be negative."
+                )
             if (df_checked > 1).any().any():
-                raise ValueError("Performance values must be in the "
-                                 "range [0, 1].")
+                raise ValueError(
+                    "Performance values must be in the "
+                    "range [0, 1]."
+                )
 
         if self.verbose:
-            print("Validation and conversion complete. "
-                  "Data is ready for further processing.")
+            print(
+                "Validation and conversion complete. "
+                "Data is ready for further processing."
+            )
 
         return df
-    
-    def _is_formatter_data (self, data): 
-        """ Check whether the data passed is a formatter instance. If so,
-        then retrieve the dataframe before calling the 
-        `actual_validate_performance_data` method. 
-        
+
+    def _is_formatter_data(self, data):
+        """Check whether the data passed is a formatter instance. If so,
+        then retrieve the dataframe before calling the
+        `actual_validate_performance_data` method.
+
         """
-        from .api.formatter import( 
-            DataFrameFormatter, MultiFrameFormatter, formatter_validator
+        from .api.formatter import (
+            DataFrameFormatter,
+            MultiFrameFormatter,
+            formatter_validator,
+        )
+
+        if isinstance(
+            data, DataFrameFormatter | MultiFrameFormatter
+        ):
+            data = formatter_validator(
+                data, df_indices=[0], only_df=True
             )
-        if isinstance(data, (DataFrameFormatter, MultiFrameFormatter)):
-            data = formatter_validator(data, df_indices=[0], only_df=True)
-            
-        return data 
+
+        return data
+
 
 class NumpyDocstringFormatter:
     r"""
     A decorator class for reformatting function docstrings to adhere to the
     NumPy documentation standard.
 
-    This class provides a flexible way to ensure that the docstrings of 
+    This class provides a flexible way to ensure that the docstrings of
     decorated functions follow a consistent format, making them more readable
     and compatible with tools like Sphinx for generating documentation. It can
     automatically extract and reformat specified sections of a docstring, and
@@ -4158,30 +4985,30 @@ class NumpyDocstringFormatter:
     Parameters
     ----------
     include_sections : list of str, optional
-        A list of section names to include in the reformatted docstring. 
-        If None (the default), all recognized sections are included. This 
+        A list of section names to include in the reformatted docstring.
+        If None (the default), all recognized sections are included. This
         allows for selective inclusion of sections like "Parameters", "Returns",
         "Examples", etc., based on user preference or requirements.
-        
+
         Example: ['Parameters', 'Returns', 'Examples']
 
     validate_with_sphinx : bool, default False
         Indicates whether the reformatted docstring should be validated using
         Sphinx. This can be useful for ensuring that the docstring is not only
         correctly formatted but also compatible with Sphinx documentation
-        generation. Note that actual implementation of Sphinx validation is 
+        generation. Note that actual implementation of Sphinx validation is
         not provided in this example and would require integration with Sphinx's
         documentation building process.
 
     custom_formatting : callable, optional
         A custom function that applies additional formatting to each section
-        of the docstring. This function should accept two arguments: 
-            `section_name` (a string indicating the name of the section) and 
-            `section_content` (the content of the section as a string), and 
+        of the docstring. This function should accept two arguments:
+            `section_name` (a string indicating the name of the section) and
+            `section_content` (the content of the section as a string), and
             return the formatted content as a string. This allows for
         further customization of the docstring formatting beyond the standard
         reformatting performed by this class::
-        
+
         Example function:
             def custom_formatter(section_name, section_content):
                 # Custom formatting logic here
@@ -4208,7 +5035,7 @@ class NumpyDocstringFormatter:
 
     Specifying sections to include and enabling Sphinx validation:
 
-    >>> @NumpyDocstringFormatter(include_sections=['Parameters', 'Returns'], 
+    >>> @NumpyDocstringFormatter(include_sections=['Parameters', 'Returns'],
     ...                             validate_with_sphinx=True)
     ... def another_function(param1):
     ...     '''
@@ -4246,13 +5073,17 @@ class NumpyDocstringFormatter:
     ...     return param1.upper()
     """
 
-    def __init__(self, include_sections=None, validate_with_sphinx=False, 
-                 custom_formatting=None, verbose=0):
-
+    def __init__(
+        self,
+        include_sections=None,
+        validate_with_sphinx=False,
+        custom_formatting=None,
+        verbose=0,
+    ):
         self.include_sections = include_sections
         self.validate_with_sphinx = validate_with_sphinx
         self.custom_formatting = custom_formatting
-        self.verbose=verbose 
+        self.verbose = verbose
 
     def __call__(self, func):
         r"""
@@ -4268,6 +5099,7 @@ class NumpyDocstringFormatter:
         function
             The decorated function with a reformatted docstring.
         """
+
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             return func(*args, **kwargs)
@@ -4275,12 +5107,12 @@ class NumpyDocstringFormatter:
         wrapper.__doc__ = self.format_docstring(func.__doc__)
         if self.validate_with_sphinx:
             self.sphinx_validation(wrapper.__doc__)
-        
+
         return wrapper
 
     def format_docstring(self, docstring):
         r"""
-        
+
 
         Parameters
         ----------
@@ -4307,15 +5139,30 @@ class NumpyDocstringFormatter:
             The formatted docstring.
         """
         if not docstring:
-            return ''
+            return ""
 
-        sections_order = ['Parameters', 'Returns', 'Raises', 'Examples', 
-                          'Warnings', 'See Also', 'Notes']
+        sections_order = [
+            "Parameters",
+            "Returns",
+            "Raises",
+            "Examples",
+            "Warnings",
+            "See Also",
+            "Notes",
+        ]
         if self.include_sections is not None:
-            sections_order = [s for s in sections_order if s in self.include_sections]
+            sections_order = [
+                s
+                for s in sections_order
+                if s in self.include_sections
+            ]
 
-        sections = self.extract_sections(docstring, sections_order)
-        formatted_docstring = self.reconstruct_docstring(sections, sections_order)
+        sections = self.extract_sections(
+            docstring, sections_order
+        )
+        formatted_docstring = self.reconstruct_docstring(
+            sections, sections_order
+        )
 
         return formatted_docstring
 
@@ -4335,25 +5182,43 @@ class NumpyDocstringFormatter:
         dict
             A dictionary with section names as keys and extracted content as values.
         """
-        sections = {section: '' for section in sections_order}
+        sections = {section: "" for section in sections_order}
         # Simplified patterns
         section_patterns = {
-            'Parameters': re.compile(r'parameters\s*[\n\r]+', re.IGNORECASE),
-            'Returns': re.compile(r'returns\s*[\n\r]+', re.IGNORECASE),
-            'Raises': re.compile(r'raise[s]?\s*[\n\r]+', re.IGNORECASE),
-            'Examples': re.compile(r':examples:\s*[\n\r]+', re.IGNORECASE),
-            'Warnings': re.compile(r'warnings\s*[\n\r]+', re.IGNORECASE),
-            'See Also': re.compile(r'see also\s*[\n\r]+', re.IGNORECASE),
-            'Notes': re.compile(r'notes\s*[\n\r]+', re.IGNORECASE),
+            "Parameters": re.compile(
+                r"parameters\s*[\n\r]+", re.IGNORECASE
+            ),
+            "Returns": re.compile(
+                r"returns\s*[\n\r]+", re.IGNORECASE
+            ),
+            "Raises": re.compile(
+                r"raise[s]?\s*[\n\r]+", re.IGNORECASE
+            ),
+            "Examples": re.compile(
+                r":examples:\s*[\n\r]+", re.IGNORECASE
+            ),
+            "Warnings": re.compile(
+                r"warnings\s*[\n\r]+", re.IGNORECASE
+            ),
+            "See Also": re.compile(
+                r"see also\s*[\n\r]+", re.IGNORECASE
+            ),
+            "Notes": re.compile(
+                r"notes\s*[\n\r]+", re.IGNORECASE
+            ),
         }
 
         for section in sections_order:
             if section in section_patterns:
-                match = section_patterns[section].search(docstring)
+                match = section_patterns[section].search(
+                    docstring
+                )
                 if match:
                     content = match.group(0).strip()
                     if self.custom_formatting:
-                        content = self.custom_formatting(section, content)
+                        content = self.custom_formatting(
+                            section, content
+                        )
                     sections[section] = content
 
         return sections
@@ -4379,73 +5244,90 @@ class NumpyDocstringFormatter:
             if sections[section]:
                 reconstructed_docstring += f"{section}\n{'-' * len(section)}\n{sections[section]}\n\n"
         return reconstructed_docstring
-    
+
     def sphinx_validation(self, docstring):
         r"""
-        Validates the given docstring using Sphinx and docutils to ensure 
+        Validates the given docstring using Sphinx and docutils to ensure
         it adheres to standards acceptable by Sphinx for documentation generation.
-    
+
         Parameters
         ----------
         docstring : str
             The docstring to validate.
-    
+
         Note
         ----
-        This method provides a conceptual approach and requires a Sphinx 
+        This method provides a conceptual approach and requires a Sphinx
         environment to be properly implemented.
         """
-        from .utils.deps_utils import import_optional_dependency
-        
-        try: 
-            import_optional_dependency ("docutils")
-        except: 
-            from .utils.deps_utils import is_module_installed 
-            from .utils.deps_utils import ensure_module_installed
-            if not is_module_installed("docutils"): 
-                ensure_module_installed('docutils', auto_install=True)
-            
+        from .utils.deps_utils import (
+            import_optional_dependency,
+        )
+
+        try:
+            import_optional_dependency("docutils")
+        except:
+            from .utils.deps_utils import (
+                ensure_module_installed,
+                is_module_installed,
+            )
+
+            if not is_module_installed("docutils"):
+                ensure_module_installed(
+                    "docutils", auto_install=True
+                )
+
         from docutils import nodes
         from docutils.core import publish_doctree
-        
+
         try:
             # Create a new document for parsing
-            settings_overrides = {'report_level': 2, 'warning_stream': False}
+            settings_overrides = {
+                "report_level": 2,
+                "warning_stream": False,
+            }
             document = publish_doctree(
-                docstring, settings_overrides=settings_overrides
+                docstring,
+                settings_overrides=settings_overrides,
             )
-            
+
             # warnings_or_errors = _docutils_findall(
             #     document, lambda n: isinstance(n, _doc_nodes.system_message)
             # )
             # Check for any errors or warnings in the parsed document
             warnings_or_errors = _docutils_findall(
-                document, nodes.system_message)
-            
+                document, nodes.system_message
+            )
+
             if next(warnings_or_errors, None):
                 if self.verbose:
                     _logger.warning(
-                        "Docstring validation failed with warnings or errors.") 
+                        "Docstring validation failed with warnings or errors."
+                    )
             else:
                 if self.verbose:
-                    _logger.info("Docstring passed Sphinx validation.")
+                    _logger.info(
+                        "Docstring passed Sphinx validation."
+                    )
         except Exception as e:
             if self.verbose:
                 _logger.error(
-                    f"Docstring validation failed due to an exception: {e}") 
+                    f"Docstring validation failed due to an exception: {e}"
+                )
+
 
 def _docutils_findall(document, predicate):
     r"""
     Return a list of nodes matching `predicate` using the modern API when
     available, with a safe fallback for older docutils.
-    
+
     """
     # compat for docutils >= 0.19 (findall) and older (traverse)
     try:
         from docutils import nodes as _doc_nodes
     except Exception:  # docutils not installed at runtime
         _doc_nodes = None
-        
+
     if _doc_nodes is None:
         return []
     # If predicate is a callable, both APIs accept it.
@@ -4456,7 +5338,9 @@ def _docutils_findall(document, predicate):
     if callable(predicate):
         return document.traverse(condition=predicate)
     # If a class was passed, adapt to the old API by wrapping it
-    return document.traverse(condition=lambda n: isinstance(n, predicate))
+    return document.traverse(
+        condition=lambda n: isinstance(n, predicate)
+    )
 
 
 class Dataify:
@@ -4523,7 +5407,7 @@ class Dataify:
     --------
     >>> from geoprior.decorators import Dataify
     >>> import numpy as np
-    >>> import pandas as pd 
+    >>> import pandas as pd
     >>> @Dataify(enforce_df=True, columns=['A', 'B'],
     ...          ignore_mismatch=True)
     ... def process_data(data):
@@ -4548,7 +5432,7 @@ class Dataify:
     ...          prefix='ser_col_')
     ... def process_data3(data):
     ...     print(data)
-    
+
     >>> series =pd.Series ([5, 6, 7, 8], name="series")
     >>> process_data3(series)
        series
@@ -4560,7 +5444,7 @@ class Dataify:
     ...          prefix='ser_col_')
     ... def process_data4(data):
     ...     print(data)
-        
+
     >>> series =pd.Series ([5, 6, 7, 8], name="series")
     >>> process_data4(series)
     0    5
@@ -4568,7 +5452,7 @@ class Dataify:
     2    7
     3    8
     Name: series, dtype: int64
-    
+
 
     References
     ----------
@@ -4581,11 +5465,11 @@ class Dataify:
         self,
         enforce_df=True,
         auto_columns=False,
-        prefix='col_',
+        prefix="col_",
         columns=None,
         ignore_mismatch=False,
         fail_silently=False,
-        start_incr_at=0
+        start_incr_at=0,
     ):
         self.enforce_df = enforce_df
         self.auto_columns = auto_columns
@@ -4596,7 +5480,6 @@ class Dataify:
         self.start_incr_at = start_incr_at
 
     def __call__(self, func):
-
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             if not args:
@@ -4610,19 +5493,31 @@ class Dataify:
                     return func(*args, **kwargs)
 
             # Else, enforce DataFrame
-            if not isinstance(data, (pd.DataFrame, pd.Series)):
+            if not isinstance(data, pd.DataFrame | pd.Series):
                 # Remove 'data' from kwargs if present to avoid collisions
-                new_kwargs = {k: v for k, v in kwargs.items() if k != 'data'}
+                new_kwargs = {
+                    k: v
+                    for k, v in kwargs.items()
+                    if k != "data"
+                }
                 try:
-                    data = self._attempt_dataframe_conversion(data, **new_kwargs)
+                    data = self._attempt_dataframe_conversion(
+                        data, **new_kwargs
+                    )
                 except ValueError as e:
                     if self.fail_silently:
-                        warnings.warn(f"Dataify Warning: {e}")
+                        warnings.warn(
+                            f"Dataify Warning: {e}",
+                            stacklevel=2,
+                        )
                         return func(*args, **kwargs)
                     else:
                         raise
 
-            elif isinstance(data, pd.Series) and self.enforce_df:
+            elif (
+                isinstance(data, pd.Series)
+                and self.enforce_df
+            ):
                 # If it's a Series and we want a DF
                 data = data.to_frame()
 
@@ -4631,20 +5526,29 @@ class Dataify:
         return wrapper
 
     def _attempt_dataframe_conversion(self, data, **kwargs):
-        """ Attempts to convert the input data to a pandas DataFrame using 
-         the specified columns if applicable, handling dimension mismatches.
-         """
-        columns = kwargs.get('columns', self.columns)
-        prefix = kwargs.get('prefix', kwargs.get('col_prefix', self.prefix))
-        start_incr_at = kwargs.get('start_incr_at', self.start_incr_at)
+        """Attempts to convert the input data to a pandas DataFrame using
+        the specified columns if applicable, handling dimension mismatches.
+        """
+        columns = kwargs.get("columns", self.columns)
+        prefix = kwargs.get(
+            "prefix", kwargs.get("col_prefix", self.prefix)
+        )
+        start_incr_at = kwargs.get(
+            "start_incr_at", self.start_incr_at
+        )
 
         if isinstance(columns, str):
             columns = [columns]
 
         # Auto-generate column names
         if self.auto_columns and columns is None:
-            num_cols = np.shape(data)[1] if np.ndim(data) > 1 else 1
-            columns = [f"{prefix}{i + start_incr_at}" for i in range(num_cols)]
+            num_cols = (
+                np.shape(data)[1] if np.ndim(data) > 1 else 1
+            )
+            columns = [
+                f"{prefix}{i + start_incr_at}"
+                for i in range(num_cols)
+            ]
 
         try:
             df = pd.DataFrame(data, columns=columns)
@@ -4658,12 +5562,13 @@ class Dataify:
 
         return df
 
+
 def copy_doc(
-    source=None, 
-    docstring=None, 
-    replace=False, 
-    copy_attrs=None
-    ):
+    source=None,
+    docstring=None,
+    replace=False,
+    copy_attrs=None,
+):
     """
     Class or function decorator to copy the docstring and specified attributes 
     from a source class or function to the decorated class or function.
@@ -4787,6 +5692,7 @@ def copy_doc(
     .. [1] Python Documentation on [Decorators](https://docs.python.org/3/glossary.html#term-decorator).
 
     """
+
     def decorator(obj):
         """
         Apply the `copy_doc` decorator to the given object `obj`.
@@ -4794,7 +5700,7 @@ def copy_doc(
         Parameters
         ----------
         obj : class or function
-            The class or function to which the docstring and attributes 
+            The class or function to which the docstring and attributes
             will be copied.
 
         Returns
@@ -4808,7 +5714,11 @@ def copy_doc(
             if replace:
                 combined_doc = docstring or ""
             else:
-                combined_doc = f"{source_doc}\n\n{docstring}" if docstring else source_doc
+                combined_doc = (
+                    f"{source_doc}\n\n{docstring}"
+                    if docstring
+                    else source_doc
+                )
         else:
             combined_doc = docstring or ""
 
@@ -4825,8 +5735,10 @@ def copy_doc(
 
     return decorator
 
+
 # Substitution and Appender are derived from matplotlib.docstring (1.1.0)
 # module https://matplotlib.org/users/license.html
+
 
 class Substitution:
     """
@@ -4859,12 +5771,16 @@ class Substitution:
 
     def __init__(self, *args, **kwargs):
         if args and kwargs:
-            raise AssertionError("Only positional or keyword args are allowed")
+            raise AssertionError(
+                "Only positional or keyword args are allowed"
+            )
 
         self.params = args or kwargs
 
     def __call__(self, func: callable) -> callable:
-        func.__doc__ = func.__doc__ and func.__doc__ % self.params
+        func.__doc__ = (
+            func.__doc__ and func.__doc__ % self.params
+        )
         return func
 
     def update(self, *args, **kwargs) -> None:
@@ -4897,7 +5813,12 @@ class Appender:
 
     addendum: str | None
 
-    def __init__(self, addendum: str | None, join: str = "", indents: int = 0):
+    def __init__(
+        self,
+        addendum: str | None,
+        join: str = "",
+        indents: int = 0,
+    ):
         if indents > 0:
             self.addendum = indent(addendum, indents=indents)
         else:
@@ -4923,59 +5844,59 @@ def indent(text: str | None, indents: int = 1) -> str:
 # module https://matplotlib.org/users/license.html
 class ValidateXy:
     """
-    A class-based decorator that validates and converts the input data `X` 
-    and optionally `y`. It checks for numeric data types, reshapes the 
+    A class-based decorator that validates and converts the input data `X`
+    and optionally `y`. It checks for numeric data types, reshapes the
     data if needed, and applies additional checks based on preferences.
-    
+
     Parameters
     ----------
     check_y : bool or str, optional, default='auto'
         If True, the decorator will check `y` for validity (numeric type).
         If 'auto', `y` will be checked only if it is not None.
-    
+
     ensure_y_2d : bool, optional, default=False
         If False, `y` is expected to be 1D. If True, `y` can be 1D or 2D.
-    
+
     allow_sparse_matrix : bool, optional, default=False
         If True, the decorator will allow sparse matrix inputs for `X`.
-    
+
     check_1d_input : bool, optional, default=False
         If True, checks whether `X` is 1D and reshapes it accordingly.
-    
+
     allow_negative_values : bool, optional, default=True
         If False, raises a warning if `X` or `y` contains negative values.
-    
+
     raise_on_non_numeric : bool, optional, default=True
-        If True, raises an error when non-numeric data is encountered in 
+        If True, raises an error when non-numeric data is encountered in
         `X` or `y`.
-    
+
     Examples
     --------
-    >>> from geoprior.decorators import ValidateXy 
+    >>> from geoprior.decorators import ValidateXy
     >>> @ValidateXy(check_y=True, ensure_y_2d=True, check_1d_input=True)
     >>> def my_model(X, y):
     >>>     # Model processing here
     >>>     return X, y
-    
+
     >>> X = [[1, 2], [3, 4]]
     >>> y = [5, 6]
     >>> my_model(X, y)  # Valid data
-    
+
     >>> X_invalid = [[1, 'a'], [3, 4]]
     >>> my_model(X_invalid, y)  # Raises ValueError due to non-numeric data
-    
+
     >>> X_negative = [[-1, 2], [3, 4]]
     >>> my_model(X_negative, y)  # Will raise a valueError if allow_negative_values=False
     """
 
     def __init__(
-        self, 
-        check_y="auto", 
-        ensure_y_2d=False, 
-        allow_sparse_matrix=False, 
-        check_1d_input=False, 
-        allow_negative_values=True, 
-        raise_on_non_numeric=True
+        self,
+        check_y="auto",
+        ensure_y_2d=False,
+        allow_sparse_matrix=False,
+        check_1d_input=False,
+        allow_negative_values=True,
+        raise_on_non_numeric=True,
     ):
         self.check_y = check_y
         self.ensure_y_2d = ensure_y_2d
@@ -4992,7 +5913,7 @@ class ValidateXy:
             return lambda func: self.__call__(func)
 
         # Identify if the decorated function is part of a class (i.e., a method)
-        if hasattr(func, '__self__'):
+        if hasattr(func, "__self__"):
             # For methods (bound functions), check self argument
             @functools.wraps(func)
             def wrapper(self, X, y=None):
@@ -5000,7 +5921,7 @@ class ValidateXy:
                 X = self._check_and_convert_X(X)
                 if self.check_y and y is not None:
                     y = self._check_and_convert_y(y)
-                elif self.check_y == 'auto' and y is not None:
+                elif self.check_y == "auto" and y is not None:
                     y = self._check_and_convert_y(y)
                 return func(self, X, y)
         else:
@@ -5010,45 +5931,51 @@ class ValidateXy:
                 X = self._check_and_convert_X(X)
                 if self.check_y and y is not None:
                     y = self._check_and_convert_y(y)
-                elif self.check_y == 'auto' and y is not None:
+                elif self.check_y == "auto" and y is not None:
                     y = self._check_and_convert_y(y)
                 return func(X, y)
-        
+
         return wrapper
 
     def _check_and_convert_X(self, X):
         """
         Helper function to check and convert X.
-        
+
         Parameters
         ----------
         X : array-like
             The input data to be checked and converted.
-        
+
         Returns
         -------
         X : array-like
             The validated and converted input data.
         """
         import scipy.sparse as sp
-        
-        if not isinstance (X, pd.DataFrame): 
-            X =  np.asarray (X )
+
+        if not isinstance(X, pd.DataFrame):
+            X = np.asarray(X)
         # Check if X is a pandas DataFrame
         if isinstance(X, pd.DataFrame):
             # Ensure DataFrame contains numeric values
-            if X.select_dtypes(include=[np.number]).shape[1] == 0:
+            if (
+                X.select_dtypes(include=[np.number]).shape[1]
+                == 0
+            ):
                 raise ValueError(
                     "DataFrame contains no numeric values."
                     " Only numeric data is supported."
                 )
             else:
                 # Warn the user if there are non-numeric columns
-                non_numeric_columns = X.select_dtypes(exclude=[np.number]).columns
+                non_numeric_columns = X.select_dtypes(
+                    exclude=[np.number]
+                ).columns
                 if len(non_numeric_columns) > 0:
                     warnings.warn(
                         "The following non-numeric columns will be ignored: "
-                        f"{', '.join(non_numeric_columns)}"
+                        f"{', '.join(non_numeric_columns)}",
+                        stacklevel=2,
                     )
                 # Use only numeric columns
                 X = X.select_dtypes(include=[np.number])
@@ -5065,41 +5992,47 @@ class ValidateXy:
                     )
                 else:
                     warnings.warn(
-                        "X contains non-numeric values and will be ignored.")
+                        "X contains non-numeric values and will be ignored.",
+                        stacklevel=2,
+                    )
                     return np.array([])
 
         # Ensure X is 2D (reshape if it's 1D)
         if self.check_1d_input and X.ndim == 1:
             X = X.reshape(-1, 1)
-        
+
         # Allow sparse matrices if enabled
         if not self.allow_sparse_matrix and isinstance(
-                X, (sp.csr_matrix, sp.csc_matrix, sp.bsr_matrix)):
+            X, sp.csr_matrix | sp.csc_matrix | sp.bsr_matrix
+        ):
             raise ValueError(
-                "Sparse matrices are not supported by this transformer.")
-        
+                "Sparse matrices are not supported by this transformer."
+            )
+
         # Check for negative values if allowed
         if not self.allow_negative_values and np.any(X < 0):
-            raise ValueError("Negative values are not allowed in X.")
+            raise ValueError(
+                "Negative values are not allowed in X."
+            )
 
         return X
 
     def _check_and_convert_y(self, y):
         """
         Helper function to check and convert y.
-        
+
         Parameters
         ----------
         y : array-like
             The target labels to be checked and converted.
-        
+
         Returns
         -------
         y : array-like
             The validated and converted target labels.
         """
-        if not isinstance (y, (pd.Series, pd.DataFrame)): 
-             y = np.asarray (y )
+        if not isinstance(y, pd.Series | pd.DataFrame):
+            y = np.asarray(y)
         if not np.issubdtype(np.array(y).dtype, np.number):
             try:
                 y = np.array(y, dtype=np.float64)
@@ -5111,7 +6044,9 @@ class ValidateXy:
                     )
                 else:
                     warnings.warn(
-                        "y contains non-numeric values and will be ignored.")
+                        "y contains non-numeric values and will be ignored.",
+                        stacklevel=2,
+                    )
                     return np.array([])
 
         # Ensure y is 2D if ensure_y_2d is True
@@ -5119,18 +6054,23 @@ class ValidateXy:
             if y.ndim == 1:
                 y = y.reshape(-1, 1)
         elif y.ndim != 1:
-            raise ValueError("If ensure_y_2d is False, y must be 1D.")
-        
+            raise ValueError(
+                "If ensure_y_2d is False, y must be 1D."
+            )
+
         # Check for negative values in y if allowed
         if not self.allow_negative_values and np.any(y < 0):
             raise ValueError(
-                "Negative values found in y. Expect non-negatives only.")
+                "Negative values found in y. Expect non-negatives only."
+            )
 
         return y
 
+
 @NumpyDocstringFormatter(
-    include_sections=['Parameters', 'Returns'],
-    validate_with_sphinx=True)
+    include_sections=["Parameters", "Returns"],
+    validate_with_sphinx=True,
+)
 def example_function(param1, param2=None):
     """
     This is an example function that demonstrates the usage of
@@ -5149,4 +6089,3 @@ def example_function(param1, param2=None):
         True if successful, False otherwise.
     """
     return True
-    

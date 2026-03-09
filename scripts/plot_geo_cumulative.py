@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -60,7 +59,7 @@ Notes
 from __future__ import annotations
 
 import argparse
-from typing import Dict, Iterable, List, Optional, Tuple
+from collections.abc import Iterable
 
 import contextily as cx
 import geopandas as gpd
@@ -217,11 +216,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     return p
 
+
 def parse_args(
-    argv: Optional[List[str]] = None,
+    argv: list[str] | None = None,
 ) -> argparse.Namespace:
     p = build_parser()
     return p.parse_args(argv)
+
 
 # ---------------------------------------------------------------------
 # Loading / schema
@@ -268,7 +269,9 @@ def load_val_csv(path: str) -> pd.DataFrame:
     )
     for c in ["subsidence_actual", "subsidence_q50"]:
         df[c] = pd.to_numeric(df[c], errors="coerce")
-    return df.dropna(subset=["subsidence_actual", "subsidence_q50"])
+    return df.dropna(
+        subset=["subsidence_actual", "subsidence_q50"]
+    )
 
 
 def load_future_csv(path: str) -> pd.DataFrame:
@@ -293,7 +296,9 @@ def load_future_csv(path: str) -> pd.DataFrame:
 # CRS inference
 # ---------------------------------------------------------------------
 def _looks_like_lonlat(x: float, y: float) -> bool:
-    return (abs(float(x)) <= 180.0) and (abs(float(y)) <= 90.0)
+    return (abs(float(x)) <= 180.0) and (
+        abs(float(y)) <= 90.0
+    )
 
 
 def infer_xy_crs(
@@ -345,6 +350,7 @@ def _panel_df(
     out = df[["coord_x", "coord_y", value_col]].copy()
     return out.rename(columns={value_col: "value"})
 
+
 def _cum_from_input(
     df: pd.DataFrame,
     *,
@@ -360,6 +366,7 @@ def _cum_from_input(
     # kind == "cumulative" (default): rebase at first available year
     return df[value_col] - g.transform("first")
 
+
 def _cum_title_tag(kind: str) -> str:
     k = str(kind).strip().lower()
     if k in ("increment", "rate"):
@@ -373,16 +380,16 @@ def _cum_note(kind: str) -> str:
         return "from increments"
     return "rebased"
 
+
 def build_city_panels(
     val_df: pd.DataFrame,
     fut_df: pd.DataFrame,
     *,
     start_year: int,
     year_val: int,
-    years_forecast: List[int],
-    subs_kind: str = "cumulative"
-) -> Dict[str, pd.DataFrame]:
-    
+    years_forecast: list[int],
+    subs_kind: str = "cumulative",
+) -> dict[str, pd.DataFrame]:
     val = val_df.copy()
     fut = fut_df.copy()
 
@@ -398,17 +405,19 @@ def build_city_panels(
         subset=["sample_idx", "coord_t"],
         keep="last",
     )
-    # currently our data collected are cumlative so no need 
-    # since the prediction should be made on cumulative 
+    # currently our data collected are cumlative so no need
+    # since the prediction should be made on cumulative
     v0["cum_actual"] = _cum_from_input(
         v0,
         value_col="subsidence_actual",
         kind=subs_kind,
     )
-    
+
     obs = v0[v0["coord_t"] == int(year_val)]
-    obs_panel = _panel_df(obs, "cum_actual") if not obs.empty else (
-        pd.DataFrame()
+    obs_panel = (
+        _panel_df(obs, "cum_actual")
+        if not obs.empty
+        else (pd.DataFrame())
     )
 
     # ---- predicted cumulative (val + future)
@@ -436,11 +445,13 @@ def build_city_panels(
     )
 
     pred = comb[comb["coord_t"] == int(year_val)]
-    pred_panel = _panel_df(pred, "cum_pred") if not pred.empty else (
-        pd.DataFrame()
+    pred_panel = (
+        _panel_df(pred, "cum_pred")
+        if not pred.empty
+        else (pd.DataFrame())
     )
 
-    out: Dict[str, pd.DataFrame] = {}
+    out: dict[str, pd.DataFrame] = {}
     if not obs_panel.empty:
         out["obs"] = obs_panel
     if not pred_panel.empty:
@@ -456,14 +467,14 @@ def build_city_panels(
 
 
 def clip_bounds(
-    arrays: List[np.ndarray],
+    arrays: list[np.ndarray],
     *,
     clip: float,
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     if not arrays:
         return (0.0, 1.0)
 
-    good: List[np.ndarray] = []
+    good: list[np.ndarray] = []
     for a in arrays:
         if a.size == 0:
             continue
@@ -496,15 +507,15 @@ def draw_city_row(
     axes: np.ndarray,
     row_idx: int,
     city: str,
-    panels_3857: Dict[str, gpd.GeoDataFrame],
-    col_keys: List[str],
+    panels_3857: dict[str, gpd.GeoDataFrame],
+    col_keys: list[str],
     cmap: mpl.colors.Colormap,
     cum_tag: str,
     vmin: float,
     vmax: float,
     args: argparse.Namespace,
     show_panel_titles: bool,
-    hotspots: Optional[pd.DataFrame],
+    hotspots: pd.DataFrame | None,
 ) -> None:
     for j, key in enumerate(col_keys):
         ax = axes[row_idx, j]
@@ -594,7 +605,7 @@ def draw_city_row(
 # Main
 # ---------------------------------------------------------------------
 def plot_geo_cumulative_main(
-    argv: Optional[List[str]] = None,
+    argv: list[str] | None = None,
 ) -> None:
     args = parse_args(argv)
     utils.set_paper_style(fontsize=args.font, dpi=args.dpi)
@@ -602,13 +613,19 @@ def plot_geo_cumulative_main(
     cum_tag = _cum_title_tag(args.subsidence_kind)
     note = _cum_note(args.subsidence_kind)
 
-    show_legend = utils.str_to_bool(args.show_legend, default=True)
-    show_title = utils.str_to_bool(args.show_title, default=True)
+    show_legend = utils.str_to_bool(
+        args.show_legend, default=True
+    )
+    show_title = utils.str_to_bool(
+        args.show_title, default=True
+    )
     show_pan_t = utils.str_to_bool(
         args.show_panel_titles,
         default=True,
     )
-    show_labels = utils.str_to_bool(args.show_labels, default=True)
+    show_labels = utils.str_to_bool(
+        args.show_labels, default=True
+    )
 
     ns_val = load_val_csv(args.ns_val)
     zh_val = load_val_csv(args.zh_val)
@@ -632,7 +649,7 @@ def plot_geo_cumulative_main(
         subs_kind=args.subsidence_kind,
     )
 
-    col_keys: List[str] = []
+    col_keys: list[str] = []
     if ("obs" in ns_pan) or ("obs" in zh_pan):
         col_keys.append("obs")
     if ("pred" in ns_pan) or ("pred" in zh_pan):
@@ -644,7 +661,9 @@ def plot_geo_cumulative_main(
             col_keys.append(k)
 
     if not col_keys:
-        raise RuntimeError("No panels found. Check years/CSVs.")
+        raise RuntimeError(
+            "No panels found. Check years/CSVs."
+        )
 
     # CRS conversion per city (supports lon/lat or UTM)
     ns_crs = infer_xy_crs(
@@ -658,17 +677,21 @@ def plot_geo_cumulative_main(
         utm_epsg=args.utm_epsg,
     )
 
-    ns_3857: Dict[str, gpd.GeoDataFrame] = {}
-    zh_3857: Dict[str, gpd.GeoDataFrame] = {}
+    ns_3857: dict[str, gpd.GeoDataFrame] = {}
+    zh_3857: dict[str, gpd.GeoDataFrame] = {}
 
     for k in col_keys:
         if k in ns_pan:
-            ns_3857[k] = to_web_mercator(ns_pan[k], src_crs=ns_crs)
+            ns_3857[k] = to_web_mercator(
+                ns_pan[k], src_crs=ns_crs
+            )
         if k in zh_pan:
-            zh_3857[k] = to_web_mercator(zh_pan[k], src_crs=zh_crs)
+            zh_3857[k] = to_web_mercator(
+                zh_pan[k], src_crs=zh_crs
+            )
 
     # Global color scale
-    vals: List[np.ndarray] = []
+    vals: list[np.ndarray] = []
     for dct in (ns_pan, zh_pan):
         for k in col_keys:
             if k in dct:
@@ -678,7 +701,7 @@ def plot_geo_cumulative_main(
     cmap = plt.get_cmap(args.cmap)
 
     # Optional hotspots
-    hot_df: Optional[pd.DataFrame] = None
+    hot_df: pd.DataFrame | None = None
     if args.hotspot_csv:
         hp = utils.as_path(args.hotspot_csv)
         if hp.exists():
@@ -749,13 +772,14 @@ def plot_geo_cumulative_main(
 
         if show_labels:
             lab = utils.label("subsidence_cum")
-            cb.set_label(f"{lab} since {int(args.start_year)}")
-            
+            cb.set_label(
+                f"{lab} since {int(args.start_year)}"
+            )
+
     if show_legend and show_labels:
         lab = utils.label("subsidence_cum")
         cb.set_label(
-            f"{lab} since {int(args.start_year)} "
-            f"({note})"
+            f"{lab} since {int(args.start_year)} ({note})"
         )
 
     if show_title:
@@ -764,21 +788,23 @@ def plot_geo_cumulative_main(
             f"{int(args.start_year)} "
             f"({note}) on satellite basemap"
         )
-        
+
     # Suptitle
     if show_title:
         default = (
             f"Cumulative subsidence since {int(args.start_year)} "
             "on satellite basemap"
         )
-        ttl = utils.resolve_title(default=default, title=args.title)
+        ttl = utils.resolve_title(
+            default=default, title=args.title
+        )
         fig.suptitle(
             ttl,
             y=0.98,
             fontsize=11,
             fontweight="bold",
         )
-    
+
     out = utils.resolve_fig_out(args.out)
     utils.save_figure(
         fig,
@@ -788,7 +814,7 @@ def plot_geo_cumulative_main(
     # utils.ensure_dir(out.parent)
 
     # png = out.with_suffix(".png")
-    # pdf = out.with_suffix(".pdf") 
+    # pdf = out.with_suffix(".pdf")
 
     # fig.savefig(png, bbox_inches="tight")
     # fig.savefig(pdf, bbox_inches="tight")
@@ -796,11 +822,10 @@ def plot_geo_cumulative_main(
     # print(f"[OK] Saved: {png}")
     # print(f"[OK] Saved: {pdf}")
 
+
 def main() -> None:
     plot_geo_cumulative_main()
 
 
 if __name__ == "__main__":
     main()
-    
-

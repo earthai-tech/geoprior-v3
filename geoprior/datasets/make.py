@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Author: LKouadio Laurent (@Daniel) <etanoyau@gmail.com>
 # Adapted from: earthai-tech/gofast — https://github.com/earthai-tech/gofast
@@ -12,40 +11,41 @@ for demonstrating and testing the various models and utilities within
 the `geoprior` package, particularly those expecting static, dynamic,
 and future features (like TFT and XTFT).
 """
+
 from __future__ import annotations
 
 import textwrap
 import warnings
+
 import numpy as np
 import pandas as pd
-from typing import Optional, List, Union, Tuple
 
 from ..api.bunch import XBunch
 
-
 __all__ = [
-    "make_multi_feature_time_series", 
+    "make_multi_feature_time_series",
     "make_quantile_prediction_data",
-    "make_anomaly_data", 
+    "make_anomaly_data",
     "make_trend_seasonal_data",
-    "make_multivariate_target_data"
-    ]
+    "make_multivariate_target_data",
+]
+
 
 def make_multi_feature_time_series(
     n_series: int = 3,
     n_timesteps: int = 100,
-    freq: str = 'D', 
+    freq: str = "D",
     static_noise_level: float = 0.1,
     trend_base: float = 10,
     trend_factor: float = 0.1,
-    seasonality_period: float = 7, 
+    seasonality_period: float = 7,
     seasonality_amplitude: float = 5,
     dynamic_cov_amplitude: float = 2,
     future_cov_amplitude: float = 1,
     noise_level: float = 1.0,
     as_frame: bool = False,
-    seed: Optional[int] = None,
-) -> Union[XBunch, pd.DataFrame]:
+    seed: int | None = None,
+) -> XBunch | pd.DataFrame:
     r"""Generate multi-variate time series with static, dynamic, and future features.
 
     Creates a synthetic dataset suitable for models like TFT/XTFT. It
@@ -130,28 +130,31 @@ def make_multi_feature_time_series(
     # if seed is not None:
     rng = np.random.RandomState(seed)
 
-
     all_series_df = []
-    start_date = '2020-01-01' # Arbitrary start date
+    start_date = "2020-01-01"  # Arbitrary start date
 
     for i in range(n_series):
         # --- Time Index ---
         date_rng = pd.date_range(
-            start=start_date, periods=n_timesteps, freq=freq)
+            start=start_date, periods=n_timesteps, freq=freq
+        )
         time_idx = np.arange(n_timesteps)
 
         # --- Static Features ---
         series_id = i
         # Each series gets a slightly different noisy base level
-        base_level = 50 + i * 20 + rng.normal(0, static_noise_level)
+        base_level = (
+            50 + i * 20 + rng.normal(0, static_noise_level)
+        )
 
         # --- Dynamic Features ---
         month = date_rng.month
         dayofweek = date_rng.dayofweek
         # Simulated dynamic covariate (e.g., temperature-like)
         dynamic_cov = dynamic_cov_amplitude * np.sin(
-            2 * np.pi * time_idx / (seasonality_period * 2) + i * np.pi / 3 # Phase shift per series
-            ) + rng.normal(0, noise_level * 0.5, n_timesteps)
+            2 * np.pi * time_idx / (seasonality_period * 2)
+            + i * np.pi / 3  # Phase shift per series
+        ) + rng.normal(0, noise_level * 0.5, n_timesteps)
 
         # --- Future Features ---
         # Known future event (e.g., promotion flag)
@@ -161,58 +164,86 @@ def make_multi_feature_time_series(
         future_dayofweek = dayofweek
 
         # --- Target Variable ---
-        trend = trend_base + trend_factor * time_idx * (1 + i * 0.1)
+        trend = trend_base + trend_factor * time_idx * (
+            1 + i * 0.1
+        )
         seasonality = seasonality_amplitude * np.sin(
-            2 * np.pi * time_idx / seasonality_period + i * np.pi / 4 # Phase shift
-            )
-        event_effect = future_event * future_cov_amplitude * (5 + i) # Event impact
+            2 * np.pi * time_idx / seasonality_period
+            + i * np.pi / 4  # Phase shift
+        )
+        event_effect = (
+            future_event * future_cov_amplitude * (5 + i)
+        )  # Event impact
         noise = rng.normal(0, noise_level, n_timesteps)
 
-        target = base_level + trend + seasonality + event_effect + \
-                 0.5 * dynamic_cov + noise # Combine components
+        target = (
+            base_level
+            + trend
+            + seasonality
+            + event_effect
+            + 0.5 * dynamic_cov
+            + noise
+        )  # Combine components
 
         # --- Lagged Target (as Dynamic Input) ---
         # Create after calculating target
-        lagged_target = pd.Series(target).shift(1).fillna(method='bfill') # Backfill first NaN
+        lagged_target = (
+            pd.Series(target).shift(1).fillna(method="bfill")
+        )  # Backfill first NaN
 
         # --- Assemble DataFrame for this series ---
-        series_df = pd.DataFrame({
-            'date': date_rng,
-            'series_id': series_id, # Static identifier
-            'base_level': base_level, # Static numerical
-            'month': future_month, # Dynamic and Future: month
-            'dayofweek': future_dayofweek, # Dynamic and Future:dayofweek
-            'dynamic_cov': dynamic_cov, # Dynamic only
-            'target_lag1': lagged_target, # Dynamic only
-            'future_event': future_event, # Future only
-            'target': target # Target variable
-        })
+        series_df = pd.DataFrame(
+            {
+                "date": date_rng,
+                "series_id": series_id,  # Static identifier
+                "base_level": base_level,  # Static numerical
+                "month": future_month,  # Dynamic and Future: month
+                "dayofweek": future_dayofweek,  # Dynamic and Future:dayofweek
+                "dynamic_cov": dynamic_cov,  # Dynamic only
+                "target_lag1": lagged_target,  # Dynamic only
+                "future_event": future_event,  # Future only
+                "target": target,  # Target variable
+            }
+        )
         all_series_df.append(series_df)
 
     # --- Combine all series ---
     df = pd.concat(all_series_df).reset_index(drop=True)
 
     # --- Define Column Roles ---
-    dt_col = 'date'
-    target_col = 'target'
-    spatial_id_col = 'series_id'
-    static_features = ['series_id', 'base_level']
-    dynamic_features = ['month', 'dayofweek', 'dynamic_cov', 'target_lag1']
-    future_features = ['month', 'dayofweek', 'future_event']
+    dt_col = "date"
+    target_col = "target"
+    spatial_id_col = "series_id"
+    static_features = ["series_id", "base_level"]
+    dynamic_features = [
+        "month",
+        "dayofweek",
+        "dynamic_cov",
+        "target_lag1",
+    ]
+    future_features = ["month", "dayofweek", "future_event"]
     # Exclude target and ID from features list passed to Bunch
-    dynamic_and_future_features = list(set (dynamic_features + future_features))
-    feature_names = static_features[1:] + dynamic_and_future_features 
+    dynamic_and_future_features = list(
+        set(dynamic_features + future_features)
+    )
+    feature_names = (
+        static_features[1:] + dynamic_and_future_features
+    )
     # dynamic_features + future_features
 
     # --- Return based on as_frame ---
     if as_frame:
         # Return DataFrame with logical column order
         ordered_cols = (
-            [dt_col, spatial_id_col] + static_features[1:] +
-            dynamic_and_future_features + [target_col]
-            )
+            [dt_col, spatial_id_col]
+            + static_features[1:]
+            + dynamic_and_future_features
+            + [target_col]
+        )
         # Ensure columns exist before ordering
-        ordered_cols = [c for c in ordered_cols if c in df.columns]
+        ordered_cols = [
+            c for c in ordered_cols if c in df.columns
+        ]
         return df[ordered_cols]
     else:
         # Create Bunch object
@@ -246,10 +277,14 @@ def make_multi_feature_time_series(
 
         # Order frame columns for Bunch frame attribute
         frame_cols = (
-             [dt_col, spatial_id_col] + static_features[1:] +
-             dynamic_and_future_features + [target_col]
-             )
-        frame_cols = [c for c in frame_cols if c in df.columns]
+            [dt_col, spatial_id_col]
+            + static_features[1:]
+            + dynamic_and_future_features
+            + [target_col]
+        )
+        frame_cols = [
+            c for c in frame_cols if c in df.columns
+        ]
 
         return XBunch(
             frame=df[frame_cols],
@@ -259,15 +294,15 @@ def make_multi_feature_time_series(
             target_col=target_col,
             dt_col=dt_col,
             spatial_id_col=spatial_id_col,
-            feature_names=feature_names, # Combined list
-            DESCR=descr
+            feature_names=feature_names,  # Combined list
+            DESCR=descr,
         )
 
 
 def make_quantile_prediction_data(
     n_samples: int = 100,
     n_horizons: int = 6,
-    quantiles: List[float] = [0.1, 0.5, 0.9],
+    quantiles: list[float] = None,
     target_mean: float = 50.0,
     target_stddev: float = 10.0,
     pred_bias: float = 1.0,
@@ -275,8 +310,8 @@ def make_quantile_prediction_data(
     add_coords: bool = True,
     coord_scale: float = 10.0,
     as_frame: bool = False,
-    seed: Optional[int] = None,
-) -> Union[XBunch, pd.DataFrame]:
+    seed: int | None = None,
+) -> XBunch | pd.DataFrame:
     r"""Generate synthetic actuals and corresponding quantile predictions.
 
     Creates a dataset simulating the output of a multi-horizon quantile
@@ -346,28 +381,40 @@ def make_quantile_prediction_data(
     >>> pred_df = make_quantile_prediction_data(as_frame=True, seed=2)
     >>> print(pred_df.info())
     """
+    if quantiles is None:
+        quantiles = [0.1, 0.5, 0.9]
     if seed is not None:
         rng = np.random.default_rng(seed)
     else:
         rng = np.random.default_rng()
 
     if not quantiles or not isinstance(quantiles, list):
-        raise ValueError("'quantiles' must be a non-empty list of floats.")
+        raise ValueError(
+            "'quantiles' must be a non-empty list of floats."
+        )
 
     # Generate base actuals and coordinates
     actuals = rng.normal(
-        target_mean, target_stddev, size=(n_samples, n_horizons)
+        target_mean,
+        target_stddev,
+        size=(n_samples, n_horizons),
     )
     data_dict = {}
     if add_coords:
         # Simulate coordinates (e.g., centered around 0)
-        longitude = rng.uniform(-coord_scale, coord_scale, n_samples)
-        latitude = rng.uniform(-coord_scale/2, coord_scale/2, n_samples)
-        data_dict['longitude'] = longitude
-        data_dict['latitude'] = latitude
+        longitude = rng.uniform(
+            -coord_scale, coord_scale, n_samples
+        )
+        latitude = rng.uniform(
+            -coord_scale / 2, coord_scale / 2, n_samples
+        )
+        data_dict["longitude"] = longitude
+        data_dict["latitude"] = latitude
 
     target_cols = []
-    prediction_cols = {f"q{q:.1f}".replace("0.", ""): [] for q in quantiles}
+    prediction_cols = {
+        f"q{q:.1f}".replace("0.", ""): [] for q in quantiles
+    }
     all_pred_cols_flat = []
 
     # Generate predictions for each horizon step and quantile
@@ -379,20 +426,29 @@ def make_quantile_prediction_data(
         target_cols.append(target_col_name)
 
         # Generate biased median prediction for this step
-        median_pred = actuals[:, h] + pred_bias + rng.normal(
-            0, target_stddev * 0.5, n_samples) # Add some noise to median
+        median_pred = (
+            actuals[:, h]
+            + pred_bias
+            + rng.normal(0, target_stddev * 0.5, n_samples)
+        )  # Add some noise to median
 
         # Generate other quantiles around the biased median
         for q in quantiles:
             # Calculate offset based on quantile distance from median
             # Scaled by spread factor and target stddev
-            quantile_offset = (q - 0.5) * pred_spread_factor * target_stddev
+            quantile_offset = (
+                (q - 0.5) * pred_spread_factor * target_stddev
+            )
             # Add noise specific to this quantile/step
-            q_noise = rng.normal(0, target_stddev * 0.2, n_samples)
+            q_noise = rng.normal(
+                0, target_stddev * 0.2, n_samples
+            )
             pred_val = median_pred + quantile_offset + q_noise
 
             # Add prediction column
-            q_key = f"q{q:.1f}".replace("0.", "") # e.g., q0.1 -> q1
+            q_key = f"q{q:.1f}".replace(
+                "0.", ""
+            )  # e.g., q0.1 -> q1
             pred_col_name = f"pred_{q_key}_h{step}"
             data_dict[pred_col_name] = pred_val
             prediction_cols[q_key].append(pred_col_name)
@@ -402,13 +458,23 @@ def make_quantile_prediction_data(
     df = pd.DataFrame(data_dict)
 
     # Define column categories for Bunch
-    feature_names = [c for c in df.columns if c in ['longitude', 'latitude']]
+    feature_names = [
+        c
+        for c in df.columns
+        if c in ["longitude", "latitude"]
+    ]
     target_names = target_cols
 
     if as_frame:
         # Order columns logically
-        ordered_cols = feature_names + target_names + sorted(all_pred_cols_flat)
-        return df[[c for c in ordered_cols if c in df.columns]]
+        ordered_cols = (
+            feature_names
+            + target_names
+            + sorted(all_pred_cols_flat)
+        )
+        return df[
+            [c for c in ordered_cols if c in df.columns]
+        ]
     else:
         # Create Bunch description
         descr = textwrap.dedent(f"""\
@@ -454,8 +520,12 @@ def make_quantile_prediction_data(
             "DESCR": descr,
         }
         if add_coords:
-            if 'longitude' in df: bunch_dict['longitude'] = df['longitude'].values
-            if 'latitude' in df: bunch_dict['latitude'] = df['latitude'].values
+            if "longitude" in df:
+                bunch_dict["longitude"] = df[
+                    "longitude"
+                ].values
+            if "latitude" in df:
+                bunch_dict["latitude"] = df["latitude"].values
 
         return XBunch(**bunch_dict)
 
@@ -465,12 +535,12 @@ def make_anomaly_data(
     sequence_length: int = 50,
     n_features: int = 1,
     anomaly_fraction: float = 0.1,
-    anomaly_type: str = 'spike', # 'spike' or 'level_shift'
+    anomaly_type: str = "spike",  # 'spike' or 'level_shift'
     anomaly_magnitude: float = 5.0,
     noise_level: float = 0.2,
-    as_frame: bool = False, 
-    seed: Optional[int] = None,
-) -> Union[Tuple[np.ndarray, np.ndarray], XBunch, pd.DataFrame]:
+    as_frame: bool = False,
+    seed: int | None = None,
+) -> tuple[np.ndarray, np.ndarray] | XBunch | pd.DataFrame:
     r"""Generate sequence data with injected anomalies.
 
     Creates a dataset of time series sequences, where a specified
@@ -550,11 +620,17 @@ def make_anomaly_data(
 
     if n_features != 1:
         # TODO: Extend to multivariate sequences if needed
-        raise ValueError("Currently only supports n_features=1")
+        raise ValueError(
+            "Currently only supports n_features=1"
+        )
     if not 0 <= anomaly_fraction <= 1:
-        raise ValueError("'anomaly_fraction' must be between 0 and 1.")
-    if anomaly_type not in ['spike', 'level_shift']:
-        raise ValueError("anomaly_type must be 'spike' or 'level_shift'")
+        raise ValueError(
+            "'anomaly_fraction' must be between 0 and 1."
+        )
+    if anomaly_type not in ["spike", "level_shift"]:
+        raise ValueError(
+            "anomaly_type must be 'spike' or 'level_shift'"
+        )
 
     n_anomalies = int(n_sequences * anomaly_fraction)
     n_normal = n_sequences - n_anomalies
@@ -565,9 +641,13 @@ def make_anomaly_data(
     # Generate Normal Sequences (e.g., sine wave + noise)
     for _ in range(n_normal):
         time = np.arange(sequence_length)
-        signal = np.sin(time * 0.2 + rng.uniform(0, np.pi)) # Add random phase
+        signal = np.sin(
+            time * 0.2 + rng.uniform(0, np.pi)
+        )  # Add random phase
         noise = rng.normal(0, noise_level, sequence_length)
-        sequences.append((signal + noise).reshape(sequence_length, 1))
+        sequences.append(
+            (signal + noise).reshape(sequence_length, 1)
+        )
         labels.append(0)
 
     # Generate Anomalous Sequences
@@ -578,13 +658,15 @@ def make_anomaly_data(
         sequence = signal + noise
 
         # Inject anomaly
-        anomaly_point = rng.integers(1, sequence_length - 1) # Avoid edges
+        anomaly_point = rng.integers(
+            1, sequence_length - 1
+        )  # Avoid edges
         direction = rng.choice([-1, 1])
         magnitude = anomaly_magnitude * direction
 
-        if anomaly_type == 'spike':
+        if anomaly_type == "spike":
             sequence[anomaly_point] += magnitude
-        elif anomaly_type == 'level_shift':
+        elif anomaly_type == "level_shift":
             sequence[anomaly_point:] += magnitude
 
         sequences.append(sequence.reshape(sequence_length, 1))
@@ -601,14 +683,20 @@ def make_anomaly_data(
     if as_frame:
         # Create DataFrame (less standard for sequences, might flatten)
         # Example: Flattening each sequence - creates many columns
-        warnings.warn("Returning sequence data as a DataFrame can lead"
-                      " to a very wide table. Tuple (sequences, labels)"
-                      " is generally preferred.")
+        warnings.warn(
+            "Returning sequence data as a DataFrame can lead"
+            " to a very wide table. Tuple (sequences, labels)"
+            " is generally preferred.",
+            stacklevel=2,
+        )
         seq_flat = sequences.reshape(n_sequences, -1)
-        col_names = [f"t_{i}" for i in range(sequence_length * n_features)]
+        col_names = [
+            f"t_{i}"
+            for i in range(sequence_length * n_features)
+        ]
         df = pd.DataFrame(seq_flat, columns=col_names)
-        df['label'] = labels
-        df['sequence_id'] = np.arange(n_sequences)
+        df["label"] = labels
+        df["sequence_id"] = np.arange(n_sequences)
 
         descr = textwrap.dedent(f"""\
         Synthetic Anomaly Sequence Data (DataFrame Format)
@@ -626,25 +714,34 @@ def make_anomaly_data(
         - target_names  : ['label'].
         - DESCR         : This description.
         """)
-        return XBunch(frame=df, labels=labels, feature_names=col_names,
-                     target_names=['label'], DESCR=descr)
+        return XBunch(
+            frame=df,
+            labels=labels,
+            feature_names=col_names,
+            target_names=["label"],
+            DESCR=descr,
+        )
     else:
         # Return standard NumPy arrays
         return sequences, labels
 
 
 def make_trend_seasonal_data(
-    n_timesteps: int = 365 * 2, # Default 2 years of daily data
-    freq: str = 'D',
-    trend_order: int = 1, # 0: constant, 1: linear, 2: quadratic
-    trend_coeffs: Optional[List[float]] = None, # Specify if order > 0
-    seasonal_periods: List[float] = [7, 365.25], # Weekly, Yearly
-    seasonal_amplitudes: List[float] = [5, 15], # Amplitudes for each period
+    n_timesteps: int = 365
+    * 2,  # Default 2 years of daily data
+    freq: str = "D",
+    trend_order: int = 1,  # 0: constant, 1: linear, 2: quadratic
+    trend_coeffs: list[float]
+    | None = None,  # Specify if order > 0
+    seasonal_periods: list[float] = None,  # Weekly, Yearly
+    seasonal_amplitudes: list[
+        float
+    ] = None,  # Amplitudes for each period
     noise_level: float = 1.0,
     base_level: float = 50.0,
     as_frame: bool = False,
-    seed: Optional[int] = None,
-) -> Union[XBunch, pd.DataFrame]:
+    seed: int | None = None,
+) -> XBunch | pd.DataFrame:
     r"""Generate synthetic time series with specified trend and seasonality.
 
     Creates a univariate time series containing a configurable polynomial
@@ -705,55 +802,85 @@ def make_trend_seasonal_data(
     >>> print(data_bunch.frame.head())
     >>> data_bunch.frame.plot(x='date', y='value', figsize=(10, 3)) # Quick plot
     """
+    if seasonal_amplitudes is None:
+        seasonal_amplitudes = [5, 15]
+    if seasonal_periods is None:
+        seasonal_periods = [7, 365.25]
     if seed is not None:
         rng = np.random.default_rng(seed)
     else:
         rng = np.random.default_rng()
 
     if len(seasonal_periods) != len(seasonal_amplitudes):
-        raise ValueError("Lengths of 'seasonal_periods' and "
-                         "'seasonal_amplitudes' must match.")
+        raise ValueError(
+            "Lengths of 'seasonal_periods' and "
+            "'seasonal_amplitudes' must match."
+        )
 
     # --- Time Index ---
     date_rng = pd.date_range(
-        start='2020-01-01', periods=n_timesteps, freq=freq)
-    time_idx = np.arange(n_timesteps) # Simple index for trend calc
+        start="2020-01-01", periods=n_timesteps, freq=freq
+    )
+    time_idx = np.arange(
+        n_timesteps
+    )  # Simple index for trend calc
 
     # --- Trend Component ---
     if trend_order < 0:
         raise ValueError("'trend_order' must be >= 0.")
     if trend_coeffs is None:
         # Create default coefficients
-        if trend_order == 0: trend_coeffs = [base_level]
-        elif trend_order == 1: trend_coeffs = [base_level, 0.1] # Slope 0.1
-        elif trend_order == 2: trend_coeffs = [base_level, 0.1, 0.01] # Quadratic term
-        else: trend_coeffs = [base_level] + [0.01] * trend_order # Small higher orders
+        if trend_order == 0:
+            trend_coeffs = [base_level]
+        elif trend_order == 1:
+            trend_coeffs = [base_level, 0.1]  # Slope 0.1
+        elif trend_order == 2:
+            trend_coeffs = [
+                base_level,
+                0.1,
+                0.01,
+            ]  # Quadratic term
+        else:
+            trend_coeffs = [base_level] + [
+                0.01
+            ] * trend_order  # Small higher orders
     elif len(trend_coeffs) != trend_order + 1:
-        raise ValueError(f"Length of 'trend_coeffs' ({len(trend_coeffs)}) must be "
-                         f"'trend_order' + 1 ({trend_order + 1}).")
+        raise ValueError(
+            f"Length of 'trend_coeffs' ({len(trend_coeffs)}) must be "
+            f"'trend_order' + 1 ({trend_order + 1})."
+        )
 
     # Calculate polynomial trend
-    trend_component = np.polynomial.polynomial.polyval(time_idx, trend_coeffs)
+    trend_component = np.polynomial.polynomial.polyval(
+        time_idx, trend_coeffs
+    )
 
     # --- Seasonal Component ---
     seasonal_component = np.zeros(n_timesteps)
-    for period, amplitude in zip(seasonal_periods, seasonal_amplitudes):
-        if period <= 0: continue # Skip invalid periods
+    for period, amplitude in zip(
+        seasonal_periods, seasonal_amplitudes, strict=False
+    ):
+        if period <= 0:
+            continue  # Skip invalid periods
         omega = 2 * np.pi / period
         # Add phase shift to make multiple components distinct
         phase_shift = rng.uniform(0, np.pi / 2)
-        seasonal_component += amplitude * np.sin(omega * time_idx + phase_shift)
+        seasonal_component += amplitude * np.sin(
+            omega * time_idx + phase_shift
+        )
 
     # --- Noise Component ---
     noise_component = rng.normal(0, noise_level, n_timesteps)
 
     # --- Combine Components ---
-    value = trend_component + seasonal_component + noise_component
+    value = (
+        trend_component + seasonal_component + noise_component
+    )
 
     # --- Create DataFrame ---
-    df = pd.DataFrame({'date': date_rng, 'value': value})
-    target_col = 'value'
-    dt_col = 'date'
+    df = pd.DataFrame({"date": date_rng, "value": value})
+    target_col = "value"
+    dt_col = "date"
 
     if as_frame:
         return df
@@ -790,14 +917,15 @@ def make_trend_seasonal_data(
             target_names=[target_col],
             target=df[target_col].values,
             dt_col=dt_col,
-            DESCR=descr
+            DESCR=descr,
         )
+
 
 def make_multivariate_target_data(
     n_series: int = 2,
     n_timesteps: int = 100,
-    n_targets: int = 2, # Number of target variables
-    freq: str = 'D',
+    n_targets: int = 2,  # Number of target variables
+    freq: str = "D",
     trend_factor: float = 0.1,
     seasonality_period: float = 7,
     seasonality_amplitude: float = 5,
@@ -806,8 +934,8 @@ def make_multivariate_target_data(
     cross_target_lag: int = 1,
     cross_target_factor: float = 0.3,
     as_frame: bool = False,
-    seed: Optional[int] = None,
-) -> Union[XBunch, pd.DataFrame]:
+    seed: int | None = None,
+) -> XBunch | pd.DataFrame:
     r"""Generate multi-series data with multiple related target variables.
 
     Creates a dataset suitable for demonstrating multivariate forecasting.
@@ -878,43 +1006,59 @@ def make_multivariate_target_data(
         raise ValueError("'n_targets' must be >= 1.")
 
     all_series_df = []
-    start_date = '2021-01-01'
+    start_date = "2021-01-01"
 
     for i in range(n_series):
         # --- Time Index ---
         date_rng = pd.date_range(
-            start=start_date, periods=n_timesteps, freq=freq)
+            start=start_date, periods=n_timesteps, freq=freq
+        )
         time_idx = np.arange(n_timesteps)
 
         # --- Static Features ---
         series_id = i
-        base_level_factor = 1 + rng.uniform(-0.2, 0.2) # Static variation
+        base_level_factor = 1 + rng.uniform(
+            -0.2, 0.2
+        )  # Static variation
 
         # --- Shared Components for Targets ---
         trend = (50 + i * 10) + trend_factor * time_idx
         seasonality = seasonality_amplitude * np.sin(
-            2 * np.pi * time_idx / seasonality_period + rng.uniform(0, np.pi)
-            )
+            2 * np.pi * time_idx / seasonality_period
+            + rng.uniform(0, np.pi)
+        )
         base_signal = trend + seasonality
 
         # --- Generate Multiple Targets ---
         targets = {}
-        target_names_list = [f"target_{j+1}" for j in range(n_targets)]
+        target_names_list = [
+            f"target_{j + 1}" for j in range(n_targets)
+        ]
         previous_target_lagged = None
 
         for j in range(n_targets):
             target_name = target_names_list[j]
             # Base target value
-            target_j = base_signal * (base_level_factor + j * 0.1)
+            target_j = base_signal * (
+                base_level_factor + j * 0.1
+            )
             # Add dependency on previous target's lag (if not the first target)
             if j > 0 and previous_target_lagged is not None:
-                target_j += cross_target_factor * previous_target_lagged
+                target_j += (
+                    cross_target_factor
+                    * previous_target_lagged
+                )
             # Add noise
-            target_j += rng.normal(0, noise_level * (1 + j*0.1), n_timesteps)
+            target_j += rng.normal(
+                0, noise_level * (1 + j * 0.1), n_timesteps
+            )
             targets[target_name] = target_j
             # Prepare lagged version for the *next* target's calculation
-            previous_target_lagged = pd.Series(target_j).shift(
-                cross_target_lag).fillna(method='bfill')
+            previous_target_lagged = (
+                pd.Series(target_j)
+                .shift(cross_target_lag)
+                .fillna(method="bfill")
+            )
 
         # --- Other Features (Dynamic/Future) ---
         month = date_rng.month
@@ -922,39 +1066,54 @@ def make_multivariate_target_data(
         # Dynamic covariate (example)
         dynamic_cov = rng.normal(5, 1, n_timesteps)
         # Future covariate (example)
-        future_event = rng.choice([0, 0, 0, 1], n_timesteps) # Sparse event
+        future_event = rng.choice(
+            [0, 0, 0, 1], n_timesteps
+        )  # Sparse event
 
         # --- Assemble DataFrame ---
-        series_df = pd.DataFrame({
-            'date': date_rng,
-            'series_id': series_id,
-            'base_level_factor': base_level_factor, # Static
-            'month': month, # Dynamic/Future
-            'dayofweek': dayofweek, # Dynamic/Future
-            'dynamic_cov': dynamic_cov, # Dynamic
-            'future_event': future_event, # Future
-            **targets # Add all target columns
-        })
+        series_df = pd.DataFrame(
+            {
+                "date": date_rng,
+                "series_id": series_id,
+                "base_level_factor": base_level_factor,  # Static
+                "month": month,  # Dynamic/Future
+                "dayofweek": dayofweek,  # Dynamic/Future
+                "dynamic_cov": dynamic_cov,  # Dynamic
+                "future_event": future_event,  # Future
+                **targets,  # Add all target columns
+            }
+        )
         all_series_df.append(series_df)
 
     # --- Combine and Define Roles ---
     df = pd.concat(all_series_df).reset_index(drop=True)
-    dt_col = 'date'
-    target_names = target_names_list # List of generated target names
-    spatial_id_col = 'series_id'
-    static_features = ['series_id', 'base_level_factor']
-    dynamic_features = ['month', 'dayofweek', 'dynamic_cov']
-    future_features = ['month', 'dayofweek', 'future_event']
+    dt_col = "date"
+    target_names = (
+        target_names_list  # List of generated target names
+    )
+    spatial_id_col = "series_id"
+    static_features = ["series_id", "base_level_factor"]
+    dynamic_features = ["month", "dayofweek", "dynamic_cov"]
+    future_features = ["month", "dayofweek", "future_event"]
     # Combined feature list for Bunch.feature_names
-    feature_names = static_features[1:] + dynamic_features + future_features
+    feature_names = (
+        static_features[1:]
+        + dynamic_features
+        + future_features
+    )
 
     # --- Return ---
     if as_frame:
         ordered_cols = (
-             [dt_col, spatial_id_col] + static_features[1:] +
-             dynamic_features + future_features + target_names
-             )
-        ordered_cols = [c for c in ordered_cols if c in df.columns]
+            [dt_col, spatial_id_col]
+            + static_features[1:]
+            + dynamic_features
+            + future_features
+            + target_names
+        )
+        ordered_cols = [
+            c for c in ordered_cols if c in df.columns
+        ]
         return df[ordered_cols]
     else:
         descr = textwrap.dedent(f"""\
@@ -990,10 +1149,18 @@ def make_multivariate_target_data(
         target_array = df[target_names].values
         # Extract numerical features for Bunch.data
         try:
-            data_cols = [c for c in feature_names if c != spatial_id_col]
-            data_array = df[data_cols].select_dtypes(include=np.number).values
+            data_cols = [
+                c
+                for c in feature_names
+                if c != spatial_id_col
+            ]
+            data_array = (
+                df[data_cols]
+                .select_dtypes(include=np.number)
+                .values
+            )
         except:
-             data_array = None
+            data_array = None
 
         return XBunch(
             frame=df,
@@ -1006,5 +1173,5 @@ def make_multivariate_target_data(
             spatial_id_col=spatial_id_col,
             feature_names=feature_names,
             data=data_array,
-            DESCR=descr
+            DESCR=descr,
         )

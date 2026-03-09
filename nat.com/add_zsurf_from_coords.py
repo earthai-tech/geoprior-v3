@@ -1,5 +1,4 @@
 # add_zsurf_from_coords.py
-# -*- coding: utf-8 -*-
 """
 Add surface elevation (z_surf) to the main harmonized dataset by
 merging on (longitude, latitude). Works for Nansha / Zhongshan by
@@ -10,8 +9,8 @@ column is present (depth positive downward): head = z_surf - depth.
 """
 
 import os
-import pandas as pd
 
+import pandas as pd
 
 # ---------------------------------------------------------------------
 # USER SETTINGS
@@ -31,11 +30,19 @@ ROUND_DECIMALS = 6
 OUT_SUFFIX = ".with_zsurf.csv"
 
 
-def _round_coords(df: pd.DataFrame, lon="longitude", lat="latitude",
-                  decimals: int = 6) -> pd.DataFrame:
+def _round_coords(
+    df: pd.DataFrame,
+    lon="longitude",
+    lat="latitude",
+    decimals: int = 6,
+) -> pd.DataFrame:
     df = df.copy()
-    df[lon] = pd.to_numeric(df[lon], errors="coerce").round(decimals)
-    df[lat] = pd.to_numeric(df[lat], errors="coerce").round(decimals)
+    df[lon] = pd.to_numeric(df[lon], errors="coerce").round(
+        decimals
+    )
+    df[lat] = pd.to_numeric(df[lat], errors="coerce").round(
+        decimals
+    )
     return df
 
 
@@ -48,13 +55,21 @@ def add_zsurf_to_city_dataset(
     out_suffix: str = ".with_zsurf.csv",
 ) -> str:
     # ---- paths -------------------------------------------------------
-    main_path = os.path.join(data_root, f"{city}_final_main_std.harmonized.csv")
-    elev_path = os.path.join(coords_root, f"{city}_coords_with_elevation.csv")
+    main_path = os.path.join(
+        data_root, f"{city}_final_main_std.harmonized.csv"
+    )
+    elev_path = os.path.join(
+        coords_root, f"{city}_coords_with_elevation.csv"
+    )
 
     if not os.path.exists(main_path):
-        raise FileNotFoundError(f"Main dataset not found: {main_path}")
+        raise FileNotFoundError(
+            f"Main dataset not found: {main_path}"
+        )
     if not os.path.exists(elev_path):
-        raise FileNotFoundError(f"Elevation coords file not found: {elev_path}")
+        raise FileNotFoundError(
+            f"Elevation coords file not found: {elev_path}"
+        )
 
     # ---- load --------------------------------------------------------
     main = pd.read_csv(main_path)
@@ -65,10 +80,14 @@ def add_zsurf_to_city_dataset(
     for df, label in [(main, "main"), (elev, "elev")]:
         missing = {"longitude", "latitude"} - set(df.columns)
         if missing:
-            raise ValueError(f"{label} is missing columns: {missing}")
+            raise ValueError(
+                f"{label} is missing columns: {missing}"
+            )
 
     if "elevation" not in elev.columns:
-        raise ValueError("Elevation file must contain an 'elevation' column.")
+        raise ValueError(
+            "Elevation file must contain an 'elevation' column."
+        )
 
     # ---- round coords to avoid float merge misses --------------------
     main_r = _round_coords(main, decimals=round_decimals)
@@ -76,10 +95,9 @@ def add_zsurf_to_city_dataset(
 
     # ---- de-duplicate elevation per (lon,lat) if needed --------------
     # (mean is safe; you can also use median)
-    elev_r = (
-        elev_r.groupby(["longitude", "latitude"], as_index=False)["elevation"]
-        .mean()
-    )
+    elev_r = elev_r.groupby(
+        ["longitude", "latitude"], as_index=False
+    )["elevation"].mean()
 
     # ---- merge -------------------------------------------------------
     merged = main_r.merge(
@@ -104,7 +122,11 @@ def add_zsurf_to_city_dataset(
     # If you have depth below ground surface (positive down):
     # head (elevation datum) = z_surf - depth
     depth_col = None
-    for c in ("GWL_depth_bgs", "GWL_depth_bgs_m", "gwl_depth_bgs"):
+    for c in (
+        "GWL_depth_bgs",
+        "GWL_depth_bgs_m",
+        "gwl_depth_bgs",
+    ):
         if c in merged.columns:
             depth_col = c
             break
@@ -113,9 +135,13 @@ def add_zsurf_to_city_dataset(
         merged["head_m"] = merged["z_surf"] - pd.to_numeric(
             merged[depth_col], errors="coerce"
         )
-        print(f"[{city}] computed head_m from z_surf and {depth_col}")
+        print(
+            f"[{city}] computed head_m from z_surf and {depth_col}"
+        )
     else:
-        print(f"[{city}] depth-bgs column not found -> head_m not computed")
+        print(
+            f"[{city}] depth-bgs column not found -> head_m not computed"
+        )
 
     # ---- save --------------------------------------------------------
     out_path = os.path.join(

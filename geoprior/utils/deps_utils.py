@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Author: LKouadio <etanoyau@gmail.com>
 # Adapted from: earthai-tech/fusionlab-learn — https://github.com/earthai-tech/fusionlab-learn
@@ -9,48 +8,52 @@ Dependency utilities providing functions to handle package installation,
 checking, and ensuring that optional dependencies are available.
 """
 
-
-import warnings
-import sys
 import functools
-import subprocess
 import inspect
+import subprocess
+import sys
+import warnings
 
-from ..logging import get_logger
-from ..api.types import _T, Any, Callable, List, Optional, Union
+from ..api.types import (
+    _T,
+    Any,
+    Callable,
+    List,
+    Optional,
+    Union,
+)
 from ..core.handlers import delegate_on_error
-from ._dependency import import_optional_dependency
 from ..decorators import Deprecated
+from ..logging import get_logger
+from ._dependency import import_optional_dependency
 
 _logger = get_logger(__name__)
 
 import importlib
 
 try:
-    from importlib import metadata as importlib_metadata 
+    from importlib import metadata as importlib_metadata
 except ImportError:
     try:
         # Backport package for Python < 3.8
-        import importlib_metadata 
+        import importlib_metadata
     except ImportError:
-        importlib_metadata = None 
-        
+        importlib_metadata = None
+
 __all__ = [
-    "ensure_pkg", 
-    "ensure_pkgs", 
+    "ensure_pkg",
+    "ensure_pkgs",
     "install_package",
     "is_installing",
-    "get_installation_name", 
-    "is_module_installed", 
+    "get_installation_name",
+    "is_module_installed",
     "import_optional_dependency",
-    "ensure_module_installed", 
-    "get_versions"
+    "ensure_module_installed",
+    "get_versions",
 ]
 
-def get_versions(
-    extras=None,
-    distribution_mapping=None
-):
+
+def get_versions(extras=None, distribution_mapping=None):
     """
     Retrieve a dictionary containing version information for
     common libraries, as well as any user-specified packages
@@ -136,13 +139,13 @@ def get_versions(
         "joblib",
         "tensorflow",
         "keras",
-        "torch"
+        "torch",
     ]
 
     # Base distribution mapping for known discrepancies
     base_mapping = {
-        "sklearn": "scikit-learn", 
-        "geoprior": "geoprior-learn", 
+        "sklearn": "scikit-learn",
+        "geoprior": "geoprior-learn",
     }
     # Merge user-provided distribution mapping, if any
     if distribution_mapping is not None:
@@ -150,15 +153,20 @@ def get_versions(
 
     all_pkgs = default_pkgs + list(extras)
     version_dict = {}
-    
-    if importlib_metadata is None: # Check if metadata module is available
-       warnings.warn(
-           "Version retrieval skipped: 'importlib.metadata' (or its backport "
-           "'importlib_metadata') not found. This typically occurs in "
-           "Python versions older than 3.8. Consider upgrading Python or "
-           "installing 'importlib-metadata' if you are using an older Python."
-       )
-       return {"__version__": version_dict} # Return empty if no way to get versions
+
+    if (
+        importlib_metadata is None
+    ):  # Check if metadata module is available
+        warnings.warn(
+            "Version retrieval skipped: 'importlib.metadata' (or its backport "
+            "'importlib_metadata') not found. This typically occurs in "
+            "Python versions older than 3.8. Consider upgrading Python or "
+            "installing 'importlib-metadata' if you are using an older Python.",
+            stacklevel=2,
+        )
+        return {
+            "__version__": version_dict
+        }  # Return empty if no way to get versions
 
     for pkg in all_pkgs:
         # Determine the actual distribution name for version lookup
@@ -178,25 +186,31 @@ def get_versions(
             # Store the version under the original pkg key
             version_dict[pkg] = version
 
-        except (importlib.metadata.PackageNotFoundError,
-                ModuleNotFoundError):
+        except (
+            importlib.metadata.PackageNotFoundError,
+            ModuleNotFoundError,
+        ):
             # Not installed or cannot detect version
             continue
         except Exception as e:
             # Catch other unexpected issues, warn and skip
             warnings.warn(
-                f"Could not retrieve version for '{pkg}': {e}"
+                f"Could not retrieve version for '{pkg}': {e}",
+                stacklevel=2,
             )
             continue
-        
-    # After collecting versions in version_dict, 
+
+    # After collecting versions in version_dict,
     # fix distribution names if needed.
     for import_name, dist_name in base_mapping.items():
         if import_name in version_dict:
             # Move the version from import_name => dist_name
-            version_dict[dist_name] = version_dict.pop(import_name)
-    
+            version_dict[dist_name] = version_dict.pop(
+                import_name
+            )
+
     return {"__version__": version_dict}
+
 
 def ensure_module_installed(
     module_name: str,
@@ -204,7 +218,7 @@ def ensure_module_installed(
     version: Optional[str] = None,
     package_manager: str = "pip",
     dist_name: Optional[str] = None,
-    extra_install_args: Optional[List[str]] = None
+    extra_install_args: Optional[List[str]] = None,
 ) -> bool:
     """
     Ensure that the required module is installed, optionally installing it 
@@ -321,11 +335,11 @@ def ensure_module_installed(
         install_cmd.append(module_name)
         if version:
             install_cmd.append(version)
-        
+
         # Include any additional installation arguments
         if extra_install_args:
             install_cmd.extend(extra_install_args)
-        
+
         # Attempt to install the module
         try:
             subprocess.check_call(install_cmd)
@@ -344,14 +358,15 @@ def ensure_module_installed(
                 f"Module ``{module_name}`` was installed but could not be imported."
             )
 
+
 def install_package(
     name: str,
     dist_name: Optional[str] = None,
     infer_dist_name: bool = False,
     version: Optional[str] = None,
-    extra: str = '',
+    extra: str = "",
     use_conda: bool = False,
-    verbose: bool = True
+    verbose: bool = True,
 ) -> None:
     r"""
     Install a Python package at runtime, optionally specifying a version
@@ -378,10 +393,10 @@ def install_package(
           - ``'<2.0'``
           - ``'>=1.5.3'``
         If None, no version constraint is applied.
-        
+
     extra : str, optional
         Additional install specifiers or command-line flags passed
-        to the installation command. For instance, ``' --no-cache-dir'`` 
+        to the installation command. For instance, ``' --no-cache-dir'``
         or ``'[extra]'``. Default is ``''``.
     use_conda : bool, optional
         If True, attempts installation via conda first. If conda is
@@ -415,8 +430,8 @@ def install_package(
     Mathematically, this function assembles an install spec of the form:
 
     .. math::
-       \text{install\_str} = \langle \text{name} \rangle 
-       + \langle \text{version\_spec} \rangle 
+       \text{install\_str} = \langle \text{name} \rangle
+       + \langle \text{version\_spec} \rangle
        + \langle \text{extra} \rangle
 
     where :math:`\langle \text{name} \rangle` is the package name,
@@ -441,7 +456,7 @@ def install_package(
     See Also
     --------
     is_module_installed:
-        Checks whether a Python module or corresponding distribution 
+        Checks whether a Python module or corresponding distribution
         is already installed.
     get_installation_name:
         Infers a distribution name for the given module name,
@@ -456,10 +471,11 @@ def install_package(
     # Check if tqdm is available
     try:
         from tqdm import tqdm
+
         TQDM_AVAILABLE = True
     except ImportError:
         TQDM_AVAILABLE = False
-        
+
     # --- Helper Functions ---
     def _format_version_spec(ver_str: str) -> str:
         """
@@ -467,28 +483,44 @@ def install_package(
         return it unchanged. Otherwise, interpret it as '>=ver_str'.
         """
         # List of recognized version operators
-        operators = ('>=', '<=', '==', '!=', '>', '<', '~=', '^')
-        if any(ver_str.strip().startswith(op) for op in operators):
+        operators = (
+            ">=",
+            "<=",
+            "==",
+            "!=",
+            ">",
+            "<",
+            "~=",
+            "^",
+        )
+        if any(
+            ver_str.strip().startswith(op) for op in operators
+        ):
             return ver_str
         # Default to >= if user just gave a plain version
         return f">={ver_str}"
 
-    def execute_command(command: list, show_progress: bool = False) -> None:
+    def execute_command(
+        command: list, show_progress: bool = False
+    ) -> None:
         """
         Execute a system command with optional progress bar for output lines.
         Raises RuntimeError if the command fails.
         """
         if TQDM_AVAILABLE and show_progress:
-            with subprocess.Popen(
-                command,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True,
-                bufsize=1
-            ) as process, tqdm(desc="Installing", unit="line") as pbar:
+            with (
+                subprocess.Popen(
+                    command,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    bufsize=1,
+                ) as process,
+                tqdm(desc="Installing", unit="line") as pbar,
+            ):
                 for line in process.stdout:
                     if verbose:
-                        print(line, end='')
+                        print(line, end="")
                     pbar.update(1)
                 if process.wait() != 0:
                     raise RuntimeError(
@@ -501,16 +533,16 @@ def install_package(
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
-                bufsize=1
+                bufsize=1,
             ) as process:
                 for line in process.stdout:
                     if verbose:
-                        print(line, end='')
+                        print(line, end="")
                 if process.wait() != 0:
                     raise RuntimeError(
                         f"Installation failed for package '{command[-1]}'."
                     )
- 
+
     # --- Main Logic ---
     # Check if already installed
     if is_module_installed(name, dist_name):
@@ -523,7 +555,7 @@ def install_package(
         name = get_installation_name(name, dist_name)
 
     # Format version string if provided
-    version_spec = ''
+    version_spec = ""
     if version is not None:
         version_spec = _format_version_spec(version)
 
@@ -548,64 +580,83 @@ def install_package(
             )
         try:
             # conda install <package>[version spec, etc.] -y
-            execute_command(['conda', 'install', install_str, '-y'],
-                            show_progress=False)
+            execute_command(
+                ["conda", "install", install_str, "-y"],
+                show_progress=False,
+            )
             if verbose:
-                print(f"[INFO] Package '{install_str}' installed via conda.")
+                print(
+                    f"[INFO] Package '{install_str}' installed via conda."
+                )
             return
         except Exception as e:
             if verbose:
-                print(f"[WARN] Conda installation failed: {str(e)}.")
+                print(
+                    f"[WARN] Conda installation failed: {str(e)}."
+                )
                 print("[INFO] Falling back to pip...")
     elif use_conda and not conda_available:
         if verbose:
-            print("[WARN] Conda is not available. Falling back to pip...")
+            print(
+                "[WARN] Conda is not available. Falling back to pip..."
+            )
 
     # Fallback to pip
     if verbose:
-        print(f"[INFO] Attempting to install '{install_str}' using pip...")
+        print(
+            f"[INFO] Attempting to install '{install_str}' using pip..."
+        )
     try:
         execute_command(
-            [sys.executable, "-m", "pip", "install", install_str],
-            show_progress=True
+            [
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                install_str,
+            ],
+            show_progress=True,
         )
         if verbose:
-            print(f"[INFO] Package '{install_str}' was successfully installed.")
+            print(
+                f"[INFO] Package '{install_str}' was successfully installed."
+            )
     except Exception as e:
         raise RuntimeError(
             f"Failed to install '{install_str}' via pip: {e}"
         ) from e
 
-@Deprecated (
+
+@Deprecated(
     "'Install_pkg' is deprecated, fallback to `install_package'"
     " which implement the more robust approach."
- )
+)
 @delegate_on_error(
-         transfer=install_package,
-         delegate_params_mapping={
-             'name': 'name', 
-             'dist_name': 'dist_name', 
-             'infer_dist_name': 'infer_dist_name', 
-             'version': 'version', 
-             'use_conda':'use_conda', 
-             'verbose': 'verbose', 
-         }, 
-     )
+    transfer=install_package,
+    delegate_params_mapping={
+        "name": "name",
+        "dist_name": "dist_name",
+        "infer_dist_name": "infer_dist_name",
+        "version": "version",
+        "use_conda": "use_conda",
+        "verbose": "verbose",
+    },
+)
 def install_pkg(
-    name: str, 
-    dist_name: Optional[str]=None,
-    infer_dist_name: bool=False, 
-    version: str = '', 
-    use_conda: bool = False, 
-    verbose: bool = True
-    ) -> None:
+    name: str,
+    dist_name: Optional[str] = None,
+    infer_dist_name: bool = False,
+    version: str = "",
+    use_conda: bool = False,
+    verbose: bool = True,
+) -> None:
     """
-    Install a Python package using either conda or pip, with an option to 
+    Install a Python package using either conda or pip, with an option to
     display installation progress and fallback mechanism.
 
-    This function dynamically chooses between conda and pip for installing 
-    Python packages, based on user preference and system configuration. It 
-    supports a verbose mode for detailed operation logging and utilizes a 
+    This function dynamically chooses between conda and pip for installing
+    Python packages, based on user preference and system configuration. It
+    supports a verbose mode for detailed operation logging and utilizes a
     progress bar for pip installations.
 
     Parameters
@@ -640,15 +691,17 @@ def install_pkg(
     Install a specific version of a package using conda:
 
         >>> install_package('pandas', extra='==1.2.0', use_conda=True, verbose=True)
-    
+
     Notes
     -----
     Conda installations do not display a progress bar due to limitations in capturing
     conda command line output. Pip installations will show a progress bar indicating
     the number of processed output lines from the installation command.
     """
-  
-    def execute_command(command: list, progress_bar: bool = False) -> None:
+
+    def execute_command(
+        command: list, progress_bar: bool = False
+    ) -> None:
         """
         Execute a system command with optional progress bar for output lines.
 
@@ -657,53 +710,102 @@ def install_pkg(
         command : list
             Command and arguments to execute as a list.
         progress_bar : bool, optional
-            Enable a progress bar that tracks the command's output lines, 
+            Enable a progress bar that tracks the command's output lines,
             by default False.
         """
         from tqdm import tqdm
-        with subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, 
-                              text=True, bufsize=1) as process, \
-             tqdm(desc="Installing", unit="line", disable=not progress_bar) as pbar:
+
+        with (
+            subprocess.Popen(
+                command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+            ) as process,
+            tqdm(
+                desc="Installing",
+                unit="line",
+                disable=not progress_bar,
+            ) as pbar,
+        ):
             for line in process.stdout:
                 if verbose:
-                    print(line, end='')
+                    print(line, end="")
                 pbar.update(1)
-            if process.wait() != 0:  # Non-zero exit code indicates failure
-                raise RuntimeError(f"Installation failed for package '{name}{version}'.")
-    
-    
+            if (
+                process.wait() != 0
+            ):  # Non-zero exit code indicates failure
+                raise RuntimeError(
+                    f"Installation failed for package '{name}{version}'."
+                )
+
     # If the module is installed don't install again.
-    if is_module_installed(name, distribution_name= dist_name ): 
+    if is_module_installed(name, distribution_name=dist_name):
         if verbose:
-           print(f"{name} is already installed.")
-           
+            print(f"{name} is already installed.")
+
         return True
-    # If the distribution to pkg name if the pkg name 
+    # If the distribution to pkg name if the pkg name
     # is different to distribution name .
-    if infer_dist_name: 
-        name = get_installation_name(name, dist_name)  
-        
+    if infer_dist_name:
+        name = get_installation_name(name, dist_name)
+
     conda_available = _check_conda_installed()
     try:
         if use_conda and conda_available:
             if verbose:
-                print(f"Attempting to install '{name}{version}' using conda...")
-            execute_command(['conda', 'install', f"{name}{version}", '-y'], 
-                            progress_bar=False)
+                print(
+                    f"Attempting to install '{name}{version}' using conda..."
+                )
+            execute_command(
+                [
+                    "conda",
+                    "install",
+                    f"{name}{version}",
+                    "-y",
+                ],
+                progress_bar=False,
+            )
         elif use_conda and not conda_available:
             if verbose:
-                print("Conda is not available. Falling back to pip...")
-            execute_command([sys.executable, "-m", "pip", "install", f"{name}{version}"],
-                            progress_bar=True)
+                print(
+                    "Conda is not available. Falling back to pip..."
+                )
+            execute_command(
+                [
+                    sys.executable,
+                    "-m",
+                    "pip",
+                    "install",
+                    f"{name}{version}",
+                ],
+                progress_bar=True,
+            )
         else:
             if verbose:
-                print(f"Attempting to install '{name}{version}' using pip...")
-            execute_command([sys.executable, "-m", "pip", "install", f"{name}{version}"],
-                            progress_bar=True)
+                print(
+                    f"Attempting to install '{name}{version}' using pip..."
+                )
+            execute_command(
+                [
+                    sys.executable,
+                    "-m",
+                    "pip",
+                    "install",
+                    f"{name}{version}",
+                ],
+                progress_bar=True,
+            )
         if verbose:
-            print(f"Package '{name}{version}' was successfully installed.")
+            print(
+                f"Package '{name}{version}' was successfully installed."
+            )
     except Exception as e:
-        raise RuntimeError(f"Failed to install '{name}{version}': {e}") from e
+        raise RuntimeError(
+            f"Failed to install '{name}{version}': {e}"
+        ) from e
+
 
 def _check_conda_installed() -> bool:
     """
@@ -716,33 +818,34 @@ def _check_conda_installed() -> bool:
     """
     try:
         subprocess.check_call(
-            ['conda', '--version'],
+            ["conda", "--version"],
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
+            stderr=subprocess.DEVNULL,
         )
         return True
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
-    
+
+
 def ensure_pkg(
-    name: str, 
+    name: str,
     extra: str = "",
     error: str = "raise",
     min_version: Optional[str] = None,
-    exception: Exception = None, 
-    dist_name: Optional[str]=None, 
-    infer_dist_name: bool=False, 
+    exception: Exception = None,
+    dist_name: Optional[str] = None,
+    infer_dist_name: bool = False,
     auto_install: bool = False,
-    use_conda: bool = False, 
+    use_conda: bool = False,
     partial_check: bool = False,
-    condition: Any = None, 
-    verbose: bool = False
+    condition: Any = None,
+    verbose: bool = False,
 ) -> Callable[[_T], _T]:
     """
     Decorator to ensure a Python package is installed before function execution.
 
     If the specified package is not installed, or if its installed version does
-    not meet the minimum version requirement, this decorator can optionally 
+    not meet the minimum version requirement, this decorator can optionally
     install or upgrade the package automatically using either pip or conda.
 
     Parameters
@@ -755,7 +858,7 @@ def ensure_pkg(
         Error handling strategy if the package is missing: 'raise', 'ignore',
         or 'warn'.
     min_version : str or None, optional
-        The minimum required version of the package. If not met, triggers 
+        The minimum required version of the package. If not met, triggers
         installation.
     exception : Exception, optional
         A custom exception to raise if the package is missing and `errors`
@@ -769,20 +872,20 @@ def ensure_pkg(
         If True, attempt to infer the distribution name for pip installation,
         defaults to False.
     auto_install : bool, optional
-        Whether to automatically install the package if missing. 
+        Whether to automatically install the package if missing.
         Defaults to False.
     use_conda : bool, optional
         Prefer conda over pip for automatic installation. Defaults to False.
     partial_check : bool, optional
-        If True, checks the existence of the package only if the `condition` 
-        is met. This allows for conditional package checking based on the 
+        If True, checks the existence of the package only if the `condition`
+        is met. This allows for conditional package checking based on the
         function's arguments or other criteria. If `False`, the check is always
         performed. Defaults to False.
     condition : Any, optional
-        A condition that determines whether to check for the package's existence. 
-        This can be a callable that takes the same arguments as the decorated function 
-        and returns a boolean, a specific argument name to check for truthiness, or 
-        any other value that will be evaluated as a boolean. If `None`, the package 
+        A condition that determines whether to check for the package's existence.
+        This can be a callable that takes the same arguments as the decorated function
+        and returns a boolean, a specific argument name to check for truthiness, or
+        any other value that will be evaluated as a boolean. If `None`, the package
         check is performed unconditionally unless `partial_check` is False.
     verbose : bool, optional
         Enable verbose output during the installation process. Defaults to False.
@@ -790,7 +893,7 @@ def ensure_pkg(
     Returns
     -------
     Callable
-        A decorator that wraps functions to ensure the specified package 
+        A decorator that wraps functions to ensure the specified package
         is installed.
 
     Examples
@@ -811,7 +914,7 @@ def ensure_pkg(
     ...     import matplotlib.pyplot as plt
     ...     plt.plot(x, y)
     ...     plt.show()
-    
+
     >>> @ensure_pkg("skimage", partial_check=True, condition=(
     ...     lambda *args, **kwargs: 'method' in kwargs and kwargs['method'] == 'hog')
     ...     )
@@ -826,82 +929,105 @@ def ensure_pkg(
     #     @functools.wraps(func)
     #     def wrapper(*args, **kwargs):
     #         # Determine if this is a method or a function based on the first argument
-    #         bound_method = hasattr(args[0], func.__name__) if args else False # 
-            
+    #         bound_method = hasattr(args[0], func.__name__) if args else False #
+
     #         # If partial_check is True, check condition before performing actions
     #         if not partial_check or  _should_check_condition(
     #                 condition, *args, **kwargs):
     #             try:
-    #                 # Attempt to import the package, handling installation 
+    #                 # Attempt to import the package, handling installation
     #                 # if necessary and permitted
     #                 import_optional_dependency(
-    #                     name, extra=extra, errors=error, 
-    #                     min_version=min_version, 
+    #                     name, extra=extra, errors=error,
+    #                     min_version=min_version,
     #                     exception=exception
     #                 )
     #             except (ModuleNotFoundError, ImportError):
     #                 if auto_install:
     #                     # Install the package if auto-install is enabled
     #                     install_package(
-    #                         name, dist_name=dist_name, 
-    #                         infer_dist_name=infer_dist_name, 
-    #                         extra=extra, 
-    #                         version=min_version, 
-    #                         use_conda=use_conda, 
+    #                         name, dist_name=dist_name,
+    #                         infer_dist_name=infer_dist_name,
+    #                         extra=extra,
+    #                         version=min_version,
+    #                         use_conda=use_conda,
     #                         verbose=verbose
     #                     )
     #                 elif exception is not None:
     #                     raise exception
     #                 else:
     #                     raise
-                    
+
     #         # If the function is a bound method, call it with 'self' or 'cls'
     #         if bound_method:
     #             return func(args[0], *args[1:], **kwargs)
     #         else:
-    #             return func(*args, **kwargs) # 
-        
+    #             return func(*args, **kwargs) #
+
     #     return wrapper
-    
+
     # return decorator
 
     def decorator(func):
         is_method_def = (
-            "." in func.__qualname__ and "<locals>" not in func.__qualname__
+            "." in func.__qualname__
+            and "<locals>" not in func.__qualname__
         )
 
         if is_method_def:
+
             @functools.wraps(func)
             def wrapper(self, *args, **kwargs):
                 # --- your existing dependency check block ---
-                if not partial_check or _should_check_condition(condition, self, *args, **kwargs):
+                if (
+                    not partial_check
+                    or _should_check_condition(
+                        condition, self, *args, **kwargs
+                    )
+                ):
                     import_optional_dependency(
-                        name, extra=extra, errors=error,
-                        min_version=min_version, exception=exception
+                        name,
+                        extra=extra,
+                        errors=error,
+                        min_version=min_version,
+                        exception=exception,
                     )
                 return func(self, *args, **kwargs)
         else:
+
             @functools.wraps(func)
             def wrapper(*args, **kwargs):
-                if not partial_check or _should_check_condition(condition, *args, **kwargs):
+                if (
+                    not partial_check
+                    or _should_check_condition(
+                        condition, *args, **kwargs
+                    )
+                ):
                     import_optional_dependency(
-                        name, extra=extra, errors=error,
-                        min_version=min_version, exception=exception
+                        name,
+                        extra=extra,
+                        errors=error,
+                        min_version=min_version,
+                        exception=exception,
                     )
                 return func(*args, **kwargs)
 
         # keep inspect.signature() nice (sklearn/etc.)
         wrapper.__signature__ = inspect.signature(func)
         return wrapper
+
     return decorator
 
-def _should_check_condition(condition: Any, *args, **kwargs) -> bool:
+
+def _should_check_condition(
+    condition: Any, *args, **kwargs
+) -> bool:
     """
-    Determines whether the condition(s) for checking a package's existence are met, 
+    Determines whether the condition(s) for checking a package's existence are met,
     based on the provided arguments and keyword arguments of a decorated function.
 
-    This function offers enhanced flexibility by allowing conditions to be specified 
-    as callable functions, tuples for positional argument checks, strings for keyword 
+    This function offers enhanced flexibility by allowing conditions to be specified
+    as callable functions, tuples for positional argument checks, strings for keyword
     argument checks, or a list combining any of these types for multiple conditions.
 
     Parameters
@@ -920,7 +1046,7 @@ def _should_check_condition(condition: Any, *args, **kwargs) -> bool:
     Returns
     -------
     bool
-        `True` if the package check should be performed based on the evaluation of 
+        `True` if the package check should be performed based on the evaluation of
         `condition`, `False` otherwise.
 
     Examples
@@ -962,26 +1088,31 @@ def _should_check_condition(condition: Any, *args, **kwargs) -> bool:
             index, value = cond
             return index < len(args) and args[index] == value
         return False
-    
+
     # Support for list of conditions: all must be True
     if isinstance(condition, list):
         return all(eval_condition(cond) for cond in condition)
     else:
         return eval_condition(condition)
 
+
 def ensure_pkgs(
-    names: Union[str, List[str]], 
+    names: Union[str, List[str]],
     extra: str = "",
     error: str = "raise",
-    min_versions: Optional[Union[str, List[Optional[str]]]] = None,
-    exception: Exception = None, 
-    dist_names: Optional[Union[str, List[Optional[str]]]] = None, 
-    infer_dist_name: bool = False, 
+    min_versions: Optional[
+        Union[str, List[Optional[str]]]
+    ] = None,
+    exception: Exception = None,
+    dist_names: Optional[
+        Union[str, List[Optional[str]]]
+    ] = None,
+    infer_dist_name: bool = False,
     auto_install: bool = False,
-    use_conda: bool = False, 
+    use_conda: bool = False,
     partial_check: bool = False,
-    condition: Any = None, 
-    verbose: bool = False
+    condition: Any = None,
+    verbose: bool = False,
 ) -> Callable[[_T], _T]:
     """
     Decorator to ensure Python packages are installed before function execution.
@@ -1063,35 +1194,57 @@ def ensure_pkgs(
     ...         # Other processing
     ...         pass
     """
+
     def decorator(func: _T) -> _T:
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             # Determine if this is a method or a function based on the first argument
-            bound_method = hasattr(args[0], func.__name__) if args else False
+            bound_method = (
+                hasattr(args[0], func.__name__)
+                if args
+                else False
+            )
 
             # If partial_check is True, check condition before performing actions
-            if not partial_check or _should_check_condition(condition, *args, **kwargs):
+            if not partial_check or _should_check_condition(
+                condition, *args, **kwargs
+            ):
                 # Parse names into a list
                 if isinstance(names, str):
-                    pkg_list = [pkg.strip() for pkg in names.split(',')]
+                    pkg_list = [
+                        pkg.strip()
+                        for pkg in names.split(",")
+                    ]
                 else:
                     pkg_list = names
 
                 # Ensure min_version and dist_name are lists matching pkg_list
-                if isinstance(min_versions, (str, type(None))):
-                    min_version_list = [min_versions] * len(pkg_list)
+                if isinstance(min_versions, str | type(None)):
+                    min_version_list = [min_versions] * len(
+                        pkg_list
+                    )
                 else:
                     min_version_list = min_versions
 
-                if isinstance(dist_names, (str, type(None))):
-                    dist_name_list = [dist_names] * len(pkg_list)
+                if isinstance(dist_names, str | type(None)):
+                    dist_name_list = [dist_names] * len(
+                        pkg_list
+                    )
                 else:
                     dist_name_list = dist_names
 
                 # Iterate over the packages
                 for idx, pkg_name in enumerate(pkg_list):
-                    pkg_min_version = min_version_list[idx] if min_version_list else None
-                    pkg_dist_name = dist_name_list[idx] if dist_name_list else None
+                    pkg_min_version = (
+                        min_version_list[idx]
+                        if min_version_list
+                        else None
+                    )
+                    pkg_dist_name = (
+                        dist_name_list[idx]
+                        if dist_name_list
+                        else None
+                    )
 
                     try:
                         # Attempt to import the package
@@ -1100,7 +1253,7 @@ def ensure_pkgs(
                             extra=extra,
                             errors=error,
                             min_version=pkg_min_version,
-                            exception=exception
+                            exception=exception,
                         )
                     except (ModuleNotFoundError, ImportError):
                         if auto_install:
@@ -1111,7 +1264,7 @@ def ensure_pkgs(
                                 infer_dist_name=infer_dist_name,
                                 version=pkg_min_version,
                                 use_conda=use_conda,
-                                verbose=verbose
+                                verbose=verbose,
                             )
                         elif exception is not None:
                             raise exception
@@ -1128,7 +1281,10 @@ def ensure_pkgs(
 
     return decorator
 
-def is_module_installed(module_name: str, distribution_name: str = None) -> bool:
+
+def is_module_installed(
+    module_name: str, distribution_name: str = None
+) -> bool:
     """
     Check if a Python module is installed by attempting to import it.
     Optionally, a distribution name can be provided if it differs from the module name.
@@ -1160,9 +1316,12 @@ def is_module_installed(module_name: str, distribution_name: str = None) -> bool
     """
     if _try_import_module(module_name):
         return True
-    if distribution_name and _check_distribution_installed(distribution_name):
+    if distribution_name and _check_distribution_installed(
+        distribution_name
+    ):
         return True
     return False
+
 
 def _try_import_module(module_name: str) -> bool:
     """
@@ -1182,13 +1341,17 @@ def _try_import_module(module_name: str) -> bool:
     # module_spec = importlib.util.find_spec(module_name)
     # return module_spec is not None
     import importlib
+
     try:
         importlib.import_module(module_name)
         return True
     except ImportError:
-        return False 
-    
-def _check_distribution_installed(distribution_name: str) -> bool:
+        return False
+
+
+def _check_distribution_installed(
+    distribution_name: str,
+) -> bool:
     """
     Check if a distribution package is installed by its name.
 
@@ -1205,22 +1368,30 @@ def _check_distribution_installed(distribution_name: str) -> bool:
     try:
         # Prefer importlib.metadata for Python 3.8 and newer
         from importlib.metadata import distribution
+
         distribution(distribution_name)
         return True
     except ImportError:
         # Fallback to pkg_resources for older Python versions
         try:
-            from pkg_resources import get_distribution, DistributionNotFound
+            from pkg_resources import (
+                DistributionNotFound,
+                get_distribution,
+            )
+
             get_distribution(distribution_name)
             return True
         except DistributionNotFound:
             return False
     except Exception:
         return False
-    
+
+
 def get_installation_name(
-        module_name: str, distribution_name: Optional[str] = None, 
-        return_bool: bool = False) -> Union[str, bool]:
+    module_name: str,
+    distribution_name: Optional[str] = None,
+    return_bool: bool = False,
+) -> Union[str, bool]:
     """
     Determines the appropriate name for installing a package, considering potential
     discrepancies between the distribution name and the module import name. Optionally,
@@ -1249,7 +1420,10 @@ def get_installation_name(
     # If a distribution name is provided, check if it matches the inferred name
     if distribution_name:
         if return_bool:
-            return distribution_name.lower() == inferred_name.lower()
+            return (
+                distribution_name.lower()
+                == inferred_name.lower()
+            )
         return distribution_name
 
     # If no distribution name is provided, return the inferred name or module name
@@ -1257,6 +1431,7 @@ def get_installation_name(
         return inferred_name.lower() == module_name.lower()
 
     return inferred_name or module_name
+
 
 def _infer_distribution_name(module_name: str) -> str:
     """
@@ -1282,55 +1457,63 @@ def _infer_distribution_name(module_name: str) -> str:
     #  Loop through all installed distributions
     for distribution in distributions():
         # Check if the module name matches the distribution name directly
-        if module_name == distribution.metadata.get('Name').replace('-', '_'):
-            return distribution.metadata['Name']
+        if module_name == distribution.metadata.get(
+            "Name"
+        ).replace("-", "_"):
+            return distribution.metadata["Name"]
 
         # Safely attempt to read and split 'top_level.txt'
-        top_level_txt = distribution.read_text('top_level.txt')
+        top_level_txt = distribution.read_text(
+            "top_level.txt"
+        )
         if top_level_txt:
             top_level_packages = top_level_txt.split()
-            if any(module_name == pkg.split('.')[0] for pkg in top_level_packages):
-                return distribution.metadata['Name']
+            if any(
+                module_name == pkg.split(".")[0]
+                for pkg in top_level_packages
+            ):
+                return distribution.metadata["Name"]
 
     return module_name
 
-def is_installing (
-    module: str , 
-    upgrade: bool=True , 
-    action: bool=True, 
-    DEVNULL: bool=False,
-    verbose: int=0,
-    **subpkws
-    )-> bool: 
-    """ Install or uninstall a module/package using the subprocess 
+
+def is_installing(
+    module: str,
+    upgrade: bool = True,
+    action: bool = True,
+    DEVNULL: bool = False,
+    verbose: int = 0,
+    **subpkws,
+) -> bool:
+    """Install or uninstall a module/package using the subprocess
     under the hood.
-    
-    Parameters 
+
+    Parameters
     ------------
     module: str,
         the module or library name to install using Python Index Package `PIP`
-    
+
     upgrade: bool,
-        install the lastest version of the package. *default* is ``True``.   
-        
-    DEVNULL:bool, 
-        decline the stdoutput the message in the console 
-    
-    action: str,bool 
-        Action to perform. 'install' or 'uninstall' a package. *default* is 
-        ``True`` which means 'intall'. 
-        
+        install the lastest version of the package. *default* is ``True``.
+
+    DEVNULL:bool,
+        decline the stdoutput the message in the console
+
+    action: str,bool
+        Action to perform. 'install' or 'uninstall' a package. *default* is
+        ``True`` which means 'intall'.
+
     verbose: int, Optional
-        Control the verbosity i.e output a message. High level 
+        Control the verbosity i.e output a message. High level
         means more messages. *default* is ``0``.
-         
-    subpkws: dict, 
-        additional subprocess keywords arguments 
-    Returns 
+
+    subpkws: dict,
+        additional subprocess keywords arguments
+    Returns
     ---------
-    success: bool 
-        whether the package is sucessfully installed or not. 
-        
+    success: bool
+        whether the package is sucessfully installed or not.
+
     Example
     --------
     >>> from gofast import is_installing
@@ -1339,61 +1522,89 @@ def is_installing (
     >>> is_installing(
         'tqdm', action ='uninstall', verbose =1)
     """
-    #implement pip as subprocess 
+    # implement pip as subprocess
     # refer to https://pythongeeks.org/subprocess-in-python/
-    if not action: 
-        if verbose > 0 :
-            print("---> No action `install`or `uninstall`"
-                  f" of the module {module!r} performed.")
-        return action  # DO NOTHING 
-    
-    success=False 
+    if not action:
+        if verbose > 0:
+            print(
+                "---> No action `install`or `uninstall`"
+                f" of the module {module!r} performed."
+            )
+        return action  # DO NOTHING
 
-    action_msg ='uninstallation' if action =='uninstall' else 'installation' 
+    success = False
 
-    if action in ('install', 'uninstall', True) and verbose > 0:
-        print(f'---> Module {module!r} {action_msg} will take a while,'
-              ' please be patient...')
-        
-    cmdg =f'<pip install {module}> | <python -m pip install {module}>'\
-        if action in (True, 'install') else ''.join([
-            f'<pip uninstall {module} -y> or <pip3 uninstall {module} -y ',
-            f'or <python -m pip uninstall {module} -y>.'])
-        
-    upgrade ='--upgrade' if upgrade else '' 
-    
-    if action == 'uninstall':
-        upgrade= '-y' # Don't ask for confirmation of uninstall deletions.
-    elif action in ('install', True):
-        action = 'install'
+    action_msg = (
+        "uninstallation"
+        if action == "uninstall"
+        else "installation"
+    )
 
-    cmd = ['-m', 'pip', f'{action}', f'{module}', f'{upgrade}']
+    if (
+        action in ("install", "uninstall", True)
+        and verbose > 0
+    ):
+        print(
+            f"---> Module {module!r} {action_msg} will take a while,"
+            " please be patient..."
+        )
 
-    try: 
-        STDOUT = subprocess.DEVNULL if DEVNULL else None 
-        STDERR= subprocess.STDOUT if DEVNULL else None 
-    
+    cmdg = (
+        f"<pip install {module}> | <python -m pip install {module}>"
+        if action in (True, "install")
+        else "".join(
+            [
+                f"<pip uninstall {module} -y> or <pip3 uninstall {module} -y ",
+                f"or <python -m pip uninstall {module} -y>.",
+            ]
+        )
+    )
+
+    upgrade = "--upgrade" if upgrade else ""
+
+    if action == "uninstall":
+        upgrade = "-y"  # Don't ask for confirmation of uninstall deletions.
+    elif action in ("install", True):
+        action = "install"
+
+    cmd = [
+        "-m",
+        "pip",
+        f"{action}",
+        f"{module}",
+        f"{upgrade}",
+    ]
+
+    try:
+        STDOUT = subprocess.DEVNULL if DEVNULL else None
+        STDERR = subprocess.STDOUT if DEVNULL else None
+
         subprocess.check_call(
-            [sys.executable] + cmd, stdout= STDOUT, stderr=STDERR,
-                              **subpkws)
-        if action in (True, 'install'):
+            [sys.executable] + cmd,
+            stdout=STDOUT,
+            stderr=STDERR,
+            **subpkws,
+        )
+        if action in (True, "install"):
             # freeze the dependancies
             reqs = subprocess.check_output(
-                [sys.executable,'-m', 'pip','freeze'])
-            [r.decode().split('==')[0] for r in reqs.split()]
+                [sys.executable, "-m", "pip", "freeze"]
+            )
+            [r.decode().split("==")[0] for r in reqs.split()]
 
-        success=True
-        
-    except: 
+        success = True
 
-        if verbose > 0 : 
-            print(f'---> Module {module!r} {action_msg} failed. Please use'
-                f' the following command: {cmdg} to manually do it.')
-    else : 
-        if verbose > 0: 
-            print(f"{action_msg.capitalize()} of `{module}` "
-                      "and dependancies was successfully done!") 
-        
-    return success 
+    except:
+        if verbose > 0:
+            print(
+                f"---> Module {module!r} {action_msg} failed. Please use"
+                f" the following command: {cmdg} to manually do it."
+            )
+    else:
+        if verbose > 0:
+            print(
+                f"{action_msg.capitalize()} of `{module}` "
+                "and dependancies was successfully done!"
+            )
 
-        
+    return success

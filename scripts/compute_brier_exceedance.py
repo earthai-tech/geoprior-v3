@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
@@ -63,8 +62,8 @@ Force Validation:
 from __future__ import annotations
 
 import argparse
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -76,7 +75,7 @@ from scripts import utils
 # ---------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------
-def _parse_args(argv: List[str] | None) -> argparse.Namespace:
+def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         prog="brier-exceedance",
         description="Brier scores for exceedance events.",
@@ -139,21 +138,21 @@ def _parse_args(argv: List[str] | None) -> argparse.Namespace:
     return p.parse_args(argv)
 
 
-def _parse_float_list(s: str) -> List[float]:
+def _parse_float_list(s: str) -> list[float]:
     parts = [p.strip() for p in str(s).split(",")]
-    out: List[float] = []
+    out: list[float] = []
     for p in parts:
         if p:
             out.append(float(p))
     return out
 
 
-def _parse_years(s: str) -> Optional[List[int]]:
+def _parse_years(s: str) -> list[int] | None:
     s = str(s or "").strip().lower()
     if not s or s == "all":
         return None
     parts = [p.strip() for p in s.split(",")]
-    out: List[int] = []
+    out: list[int] = []
     for p in parts:
         if p:
             out.append(int(p))
@@ -169,7 +168,7 @@ def _pick_city_csv(
     city_key: str,
     patterns: Sequence[str],
     must_exist: bool = True,
-) -> Optional[Path]:
+) -> Path | None:
     """
     Pick newest match under root for a given city.
 
@@ -202,7 +201,7 @@ def _discover_inputs(
     root: Path,
     *,
     source: str,
-) -> List[Tuple[str, Path]]:
+) -> list[tuple[str, Path]]:
     """
     Discover (city, csv_path) with a test-first policy.
 
@@ -222,10 +221,12 @@ def _discover_inputs(
             raise KeyError("Missing PATTERNS entry.")
         return pats
 
-    items: List[Tuple[str, Path]] = []
+    items: list[tuple[str, Path]] = []
 
-    for city, key in [("Nansha", "nansha"),
-                      ("Zhongshan", "zhongshan")]:
+    for city, key in [
+        ("Nansha", "nansha"),
+        ("Zhongshan", "zhongshan"),
+    ]:
         if source == "val":
             p = _pick_city_csv(
                 root,
@@ -263,7 +264,7 @@ def _discover_inputs(
 # ---------------------------------------------------------------------
 # Schema + probability model
 # ---------------------------------------------------------------------
-_ALIASES: Dict[str, Tuple[str, ...]] = {
+_ALIASES: dict[str, tuple[str, ...]] = {
     "coord_t": ("coord_t", "year", "t"),
     "subsidence_actual": ("subsidence_actual", "actual"),
     "subsidence_q10": ("subsidence_q10", "q10", "p10"),
@@ -354,8 +355,8 @@ def compute_brier_scores(
     df: pd.DataFrame,
     *,
     thresholds: Sequence[float],
-    years: Optional[Sequence[int]],
-) -> List[Dict[str, object]]:
+    years: Sequence[int] | None,
+) -> list[dict[str, object]]:
     """
     Compute Brier scores for multiple thresholds.
 
@@ -394,7 +395,7 @@ def compute_brier_scores(
     q90 = df["subsidence_q90"].to_numpy(dtype=float)
     s = df["subsidence_actual"].to_numpy(dtype=float)
 
-    rows: List[Dict[str, object]] = []
+    rows: list[dict[str, object]] = []
 
     for T in thresholds:
         p = exceed_prob_from_quantiles(
@@ -426,7 +427,9 @@ def compute_brier_scores(
 # ---------------------------------------------------------------------
 # Main (API)
 # ---------------------------------------------------------------------
-def brier_exceedance_main(argv: List[str] | None = None) -> None:
+def brier_exceedance_main(
+    argv: list[str] | None = None,
+) -> None:
     args = _parse_args(argv)
 
     thresholds = _parse_float_list(args.thresholds)
@@ -443,11 +446,13 @@ def brier_exceedance_main(argv: List[str] | None = None) -> None:
     else:
         inputs = _discover_inputs(root, source=args.source)
 
-    results: List[Dict[str, object]] = []
+    results: list[dict[str, object]] = []
 
     for city, path in inputs:
         if path is None or not path.exists():
-            raise FileNotFoundError(str(path) if path else city)
+            raise FileNotFoundError(
+                str(path) if path else city
+            )
 
         df = pd.read_csv(path)
 
@@ -491,7 +496,7 @@ def brier_exceedance_main(argv: List[str] | None = None) -> None:
         print(f"\n[OK] brier -> {out_path}")
 
 
-def main(argv: List[str] | None = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     brier_exceedance_main(argv)
 
 

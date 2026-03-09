@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -65,12 +64,18 @@ DATASET_VARIANT = "with_zsurf"
 # File name templates. When CITY_NAME="nansha":
 #   BIG_FN   -> "nansha_final_main_std.harmonized.with_zsurf.csv"
 #   SMALL_FN -> "nansha_2000.with_zsurf.csv"  (only if you created it)
-BIG_FN_TEMPLATE = "{city}_final_main_std.harmonized.cleaned.{variant}.csv"
+BIG_FN_TEMPLATE = (
+    "{city}_final_main_std.harmonized.cleaned.{variant}.csv"
+)
 SMALL_FN_TEMPLATE = "{city}_2000.cleaned.{variant}.csv"
 
 # Resolved filenames (scripts may use these directly).
-BIG_FN = BIG_FN_TEMPLATE.format(city=CITY_NAME, variant=DATASET_VARIANT)
-SMALL_FN = SMALL_FN_TEMPLATE.format(city=CITY_NAME, variant=DATASET_VARIANT)
+BIG_FN = BIG_FN_TEMPLATE.format(
+    city=CITY_NAME, variant=DATASET_VARIANT
+)
+SMALL_FN = SMALL_FN_TEMPLATE.format(
+    city=CITY_NAME, variant=DATASET_VARIANT
+)
 
 ALL_CITIES_PARQUET = "natcom_all_cities.parquet"
 
@@ -98,7 +103,7 @@ TRAIN_END_YEAR = 2022
 FORECAST_START_YEAR = 2023
 FORECAST_HORIZON_YEARS = 3
 TIME_STEPS = 5
-MODE = "tft_like"   # {"pihal_like", "tft_like"}
+MODE = "tft_like"  # {"pihal_like", "tft_like"}
 
 # XXX: Optimize: preset:
 # TRAIN_END_YEAR = 2022
@@ -125,7 +130,9 @@ LAT_COL = "latitude"
 SUBSIDENCE_COL = "subsidence_cum"
 H_FIELD_COL_NAME = "soil_thickness"
 
-GWL_COL = "GWL_depth_bgs_m"   # preferred over "GWL" (if both exist)
+GWL_COL = (
+    "GWL_depth_bgs_m"  # preferred over "GWL" (if both exist)
+)
 # Groundwater representation (critical for sign consistency):
 # - GWL_KIND:
 #     "depth_bgs" -> depth below ground surface (positive downward)
@@ -139,8 +146,8 @@ GWL_COL = "GWL_depth_bgs_m"   # preferred over "GWL" (if both exist)
 #   head_proxy ≈ -depth
 # This keeps head and depth linked for physics, but is approximate.
 
-GWL_KIND =  "depth_bgs"  # or None ->depth_bgs defaults to "down_positive" for depth_bgs
-GWL_SIGN = "down_positive"   # {"down_positive", "up_positive"}
+GWL_KIND = "depth_bgs"  # or None ->depth_bgs defaults to "down_positive" for depth_bgs
+GWL_SIGN = "down_positive"  # {"down_positive", "up_positive"}
 
 # With z_surf available, do NOT use the proxy
 USE_HEAD_PROXY = False
@@ -148,22 +155,30 @@ USE_HEAD_PROXY = False
 # Column containing surface elevation z_surf in meters.
 # IMPORTANT: set this to the actual column name you wrote into the CSV.
 # Recommended name for v3.2: "z_surf"
-Z_SURF_COL = "z_surf_m" # e.g. None :"dem_m" if available, else None
+Z_SURF_COL = (
+    "z_surf_m"  # e.g. None :"dem_m" if available, else None
+)
 
-INCLUDE_Z_SURF_AS_STATIC = True   # new (recommended)
-HEAD_COL ="head_m"
+INCLUDE_Z_SURF_AS_STATIC = True  # new (recommended)
+HEAD_COL = "head_m"
 # IMPORTANT (recommended in new GeoPrior paths):
 # If the model cannot resolve which channel inside dynamic_features is GWL,
 # you MUST provide gwl_dyn_index in scaling_kwargs (Stage-2 uses this).
 #
 # - Set to an integer when your dynamic_features has a fixed order.
 # - Leave None only if Stage-2 can reliably infer it from names.
-GWL_DYN_INDEX = None         # e.g. 0 if z_GWL is the first dynamic channel
+GWL_DYN_INDEX = (
+    None  # e.g. 0 if z_GWL is the first dynamic channel
+)
 
 # Stage-1: physics-critical scaling controls
-NORMALIZE_COORDS = True          # preferred knob
-KEEP_COORDS_RAW  = False         # legacy knob, keep for backward compat
-SHIFT_RAW_COORDS = True          # only matters when KEEP_COORDS_RAW=True
+NORMALIZE_COORDS = True  # preferred knob
+KEEP_COORDS_RAW = (
+    False  # legacy knob, keep for backward compat
+)
+SHIFT_RAW_COORDS = (
+    True  # only matters when KEEP_COORDS_RAW=True
+)
 
 
 # XXX: Optimize: preset:
@@ -181,7 +196,6 @@ SHIFT_RAW_COORDS = True          # only matters when KEEP_COORDS_RAW=True
 # KEEP_COORDS_RAW = False
 
 
-
 # Keep H_field in meters (recommended):
 SCALE_H_FIELD = False
 
@@ -192,7 +206,7 @@ SCALE_GWL = False
 SCALE_Z_SURF = False
 
 # If subsidence is "rate" (per year) or "cumulative":
-SUBSIDENCE_KIND = "cumulative"   # {"cumulative", "rate"}
+SUBSIDENCE_KIND = "cumulative"  # {"cumulative", "rate"}
 
 # ===================================================================
 # 2) FEATURE REGISTRY (Stage-1 -> Stage-2 handshake)
@@ -242,8 +256,10 @@ FUTURE_DRIVER_FEATURES = [
 
 # Optional explicit naming (helps Stage-2 build dynamic_feature_names):
 # Keep as None unless you are fully controlling feature order.
-DYNAMIC_FEATURE_NAMES = None   # e.g. ["z_GWL", "rainfall_mm", "urban_load_global"]
-FUTURE_FEATURE_NAMES = None    # e.g. ["rainfall_mm"]
+DYNAMIC_FEATURE_NAMES = (
+    None  # e.g. ["z_GWL", "rainfall_mm", "urban_load_global"]
+)
+FUTURE_FEATURE_NAMES = None  # e.g. ["rainfall_mm"]
 
 
 # ===================================================================
@@ -262,25 +278,22 @@ FUTURE_FEATURE_NAMES = None    # e.g. ["rainfall_mm"]
 CENSORING_SPECS = [
     {
         "col": H_FIELD_COL_NAME,
-        "direction": "right",        # "right" (>= cap) or "left" (<= cap)
-        "cap": 30.0,                 # instrument / processing cap
-        "tol": 1e-6,                 # tolerance for equality checks
+        "direction": "right",  # "right" (>= cap) or "left" (<= cap)
+        "cap": 30.0,  # instrument / processing cap
+        "tol": 1e-6,  # tolerance for equality checks
         "flag_suffix": "_censored",  # derived indicator name
-        "eff_suffix": "_eff",        # derived effective-value name
-
+        "eff_suffix": "_eff",  # derived effective-value name
         # How to form the effective value:
         #   - "clip"          : min(x, cap)  (recommended default)
         #   - "cap_minus_eps" : use cap*(1-eps) when censored
         #   - "nan_if_censored": set NaN then impute (see "impute")
         "eff_mode": "clip",
-        "eps": 0.02,                 # used only for "cap_minus_eps"
-
+        "eps": 0.02,  # used only for "cap_minus_eps"
         # Used only if eff_mode == "nan_if_censored"
         "impute": {
             "by": ["year"],
             "func": "median",
         },
-
         # Optional probability threshold if flags come from soft values
         "flag_threshold": 0.5,
     },
@@ -300,14 +313,14 @@ USE_EFFECTIVE_H_FIELD = True
 BUILD_FUTURE_NPZ = False
 
 # ========================================================
-#   HOLD OUT STRATEGY 
+#   HOLD OUT STRATEGY
 # =========================================================
 
-SPLIT_SEED = 42 
-VAL_FRAC = 0.2 
-TEST_FRAC = 0.1 
-HOLDOUT_STRATEGY = "random" #  # (or "spatial_block" )
-HOLDOUT_BLOCK_M = 2000.0 
+SPLIT_SEED = 42
+VAL_FRAC = 0.2
+TEST_FRAC = 0.1
+HOLDOUT_STRATEGY = "random"  #  # (or "spatial_block" )
+HOLDOUT_BLOCK_M = 2000.0
 
 # SPLIT_SEED = 42
 # VAL_FRAC = 0.15
@@ -364,7 +377,7 @@ QUANTILES = [0.1, 0.5, 0.9]
 
 # Pinball weights: heavier tails encourages better uncertainty calibration.
 SUBS_WEIGHTS = {0.1: 3.0, 0.5: 1.0, 0.9: 3.0}
-GWL_WEIGHTS  = {0.1: 1.5, 0.5: 1.0, 0.9: 1.5}
+GWL_WEIGHTS = {0.1: 1.5, 0.5: 1.0, 0.9: 1.5}
 
 # XXX: optimize preset
 # QUANTILES = [0.1, 0.5, 0.9]
@@ -493,8 +506,8 @@ LAMBDA_OFFSET = 1.0
 USE_LAMBDA_OFFSET_SCHEDULER = False
 
 # If you enable the scheduler, it can run over epochs or steps.
-LAMBDA_OFFSET_UNIT = "epoch"   # {"epoch", "step"}
-LAMBDA_OFFSET_WHEN = "begin"   # {"begin", "end"}
+LAMBDA_OFFSET_UNIT = "epoch"  # {"epoch", "step"}
+LAMBDA_OFFSET_WHEN = "begin"  # {"begin", "end"}
 
 # If LAMBDA_OFFSET_SCHEDULE is None, use warmup-based interpolation:
 # start -> end over LAMBDA_OFFSET_WARMUP epochs/steps.
@@ -534,7 +547,7 @@ MV_HUBER_DELTA = 1.0
 
 # MV scheduler is independent from the global physics scheduler.
 # Recommended: epoch-based (robust to batch size).
-MV_SCHEDULE_UNIT = "epoch"   # {"epoch", "step"}
+MV_SCHEDULE_UNIT = "epoch"  # {"epoch", "step"}
 
 # Epoch-based ramp:
 MV_DELAY_EPOCHS = 1
@@ -559,7 +572,9 @@ TRACK_AUX_METRICS = False
 # Choose ONE:
 #   - "data_first"   : fit observations early, then tighten constraints
 #   - "physics_first": enforce constraints early, then let data refine
-TRAINING_STRATEGY = "data_first"   # {"data_first", "physics_first"}
+TRAINING_STRATEGY = (
+    "data_first"  # {"data_first", "physics_first"}
+)
 
 # Gate policies (for Q and subs residual):
 #   - "always_on"  : gate = 1 from step 0
@@ -575,7 +590,9 @@ TRAINING_STRATEGY = "data_first"   # {"data_first", "physics_first"}
 # ----------------------------
 # In physics-first, you often keep Q + subs residual OFF early so the PDE
 # residuals/priors shape the solution manifold first.
-Q_POLICY_PHYSICS_FIRST = "warmup_off"     # {"always_on","always_off","warmup_off"}
+Q_POLICY_PHYSICS_FIRST = (
+    "warmup_off"  # {"always_on","always_off","warmup_off"}
+)
 Q_WARMUP_EPOCHS_PHYSICS_FIRST = 5
 Q_RAMP_EPOCHS_PHYSICS_FIRST = 5
 
@@ -617,15 +634,12 @@ PHYSICS_BOUNDS = {
     # Effective thickness H [m]
     "H_min": 0.1,
     "H_max": 30.0,
-
     # Hydraulic conductivity K [m/s]
     "K_min": 1e-12,
     "K_max": 1e-7,
-
     # Specific storage Ss [1/m]
     "Ss_min": 1e-6,
     "Ss_max": 1e-3,
-
     # Time constant tau [s]
     "tau_min": 7.0 * 86400.0,
     "tau_max": 300.0 * 31556952.0,
@@ -642,10 +656,14 @@ PHYSICS_BOUNDS_MODE = "soft"
 # -------------------------------------------------------------------
 # These parameters shape the *form* of the bounds penalty (not its weight).
 # The overall weight is still controlled by LAMBDA_BOUNDS.
-BOUNDS_LOSS_KIND = "both"   # {"both","K","Ss","tau",...}
-BOUNDS_BETA = 20.0          # barrier sharpness (larger -> harder wall)
-BOUNDS_GUARD = 5.0          # guard margin (linear/log depending on impl)
-BOUNDS_W = 1.0              # base weight inside bounds loss
+BOUNDS_LOSS_KIND = "both"  # {"both","K","Ss","tau",...}
+BOUNDS_BETA = (
+    20.0  # barrier sharpness (larger -> harder wall)
+)
+BOUNDS_GUARD = (
+    5.0  # guard margin (linear/log depending on impl)
+)
+BOUNDS_W = 1.0  # base weight inside bounds loss
 BOUNDS_INCLUDE_TAU = True
 BOUNDS_TAU_W = 1.0
 
@@ -703,7 +721,7 @@ CONS_DRAWDOWN_ZERO_AT_ORIGIN = False
 CONS_DRAWDOWN_CLIP_MAX = None
 CONS_RELU_BETA = 20.0
 
-#XXX: Preset:
+# XXX: Preset:
 # CONS_SCALE_FLOOR = 1e-10
 # GW_SCALE_FLOOR = 1e-11
 
@@ -719,12 +737,12 @@ CONS_RELU_BETA = 20.0
 # If *_SCALE_SI / *_BIAS_SI are None and AUTO_SI_AFFINE_FROM_STAGE1=True,
 # Stage-2 should infer them from Stage-1 scalers (recommended).
 # SUBS_UNIT_TO_SI = 1e-3   # e.g. mm -> m
-HEAD_UNIT_TO_SI = 1.0    # typically already meters
+HEAD_UNIT_TO_SI = 1.0  # typically already meters
 
 SUBS_SCALE_SI = 1.0
-SUBS_BIAS_SI  = 0.0
+SUBS_BIAS_SI = 0.0
 HEAD_SCALE_SI = None
-HEAD_BIAS_SI  = None
+HEAD_BIAS_SI = None
 
 Z_SURF_UNIT_TO_SI = 1.0
 # Convert subsidence to SI (recommended):
@@ -734,9 +752,9 @@ SUBS_UNIT_TO_SI = 1e-3
 # Raw thickness unit conversion to SI meters.
 # If your thickness is already meters, keep 1.0.
 THICKNESS_UNIT_TO_SI = 1.0
-# Guard against zero/negative thickness & non-finite SI columns ( in meters) 
+# Guard against zero/negative thickness & non-finite SI columns ( in meters)
 
-H_FIELD_MIN_SI = 0.1 
+H_FIELD_MIN_SI = 0.1
 
 AUTO_SI_AFFINE_FROM_STAGE1 = True
 
@@ -745,10 +763,10 @@ AUTO_SI_AFFINE_FROM_STAGE1 = True
 # -------------------------------------------------------------------
 # If coords are degrees, Stage-2 must convert degrees -> meters internally
 # before computing spatial derivatives (or use ranges to rescale).
-COORD_MODE = "degrees"     # {"utm", "degrees"}
-UTM_EPSG = 32649           # if COORD_MODE="utm" then use it
+COORD_MODE = "degrees"  # {"utm", "degrees"}
+UTM_EPSG = 32649  # if COORD_MODE="utm" then use it
 
-COORD_SRC_EPSG = 4326 # (e.g. 4326 if lon/lat WGS84)
+COORD_SRC_EPSG = 4326  # (e.g. 4326 if lon/lat WGS84)
 # COORD_TARGET_EPSG= 32649 # (your UTM EPSG, e.g. 32649)
 
 # ===================================================================
@@ -763,7 +781,7 @@ GEOPRIOR_GAMMA_W = 9810.0
 # Kappa mode:
 #   - "kb"  : kappa_b
 #   - "bar" : kappa_bar (if you use an effective compressibility mapping)
-GEOPRIOR_KAPPA_MODE = "kb"   # {"bar", "kb"}
+GEOPRIOR_KAPPA_MODE = "kb"  # {"bar", "kb"}
 
 # Effective-thickness usage inside GeoPrior physics:
 GEOPRIOR_USE_EFFECTIVE_H = True
@@ -777,7 +795,7 @@ GEOPRIOR_HD_FACTOR = 0.6
 #
 # Numeric fallback:
 #   0.0 -> fixed datum (useful for synthetic 1-pixel tests)
-GEOPRIOR_H_REF = "auto"   # or 0.0
+GEOPRIOR_H_REF = "auto"  # or 0.0
 
 
 # -------------------------------------------------------------------
@@ -790,42 +808,46 @@ GEOPRIOR_H_REF = "auto"   # or 0.0
 #   - "exact" : v3.2 exact step formulation (preferred)
 #   - "fd"    : finite-difference / legacy discretization
 CONSOLIDATION_STEP_RESIDUAL_METHOD = "exact"
-CONSOLIDATION_RESIDUAL_UNITS ="second"
+CONSOLIDATION_RESIDUAL_UNITS = "second"
 
-CONS_SCALE_FLOOR =3e-11      # ~1 mm/year in m/s # "auto"
+CONS_SCALE_FLOOR = 3e-11  # ~1 mm/year in m/s # "auto"
 # GW_SCALE_FLOOR ="auto"
 GW_RESIDUAL_UNITS = "second"
-GW_SCALE_FLOOR = 1e-12        # safer than 1e-9; keeps GW residual visible
+GW_SCALE_FLOOR = (
+    1e-12  # safer than 1e-9; keeps GW residual visible
+)
 
-ALLOW_SUBS_RESIDUAL =True 
+ALLOW_SUBS_RESIDUAL = True
 
 DT_MIN_UNITS = 1e-6
 
-Q_WRT_NORMALIZED_TIME = False 
-Q_IN_SI = False  
+Q_WRT_NORMALIZED_TIME = False
+Q_IN_SI = False
 Q_IN_PER_SECOND = False
-Q_KIND ="per_volume" 
-Q_LENGTH_IN_SI=False 
+Q_KIND = "per_volume"
+Q_LENGTH_IN_SI = False
 
-DRAINAGE_MODE ="double" 
-SCALING_ERROR_POLICY ="raise" 
-GW_RESIDUAL_UNITS="second"
+DRAINAGE_MODE = "double"
+SCALING_ERROR_POLICY = "raise"
+GW_RESIDUAL_UNITS = "second"
 
-CLIP_GLOBAL_NORM = 5.0 
+CLIP_GLOBAL_NORM = 5.0
 
 # ===================================================================
 # 7) TRAINING LOOP DEFAULTS (non-tuner runs)
 # ===================================================================
-EPOCHS = 20           # Recommended: 50 to 200
+EPOCHS = 20  # Recommended: 50 to 200
 BATCH_SIZE = 32
-LEARNING_RATE = 1e-3   # Slightly higher start, let Adam decay it
+LEARNING_RATE = (
+    1e-3  # Slightly higher start, let Adam decay it
+)
 
 # XXX preset:
 # EPOCHS = 150
 # BATCH_SIZE = 32
 # LEARNING_RATE = 5e-4
 
-VERBOSE = 1 
+VERBOSE = 1
 # ===================================================================
 # 8) HARDWARE / RUNTIME (TensorFlow)
 # ===================================================================
@@ -842,7 +864,7 @@ TF_INTER_THREADS = None
 
 # GPU memory behaviour
 TF_GPU_ALLOW_GROWTH = True
-TF_GPU_MEMORY_LIMIT_MB = None   # e.g. 12000 for 12 GB, or None
+TF_GPU_MEMORY_LIMIT_MB = None  # e.g. 12000 for 12 GB, or None
 
 # ===================================================================
 # 8) MODEL FORMAT CONFIGURATION
@@ -854,7 +876,9 @@ USE_TF_SAVEDMODEL = False  # Set to False to use the default weight-based saving
 # 9) MODEL LOADING / DEBUGGING CONFIGURATION
 # ===================================================================
 # If True, load the model directly into memory rather than from disk.
-USE_IN_MEMORY_MODEL = False # True  # Change to True for in-memory usage
+USE_IN_MEMORY_MODEL = (
+    False  # True  # Change to True for in-memory usage
+)
 
 # If True, enable debug information during training and evaluation.
 DEBUG = True  # Enable or disable debugging
@@ -889,15 +913,19 @@ DEBUG = True  # Enable or disable debugging
 #   normalization/inversion checks, and scaling_kwargs consistency.
 AUDIT_STAGES = "*"
 
-EVAL_JSON_UNITS_MODE = "si"              # or "si / interpretable"
-EVAL_JSON_UNITS_SCOPE = "all"            # "subsidence" / "physics" / "all"
+EVAL_JSON_UNITS_MODE = "si"  # or "si / interpretable"
+EVAL_JSON_UNITS_SCOPE = (
+    "all"  # "subsidence" / "physics" / "all"
+)
 
 # -------------------------------------------------------------------
 # Optional: force scaling_kwargs from an external JSON file.
 # If provided, this JSON takes precedence over any Stage-2/Stage-3
 # auto-computed scaling_kwargs values.
 # -------------------------------------------------------------------
-SCALING_KWARGS_JSON_PATH = None   # e.g. r"F:\...\results\...\scaling_kwargs.json"
+SCALING_KWARGS_JSON_PATH = (
+    None  # e.g. r"F:\...\results\...\scaling_kwargs.json"
+)
 
 # -------------------------------------------------------------------
 # 5. TUNING SEARCH SPACE
@@ -932,7 +960,6 @@ TUNER_SEARCH_SPACE_BASE_V32 = {
     # Optional memory knobs (keep modest; Stage2 defaults are stable)
     "max_window_size": [8, 10, 12],
     "memory_size": [50, 100],
-
     # ----------------------------
     # Optimizer / training
     # ----------------------------
@@ -942,7 +969,6 @@ TUNER_SEARCH_SPACE_BASE_V32 = {
         "max_value": 3e-3,
         "sampling": "log",
     },
-
     # ----------------------------
     # Physics loss weights (compile-time)
     # ----------------------------
@@ -961,7 +987,6 @@ TUNER_SEARCH_SPACE_BASE_V32 = {
         "min_value": 0.02,
         "max_value": 0.30,
     },
-
     # Smoothness is often tiny; log-range helps
     "lambda_smooth": {
         "type": "float",
@@ -969,7 +994,6 @@ TUNER_SEARCH_SPACE_BASE_V32 = {
         "max_value": 5e-3,
         "sampling": "log",
     },
-
     # v3.2: bounds penalty (soft bounds). Use wide log-range.
     "lambda_bounds": {
         "type": "float",
@@ -977,20 +1001,17 @@ TUNER_SEARCH_SPACE_BASE_V32 = {
         "max_value": 1.0,
         "sampling": "log",
     },
-
     # MV prior penalty usually small (or even 0)
     "lambda_mv": {
         "type": "float",
         "min_value": 0.0,
         "max_value": 0.05,
     },
-
     # v3.2: Q forcing penalty (often 0; include a few “on” options)
     "lambda_q": {
         "type": "choice",
         "values": [0.0, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3],
     },
-
     # v3.2: per-parameter LR multipliers
     "mv_lr_mult": {
         "type": "float",
@@ -1002,7 +1023,6 @@ TUNER_SEARCH_SPACE_BASE_V32 = {
         "min_value": 2.0,
         "max_value": 8.0,
     },
-
     # v3.2: whether MV/Q terms scale with the global physics offset
     # (I usually keep these fixed in fixed_params, but they can be tuned)
     "scale_mv_with_offset": {
@@ -1035,4 +1055,3 @@ else:
         "max_value": 1.7,
         "step": 0.05,
     }
-

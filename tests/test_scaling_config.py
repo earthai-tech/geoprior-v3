@@ -16,18 +16,24 @@ def test_jsonify_converts_numpy_scalars_and_sets():
     assert out["tags"] == [1, 3]
 
 
-def test_from_any_handles_none_mapping_and_existing_instance(tmp_path: Path):
+def test_from_any_handles_none_mapping_and_existing_instance(
+    tmp_path: Path,
+):
     cfg0 = mod.GeoPriorScalingConfig.from_any(None)
     assert cfg0.payload == {}
 
-    cfg1 = mod.GeoPriorScalingConfig.from_any({"time_units": "year"})
+    cfg1 = mod.GeoPriorScalingConfig.from_any(
+        {"time_units": "year"}
+    )
     assert cfg1.payload["time_units"] == "year"
 
     cfg2 = mod.GeoPriorScalingConfig.from_any(cfg1)
     assert cfg2 is cfg1
 
     p = tmp_path / "scaling.json"
-    p.write_text(json.dumps({"time_units": "year"}), encoding="utf-8")
+    p.write_text(
+        json.dumps({"time_units": "year"}), encoding="utf-8"
+    )
     cfg3 = mod.GeoPriorScalingConfig.from_any(str(p))
     assert cfg3.source == str(p)
     assert cfg3.payload["time_units"] == "year"

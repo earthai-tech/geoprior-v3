@@ -1,21 +1,19 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
+
 import pandas as pd
 
-
-__all__= [ 
-    
-   "unit_factor",
+__all__ = [
+    "unit_factor",
     "infer_unit",
-    "scale_cols", 
-    ]
+    "scale_cols",
+]
 
 _FACT = {
     ("m", "m"): 1.0,
@@ -23,6 +21,7 @@ _FACT = {
     ("m", "mm"): 1000.0,
     ("mm", "m"): 1.0 / 1000.0,
 }
+
 
 def unit_factor(from_u: str, to_u: str) -> float:
     fu = str(from_u).strip().lower()
@@ -32,6 +31,7 @@ def unit_factor(from_u: str, to_u: str) -> float:
     if fu == tu:
         return 1.0
     raise ValueError(f"Unsupported unit: {fu} -> {tu}")
+
 
 def infer_unit(
     df: pd.DataFrame,
@@ -51,6 +51,7 @@ def infer_unit(
         return "m"
     return default
 
+
 def scale_cols(
     df: pd.DataFrame,
     cols: Sequence[str],
@@ -60,6 +61,7 @@ def scale_cols(
     for c in cols:
         if c in out.columns:
             out[c] = (
-                pd.to_numeric(out[c], errors="coerce") * factor
+                pd.to_numeric(out[c], errors="coerce")
+                * factor
             )
     return out

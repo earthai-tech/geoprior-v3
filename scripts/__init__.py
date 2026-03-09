@@ -1,4 +1,3 @@
-
 """
 Paper scripts package (v3.2).
 

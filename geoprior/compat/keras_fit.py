@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # https://lkouadio.com
@@ -18,31 +17,26 @@ Keras 2/3 helpers for:
 from __future__ import annotations
 
 import contextlib
-import warnings
-from collections.abc import Mapping
 import itertools
-from typing import ( 
-    Any, 
-    Callable, 
-    Dict, 
-    Optional, 
-    Sequence
-)
+import warnings
+from collections.abc import Callable, Mapping, Sequence
+from typing import Any, Optional
+
 import numpy as np
 
 from ._config import import_keras_dependencies
 
-
 # Custom message for missing dependencies
-EXTRA_MSG = ( 
+EXTRA_MSG = (
     "`keras-fit` module expects the `tensorflow` or"
     " `keras` library to be installed."
-    )
+)
 # Configure and install dependencies if needed
 
 # Lazy-load Keras dependencies
 KERAS_DEPS = import_keras_dependencies(
-    extra_msg=EXTRA_MSG, error='ignore')
+    extra_msg=EXTRA_MSG, error="ignore"
+)
 
 Tensor = KERAS_DEPS.Tensor
 tf_float32 = KERAS_DEPS.float32
@@ -50,20 +44,22 @@ tf_convert = KERAS_DEPS.convert_to_tensor
 tf_stop_grad = KERAS_DEPS.stop_gradient
 tf_convert_to_tensor = KERAS_DEPS.convert_to_tensor
 tf_squeeze = KERAS_DEPS.squeeze
-tf_cast = KERAS_DEPS.cast 
-tf_expand_dims = KERAS_DEPS.expand_dims 
+tf_cast = KERAS_DEPS.cast
+tf_expand_dims = KERAS_DEPS.expand_dims
 
 LogFn = Optional[Callable[[str], None]]
 
-def _slice_first_batch(x: Any, n: int) -> Any:
 
+def _slice_first_batch(x: Any, n: int) -> Any:
     if x is None:
         return None
 
     if isinstance(x, Mapping):
-        return {k: _slice_first_batch(v, n) for k, v in x.items()}
+        return {
+            k: _slice_first_batch(v, n) for k, v in x.items()
+        }
 
-    if isinstance(x, (list, tuple)):
+    if isinstance(x, list | tuple):
         return type(x)(_slice_first_batch(v, n) for v in x)
 
     try:
@@ -81,8 +77,6 @@ def _slice_first_batch(x: Any, n: int) -> Any:
 
 
 def _match_score(a: Any, b: Any) -> float:
-
-
     aa = np.asarray(a)
     bb = np.asarray(b)
 
@@ -107,7 +101,7 @@ def normalize_predict_output(
     required: Sequence[str] = ("subs_pred", "gwl_pred"),
     batch_n: int = 8,
     log_fn: LogFn = None,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Normalize model.predict() output to a dict with required keys.
 
@@ -137,7 +131,7 @@ def normalize_predict_output(
             f"{missing}. got={list(d.keys())}"
         )
 
-    if not isinstance(pred_out, (list, tuple)):
+    if not isinstance(pred_out, list | tuple):
         raise TypeError(
             "Unexpected predict() output type: "
             f"{type(pred_out)}"
@@ -167,7 +161,9 @@ def normalize_predict_output(
     except Exception:
         out_call = None
 
-    if isinstance(out_call, Mapping) and all(k in out_call for k in req):
+    if isinstance(out_call, Mapping) and all(
+        k in out_call for k in req
+    ):
         ref = {k: out_call[k] for k in req}
 
         idxs = list(range(len(pred_list)))
@@ -239,6 +235,7 @@ def normalize_predict_output(
     out = {req[i]: pred_list[i] for i in range(len(req))}
     return out
 
+
 # ---------------------------------------------------------------------
 # Warnings (optional)
 # ---------------------------------------------------------------------
@@ -283,6 +280,7 @@ def _as_BHO(y_true: Tensor, y_pred: Tensor | None = None):
             y = y[:, :, 0, :]
 
     return tf_cast(y, tf_float32)
+
 
 # ---------------------------------------------------------------------
 # Targets (missing-output placeholder)
@@ -387,7 +385,7 @@ def update_compiled_metrics(
     *,
     targets: Any,
     y_pred: Any,
-    keys: Optional[Sequence[str]] = None,
+    keys: Sequence[str] | None = None,
 ) -> None:
     """
     Update compiled metrics in a version-safe way.
@@ -399,8 +397,8 @@ def update_compiled_metrics(
     if cm is None:
         return
 
-    out_names = (
-        list(getattr(model, "output_names", None) or [])
+    out_names = list(
+        getattr(model, "output_names", None) or []
     )
     if not out_names:
         return
@@ -415,12 +413,19 @@ def update_compiled_metrics(
     if not keys:
         return
 
-    t = {k: _as_BHO(targets[k], y_pred=y_pred[k])for k in keys} if isinstance(
-        targets, dict
-    ) else targets
-    p = {k: y_pred[k] for k in keys} if isinstance(
-        y_pred, dict
-    ) else y_pred
+    t = (
+        {
+            k: _as_BHO(targets[k], y_pred=y_pred[k])
+            for k in keys
+        }
+        if isinstance(targets, dict)
+        else targets
+    )
+    p = (
+        {k: y_pred[k] for k in keys}
+        if isinstance(y_pred, dict)
+        else y_pred
+    )
 
     yt_list = _as_list_by_outputs(t, keys)
     yp_list = _as_list_by_outputs(p, keys)
@@ -450,11 +455,12 @@ def update_compiled_metrics(
                 except Exception:
                     continue
 
+
 def compiled_metrics_dict(
     model: Any,
     *,
     dtype: Any = tf_float32,
-) -> Dict[str, Tensor]:
+) -> dict[str, Tensor]:
     """
     Read compiled metrics into a dict safely (Keras 2/3).
     """
@@ -470,7 +476,7 @@ def compiled_metrics_dict(
     if not isinstance(d, dict):
         return {}
 
-    out: Dict[str, Tensor] = {}
+    out: dict[str, Tensor] = {}
     for k, v in d.items():
         if not k:
             continue

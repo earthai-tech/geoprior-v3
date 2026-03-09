@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Derived from: fusionlab-learn (BSD-3-Clause)
@@ -32,7 +31,8 @@ from __future__ import annotations
 
 import os
 import warnings
-from typing import Any, Dict, Mapping, Optional, Callable
+from collections.abc import Callable, Mapping
+from typing import Any, Optional
 
 try:
     # Centralized TF import / HAS_TF flag
@@ -71,7 +71,7 @@ def _get_logger(logger: LogFn) -> Callable[[str], None]:
     return _wrapped
 
 
-def summarize_tf_devices() -> Dict[str, Any]:
+def summarize_tf_devices() -> dict[str, Any]:
     """
     Lightweight summary of available TensorFlow physical devices.
 
@@ -107,13 +107,13 @@ def summarize_tf_devices() -> Dict[str, Any]:
 
 
 def configure_tf(
-    device: str = "auto",           # "auto" | "cpu" | "gpu"
-    num_intra_threads: Optional[int] = None,
-    num_inter_threads: Optional[int] = None,
+    device: str = "auto",  # "auto" | "cpu" | "gpu"
+    num_intra_threads: int | None = None,
+    num_inter_threads: int | None = None,
     gpu_memory_growth: bool = True,
-    gpu_memory_limit_mb: Optional[int] = None,
-    logger: LogFn = None,           # if None, use print()
-) -> Dict[str, Any]:
+    gpu_memory_limit_mb: int | None = None,
+    logger: LogFn = None,  # if None, use print()
+) -> dict[str, Any]:
     """
     Configure TensorFlow runtime (device visibility, CPU threading and
     GPU memory policy).
@@ -161,7 +161,7 @@ def configure_tf(
             gpu_memory_limit_mb
     """
     log = _get_logger(logger)
-    info: Dict[str, Any] = {
+    info: dict[str, Any] = {
         "has_tf": HAS_TF and tf is not None,
         "device_mode_requested": device,
         "device_mode_effective": None,
@@ -183,7 +183,8 @@ def configure_tf(
     mode = (device or "auto").strip().lower()
     if mode not in {"auto", "cpu", "gpu"}:
         warnings.warn(
-            f"Unknown device mode {mode!r}; falling back to 'auto'."
+            f"Unknown device mode {mode!r}; falling back to 'auto'.",
+            stacklevel=2,
         )
         mode = "auto"
 
@@ -196,7 +197,9 @@ def configure_tf(
     # Decide effective mode
     eff_mode = mode
     if mode == "gpu" and not gpus:
-        log("[TF] Requested GPU mode but no GPUs found; using CPU.")
+        log(
+            "[TF] Requested GPU mode but no GPUs found; using CPU."
+        )
         eff_mode = "cpu"
     if mode == "auto" and not gpus:
         eff_mode = "cpu"
@@ -209,19 +212,29 @@ def configure_tf(
             # Hide all GPUs (if any)
             try:
                 tf.config.set_visible_devices([], "GPU")
-                log("[TF] Configured to run on CPU only (GPUs hidden).")
+                log(
+                    "[TF] Configured to run on CPU only (GPUs hidden)."
+                )
             except RuntimeError as exc:
                 # Devices already initialised; nothing we can do
-                log(f"[TF] Could not hide GPUs (already initialised): {exc}")
+                log(
+                    f"[TF] Could not hide GPUs (already initialised): {exc}"
+                )
             visible_gpus = []
         else:
             # Leave GPUs visible; apply memory policy if GPUs exist
             visible_gpus = list(gpus)
             mem_limit = (
-                int(gpu_memory_limit_mb) if gpu_memory_limit_mb else None
+                int(gpu_memory_limit_mb)
+                if gpu_memory_limit_mb
+                else None
             )
 
-            if visible_gpus and mem_limit is not None and mem_limit > 0:
+            if (
+                visible_gpus
+                and mem_limit is not None
+                and mem_limit > 0
+            ):
                 # Memory limit takes precedence over growth
                 try:
                     logical_cfg = [
@@ -247,7 +260,9 @@ def configure_tf(
             elif visible_gpus and gpu_memory_growth:
                 try:
                     for gpu in visible_gpus:
-                        tf.config.experimental.set_memory_growth(gpu, True)
+                        tf.config.experimental.set_memory_growth(
+                            gpu, True
+                        )
                     info["gpu_memory_growth"] = True
                     log("[TF] Enabled GPU memory growth.")
                 except RuntimeError as exc:
@@ -256,13 +271,17 @@ def configure_tf(
                         f"(devices already initialised?): {exc}"
                     )
     except Exception as exc:  # pragma: no cover - safety net
-        log(f"[TF] Unexpected error while configuring GPUs: {exc}")
+        log(
+            f"[TF] Unexpected error while configuring GPUs: {exc}"
+        )
 
-    info["visible_gpus"] = [getattr(d, "name", str(d)) for d in visible_gpus]
+    info["visible_gpus"] = [
+        getattr(d, "name", str(d)) for d in visible_gpus
+    ]
     info["device_mode_effective"] = eff_mode
 
     # --- CPU threading --------------------------------------------------
-    def _norm_threads(val: Optional[int]) -> Optional[int]:
+    def _norm_threads(val: int | None) -> int | None:
         if val is None:
             return None
         try:
@@ -276,21 +295,29 @@ def configure_tf(
 
     if intra is not None:
         try:
-            tf.config.threading.set_intra_op_parallelism_threads(intra)
+            tf.config.threading.set_intra_op_parallelism_threads(
+                intra
+            )
             info["intra_threads"] = intra
             # Keep BLAS/OpenMP in sync where possible
             os.environ["OMP_NUM_THREADS"] = str(intra)
             os.environ["MKL_NUM_THREADS"] = str(intra)
             log(f"[TF] Set intra-op threads to {intra}.")
-        except Exception as exc:  # pragma: no cover - env specific
+        except (
+            Exception
+        ) as exc:  # pragma: no cover - env specific
             log(f"[TF] Could not set intra-op threads: {exc}")
 
     if inter is not None:
         try:
-            tf.config.threading.set_inter_op_parallelism_threads(inter)
+            tf.config.threading.set_inter_op_parallelism_threads(
+                inter
+            )
             info["inter_threads"] = inter
             log(f"[TF] Set inter-op threads to {inter}.")
-        except Exception as exc:  # pragma: no cover - env specific
+        except (
+            Exception
+        ) as exc:  # pragma: no cover - env specific
             log(f"[TF] Could not set inter-op threads: {exc}")
 
     return info
@@ -299,7 +326,7 @@ def configure_tf(
 def configure_tf_from_cfg(
     cfg: Mapping[str, Any],
     logger: LogFn = None,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Read TF device options from a flat config dict and call
     :func:`configure_tf`.
@@ -318,7 +345,7 @@ def configure_tf_from_cfg(
         Whatever :func:`configure_tf` returns.
     """
 
-    def _as_int_or_none(key: str) -> Optional[int]:
+    def _as_int_or_none(key: str) -> int | None:
         val = cfg.get(key, None)
         if val is None:
             return None
@@ -328,7 +355,9 @@ def configure_tf_from_cfg(
             return None
         return iv if iv > 0 else None
 
-    dev_mode = str(cfg.get("TF_DEVICE_MODE", "auto")).strip().lower()
+    dev_mode = (
+        str(cfg.get("TF_DEVICE_MODE", "auto")).strip().lower()
+    )
     intra = _as_int_or_none("TF_INTRA_THREADS")
     inter = _as_int_or_none("TF_INTER_THREADS")
 
@@ -336,9 +365,11 @@ def configure_tf_from_cfg(
     allow_growth = bool(allow_growth_raw)
 
     mem_raw = cfg.get("TF_GPU_MEMORY_LIMIT_MB", None)
-    mem_limit: Optional[int]
+    mem_limit: int | None
     try:
-        mem_limit = int(mem_raw) if mem_raw is not None else None
+        mem_limit = (
+            int(mem_raw) if mem_raw is not None else None
+        )
     except Exception:
         mem_limit = None
     if mem_limit is not None and mem_limit <= 0:

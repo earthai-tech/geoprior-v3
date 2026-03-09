@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
@@ -25,21 +24,16 @@ exposed here as reusable utilities.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import (
-    Dict,
-    List,
-    Optional,
-    Sequence,
-)
 
 import numpy as np
 import pandas as pd
 
-
 # ----------------------------------------------------------
 # Exceedance probability (from quantiles)
 # ----------------------------------------------------------
+
 
 def exceed_prob_from_quantiles(
     q10: np.ndarray,
@@ -123,6 +117,7 @@ def exceed_prob_from_quantiles(
 # Brier + reliability
 # ----------------------------------------------------------
 
+
 def brier_score(p: np.ndarray, y: np.ndarray) -> float:
     p = np.asarray(p, dtype=float)
     y = np.asarray(y, dtype=float)
@@ -150,15 +145,15 @@ def brier_from_eval_df(
 ) -> BrierRow:
     """Compute Brier score from an eval csv table."""
     yy = pd.to_numeric(df[y], errors="coerce").to_numpy(float)
-    q10v = pd.to_numeric(
-        df[q10], errors="coerce"
-    ).to_numpy(float)
-    q50v = pd.to_numeric(
-        df[q50], errors="coerce"
-    ).to_numpy(float)
-    q90v = pd.to_numeric(
-        df[q90], errors="coerce"
-    ).to_numpy(float)
+    q10v = pd.to_numeric(df[q10], errors="coerce").to_numpy(
+        float
+    )
+    q50v = pd.to_numeric(df[q50], errors="coerce").to_numpy(
+        float
+    )
+    q90v = pd.to_numeric(df[q90], errors="coerce").to_numpy(
+        float
+    )
 
     p = exceed_prob_from_quantiles(
         q10v,
@@ -213,7 +208,7 @@ def reliability_bins(
         n_bins - 1,
     )
 
-    rows: List[Dict[str, float]] = []
+    rows: list[dict[str, float]] = []
 
     for b in range(n_bins):
         mm = idx == b
@@ -236,6 +231,7 @@ def reliability_bins(
 # ----------------------------------------------------------
 # Hotspot / top-K overlap
 # ----------------------------------------------------------
+
 
 def rank_locations(
     df: pd.DataFrame,
@@ -275,7 +271,13 @@ def topk_set(
     if k <= 0:
         return set()
     sub = ranked.head(k)
-    return set(zip(sub[x_col].tolist(), sub[y_col].tolist()))
+    return set(
+        zip(
+            sub[x_col].tolist(),
+            sub[y_col].tolist(),
+            strict=False,
+        )
+    )
 
 
 def jaccard_topk(a: set, b: set) -> float:
@@ -316,8 +318,7 @@ def spearman_rank_corr(
     return float(np.sum(r1c * r2c) / den)
 
 
-
-def _parse_horizon(h: object) -> Optional[int]:
+def _parse_horizon(h: object) -> int | None:
     if h is None:
         return None
     s = str(h).strip().lower()
@@ -369,9 +370,7 @@ def prepare_hotspot_ranks(
         raise KeyError(y_col)
 
     if h is not None and step_col in d.columns:
-        fs = pd.to_numeric(
-            d[step_col], errors="coerce"
-        )
+        fs = pd.to_numeric(d[step_col], errors="coerce")
         d = d.loc[fs.eq(float(h))].copy()
 
     if score.strip().lower() == "exceed":
@@ -408,9 +407,7 @@ def prepare_hotspot_ranks(
         )
         d = d.assign(_v=v)
 
-    d[time_col] = pd.to_numeric(
-        d[time_col], errors="coerce"
-    )
+    d[time_col] = pd.to_numeric(d[time_col], errors="coerce")
 
     g = d.groupby(
         [time_col, x_col, y_col],
@@ -470,7 +467,7 @@ def hotspot_stability(
     t2 = set(other[time_col].dropna().unique())
     ts = sorted(t1 & t2)
 
-    rows: List[Dict[str, float]] = []
+    rows: list[dict[str, float]] = []
 
     for t in ts:
         a = ref.loc[ref[time_col].eq(t)].copy()
@@ -479,8 +476,8 @@ def hotspot_stability(
         a = a.sort_values(rank_col).head(k)
         b = b.sort_values(rank_col).head(k)
 
-        sa = set(zip(a[x_col], a[y_col]))
-        sb = set(zip(b[x_col], b[y_col]))
+        sa = set(zip(a[x_col], a[y_col], strict=False))
+        sb = set(zip(b[x_col], b[y_col], strict=False))
 
         jac = jaccard_topk(sa, sb)
         spr = spearman_rank_corr(
@@ -501,7 +498,6 @@ def hotspot_stability(
         )
 
     return pd.DataFrame(rows)
-
 
 
 def stability_group_summary(
@@ -549,9 +545,7 @@ def stability_group_summary(
     use = df.copy()
     for c in ("jaccard", "spearman"):
         if c in use.columns:
-            use[c] = pd.to_numeric(
-                use[c], errors="coerce"
-            )
+            use[c] = pd.to_numeric(use[c], errors="coerce")
 
     if time_col in use.columns:
         use[time_col] = pd.to_numeric(

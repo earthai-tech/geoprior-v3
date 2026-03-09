@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
-
 
 """
 Collect SM3 per-regime summaries into one combined table.
@@ -27,7 +25,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 from pathlib import Path
 
@@ -53,7 +50,9 @@ def main() -> None:
 
     root = Path(args.suite_root).expanduser().resolve()
     if not root.exists():
-        raise FileNotFoundError(f"Suite root not found: {root}")
+        raise FileNotFoundError(
+            f"Suite root not found: {root}"
+        )
 
     rows = []
 
@@ -85,9 +84,13 @@ def main() -> None:
     out = pd.concat(rows, ignore_index=True)
 
     # Sort for readability
-    sort_cols = [c for c in ["metric", "regime"] if c in out.columns]
+    sort_cols = [
+        c for c in ["metric", "regime"] if c in out.columns
+    ]
     if sort_cols:
-        out = out.sort_values(sort_cols).reset_index(drop=True)
+        out = out.sort_values(sort_cols).reset_index(
+            drop=True
+        )
 
     out_csv = Path(args.out_csv).expanduser().resolve()
     out_csv.parent.mkdir(parents=True, exist_ok=True)

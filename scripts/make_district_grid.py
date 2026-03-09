@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
@@ -9,14 +8,13 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
 from . import config as cfg
 from . import utils
-
 
 _CITY_A = cfg.CITY_CANON.get("ns", "Nansha")
 _CITY_B = cfg.CITY_CANON.get("zh", "Zhongshan")
@@ -29,28 +27,34 @@ def _slug(s: str) -> str:
 def _pick_paths(
     art: utils.Artifacts,
     split: str,
-) -> Tuple[Optional[Path], Optional[Path]]:
+) -> tuple[Path | None, Path | None]:
     if split == "val":
         return art.forecast_val_csv, art.forecast_future_csv
     if split == "test":
-        return art.forecast_test_csv, art.forecast_test_future_csv
+        return (
+            art.forecast_test_csv,
+            art.forecast_test_future_csv,
+        )
     if (
         art.forecast_test_csv is not None
         and art.forecast_test_future_csv is not None
     ):
-        return art.forecast_test_csv, art.forecast_test_future_csv
+        return (
+            art.forecast_test_csv,
+            art.forecast_test_future_csv,
+        )
     return art.forecast_val_csv, art.forecast_future_csv
 
 
 def _resolve_city(
     *,
     city: str,
-    src: Optional[str],
-    eval_csv: Optional[str],
-    future_csv: Optional[str],
+    src: str | None,
+    eval_csv: str | None,
+    future_csv: str | None,
     split: str,
-) -> Dict[str, Any]:
-    out: Dict[str, Any] = {"name": city}
+) -> dict[str, Any]:
+    out: dict[str, Any] = {"name": city}
 
     if eval_csv and future_csv:
         out["eval_csv"] = utils.as_path(eval_csv)
@@ -113,7 +117,7 @@ def _extent_xy(
     df: pd.DataFrame,
     *,
     pad_frac: float,
-) -> Tuple[float, float, float, float]:
+) -> tuple[float, float, float, float]:
     x = df["coord_x"].to_numpy(float)
     y = df["coord_y"].to_numpy(float)
 
@@ -139,11 +143,11 @@ def _extent_xy(
 
 
 def _grid_edges(
-    extent: Tuple[float, float, float, float],
+    extent: tuple[float, float, float, float],
     *,
     nx: int,
     ny: int,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     xmin, xmax, ymin, ymax = extent
     x_edges = np.linspace(xmin, xmax, int(nx) + 1)
     y_edges = np.linspace(ymin, ymax, int(ny) + 1)
@@ -167,7 +171,7 @@ def _zone_id(
     return f"Z{rr:0{w}d}{cc:0{z}d}"
 
 
-def _try_load_boundary(path: Optional[str]):
+def _try_load_boundary(path: str | None):
     if not path:
         return None
     try:
@@ -191,7 +195,7 @@ def _try_load_boundary(path: Optional[str]):
 def _build_grid_gdf(
     *,
     city: str,
-    extent: Tuple[float, float, float, float],
+    extent: tuple[float, float, float, float],
     nx: int,
     ny: int,
     boundary_geom,
@@ -208,9 +212,11 @@ def _build_grid_gdf(
         )
 
     xmin, xmax, ymin, ymax = extent
-    x_edges, y_edges = _grid_edges(extent, nx=int(nx), ny=int(ny))
+    x_edges, y_edges = _grid_edges(
+        extent, nx=int(nx), ny=int(ny)
+    )
 
-    rows: List[Dict[str, Any]] = []
+    rows: list[dict[str, Any]] = []
     for iy in range(int(ny)):
         for ix in range(int(nx)):
             x0 = float(x_edges[ix])
@@ -245,11 +251,15 @@ def _build_grid_gdf(
                 }
             )
 
-    gdf = gpd.GeoDataFrame(rows, geometry="geometry", crs=None)
+    gdf = gpd.GeoDataFrame(
+        rows, geometry="geometry", crs=None
+    )
 
     if clip_boundary and boundary_geom is not None:
         # clip each cell to boundary; drop empty / tiny intersections
-        cell_area = (x_edges[1] - x_edges[0]) * (y_edges[1] - y_edges[0])
+        cell_area = (x_edges[1] - x_edges[0]) * (
+            y_edges[1] - y_edges[0]
+        )
         cell_area = float(cell_area) if cell_area > 0 else 1.0
 
         inter = gdf.geometry.intersection(boundary_geom)
@@ -272,13 +282,15 @@ def _assign_points_to_grid(
     pts: pd.DataFrame,
     *,
     city: str,
-    extent: Tuple[float, float, float, float],
+    extent: tuple[float, float, float, float],
     nx: int,
     ny: int,
-    zone_ids: Optional[set],
+    zone_ids: set | None,
 ) -> pd.DataFrame:
     xmin, xmax, ymin, ymax = extent
-    x_edges, y_edges = _grid_edges(extent, nx=int(nx), ny=int(ny))
+    x_edges, y_edges = _grid_edges(
+        extent, nx=int(nx), ny=int(ny)
+    )
 
     x = pts["coord_x"].to_numpy(float)
     y = pts["coord_y"].to_numpy(float)
@@ -292,7 +304,7 @@ def _assign_points_to_grid(
     row_north = (int(ny) - 1) - iy
     zid = [
         _zone_id(int(r), int(c), ny=int(ny), nx=int(nx))
-        for r, c in zip(row_north, ix)
+        for r, c in zip(row_north, ix, strict=False)
     ]
 
     out = pts.copy()
@@ -304,13 +316,22 @@ def _assign_points_to_grid(
     if zone_ids is not None:
         out["zone_present"] = out["zone_id"].isin(zone_ids)
 
-    return out[["city", "sample_idx", "coord_x", "coord_y",
-                "zone_id", "zone_row", "zone_col"] +
-               (["zone_present"] if zone_ids is not None else [])]
+    return out[
+        [
+            "city",
+            "sample_idx",
+            "coord_x",
+            "coord_y",
+            "zone_id",
+            "zone_row",
+            "zone_col",
+        ]
+        + (["zone_present"] if zone_ids is not None else [])
+    ]
 
 
 def make_district_grid_main(
-    argv: Optional[List[str]] = None,
+    argv: list[str] | None = None,
 ) -> None:
     ap = argparse.ArgumentParser(
         prog="make-district-grid",
@@ -396,7 +417,7 @@ def make_district_grid_main(
 
     cities0 = utils.resolve_cities(args) or [_CITY_A, _CITY_B]
 
-    jobs: List[Dict[str, Any]] = []
+    jobs: list[dict[str, Any]] = []
     if _CITY_A in cities0:
         jobs.append(
             _resolve_city(
@@ -455,7 +476,9 @@ def make_district_grid_main(
             print(f"[OK] wrote {p}")
 
         if args.assign_samples:
-            zone_ids = set(gdf["zone_id"].astype(str).to_list())
+            zone_ids = set(
+                gdf["zone_id"].astype(str).to_list()
+            )
             a = _assign_points_to_grid(
                 pts,
                 city=city,
@@ -471,7 +494,7 @@ def make_district_grid_main(
             print(f"[OK] wrote {p2}")
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     make_district_grid_main(argv)
 
 

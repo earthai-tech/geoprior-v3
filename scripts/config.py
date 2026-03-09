@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -43,7 +42,6 @@ PATTERNS = {
         "*_forecast_TestSet_*_eval_calibrated.csv",
         "*TestSet*eval_calibrated*.csv",
     ),
-    
     # --- TestSet: FUTURE (no subsidence_actual) ---
     "forecast_test_future_csv": (
         "*forecast*TestSet*future*.csv",
@@ -87,7 +85,6 @@ PATTERNS = {
         "ablation_record*.jsonl",
         "ablation_record.updated*.jsonl",
     ),
-    
 }
 
 PATTERNS["boundary_shp"] = (
@@ -157,7 +154,7 @@ CITY_CANON = {
 }
 
 CITY_COLORS = {
-    "Nansha": "#1F78B4",     # blue
+    "Nansha": "#1F78B4",  # blue
     "Zhongshan": "#E31A1C",  # red
 }
 

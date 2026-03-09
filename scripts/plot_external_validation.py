@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
@@ -38,19 +37,17 @@ import argparse
 import json
 import math
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import joblib
 import matplotlib.pyplot as plt
-from matplotlib.ticker import ScalarFormatter
 import numpy as np
 import pandas as pd
+from matplotlib.ticker import ScalarFormatter
 
 from . import config as cfg
 from . import utils
 
-
-ArrayDict = Dict[str, np.ndarray]
+ArrayDict = dict[str, np.ndarray]
 
 
 def load_npz_dict(path: str) -> ArrayDict:
@@ -67,9 +64,10 @@ def read_table(path: str) -> pd.DataFrame:
 
     return pd.read_csv(p)
 
+
 def load_boundary_xy(
-    path: Optional[str],
-) -> Optional[Tuple[np.ndarray, np.ndarray]]:
+    path: str | None,
+) -> tuple[np.ndarray, np.ndarray] | None:
     """
     Load an optional boundary polyline/polygon.
 
@@ -93,7 +91,11 @@ def load_boundary_xy(
             if isinstance(out, tuple) and len(out) == 2:
                 bx = np.asarray(out[0], dtype=float)
                 by = np.asarray(out[1], dtype=float)
-                if bx.ndim == 1 and by.ndim == 1 and bx.size == by.size:
+                if (
+                    bx.ndim == 1
+                    and by.ndim == 1
+                    and bx.size == by.size
+                ):
                     return bx, by
         except Exception:
             pass
@@ -124,12 +126,12 @@ def load_boundary_xy(
             "{'y','y_m','coord_y'}."
         )
 
-    bx = pd.to_numeric(
-        df[x_col], errors="coerce"
-    ).to_numpy(dtype=float)
-    by = pd.to_numeric(
-        df[y_col], errors="coerce"
-    ).to_numpy(dtype=float)
+    bx = pd.to_numeric(df[x_col], errors="coerce").to_numpy(
+        dtype=float
+    )
+    by = pd.to_numeric(df[y_col], errors="coerce").to_numpy(
+        dtype=float
+    )
 
     ok = np.isfinite(bx) & np.isfinite(by)
     if not np.any(ok):
@@ -158,10 +160,11 @@ def apply_no_offset(
         fmt_y = ScalarFormatter(useOffset=False)
         fmt_y.set_scientific(False)
         ax.yaxis.set_major_formatter(fmt_y)
-        
+
+
 def inverse_txy(
     coords_bh3: np.ndarray,
-    coord_scaler_path: Optional[str],
+    coord_scaler_path: str | None,
 ) -> np.ndarray:
     first = np.asarray(coords_bh3[:, 0, :], dtype=float)
 
@@ -207,7 +210,7 @@ def reduce_horizon(
 def build_pixel_table(
     inputs_npz: str,
     payload_npz: str,
-    coord_scaler_path: Optional[str],
+    coord_scaler_path: str | None,
     horizon_reducer: str,
     site_reducer: str,
 ) -> pd.DataFrame:
@@ -274,8 +277,8 @@ def grid_mean(
     v: np.ndarray,
     *,
     res: int,
-    extent: Tuple[float, float, float, float],
-) -> Tuple[np.ndarray, Tuple[float, float, float, float]]:
+    extent: tuple[float, float, float, float],
+) -> tuple[np.ndarray, tuple[float, float, float, float]]:
     xmin, xmax, ymin, ymax = extent
     xb = np.linspace(xmin, xmax, int(res) + 1)
     yb = np.linspace(ymin, ymax, int(res) + 1)
@@ -302,7 +305,7 @@ def grid_mean(
 def field_extent(
     pixels: pd.DataFrame,
     pad_frac: float = 0.02,
-) -> Tuple[float, float, float, float]:
+) -> tuple[float, float, float, float]:
     x = pixels["x"].to_numpy(dtype=float)
     y = pixels["y"].to_numpy(dtype=float)
 
@@ -320,6 +323,7 @@ def field_extent(
         ymin - dy,
         ymax + dy,
     )
+
 
 def spearman_rho(x: np.ndarray, y: np.ndarray) -> float:
     x = np.asarray(x, dtype=float)
@@ -389,9 +393,9 @@ def plot_external_validation(
     site_csv: str,
     full_inputs_npz: str,
     full_payload_npz: str,
-    coord_scaler: Optional[str],
+    coord_scaler: str | None,
     out: str,
-    out_json: Optional[str],
+    out_json: str | None,
     horizon_reducer: str,
     site_reducer: str,
     grid_res: int,
@@ -403,8 +407,8 @@ def plot_external_validation(
     show_ticklabels: bool,
     show_title: bool,
     show_panel_titles: bool,
-    title: Optional[str],
-    boundary: Optional[str],
+    title: str | None,
+    boundary: str | None,
     paper_format: bool,
     paper_no_offset: bool,
 ) -> None:
@@ -436,7 +440,7 @@ def plot_external_validation(
 
     fig_w = 8.8 if paper_format else 9.2
     fig_h = 3.0 if paper_format else 3.3
-    
+
     needed = {
         "well_id",
         "x",
@@ -451,10 +455,7 @@ def plot_external_validation(
     }
     miss = [c for c in needed if c not in site_df.columns]
     if miss:
-        raise KeyError(
-            "Site table missing columns: "
-            f"{miss}"
-        )
+        raise KeyError(f"Site table missing columns: {miss}")
 
     ext = field_extent(pix)
     z_h, ext2 = grid_mean(
@@ -519,7 +520,7 @@ def plot_external_validation(
             alpha=0.9,
             zorder=2,
         )
-        
+
     ax.scatter(
         site_df["x"].to_numpy(float),
         site_df["y"].to_numpy(float),
@@ -540,8 +541,7 @@ def plot_external_validation(
         linewidths=0.9,
         zorder=3,
     )
-    
-    
+
     for _, row in site_df.iterrows():
         ax.plot(
             [
@@ -557,7 +557,7 @@ def plot_external_validation(
             alpha=0.8,
             zorder=2,
         )
-        
+
     annotate_sites(
         ax,
         site_df,
@@ -573,7 +573,7 @@ def plot_external_validation(
             fontweight="bold",
             pad=2.0 if paper_format else None,
         )
-        
+
     if show_labels:
         ax.set_xlabel("x (m)")
         ax.set_ylabel("y (m)")
@@ -584,7 +584,7 @@ def plot_external_validation(
 
     if paper_no_offset:
         apply_no_offset(ax, x=True, y=True)
-        
+
     if show_legend:
         cb = fig.colorbar(
             im,
@@ -593,9 +593,7 @@ def plot_external_validation(
             pad=0.04,
         )
         if show_labels:
-            cb.set_label(
-                r"$H_{\mathrm{eff}}$ (m)"
-            )
+            cb.set_label(r"$H_{\mathrm{eff}}$ (m)")
 
     # -------------------------------------------------
     # b) borehole thickness vs model H_eff
@@ -624,12 +622,8 @@ def plot_external_validation(
             # fontsize=max(7, int(font) - 1),
         )
 
-    vmin = float(
-        min(np.nanmin(obs_h), np.nanmin(mod_h), 0.0)
-    )
-    vmax = float(
-        max(np.nanmax(obs_h), np.nanmax(mod_h))
-    )
+    vmin = float(min(np.nanmin(obs_h), np.nanmin(mod_h), 0.0))
+    vmax = float(max(np.nanmax(obs_h), np.nanmax(mod_h)))
     pad = 0.05 * max(vmax - vmin, 1.0)
     lo = vmin - pad
     hi = vmax + pad
@@ -685,16 +679,12 @@ def plot_external_validation(
         )
 
     if show_labels:
-        ax.set_xlabel(
-            "Borehole thickness (m)"
-        )
-        ax.set_ylabel(
-            r"Model $H_{\mathrm{eff}}$ (m)"
-        )
+        ax.set_xlabel("Borehole thickness (m)")
+        ax.set_ylabel(r"Model $H_{\mathrm{eff}}$ (m)")
 
     if paper_no_offset:
         apply_no_offset(ax, x=True, y=True)
-        
+
     # -------------------------------------------------
     # c) late-step specific capacity vs model K
     # -------------------------------------------------
@@ -753,17 +743,15 @@ def plot_external_validation(
             r"Late-step specific capacity "
             r"(L s$^{-1}$ m$^{-1}$)"
         )
-        ax.set_ylabel(
-            r"Model $K$ (m s$^{-1}$)"
-        )
+        ax.set_ylabel(r"Model $K$ (m s$^{-1}$)")
 
     if paper_no_offset:
         apply_no_offset(ax, x=True, y=False)
-        
+
     for ax in axes:
         for side in ("top", "right"):
             ax.spines[side].set_visible(False)
-        
+
     if show_title:
         ttl = utils.resolve_title(
             default=(
@@ -929,7 +917,7 @@ def _add_args(ap: argparse.ArgumentParser) -> None:
 
 
 def plot_external_validation_main(
-    argv: Optional[List[str]] = None,
+    argv: list[str] | None = None,
 ) -> None:
     ap = argparse.ArgumentParser(
         prog="plot-external-validation",
@@ -987,12 +975,12 @@ def plot_external_validation_main(
     )
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     plot_external_validation_main(argv)
 
 
 if __name__ == "__main__":
     main()
-    
+
 # Daniel@daniel03 MINGW64 /d/projects/geoprior-v3 (develop)
 # $ python -m scripts plot-external-validation   --site-csv D:/projects/geoprior-v3/nat.com/boreholes_zhongshan_with_model.csv   --full-inputs-npz E:/nature/results/zhongshan_GeoPriorSubsNet_stage1/external_validation_fullcity/full_inputs.npz   --full-payload-npz E:/nature/results/zhongshan_GeoPriorSubsNet_stage1/external_validation_fullcity/physics_payload_fullcity.npz   --coord-scaler E:/nature/results/zhongshan_GeoPriorSubsNet_stage1/artifacts/zhongshan_coord_scaler.joblib   --city Zhongshan    --out-json supp_zhongshan_external_validation.json   --paper-format --paper-no-offset --out "scripts/out/FigS06"

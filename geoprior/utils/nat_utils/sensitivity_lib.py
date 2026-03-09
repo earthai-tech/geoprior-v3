@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -26,26 +25,25 @@ with the heavy steps moved to `build_context()`:
 It writes all artifacts under `run_dir`.
 """
 
-
 from __future__ import annotations
 
 import copy
 import datetime as dt
-import sys
 import gc
 import json
 import os
+import platform
 import re
-import joblib 
-import platform 
-
+import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
+import joblib
 import numpy as np
 import tensorflow as tf
 
+from geoprior.backends.devices import configure_tf_from_cfg
 from geoprior.registry import _find_stage1_manifest
 from geoprior.utils import (
     default_results_dir,
@@ -58,10 +56,8 @@ from geoprior.utils import (
     resolve_hybrid_config,
 )
 
-from geoprior.backends.devices import configure_tf_from_cfg
 
-
-def _sanitize_tag(s: Optional[str]) -> Optional[str]:
+def _sanitize_tag(s: str | None) -> str | None:
     if not s:
         return None
     s = re.sub(r"[^0-9A-Za-z._-]+", "_", s.strip())
@@ -73,32 +69,32 @@ def _sanitize_tag(s: Optional[str]) -> Optional[str]:
 @dataclass
 class SensitivityContext:
     manifest_path: str
-    manifest: Dict[str, Any]
-    cfg_base: Dict[str, Any]
+    manifest: dict[str, Any]
+    cfg_base: dict[str, Any]
 
     # stage-1 paths / outputs
     base_output_dir: str
 
     # scalers / encoders
-    scaler_info: Dict[str, Any]
+    scaler_info: dict[str, Any]
 
     # npz arrays
-    X_train: Dict[str, np.ndarray]
-    y_train: Dict[str, np.ndarray]
-    X_val: Dict[str, np.ndarray]
-    y_val: Dict[str, np.ndarray]
-    X_test: Optional[Dict[str, np.ndarray]]
-    y_test: Optional[Dict[str, np.ndarray]]
+    X_train: dict[str, np.ndarray]
+    y_train: dict[str, np.ndarray]
+    X_val: dict[str, np.ndarray]
+    y_val: dict[str, np.ndarray]
+    X_test: dict[str, np.ndarray] | None
+    y_test: dict[str, np.ndarray] | None
 
     # datasets (cached)
     ds_train: tf.data.Dataset
     ds_val: tf.data.Dataset
-    ds_test: Optional[tf.data.Dataset]
+    ds_test: tf.data.Dataset | None
 
     # reusable “static” knobs
-    dyn_names: Tuple[str, ...]
-    fut_names: Tuple[str, ...]
-    sta_names: Tuple[str, ...]
+    dyn_names: tuple[str, ...]
+    fut_names: tuple[str, ...]
+    sta_names: tuple[str, ...]
     mode: str
     horizon: int
     batch_size: int
@@ -106,8 +102,8 @@ class SensitivityContext:
 
 def build_context(
     *,
-    city: Optional[str] = None,
-    stage1_manifest: Optional[str] = None,
+    city: str | None = None,
+    stage1_manifest: str | None = None,
     verbose: int = 1,
 ) -> SensitivityContext:
     """
@@ -121,12 +117,16 @@ def build_context(
     results_dir = default_results_dir()
 
     payload = load_nat_config_payload()
-    cfg_city = (payload.get("city") or "").strip().lower() or None
+    cfg_city = (
+        payload.get("city") or ""
+    ).strip().lower() or None
 
     city_env = getenv_stripped("CITY")
-    city_hint = (city_env or city or cfg_city)
+    city_hint = city_env or city or cfg_city
 
-    manual = stage1_manifest or getenv_stripped("STAGE1_MANIFEST")
+    manual = stage1_manifest or getenv_stripped(
+        "STAGE1_MANIFEST"
+    )
 
     manifest_path = _find_stage1_manifest(
         manual=manual,
@@ -134,12 +134,18 @@ def build_context(
         city_hint=city_hint,
         model_hint=None,
         prefer="timestamp",
-        required_keys=("model", "stage", "artifacts", "config", "paths"),
+        required_keys=(
+            "model",
+            "stage",
+            "artifacts",
+            "config",
+            "paths",
+        ),
         filter_fn=None,
         verbose=1 if verbose else 0,
     )
 
-    with open(manifest_path, "r", encoding="utf-8") as f:
+    with open(manifest_path, encoding="utf-8") as f:
         M = json.load(f)
 
     cfg_global = load_nat_config()
@@ -173,7 +179,9 @@ def build_context(
 
     X_test = None
     y_test = None
-    if npz.get("test_inputs_npz") and npz.get("test_targets_npz"):
+    if npz.get("test_inputs_npz") and npz.get(
+        "test_targets_npz"
+    ):
         X_test = dict(np.load(npz["test_inputs_npz"]))
         y_test = dict(np.load(npz["test_targets_npz"]))
 
@@ -248,7 +256,7 @@ def build_context(
 
 def _make_run_dir(
     base_output_dir: str,
-    run_tag: Optional[str],
+    run_tag: str | None,
     stable: bool,
 ) -> str:
     tag = _sanitize_tag(run_tag)
@@ -263,6 +271,7 @@ def _make_run_dir(
     ensure_directory_exists(out)
     return out
 
+
 def cleanup_between_runs() -> None:
     """Clear TF/Keras graphs between runs."""
 
@@ -273,11 +282,11 @@ def cleanup_between_runs() -> None:
 def run_one(
     ctx,
     *,
-    overrides: Dict[str, Any],
-    run_tag: Optional[str],
+    overrides: dict[str, Any],
+    run_tag: str | None,
     stable_run_dir: bool = True,
-    eval_max_batches: Optional[int] = None,
-    cal_max_batches: Optional[int] = None,
+    eval_max_batches: int | None = None,
+    cal_max_batches: int | None = None,
 ) -> str:
     """Run one physics sensitivity trial.
 
@@ -296,7 +305,9 @@ def run_one(
     )
 
     from geoprior.api.util import get_table_size
-    from geoprior.backends.devices import configure_tf_from_cfg
+    from geoprior.backends.devices import (
+        configure_tf_from_cfg,
+    )
     from geoprior.compat import (
         load_inference_model,
         load_model_from_tfv2,
@@ -305,12 +316,11 @@ def run_one(
         save_model,
     )
     from geoprior.deps import with_progress
-    from geoprior.plot import plot_eval_future
     from geoprior.nn import (
-        Coverage80,
-        LambdaOffsetScheduler,
         MAEQ50,
         MSEQ50,
+        Coverage80,
+        LambdaOffsetScheduler,
         Sharpness80,
         _logs_to_py,
         _to_py,
@@ -327,9 +337,9 @@ def run_one(
         GeoPriorSubsNet,
         PoroElasticSubsNet,
         autoplot_geoprior_history,
+        debug_model_reload,
         extract_physical_parameters,
         finalize_scaling_kwargs,
-        debug_model_reload,
         load_physics_payload,
         override_scaling_kwargs,
         plot_physics_values_in,
@@ -340,6 +350,7 @@ def run_one(
         LearnableKappa,
         LearnableMV,
     )
+    from geoprior.plot import plot_eval_future
     from geoprior.utils import (
         audit_stage2_handshake,
         best_epoch_and_metrics,
@@ -388,9 +399,13 @@ def run_one(
     DEBUG = bool(cfg.get("DEBUG", False))
 
     # Unit post-processing for eval JSON.
-    units_mode = str(cfg.get("EVAL_JSON_UNITS_MODE", "si") or "si")
+    units_mode = str(
+        cfg.get("EVAL_JSON_UNITS_MODE", "si") or "si"
+    )
     units_mode = units_mode.strip().lower()
-    units_scope = str(cfg.get("EVAL_JSON_UNITS_SCOPE", "all") or "all")
+    units_scope = str(
+        cfg.get("EVAL_JSON_UNITS_SCOPE", "all") or "all"
+    )
     units_scope = units_scope.strip().lower()
 
     # ---------------------------
@@ -479,8 +494,12 @@ def run_one(
     )
 
     # Physics
-    TIME_UNITS = str(cfg.get("TIME_UNITS", "year") or "year").lower()
-    SCALE_PDE_RESIDUALS = bool(cfg.get("SCALE_PDE_RESIDUALS", True))
+    TIME_UNITS = str(
+        cfg.get("TIME_UNITS", "year") or "year"
+    ).lower()
+    SCALE_PDE_RESIDUALS = bool(
+        cfg.get("SCALE_PDE_RESIDUALS", True)
+    )
     CONS_RESID_METHOD = str(
         cfg.get(
             "CONSOLIDATION_STEP_RESIDUAL_METHOD",
@@ -502,7 +521,9 @@ def run_one(
 
     LOSS_WEIGHT_GWL = float(cfg.get("LOSS_WEIGHT_GWL", 0.5))
     LAMBDA_Q = float(cfg.get("LAMBDA_Q", 0.0))
-    LOG_Q_DIAGNOSTICS = bool(cfg.get("LOG_Q_DIAGNOSTICS", False))
+    LOG_Q_DIAGNOSTICS = bool(
+        cfg.get("LOG_Q_DIAGNOSTICS", False)
+    )
 
     MV_LR_MULT = float(cfg.get("MV_LR_MULT", 1.0))
     KAPPA_LR_MULT = float(cfg.get("KAPPA_LR_MULT", 5.0))
@@ -512,18 +533,31 @@ def run_one(
     USE_LAMBDA_OFFSET_SCHED = bool(
         cfg.get("USE_LAMBDA_OFFSET_SCHEDULER", False)
     )
-    LAMBDA_OFFSET_UNIT = cfg.get("LAMBDA_OFFSET_UNIT", "epoch")
-    LAMBDA_OFFSET_WHEN = cfg.get("LAMBDA_OFFSET_WHEN", "begin")
-    LAMBDA_OFFSET_WARMUP = int(cfg.get("LAMBDA_OFFSET_WARMUP", 10))
+    LAMBDA_OFFSET_UNIT = cfg.get(
+        "LAMBDA_OFFSET_UNIT", "epoch"
+    )
+    LAMBDA_OFFSET_WHEN = cfg.get(
+        "LAMBDA_OFFSET_WHEN", "begin"
+    )
+    LAMBDA_OFFSET_WARMUP = int(
+        cfg.get("LAMBDA_OFFSET_WARMUP", 10)
+    )
     LAMBDA_OFFSET_START = cfg.get("LAMBDA_OFFSET_START", None)
     LAMBDA_OFFSET_END = cfg.get("LAMBDA_OFFSET_END", None)
-    LAMBDA_OFFSET_SCHEDULE = cfg.get("LAMBDA_OFFSET_SCHEDULE", None)
+    LAMBDA_OFFSET_SCHEDULE = cfg.get(
+        "LAMBDA_OFFSET_SCHEDULE", None
+    )
 
     # Identifiability
     ident = cfg.get("IDENTIFIABILITY_REGIME", None)
     if isinstance(ident, str):
         s = ident.strip()
-        if not s or s.lower() in ("none", "off", "false", "0"):
+        if not s or s.lower() in (
+            "none",
+            "off",
+            "false",
+            "0",
+        ):
             ident = None
         else:
             ident = s
@@ -545,8 +579,12 @@ def run_one(
         LAMBDA_GW = 0.0
 
     # Censoring
-    FEATURES = cfg.get("features", {}) or {}
-    CENSOR = cfg.get("censoring", {}) or cfg.get("censor", {}) or {}
+    cfg.get("features", {}) or {}
+    CENSOR = (
+        cfg.get("censoring", {})
+        or cfg.get("censor", {})
+        or {}
+    )
     CENSOR_SPECS = CENSOR.get("specs", []) or []
     CENSOR_THRESH = float(CENSOR.get("flag_threshold", 0.5))
 
@@ -560,7 +598,9 @@ def run_one(
         if not cand:
             base = sp.get("col")
             if base:
-                cand = base + sp.get("flag_suffix", "_censored")
+                cand = base + sp.get(
+                    "flag_suffix", "_censored"
+                )
         if not cand:
             continue
         if cand in FUT_NAMES and CENSOR_FLAG_IDX_FUT is None:
@@ -654,11 +694,16 @@ def run_one(
     sk_stage1 = (cfg.get("scaling_kwargs") or {}).copy()
 
     # Resolve driver channel indices.
-    if "gwl_dyn_index" in sk_stage1 and sk_stage1["gwl_dyn_index"] is not None:
+    if (
+        "gwl_dyn_index" in sk_stage1
+        and sk_stage1["gwl_dyn_index"] is not None
+    ):
         GWL_DYN_INDEX = int(sk_stage1["gwl_dyn_index"])
         gwl_dyn_name = DYN_NAMES[GWL_DYN_INDEX]
     else:
-        gwl_dyn_name = sk_stage1.get("gwl_dyn_name") or GWL_COL
+        gwl_dyn_name = (
+            sk_stage1.get("gwl_dyn_name") or GWL_COL
+        )
         if gwl_dyn_name not in DYN_NAMES:
             for cand in (GWL_COL, "z_GWL", "gwl", "GWL"):
                 if cand in DYN_NAMES:
@@ -679,16 +724,22 @@ def run_one(
     )
     coord_ranges = sk_stage1.get("coord_ranges") or None
 
-    coords_in_degrees = bool(sk_stage1.get("coords_in_degrees", False))
+    coords_in_degrees = bool(
+        sk_stage1.get("coords_in_degrees", False)
+    )
     deg_to_m_lon = sk_stage1.get("deg_to_m_lon", None)
     deg_to_m_lat = sk_stage1.get("deg_to_m_lat", None)
-    coord_order = sk_stage1.get("coord_order", ["t", "x", "y"])
+    coord_order = sk_stage1.get(
+        "coord_order", ["t", "x", "y"]
+    )
 
     if coords_in_degrees and (
         deg_to_m_lon is None or deg_to_m_lat is None
     ):
         lat_ref_deg = sk_stage1.get("lat_ref_deg", None)
-        if lat_ref_deg is not None and np.isfinite(float(lat_ref_deg)):
+        if lat_ref_deg is not None and np.isfinite(
+            float(lat_ref_deg)
+        ):
             deg_to_m_lon, deg_to_m_lat = deg_to_m_from_lat(
                 float(lat_ref_deg)
             )
@@ -728,7 +779,9 @@ def run_one(
 
     # Physics bounds
     PHYS_BOUNDS_CFG = cfg.get("PHYSICS_BOUNDS", {}) or {}
-    BOUNDS_MODE = str(cfg.get("PHYSICS_BOUNDS_MODE", "soft") or "soft")
+    BOUNDS_MODE = str(
+        cfg.get("PHYSICS_BOUNDS_MODE", "soft") or "soft"
+    )
     BOUNDS_MODE = BOUNDS_MODE.strip().lower()
     if BOUNDS_MODE in ("off", "none"):
         BOUNDS_MODE = "off"
@@ -764,27 +817,39 @@ def run_one(
     }
 
     # GeoPrior parameters
-    GEOPRIOR_INIT_MV = float(cfg.get("GEOPRIOR_INIT_MV", 1e-7))
-    GEOPRIOR_INIT_KAPPA = float(cfg.get("GEOPRIOR_INIT_KAPPA", 1.0))
-    GEOPRIOR_GAMMA_W = float(cfg.get("GEOPRIOR_GAMMA_W", 9810.0))
+    GEOPRIOR_INIT_MV = float(
+        cfg.get("GEOPRIOR_INIT_MV", 1e-7)
+    )
+    GEOPRIOR_INIT_KAPPA = float(
+        cfg.get("GEOPRIOR_INIT_KAPPA", 1.0)
+    )
+    GEOPRIOR_GAMMA_W = float(
+        cfg.get("GEOPRIOR_GAMMA_W", 9810.0)
+    )
     GEOPRIOR_H_REF = cfg.get("GEOPRIOR_H_REF", 0.0)
-    GEOPRIOR_KAPPA_MODE = cfg.get("GEOPRIOR_KAPPA_MODE", "bar")
+    GEOPRIOR_KAPPA_MODE = cfg.get(
+        "GEOPRIOR_KAPPA_MODE", "bar"
+    )
     GEOPRIOR_USE_EFF_H = bool(
         cfg.get("GEOPRIOR_USE_EFFECTIVE_H", True)
     )
-    GEOPRIOR_HD_FACTOR = float(cfg.get("GEOPRIOR_HD_FACTOR", 0.6))
+    GEOPRIOR_HD_FACTOR = float(
+        cfg.get("GEOPRIOR_HD_FACTOR", 0.6)
+    )
 
     GEOPRIOR_H_REF_VALUE = 0.0
     GEOPRIOR_H_REF_MODE = None
-    if isinstance(GEOPRIOR_H_REF, (int, float)):
+    if isinstance(GEOPRIOR_H_REF, int | float):
         GEOPRIOR_H_REF_VALUE = float(GEOPRIOR_H_REF)
     else:
         GEOPRIOR_H_REF_MODE = GEOPRIOR_H_REF
 
     # Training strategy gates
-    TRAINING_STRATEGY = str(
-        cfg.get("TRAINING_STRATEGY", "data_first")
-    ).strip().lower()
+    TRAINING_STRATEGY = (
+        str(cfg.get("TRAINING_STRATEGY", "data_first"))
+        .strip()
+        .lower()
+    )
 
     # Compute steps_per_epoch
     X_train_norm = ensure_input_shapes(
@@ -793,7 +858,9 @@ def run_one(
         forecast_horizon=FORECAST_H,
     )
     n_train = int(X_train_norm["static_features"].shape[0])
-    steps_per_epoch = int(np.ceil(n_train / float(BATCH_SIZE)))
+    steps_per_epoch = int(
+        np.ceil(n_train / float(BATCH_SIZE))
+    )
 
     # Gate policies (reusing sensitivity.py logic)
     q_policy = "always_on"
@@ -805,9 +872,15 @@ def run_one(
     subs_resid_ramp_epochs = 0
 
     if TRAINING_STRATEGY == "physics_first":
-        q_policy = str(
-            cfg.get("Q_POLICY_PHYSICS_FIRST", "warmup_off")
-        ).strip().lower()
+        q_policy = (
+            str(
+                cfg.get(
+                    "Q_POLICY_PHYSICS_FIRST", "warmup_off"
+                )
+            )
+            .strip()
+            .lower()
+        )
         q_warmup_epochs = int(
             cfg.get("Q_WARMUP_EPOCHS_PHYSICS_FIRST", 5)
         )
@@ -815,12 +888,16 @@ def run_one(
             cfg.get("Q_RAMP_EPOCHS_PHYSICS_FIRST", 0)
         )
 
-        subs_resid_policy = str(
-            cfg.get(
-                "SUBS_RESID_POLICY_PHYSICS_FIRST",
-                "warmup_off",
+        subs_resid_policy = (
+            str(
+                cfg.get(
+                    "SUBS_RESID_POLICY_PHYSICS_FIRST",
+                    "warmup_off",
+                )
             )
-        ).strip().lower()
+            .strip()
+            .lower()
+        )
         subs_resid_warmup_epochs = int(
             cfg.get(
                 "SUBS_RESID_WARMUP_EPOCHS_PHYSICS_FIRST",
@@ -833,28 +910,48 @@ def run_one(
                 0,
             )
         )
-        LAMBDA_Q = float(cfg.get("LAMBDA_Q_PHYSICS_FIRST", LAMBDA_Q))
+        LAMBDA_Q = float(
+            cfg.get("LAMBDA_Q_PHYSICS_FIRST", LAMBDA_Q)
+        )
         LOSS_WEIGHT_GWL = float(
-            cfg.get("LOSS_WEIGHT_GWL_PHYSICS_FIRST", LOSS_WEIGHT_GWL)
+            cfg.get(
+                "LOSS_WEIGHT_GWL_PHYSICS_FIRST",
+                LOSS_WEIGHT_GWL,
+            )
         )
 
     else:
         LOSS_WEIGHT_GWL = float(
-            cfg.get("LOSS_WEIGHT_GWL_DATA_FIRST", LOSS_WEIGHT_GWL)
+            cfg.get(
+                "LOSS_WEIGHT_GWL_DATA_FIRST", LOSS_WEIGHT_GWL
+            )
         )
-        LAMBDA_Q = float(cfg.get("LAMBDA_Q_DATA_FIRST", LAMBDA_Q))
+        LAMBDA_Q = float(
+            cfg.get("LAMBDA_Q_DATA_FIRST", LAMBDA_Q)
+        )
 
-        q_policy = str(
-            cfg.get("Q_POLICY_DATA_FIRST", "always_on")
-        ).strip().lower()
+        q_policy = (
+            str(cfg.get("Q_POLICY_DATA_FIRST", "always_on"))
+            .strip()
+            .lower()
+        )
         q_warmup_epochs = int(
             cfg.get("Q_WARMUP_EPOCHS_DATA_FIRST", 0)
         )
-        q_ramp_epochs = int(cfg.get("Q_RAMP_EPOCHS_DATA_FIRST", 0))
+        q_ramp_epochs = int(
+            cfg.get("Q_RAMP_EPOCHS_DATA_FIRST", 0)
+        )
 
-        subs_resid_policy = str(
-            cfg.get("SUBS_RESID_POLICY_DATA_FIRST", "always_on")
-        ).strip().lower()
+        subs_resid_policy = (
+            str(
+                cfg.get(
+                    "SUBS_RESID_POLICY_DATA_FIRST",
+                    "always_on",
+                )
+            )
+            .strip()
+            .lower()
+        )
         subs_resid_warmup_epochs = int(
             cfg.get("SUBS_RESID_WARMUP_EPOCHS_DATA_FIRST", 0)
         )
@@ -885,15 +982,21 @@ def run_one(
     MV_WEIGHT = float(
         sk_stage1.get("mv_weight", cfg.get("MV_WEIGHT", 1e-3))
     )
-    MV_SCHEDULE_UNIT = str(
-        sk_stage1.get(
-            "mv_schedule_unit",
-            cfg.get("MV_SCHEDULE_UNIT", "epoch"),
+    MV_SCHEDULE_UNIT = (
+        str(
+            sk_stage1.get(
+                "mv_schedule_unit",
+                cfg.get("MV_SCHEDULE_UNIT", "epoch"),
+            )
         )
-    ).strip().lower()
+        .strip()
+        .lower()
+    )
 
     MV_DELAY_EPOCHS = int(
-        sk_stage1.get("mv_delay_epochs", cfg.get("MV_DELAY_EPOCHS", 1))
+        sk_stage1.get(
+            "mv_delay_epochs", cfg.get("MV_DELAY_EPOCHS", 1)
+        )
     )
     MV_WARMUP_EPOCHS = int(
         sk_stage1.get(
@@ -906,9 +1009,13 @@ def run_one(
     mv_warmup_steps = sk_stage1.get("mv_warmup_steps", None)
 
     if mv_delay_steps is None:
-        mv_delay_steps = max(0, MV_DELAY_EPOCHS) * steps_per_epoch
+        mv_delay_steps = (
+            max(0, MV_DELAY_EPOCHS) * steps_per_epoch
+        )
     if mv_warmup_steps is None:
-        mv_warmup_steps = max(0, MV_WARMUP_EPOCHS) * steps_per_epoch
+        mv_warmup_steps = (
+            max(0, MV_WARMUP_EPOCHS) * steps_per_epoch
+        )
 
     # ---------------------------
     # Logging header
@@ -974,11 +1081,7 @@ def run_one(
     print_config_table(
         config_sections,
         table_width=get_table_size(),
-        title=(
-            f"{CITY_NAME.upper()} "
-            f"{MODEL_NAME} "
-            "SENS RUN"
-        ),
+        title=(f"{CITY_NAME.upper()} {MODEL_NAME} SENS RUN"),
     )
 
     print("\nTraining outputs ->", run_dir)
@@ -986,16 +1089,24 @@ def run_one(
     # ---------------------------
     # Build & compile model
     # ---------------------------
-    s_dim_model = int(X_train_norm["static_features"].shape[-1])
-    d_dim_model = int(X_train_norm["dynamic_features"].shape[-1])
-    f_dim_model = int(X_train_norm["future_features"].shape[-1])
+    s_dim_model = int(
+        X_train_norm["static_features"].shape[-1]
+    )
+    d_dim_model = int(
+        X_train_norm["dynamic_features"].shape[-1]
+    )
+    f_dim_model = int(
+        X_train_norm["future_features"].shape[-1]
+    )
 
     MODEL_CLASS_REGISTRY = {
         "GeoPriorSubsNet": GeoPriorSubsNet,
         "PoroElasticSubsNet": PoroElasticSubsNet,
         "HybridAttn-NoPhysics": GeoPriorSubsNet,
     }
-    model_cls = MODEL_CLASS_REGISTRY.get(MODEL_NAME, GeoPriorSubsNet)
+    model_cls = MODEL_CLASS_REGISTRY.get(
+        MODEL_NAME, GeoPriorSubsNet
+    )
 
     sk_model = dict(sk_stage1)
     sk_model.update(
@@ -1058,10 +1169,18 @@ def run_one(
             "q_ramp_steps": int(q_ramp_steps),
             "log_q_diagnostics": bool(LOG_Q_DIAGNOSTICS),
             "subs_resid_policy": subs_resid_policy,
-            "subs_resid_warmup_epochs": int(subs_resid_warmup_epochs),
-            "subs_resid_ramp_epochs": int(subs_resid_ramp_epochs),
-            "subs_resid_warmup_steps": int(subs_resid_warmup_steps),
-            "subs_resid_ramp_steps": int(subs_resid_ramp_steps),
+            "subs_resid_warmup_epochs": int(
+                subs_resid_warmup_epochs
+            ),
+            "subs_resid_ramp_epochs": int(
+                subs_resid_ramp_epochs
+            ),
+            "subs_resid_warmup_steps": int(
+                subs_resid_warmup_steps
+            ),
+            "subs_resid_ramp_steps": int(
+                subs_resid_ramp_steps
+            ),
             "loss_weight_gwl": float(LOSS_WEIGHT_GWL),
             "lambda_q": float(LAMBDA_Q),
             "mv_prior_mode": MV_PRIOR_MODE,
@@ -1081,7 +1200,7 @@ def run_one(
     sk_model = override_scaling_kwargs(
         sk_model,
         cfg,
-        finalize= finalize_scaling_kwargs,
+        finalize=finalize_scaling_kwargs,
         dyn_names=DYN_NAMES,
         gwl_dyn_index=GWL_DYN_INDEX,
         base_dir=os.path.dirname(__file__),
@@ -1237,10 +1356,9 @@ def run_one(
         "gwl_pred": float(LOSS_WEIGHT_GWL),
     }
 
-    out_names = (
-        list(getattr(subs_model_inst, "output_names", []))
-        or ["subs_pred", "gwl_pred"]
-    )
+    out_names = list(
+        getattr(subs_model_inst, "output_names", [])
+    ) or ["subs_pred", "gwl_pred"]
 
     import keras
 
@@ -1305,7 +1423,9 @@ def run_one(
             "forecast_horizon": int(FORECAST_H),
         },
         "config": {
-            "quantiles": list(QUANTILES) if QUANTILES else None,
+            "quantiles": list(QUANTILES)
+            if QUANTILES
+            else None,
             "pde_mode": PDE_MODE,
             "mode": MODE,
             "time_units": TIME_UNITS,
@@ -1337,7 +1457,9 @@ def run_one(
         },
     }
 
-    save_manifest(model_init_manifest_path, model_init_manifest)
+    save_manifest(
+        model_init_manifest_path, model_init_manifest
+    )
 
     callbacks = [
         ModelCheckpoint(
@@ -1356,7 +1478,9 @@ def run_one(
         ),
     ]
 
-    disable_es = bool(cfg.get("DISABLE_EARLY_STOPPING", False))
+    disable_es = bool(
+        cfg.get("DISABLE_EARLY_STOPPING", False)
+    )
     if not disable_es:
         callbacks.append(
             EarlyStopping(
@@ -1374,7 +1498,9 @@ def run_one(
     callbacks.append(CSVLogger(csvlog_path, append=False))
     callbacks.append(TerminateOnNaN())
 
-    if USE_LAMBDA_OFFSET_SCHED and (not subs_model_inst._physics_off()):
+    if USE_LAMBDA_OFFSET_SCHED and (
+        not subs_model_inst._physics_off()
+    ):
         callbacks.append(
             LambdaOffsetScheduler(
                 schedule=LAMBDA_OFFSET_SCHEDULE,
@@ -1398,19 +1524,26 @@ def run_one(
     )
 
     # Save training summary
-    best_epoch, metrics_at_best = best_epoch_and_metrics(history.history)
+    best_epoch, metrics_at_best = best_epoch_and_metrics(
+        history.history
+    )
 
     training_summary = {
-        "timestamp": dt.datetime.now().strftime("%Y%m%d-%H%M%S"),
+        "timestamp": dt.datetime.now().strftime(
+            "%Y%m%d-%H%M%S"
+        ),
         "city": CITY_NAME,
         "model": MODEL_NAME,
         "horizon": int(FORECAST_H),
         "best_epoch": (
-            int(best_epoch) if best_epoch is not None else None
+            int(best_epoch)
+            if best_epoch is not None
+            else None
         ),
         "metrics_at_best": metrics_at_best,
         "final_epoch_metrics": {
-            k: float(v[-1]) for k, v in history.history.items()
+            k: float(v[-1])
+            for k, v in history.history.items()
             if len(v)
         },
         "env": {
@@ -1479,7 +1612,9 @@ def run_one(
     )
     try:
         subs_model_inst.save(final_model_path)
-        training_summary["paths"]["final_keras"] = final_model_path
+        training_summary["paths"]["final_keras"] = (
+            final_model_path
+        )
     except Exception as e:
         print("[Warn] Final save failed:", e)
 
@@ -1558,7 +1693,9 @@ def run_one(
     USE_IN_MEMORY_MODEL = bool(
         cfg.get("USE_IN_MEMORY_MODEL", True)
     )
-    USE_TF_SAVEDMODEL = bool(cfg.get("USE_TF_SAVEDMODEL", False))
+    USE_TF_SAVEDMODEL = bool(
+        cfg.get("USE_TF_SAVEDMODEL", False)
+    )
 
     build_inputs = None
     for xb, _ in val_dataset.take(1):
@@ -1568,7 +1705,7 @@ def run_one(
     def builder(manifest: dict):
         dims2 = (manifest or {}).get("dims", {}) or {}
         cfgm = (manifest or {}).get("config", {}) or {}
-        gp = (cfgm.get("geoprior", {}) or {})
+        gp = cfgm.get("geoprior", {}) or {}
 
         _subsparams = dict(subsmodel_params)
         _subsparams.update(
@@ -1634,7 +1771,11 @@ def run_one(
 
     save_model(
         model=subs_model_inst,
-        keras_path=(best_tf_dir if USE_TF_SAVEDMODEL else best_keras_path),
+        keras_path=(
+            best_tf_dir
+            if USE_TF_SAVEDMODEL
+            else best_keras_path
+        ),
         weights_path=best_weights_path,
         manifest_path=model_init_manifest_path,
         manifest=model_init_manifest,
@@ -1912,7 +2053,9 @@ def run_one(
             df_future = df_future_cal2
 
     # Optional diagnostics JSON from DataFrame
-    diag_suffix = "calibrated" if not FAST_SENS else "uncalibrated"
+    diag_suffix = (
+        "calibrated" if not FAST_SENS else "uncalibrated"
+    )
     if df_eval is not None and not df_eval.empty:
         diag_path = os.path.join(
             run_dir,
@@ -1951,7 +2094,9 @@ def run_one(
 
     if not USE_IN_MEMORY_MODEL:
         model_inf.compile(
-            optimizer=tf.keras.optimizers.SGD(learning_rate=0.0),
+            optimizer=tf.keras.optimizers.SGD(
+                learning_rate=0.0
+            ),
             loss=loss_arg,
             loss_weights=lossw_arg,
             metrics=metrics_compile,
@@ -1968,7 +2113,11 @@ def run_one(
             verbose=1,
         )
         eval_results = _logs_to_py(eval_raw)
-        for k in ("epsilon_prior", "epsilon_cons", "epsilon_gw"):
+        for k in (
+            "epsilon_prior",
+            "epsilon_cons",
+            "epsilon_gw",
+        ):
             if k in eval_results:
                 phys[k] = float(_to_py(eval_raw[k]))
     except Exception as e:
@@ -2072,7 +2221,9 @@ def run_one(
             coverage80_fn(y_true_phys_tf, s_q_phys_tf).numpy()
         )
         sharp80_uncal_phys = float(
-            sharpness80_fn(y_true_phys_tf, s_q_phys_tf).numpy()
+            sharpness80_fn(
+                y_true_phys_tf, s_q_phys_tf
+            ).numpy()
         )
         cov80_cal_phys = float(
             coverage80_fn(
@@ -2106,7 +2257,11 @@ def run_one(
                 align="broadcast",
             )
             mask_list.append(mask_b)
-        mask = tf.concat(mask_list, axis=0) if mask_list else None
+        mask = (
+            tf.concat(mask_list, axis=0)
+            if mask_list
+            else None
+        )
 
     if (mask is not None) and QUANTILES:
         med_idx = int(
@@ -2145,7 +2300,9 @@ def run_one(
 
         abs_err = tf.abs(y_true_phys - s_med_phys)
         mae_cens = tf.reduce_sum(abs_err * mask_f) / num_cens
-        mae_unc = tf.reduce_sum(abs_err * (1.0 - mask_f)) / num_unc
+        mae_unc = (
+            tf.reduce_sum(abs_err * (1.0 - mask_f)) / num_unc
+        )
 
         censor_metrics = {
             "flag_name": CENSOR_FLAG_NAME,
@@ -2167,7 +2324,8 @@ def run_one(
         "horizon": int(FORECAST_H),
         "batch_size": int(BATCH_SIZE),
         "metrics_evaluate": {
-            k: _to_py(v) for k, v in (eval_results or {}).items()
+            k: _to_py(v)
+            for k, v in (eval_results or {}).items()
         },
         "physics_diagnostics": phys,
     }
@@ -2177,7 +2335,10 @@ def run_one(
             "target": 0.80,
             "factors_per_horizon": (
                 getattr(cal80, "factors_", None).tolist()
-                if (cal80 is not None and hasattr(cal80, "factors_"))
+                if (
+                    cal80 is not None
+                    and hasattr(cal80, "factors_")
+                )
                 else None
             ),
             "factors_per_horizon_from_cal_stats": cal_stats,
@@ -2259,7 +2420,10 @@ def run_one(
     }
 
     ival = payload.get("interval_calibration", {}) or {}
-    cal_stats2 = ival.get("factors_per_horizon_from_cal_stats", {}) or {}
+    cal_stats2 = (
+        ival.get("factors_per_horizon_from_cal_stats", {})
+        or {}
+    )
     ev_after = cal_stats2.get("eval_after", {}) or {}
 
     def _pick_first(*vals):
@@ -2283,9 +2447,15 @@ def run_one(
         ival.get("sharpness80_uncalibrated"),
     )
 
-    eval_mae = (payload.get("point_metrics", {}) or {}).get("mae")
-    eval_mse = (payload.get("point_metrics", {}) or {}).get("mse")
-    eval_r2 = (payload.get("point_metrics", {}) or {}).get("r2")
+    eval_mae = (payload.get("point_metrics", {}) or {}).get(
+        "mae"
+    )
+    eval_mse = (payload.get("point_metrics", {}) or {}).get(
+        "mse"
+    )
+    eval_r2 = (payload.get("point_metrics", {}) or {}).get(
+        "r2"
+    )
 
     eval_rmse = None
     if eval_mse is not None:
@@ -2300,13 +2470,39 @@ def run_one(
         model_name=MODEL_NAME,
         cfg=ABLCFG,
         eval_dict={
-            "r2": (float(eval_r2) if eval_r2 is not None else None),
-            "mse": (float(eval_mse) if eval_mse is not None else None),
-            "mae": (float(eval_mae) if eval_mae is not None else None),
-            "rmse": (float(eval_rmse) if eval_rmse is not None else None),
-            "coverage80": (float(abl_cov) if abl_cov is not None else None),
-            "sharpness80": (float(abl_sharp) if abl_sharp is not None else None),
-            "units": payload.get("units", {}) if isinstance(payload, dict) else {},
+            "r2": (
+                float(eval_r2)
+                if eval_r2 is not None
+                else None
+            ),
+            "mse": (
+                float(eval_mse)
+                if eval_mse is not None
+                else None
+            ),
+            "mae": (
+                float(eval_mae)
+                if eval_mae is not None
+                else None
+            ),
+            "rmse": (
+                float(eval_rmse)
+                if eval_rmse is not None
+                else None
+            ),
+            "coverage80": (
+                float(abl_cov)
+                if abl_cov is not None
+                else None
+            ),
+            "sharpness80": (
+                float(abl_sharp)
+                if abl_sharp is not None
+                else None
+            ),
+            "units": payload.get("units", {})
+            if isinstance(payload, dict)
+            else {},
         },
         phys_diag=(phys or {}),
         per_h_mae=per_h_mae_dict,
@@ -2321,7 +2517,7 @@ def run_one(
         pde_mode: str,
         lambda_cons: float,
         lambda_prior: float,
-        tag: Optional[str] = None,
+        tag: str | None = None,
     ) -> None:
         run_path.mkdir(parents=True, exist_ok=True)
         (run_path / "DONE").write_text("", encoding="utf-8")
@@ -2349,7 +2545,9 @@ def run_one(
     # Physics plots (optional)
     if not FAST_SENS:
         try:
-            phys_payload, _ = load_physics_payload(phys_npz_path)
+            phys_payload, _ = load_physics_payload(
+                phys_npz_path
+            )
             plot_physics_values_in(
                 phys_payload,
                 dataset=ds_eval,
@@ -2363,7 +2561,9 @@ def run_one(
                 ],
                 mode="map",
                 transform=None,
-                savefig=os.path.join(run_dir, "phys_maps.png"),
+                savefig=os.path.join(
+                    run_dir, "phys_maps.png"
+                ),
             )
         except Exception:
             pass

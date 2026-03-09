@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -7,77 +6,75 @@
 """
 Plotting utilities for evaluating forecasting models.
 """
+
 import warnings
-from typing import ( 
-    List, 
-    Tuple, 
-    Optional, 
-    Union, 
-    Any, 
-    Callable
-)
+from collections.abc import Callable
+from typing import Any
+
+import matplotlib.colors as mcolors
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
-
 from sklearn.metrics import (
     mean_absolute_error,
+    mean_absolute_percentage_error,
     mean_squared_error,
-    mean_absolute_percentage_error
 )
 
-from ..api.docs import DocstringComponents, _evaluation_plot_params
-from ..decorators import isdf 
-from ..utils.generic_utils import vlog
+from ..api.docs import (
+    DocstringComponents,
+    _evaluation_plot_params,
+)
+from ..decorators import isdf
 from ..metrics import coverage_score
+from ..utils.generic_utils import vlog
 
 _eval_docs = DocstringComponents.from_nested_components(
     base=DocstringComponents(_evaluation_plot_params)
 )
 
-__all__=[
-     'plot_metric_radar', 
-     'plot_forecast_comparison', 
-     'plot_metric_over_horizon' , 
- ]
+__all__ = [
+    "plot_metric_radar",
+    "plot_forecast_comparison",
+    "plot_metric_over_horizon",
+]
 
-@isdf 
-def plot_metric_over_horizon(              
+
+@isdf
+def plot_metric_over_horizon(
     forecast_df: pd.DataFrame,
     target_name: str = "target",
-    metrics: Union[str,
-                   List[Union[str, Callable]]] = 'mae',
-    quantiles: Optional[List[float]] = None,
+    metrics: str | list[str | Callable] = "mae",
+    quantiles: list[float] | None = None,
     output_dim: int = 1,
-    actual_col_pattern: str = (
-        "{target_name}_actual"           
-    ),
-    pred_col_pattern_point: str = (
-        "{target_name}_pred"
-    ),
+    actual_col_pattern: str = ("{target_name}_actual"),
+    pred_col_pattern_point: str = ("{target_name}_pred"),
     pred_col_pattern_quantile: str = (
         "{target_name}_q{quantile_int}"
     ),
-    group_by_cols: Optional[List[str]] = None,
-    plot_kind: str = 'bar',
-    figsize_per_subplot: Tuple[float, float] = (7, 4.5),
+    group_by_cols: list[str] | None = None,
+    plot_kind: str = "bar",
+    figsize_per_subplot: tuple[float, float] = (7, 4.5),
     max_cols_metrics: int = 2,
-    scaler: Optional[Any] = None,
-    scaler_feature_names: Optional[List[str]] = None,
-    target_idx_in_scaler: Optional[int] = None,
+    scaler: Any | None = None,
+    scaler_feature_names: list[str] | None = None,
+    target_idx_in_scaler: int | None = None,
     sharey_metrics: bool = False,
     verbose: int = 0,
     **plot_kwargs: Any,
 ) -> None:
     vlog(
         f"Starting metric visualization "
-        f"(kind='{plot_kind}')...", level=3, verbose=verbose
+        f"(kind='{plot_kind}')...",
+        level=3,
+        verbose=verbose,
     )
 
     if not isinstance(forecast_df, pd.DataFrame):
-        raise TypeError("`forecast_df` must be a pandas DataFrame.")
-    if 'forecast_step' not in forecast_df.columns:
+        raise TypeError(
+            "`forecast_df` must be a pandas DataFrame."
+        )
+    if "forecast_step" not in forecast_df.columns:
         raise ValueError(
             "`forecast_df` must contain 'forecast_step' column."
         )
@@ -87,12 +84,15 @@ def plot_metric_over_horizon(
 
     # Inverse‑transform if a scaler is supplied
     if scaler is not None:
-        if (scaler_feature_names is None or
-                target_idx_in_scaler is None):
+        if (
+            scaler_feature_names is None
+            or target_idx_in_scaler is None
+        ):
             warnings.warn(
                 "Scaler provided, but `scaler_feature_names` or "
                 "`target_idx_in_scaler` is missing. "
-                "Metrics will be computed on scaled data."
+                "Metrics will be computed on scaled data.",
+                stacklevel=2,
             )
         else:
             vlog(
@@ -101,7 +101,7 @@ def plot_metric_over_horizon(
                 level=4,
                 verbose=verbose,
             )
-            # XXX TODO: 
+            # XXX TODO:
             # (inverse‑transform logic placeholder)
             pass
 
@@ -111,10 +111,11 @@ def plot_metric_over_horizon(
     elif isinstance(metrics, list):
         metrics_list = metrics
     else:
-        raise TypeError("`metrics` must be a string or a list.")
+        raise TypeError(
+            "`metrics` must be a string or a list."
+        )
 
-    metric_results: List[dict] = []
-
+    metric_results: list[dict] = []
 
     # Loop over outputs and metrics
     # --------------------------------------------------------------
@@ -128,71 +129,78 @@ def plot_metric_over_horizon(
                 f"Actual column '{act_col}' not found for "
                 f"output {o_idx}. Skipping.",
                 UserWarning,
+                stacklevel=2,
             )
             continue
 
-        y_true_series = df_to_eval[act_col] # noqa
+        y_true_series = df_to_eval[act_col]  # noqa
 
         for met in metrics_list:
             metric_name: str = ""
-            metric_fn: Optional[Callable] = None
+            metric_fn: Callable | None = None
             pred_col: str = ""
             is_coverage = False
 
             # -------------- Resolve metric -------------------------
             if isinstance(met, str):
                 metric_name = met.lower()
-                if metric_name == 'mae':
+                if metric_name == "mae":
                     metric_fn = mean_absolute_error
-                elif metric_name == 'mse':
+                elif metric_name == "mse":
                     metric_fn = mean_squared_error
-                elif metric_name == 'rmse':
-                    metric_fn = (
-                        lambda yt, yp: np.sqrt(
+                elif metric_name == "rmse":
+
+                    def metric_fn(yt, yp):
+                        return np.sqrt(
                             mean_squared_error(yt, yp)
                         )
-                    )
-                elif metric_name == 'mape':
+                elif metric_name == "mape":
                     metric_fn = mean_absolute_percentage_error
-                elif metric_name == 'smape':
+                elif metric_name == "smape":
                     metric_fn = _calculate_smape_radar
-                elif metric_name == 'coverage':
+                elif metric_name == "coverage":
                     if not quantiles or len(quantiles) < 2:
                         warnings.warn(
                             "Coverage requires at least two quantiles. "
-                            "Skipping."
+                            "Skipping.",
+                            stacklevel=2,
                         )
                         continue
                     is_coverage = True
-                elif metric_name == 'pinball_median':
+                elif metric_name == "pinball_median":
                     if not quantiles or 0.5 not in quantiles:
                         warnings.warn(
                             "pinball_median requires the 0.5 quantile. "
-                            "Skipping."
+                            "Skipping.",
+                            stacklevel=2,
                         )
                         continue
-                    metric_fn = (
-                        lambda yt, yp: _calculate_pinball_loss_radar(
+
+                    def metric_fn(yt, yp):
+                        return _calculate_pinball_loss_radar(
                             yt, yp, 0.5
                         )
-                    )
                 else:
                     warnings.warn(
-                        f"Unknown metric '{metric_name}'. Skipping."
+                        f"Unknown metric '{metric_name}'. Skipping.",
+                        stacklevel=2,
                     )
                     continue
             elif callable(met):
                 metric_fn = met
-                metric_name = getattr(met, '__name__', 'custom')
+                metric_name = getattr(
+                    met, "__name__", "custom"
+                )
             else:
                 warnings.warn(
-                    f"Invalid metric type: {type(met)}. Skipping."
+                    f"Invalid metric type: {type(met)}. Skipping.",
+                    stacklevel=2,
                 )
                 continue
 
             # -------------- Determine prediction column -----------
             if is_coverage:
-                qs = sorted(quantiles)        # type: ignore
+                qs = sorted(quantiles)  # type: ignore
                 q_low = int(qs[0] * 100)
                 q_hi = int(qs[-1] * 100)
                 low_col = f"{base_name}_q{q_low}"
@@ -200,16 +208,23 @@ def plot_metric_over_horizon(
                 if output_dim > 1:
                     low_col = f"{base_name}_{o_idx}_q{q_low}"
                     hi_col = f"{base_name}_{o_idx}_q{q_hi}"
-                if (low_col not in df_to_eval.columns or
-                        hi_col not in df_to_eval.columns):
+                if (
+                    low_col not in df_to_eval.columns
+                    or hi_col not in df_to_eval.columns
+                ):
                     warnings.warn(
-                        "Quantile columns not found. Skipping coverage."
+                        "Quantile columns not found. Skipping coverage.",
+                        stacklevel=2,
                     )
                     continue
             elif quantiles:
-                med_q = 0.5 if 0.5 in quantiles else sorted(
-                    quantiles
-                )[len(quantiles) // 2]
+                med_q = (
+                    0.5
+                    if 0.5 in quantiles
+                    else sorted(quantiles)[
+                        len(quantiles) // 2
+                    ]
+                )
                 q_int = int(med_q * 100)
                 pred_col = f"{base_name}_q{q_int}"
                 if output_dim > 1:
@@ -219,27 +234,33 @@ def plot_metric_over_horizon(
                 if output_dim > 1:
                     pred_col = f"{base_name}_{o_idx}_pred"
 
-            if (not is_coverage and
-                    pred_col not in df_to_eval.columns):
+            if (
+                not is_coverage
+                and pred_col not in df_to_eval.columns
+            ):
                 warnings.warn(
                     f"Prediction column '{pred_col}' missing. "
-                    "Skipping."
+                    "Skipping.",
+                    stacklevel=2,
                 )
                 continue
 
             # -------------- Group & compute metric ---------------
             group_cols = (
-                group_by_cols + ['forecast_step']
-                if group_by_cols else ['forecast_step']
+                group_by_cols + ["forecast_step"]
+                if group_by_cols
+                else ["forecast_step"]
             )
-            for (grp_keys, grp_df) in df_to_eval.groupby(
-                    group_cols):
+            for grp_keys, grp_df in df_to_eval.groupby(
+                group_cols
+            ):
                 if not isinstance(grp_keys, tuple):
                     grp_keys = (grp_keys,)
                 step = grp_keys[-1]
                 grp_label = (
                     "_".join(map(str, grp_keys[:-1]))
-                    if group_by_cols else "overall"
+                    if group_by_cols
+                    else "overall"
                 )
                 y_true_step = grp_df[act_col]
 
@@ -250,31 +271,35 @@ def plot_metric_over_horizon(
                         grp_df[hi_col],
                     )
                 else:
-                    metric_val = metric_fn( # type: ignore
+                    metric_val = metric_fn(  # type: ignore
                         y_true_step,
                         grp_df[pred_col],
                     )
 
                 metric_results.append(
                     {
-                        'metric': metric_name,
-                        'output_dim': o_idx,
-                        'group': grp_label,
-                        'forecast_step': step,
-                        'value': metric_val,
+                        "metric": metric_name,
+                        "output_dim": o_idx,
+                        "group": grp_label,
+                        "forecast_step": step,
+                        "value": metric_val,
                     }
                 )
 
     if not metric_results:
-        vlog("No metric results to plot.", level=2, verbose=verbose)
+        vlog(
+            "No metric results to plot.",
+            level=2,
+            verbose=verbose,
+        )
         return
 
     res_df = pd.DataFrame(metric_results)
 
     # Plot per output dimension
-    for o_idx in sorted(res_df['output_dim'].unique()):
-        df_o = res_df[res_df['output_dim'] == o_idx]
-        metrics_o = sorted(df_o['metric'].unique())
+    for o_idx in sorted(res_df["output_dim"].unique()):
+        df_o = res_df[res_df["output_dim"] == o_idx]
+        metrics_o = sorted(df_o["metric"].unique())
         n_metrics = len(metrics_o)
         if n_metrics == 0:
             continue
@@ -293,7 +318,9 @@ def plot_metric_over_horizon(
         )
         fig.suptitle(
             "Metrics Over Horizon"
-            + (f" (Output {o_idx})" if output_dim > 1 else ""),
+            + (
+                f" (Output {o_idx})" if output_dim > 1 else ""
+            ),
             fontsize=16,
         )
         flat_axes = axes.flatten()
@@ -303,39 +330,39 @@ def plot_metric_over_horizon(
             if plot_idx >= len(flat_axes):
                 break
             ax_m = flat_axes[plot_idx]
-            df_m = df_o[df_o['metric'] == met]
+            df_m = df_o[df_o["metric"] == met]
 
             if group_by_cols:
-                for grp, gdf in df_m.groupby('group'):
-                    gdf = gdf.sort_values('forecast_step')
+                for grp, gdf in df_m.groupby("group"):
+                    gdf = gdf.sort_values("forecast_step")
                     ax_m.plot(
-                        gdf['forecast_step'],
-                        gdf['value'],
+                        gdf["forecast_step"],
+                        gdf["value"],
                         label=str(grp),
-                        marker='o',
+                        marker="o",
                         **plot_kwargs.get(
                             f"{met}_plot_kwargs", {}
                         ),
                     )
                 ax_m.legend(
                     title=" | ".join(group_by_cols),
-                    fontsize='small',
+                    fontsize="small",
                 )
             else:
-                df_m = df_m.sort_values('forecast_step')
-                if plot_kind == 'bar':
+                df_m = df_m.sort_values("forecast_step")
+                if plot_kind == "bar":
                     ax_m.bar(
-                        df_m['forecast_step'],
-                        df_m['value'],
+                        df_m["forecast_step"],
+                        df_m["value"],
                         **plot_kwargs.get(
                             f"{met}_plot_kwargs", {}
                         ),
                     )
                 else:
                     ax_m.plot(
-                        df_m['forecast_step'],
-                        df_m['value'],
-                        marker='o',
+                        df_m["forecast_step"],
+                        df_m["value"],
+                        marker="o",
                         **plot_kwargs.get(
                             f"{met}_plot_kwargs", {}
                         ),
@@ -343,7 +370,7 @@ def plot_metric_over_horizon(
             ax_m.set_title(met.upper())
             ax_m.set_xlabel("Forecast Step")
             ax_m.set_ylabel("Metric Value")
-            ax_m.grid(True, linestyle='--', alpha=0.7)
+            ax_m.grid(True, linestyle="--", alpha=0.7)
             plot_idx += 1
 
         for idx in range(plot_idx, len(flat_axes)):
@@ -361,9 +388,9 @@ def plot_metric_over_horizon(
         return ax_m  # last axis created
     except NameError:
         return
-    
 
-plot_metric_over_horizon.__doc__ = """
+
+plot_metric_over_horizon.__doc__ = f"""
 Plot one or several error metrics as a function of forecast step.
 
 Each requested *metric* is computed for every ``forecast_step`` in
@@ -377,15 +404,15 @@ exported by :func:`geoprior.nn.utils.format_predictions_to_dataframe`.
 
 Parameters
 ----------
-{params.base.forecast_df}
-{params.base.target_name}
+{_eval_docs.base.forecast_df}
+{_eval_docs.base.target_name}
 metrics : str or list, default 'mae'
     One metric or a list of metrics to compute.  Each element may be
     a recognised string (``'mae'``, ``'mse'``, ``'rmse'``, ``'mape'``,
     ``'smape'``, ``'coverage'``, ``'pinball_median'``) or a custom
     callable ``f(y_true, y_pred) -> float``.
-{params.base.quantiles}
-{params.base.output_dim}
+{_eval_docs.base.quantiles}
+{_eval_docs.base.output_dim}
 group_by_cols : list[str], optional
     Extra columns to group by **before** computing the metric
     (e.g. ``['country', 'model_version']``).  When supplied, separate
@@ -397,13 +424,13 @@ figsize_per_subplot : tuple, default (7, 4.5)
     Width × height (in inch) of every individual metric panel.
 max_cols_metrics : int, default 2
     Maximum number of metric panels per row.
-{params.base.scaler}
-{params.base.scaler_feature_names}
-{params.base.target_idx_in_scaler}
+{_eval_docs.base.scaler}
+{_eval_docs.base.scaler_feature_names}
+{_eval_docs.base.target_idx_in_scaler}
 sharey_metrics : bool, default False
     If *True*, all panels in the same row share the *y*‑axis scale.
-{params.base.verbose}
-{params.base.plot_kwargs}
+{_eval_docs.base.verbose}
+{_eval_docs.base.plot_kwargs}
 
 Returns
 -------
@@ -464,25 +491,26 @@ References
 ----------
 .. [1] Hyndman, R. J. & Athanasopoulos, G. (2021). *Forecasting:
        Principles and Practice*, 3rd ed., OTexts.
-""".format(params=_eval_docs)
+"""
 
-@isdf 
-def plot_metric_radar(            # noqa: PLR0912
+
+@isdf
+def plot_metric_radar(  # noqa: PLR0912
     forecast_df: pd.DataFrame,
     segment_col: str,
-    metric: Union[str, Callable] = "mae",
+    metric: str | Callable = "mae",
     target_name: str = "target",
-    quantiles: Optional[List[float]] = None,
+    quantiles: list[float] | None = None,
     output_dim: int = 1,
     actual_col_pattern: str = "{target_name}_actual",
     pred_col_pattern_point: str = "{target_name}_pred",
     pred_col_pattern_quantile: str = "{target_name}_q{quantile_int}",
     aggregate_across_horizon: bool = True,
-    scaler: Optional[Any] = None,
-    scaler_feature_names: Optional[List[str]] = None,
-    target_idx_in_scaler: Optional[int] = None,
-    figsize: Tuple[float, float] = (8, 8),
-    max_segments_to_plot: Optional[int] = 12,
+    scaler: Any | None = None,
+    scaler_feature_names: list[str] | None = None,
+    target_idx_in_scaler: int | None = None,
+    figsize: tuple[float, float] = (8, 8),
+    max_segments_to_plot: int | None = 12,
     verbose: int = 0,
     **plot_kwargs: Any,
 ) -> None:
@@ -492,29 +520,37 @@ def plot_metric_radar(            # noqa: PLR0912
         verbose=verbose,
     )
 
-    # validation ---------------------------------------------------------- 
+    # validation ----------------------------------------------------------
     if not isinstance(forecast_df, pd.DataFrame):
-        raise TypeError("`forecast_df` must be a pandas DataFrame.")
+        raise TypeError(
+            "`forecast_df` must be a pandas DataFrame."
+        )
     if segment_col not in forecast_df.columns:
-        raise ValueError(f"Segment column '{segment_col}' not found.")
+        raise ValueError(
+            f"Segment column '{segment_col}' not found."
+        )
 
     df_eval = forecast_df.copy()
     base_name = target_name
 
-    # inverse tf ---------------------------------------------------------- 
+    # inverse tf ----------------------------------------------------------
     if scaler is not None:
-        if scaler_feature_names is None or target_idx_in_scaler is None:
+        if (
+            scaler_feature_names is None
+            or target_idx_in_scaler is None
+        ):
             warnings.warn(
                 "Scaler provided, but `scaler_feature_names` or "
                 "`target_idx_in_scaler` is missing; metrics will be "
-                "computed on scaled data."
+                "computed on scaled data.",
+                stacklevel=2,
             )
         else:
             # XXX TODO
             pass  #  inverse‑transform placeholder
 
-    # metric fn ---------------------------------------------------------- 
-    metric_fn: Optional[Callable]
+    # metric fn ----------------------------------------------------------
+    metric_fn: Callable | None
     if isinstance(metric, str):
         m = metric.lower()
         if m == "mae":
@@ -522,25 +558,33 @@ def plot_metric_radar(            # noqa: PLR0912
         elif m == "mse":
             metric_fn = mean_squared_error
         elif m == "rmse":
-            metric_fn = (
-                lambda yt, yp: np.sqrt(mean_squared_error(yt, yp))
+            metric_fn = lambda yt, yp: np.sqrt(
+                mean_squared_error(yt, yp)
             )
         elif m == "mape":
             metric_fn = mean_absolute_percentage_error
         elif m == "smape":
             metric_fn = _calculate_smape_radar
         else:
-            raise ValueError(f"Unsupported metric string '{m}'.")
+            raise ValueError(
+                f"Unsupported metric string '{m}'."
+            )
         metric_name = m
     elif callable(metric):
         metric_fn = metric
-        metric_name = getattr(metric, "__name__", "custom_metric")
+        metric_name = getattr(
+            metric, "__name__", "custom_metric"
+        )
     else:
         raise TypeError("`metric` must be str or callable.")
 
-    # per output ---------------------------------------------------------- 
+    # per output ----------------------------------------------------------
     for o_idx in range(output_dim):
-        vlog(f"  processing output_dim {o_idx}", level=4, verbose=verbose)
+        vlog(
+            f"  processing output_dim {o_idx}",
+            level=4,
+            verbose=verbose,
+        )
 
         act_col = f"{base_name}_actual"
         if output_dim > 1:
@@ -548,14 +592,17 @@ def plot_metric_radar(            # noqa: PLR0912
         if act_col not in df_eval.columns:
             warnings.warn(
                 f"Actual column '{act_col}' missing; "
-                f"skip output {o_idx}."
+                f"skip output {o_idx}.",
+                stacklevel=2,
             )
             continue
 
         if quantiles:
-            med_q = 0.5 if 0.5 in quantiles else sorted(
-                quantiles
-            )[len(quantiles) // 2]
+            med_q = (
+                0.5
+                if 0.5 in quantiles
+                else sorted(quantiles)[len(quantiles) // 2]
+            )
             q_int = int(med_q * 100)
             pred_col = f"{base_name}_q{q_int}"
             if output_dim > 1:
@@ -568,11 +615,12 @@ def plot_metric_radar(            # noqa: PLR0912
         if pred_col not in df_eval.columns:
             warnings.warn(
                 f"Prediction column '{pred_col}' missing; "
-                f"skip output {o_idx}."
+                f"skip output {o_idx}.",
+                stacklevel=2,
             )
             continue
 
-        # seg metric ------------------------------------------------------ 
+        # seg metric ------------------------------------------------------
         seg_scores: dict[str, float] = {}
         for seg_val, gdf in df_eval.groupby(segment_col):
             yt = gdf[act_col].values
@@ -581,10 +629,11 @@ def plot_metric_radar(            # noqa: PLR0912
                 continue
             try:
                 seg_scores[str(seg_val)] = metric_fn(yt, yp)
-            except Exception as exc:                            # noqa: BLE001
+            except Exception as exc:  # noqa: BLE001
                 warnings.warn(
                     f"Error computing {metric_name} for "
-                    f"segment '{seg_val}': {exc}"
+                    f"segment '{seg_val}': {exc}",
+                    stacklevel=2,
                 )
 
         if not seg_scores:
@@ -595,7 +644,7 @@ def plot_metric_radar(            # noqa: PLR0912
             )
             continue
 
-        # truncate ------------------------------------------------------ 
+        # truncate ------------------------------------------------------
         labels = list(seg_scores.keys())
         values = list(seg_scores.values())
         if (
@@ -604,7 +653,8 @@ def plot_metric_radar(            # noqa: PLR0912
         ):
             warnings.warn(
                 "Number of segments exceeds "
-                "`max_segments_to_plot`; truncating."
+                "`max_segments_to_plot`; truncating.",
+                stacklevel=2,
             )
             labels = labels[:max_segments_to_plot]
             values = values[:max_segments_to_plot]
@@ -617,7 +667,7 @@ def plot_metric_radar(            # noqa: PLR0912
             )
             continue
 
-        # radar plot ------------------------------------------------------ 
+        # radar plot ------------------------------------------------------
         angles = np.linspace(
             0, 2 * np.pi, len(labels), endpoint=False
         ).tolist()
@@ -639,7 +689,9 @@ def plot_metric_radar(            # noqa: PLR0912
         ax.fill(
             angles,
             values,
-            color=plot_kwargs.get("fill_color", "mediumpurple"),
+            color=plot_kwargs.get(
+                "fill_color", "mediumpurple"
+            ),
             alpha=plot_kwargs.get("alpha", 0.3),
         )
 
@@ -661,15 +713,21 @@ def plot_metric_radar(            # noqa: PLR0912
         ax.set_title(title, va="bottom", fontsize=14)
 
         if plot_kwargs.get("show_legend", True):
-            ax.legend(loc="upper right", bbox_to_anchor=(0.1, 0.1))
+            ax.legend(
+                loc="upper right", bbox_to_anchor=(0.1, 0.1)
+            )
 
         plt.tight_layout()
         plt.show()
 
-    vlog("Metric radar plotting complete.", level=3, verbose=verbose)
-    
+    vlog(
+        "Metric radar plotting complete.",
+        level=3,
+        verbose=verbose,
+    )
 
-plot_metric_radar.__doc__ = r"""
+
+plot_metric_radar.__doc__ = rf"""
 Visualise a chosen error metric per segment on a radar chart.
 
 For every distinct ``{{segment_col}}`` value in ``forecast_df`` the
@@ -685,23 +743,23 @@ The helper is designed for data produced by
 
 Parameters
 ----------
-{params.base.forecast_df}
-{params.base.segment_col}
-{params.base.metric}
-{params.base.target_name}
-{params.base.quantiles}
-{params.base.output_dim}
-{params.base.actual_col_pattern}
-{params.base.pred_col_pattern_point}
-{params.base.pred_col_pattern_quantile}
-{params.base.aggregate_across_horizon}
-{params.base.scaler}
-{params.base.scaler_feature_names}
-{params.base.target_idx_in_scaler}
-{params.base.figsize}
-{params.base.max_segments_to_plot}
-{params.base.verbose}
-{params.base.plot_kwargs}
+{_eval_docs.base.forecast_df}
+{_eval_docs.base.segment_col}
+{_eval_docs.base.metric}
+{_eval_docs.base.target_name}
+{_eval_docs.base.quantiles}
+{_eval_docs.base.output_dim}
+{_eval_docs.base.actual_col_pattern}
+{_eval_docs.base.pred_col_pattern_point}
+{_eval_docs.base.pred_col_pattern_quantile}
+{_eval_docs.base.aggregate_across_horizon}
+{_eval_docs.base.scaler}
+{_eval_docs.base.scaler_feature_names}
+{_eval_docs.base.target_idx_in_scaler}
+{_eval_docs.base.figsize}
+{_eval_docs.base.max_segments_to_plot}
+{_eval_docs.base.verbose}
+{_eval_docs.base.plot_kwargs}
 
 Returns
 -------
@@ -763,28 +821,29 @@ References
 .. [2] J. Taylor & T. Forecast (2024). “Visualising Segment‑wise Error
        with Radar Charts.” *Journal of Applied Forecasting*, 59(2),
        123‑135.
-""".format(params=_eval_docs)
+"""
+
 
 @isdf
-def plot_forecast_comparison( # noqa: PLR0912
+def plot_forecast_comparison(  # noqa: PLR0912
     forecast_df: pd.DataFrame,
     target_name: str = "target",
-    quantiles: Optional[List[float]] = None,
+    quantiles: list[float] | None = None,
     output_dim: int = 1,
     kind: str = "temporal",
-    actual_data: Optional[pd.DataFrame] = None,  # reserved
-    dt_col: Optional[str] = None,    # x‑axis override
-    actual_target_name: Optional[str] = None,
-    sample_ids: Optional[Union[int, List[int], str]] = "first_n",
+    actual_data: pd.DataFrame | None = None,  # reserved
+    dt_col: str | None = None,  # x‑axis override
+    actual_target_name: str | None = None,
+    sample_ids: int | list[int] | str | None = "first_n",
     num_samples: int = 3,
-    horizon_steps: Optional[Union[int, List[int], str]] = 1,
-    spatial_cols: Optional[List[str]] = None,
+    horizon_steps: int | list[int] | str | None = 1,
+    spatial_cols: list[str] | None = None,
     max_cols: int = 2,
-    figsize_per_subplot: Tuple[float, float] = (7, 4),
-    scaler: Optional[Any] = None,
-    scaler_feature_names: Optional[List[str]] = None,
-    target_idx_in_scaler: Optional[int] = None,
-    titles: Optional[List[str]] = None,
+    figsize_per_subplot: tuple[float, float] = (7, 4),
+    scaler: Any | None = None,
+    scaler_feature_names: list[str] | None = None,
+    target_idx_in_scaler: int | None = None,
+    titles: list[str] | None = None,
     verbose: int = 0,
     **plot_kwargs: Any,
 ):
@@ -794,7 +853,7 @@ def plot_forecast_comparison( # noqa: PLR0912
         verbose=verbose,
     )
 
-    # validation ------------------------------------------------------- 
+    # validation -------------------------------------------------------
     if not isinstance(forecast_df, pd.DataFrame):
         raise TypeError(
             "`forecast_df` must be a pandas DataFrame "
@@ -807,24 +866,33 @@ def plot_forecast_comparison( # noqa: PLR0912
             "'sample_idx' and 'forecast_step'."
         )
 
-    # copies & IDs ------------------------------------------------------- 
+    # copies & IDs -------------------------------------------------------
     df = forecast_df.copy()
     act_cols, pred_cols = [], []
-    base_pred, base_act = target_name, (
-        actual_target_name or target_name
+    base_pred, base_act = (
+        target_name,
+        (actual_target_name or target_name),
     )
 
-    # quantile cfg ------------------------------------------------------- 
-    q_sorted: Optional[List[float]] = None
+    # quantile cfg -------------------------------------------------------
+    q_sorted: list[float] | None = None
     if quantiles is not None:
         q_sorted = sorted(map(float, quantiles))
         if not all(0.0 < q < 1.0 for q in q_sorted):
             raise ValueError("`quantiles` must be in (0, 1).")
 
-    # col scanning ------------------------------------------------------- 
+    # col scanning -------------------------------------------------------
     for o_idx in range(output_dim):
-        pr_base = f"{base_pred}_{o_idx}" if output_dim > 1 else base_pred
-        ac_base = f"{base_act}_{o_idx}" if output_dim > 1 else base_act
+        pr_base = (
+            f"{base_pred}_{o_idx}"
+            if output_dim > 1
+            else base_pred
+        )
+        ac_base = (
+            f"{base_act}_{o_idx}"
+            if output_dim > 1
+            else base_act
+        )
 
         ac_name = f"{ac_base}_actual"
         if ac_name in df.columns:
@@ -846,6 +914,7 @@ def plot_forecast_comparison( # noqa: PLR0912
             "No prediction columns detected – check `target_name` "
             "and `quantiles`.",
             UserWarning,
+            stacklevel=2,
         )
     if actual_data is None and not act_cols:
         vlog(
@@ -854,13 +923,17 @@ def plot_forecast_comparison( # noqa: PLR0912
             verbose=verbose,
         )
 
-    # inverse tf ------------------------------------------------------- 
+    # inverse tf -------------------------------------------------------
     if scaler is not None:
-        if scaler_feature_names is None or target_idx_in_scaler is None:
+        if (
+            scaler_feature_names is None
+            or target_idx_in_scaler is None
+        ):
             warnings.warn(
                 "Scaler supplied but mapping metadata missing – "
                 "inverse transform skipped.",
                 UserWarning,
+                stacklevel=2,
             )
         else:
             vlog(
@@ -879,12 +952,13 @@ def plot_forecast_comparison( # noqa: PLR0912
                     df[col] = scaler.inverse_transform(dummy)[
                         :, target_idx_in_scaler
                     ]
-                except Exception as exc:     # noqa: BLE001
+                except Exception as exc:  # noqa: BLE001
                     warnings.warn(
-                        f"Inverse transform failed on '{col}': {exc}"
+                        f"Inverse transform failed on '{col}': {exc}",
+                        stacklevel=2,
                     )
 
-    # sample sel. ------------------------------------------------------- 
+    # sample sel. -------------------------------------------------------
     uniq_ids = df["sample_idx"].unique()
     sel_ids: np.ndarray
     if isinstance(sample_ids, str):
@@ -904,11 +978,17 @@ def plot_forecast_comparison( # noqa: PLR0912
             [sid for sid in sample_ids if sid in uniq_ids]
         )
     if sel_ids.size == 0:
-        vlog("No valid `sample_idx` selected – abort.", 2, verbose)
+        vlog(
+            "No valid `sample_idx` selected – abort.",
+            2,
+            verbose,
+        )
         return
-    vlog(f"Selected sample_idx: {sel_ids.tolist()}", 4, verbose)
+    vlog(
+        f"Selected sample_idx: {sel_ids.tolist()}", 4, verbose
+    )
 
-    # TEMPORAL KIND ======================================================= 
+    # TEMPORAL KIND =======================================================
     if kind == "temporal":
         n_plots = len(sel_ids) * output_dim
         if n_plots == 0:
@@ -935,14 +1015,25 @@ def plot_forecast_comparison( # noqa: PLR0912
                     break
                 ax = axes_flat[idx]
                 # -------------- title
-                title = titles[idx] if titles and idx < len(titles) else (
-                    f"Sample {sid}"
-                    + (f", Dim {o_idx}" if output_dim > 1 else "")
+                title = (
+                    titles[idx]
+                    if titles and idx < len(titles)
+                    else (
+                        f"Sample {sid}"
+                        + (
+                            f", Dim {o_idx}"
+                            if output_dim > 1
+                            else ""
+                        )
+                    )
                 )
                 ax.set_title(title)
                 # -------------- actual
-                ac = f"{base_act}_{o_idx}_actual" if output_dim > 1 else \
-                     f"{base_act}_actual"
+                ac = (
+                    f"{base_act}_{o_idx}_actual"
+                    if output_dim > 1
+                    else f"{base_act}_actual"
+                )
                 if ac in s_df.columns:
                     ax.plot(
                         s_df["forecast_step"],
@@ -965,17 +1056,24 @@ def plot_forecast_comparison( # noqa: PLR0912
                         else base_pred
                     )
                     med_col = f"{pr_base}_q{q_int}"
-                    low_col = f"{pr_base}_q{int(q_sorted[0]*100)}"
-                    hi_col = f"{pr_base}_q{int(q_sorted[-1]*100)}"
+                    low_col = (
+                        f"{pr_base}_q{int(q_sorted[0] * 100)}"
+                    )
+                    hi_col = f"{pr_base}_q{int(q_sorted[-1] * 100)}"
                     if med_col in s_df.columns:
                         ax.plot(
                             s_df["forecast_step"],
                             s_df[med_col],
                             label=f"Median (q{q_int})",
                             marker="x",
-                            **plot_kwargs.get("median_plot_kwargs", {}),
+                            **plot_kwargs.get(
+                                "median_plot_kwargs", {}
+                            ),
                         )
-                    if low_col in s_df.columns and hi_col in s_df.columns:
+                    if (
+                        low_col in s_df.columns
+                        and hi_col in s_df.columns
+                    ):
                         ax.fill_between(
                             s_df["forecast_step"],
                             s_df[low_col],
@@ -983,8 +1081,8 @@ def plot_forecast_comparison( # noqa: PLR0912
                             color="gray",
                             alpha=0.3,
                             label=f"Interval "
-                            f"(q{int(q_sorted[0]*100)}–"
-                            f"q{int(q_sorted[-1]*100)})",
+                            f"(q{int(q_sorted[0] * 100)}–"
+                            f"q{int(q_sorted[-1] * 100)})",
                             **plot_kwargs.get(
                                 "fill_between_kwargs", {}
                             ),
@@ -1002,7 +1100,9 @@ def plot_forecast_comparison( # noqa: PLR0912
                             s_df[pc],
                             label="Predicted",
                             marker="x",
-                            **plot_kwargs.get("point_plot_kwargs", {}),
+                            **plot_kwargs.get(
+                                "point_plot_kwargs", {}
+                            ),
                         )
                 # -------------- cosmetics
                 tgt_lbl = (
@@ -1030,13 +1130,18 @@ def plot_forecast_comparison( # noqa: PLR0912
             )
         x_col, y_col = spatial_cols
         if x_col not in df.columns or y_col not in df.columns:
-            raise ValueError("Spatial columns missing in DataFrame.")
+            raise ValueError(
+                "Spatial columns missing in DataFrame."
+            )
         # ------------------ steps selection
         if isinstance(horizon_steps, int):
             steps = [horizon_steps]
         elif isinstance(horizon_steps, list):
             steps = horizon_steps
-        elif horizon_steps is None or str(horizon_steps).lower() == "all":
+        elif (
+            horizon_steps is None
+            or str(horizon_steps).lower() == "all"
+        ):
             steps = sorted(df["forecast_step"].unique())
         else:
             raise ValueError("Invalid `horizon_steps`.")
@@ -1073,7 +1178,9 @@ def plot_forecast_comparison( # noqa: PLR0912
                         if 0.5 in q_sorted
                         else q_sorted[len(q_sorted) // 2]
                     )
-                    color_col = f"{pr_base}_q{int(med_q*100)}"
+                    color_col = (
+                        f"{pr_base}_q{int(med_q * 100)}"
+                    )
                 else:
                     color_col = f"{pr_base}_pred"
                 if color_col not in step_df.columns:
@@ -1112,14 +1219,16 @@ def plot_forecast_comparison( # noqa: PLR0912
         fig.tight_layout()
         plt.show()
 
-    # fallback ------------------------------------------------------- 
+    # fallback -------------------------------------------------------
     else:
-        raise ValueError("`kind` must be 'temporal' or 'spatial'.")
+        raise ValueError(
+            "`kind` must be 'temporal' or 'spatial'."
+        )
 
     vlog("Forecast visualisation complete.", 3, verbose)
 
 
-plot_forecast_comparison.__doc__ ="""
+plot_forecast_comparison.__doc__ = f"""
 Compare forecasts to ground‑truth on a temporal or spatial canvas.
 
 The helper draws either
@@ -1134,10 +1243,10 @@ supported out‑of‑the‑box.
 
 Parameters
 ----------
-{params.base.forecast_df}
-{params.base.target_name}
-{params.base.quantiles}
-{params.base.output_dim}
+{_eval_docs.base.forecast_df}
+{_eval_docs.base.target_name}
+{_eval_docs.base.quantiles}
+{_eval_docs.base.output_dim}
 
 kind : {{'temporal', 'spatial'}}, default ``'temporal'``
     Temporal plots show each horizon step on the *x*‑axis; spatial
@@ -1178,15 +1287,15 @@ max_cols : int, default ``2``
 figsize_per_subplot : tuple, default ``(7, 4)``
     Width × height of each panel in inches.
 
-{params.base.scaler}
-{params.base.scaler_feature_names}
-{params.base.target_idx_in_scaler}
+{_eval_docs.base.scaler}
+{_eval_docs.base.scaler_feature_names}
+{_eval_docs.base.target_idx_in_scaler}
 
 titles : list[str], optional
     Per‑subplot custom titles (overrides defaults).
 
-{params.base.verbose}
-{params.base.plot_kwargs}
+{_eval_docs.base.verbose}
+{_eval_docs.base.plot_kwargs}
 
 Returns
 -------
@@ -1228,46 +1337,54 @@ References
 ----------
 .. [1] Makridakis et al. (2018). *Statistical and Machine‑Learning   
        Forecasting Methods: Concerns and Ways Forward*. *PLOS ONE*.
-""".format(params=_eval_docs)
+"""
+
 
 def _calculate_pinball_loss(
     y_true: np.ndarray,
     y_pred_q50: np.ndarray,
-    quantile: float = 0.5
-    ) -> float:
+    quantile: float = 0.5,
+) -> float:
     """Calculates pinball loss for a specific quantile (typically median)."""
     err = y_true - y_pred_q50
-    return np.mean(np.maximum(quantile * err, (quantile - 1) * err))
+    return np.mean(
+        np.maximum(quantile * err, (quantile - 1) * err)
+    )
 
-def _calculate_smape(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+
+def _calculate_smape(
+    y_true: np.ndarray, y_pred: np.ndarray
+) -> float:
     """Calculates Symmetric Mean Absolute Percentage Error (SMAPE)."""
     numerator = np.abs(y_pred - y_true)
     denominator = (np.abs(y_true) + np.abs(y_pred)) / 2
     # Handle division by zero if both true and pred are zero
-    denominator[denominator == 0] = 1e-9 # Avoid division by zero
+    denominator[denominator == 0] = (
+        1e-9  # Avoid division by zero
+    )
     return np.mean(numerator / denominator) * 100
 
 
 def _calculate_pinball_loss_radar(
     y_true: np.ndarray,
     y_pred_q50: np.ndarray,
-    quantile: float = 0.5 # Default to median for pinball
-    ) -> float:
+    quantile: float = 0.5,  # Default to median for pinball
+) -> float:
     """Calculates pinball loss for a specific quantile."""
     err = y_true - y_pred_q50
-    return np.mean(np.maximum(quantile * err, (quantile - 1) * err))
+    return np.mean(
+        np.maximum(quantile * err, (quantile - 1) * err)
+    )
+
 
 def _calculate_smape_radar(
     y_true: np.ndarray, y_pred: np.ndarray
-    ) -> float:
+) -> float:
     """Calculates Symmetric Mean Absolute Percentage Error (SMAPE)."""
     numerator = np.abs(y_pred - y_true)
     denominator = (np.abs(y_true) + np.abs(y_pred)) / 2.0
     # Handle division by zero if both true and pred are zero
     # Add a small epsilon to denominator where it's zero
     epsilon = 1e-9
-    score = np.mean(
-        numerator / (denominator + epsilon)
-        ) * 100
+    score = np.mean(numerator / (denominator + epsilon)) * 100
     return score
-

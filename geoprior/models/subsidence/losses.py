@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3  https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -15,15 +14,17 @@ This module centralizes:
 from __future__ import annotations
 
 from typing import Any
- 
+
 from ...compat.keras_fit import (
-    ensure_targets_for_outputs,
-    update_compiled_metrics as _update_compiled_metrics,
     compiled_metrics_dict,
+    ensure_targets_for_outputs,
+)
+from ...compat.keras_fit import (
+    update_compiled_metrics as _update_compiled_metrics,
 )
 from .. import KERAS_DEPS
-# from ..._shapes import _as_BHO
 
+# from ..._shapes import _as_BHO
 from .utils import get_sk
 
 Tensor = KERAS_DEPS.Tensor
@@ -32,10 +33,10 @@ tf_constant = KERAS_DEPS.constant
 tf_identity = KERAS_DEPS.identity
 Tensor = KERAS_DEPS.Tensor
 tf_convert_to_tensor = KERAS_DEPS.convert_to_tensor
-tf_expand_dims =KERAS_DEPS.expand_dims 
-tf_squeeze = KERAS_DEPS.squeeze 
-tf_print = KERAS_DEPS.print 
-tf_shape = KERAS_DEPS.shape 
+tf_expand_dims = KERAS_DEPS.expand_dims
+tf_squeeze = KERAS_DEPS.squeeze
+tf_print = KERAS_DEPS.print
+tf_shape = KERAS_DEPS.shape
 
 
 # ---------------------------------------------------------------------
@@ -53,15 +54,19 @@ def should_log_physics(model: Any) -> bool:
         return True
     if not model._physics_off():
         return True
-    return bool(get_sk(
-        sk,
-        "log_physics_when_off",
-        default=False,
-    ))
+    return bool(
+        get_sk(
+            sk,
+            "log_physics_when_off",
+            default=False,
+        )
+    )
+
 
 # ---------------------------------------------------------------------
 # Physics multiplier + loss assembly
 # ---------------------------------------------------------------------
+
 
 def assemble_physics_loss(
     model: Any,
@@ -296,8 +301,12 @@ def assemble_physics_loss(
     # ----------------------------------------------------------
     phys_mult = model._physics_loss_multiplier()
 
-    scale_mv = bool(getattr(model, "_scale_mv_with_offset", False))
-    scale_q = bool(getattr(model, "_scale_q_with_offset", False))
+    scale_mv = bool(
+        getattr(model, "_scale_mv_with_offset", False)
+    )
+    scale_q = bool(
+        getattr(model, "_scale_q_with_offset", False)
+    )
 
     core_scaled = phys_mult * core_raw
     mv_scaled = phys_mult * t_mv if scale_mv else t_mv
@@ -308,15 +317,21 @@ def assemble_physics_loss(
     # 3) Per-term contributions consistent with physics_scaled.
     # ----------------------------------------------------------
     terms_scaled = {
-        "cons":   phys_mult * t_cons,
-        "gw":     phys_mult * t_gw,
-        "prior":  phys_mult * t_prior,
+        "cons": phys_mult * t_cons,
+        "gw": phys_mult * t_gw,
+        "prior": phys_mult * t_prior,
         "smooth": phys_mult * t_smooth,
         "bounds": phys_mult * t_bounds,
         "mv": mv_scaled,
         "q": q_scaled,
     }
-    return physics_raw, physics_scaled, phys_mult, terms_scaled
+    return (
+        physics_raw,
+        physics_scaled,
+        phys_mult,
+        terms_scaled,
+    )
+
 
 # ---------------------------------------------------------------------
 # Physics bundles
@@ -343,7 +358,6 @@ def zero_physics_bundle(
         "physics_loss_scaled": z,
         "physics_mult": one,
         "lambda_offset": tf_identity(lam),
-
         "loss_consolidation": z,
         "loss_gw_flow": z,
         "loss_prior": z,
@@ -353,9 +367,7 @@ def zero_physics_bundle(
         "q_rms": z,
         "q_gate": z,
         "subs_resid_gate": z,
-
         "loss_bounds": z,
-
         "epsilon_prior": z,
         "epsilon_cons": z,
         "epsilon_gw": z,
@@ -400,20 +412,16 @@ def build_physics_bundle(
         "physics_loss_scaled": physics_loss_scaled,
         "physics_mult": phys_mult,
         "lambda_offset": tf_identity(lam),
-
         "loss_consolidation": loss_cons,
         "loss_gw_flow": loss_gw,
         "loss_prior": loss_prior,
         "loss_smooth": loss_smooth,
         "loss_mv": loss_mv,
-        
         "loss_q_reg": loss_q_reg,
         "q_rms": q_rms,
         "q_gate": q_gate,
         "subs_resid_gate": subs_resid_gate,
-
         "loss_bounds": loss_bounds,
-
         "epsilon_prior": eps_prior,
         "epsilon_cons": eps_cons,
         "epsilon_gw": eps_gw,
@@ -460,11 +468,11 @@ def _set_metric_results(m, fallback):
         return m.result()
     except Exception:
         return fallback
-    
+
+
 def epsilon_value_for_logs(
-        model: Any, which: str, 
-        fallback: Tensor
-    ) -> Tensor:
+    model: Any, which: str, fallback: Tensor
+) -> Tensor:
     """
     Prefer tracked epsilon metric if it exists.
     """
@@ -480,10 +488,12 @@ def epsilon_value_for_logs(
 # ---------------------------------------------------------------------
 def _ordered_by_outputs(model, d):
     keys = getattr(model, "output_names", None) or getattr(
-        model, "_output_keys", None)
+        model, "_output_keys", None
+    )
     if not keys:
         keys = list(d.keys())
     return [d[k] for k in keys if k in d and d[k] is not None]
+
 
 def _get_real_compile_metrics(model):
     # Keras 3: real container
@@ -504,28 +514,28 @@ def _get_real_compile_metrics(model):
 def update_compiled_metrics(model, targets, y_pred):
     r"""
     Update compiled Keras metrics for multi-output dict predictions.
-    
+
     This helper updates the metric container created by
     :meth:`tf.keras.Model.compile` in a way that is robust across Keras 2
     and Keras 3 behavior when the model uses named outputs (dict-style)
     and the training loop uses a custom :meth:`train_step` /
     :meth:`test_step`.
-    
+
     The function:
-    
+
     1) Locates the "real" compiled metrics object for the model (if any)
        using an internal helper (``_get_real_compile_metrics``).
-    
+
     2) Determines the ordered list of output keys from the model
        (preferably ``model.output_names`` and then ``model._output_keys``).
-    
+
     3) Aligns the shapes of ground truth tensors to match prediction
        tensors (via ``_as_BHO``), so metrics always see consistent batch
        layout.
-    
+
     4) Attempts to update metrics using the most stable calling pattern
        for the installed Keras version:
-    
+
        * First try list-based update (``update_state(y_true_list,
          y_pred_list)``), which avoids dict key routing issues that can
          occur with certain Keras 2 configurations.
@@ -533,29 +543,29 @@ def update_compiled_metrics(model, targets, y_pred):
          (``update_state(y_true_dict, y_pred_dict)``).
        * If that also fails, fall back to manually updating per-output
          metric objects by matching metric name prefixes.
-    
+
     This helper is primarily used to keep metric reporting consistent
     when custom training logic bypasses the default Keras fit loop
     internals.
-    
+
     Parameters
     ----------
     model : Any
         A Keras model instance (or model-like object) that has been
         compiled with ``metrics`` and possibly multi-output losses.
-    
+
     targets : dict-like
         Ground truth outputs keyed by output name. Values can be tensors
         or tensor-like arrays.
-    
+
     y_pred : dict-like
         Model predictions keyed by output name. Values are tensors.
-    
+
     Returns
     -------
     None
         Updates the compiled metrics state in-place.
-    
+
     Notes
     -----
     Why a custom updater is needed
@@ -565,7 +575,7 @@ def update_compiled_metrics(model, targets, y_pred):
     custom :meth:`train_step` / :meth:`test_step`, you often compute losses
     manually and must also call metric updates manually to preserve the
     behavior of ``model.fit``.
-    
+
     Compatibility behavior
     ~~~~~~~~~~~~~~~~~~~~~~~~
     - In some Keras 2 environments, calling ``compiled.update_state`` with
@@ -574,48 +584,46 @@ def update_compiled_metrics(model, targets, y_pred):
       strategy is a defensive approach.
     - The final manual fallback updates metric objects directly by matching
       their name prefix (``<output_name>_``) and skipping loss-like metrics.
-    
+
     Shape normalization
     ~~~~~~~~~~~~~~~~~~~~~
     The helper normalizes ground-truth shapes to match prediction shapes
     before updating metrics. This reduces common failures when targets are
     provided as ``(B,H)`` or ``(B,H,1)`` while predictions may be
     ``(B,H,Q,1)`` (quantiles) or similar.
-    
+
     Examples
     --------
     Inside a custom test_step:
-    
+
     >>> y_pred = model(inputs, training=False)
     >>> update_compiled_metrics(model, targets, y_pred)
-    
+
     Inside a custom train_step:
-    
+
     >>> with tf.GradientTape() as tape:
     ...     y_pred = model(inputs, training=True)
     ...     loss = model.compiled_loss(...)
     >>> update_compiled_metrics(model, targets, y_pred)
-    
+
     See Also
     --------
     tf.keras.Model.compiled_metrics
         Standard entry point for metric containers in Keras.
-    
+
     GeoPriorSubsNet.train_step
         Custom training loop that may use this helper to keep metrics
         consistent.
-    
+
     References
     ----------
     .. [1] Keras Team. Keras fit/compile metrics routing documentation.
     """
-    
+
     _update_compiled_metrics(
-        model = model, 
-        targets=targets, 
-        y_pred=y_pred
+        model=model, targets=targets, y_pred=y_pred
     )
-    
+
     # compiled = _get_real_compile_metrics(model)
     # if compiled is None:
     #     return
@@ -642,10 +650,10 @@ def update_compiled_metrics(model, targets, y_pred):
     # t_norm = {k: _as_BHO(targets[k], y_pred=y_pred[k]) for k in keys}
     # p_norm = {k: y_pred[k] for k in keys}
 
-    # # For keras 2.0 
+    # # For keras 2.0
     # yt_list = [t_norm[k] for k in keys]
     # yp_list = [p_norm[k] for k in keys]
-    
+
     # # Try list path first (works with list-compiled metrics,
     # # avoids dict key weirdness) in keras 2
     # try:
@@ -653,7 +661,7 @@ def update_compiled_metrics(model, targets, y_pred):
     #     return
     # except:
     #     pass
-    
+
     # # IMPORTANT: use dict path (per-output), never lists
     # try:
     #     compiled.update_state(t_norm, p_norm)
@@ -669,9 +677,11 @@ def update_compiled_metrics(model, targets, y_pred):
     #             if name.startswith(prefix) and "loss" not in name:
     #                 m.update_state(yt, yp)
 
+
 def _needs_full_quantiles(metric_name: str) -> bool:
     n = metric_name.lower()
     return ("coverage" in n) or ("sharpness" in n)
+
 
 def _metric_key_from_name(name: str):
     # Keras names: "subs_pred_mae", "subs_pred_coverage80", "gwl_pred_mse", ...
@@ -685,10 +695,13 @@ def _metric_key_from_name(name: str):
         return "gwl_pred"
     return None
 
+
 # ---------------------------------------------------------------------
 # Helper: Keras 3 Safe Result Getter
 # ---------------------------------------------------------------------
-def safe_metric_result(metric: Any, fallback: float = 0.0) -> Tensor:
+def safe_metric_result(
+    metric: Any, fallback: float = 0.0
+) -> Tensor:
     """
     Safely obtain a metric result (Keras 3-safe).
 
@@ -711,13 +724,17 @@ def safe_metric_result(metric: Any, fallback: float = 0.0) -> Tensor:
         return tf_constant(fallback, dtype=tf_float32)
 
     # Keras 3: many metrics expose `.built`; if False, result() may raise.
-    if hasattr(metric, "built") and not getattr(metric, "built", True):
+    if hasattr(metric, "built") and not getattr(
+        metric, "built", True
+    ):
         return tf_constant(fallback, dtype=tf_float32)
 
     # Standard metric objects
     if hasattr(metric, "result"):
         try:
-            return tf_convert_to_tensor(metric.result(), dtype=tf_float32)
+            return tf_convert_to_tensor(
+                metric.result(), dtype=tf_float32
+            )
         except Exception:
             return tf_constant(fallback, dtype=tf_float32)
 
@@ -726,7 +743,8 @@ def safe_metric_result(metric: Any, fallback: float = 0.0) -> Tensor:
         return tf_convert_to_tensor(metric, dtype=tf_float32)
     except Exception:
         return tf_constant(fallback, dtype=tf_float32)
-    
+
+
 def pack_step_results(
     model: Any,
     *,
@@ -739,30 +757,30 @@ def pack_step_results(
 ) -> dict[str, Tensor]:
     r"""
     Canonical return dictionary for custom ``train_step`` / ``test_step``.
-    
+
     This helper builds a stable logging payload for GeoPrior-style models
     that use a custom training loop. It combines:
-    
+
     * supervised loss scalars (data and total),
     * compiled Keras metrics (if available),
     * optional manual trackers (e.g., add-on quantile trackers),
     * optional physics diagnostics (PINN losses and epsilons).
-    
+
     The function is intentionally defensive across Keras versions:
-    
+
     * It explicitly updates and reads compiled metrics using
       ``update_compiled_metrics`` and the underlying compile-metrics
       container, rather than relying on ``model.metrics`` alone.
     * It reserves the key ``"loss"`` as the authoritative scalar returned
       to Keras, while also including explicit ``"total_loss"`` and
       ``"data_loss"`` entries for clarity.
-    
+
     Parameters
     ----------
     model : Any
         Model-like object that provides compiled metrics and configuration.
         Expected attributes and helpers include:
-    
+
         * ``metrics`` (optional list of metric objects)
         * ``output_names`` or ``_output_keys`` (output ordering)
         * ``scaling_kwargs`` (optional dict)
@@ -770,47 +788,47 @@ def pack_step_results(
           ``should_log_physics``, ``zero_physics_bundle``,
           ``update_compiled_metrics``, ``safe_metric_result``,
           ``update_epsilon_metrics``, and ``epsilon_value_for_logs``.
-    
+
     total_loss : Tensor
         The scalar loss used for optimization in the current step. This is
         returned as ``results["loss"]`` and ``results["total_loss"]``.
-    
+
     data_loss : Tensor
         The supervised loss computed from the compiled loss function
         (i.e., the data term). Returned as ``results["data_loss"]``.
-    
+
     targets : Any
         Ground-truth targets for the supervised outputs. Typically a dict
         keyed by output names (e.g., ``{"subs_pred": ..., "gwl_pred": ...}``)
         but may be any structure supported by ``update_compiled_metrics``.
-    
+
     y_pred : Any
         Predicted outputs corresponding to ``targets``. Typically a dict
         keyed by output names.
-    
+
     physics : dict[str, Tensor] or None, optional
         Physics bundle produced by ``physics_core`` (or an equivalent).
         If None and physics logging is enabled, a zero bundle is used.
-    
+
     manual_trackers : dict or None, optional
         Optional additional trackers to log. Values may be metric objects
         with ``result()`` or raw scalars/tensors. This is typically used
         for add-on metrics that are not part of Keras compiled metrics.
-    
+
     Returns
     -------
     results : dict[str, Tensor]
         A dictionary suitable for returning from ``train_step`` or
         ``test_step``. At minimum it contains:
-    
+
         * ``loss``: total loss used by Keras progress reporting.
         * ``total_loss``: same as ``loss`` (explicit alias).
         * ``data_loss``: supervised/data loss term.
-    
+
         If compiled metrics are available, additional keys are included
         (e.g., ``subs_pred_mae``, quantile coverage, etc.). If physics
         logging is enabled, physics diagnostics are appended (see Notes).
-    
+
     Notes
     -----
     Metric collection strategy
@@ -818,36 +836,36 @@ def pack_step_results(
     Compiled metrics are updated via ``update_compiled_metrics`` and then
     read from the underlying compile-metrics object. This avoids common
     routing failures when using dict outputs in custom training loops.
-    
+
     Reserved and excluded keys
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
     Certain names are reserved to prevent collisions with Keras internals
     and to ensure that the loss scalar remains authoritative. Some epsilon
     fields may also be excluded from the compiled-metric collection to
     avoid duplicate/conflicting reporting.
-    
+
     Physics logging
     ~~~~~~~~~~~~~~~
     If physics logging is enabled (``should_log_physics(model)`` returns
     True), this helper adds a consistent set of physics metrics, typically:
-    
+
     * physics losses (raw and scaled),
     * per-term losses (consolidation, gw flow, priors, bounds),
     * epsilon metrics (scaled and raw variants).
-    
+
     If physics is disabled for the model and logging is enabled, a zero
     bundle is inserted to keep log schemas stable.
-    
+
     Q and residual gates
     ~~~~~~~~~~~~~~~~~~~~
     When ``scaling_kwargs`` requests Q diagnostics
     (``log_q_diagnostics=True``), additional fields such as Q RMS and gate
     values may be included for debugging training schedules.
-    
+
     Examples
     --------
     Inside a custom training step:
-    
+
     >>> results = pack_step_results(
     ...     model,
     ...     total_loss=total_loss,
@@ -858,9 +876,9 @@ def pack_step_results(
     ...     physics=physics_bundle,
     ... )
     >>> return results
-    
+
     Inside a custom test step:
-    
+
     >>> return pack_step_results(
     ...     model,
     ...     total_loss=total_loss,
@@ -869,165 +887,168 @@ def pack_step_results(
     ...     y_pred=y_pred,
     ...     physics=physics_bundle,
     ... )
-    
+
     See Also
     --------
     update_compiled_metrics
         Compatibility helper to update metrics for multi-output dicts.
-    
+
     assemble_physics_loss
         Builds the scaled physics objective used in ``total_loss``.
-    
+
     physics_core
         Produces the physics bundle consumed by this packer.
-    
+
     References
     ----------
     .. [1] Keras Team. Customizing ``fit`` with ``train_step`` and
        ``test_step``. Keras guides and API documentation.
     """
 
-    
-    RESERVED = {"loss", "total_loss", "data_loss" , "compile_metrics"}
+    RESERVED = {
+        "loss",
+        "total_loss",
+        "data_loss",
+        "compile_metrics",
+    }
     EXCLUDE = {"epsilon_prior", "epsilon_cons", "epsilon_gw"}
 
-#     # ------------------------------------------------------------------
-#     # 1) Collect logs (DO NOT rely on model.metrics only)
-#     # ------------------------------------------------------------------
-#     results: dict[str, Tensor] = {}
-    
-#     def _add_compiled_results():
-#         cm = _get_real_compile_metrics(model)
-#         if cm is None:
-#             return
-#         try:
-#             # In Keras 3 CompileMetrics.result() returns a dict like:
-#             # {'subs_pred_mae_q50': ..., 'subs_pred_coverage80': ..., ...}
-#             d = cm.result()
-#         except Exception:
-#             return
-#         if not isinstance(d, dict):
-#             return
-    
-#         for k, v in d.items():
-#             if (not k) or (k in RESERVED) or (k in EXCLUDE):
-#                 continue
-#             if k in results:
-#                 continue
-#             results[k] = tf_convert_to_tensor(v, dtype=tf_float32)  
-            
-#     # ------------------------------------------------------------------
-#     # 0) Update compiled metrics (MANUAL UPDATE for Keras 3)
-#     # ------------------------------------------------------------------
-#     # We DO NOT use model.compiled_metrics.update_state(targets, y_pred)
-#     # because it crashes with TypeError on dicts in Keras 3.
-#     # 1. Update states (Builds the metrics)
-#     update_compiled_metrics(model, targets=targets, y_pred = y_pred)
-#     _add_compiled_results()
+    #     # ------------------------------------------------------------------
+    #     # 1) Collect logs (DO NOT rely on model.metrics only)
+    #     # ------------------------------------------------------------------
+    #     results: dict[str, Tensor] = {}
 
-#     # ------------------------------------------------------------------
-#     # Optional: log extra Q/subs-residual diagnostics
-#     # ------------------------------------------------------------------
-#     sk = getattr(model, "scaling_kwargs", None) or {}
-#     log_q_diag = bool(get_sk(sk, "log_q_diagnostics", default=False))
-    
-#     def _add_metric_list(metrics):
-#         for mm in metrics or []:
-#             nm = getattr(mm, "name", "") or ""
-#             if (not nm) or (nm in RESERVED) or (nm in EXCLUDE):
-#                 continue
-#             if nm in results:
-#                 continue
-    
-#             # Keras 3: metric may exist but not yet built (no update_state called)
-#             try:
-#                 # If metric hasn't seen data, result() might fail or return 0
-#                 results[nm] = mm.result()
-#             except Exception:
-#                 # never crash logging
-#                 continue
-    
+    #     def _add_compiled_results():
+    #         cm = _get_real_compile_metrics(model)
+    #         if cm is None:
+    #             return
+    #         try:
+    #             # In Keras 3 CompileMetrics.result() returns a dict like:
+    #             # {'subs_pred_mae_q50': ..., 'subs_pred_coverage80': ..., ...}
+    #             d = cm.result()
+    #         except Exception:
+    #             return
+    #         if not isinstance(d, dict):
+    #             return
 
-#     # per-output loss trackers from compile(loss=...)
-#     _add_metric_list(getattr(model, "metrics", []))
+    #         for k, v in d.items():
+    #             if (not k) or (k in RESERVED) or (k in EXCLUDE):
+    #                 continue
+    #             if k in results:
+    #                 continue
+    #             results[k] = tf_convert_to_tensor(v, dtype=tf_float32)
 
-#     # Canonical loss fields (authoritative)
-#     results["loss"] = total_loss
-#     results["total_loss"] = total_loss
-#     results["data_loss"] = data_loss
+    #     # ------------------------------------------------------------------
+    #     # 0) Update compiled metrics (MANUAL UPDATE for Keras 3)
+    #     # ------------------------------------------------------------------
+    #     # We DO NOT use model.compiled_metrics.update_state(targets, y_pred)
+    #     # because it crashes with TypeError on dicts in Keras 3.
+    #     # 1. Update states (Builds the metrics)
+    #     update_compiled_metrics(model, targets=targets, y_pred = y_pred)
+    #     _add_compiled_results()
 
-#     if manual_trackers:
-#         for name, tracker in manual_trackers.items():
-#             if name not in results:
-#                 results[name] = safe_metric_result(tracker)
-                
-#     # ------------------------------------------------------------------
-#     # 2) Physics logs (optional)
-#     # ------------------------------------------------------------------
-#     if not should_log_physics(model):
-#         return results
+    #     # ------------------------------------------------------------------
+    #     # Optional: log extra Q/subs-residual diagnostics
+    #     # ------------------------------------------------------------------
+    #     sk = getattr(model, "scaling_kwargs", None) or {}
+    #     log_q_diag = bool(get_sk(sk, "log_q_diagnostics", default=False))
 
-#     if physics is None:
-#         physics = zero_physics_bundle(model)
+    #     def _add_metric_list(metrics):
+    #         for mm in metrics or []:
+    #             nm = getattr(mm, "name", "") or ""
+    #             if (not nm) or (nm in RESERVED) or (nm in EXCLUDE):
+    #                 continue
+    #             if nm in results:
+    #                 continue
 
-#     update_epsilon_metrics(
-#         model,
-#         eps_prior=physics["epsilon_prior"],
-#         eps_cons=physics["epsilon_cons"],
-#         eps_gw=physics["epsilon_gw"],
-#     )
+    #             # Keras 3: metric may exist but not yet built (no update_state called)
+    #             try:
+    #                 # If metric hasn't seen data, result() might fail or return 0
+    #                 results[nm] = mm.result()
+    #             except Exception:
+    #                 # never crash logging
+    #                 continue
 
-#     results.update({
-#         "physics_loss": physics["physics_loss_raw"],
-#         "physics_mult": physics["physics_mult"],
-#         "physics_loss_scaled": physics["physics_loss_scaled"],
-#         "lambda_offset": physics["lambda_offset"],
+    #     # per-output loss trackers from compile(loss=...)
+    #     _add_metric_list(getattr(model, "metrics", []))
 
-#         "consolidation_loss": physics["loss_consolidation"],
-#         "gw_flow_loss": physics["loss_gw_flow"],
-#         "prior_loss": physics["loss_prior"],
-#         "smooth_loss": physics["loss_smooth"],
-#         "mv_prior_loss": physics["loss_mv"],
-#         "bounds_loss": physics["loss_bounds"],
-#         "epsilon_prior": epsilon_value_for_logs(
-#             model,
-#             "prior",
-#             physics["epsilon_prior"],
-#         ),
-#         "epsilon_cons": epsilon_value_for_logs(
-#             model,
-#             "cons",
-#             physics["epsilon_cons"],
-#         ),
-#         "epsilon_gw": epsilon_value_for_logs(
-#             model,
-#             "gw",
-#             physics["epsilon_gw"],
-#         ),
+    #     # Canonical loss fields (authoritative)
+    #     results["loss"] = total_loss
+    #     results["total_loss"] = total_loss
+    #     results["data_loss"] = data_loss
 
-#         "epsilon_cons_raw": physics["epsilon_cons_raw"],
-#         "epsilon_gw_raw": physics["epsilon_gw_raw"],
-#     })
-    
-#     if log_q_diag:
-#         results.update({
-#             "q_reg_loss": physics.get("loss_q_reg", tf_constant(0.0, tf_float32)),
-#             "q_rms": physics.get("q_rms", tf_constant(0.0, tf_float32)),
-#             "q_gate": physics.get("q_gate", tf_constant(0.0, tf_float32)),
-#             "subs_resid_gate": physics.get("subs_resid_gate", tf_constant(0.0, tf_float32)),
-#         })
+    #     if manual_trackers:
+    #         for name, tracker in manual_trackers.items():
+    #             if name not in results:
+    #                 results[name] = safe_metric_result(tracker)
 
-#     return results
-# def pack_step_results(
-#     model: Any,
-#     *,
-#     total_loss: Tensor,
-#     data_loss: Tensor,
-#     targets: Any,
-#     y_pred: Any,
-#     physics: dict[str, Tensor] | None = None,
-#     manual_trackers: dict | None = None,
-# ) -> dict[str, Tensor]:
+    #     # ------------------------------------------------------------------
+    #     # 2) Physics logs (optional)
+    #     # ------------------------------------------------------------------
+    #     if not should_log_physics(model):
+    #         return results
+
+    #     if physics is None:
+    #         physics = zero_physics_bundle(model)
+
+    #     update_epsilon_metrics(
+    #         model,
+    #         eps_prior=physics["epsilon_prior"],
+    #         eps_cons=physics["epsilon_cons"],
+    #         eps_gw=physics["epsilon_gw"],
+    #     )
+
+    #     results.update({
+    #         "physics_loss": physics["physics_loss_raw"],
+    #         "physics_mult": physics["physics_mult"],
+    #         "physics_loss_scaled": physics["physics_loss_scaled"],
+    #         "lambda_offset": physics["lambda_offset"],
+
+    #         "consolidation_loss": physics["loss_consolidation"],
+    #         "gw_flow_loss": physics["loss_gw_flow"],
+    #         "prior_loss": physics["loss_prior"],
+    #         "smooth_loss": physics["loss_smooth"],
+    #         "mv_prior_loss": physics["loss_mv"],
+    #         "bounds_loss": physics["loss_bounds"],
+    #         "epsilon_prior": epsilon_value_for_logs(
+    #             model,
+    #             "prior",
+    #             physics["epsilon_prior"],
+    #         ),
+    #         "epsilon_cons": epsilon_value_for_logs(
+    #             model,
+    #             "cons",
+    #             physics["epsilon_cons"],
+    #         ),
+    #         "epsilon_gw": epsilon_value_for_logs(
+    #             model,
+    #             "gw",
+    #             physics["epsilon_gw"],
+    #         ),
+
+    #         "epsilon_cons_raw": physics["epsilon_cons_raw"],
+    #         "epsilon_gw_raw": physics["epsilon_gw_raw"],
+    #     })
+
+    #     if log_q_diag:
+    #         results.update({
+    #             "q_reg_loss": physics.get("loss_q_reg", tf_constant(0.0, tf_float32)),
+    #             "q_rms": physics.get("q_rms", tf_constant(0.0, tf_float32)),
+    #             "q_gate": physics.get("q_gate", tf_constant(0.0, tf_float32)),
+    #             "subs_resid_gate": physics.get("subs_resid_gate", tf_constant(0.0, tf_float32)),
+    #         })
+
+    #     return results
+    # def pack_step_results(
+    #     model: Any,
+    #     *,
+    #     total_loss: Tensor,
+    #     data_loss: Tensor,
+    #     targets: Any,
+    #     y_pred: Any,
+    #     physics: dict[str, Tensor] | None = None,
+    #     manual_trackers: dict | None = None,
+    # ) -> dict[str, Tensor]:
 
     # RESERVED = {"loss", "total_loss", "data_loss", "compile_metrics"}
     # EXCLUDE = {"epsilon_prior", "epsilon_cons", "epsilon_gw"}
@@ -1102,11 +1123,13 @@ def pack_step_results(
     # (unchanged from your code)
     # ----------------------------------------------------------
     sk = getattr(model, "scaling_kwargs", None) or {}
-    log_q_diag = bool(get_sk(
-        sk,
-        "log_q_diagnostics",
-        default=False,
-    ))
+    log_q_diag = bool(
+        get_sk(
+            sk,
+            "log_q_diagnostics",
+            default=False,
+        )
+    )
 
     # ----------------------------------------------------------
     # 6) Physics logs (unchanged from your code)
@@ -1124,60 +1147,66 @@ def pack_step_results(
         eps_gw=physics["epsilon_gw"],
     )
 
-    results.update({
-        "physics_loss": physics["physics_loss_raw"],
-        "physics_mult": physics["physics_mult"],
-        "physics_loss_scaled": physics["physics_loss_scaled"],
-        "lambda_offset": physics["lambda_offset"],
-
-        "consolidation_loss": physics["loss_consolidation"],
-        "gw_flow_loss": physics["loss_gw_flow"],
-        "prior_loss": physics["loss_prior"],
-        "smooth_loss": physics["loss_smooth"],
-        "mv_prior_loss": physics["loss_mv"],
-        "bounds_loss": physics["loss_bounds"],
-
-        "epsilon_prior": epsilon_value_for_logs(
-            model,
-            "prior",
-            physics["epsilon_prior"],
-        ),
-        "epsilon_cons": epsilon_value_for_logs(
-            model,
-            "cons",
-            physics["epsilon_cons"],
-        ),
-        "epsilon_gw": epsilon_value_for_logs(
-            model,
-            "gw",
-            physics["epsilon_gw"],
-        ),
-
-        "epsilon_cons_raw": physics["epsilon_cons_raw"],
-        "epsilon_gw_raw": physics["epsilon_gw_raw"],
-    })
+    results.update(
+        {
+            "physics_loss": physics["physics_loss_raw"],
+            "physics_mult": physics["physics_mult"],
+            "physics_loss_scaled": physics[
+                "physics_loss_scaled"
+            ],
+            "lambda_offset": physics["lambda_offset"],
+            "consolidation_loss": physics[
+                "loss_consolidation"
+            ],
+            "gw_flow_loss": physics["loss_gw_flow"],
+            "prior_loss": physics["loss_prior"],
+            "smooth_loss": physics["loss_smooth"],
+            "mv_prior_loss": physics["loss_mv"],
+            "bounds_loss": physics["loss_bounds"],
+            "epsilon_prior": epsilon_value_for_logs(
+                model,
+                "prior",
+                physics["epsilon_prior"],
+            ),
+            "epsilon_cons": epsilon_value_for_logs(
+                model,
+                "cons",
+                physics["epsilon_cons"],
+            ),
+            "epsilon_gw": epsilon_value_for_logs(
+                model,
+                "gw",
+                physics["epsilon_gw"],
+            ),
+            "epsilon_cons_raw": physics["epsilon_cons_raw"],
+            "epsilon_gw_raw": physics["epsilon_gw_raw"],
+        }
+    )
 
     if log_q_diag:
-        results.update({
-            "q_reg_loss": physics.get(
-                "loss_q_reg",
-                tf_constant(0.0, tf_float32),
-            ),
-            "q_rms": physics.get(
-                "q_rms",
-                tf_constant(0.0, tf_float32),
-            ),
-            "q_gate": physics.get(
-                "q_gate",
-                tf_constant(0.0, tf_float32),
-            ),
-            "subs_resid_gate": physics.get(
-                "subs_resid_gate",
-                tf_constant(0.0, tf_float32),
-            ),
-        })
+        results.update(
+            {
+                "q_reg_loss": physics.get(
+                    "loss_q_reg",
+                    tf_constant(0.0, tf_float32),
+                ),
+                "q_rms": physics.get(
+                    "q_rms",
+                    tf_constant(0.0, tf_float32),
+                ),
+                "q_gate": physics.get(
+                    "q_gate",
+                    tf_constant(0.0, tf_float32),
+                ),
+                "subs_resid_gate": physics.get(
+                    "subs_resid_gate",
+                    tf_constant(0.0, tf_float32),
+                ),
+            }
+        )
 
     return results
+
 
 # ---------------------------------------------------------------------
 # Eval packer (for _evaluate_physics_on_batch)
@@ -1189,19 +1218,19 @@ def pack_eval_physics(
 ) -> dict[str, Tensor]:
     r"""
     Canonical physics bundle output for batch-level physics evaluation.
-    
+
     This helper normalizes the output of physics diagnostics so that
     callers can rely on a stable schema regardless of whether physics is
     enabled for the model.
-    
+
     Behavior:
-    
+
     * If a physics bundle is provided, it is returned unchanged.
     * If physics is off and logging is enabled, a zero-valued physics
       bundle is returned (to keep downstream logging stable).
     * If physics is off and logging is disabled, an empty dict is
       returned.
-    
+
     Parameters
     ----------
     model : Any
@@ -1209,50 +1238,50 @@ def pack_eval_physics(
         This function relies on ``should_log_physics(model)`` and
         ``zero_physics_bundle(model)`` which are expected to be available
         in the surrounding module.
-    
+
     physics : dict[str, Tensor] or None
         Physics bundle produced by ``physics_core`` or a compatible
         routine. If None, behavior depends on whether physics logging is
         enabled.
-    
+
     Returns
     -------
     out : dict[str, Tensor]
         Canonical physics dictionary.
-    
+
         If physics is enabled (or logging when off), keys typically include
         (implementation dependent):
-    
+
         * ``physics_loss_raw``
         * ``physics_loss_scaled``
         * ``physics_mult``
         * per-term losses and epsilon diagnostics
-    
+
         If physics is off and logging is disabled, returns ``{}``.
-    
+
     Notes
     -----
     Stable logging schema
     ~~~~~~~~~~~~~~~~~~~~
     Returning a zero bundle when physics is off is useful for dashboards
     and automated training loops where missing keys complicate aggregation.
-    
+
     Examples
     --------
     Batch-level evaluation:
-    
+
     >>> packed = pack_eval_physics(model, physics=physics_bundle)
-    
+
     Physics-off scenario:
-    
+
     >>> packed = pack_eval_physics(model, physics=None)
     >>> packed  # either {} or a zero bundle depending on settings
-    
+
     See Also
     --------
     GeoPriorSubsNet.evaluate_physics
         Aggregates these batch outputs across datasets.
-    
+
     physics_core
         Produces the physics bundle consumed by this helper.
     """
@@ -1263,4 +1292,3 @@ def pack_eval_physics(
         return {}
 
     return physics
-

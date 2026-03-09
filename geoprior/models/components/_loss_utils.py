@@ -1,32 +1,30 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Author: LKouadio <etanoyau@gmail.com>
-# Adapted from: earthai-tech/fusionlab-learn — https://github.com/earthai-tech/gofast
+# Adapted from: earthai-tech/fusionlab-learn https://github.com/earthai-tech/gofast
 # Modified for GeoPrior-v3 API.
 
 """
-Loss utilities for different use-cases, including quantile loss, 
-mean squared error, and more. These utilities can be used with 
+Loss utilities for different use-cases, including quantile loss,
+mean squared error, and more. These utilities can be used with
 different models and can be easily extended for future requirements.
 """
 
 from __future__ import annotations
-from typing import List
 
 from ...api.property import NNLearner
 from ._config import (
-    Loss, 
+    Loss,
     Tensor,
+    register_keras_serializable,
     tf_abs,
-    tf_square,
-    tf_reduce_mean,
-    tf_reduce_sum,
     tf_constant,
     tf_float32,
-    tf_reshape,
     tf_maximum,
-    tf_where, 
-    register_keras_serializable, 
+    tf_reduce_mean,
+    tf_reduce_sum,
+    tf_reshape,
+    tf_square,
+    tf_where,
 )
 
 __all__ = [
@@ -34,12 +32,14 @@ __all__ = [
     "QuantileLoss",
     "HuberLoss",
     "WeightedLoss",
-    "compute_loss_with_reduction", 
-    "compute_quantile_loss"
+    "compute_loss_with_reduction",
+    "compute_quantile_loss",
 ]
 
+
 @register_keras_serializable(
-    "fusionlab.nn.components", name="MeanSquaredErrorLoss")
+    "fusionlab.nn.components", name="MeanSquaredErrorLoss"
+)
 class MeanSquaredErrorLoss(Loss, NNLearner):
     """
     Mean Squared Error (MSE) loss function.
@@ -49,7 +49,9 @@ class MeanSquaredErrorLoss(Loss, NNLearner):
       'auto', 'sum', 'mean', or 'none'.
     """
 
-    def __init__(self, reduction: str = "auto", name: str = "MSELoss"):
+    def __init__(
+        self, reduction: str = "auto", name: str = "MSELoss"
+    ):
         super().__init__(reduction=reduction, name=name)
 
     def call(self, y_true: Tensor, y_pred: Tensor) -> Tensor:
@@ -67,7 +69,8 @@ class MeanSquaredErrorLoss(Loss, NNLearner):
 
 
 @register_keras_serializable(
-    "fusionlab.nn.components", name="QuantileLoss")
+    "fusionlab.nn.components", name="QuantileLoss"
+)
 class QuantileLoss(Loss, NNLearner):
     """
     Adaptive Quantile Loss layer that computes quantile loss for given
@@ -77,8 +80,12 @@ class QuantileLoss(Loss, NNLearner):
     - quantiles (List[float]): List of quantiles to compute the loss.
     """
 
-    def __init__(self, quantiles: List[float], reduction: str = "auto", 
-                 name: str = "AdaptiveQuantileLoss"):
+    def __init__(
+        self,
+        quantiles: list[float],
+        reduction: str = "auto",
+        name: str = "AdaptiveQuantileLoss",
+    ):
         super().__init__(reduction=reduction, name=name)
         self.quantiles = quantiles
         self.q = len(quantiles)
@@ -99,12 +106,17 @@ class QuantileLoss(Loss, NNLearner):
         err = y_true_exp - y_pred
 
         # Pinball loss calculation: max(q*e, (q-1)*e)
-        pinball_loss = tf_maximum(self._qs * err, (self._qs - 1.0) * err)
-        return tf_reduce_mean((2.0 / float(self.q)) * pinball_loss, axis=2)
+        pinball_loss = tf_maximum(
+            self._qs * err, (self._qs - 1.0) * err
+        )
+        return tf_reduce_mean(
+            (2.0 / float(self.q)) * pinball_loss, axis=2
+        )
 
 
 @register_keras_serializable(
-    "fusionlab.nn.components", name="HuberLoss")
+    "fusionlab.nn.components", name="HuberLoss"
+)
 class HuberLoss(Loss, NNLearner):
     """
     Huber loss function which is less sensitive to outliers in data.
@@ -113,8 +125,12 @@ class HuberLoss(Loss, NNLearner):
     - delta (float): Threshold for switching between MSE and MAE.
     """
 
-    def __init__(self, delta: float = 1.0, reduction: str = "auto", 
-                 name: str = "HuberLoss"):
+    def __init__(
+        self,
+        delta: float = 1.0,
+        reduction: str = "auto",
+        name: str = "HuberLoss",
+    ):
         super().__init__(reduction=reduction, name=name)
         self.delta = delta
 
@@ -135,14 +151,18 @@ class HuberLoss(Loss, NNLearner):
         # Huber loss formula
         condition = abs_error <= self.delta
         squared_loss = tf_square(error) / 2
-        linear_loss = self.delta * (abs_error - (self.delta / 2))
+        linear_loss = self.delta * (
+            abs_error - (self.delta / 2)
+        )
 
         return tf_reduce_mean(
-            tf_where(condition, squared_loss, linear_loss))
+            tf_where(condition, squared_loss, linear_loss)
+        )
 
 
 @register_keras_serializable(
-    "fusionlab.nn.components", name="WeightedLoss")
+    "fusionlab.nn.components", name="WeightedLoss"
+)
 class WeightedLoss(Loss, NNLearner):
     """
     Weighted loss function to apply different weights for each sample.
@@ -151,8 +171,12 @@ class WeightedLoss(Loss, NNLearner):
     - weight (float or Tensor): Weighting factor for the loss calculation.
     """
 
-    def __init__(self, weight: float = 1.0, reduction: str = "auto",
-                 name: str = "WeightedLoss"):
+    def __init__(
+        self,
+        weight: float = 1.0,
+        reduction: str = "auto",
+        name: str = "WeightedLoss",
+    ):
         super().__init__(reduction=reduction, name=name)
         self.weight = weight
 
@@ -167,27 +191,31 @@ class WeightedLoss(Loss, NNLearner):
         Returns:
         - Tensor: Computed weighted loss value
         """
-        return self.weight * tf_reduce_mean(tf_square(y_true - y_pred))
+        return self.weight * tf_reduce_mean(
+            tf_square(y_true - y_pred)
+        )
 
 
 ### Utility Functions for Losses ###
 
+
 def compute_loss_with_reduction(
-        loss_fn, y_true: Tensor, y_pred: Tensor, reduction: str) -> Tensor:
+    loss_fn, y_true: Tensor, y_pred: Tensor, reduction: str
+) -> Tensor:
     """
     Compute the loss using the specified reduction method.
-    
+
     Args:
     - loss_fn: Loss function to compute the loss
     - y_true: Ground truth values
     - y_pred: Predicted values
     - reduction: String indicating reduction method ('sum', 'mean', etc.)
-    
+
     Returns:
     - Tensor: Loss value
     """
     loss_value = loss_fn(y_true, y_pred)
-    
+
     if reduction == "mean":
         return tf_reduce_mean(loss_value)
     elif reduction == "sum":
@@ -195,11 +223,14 @@ def compute_loss_with_reduction(
     elif reduction == "none":
         return loss_value
     else:
-        raise ValueError(f"Invalid reduction type: {reduction}")
-    
+        raise ValueError(
+            f"Invalid reduction type: {reduction}"
+        )
+
 
 def compute_quantile_loss(
-        y_true: Tensor, y_pred: Tensor, quantiles: List[float]) -> Tensor:
+    y_true: Tensor, y_pred: Tensor, quantiles: list[float]
+) -> Tensor:
     """
     Compute the quantile loss for a given set of quantiles.
 

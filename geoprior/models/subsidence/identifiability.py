@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3  https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -19,14 +18,9 @@ Option A:
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
-from typing import ( 
-    Any, 
-    Dict, 
-    Mapping, 
-    Optional, 
-    Iterable
-)
+from typing import Any
 
 import numpy as np
 
@@ -138,7 +132,6 @@ _IDENTIFIABILITY_PROFILES = {
 }
 
 
-
 __all__ = [
     "init_identifiability",
     "apply_ident_locks",
@@ -164,17 +157,17 @@ _AUDIT_SK_KEYS = (
 
 
 def _pick_keys(
-    d: Dict[str, Any],
+    d: dict[str, Any],
     keys: Iterable[str],
-) -> Dict[str, Any]:
-    out: Dict[str, Any] = {}
+) -> dict[str, Any]:
+    out: dict[str, Any] = {}
     for k in keys:
         if k in d:
             out[k] = d.get(k)
     return out
 
 
-def _head_state(model: Any, name: str) -> Dict[str, Any]:
+def _head_state(model: Any, name: str) -> dict[str, Any]:
     layer = getattr(model, name, None)
     if layer is None:
         return {"exists": False}
@@ -188,8 +181,8 @@ def _head_state(model: Any, name: str) -> Dict[str, Any]:
 def ident_audit_dict(
     model: Any,
     *,
-    extra_sk_keys: Optional[Iterable[str]] = None,
-) -> Dict[str, Any]:
+    extra_sk_keys: Iterable[str] | None = None,
+) -> dict[str, Any]:
     """
     Small, JSON-safe audit of identifiability configuration.
 
@@ -197,9 +190,9 @@ def ident_audit_dict(
     """
     reg = getattr(model, "identifiability_regime", None)
     prof = getattr(model, "_ident_profile", None) or {}
-    sk_prof = (prof.get("sk", None) or {})
+    sk_prof = prof.get("sk", None) or {}
     sk_now = getattr(model, "scaling_kwargs", None) or {}
-    
+
     enabled = (reg is not None) and bool(prof)
 
     keys = list(_AUDIT_SK_KEYS)
@@ -208,13 +201,17 @@ def ident_audit_dict(
             if k not in keys:
                 keys.append(str(k))
 
-    locks = (prof.get("locks", None) or {})
+    locks = prof.get("locks", None) or {}
     lock_keys = ("tau_head", "K_head", "Ss_head")
 
     lam = {
-        "lambda_cons": float(getattr(model, "lambda_cons", 0.0)),
+        "lambda_cons": float(
+            getattr(model, "lambda_cons", 0.0)
+        ),
         "lambda_gw": float(getattr(model, "lambda_gw", 0.0)),
-        "lambda_prior": float(getattr(model, "lambda_prior", 0.0)),
+        "lambda_prior": float(
+            getattr(model, "lambda_prior", 0.0)
+        ),
         "lambda_smooth": float(
             getattr(model, "lambda_smooth", 0.0)
         ),
@@ -234,7 +231,9 @@ def ident_audit_dict(
             ),
             "locks": sorted(list(locks.keys())),
         },
-        "locks": {k: bool(locks.get(k, False)) for k in lock_keys},
+        "locks": {
+            k: bool(locks.get(k, False)) for k in lock_keys
+        },
         "heads": {
             "tau_head": _head_state(model, "tau_head"),
             "K_head": _head_state(model, "K_head"),
@@ -244,11 +243,11 @@ def ident_audit_dict(
         "sk_from_profile": _pick_keys(sk_prof, keys),
         "sk_effective": _pick_keys(sk_now, keys),
         "bounds_loss": sk_now.get("bounds_loss", None),
-        
         "enabled": bool(enabled),
     }
-    
+
     return out
+
 
 def _norm_regime(regime: str | None) -> str | None:
     if regime is None:
@@ -259,6 +258,7 @@ def _norm_regime(regime: str | None) -> str | None:
     if s in {"off", "none", "disabled"}:
         return None
     return s
+
 
 def get_ident_profile(
     regime: str | None,
@@ -304,7 +304,7 @@ def init_identifiability(
     sk1 = _ensure_bounds_loss_dict(sk1)
     return r, prof, sk1
 
-   
+
 def apply_ident_locks(
     model: Any,
     profile: Mapping[str, Any] | None = None,
@@ -313,7 +313,7 @@ def apply_ident_locks(
     if not prof:
         return
 
-    locks = (prof.get("locks") or {})
+    locks = prof.get("locks") or {}
     if not locks:
         return
 
@@ -326,19 +326,19 @@ def apply_ident_locks(
 
 
 def resolve_compile_weights(
-    profile: Optional[Mapping[str, Any]],
+    profile: Mapping[str, Any] | None,
     *,
-    lambda_cons: Optional[float],
-    lambda_gw: Optional[float],
-    lambda_prior: Optional[float],
-    lambda_smooth: Optional[float],
-    lambda_mv: Optional[float],
-    lambda_bounds: Optional[float],
-    lambda_q: Optional[float],
-) -> Dict[str, float]:
+    lambda_cons: float | None,
+    lambda_gw: float | None,
+    lambda_prior: float | None,
+    lambda_smooth: float | None,
+    lambda_mv: float | None,
+    lambda_bounds: float | None,
+    lambda_q: float | None,
+) -> dict[str, float]:
     d = (profile or {}).get("compile", {}) or {}
 
-    def _pick(val: Optional[float], k: str, fb: float) -> float:
+    def _pick(val: float | None, k: str, fb: float) -> float:
         if val is not None:
             return float(val)
         if k in d and d[k] is not None:
@@ -348,12 +348,19 @@ def resolve_compile_weights(
     return {
         "lambda_cons": _pick(lambda_cons, "lambda_cons", 1.0),
         "lambda_gw": _pick(lambda_gw, "lambda_gw", 1.0),
-        "lambda_prior": _pick(lambda_prior, "lambda_prior", 1.0),
-        "lambda_smooth": _pick(lambda_smooth, "lambda_smooth", 1.0),
+        "lambda_prior": _pick(
+            lambda_prior, "lambda_prior", 1.0
+        ),
+        "lambda_smooth": _pick(
+            lambda_smooth, "lambda_smooth", 1.0
+        ),
         "lambda_mv": _pick(lambda_mv, "lambda_mv", 0.0),
-        "lambda_bounds": _pick(lambda_bounds, "lambda_bounds", 0.0),
+        "lambda_bounds": _pick(
+            lambda_bounds, "lambda_bounds", 0.0
+        ),
         "lambda_q": _pick(lambda_q, "lambda_q", 0.0),
     }
+
 
 def _merge_defaults(dst: dict, src: dict) -> dict:
     out = dict(dst)
@@ -361,6 +368,7 @@ def _merge_defaults(dst: dict, src: dict) -> dict:
         if k not in out or out[k] is None:
             out[k] = v
     return out
+
 
 def _stop(x: Tensor) -> Tensor:
     return tf_stop_gradient(x)
@@ -416,9 +424,9 @@ def derive_K_from_tau_np(
 
 @dataclass(frozen=True)
 class ScenarioOut:
-    params: Dict[str, Tensor]
+    params: dict[str, Tensor]
     extra_loss: Tensor
-    diag: Dict[str, Tensor]
+    diag: dict[str, Tensor]
 
 
 def scenario_tau_only_derive_K(
@@ -429,14 +437,14 @@ def scenario_tau_only_derive_K(
     K_key: str = "K_mps",
     Ss_key: str = "Ss",
     Hd_key: str = "Hd",
-    Ss_fixed: Optional[Tensor] = None,
-    Hd_fixed: Optional[Tensor] = None,
+    Ss_fixed: Tensor | None = None,
+    Hd_fixed: Tensor | None = None,
     freeze_Ss: bool = True,
     freeze_Hd: bool = True,
     add_soft_anchor: bool = False,
     anchor_w: float = 0.0,
-    Ss_prior: Optional[Tensor] = None,
-    Hd_prior: Optional[Tensor] = None,
+    Ss_prior: Tensor | None = None,
+    Hd_prior: Tensor | None = None,
 ) -> ScenarioOut:
     """
     Option A:
@@ -447,7 +455,7 @@ def scenario_tau_only_derive_K(
     Returns:
       ScenarioOut(params, extra_loss, diag)
     """
-    p: Dict[str, Tensor] = dict(params)
+    p: dict[str, Tensor] = dict(params)
 
     tau = p[tau_key]
     Ss = p[Ss_key]
@@ -481,9 +489,7 @@ def scenario_tau_only_derive_K(
 
         if (Ss_prior is not None) and (not freeze_Ss):
             extra += w * tf_reduce_mean(
-                tf_square(
-                    _safe_log(Ss) - _safe_log(Ss_prior)
-                )
+                tf_square(_safe_log(Ss) - _safe_log(Ss_prior))
             )
 
         if (Hd_prior is not None) and (not freeze_Hd):
@@ -500,4 +506,3 @@ def scenario_tau_only_derive_K(
         extra_loss=extra,
         diag=diag,
     )
-

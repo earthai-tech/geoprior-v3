@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3  https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -16,8 +15,10 @@ This module stores:
 
 from __future__ import annotations
 
-from ...api.docs import DocstringComponents, _halnet_core_params
-
+from ...api.docs import (
+    DocstringComponents,
+    _halnet_core_params,
+)
 
 # ---------------------------------------------------------------------
 # GeoPrior-specific parameter docs (only what base docs do not cover).
@@ -973,7 +974,7 @@ _param_docs = DocstringComponents.from_nested_components(
 # ---------------------------------------------------------------------
 # GeoPriorSubsNet main docstring template.
 # ---------------------------------------------------------------------
-GEOPRIOR_SUBSNET_DOC = r"""
+GEOPRIOR_SUBSNET_DOC = rf"""
 GeoPriorSubsNet
 ================
 
@@ -1051,12 +1052,12 @@ GeoPrior data pipeline.
 
 Parameters
 ----------
-{params.base.static_input_dim}
-{params.base.dynamic_input_dim}
-{params.base.future_input_dim}
+{_param_docs.base.static_input_dim}
+{_param_docs.base.dynamic_input_dim}
+{_param_docs.base.future_input_dim}
 
-{params.geoprior.output_subsidence_dim}
-{params.geoprior.output_gwl_dim}
+{_param_docs.geoprior.output_subsidence_dim}
+{_param_docs.geoprior.output_gwl_dim}
 
 forecast_horizon : int, default 1
     Forecast horizon length :math:`H`. The model emits
@@ -1067,37 +1068,37 @@ quantiles : list of float or None, default None
     Optional quantile levels for probabilistic forecasting.
     When provided, outputs include a quantile axis.
 
-{params.base.embed_dim}
-{params.base.hidden_units}
-{params.base.lstm_units}
-{params.base.attention_units}
-{params.base.num_heads}
-{params.base.dropout_rate}
-{params.base.max_window_size}
-{params.base.memory_size}
-{params.base.scales}
-{params.base.multi_scale_agg}
-{params.base.final_agg}
-{params.base.activation}
-{params.base.use_residuals}
-{params.base.use_batch_norm}
-{params.base.use_vsn}
-{params.base.vsn_units}
+{_param_docs.base.embed_dim}
+{_param_docs.base.hidden_units}
+{_param_docs.base.lstm_units}
+{_param_docs.base.attention_units}
+{_param_docs.base.num_heads}
+{_param_docs.base.dropout_rate}
+{_param_docs.base.max_window_size}
+{_param_docs.base.memory_size}
+{_param_docs.base.scales}
+{_param_docs.base.multi_scale_agg}
+{_param_docs.base.final_agg}
+{_param_docs.base.activation}
+{_param_docs.base.use_residuals}
+{_param_docs.base.use_batch_norm}
+{_param_docs.base.use_vsn}
+{_param_docs.base.vsn_units}
 
-{params.geoprior.pde_mode}
-{params.geoprior.mv}
-{params.geoprior.kappa}
-{params.geoprior.gamma_w}
-{params.geoprior.h_ref}
-{params.geoprior.use_effective_h}
-{params.geoprior.hd_factor}
-{params.geoprior.kappa_mode}
-{params.geoprior.offset_mode}
-{params.geoprior.bounds_mode}
-{params.geoprior.residual_method}
-{params.geoprior.time_units}
-{params.geoprior.scale_pde_residuals}
-{params.geoprior.scaling_kwargs}
+{_param_docs.geoprior.pde_mode}
+{_param_docs.geoprior.mv}
+{_param_docs.geoprior.kappa}
+{_param_docs.geoprior.gamma_w}
+{_param_docs.geoprior.h_ref}
+{_param_docs.geoprior.use_effective_h}
+{_param_docs.geoprior.hd_factor}
+{_param_docs.geoprior.kappa_mode}
+{_param_docs.geoprior.offset_mode}
+{_param_docs.geoprior.bounds_mode}
+{_param_docs.geoprior.residual_method}
+{_param_docs.geoprior.time_units}
+{_param_docs.geoprior.scale_pde_residuals}
+{_param_docs.geoprior.scaling_kwargs}
 
 mode : str or None, default None
     Routing mode for known-future covariates, forwarded to
@@ -1188,7 +1189,7 @@ References
 
 .. [3] Biot, M. A. General theory of three-dimensional
    consolidation. Journal of Applied Physics, 1941.
-""".format(params=_param_docs)
+"""
 
 # ---------------------------------------------------------------------
 # PoroElasticSubsNet documentation strategy (doc.py)
@@ -1331,7 +1332,7 @@ _poro_param_docs = DocstringComponents.from_nested_components(
 # ---------------------------------------------------------------------
 # PoroElastic docstring template.
 # ---------------------------------------------------------------------
-POROELASTIC_SUBSNET_DOC = r"""
+POROELASTIC_SUBSNET_DOC = rf"""
 PoroElasticSubsNet
 ==================
 
@@ -1352,30 +1353,30 @@ Differences from GeoPriorSubsNet
 * compile() uses stronger prior and bounds defaults, and disables
   groundwater-flow by default.
 
-{params.poro.poroelastic_overview}
+{_poro_param_docs.poro.poroelastic_overview}
 
 Parameters
 ----------
-{params.base.static_input_dim}
-{params.base.dynamic_input_dim}
-{params.base.future_input_dim}
+{_poro_param_docs.base.static_input_dim}
+{_poro_param_docs.base.dynamic_input_dim}
+{_poro_param_docs.base.future_input_dim}
 
 pde_mode : str, default 'consolidation'
-    {params.poro.poro_pde_mode_default}
+    {_poro_param_docs.poro.poro_pde_mode_default}
 
 use_effective_h : bool, default True
 hd_factor : float, default 0.6
-    {params.poro.poro_effective_thickness_defaults}
+    {_poro_param_docs.poro.poro_effective_thickness_defaults}
 
 kappa_mode : {{'bar', 'kb'}}, default 'bar'
-    {params.poro.poro_kappa_mode_default}
+    {_poro_param_docs.poro.poro_kappa_mode_default}
 
 scale_pde_residuals : bool, default True
     Same meaning as in GeoPriorSubsNet. Kept enabled by default to
     ensure derivative rescaling when coordinates are normalized.
 
 scaling_kwargs : mapping or str or GeoPriorScalingConfig or None
-    {params.poro.poro_bounds_injection}
+    {_poro_param_docs.poro.poro_bounds_injection}
 
 name : str, default "PoroElasticSubsNet"
     Keras model name / scope.
@@ -1385,7 +1386,7 @@ name : str, default "PoroElasticSubsNet"
 
 Notes
 -----
-{params.poro.poro_compile_defaults}
+{_poro_param_docs.poro.poro_compile_defaults}
 
 See Also
 --------
@@ -1412,4 +1413,4 @@ Examples
 >>> y = model(batch, training=False)
 >>> sorted(y.keys())
 ['gwl_pred', 'subs_pred']
-""".format(params=_poro_param_docs)
+"""

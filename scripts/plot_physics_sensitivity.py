@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -26,18 +25,15 @@ from __future__ import annotations
 
 import argparse
 import json
-
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-
 from scripts import config as cfg
 from scripts import utils
-
 
 _LOWER_IS_BETTER = {
     "mae",
@@ -54,7 +50,7 @@ _LOWER_IS_BETTER = {
 # CLI
 # ---------------------------------------------------------------------
 def _parse_args(
-    argv: List[str] | None,
+    argv: list[str] | None,
 ) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         prog="plot-physics-sensitivity",
@@ -161,7 +157,7 @@ def _fit_plane_grad(
     metric: str,
     *,
     min_n: int,
-) -> Optional[Tuple[float, float]]:
+) -> tuple[float, float] | None:
     """
     Fit z = a*x + b*y + c and return (a, b).
     """
@@ -278,9 +274,10 @@ def _add_trend_arrow(
         ),
         zorder=5,
     )
-    
-def _read_jsonl(fp: Path) -> List[Dict[str, Any]]:
-    rows: List[Dict[str, Any]] = []
+
+
+def _read_jsonl(fp: Path) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
     with fp.open("r", encoding="utf-8") as f:
         for ln in f:
             s = ln.strip()
@@ -329,7 +326,7 @@ def _load_one_input(path: Path) -> pd.DataFrame:
 
 
 def _scan_records(root: Path) -> pd.DataFrame:
-    rows: List[Dict[str, Any]] = []
+    rows: list[dict[str, Any]] = []
 
     files = utils.find_all(
         root,
@@ -344,7 +341,7 @@ def _scan_records(root: Path) -> pd.DataFrame:
     if not rows:
         return pd.DataFrame([])
 
-    flat: List[Dict[str, Any]] = []
+    flat: list[dict[str, Any]] = []
     for block in rows:
         flat.extend(block)
 
@@ -353,7 +350,7 @@ def _scan_records(root: Path) -> pd.DataFrame:
 
 def _load_records(args: argparse.Namespace) -> pd.DataFrame:
     if args.input:
-        dfs: List[pd.DataFrame] = []
+        dfs: list[pd.DataFrame] = []
         for s in args.input:
             p = utils.as_path(s)
             if p.exists():
@@ -391,7 +388,9 @@ def _canon_cols(df: pd.DataFrame) -> pd.DataFrame:
     utils.ensure_columns(df, aliases=aliases)
 
     if "city" in df.columns:
-        df["city"] = df["city"].astype(str).map(utils.canonical_city)
+        df["city"] = (
+            df["city"].astype(str).map(utils.canonical_city)
+        )
 
     num_cols = [
         "lambda_cons",
@@ -522,7 +521,7 @@ def _dedupe_prefer_best(df: pd.DataFrame) -> pd.DataFrame:
 def _filter_df(
     df: pd.DataFrame,
     args: argparse.Namespace,
-) -> Tuple[pd.DataFrame, List[str]]:
+) -> tuple[pd.DataFrame, list[str]]:
     if df.empty:
         return df, []
 
@@ -532,14 +531,20 @@ def _filter_df(
 
     raw_models = str(args.models or "").strip()
     if raw_models:
-        keep = [m.strip() for m in raw_models.split(",") if m.strip()]
+        keep = [
+            m.strip()
+            for m in raw_models.split(",")
+            if m.strip()
+        ]
         if keep and "model" in df.columns:
             df = df[df["model"].astype(str).isin(keep)].copy()
 
     pm = str(args.pde_modes or "").strip().lower()
     if pm and pm != "all" and "pde_mode" in df.columns:
         keep = [x.strip() for x in pm.split(",") if x.strip()]
-        df = df[df["pde_mode"].astype(str).str.lower().isin(keep)]
+        df = df[
+            df["pde_mode"].astype(str).str.lower().isin(keep)
+        ]
 
     return df, cities
 
@@ -562,7 +567,7 @@ def _lower_is_better(metric: str) -> bool:
     return str(metric).lower() in _LOWER_IS_BETTER
 
 
-def _parse_clip(x: str) -> Tuple[float, float]:
+def _parse_clip(x: str) -> tuple[float, float]:
     s = str(x or "").strip()
     if not s:
         return (2.0, 98.0)
@@ -586,7 +591,7 @@ def _row_norm(
     metric: str,
     *,
     clip: str,
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     if metric not in df.columns:
         return (np.nan, np.nan)
 
@@ -611,13 +616,11 @@ def _row_norm(
 def _best_point(
     df: pd.DataFrame,
     metric: str,
-) -> Optional[Tuple[float, float]]:
+) -> tuple[float, float] | None:
     if df.empty or metric not in df.columns:
         return None
 
-    sub = df[
-        ["lambda_prior", "lambda_cons", metric]
-    ].copy()
+    sub = df[["lambda_prior", "lambda_cons", metric]].copy()
 
     sub = sub.dropna()
     if sub.empty:
@@ -679,7 +682,7 @@ def _render_heatmap(
     show_ticks: bool,
     show_labels: bool,
     show_points: bool,
-) -> Optional[Any]:
+) -> Any | None:
     piv = _pivot_grid(sub, metric=metric, agg=agg)
     if piv.empty:
         return None
@@ -744,12 +747,10 @@ def _render_tricontour(
     show_ticks: bool,
     show_labels: bool,
     show_points: bool,
-) -> Optional[Any]:
+) -> Any | None:
     import matplotlib.tri as mtri
 
-    d = sub[
-        ["lambda_prior", "lambda_cons", metric]
-    ].copy()
+    d = sub[["lambda_prior", "lambda_cons", metric]].copy()
     d = d.dropna()
     if len(d) < 3:
         return None
@@ -759,7 +760,7 @@ def _render_tricontour(
     z = d[metric].astype(float).values
 
     # de-dup identical (x,y) to avoid tri issues
-    key = pd.Series(list(zip(x, y)))
+    key = pd.Series(list(zip(x, y, strict=False)))
     keep = ~key.duplicated()
     x = x[keep.values]
     y = y[keep.values]
@@ -825,7 +826,7 @@ def _render_pcolormesh(
     show_ticks: bool,
     show_labels: bool,
     show_points: bool,
-) -> Optional[Any]:
+) -> Any | None:
     piv = _pivot_grid(sub, metric=metric, agg=agg)
     if piv.empty:
         return None
@@ -895,11 +896,11 @@ def _plot_cell(
     show_ticks: bool,
     show_labels: bool,
     show_points: bool,
-    trend_arrow: bool, 
-    trend_arrow_len:float,
-    trend_arrow_pos:str,
-    trend_arrow_min_n:int,
-) -> Optional[Any]:
+    trend_arrow: bool,
+    trend_arrow_len: float,
+    trend_arrow_pos: str,
+    trend_arrow_min_n: int,
+) -> Any | None:
     sub = df[df["city"].astype(str) == str(city)].copy()
 
     need = ["lambda_cons", "lambda_prior", metric]
@@ -998,7 +999,7 @@ def _plot_cell(
             arrow_pos=str(trend_arrow_pos),
             min_n=int(trend_arrow_min_n),
         )
-        
+
     _axes_cleanup(ax)
     return im
 
@@ -1006,7 +1007,7 @@ def _plot_cell(
 def _resolve_out(
     *,
     out: str,
-    out_dir: Optional[str],
+    out_dir: str | None,
 ) -> Path:
     if out_dir:
         base = Path(out_dir).expanduser()
@@ -1018,7 +1019,7 @@ def _resolve_out(
 # Main
 # ---------------------------------------------------------------------
 def plot_physics_sensitivity_main(
-    argv: List[str] | None = None,
+    argv: list[str] | None = None,
 ) -> None:
     args = _parse_args(argv)
 
@@ -1030,14 +1031,20 @@ def plot_physics_sensitivity_main(
         args.trend_arrow,
         default=False,
     )
-    
-    show_legend = utils.str_to_bool(args.show_legend, default=True)
-    show_labels = utils.str_to_bool(args.show_labels, default=True)
+
+    show_legend = utils.str_to_bool(
+        args.show_legend, default=True
+    )
+    show_labels = utils.str_to_bool(
+        args.show_labels, default=True
+    )
     show_ticks = utils.str_to_bool(
         args.show_ticklabels,
         default=True,
     )
-    show_title = utils.str_to_bool(args.show_title, default=True)
+    show_title = utils.str_to_bool(
+        args.show_title, default=True
+    )
     show_pan_t = utils.str_to_bool(
         args.show_panel_titles,
         default=True,
@@ -1071,8 +1078,12 @@ def plot_physics_sensitivity_main(
     print(f"[OK] table -> {used_csv}")
 
     # row-wise normalization (shared across cities per row)
-    vmin1, vmax1 = _row_norm(df, args.metric_prior, clip=args.clip)
-    vmin2, vmax2 = _row_norm(df, args.metric_cons, clip=args.clip)
+    vmin1, vmax1 = _row_norm(
+        df, args.metric_prior, clip=args.clip
+    )
+    vmin2, vmax2 = _row_norm(
+        df, args.metric_cons, clip=args.clip
+    )
 
     # Nature-style: best should pop visually
     if _lower_is_better(args.metric_prior):
@@ -1099,8 +1110,8 @@ def plot_physics_sensitivity_main(
         wspace=0.30,
     )
 
-    ims1: List[Any] = []
-    ims2: List[Any] = []
+    ims1: list[Any] = []
+    ims2: list[Any] = []
 
     # Row 1
     for j, city in enumerate(cities):
@@ -1206,7 +1217,9 @@ def plot_physics_sensitivity_main(
             r"$\lambda_{\mathrm{prior}}, "
             r"\lambda_{\mathrm{cons}}$)"
         )
-        ttl = utils.resolve_title(default=default, title=args.title)
+        ttl = utils.resolve_title(
+            default=default, title=args.title
+        )
         fig.suptitle(ttl, fontsize=11, fontweight="bold")
 
     png = out.with_suffix(".png")
@@ -1217,7 +1230,7 @@ def plot_physics_sensitivity_main(
     print(f"[OK] figs -> {png} | {pdf}")
 
 
-def main(argv: List[str] | None = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     plot_physics_sensitivity_main(argv)
 
 

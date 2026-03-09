@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -6,156 +5,163 @@
 # website:https://lkouadio.com
 
 """
-Provides a collection of specialized Keras-compatible 
-layers and components for constructing advanced time series 
-forecasting and anomaly detection models. It includes building 
-blocks such as attention mechanisms, multi-scale LSTMs, gating 
+Provides a collection of specialized Keras-compatible
+layers and components for constructing advanced time series
+forecasting and anomaly detection models. It includes building
+blocks such as attention mechanisms, multi-scale LSTMs, gating
 and normalization layers, and multi-objective loss functions.
 """
-from __future__ import annotations 
-import warnings  
-from numbers import Real, Integral  
-from typing import Optional, Union, List, Dict, Tuple, Callable
 
-import numpy as np 
+from __future__ import annotations
 
-from .._fusionlog import fusionlog 
-from ..api.property import  NNLearner 
+import warnings
+from collections.abc import Callable
+from numbers import Integral, Real
+
+import numpy as np
+
+from .._fusionlog import fusionlog
+from ..api.property import NNLearner
+from ..compat.sklearn import (
+    Interval,
+    StrOptions,
+    validate_params,
+)
+from ..compat.tf import standalone_keras
 from ..core.checks import validate_nested_param
 from ..core.handlers import param_deprecated_message
-from ..compat.sklearn import validate_params, Interval, StrOptions
 from ..utils.deps_utils import ensure_pkg
-
-from . import KERAS_DEPS, KERAS_BACKEND, dependency_message
-from ..compat.tf import standalone_keras
+from . import KERAS_BACKEND, KERAS_DEPS, dependency_message
 
 if KERAS_BACKEND:
     try:
         # Equivalent to: from tensorflow.keras import activations
-        activations = KERAS_DEPS.activations  
-    except (ImportError, AttributeError) as e: 
-        try: 
-            activations = standalone_keras('activations')
-        except: 
-            raise ImportError (str(e))
-    except: 
+        activations = KERAS_DEPS.activations
+    except (ImportError, AttributeError) as e:
+        try:
+            activations = standalone_keras("activations")
+        except:
+            raise ImportError(str(e))
+    except:
         raise ImportError(
-                "Module 'activations' could not be"
-                " imported from either tensorflow.keras"
-                " or standalone keras. Ensure that TensorFlow "
-                "or standalone Keras is installed and the"
-                " module exists."
+            "Module 'activations' could not be"
+            " imported from either tensorflow.keras"
+            " or standalone keras. Ensure that TensorFlow "
+            "or standalone Keras is installed and the"
+            " module exists."
         )
 
 LSTM = KERAS_DEPS.LSTM
-LayerNormalization = KERAS_DEPS.LayerNormalization 
+LayerNormalization = KERAS_DEPS.LayerNormalization
 TimeDistributed = KERAS_DEPS.TimeDistributed
 MultiHeadAttention = KERAS_DEPS.MultiHeadAttention
-Model = KERAS_DEPS.Model 
+Model = KERAS_DEPS.Model
 BatchNormalization = KERAS_DEPS.BatchNormalization
 Input = KERAS_DEPS.Input
 Softmax = KERAS_DEPS.Softmax
 Flatten = KERAS_DEPS.Flatten
-Dropout = KERAS_DEPS.Dropout 
+Dropout = KERAS_DEPS.Dropout
 Dense = KERAS_DEPS.Dense
-Embedding =KERAS_DEPS.Embedding 
-Concatenate=KERAS_DEPS.Concatenate 
-Layer = KERAS_DEPS.Layer 
-Loss=KERAS_DEPS.Loss
-Tensor=KERAS_DEPS.Tensor
-Sequential =KERAS_DEPS.Sequential
-TensorShape =KERAS_DEPS.TensorShape 
+Embedding = KERAS_DEPS.Embedding
+Concatenate = KERAS_DEPS.Concatenate
+Layer = KERAS_DEPS.Layer
+Loss = KERAS_DEPS.Loss
+Tensor = KERAS_DEPS.Tensor
+Sequential = KERAS_DEPS.Sequential
+TensorShape = KERAS_DEPS.TensorShape
 
-register_keras_serializable=KERAS_DEPS.register_keras_serializable
+register_keras_serializable = (
+    KERAS_DEPS.register_keras_serializable
+)
 
-tf_Assert= KERAS_DEPS.Assert
-tf_TensorShape= KERAS_DEPS.TensorShape
+tf_Assert = KERAS_DEPS.Assert
+tf_TensorShape = KERAS_DEPS.TensorShape
 tf_concat = KERAS_DEPS.concat
 tf_shape = KERAS_DEPS.shape
-tf_reshape=KERAS_DEPS.reshape
-tf_repeat =KERAS_DEPS.repeat
+tf_reshape = KERAS_DEPS.reshape
+tf_repeat = KERAS_DEPS.repeat
 tf_add = KERAS_DEPS.add
-tf_cast=KERAS_DEPS.cast
+tf_cast = KERAS_DEPS.cast
 tf_maximum = KERAS_DEPS.maximum
 tf_reduce_mean = KERAS_DEPS.reduce_mean
 tf_add_n = KERAS_DEPS.add_n
-tf_float32=KERAS_DEPS.float32
-tf_constant=KERAS_DEPS.constant 
-tf_square=KERAS_DEPS.square 
-tf_transpose=KERAS_DEPS.transpose 
-tf_logical_and=KERAS_DEPS.logical_and 
-tf_logical_not = KERAS_DEPS.logical_not 
+tf_float32 = KERAS_DEPS.float32
+tf_constant = KERAS_DEPS.constant
+tf_square = KERAS_DEPS.square
+tf_transpose = KERAS_DEPS.transpose
+tf_logical_and = KERAS_DEPS.logical_and
+tf_logical_not = KERAS_DEPS.logical_not
 tf_logical_or = KERAS_DEPS.logical_or
-tf_get_static_value =KERAS_DEPS.get_static_value
+tf_get_static_value = KERAS_DEPS.get_static_value
 tf_reduce_sum = KERAS_DEPS.reduce_sum
 tf_stack = KERAS_DEPS.stack
 tf_expand_dims = KERAS_DEPS.expand_dims
 tf_tile = KERAS_DEPS.tile
-tf_range=KERAS_DEPS.range 
-tf_rank=KERAS_DEPS.rank
+tf_range = KERAS_DEPS.range
+tf_rank = KERAS_DEPS.rank
 tf_split = KERAS_DEPS.split
-tf_multiply=KERAS_DEPS.multiply
-tf_cond=KERAS_DEPS.cond
-tf_constant =KERAS_DEPS.constant 
-tf_equal =KERAS_DEPS.equal 
-tf_int32=KERAS_DEPS.int32 
-tf_debugging =KERAS_DEPS.debugging 
-tf_autograph=KERAS_DEPS.autograph
-tf_pad =KERAS_DEPS.pad 
-tf_maximum =KERAS_DEPS.maximum 
-tf_ones_like = KERAS_DEPS.ones_like 
-tf_bool =KERAS_DEPS.bool 
-tf_newaxis = KERAS_DEPS.newaxis 
+tf_multiply = KERAS_DEPS.multiply
+tf_cond = KERAS_DEPS.cond
+tf_constant = KERAS_DEPS.constant
+tf_equal = KERAS_DEPS.equal
+tf_int32 = KERAS_DEPS.int32
+tf_debugging = KERAS_DEPS.debugging
+tf_autograph = KERAS_DEPS.autograph
+tf_pad = KERAS_DEPS.pad
+tf_maximum = KERAS_DEPS.maximum
+tf_ones_like = KERAS_DEPS.ones_like
+tf_bool = KERAS_DEPS.bool
+tf_newaxis = KERAS_DEPS.newaxis
 tf_pow = KERAS_DEPS.pow
 tf_sin = KERAS_DEPS.sin
 tf_cos = KERAS_DEPS.cos
-tf_exp = KERAS_DEPS.exp 
+tf_exp = KERAS_DEPS.exp
 tf_log = KERAS_DEPS.log
-tf_ones = KERAS_DEPS.ones 
+tf_ones = KERAS_DEPS.ones
 tf_linalg = KERAS_DEPS.linalg
 tf_floordiv = KERAS_DEPS.floordiv
-tf_greater =KERAS_DEPS.greater 
+tf_greater = KERAS_DEPS.greater
 tf_float32 = KERAS_DEPS.float32
-    
+
 
 _logger = fusionlog().get_fusionlab_logger(__name__)
 
-DEP_MSG = dependency_message('components') 
+DEP_MSG = dependency_message("components")
 
 __all__ = [
-     'AdaptiveQuantileLoss',
-     'AnomalyLoss',
-     'CrossAttention',
-     'DynamicTimeWindow',
-     'ExplainableAttention',
-     'GatedResidualNetwork',
-     'HierarchicalAttention',
-     'LearnedNormalization',
-     'MemoryAugmentedAttention',
-     'MultiDecoder',
-     'MultiModalEmbedding',
-     'MultiObjectiveLoss',
-     'MultiResolutionAttentionFusion',
-     'MultiScaleLSTM',
-     'PositionalEncoding',
-     'QuantileDistributionModeling',
-     'StaticEnrichmentLayer',
-     'TemporalAttentionLayer',
-     'VariableSelectionNetwork',
-     'Activation', 
-     'TransformerEncoderLayer', 
-     'TransformerDecoderLayer', 
-     'TSPositionalEncoding', 
-     'aggregate_multiscale', 
-     'aggregate_time_window_output', 
-     'create_causal_mask',
-     'aggregate_multiscale_on_3d'
-    ]
+    "AdaptiveQuantileLoss",
+    "AnomalyLoss",
+    "CrossAttention",
+    "DynamicTimeWindow",
+    "ExplainableAttention",
+    "GatedResidualNetwork",
+    "HierarchicalAttention",
+    "LearnedNormalization",
+    "MemoryAugmentedAttention",
+    "MultiDecoder",
+    "MultiModalEmbedding",
+    "MultiObjectiveLoss",
+    "MultiResolutionAttentionFusion",
+    "MultiScaleLSTM",
+    "PositionalEncoding",
+    "QuantileDistributionModeling",
+    "StaticEnrichmentLayer",
+    "TemporalAttentionLayer",
+    "VariableSelectionNetwork",
+    "Activation",
+    "TransformerEncoderLayer",
+    "TransformerDecoderLayer",
+    "TSPositionalEncoding",
+    "aggregate_multiscale",
+    "aggregate_time_window_output",
+    "create_causal_mask",
+    "aggregate_multiscale_on_3d",
+]
 
 
 @register_keras_serializable(
-    'geoprior.nn.components', name="Activation"
-  )
+    "geoprior.nn.components", name="Activation"
+)
 class Activation(Layer, NNLearner):
     r"""
     Flexible activation layer that transparently delegates to any
@@ -234,9 +240,11 @@ class Activation(Layer, NNLearner):
     """
 
     @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
-    def __init__(self,
-                 activation: Union[str, Callable, None] = 'relu',
-                 **kwargs):
+    def __init__(
+        self,
+        activation: str | Callable | None = "relu",
+        **kwargs,
+    ):
         super().__init__(**kwargs)
 
         # Store original user input for debugging / introspection
@@ -244,14 +252,16 @@ class Activation(Layer, NNLearner):
 
         # Resolve activation into (callable, canonical string)
         if activation is None:
-            self.activation_fn  = activations.get(None)
-            self.activation_str = 'linear'
+            self.activation_fn = activations.get(None)
+            self.activation_str = "linear"
 
         elif isinstance(activation, str):
             # Try to get a standard name via serialize,
             # fallback to object name
             try:
-                self.activation_fn  = activations.get(activation)
+                self.activation_fn = activations.get(
+                    activation
+                )
                 self.activation_str = activation
             except ValueError as err:
                 raise ValueError(
@@ -260,19 +270,24 @@ class Activation(Layer, NNLearner):
 
         elif callable(activation):
             self.activation_fn = activation
-            try:                                       # Try serialising
+            try:  # Try serialising
                 ser = activations.serialize(activation)
                 # Fallback if serialize doesn't give simple string
                 self.activation_str = (
-                    ser if isinstance(ser, str)
-                    else getattr(activation, '__name__',
-                                  activation.__class__.__name__)
+                    ser
+                    if isinstance(ser, str)
+                    else getattr(
+                        activation,
+                        "__name__",
+                        activation.__class__.__name__,
+                    )
                 )
-            except ValueError: 
+            except ValueError:
                 # Fallback if serialize doesn't give simple string
                 self.activation_str = getattr(
-                    activation, '__name__',
-                    activation.__class__.__name__
+                    activation,
+                    "__name__",
+                    activation.__class__.__name__,
                 )
         else:
             raise TypeError(
@@ -306,10 +321,9 @@ class Activation(Layer, NNLearner):
             Tensor with identical shape to *inputs* but transformed
             element‑wise by the activation.
         """
-        # A single line keeps Autograph happy 
+        # A single line keeps Autograph happy
         # and maximises performance
         return self.activation_fn(inputs)
-
 
     def get_config(self) -> dict:
         """
@@ -323,26 +337,27 @@ class Activation(Layer, NNLearner):
         """
         config = super().get_config()
         # Save the CANONICAL STRING NAME for serialization
-        config.update({
-            'activation': self.activation_str
-        })
+        config.update({"activation": self.activation_str})
         return config
 
     # String representation
-    def __repr__(self) -> str:                         # noqa: D401
+    def __repr__(self) -> str:  # noqa: D401
         """
         Return *repr(self)*.
 
         The canonical activation string is included for clarity.
         """
-        return (f"{self.__class__.__name__}("
-                f"activation={self.activation_str!r})")
-    
+        return (
+            f"{self.__class__.__name__}("
+            f"activation={self.activation_str!r})"
+        )
+
+
 # -------------------- Pure Transformers components ------------------------------
 
+
 @register_keras_serializable(
-    'geoprior.nn.transformers', 
-    name="TransformerEncoderLayer"
+    "geoprior.nn.transformers", name="TransformerEncoderLayer"
 )
 class TransformerEncoderLayer(Layer, NNLearner):
     """
@@ -356,15 +371,16 @@ class TransformerEncoderLayer(Layer, NNLearner):
         ffn_activation (str): Activation function for the FFN.
         layer_norm_epsilon (float): Epsilon for LayerNormalization.
     """
+
     def __init__(
-        self, 
-        embed_dim: int, 
-        num_heads: int, 
-        ffn_dim: int, 
+        self,
+        embed_dim: int,
+        num_heads: int,
+        ffn_dim: int,
         dropout_rate: float = 0.1,
-        ffn_activation: str = 'relu',
+        ffn_activation: str = "relu",
         layer_norm_epsilon: float = 1e-6,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self.embed_dim = embed_dim
@@ -375,61 +391,85 @@ class TransformerEncoderLayer(Layer, NNLearner):
         self.layer_norm_epsilon = layer_norm_epsilon
 
         self.mha = MultiHeadAttention(
-            num_heads=num_heads, key_dim=embed_dim, dropout=dropout_rate
+            num_heads=num_heads,
+            key_dim=embed_dim,
+            dropout=dropout_rate,
         )
-        self.ffn = Sequential([
-            Dense(ffn_dim, activation=ffn_activation),
-            Dense(embed_dim)
-        ], name="encoder_ffn")
-        self.layernorm1 = LayerNormalization(epsilon=layer_norm_epsilon)
-        self.layernorm2 = LayerNormalization(epsilon=layer_norm_epsilon)
-        self.dropout1 = Dropout(dropout_rate) # MHA output dropout is in MHA layer
+        self.ffn = Sequential(
+            [
+                Dense(ffn_dim, activation=ffn_activation),
+                Dense(embed_dim),
+            ],
+            name="encoder_ffn",
+        )
+        self.layernorm1 = LayerNormalization(
+            epsilon=layer_norm_epsilon
+        )
+        self.layernorm2 = LayerNormalization(
+            epsilon=layer_norm_epsilon
+        )
+        self.dropout1 = Dropout(
+            dropout_rate
+        )  # MHA output dropout is in MHA layer
         self.dropout_ffn = Dropout(dropout_rate)
 
     def call(
-            self, x: Tensor, training: bool = False, 
-            attention_mask: Optional[Tensor] = None) -> Tensor:
+        self,
+        x: Tensor,
+        training: bool = False,
+        attention_mask: Tensor | None = None,
+    ) -> Tensor:
         attn_output = self.mha(
-            query=x, value=x, key=x,
-            attention_mask=attention_mask, training=training
+            query=x,
+            value=x,
+            key=x,
+            attention_mask=attention_mask,
+            training=training,
         )
         # Dropout after MHA is already handled by MHA layer's dropout param.
         # self.dropout1 is if we want additional dropout on the residual sum.
-        out1 = self.layernorm1(x + attn_output) # Post-norm
+        out1 = self.layernorm1(x + attn_output)  # Post-norm
 
         ffn_output = self.ffn(out1, training=training)
-        ffn_output = self.dropout_ffn(ffn_output, training=training)
-        out2 = self.layernorm2(out1 + ffn_output) # Post-norm
+        ffn_output = self.dropout_ffn(
+            ffn_output, training=training
+        )
+        out2 = self.layernorm2(out1 + ffn_output)  # Post-norm
         return out2
-        
+
     def get_config(self):
         config = super().get_config()
-        config.update({
-            "embed_dim": self.embed_dim,
-            "num_heads": self.num_heads,
-            "ffn_dim": self.ffn_dim,
-            "dropout_rate": self.dropout_rate,
-            "ffn_activation": self.ffn_activation,
-            "layer_norm_epsilon": self.layer_norm_epsilon,
-        })
+        config.update(
+            {
+                "embed_dim": self.embed_dim,
+                "num_heads": self.num_heads,
+                "ffn_dim": self.ffn_dim,
+                "dropout_rate": self.dropout_rate,
+                "ffn_activation": self.ffn_activation,
+                "layer_norm_epsilon": self.layer_norm_epsilon,
+            }
+        )
         return config
 
+
 @register_keras_serializable(
-    'geoprior.nn.transformers', name="TransformerDecoderLayer")
+    "geoprior.nn.transformers", name="TransformerDecoderLayer"
+)
 class TransformerDecoderLayer(Layer, NNLearner):
     """
     A single layer of the Transformer Decoder.
     (Arguments similar to TransformerEncoderLayer)
     """
+
     def __init__(
-        self, 
-        embed_dim: int, 
-        num_heads: int, 
-        ffn_dim: int, 
+        self,
+        embed_dim: int,
+        num_heads: int,
+        ffn_dim: int,
         dropout_rate: float = 0.1,
-        ffn_activation: str = 'relu',
+        ffn_activation: str = "relu",
         layer_norm_epsilon: float = 1e-6,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self.embed_dim = embed_dim
@@ -440,74 +480,94 @@ class TransformerDecoderLayer(Layer, NNLearner):
         self.layer_norm_epsilon = layer_norm_epsilon
 
         self.mha1_self_attn = MultiHeadAttention(
-            num_heads=num_heads, key_dim=embed_dim, 
-            dropout=dropout_rate
+            num_heads=num_heads,
+            key_dim=embed_dim,
+            dropout=dropout_rate,
         )
         self.mha2_cross_attn = MultiHeadAttention(
-            num_heads=num_heads, key_dim=embed_dim,
-            dropout=dropout_rate
+            num_heads=num_heads,
+            key_dim=embed_dim,
+            dropout=dropout_rate,
         )
-        self.ffn = Sequential([
-            Dense(ffn_dim, activation=ffn_activation),
-            Dense(embed_dim)
-        ], name="decoder_ffn")
-        
-        self.layernorm1 = LayerNormalization(epsilon=layer_norm_epsilon)
-        self.layernorm2 = LayerNormalization(epsilon=layer_norm_epsilon)
-        self.layernorm3 = LayerNormalization(epsilon=layer_norm_epsilon)
-        
+        self.ffn = Sequential(
+            [
+                Dense(ffn_dim, activation=ffn_activation),
+                Dense(embed_dim),
+            ],
+            name="decoder_ffn",
+        )
+
+        self.layernorm1 = LayerNormalization(
+            epsilon=layer_norm_epsilon
+        )
+        self.layernorm2 = LayerNormalization(
+            epsilon=layer_norm_epsilon
+        )
+        self.layernorm3 = LayerNormalization(
+            epsilon=layer_norm_epsilon
+        )
+
         # Dropout layers if needed beyond MHA's internal dropout
         self.dropout_ffn = Dropout(dropout_rate)
 
     def call(
-        self, 
-        x: Tensor, 
-        enc_output: Tensor, 
-        training: bool = False, 
-        look_ahead_mask: Optional[Tensor] = None, 
+        self,
+        x: Tensor,
+        enc_output: Tensor,
+        training: bool = False,
+        look_ahead_mask: Tensor | None = None,
         # For encoder output in cross-attention
-        padding_mask: Optional[Tensor] = None, 
+        padding_mask: Tensor | None = None,
     ) -> Tensor:
-        
         # Masked Multi-Head Self-Attention (for decoder inputs)
         attn1_output = self.mha1_self_attn(
-            query=x, value=x, key=x, 
-            attention_mask=look_ahead_mask, 
-            training=training
+            query=x,
+            value=x,
+            key=x,
+            attention_mask=look_ahead_mask,
+            training=training,
         )
         out1 = self.layernorm1(x + attn1_output)
 
         # Multi-Head Cross-Attention (Query=Decoder, Key/Value=Encoder)
         attn2_output = self.mha2_cross_attn(
-            query=out1, value=enc_output, key=enc_output,
-            attention_mask=padding_mask, training=training
+            query=out1,
+            value=enc_output,
+            key=enc_output,
+            attention_mask=padding_mask,
+            training=training,
         )
-        out2 = self.layernorm2(out1 + attn2_output) 
+        out2 = self.layernorm2(out1 + attn2_output)
 
         # Feed-Forward Network
         ffn_output = self.ffn(out2, training=training)
-        ffn_output = self.dropout_ffn(ffn_output, training=training)
+        ffn_output = self.dropout_ffn(
+            ffn_output, training=training
+        )
         out3 = self.layernorm3(out2 + ffn_output)
         return out3
 
     def get_config(self):
         config = super().get_config()
-        config.update({
-            "embed_dim": self.embed_dim,
-            "num_heads": self.num_heads,
-            "ffn_dim": self.ffn_dim,
-            "dropout_rate": self.dropout_rate,
-            "ffn_activation": self.ffn_activation,
-            "layer_norm_epsilon": self.layer_norm_epsilon,
-        })
+        config.update(
+            {
+                "embed_dim": self.embed_dim,
+                "num_heads": self.num_heads,
+                "ffn_dim": self.ffn_dim,
+                "dropout_rate": self.dropout_rate,
+                "ffn_activation": self.ffn_activation,
+                "layer_norm_epsilon": self.layer_norm_epsilon,
+            }
+        )
         return config
- 
+
 
 # -------------------- TFT components ----------------------------------------
 
+
 @register_keras_serializable(
-    "geoprior.nn.components", 
-    name='PositionwiseFeedForward')
+    "geoprior.nn.components", name="PositionwiseFeedForward"
+)
 class PositionwiseFeedForward(Layer, NNLearner):
     """Implements the Position-wise Feed-Forward Network (FFN) layer.
 
@@ -550,7 +610,7 @@ class PositionwiseFeedForward(Layer, NNLearner):
     that task is handled by the preceding self-attention layer.
 
     The mathematical operation for a single position vector :math:`x` is:
-    
+
     .. math::
        \text{FFN}(x) = \text{Linear}_2(\text{activation}(\text{Linear}_1(x)))
 
@@ -585,13 +645,14 @@ class PositionwiseFeedForward(Layer, NNLearner):
     Input Shape: (32, 50, 128)
     Output Shape: (32, 50, 128)
     """
+
     def __init__(
         self,
         embed_dim: int,
         ffn_dim: int,
         activation: str = "relu",
         dropout_rate: float = 0.1,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
         # Store configuration for serialization
@@ -602,17 +663,17 @@ class PositionwiseFeedForward(Layer, NNLearner):
 
         # Define the internal layers once in the constructor
         self.dense_1 = Dense(
-            units=ffn_dim,
-            name="ffn_dense_1"
+            units=ffn_dim, name="ffn_dense_1"
         )
         self.activation = Activation(activation).activation_fn
         self.dense_2 = Dense(
-            units=embed_dim,
-            name="ffn_dense_2"
+            units=embed_dim, name="ffn_dense_2"
         )
         self.dropout = Dropout(rate=dropout_rate)
 
-    def call(self, x: Tensor, training: bool = False) -> Tensor:
+    def call(
+        self, x: Tensor, training: bool = False
+    ) -> Tensor:
         """Defines the forward pass for the FFN layer."""
         # Project to the intermediate dimension
         x = self.dense_1(x)
@@ -627,16 +688,20 @@ class PositionwiseFeedForward(Layer, NNLearner):
     def get_config(self):
         """Returns the configuration of the layer for serialization."""
         config = super().get_config()
-        config.update({
-            "embed_dim": self.embed_dim,
-            "ffn_dim": self.ffn_dim,
-            "activation": self.activation_str,
-            "dropout_rate": self.dropout_rate,
-        })
+        config.update(
+            {
+                "embed_dim": self.embed_dim,
+                "ffn_dim": self.ffn_dim,
+                "activation": self.activation_str,
+                "dropout_rate": self.dropout_rate,
+            }
+        )
         return config
-    
+
+
 @register_keras_serializable(
-    'geoprior.nn.components', name='PositionalEncoding')
+    "geoprior.nn.components", name="PositionalEncoding"
+)
 class PositionalEncoding(Layer, NNLearner):
     r"""Injects positional information into an input tensor.
 
@@ -664,9 +729,9 @@ class PositionalEncoding(Layer, NNLearner):
     **kwargs
         Standard Keras Layer keyword arguments.
 
-    Examples 
+    Examples
     --------
-    >>> import tensorflow as tf 
+    >>> import tensorflow as tf
     >>> from geoprior.nn.components import PositionalEncoding
     >>> batch_size = 4
     >>> sequence_length = 50
@@ -696,12 +761,13 @@ class PositionalEncoding(Layer, NNLearner):
     >>> plt.xlabel("Feature Dimension")
     >>> plt.ylabel("Position in Sequence")
     >>> plt.show()
-    
+
     References
     ----------
     .. [1] Vaswani, A., et al. (2017). "Attention is all you need."
            *Advances in Neural Information Processing Systems*, 30.
     """
+
     def __init__(self, max_length: int = 2048, **kwargs):
         super().__init__(**kwargs)
         self.max_length = max_length
@@ -711,7 +777,7 @@ class PositionalEncoding(Layer, NNLearner):
         """Pre-calculates the positional encoding matrix."""
         # The input shape is (batch, sequence_length, feature_dim)
         _, _, feature_dim = input_shape
-        
+
         if self.positional_encoding is None:
             # The calculation is done once and stored.
             # Ensure feature_dim is a concrete value for matrix creation.
@@ -727,13 +793,14 @@ class PositionalEncoding(Layer, NNLearner):
 
             # Create a matrix of positions (max_length, 1)
             positions = tf_range(
-                self.max_length, dtype=tf_float32)[:, tf_newaxis]
+                self.max_length, dtype=tf_float32
+            )[:, tf_newaxis]
 
             # Create the division term for the sine/cosine functions
             # Shape: (feature_dim / 2)
             div_term = tf_exp(
-                tf_range(0, feature_dim, 2, dtype=tf_float32) * \
-                (-tf_log(10000.0) / d_model)
+                tf_range(0, feature_dim, 2, dtype=tf_float32)
+                * (-tf_log(10000.0) / d_model)
             )
 
             # Calculate sinusoidal values for even and odd indices
@@ -745,21 +812,23 @@ class PositionalEncoding(Layer, NNLearner):
             # Resulting shape: (max_length, feature_dim)
             pe_interleaved = tf_reshape(
                 tf_stack([pe_sin, pe_cos], axis=-1),
-                shape=[self.max_length, feature_dim]
+                shape=[self.max_length, feature_dim],
             )
 
             # Add an extra dimension for broadcasting across the batch
             # Shape: (1, max_length, feature_dim)
-            self.positional_encoding = pe_interleaved[tf_newaxis, :, :]
+            self.positional_encoding = pe_interleaved[
+                tf_newaxis, :, :
+            ]
 
         super().build(input_shape)
 
-    def call(self, inputs: Tensor, training=False ) -> Tensor:
+    def call(self, inputs: Tensor, training=False) -> Tensor:
         r"""Adds positional encoding to the input tensor.
-        
+
         The 'training' argument is accepted but not used.
         This ensures API compatibility with Keras.
-        
+
         Parameters
         ----------
         inputs : tf.Tensor
@@ -772,37 +841,42 @@ class PositionalEncoding(Layer, NNLearner):
         tf.Tensor
             The input tensor with positional encodings added.
             Shape: :math:`(B, T, D)`.
-        Notes 
+        Notes
         ------
-        The Positional encoding does not depends on training. 
-        The sinusoidal PositionalEncoding layer performs a deterministic 
-        mathematical operation. It calculates a fixed matrix of sine and 
-        cosine values based on position and feature dimension and simply 
-        adds it to the input. This calculation is the same whether you are 
-        training the model or running it for inference. Unlike layers such 
+        The Positional encoding does not depends on training.
+        The sinusoidal PositionalEncoding layer performs a deterministic
+        mathematical operation. It calculates a fixed matrix of sine and
+        cosine values based on position and feature dimension and simply
+        adds it to the input. This calculation is the same whether you are
+        training the model or running it for inference. Unlike layers such
         as Dropout or BatchNormalization, PositionalEncoding has no different
         behavior during training.
-        
+
         """
         # Get the sequence length of the current input batch.
         seq_len = tf_shape(inputs)[1]
-        
+
         # Slice the pre-calculated encoding matrix to match the input
         # sequence length and add it to the input tensor.
         # The broadcasting mechanism will handle the batch dimension.
-        return inputs + self.positional_encoding[:, :seq_len, :]
+        return (
+            inputs + self.positional_encoding[:, :seq_len, :]
+        )
 
     def get_config(self) -> dict:
         """Returns the configuration of the layer."""
         config = super().get_config()
-        config.update({
-            'max_length': self.max_length,
-        })
+        config.update(
+            {
+                "max_length": self.max_length,
+            }
+        )
         return config
 
-    
+
 @register_keras_serializable(
-    'geoprior.nn.components', name="TSPositionalEncoding")
+    "geoprior.nn.components", name="TSPositionalEncoding"
+)
 class TSPositionalEncoding(Layer, NNLearner):
     """
     Standard Transformer Positional Encoding using sine and cosine functions.
@@ -813,68 +887,80 @@ class TSPositionalEncoding(Layer, NNLearner):
         embed_dim (int): The dimensionality of the embeddings (and the
                          positional encoding).
     """
-    def __init__(self, max_position: int, embed_dim: int, **kwargs):
+
+    def __init__(
+        self, max_position: int, embed_dim: int, **kwargs
+    ):
         super().__init__(**kwargs)
         self.max_position = max_position
         self.embed_dim = embed_dim
         # self.pos_encoding is created once and stored.
         self.pos_encoding = self._build_positional_encoding(
-            max_position, embed_dim)
+            max_position, embed_dim
+        )
 
     def _build_positional_encoding(
-            self, position: int, d_model: int) -> Tensor:
-        """Builds the positional encoding matrix using NumPy 
+        self, position: int, d_model: int
+    ) -> Tensor:
+        """Builds the positional encoding matrix using NumPy
         then converts to Tensor."""
-    
+
         # 1. Calculate angles in NumPy
         # 'pos' is for positions (sequence length), 'i' is for dimension
         pos_np = np.arange(position)[:, np.newaxis]
         i_np = np.arange(d_model)[np.newaxis, :]
-        
+
         angle_rates_np = 1 / np.power(
             10000, (2 * (i_np // 2)) / np.float32(d_model)
         )
         angle_rads_np = pos_np * angle_rates_np
-    
+
         # 2. Apply sin to even indices in the array; 2i
-        angle_rads_np[:, 0::2] = np.sin(angle_rads_np[:, 0::2])
-    
+        angle_rads_np[:, 0::2] = np.sin(
+            angle_rads_np[:, 0::2]
+        )
+
         # 3. Apply cos to odd indices in the array; 2i+1
-        angle_rads_np[:, 1::2] = np.cos(angle_rads_np[:, 1::2])
-    
+        angle_rads_np[:, 1::2] = np.cos(
+            angle_rads_np[:, 1::2]
+        )
+
         # 4. Add a new axis for batch dimension and cast to TensorFlow tensor
         # The self.pos_encoding expects (1, max_position, embed_dim)
         pos_encoding_tensor = tf_cast(
             angle_rads_np[np.newaxis, ...], dtype=tf_float32
         )
-        
+
         return pos_encoding_tensor
 
-    def _tf_build_positional_encoding(self, position, d_model):
+    def _tf_build_positional_encoding(
+        self, position, d_model
+    ):
         """Builds the positional encoding matrix."""
         angle_rads = self._get_angles(
-            # Use np.arange for non-Tensor context 
+            # Use np.arange for non-Tensor context
             # if KERAS_DEPS.arange isn't suitable
             tf_range(position)[:, tf_newaxis],
             tf_range(d_model)[tf_newaxis, :],
-            d_model
-            )
+            d_model,
+        )
         # Apply sin to even indices in the array; 2i
         angle_rads[:, 0::2] = tf_sin(angle_rads[:, 0::2])
         # Apply cos to odd indices in the array; 2i+1
         angle_rads[:, 1::2] = tf_cos(angle_rads[:, 1::2])
 
         pos_encoding_np = angle_rads[tf_newaxis, ...]
-        
+
         return tf_cast(pos_encoding_np, dtype=tf_float32)
-        
+
     def _get_angles(self, pos, i, d_model):
         """Calculates the angle rates for positional encoding."""
         # Use np.power for non-Tensor context
-        angle_rates = 1 / np.power(10000, (
-            2 * (i // 2)) / np.float32(d_model))
+        angle_rates = 1 / np.power(
+            10000, (2 * (i // 2)) / np.float32(d_model)
+        )
         return pos * angle_rates
-    
+
     def _tf_get_angles(self, pos, i, d_model):
         """Calculates the angle rates for positional encoding."""
         # cast d_model to float32
@@ -906,53 +992,57 @@ class TSPositionalEncoding(Layer, NNLearner):
 
     def get_config(self):
         config = super().get_config()
-        config.update({
-            "max_position": self.max_position,
-            "embed_dim": self.embed_dim,
-        })
+        config.update(
+            {
+                "max_position": self.max_position,
+                "embed_dim": self.embed_dim,
+            }
+        )
         return config
 
 
-@register_keras_serializable('geoprior.nn.components', name='PositionalEncoding')
+@register_keras_serializable(
+    "geoprior.nn.components", name="PositionalEncoding"
+)
 class LinearPositionalEncoding(Layer, NNLearner):
     r"""
-    Positional Encoding layer that incorporates temporal 
-    positions into an input sequence by adding positional 
-    information to each time step. This helps models, 
-    especially those based on attention mechanisms, to 
+    Positional Encoding layer that incorporates temporal
+    positions into an input sequence by adding positional
+    information to each time step. This helps models,
+    especially those based on attention mechanisms, to
     capture the order of time steps [1]_.
 
     .. math::
         \mathbf{Z} = \mathbf{X} + \text{PositionEncoding}
 
-    where :math:`\mathbf{X}` is the original input and 
-    :math:`\mathbf{Z}` is the output with positional 
+    where :math:`\mathbf{X}` is the original input and
+    :math:`\mathbf{Z}` is the output with positional
     encodings added.
 
     Parameters
     ----------
-    None 
-        This layer does not define additional 
-        constructor parameters beyond the standard 
+    None
+        This layer does not define additional
+        constructor parameters beyond the standard
         Keras ``Layer``.
 
     Notes
     -----
-    - This class adds a positional index to each feature 
-      across time steps, effectively encoding the temporal 
+    - This class adds a positional index to each feature
+      across time steps, effectively encoding the temporal
       position.
-    - Because attention-based models do not inherently 
-      encode sequence ordering, positional encoding 
+    - Because attention-based models do not inherently
+      encode sequence ordering, positional encoding
       is crucial for sequence awareness.
 
     Methods
     -------
     call(`inputs`)
-        Perform the forward pass, adding positional 
+        Perform the forward pass, adding positional
         encoding to the input tensor.
 
     get_config()
-        Return the configuration of this layer for 
+        Return the configuration of this layer for
         serialization.
 
     Examples
@@ -969,43 +1059,44 @@ class LinearPositionalEncoding(Layer, NNLearner):
 
     See Also
     --------
-    TemporalFusionTransformer 
-        Combines positional encoding in dynamic 
+    TemporalFusionTransformer
+        Combines positional encoding in dynamic
         features for time series.
 
     References
     ----------
-    .. [1] Vaswani, A., Shazeer, N., Parmar, N., 
-           Uszkoreit, J., Jones, L., Gomez, A. N., 
-           Kaiser, Ł., & Polosukhin, I. (2017). 
-           "Attention is all you need." In *Advances 
-           in Neural Information Processing Systems* 
+    .. [1] Vaswani, A., Shazeer, N., Parmar, N.,
+           Uszkoreit, J., Jones, L., Gomez, A. N.,
+           Kaiser, Ł., & Polosukhin, I. (2017).
+           "Attention is all you need." In *Advances
+           in Neural Information Processing Systems*
            (pp. 5998-6008).
     """
+
     @tf_autograph.experimental.do_not_convert
     def call(self, inputs, training=False):
         r"""
-        Forward pass that adds positional encoding to 
+        Forward pass that adds positional encoding to
         ``inputs``.
 
         Parameters
         ----------
         inputs : tf.Tensor
-            A 3D tensor of shape 
-            :math:`(B, T, D)`, where ``B`` is 
-            batch size, ``T`` is time steps, and 
+            A 3D tensor of shape
+            :math:`(B, T, D)`, where ``B`` is
+            batch size, ``T`` is time steps, and
             ``D`` is feature dimension.
         training : bool, optional
-            Boolean flag indicating whether the layer is 
+            Boolean flag indicating whether the layer is
             in training mode.
-            Not used in this layer but included for 
+            Not used in this layer but included for
             Keras API compatibility.
-        
+
         Returns
         -------
         tf.Tensor
-            A 3D tensor of the same shape 
-            :math:`(B, T, D)`, where each time step 
+            A 3D tensor of the same shape
+            :math:`(B, T, D)`, where each time step
             has been augmented with its position index.
 
         Notes
@@ -1022,23 +1113,18 @@ class LinearPositionalEncoding(Layer, NNLearner):
 
         # Create position indices
         position_indices = tf_range(
-            0,
-            seq_len,
-            dtype='float32'
+            0, seq_len, dtype="float32"
         )
         position_indices = tf_expand_dims(
-            position_indices,
-            axis=0
+            position_indices, axis=0
         )
         position_indices = tf_expand_dims(
-            position_indices,
-            axis=-1
+            position_indices, axis=-1
         )
 
         # Tile to match input shape
         position_encoding = tf_tile(
-            position_indices,
-            [batch_size, 1, feature_dim]
+            position_indices, [batch_size, 1, feature_dim]
         )
 
         # Return input plus positional encoding
@@ -1059,14 +1145,15 @@ class LinearPositionalEncoding(Layer, NNLearner):
 
 
 @register_keras_serializable(
-    'geoprior.nn.components', name="GatedResidualNetwork"
+    "geoprior.nn.components", name="GatedResidualNetwork"
 )
 @param_deprecated_message(
     conditions_params_mappings=[
         {
-            'param': 'use_time_distributed',
-            'condition': lambda v: v is not None and v is not False,
-            'message': (
+            "param": "use_time_distributed",
+            "condition": lambda v: v is not None
+            and v is not False,
+            "message": (
                 "The 'use_time_distributed' parameter in GatedResidualNetwork "
                 "is deprecated and has no effect.\n"
                 "The layer automatically handles time dimensions based on "
@@ -1076,33 +1163,49 @@ class LinearPositionalEncoding(Layer, NNLearner):
             ),
         }
     ],
-    warning_category=DeprecationWarning 
+    warning_category=DeprecationWarning,
 )
 class GatedResidualNetwork(Layer):
     """Gated Residual Network applying transformations with optional context."""
 
     _COMMON_ACTIVATIONS = {
-        "relu", "tanh", "sigmoid", "elu", "selu", "gelu", "linear", None
+        "relu",
+        "tanh",
+        "sigmoid",
+        "elu",
+        "selu",
+        "gelu",
+        "linear",
+        None,
     }
 
-    @validate_params({
-        "units": [Interval(Integral, 0, None, closed='left')],
-        "dropout_rate": [Interval(Real, 0, 1, closed="both")],
-        "use_batch_norm": [bool],
-        "activation": [StrOptions(_COMMON_ACTIVATIONS)],
-        "output_activation": [StrOptions(_COMMON_ACTIVATIONS), None],
-        "use_time_distributed": [bool, None],
-    })
+    @validate_params(
+        {
+            "units": [
+                Interval(Integral, 0, None, closed="left")
+            ],
+            "dropout_rate": [
+                Interval(Real, 0, 1, closed="both")
+            ],
+            "use_batch_norm": [bool],
+            "activation": [StrOptions(_COMMON_ACTIVATIONS)],
+            "output_activation": [
+                StrOptions(_COMMON_ACTIVATIONS),
+                None,
+            ],
+            "use_time_distributed": [bool, None],
+        }
+    )
     @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
     def __init__(
         self,
         units: int,
         dropout_rate: float = 0.0,
-        activation: str = 'elu',
-        output_activation: Optional[str] = None,
+        activation: str = "elu",
+        output_activation: str | None = None,
         use_batch_norm: bool = False,
-        use_time_distributed: Optional[bool] = None, 
-        **kwargs
+        use_time_distributed: bool | None = None,
+        **kwargs,
     ):
         """Initializes the GatedResidualNetwork layer."""
         super().__init__(**kwargs)
@@ -1114,53 +1217,58 @@ class GatedResidualNetwork(Layer):
         # The use_time_distributed parameter is stored only to allow
         # the decorator to check its value. It is NOT used in the
         # layer's logic anymore.
-        self._deprecated_use_td = use_time_distributed 
+        self._deprecated_use_td = use_time_distributed
 
         # --- Convert activation strings to callable functions ---
         try:
             self.activation_fn = activations.get(activation)
-            self.output_activation_fn = activations.get(output_activation) \
-                if output_activation is not None else None
+            self.output_activation_fn = (
+                activations.get(output_activation)
+                if output_activation is not None
+                else None
+            )
         except Exception as e:
-             # Catch potential errors during activation lookup
-             raise ValueError(
-                 f"Failed to get activation function '{activation}' or "
-                 f"'{output_activation}'. Error: {e}"
-                 ) from e
+            # Catch potential errors during activation lookup
+            raise ValueError(
+                f"Failed to get activation function '{activation}' or "
+                f"'{output_activation}'. Error: {e}"
+            ) from e
 
         # --- Define Internal Layers ---
         # Dense layer processing input (x + optional context)
         # Activation is applied *after* this layer manually
-        self.input_dense = Dense(self.units, activation=None,
-                                 name="input_dense")
+        self.input_dense = Dense(
+            self.units, activation=None, name="input_dense"
+        )
 
         # Dense layer projecting context (if provided)
         # No bias as per original paper often; no activation needed here
         self.context_dense = Dense(
-            self.units, use_bias=False,
-            name="context_dense"
+            self.units, use_bias=False, name="context_dense"
         )
 
         # Optional Batch Normalization (applied after main activation)
-        self.batch_norm = BatchNormalization(
-            name="batch_norm"
-            ) if self.use_batch_norm else None
+        self.batch_norm = (
+            BatchNormalization(name="batch_norm")
+            if self.use_batch_norm
+            else None
+        )
 
         # Dropout Layer (applied after activation/norm)
         self.dropout = Dropout(
             self.dropout_rate, name="grn_dropout"
-            )
+        )
 
         # Dense layer for main transformation path (after dropout)
         self.output_dense = Dense(
-            self.units, activation=None,
-            name="output_dense"
+            self.units, activation=None, name="output_dense"
         )
 
         # Dense layer for gating mechanism applied to input projection
         self.gate_dense = Dense(
-            self.units, activation='sigmoid',
-            name="gate_dense"
+            self.units,
+            activation="sigmoid",
+            name="gate_dense",
         )
 
         # Final Layer Normalization (standard in GRN)
@@ -1168,7 +1276,7 @@ class GatedResidualNetwork(Layer):
             name="output_layer_norm"
         )
 
-        # Projection layer for residual 
+        # Projection layer for residual
         # connection (created in build)
         self.projection = None
 
@@ -1180,13 +1288,15 @@ class GatedResidualNetwork(Layer):
             try:
                 input_shape = tf_TensorShape(input_shape)
             except TypeError:
-                 raise ValueError(
+                raise ValueError(
                     f"Could not convert input_shape to TensorShape:"
                     f" {input_shape}"
-                    )
+                )
 
         # Check rank using the TensorShape object property
-        input_rank = input_shape.rank # This returns None if rank is unknown
+        input_rank = (
+            input_shape.rank
+        )  # This returns None if rank is unknown
 
         # Check minimum rank requirement only if rank is known
         if input_rank is not None and input_rank < 2:
@@ -1201,30 +1311,41 @@ class GatedResidualNetwork(Layer):
         if input_rank is not None:
             input_dim = input_shape[-1]
             # Further check if last dimension itself is known (is an integer)
-            if not isinstance(input_dim, int) or input_dim <= 0 :
-                 # Last dimension is unknown or invalid
-                 warnings.warn(
-                     f"Input shape {input_shape} has unknown or invalid "
-                     "last dimension in GRN build. Cannot check "
-                     "if projection layer is needed.", RuntimeWarning
-                     )
-                 input_dim = None # Treat as unknown if not valid int
+            if (
+                not isinstance(input_dim, int)
+                or input_dim <= 0
+            ):
+                # Last dimension is unknown or invalid
+                warnings.warn(
+                    f"Input shape {input_shape} has unknown or invalid "
+                    "last dimension in GRN build. Cannot check "
+                    "if projection layer is needed.",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
+                input_dim = (
+                    None  # Treat as unknown if not valid int
+                )
 
         # Create projection layer only if dimensions are known and differ
-        if (input_dim is not None) and (input_dim != self.units):
-            if self.projection is None: # Avoid recreating
-                self.projection = Dense(self.units, name="residual_projection")
+        if (input_dim is not None) and (
+            input_dim != self.units
+        ):
+            if self.projection is None:  # Avoid recreating
+                self.projection = Dense(
+                    self.units, name="residual_projection"
+                )
                 # Build projection layer using the full input shape object
                 self.projection.build(input_shape)
                 # Comment: Residual projection created and built.
         elif input_dim == self.units:
-             # Set projection to None explicitly if dims match
-             self.projection = None
+            # Set projection to None explicitly if dims match
+            self.projection = None
 
         # context_dense builds lazily on first call
         # Call the build method of the parent class
         super().build(input_shape)
-        
+
     def call(self, x, context=None, training=False):
         """Forward pass implementing GRN with optional context."""
         # Input x shape (B, ..., F_in)
@@ -1232,52 +1353,77 @@ class GatedResidualNetwork(Layer):
         """Forward pass implementing GRN with optional context."""
         _logger.debug(
             f"DEBUG_GRN: Entering call. x shape: {tf_shape(x)},"
-            f" context provided: {context is not None}") # DEBUG
+            f" context provided: {context is not None}"
+        )  # DEBUG
         # --- 1. Residual Connection Setup ---
         shortcut = x
         if self.projection is not None:
-            _logger.debug("DEBUG_GRN: Applying projection.") # DEBUG
-            shortcut = self.projection(shortcut) # Shape (B, ..., Units)
+            _logger.debug(
+                "DEBUG_GRN: Applying projection."
+            )  # DEBUG
+            shortcut = self.projection(
+                shortcut
+            )  # Shape (B, ..., Units)
 
         # --- 2. Process Input and Context ---
         # Project input features to 'units' dimension
         _logger.debug(
-            f"DEBUG_GRN: Applying input_dense to x shape: {tf_shape(x)}") # DEBUG
-        projected_input = self.input_dense(x) # Shape (B, ..., Units)
-        input_plus_context = projected_input # No context added; Default 
-        
+            f"DEBUG_GRN: Applying input_dense to x shape: {tf_shape(x)}"
+        )  # DEBUG
+        projected_input = self.input_dense(
+            x
+        )  # Shape (B, ..., Units)
+        input_plus_context = (
+            projected_input  # No context added; Default
+        )
+
         # Add processed context if provided
         if context is not None:
-            _logger.debug("DEBUG_GRN: Applying context_dense"
-                  f" to context shape: {tf_shape(context)}") # DEBUG
-            context_proj = self.context_dense(context) # Shape (B, ..., Units)
+            _logger.debug(
+                "DEBUG_GRN: Applying context_dense"
+                f" to context shape: {tf_shape(context)}"
+            )  # DEBUG
+            context_proj = self.context_dense(
+                context
+            )  # Shape (B, ..., Units)
 
             # Ensure context can be added (handle broadcasting)
             # x_rank = tf_rank(projected_input)
-            
-             # Use standard Python len() on shapes now,
-            # Use standard Python len() on shapes now, 
+
+            # Use standard Python len() on shapes now,
+            # Use standard Python len() on shapes now,
             x_rank = len(projected_input.shape)
             ctx_rank = len(context_proj.shape)
-            
-            # x_rank = projected_input.shape.rank 
+
+            # x_rank = projected_input.shape.rank
             # #ctx_rank = tf_rank(context_proj)
-            # ctx_rank = context_proj.shape.rank 
+            # ctx_rank = context_proj.shape.rank
             _logger.debug(
-                f"DEBUG_GRN: x_rank={x_rank}, ctx_rank={ctx_rank}") # DEBUG
-            if x_rank == 3 and ctx_rank == 2:# e.g., x=(B,T,U), ctx=(B,U)
+                f"DEBUG_GRN: x_rank={x_rank}, ctx_rank={ctx_rank}"
+            )  # DEBUG
+            if (
+                x_rank == 3 and ctx_rank == 2
+            ):  # e.g., x=(B,T,U), ctx=(B,U)
                 # Add time dimension for broadcasting: (B,U) -> (B,1,U)
-                context_proj_expanded = tf_expand_dims(context_proj, axis=1)
+                context_proj_expanded = tf_expand_dims(
+                    context_proj, axis=1
+                )
                 # Now shapes should be broadcast-compatible
-                _logger.debug("DEBUG_GRN: Adding context.") # DEBUG
-                input_plus_context = tf_add(projected_input, context_proj_expanded)
+                _logger.debug(
+                    "DEBUG_GRN: Adding context."
+                )  # DEBUG
+                input_plus_context = tf_add(
+                    projected_input, context_proj_expanded
+                )
             elif x_rank == ctx_rank:
                 # Ranks match, add directly
                 _logger.debug(
                     "DEBUG_GRN: Ranks match,  Adding context directly."
-                    ) # DEBUG
-                input_plus_context = tf_add(projected_input, context_proj)
-                
+                )  # DEBUG
+                input_plus_context = tf_add(
+                    projected_input, context_proj
+                )
+
             else:
                 # Raise error for incompatible ranks
                 raise ValueError(
@@ -1286,55 +1432,71 @@ class GatedResidualNetwork(Layer):
                 )
 
         # --- 3. Apply Activation and Regularization ---
-        _logger.debug("Applying activation_fn.") # DEBUG
-        activated_features = self.activation_fn(input_plus_context)
+        _logger.debug("Applying activation_fn.")  # DEBUG
+        activated_features = self.activation_fn(
+            input_plus_context
+        )
         if self.batch_norm is not None:
             # Apply BN after activation
-            activated_features = self.batch_norm(activated_features,
-                                                 training=training)
-        _logger.debug("Applying dropout.") # DEBUG
-        regularized_features = self.dropout(activated_features,
-                                            training=training)
+            activated_features = self.batch_norm(
+                activated_features, training=training
+            )
+        _logger.debug("Applying dropout.")  # DEBUG
+        regularized_features = self.dropout(
+            activated_features, training=training
+        )
 
         # --- 4. Main Transformation Path ---
-        _logger.debug("Applying output_dense.") # DEBUG
-        transformed_output = self.output_dense(regularized_features)
+        _logger.debug("Applying output_dense.")  # DEBUG
+        transformed_output = self.output_dense(
+            regularized_features
+        )
 
         # --- 5. Gating Path ---
-        _logger.debug("Applying gate_dense.") # DEBUG
+        _logger.debug("Applying gate_dense.")  # DEBUG
         # Gate depends on input+context projection *before* main activation
         gate_values = self.gate_dense(input_plus_context)
 
         # --- 6. Apply Gate ---
-        _logger.debug("Applying gate multiplication.") # DEBUG
-        gated_output = tf_multiply(transformed_output, gate_values)
+        _logger.debug(
+            "Applying gate multiplication."
+        )  # DEBUG
+        gated_output = tf_multiply(
+            transformed_output, gate_values
+        )
 
         # --- 7. Add Residual ---
-        _logger.debug("Adding residual connection.") # DEBUG
+        _logger.debug("Adding residual connection.")  # DEBUG
         residual_output = tf_add(shortcut, gated_output)
 
         # --- 8. Final Normalization & Optional Activation ---
-        _logger.debug("Applying layer_norm.") # DEBUG
+        _logger.debug("Applying layer_norm.")  # DEBUG
         normalized_output = self.layer_norm(residual_output)
         final_output = normalized_output
         if self.output_activation_fn is not None:
-            _logger.debug("Applying output_activation_fn.") # DEBUG
-            final_output = self.output_activation_fn(normalized_output)
+            _logger.debug(
+                "Applying output_activation_fn."
+            )  # DEBUG
+            final_output = self.output_activation_fn(
+                normalized_output
+            )
             #  Applied final output activation.
-        _logger.debug("Exiting call successfully.") # DEBUG
+        _logger.debug("Exiting call successfully.")  # DEBUG
         return final_output
-    
+
     def get_config(self):
         """Returns the layer configuration."""
         config = super().get_config()
-        config.update({
-            'units': self.units,
-            'dropout_rate': self.dropout_rate,
-            # 'use_time_distributed' removed from config
-            'activation': self.activation_str, # Use original string
-            'output_activation': self.output_activation_str, # Use original string
-            'use_batch_norm': self.use_batch_norm,
-        })
+        config.update(
+            {
+                "units": self.units,
+                "dropout_rate": self.dropout_rate,
+                # 'use_time_distributed' removed from config
+                "activation": self.activation_str,  # Use original string
+                "output_activation": self.output_activation_str,  # Use original string
+                "use_batch_norm": self.use_batch_norm,
+            }
+        )
         return config
 
     @classmethod
@@ -1342,23 +1504,41 @@ class GatedResidualNetwork(Layer):
         """Creates layer from its config."""
         return cls(**config)
 
+
 @register_keras_serializable(
-    'geoprior.nn.components',
-    name="VariableSelectionNetwork"
+    "geoprior.nn.components", name="VariableSelectionNetwork"
 )
-class VariableSelectionNetwork(Layer, NNLearner): 
+class VariableSelectionNetwork(Layer, NNLearner):
     """Applies GRN to each variable and learns importance weights."""
 
-    @validate_params({
-        "num_inputs": [Interval(Integral, 0, None, closed='left')],
-        "units": [Interval(Integral, 1, None, closed='left')],
-        "dropout_rate": [Interval(Real, 0, 1, closed="both")],
-        "use_time_distributed": [bool],
-        "use_batch_norm": [bool],
-        "activation": [StrOptions(
-            {"elu", "relu", "tanh", "sigmoid", "linear", "gelu", None}
-            )]
-    })
+    @validate_params(
+        {
+            "num_inputs": [
+                Interval(Integral, 0, None, closed="left")
+            ],
+            "units": [
+                Interval(Integral, 1, None, closed="left")
+            ],
+            "dropout_rate": [
+                Interval(Real, 0, 1, closed="both")
+            ],
+            "use_time_distributed": [bool],
+            "use_batch_norm": [bool],
+            "activation": [
+                StrOptions(
+                    {
+                        "elu",
+                        "relu",
+                        "tanh",
+                        "sigmoid",
+                        "linear",
+                        "gelu",
+                        None,
+                    }
+                )
+            ],
+        }
+    )
     @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
     def __init__(
         self,
@@ -1366,9 +1546,9 @@ class VariableSelectionNetwork(Layer, NNLearner):
         units: int,
         dropout_rate: float = 0.0,
         use_time_distributed: bool = False,
-        activation: str = 'elu',
+        activation: str = "elu",
         use_batch_norm: bool = False,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self.num_inputs = num_inputs
@@ -1376,22 +1556,24 @@ class VariableSelectionNetwork(Layer, NNLearner):
         self.dropout_rate = dropout_rate
         self.use_time_distributed = use_time_distributed
         self.use_batch_norm = use_batch_norm
-        
+
         # Store original activation string for config
-        _Activation = Activation(activation) 
-        self.activation_str = _Activation.activation_str 
-        self.activation_fn = _Activation.activation_fn 
+        _Activation = Activation(activation)
+        self.activation_str = _Activation.activation_str
+        self.activation_fn = _Activation.activation_fn
 
         # --- Layers ---
         # 1. GRN for each individual input variable
         #    GRN's __init__ should handle converting activation string
         self.single_variable_grns = [
             GatedResidualNetwork(
-                units=units, dropout_rate=dropout_rate,
-                activation=self.activation_str, # Pass string
+                units=units,
+                dropout_rate=dropout_rate,
+                activation=self.activation_str,  # Pass string
                 use_batch_norm=use_batch_norm,
-                name=f"single_var_grn_{i}"
-            ) for i in range(num_inputs)
+                name=f"single_var_grn_{i}",
+            )
+            for i in range(num_inputs)
         ]
 
         # 2. Dense layer to compute variable importances (applied later)
@@ -1402,7 +1584,9 @@ class VariableSelectionNetwork(Layer, NNLearner):
 
         # 3. Softmax for normalizing weights across variables (N dimension)
         #    Axis -2 assumes stacked_outputs shape (B, [T,] N, units)
-        self.softmax = Softmax(axis=-2, name="variable_weights_softmax")
+        self.softmax = Softmax(
+            axis=-2, name="variable_weights_softmax"
+        )
 
         # 4. Optional context projection layer (created in build)
         #    Projects external context to 'units' for GRNs
@@ -1413,20 +1597,25 @@ class VariableSelectionNetwork(Layer, NNLearner):
 
     @tf_autograph.experimental.do_not_convert
     def build(self, input_shape):
-        """Builds internal GRNs and projection layers 
+        """Builds internal GRNs and projection layers
         with explicit shapes."""
         # Use TensorShape object for robust handling
         if not isinstance(input_shape, tf_TensorShape):
             input_shape = tf_TensorShape(input_shape)
 
         input_rank = input_shape.rank
-        expected_min_rank = 3 if self.use_time_distributed else 2
+        expected_min_rank = (
+            3 if self.use_time_distributed else 2
+        )
 
         # Check if rank is known and sufficient
-        if input_rank is None or input_rank < expected_min_rank:
+        if (
+            input_rank is None
+            or input_rank < expected_min_rank
+        ):
             # If rank unknown or too low at build time,
             # we cannot proceed reliably.
-            # This indicates an issue upstream or 
+            # This indicates an issue upstream or
             # requires dynamic shapes throughout.
             raise ValueError(
                 f"VSN build requires input rank >= {expected_min_rank}"
@@ -1437,37 +1626,47 @@ class VariableSelectionNetwork(Layer, NNLearner):
         # Add feature dim F=1 if missing
         # Add feature dimension if missing
         inferred_input_shape = tf_cond(
-             tf_equal(input_rank, expected_min_rank),
-             lambda: input_shape.as_list() + [1],
-             lambda: input_shape.as_list()
-         )
+            tf_equal(input_rank, expected_min_rank),
+            lambda: input_shape.as_list() + [1],
+            lambda: input_shape.as_list(),
+        )
         # Shape: (B, N, F=1) or (B, T, N, F=1)
 
-        # Ensure dimensions (except batch) are 
+        # Ensure dimensions (except batch) are
         # known for building sub-layers
         if any(d is None for d in inferred_input_shape[1:]):
-             # This should ideally not happen if 
-             # input comes from previous layers
-             # but handle defensively.
-             raise ValueError(
-                 f"VSN build received unknown non-batch dimensions in shape "
-                 f"{inferred_input_shape}. Cannot reliably build sub-layers."
-             )
+            # This should ideally not happen if
+            # input comes from previous layers
+            # but handle defensively.
+            raise ValueError(
+                f"VSN build received unknown non-batch dimensions in shape "
+                f"{inferred_input_shape}. Cannot reliably build sub-layers."
+            )
 
         # Calculate the expected shape for a single variable slice
         if self.use_time_distributed:
             # Input (B, T, N, F) -> Slice is (B, T, F)
             single_var_input_shape = tf_TensorShape(
-                [inferred_input_shape[0], # Batch (can be None)
-                 inferred_input_shape[1], # Time (should be known)
-                 inferred_input_shape[3]] # Features (should be known)
-                )
+                [
+                    inferred_input_shape[
+                        0
+                    ],  # Batch (can be None)
+                    inferred_input_shape[
+                        1
+                    ],  # Time (should be known)
+                    inferred_input_shape[3],
+                ]  # Features (should be known)
+            )
         else:
             # Input (B, N, F) -> Slice is (B, F)
-             single_var_input_shape = tf_TensorShape(
-                 [inferred_input_shape[0], # Batch (can be None)
-                  inferred_input_shape[2]] # Features (should be known)
-                 )
+            single_var_input_shape = tf_TensorShape(
+                [
+                    inferred_input_shape[
+                        0
+                    ],  # Batch (can be None)
+                    inferred_input_shape[2],
+                ]  # Features (should be known)
+            )
 
         # --- Explicitly build each single_variable_grn ---
         # Use the calculated slice shape
@@ -1477,33 +1676,38 @@ class VariableSelectionNetwork(Layer, NNLearner):
                     grn.build(single_var_input_shape)
                     # Comment: Built internal GRN with calculated shape.
                 except Exception as e:
-                     # Add more context if GRN build fails
-                     raise RuntimeError(
-                         f"Failed to build internal GRN {grn.name} with shape "
-                         f"{single_var_input_shape} derived from VSN input "
-                         f"{input_shape}. Original error: {e}"
-                         ) from e
+                    # Add more context if GRN build fails
+                    raise RuntimeError(
+                        f"Failed to build internal GRN {grn.name} with shape "
+                        f"{single_var_input_shape} derived from VSN input "
+                        f"{input_shape}. Original error: {e}"
+                    ) from e
 
         # Build context projection layer lazily (or here if context shape known)
         if self.context_projection is None:
-             self.context_projection = Dense(
-                  self.units, name="context_projection",
-                  # Pass string, Dense handles activation resolution
-                  activation=self.activation_str
-                  )
-             # Let Keras build context_projection on first call with context
+            self.context_projection = Dense(
+                self.units,
+                name="context_projection",
+                # Pass string, Dense handles activation resolution
+                activation=self.activation_str,
+            )
+            # Let Keras build context_projection on first call with context
 
         # Build other internal layers like weighting_grn if needed here
-        super().build(input_shape) # Call parent build last
-        
+        super().build(input_shape)  # Call parent build last
 
     @tf_autograph.experimental.do_not_convert
     def call(self, inputs, context=None, training=False):
         """Execute the forward pass with optional context."""
-        _logger.debug(f"VSN '{self.name}': Entering call method.")
         _logger.debug(
-            f"  Initial input shape: {getattr(inputs, 'shape', 'N/A')}")
-        _logger.debug(f"  Context provided: {context is not None}")
+            f"VSN '{self.name}': Entering call method."
+        )
+        _logger.debug(
+            f"  Initial input shape: {getattr(inputs, 'shape', 'N/A')}"
+        )
+        _logger.debug(
+            f"  Context provided: {context is not None}"
+        )
         _logger.debug(f"  Training mode: {training}")
 
         # --- Input Validation and Reshaping ---
@@ -1511,14 +1715,22 @@ class VariableSelectionNetwork(Layer, NNLearner):
         try:
             actual_rank = len(inputs.shape)
         except Exception as e:
-             _logger.error(f"VSN '{self.name}': Failed to get input rank."
-                          f" Input type: {type(inputs)}. Error: {e}")
-             raise TypeError(f"Could not determine rank of input with shape"
-                             f" {getattr(inputs, 'shape', 'N/A')}") from e
+            _logger.error(
+                f"VSN '{self.name}': Failed to get input rank."
+                f" Input type: {type(inputs)}. Error: {e}"
+            )
+            raise TypeError(
+                f"Could not determine rank of input with shape"
+                f" {getattr(inputs, 'shape', 'N/A')}"
+            ) from e
 
-        expected_min_rank = 3 if self.use_time_distributed else 2
-        _logger.debug(f"  Input rank: actual={actual_rank}, expected_min="
-                     f"{expected_min_rank}")
+        expected_min_rank = (
+            3 if self.use_time_distributed else 2
+        )
+        _logger.debug(
+            f"  Input rank: actual={actual_rank}, expected_min="
+            f"{expected_min_rank}"
+        )
 
         if actual_rank < expected_min_rank:
             # Raise error if rank is insufficient
@@ -1533,11 +1745,11 @@ class VariableSelectionNetwork(Layer, NNLearner):
             _logger.debug(
                 f"  Input rank matches minimum expected ({actual_rank})."
                 " Expanding feature dimension."
-                )
+            )
             inputs = tf_expand_dims(inputs, axis=-1)
             _logger.debug(
                 f"  Input shape after expansion: {inputs.shape}"
-                )
+            )
         # Input shape is now (B, N, F) or (B, T, N, F)
 
         # --- Context Processing ---
@@ -1545,20 +1757,24 @@ class VariableSelectionNetwork(Layer, NNLearner):
         if context is not None:
             _logger.debug(
                 f"  Processing provided context. Shape: {context.shape}"
-                )
+            )
             # Ensure context projection layer is created (lazily if needed)
             if self.context_projection is None:
-                 _logger.warning(
-                     f"VSN '{self.name}': Context projection layer"
-                     " not built in build method. Building lazily."
+                _logger.warning(
+                    f"VSN '{self.name}': Context projection layer"
+                    " not built in build method. Building lazily."
                 )
-                 self.context_projection = Dense(
-                      self.units, name="context_projection",
-                      activation=self.activation_str # Use string
-                      )
-            processed_context = self.context_projection(context)
+                self.context_projection = Dense(
+                    self.units,
+                    name="context_projection",
+                    activation=self.activation_str,  # Use string
+                )
+            processed_context = self.context_projection(
+                context
+            )
             _logger.debug(
-                f"  Processed context shape: {processed_context.shape}")
+                f"  Processed context shape: {processed_context.shape}"
+            )
             # Note: GRN's call method handles broadcasting this context
         else:
             _logger.debug("  No context provided.")
@@ -1568,122 +1784,143 @@ class VariableSelectionNetwork(Layer, NNLearner):
         _logger.debug(
             f"  Applying single_variable_grns to {self.num_inputs}"
             " inputs..."
-            )
+        )
         # Python loop - should execute as Python code due to decorator
         for i in range(self.num_inputs):
             _logger.debug(
-                f"    Processing variable index {i}")
+                f"    Processing variable index {i}"
+            )
             # Slice input for the i-th variable
             if self.use_time_distributed:
                 # Slice variable i: (B, T, N, F) -> (B, T, F)
                 var_input = inputs[:, :, i, :]
                 _logger.debug(
                     "      Sliced var_input shape (TD):"
-                    f" {var_input.shape}")
+                    f" {var_input.shape}"
+                )
             else:
                 # Slice variable i: (B, N, F) -> (B, F)
                 var_input = inputs[:, i, :]
                 _logger.debug(
                     "      Sliced var_input shape (non-TD):"
-                    f" {var_input.shape}")
+                    f" {var_input.shape}"
+                )
 
             # Apply the i-th GRN, passing the (potentially None) context
             # GRN's call method should also have @do_not_convert if needed
-            grn_output = self.single_variable_grns[i](
+            grn_output = self.single_variable_grns[
+                i
+            ](
                 var_input,
-                context=processed_context, # Pass processed context
-                training=training
+                context=processed_context,  # Pass processed context
+                training=training,
             )
             var_outputs.append(grn_output)
             _logger.debug(
                 "      GRN output shape for var {i}:"
-                f" {grn_output.shape}")
+                f" {grn_output.shape}"
+            )
             # Output shape: (B, T, units) or (B, units)
 
         # --- Stack GRN outputs along variable dimension (N) ---
         # axis=-2 places N before the 'units' dimension
         stacked_outputs = tf_stack(var_outputs, axis=-2)
         _logger.debug(
-            f"  Stacked GRN outputs shape: {stacked_outputs.shape}")
+            f"  Stacked GRN outputs shape: {stacked_outputs.shape}"
+        )
         # Shape: (B, T, N, units) or (B, N, units)
 
         # --- Calculate Variable Importance Weights (Original Simple Logic) ---
         # 1. Apply Dense layer (output units = 1) to stacked outputs
         #    Acts on the last dimension ('units')
         _logger.debug("  Calculating importance logits...")
-        importance_logits = self.variable_importance_dense(stacked_outputs)
+        importance_logits = self.variable_importance_dense(
+            stacked_outputs
+        )
         _logger.debug(
             f"  Importance logits shape: {importance_logits.shape}"
-            )
+        )
         # Shape: (B, [T,] N, 1)
 
         # 2. Apply Softmax across the variable dimension (N, axis=-2)
-        _logger.debug("  Calculating importance weights (softmax)...")
+        _logger.debug(
+            "  Calculating importance weights (softmax)..."
+        )
         weights = self.softmax(importance_logits)
-        _logger.debug(f"  Importance weights shape: {weights.shape}")
+        _logger.debug(
+            f"  Importance weights shape: {weights.shape}"
+        )
         # Shape: (B, [T,] N, 1)
-        self.variable_importances_ = weights # Store weights
+        self.variable_importances_ = weights  # Store weights
 
         # --- Weighted Combination ---
         # Multiply stacked GRN outputs by weights and sum across N
         _logger.debug("  Performing weighted sum...")
         weighted_sum = tf_reduce_sum(
             tf_multiply(stacked_outputs, weights),
-            axis=-2 # Sum across the variable dimension (N)
+            axis=-2,  # Sum across the variable dimension (N)
         )
         _logger.debug(
             f"  Final weighted sum output shape: {weighted_sum.shape}"
-            )
+        )
         # Final output shape: (B, T, units) or (B, units)
 
-        _logger.debug(f"VSN '{self.name}': Exiting call method.")
-        
+        _logger.debug(
+            f"VSN '{self.name}': Exiting call method."
+        )
+
         return weighted_sum
-    
+
     def get_config(self):
         """Returns the layer configuration."""
         config = super().get_config()
-        config.update({
-            'num_inputs': self.num_inputs,
-            'units': self.units,
-            'dropout_rate': self.dropout_rate,
-            'use_time_distributed': self.use_time_distributed,
-            'activation': self.activation_str, 
-            'use_batch_norm': self.use_batch_norm,
-        })
+        config.update(
+            {
+                "num_inputs": self.num_inputs,
+                "units": self.units,
+                "dropout_rate": self.dropout_rate,
+                "use_time_distributed": self.use_time_distributed,
+                "activation": self.activation_str,
+                "use_batch_norm": self.use_batch_norm,
+            }
+        )
         return config
 
     @classmethod
     def from_config(cls, config):
         """Creates layer from its config."""
         return cls(**config)
-        
+
 
 @register_keras_serializable(
-    'geoprior.nn.components',
-    name="TemporalAttentionLayer"
+    "geoprior.nn.components", name="TemporalAttentionLayer"
 )
 class TemporalAttentionLayer(Layer):
     """Temporal Attention Layer conditioning query with context."""
 
-    @validate_params({
-         "units": [Interval(Integral, 0, None, 
-                            closed='left')],
-         "num_heads": [Interval(Integral, 0, None,
-                                closed='left')],
-         "dropout_rate": [Interval(Real, 0, 1,
-                                   closed="both")],
-         "use_batch_norm": [bool],
-     })
+    @validate_params(
+        {
+            "units": [
+                Interval(Integral, 0, None, closed="left")
+            ],
+            "num_heads": [
+                Interval(Integral, 0, None, closed="left")
+            ],
+            "dropout_rate": [
+                Interval(Real, 0, 1, closed="both")
+            ],
+            "use_batch_norm": [bool],
+        }
+    )
     @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
     def __init__(
         self,
         units: int,
         num_heads: int,
         dropout_rate: float = 0.0,
-        activation: str = 'elu',
+        activation: str = "elu",
         use_batch_norm: bool = False,
-        **kwargs
+        **kwargs,
     ):
         """Initializes the TemporalAttentionLayer."""
         super().__init__(**kwargs)
@@ -1691,26 +1928,32 @@ class TemporalAttentionLayer(Layer):
         self.num_heads = num_heads
         self.dropout_rate = dropout_rate
         self.use_batch_norm = use_batch_norm
-        self.activation_str = Activation(activation).activation_str 
+        self.activation_str = Activation(
+            activation
+        ).activation_str
 
         # --- Define Internal Layers ---
         self.multi_head_attention = MultiHeadAttention(
             num_heads=num_heads,
             key_dim=units,
             dropout=dropout_rate,
-            name="mha"
+            name="mha",
         )
-        self.dropout = Dropout(dropout_rate, name="attn_dropout")
-        self.layer_norm1 = LayerNormalization(name="layer_norm_1")
+        self.dropout = Dropout(
+            dropout_rate, name="attn_dropout"
+        )
+        self.layer_norm1 = LayerNormalization(
+            name="layer_norm_1"
+        )
 
         # GRN to process the input context_vector
         # Ensure this is a single instance, passing the activation string
         self.context_grn = GatedResidualNetwork(
-            units=units, # Output matches main path 'units'
+            units=units,  # Output matches main path 'units'
             dropout_rate=dropout_rate,
             activation=self.activation_str,
             use_batch_norm=self.use_batch_norm,
-            name="context_grn"
+            name="context_grn",
             # Note: GRN's internal activation handling should be fixed
         )
 
@@ -1721,29 +1964,31 @@ class TemporalAttentionLayer(Layer):
             dropout_rate=dropout_rate,
             activation=self.activation_str,
             use_batch_norm=self.use_batch_norm,
-            name="output_grn"
+            name="output_grn",
         )
-        
+
     def build(self, input_shape):
         """Builds internal layers, especially GRNs."""
         # input_shape corresponds to the main 'inputs' tensor (B, T, U)
-        if not isinstance(input_shape, (list, tuple)):
-             # If only main input shape is passed (common)
-             main_input_shape = tuple(input_shape)
-        elif len(input_shape) == 2: 
+        if not isinstance(input_shape, list | tuple):
+            # If only main input shape is passed (common)
+            main_input_shape = tuple(input_shape)
+        elif len(input_shape) == 2:
             #  [inputs_shape, context_shape] rarelly happended
-             main_input_shape = tuple(input_shape[0])
-             # Optionally build context_grn if context_shape is known
-             context_shape = tuple(input_shape[1])
-             if not self.context_grn.built:
-                  self.context_grn.build(context_shape)
+            main_input_shape = tuple(input_shape[0])
+            # Optionally build context_grn if context_shape is known
+            context_shape = tuple(input_shape[1])
+            if not self.context_grn.built:
+                self.context_grn.build(context_shape)
         else:
-             raise ValueError(
-                 "Unexpected input_shape format for build.")
- 
+            raise ValueError(
+                "Unexpected input_shape format for build."
+            )
+
         if len(main_input_shape) < 3:
             raise ValueError(
-                "TemporalAttentionLayer expects input rank >= 3")
+                "TemporalAttentionLayer expects input rank >= 3"
+            )
 
         # Define expected input shape for output_grn
         # It receives output from layer_norm1, which has same shape as input
@@ -1759,11 +2004,13 @@ class TemporalAttentionLayer(Layer):
         super().build(input_shape)
         # Developer comment: Layer built status should now be True.
 
-    def call(self, inputs, context_vector=None, training=False):
+    def call(
+        self, inputs, context_vector=None, training=False
+    ):
         """Forward pass of the temporal attention layer."""
         # Input shapes: inputs=(B, T, U), context_vector=(B, U_ctx)
 
-        query = inputs # Default query
+        query = inputs  # Default query
         processed_context = None
 
         # --- Process Context Vector (if provided) ---
@@ -1771,59 +2018,76 @@ class TemporalAttentionLayer(Layer):
             # Pass context_vector as the main input 'x' to context_grn
             processed_context = self.context_grn(
                 x=context_vector,
-                context=None, # No nested context for the context_grn itself
-                training=training
+                context=None,  # No nested context for the context_grn itself
+                training=training,
             )
             # Output shape: (B, units)
 
             # Expand context across time: (B, units) -> (B, 1, units)
-            context_expanded = tf_expand_dims(processed_context, axis=1)
+            context_expanded = tf_expand_dims(
+                processed_context, axis=1
+            )
             # Add to inputs (broadcasting handles time dimension)
             query = tf_add(inputs, context_expanded)
             # Comment: Query now incorporates static context.
 
         # --- Multi-Head Self-Attention ---
         attn_output = self.multi_head_attention(
-            query=query, value=inputs, key=inputs, training=training
-        ) # Shape: (B, T, units)
+            query=query,
+            value=inputs,
+            key=inputs,
+            training=training,
+        )  # Shape: (B, T, units)
 
         # --- Add & Norm (First Residual Connection) ---
-        attn_output_dropout = self.dropout(attn_output, training=training)
+        attn_output_dropout = self.dropout(
+            attn_output, training=training
+        )
         # Residual connection uses original 'inputs'
-        x_attn = self.layer_norm1(tf_add(inputs, attn_output_dropout))
+        x_attn = self.layer_norm1(
+            tf_add(inputs, attn_output_dropout)
+        )
         # Shape: (B, T, units)
 
         # --- Position-wise Feedforward (Final GRN) ---
         # This GRN takes the output of the attention block as input 'x'
         # It does not receive the external 'context_vector' here.
         # --- DEBUG lines ---
-        _logger.debug("\nDEBUG>> About to call self.output_grn")
+        _logger.debug(
+            "\nDEBUG>> About to call self.output_grn"
+        )
         _logger.debug(
             "DEBUG>> Type of self.output_grn:"
-            f" {type(self.output_grn)}")
+            f" {type(self.output_grn)}"
+        )
         _logger.debug(
             "DEBUG>> Is self.output_grn callable:"
-            f" {callable(self.output_grn)}")
+            f" {callable(self.output_grn)}"
+        )
         try:
             # Try accessing an attribute expected on a Keras layer
             _logger.debug(
                 "DEBUG>> self.output_grn name:"
-                f" {self.output_grn.name}")
+                f" {self.output_grn.name}"
+            )
             _logger.debug(
                 "DEBUG>> self.output_grn built status:"
-                f" {self.output_grn.built}")
+                f" {self.output_grn.built}"
+            )
         except AttributeError as ae:
-             _logger.debug(
-                 "DEBUG>> Failed to access attributes"
-                 f" of self.output_grn: {ae}")
+            _logger.debug(
+                "DEBUG>> Failed to access attributes"
+                f" of self.output_grn: {ae}"
+            )
         _logger.debug(
-            f"DEBUG>> Input x_attn shape: {tf_shape(x_attn)}\n")
-        
+            f"DEBUG>> Input x_attn shape: {tf_shape(x_attn)}\n"
+        )
+
         # --- End DEBUG lines ---
         output = self.output_grn(
             x=x_attn,
-            context=None, # No external context for the final GRN
-            training=training
+            context=None,  # No external context for the final GRN
+            training=training,
         )
         # Shape: (B, T, units)
         return output
@@ -1831,13 +2095,15 @@ class TemporalAttentionLayer(Layer):
     def get_config(self):
         """Returns the layer configuration."""
         config = super().get_config()
-        config.update({
-            'units': self.units,
-            'num_heads': self.num_heads,
-            'dropout_rate': self.dropout_rate,
-            'activation': self.activation_str, 
-            'use_batch_norm': self.use_batch_norm,
-        })
+        config.update(
+            {
+                "units": self.units,
+                "num_heads": self.num_heads,
+                "dropout_rate": self.dropout_rate,
+                "activation": self.activation_str,
+                "use_batch_norm": self.use_batch_norm,
+            }
+        )
         return config
 
     @classmethod
@@ -1845,10 +2111,10 @@ class TemporalAttentionLayer(Layer):
         """Creates layer from its config."""
         return cls(**config)
 
+
 @register_keras_serializable(
-    'geoprior.nn.components', 
-    name="StaticEnrichmentLayer"
- )
+    "geoprior.nn.components", name="StaticEnrichmentLayer"
+)
 class StaticEnrichmentLayer(Layer, NNLearner):
     r"""
     Static Enrichment Layer for combining static
@@ -1864,7 +2130,7 @@ class StaticEnrichmentLayer(Layer, NNLearner):
     temporal information.
 
     .. math::
-        \mathbf{Z} = \text{GRN}\big([\mathbf{C}, 
+        \mathbf{Z} = \text{GRN}\big([\mathbf{C},
         \mathbf{X}]\big)
 
     where :math:`\mathbf{C}` is a static context vector
@@ -1878,7 +2144,7 @@ class StaticEnrichmentLayer(Layer, NNLearner):
         internally used `GatedResidualNetwork`.
     activation : str, optional
         Activation function used in the
-        GRN. Must be one of 
+        GRN. Must be one of
         {'elu', 'relu', 'tanh', 'sigmoid', 'linear'}.
         Defaults to ``'elu'``.
     use_batch_norm : bool, optional
@@ -1893,9 +2159,9 @@ class StaticEnrichmentLayer(Layer, NNLearner):
     This layer performs the following:
     1. Expand static context from shape
        :math:`(B, U)` to :math:`(B, T, U)`.
-    2. Concatenate with temporal features 
+    2. Concatenate with temporal features
        :math:`(B, T, D)` along the last dimension.
-    3. Pass the combined tensor through a 
+    3. Pass the combined tensor through a
        `GatedResidualNetwork`.
 
     Methods
@@ -1950,19 +2216,21 @@ class StaticEnrichmentLayer(Layer, NNLearner):
            Society A*, 379(2194), 20200209.
     """
 
-    @validate_params({
-        "units": [Interval(Integral, 1, None, 
-                           closed='left')],
-        "use_batch_norm": [bool],
-    })
-    @ensure_pkg(KERAS_BACKEND or "keras", 
-                extra=DEP_MSG)
+    @validate_params(
+        {
+            "units": [
+                Interval(Integral, 1, None, closed="left")
+            ],
+            "use_batch_norm": [bool],
+        }
+    )
+    @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
     def __init__(
-            self,
-            units,
-            activation='elu',
-            use_batch_norm=False,
-            **kwargs
+        self,
+        units,
+        activation="elu",
+        use_batch_norm=False,
+        **kwargs,
     ):
         r"""
         Initialize the StaticEnrichmentLayer.
@@ -1993,14 +2261,15 @@ class StaticEnrichmentLayer(Layer, NNLearner):
         self.grn = GatedResidualNetwork(
             units=units,
             activation=self.activation,
-            use_batch_norm=use_batch_norm
+            use_batch_norm=use_batch_norm,
         )
+
     @tf_autograph.experimental.do_not_convert
     def call(
         self,
         temporal_features,
         context_vector,
-        training=False
+        training=False,
     ):
         r"""
         Forward pass of the static enrichment layer.
@@ -2008,7 +2277,7 @@ class StaticEnrichmentLayer(Layer, NNLearner):
         Parameters
         ----------
         ``static_context_vector`` : tf.Tensor
-            Static context of shape 
+            Static context of shape
             :math:`(B, U)`.
         ``temporal_features`` : tf.Tensor
             Temporal features of shape
@@ -2021,7 +2290,7 @@ class StaticEnrichmentLayer(Layer, NNLearner):
         -------
         tf.Tensor
             Enriched temporal features of shape
-            :math:`(B, T, U)`, assuming 
+            :math:`(B, T, U)`, assuming
             ``units = U``.
 
         Notes
@@ -2035,25 +2304,20 @@ class StaticEnrichmentLayer(Layer, NNLearner):
         # Expand the static context to align
         # with temporal features along T
         static_context_expanded = tf_expand_dims(
-            context_vector,
-            axis=1
+            context_vector, axis=1
         )
 
         # Tile across the time dimension
         static_context_expanded = tf_tile(
             static_context_expanded,
-            [
-                1,
-                tf_shape(temporal_features)[1],
-                1
-            ]
+            [1, tf_shape(temporal_features)[1], 1],
         )
 
         # Concatenate static context
         # with temporal features
         combined = tf_concat(
             [static_context_expanded, temporal_features],
-            axis=-1
+            axis=-1,
         )
 
         # Transform with GRN
@@ -2072,11 +2336,13 @@ class StaticEnrichmentLayer(Layer, NNLearner):
             initialization parameters.
         """
         config = super().get_config().copy()
-        config.update({
-            'units': self.units,
-            'activation': self.activation,
-            'use_batch_norm': self.use_batch_norm,
-        })
+        config.update(
+            {
+                "units": self.units,
+                "activation": self.activation,
+                "use_batch_norm": self.use_batch_norm,
+            }
+        )
         return config
 
     @classmethod
@@ -2101,8 +2367,9 @@ class StaticEnrichmentLayer(Layer, NNLearner):
 
 # -------------------- XTFT components ----------------------------------------
 
+
 @register_keras_serializable(
-    'geoprior.nn.components', name="LearnedNormalization"
+    "geoprior.nn.components", name="LearnedNormalization"
 )
 class LearnedNormalization(Layer, NNLearner):
     r"""
@@ -2183,13 +2450,13 @@ class LearnedNormalization(Layer, NNLearner):
             "mean",
             shape=(input_shape[-1],),
             initializer="zeros",
-            trainable=True
+            trainable=True,
         )
         self.stddev = self.add_weight(
             "stddev",
             shape=(input_shape[-1],),
             initializer="ones",
-            trainable=True
+            trainable=True,
         )
         super().build(input_shape)
 
@@ -2204,7 +2471,7 @@ class LearnedNormalization(Layer, NNLearner):
         Parameters
         ----------
         ``inputs`` : tf.Tensor
-            Input tensor of shape 
+            Input tensor of shape
             :math:`(B, ..., D)`.
         training : bool, optional
             Flag indicating if the layer is in
@@ -2251,7 +2518,7 @@ class LearnedNormalization(Layer, NNLearner):
 
 
 @register_keras_serializable(
-    'geoprior.nn.components', name="MultiModalEmbedding"
+    "geoprior.nn.components", name="MultiModalEmbedding"
 )
 class MultiModalEmbedding(Layer, NNLearner):
     r"""
@@ -2344,15 +2611,10 @@ class MultiModalEmbedding(Layer, NNLearner):
         for modality_shape in input_shape:
             if modality_shape is not None:
                 self.dense_layers.append(
-                    Dense(
-                        self.embed_dim,
-                        activation='relu'
-                    )
+                    Dense(self.embed_dim, activation="relu")
                 )
             else:
-                raise ValueError(
-                    "Unsupported modality type."
-                )
+                raise ValueError("Unsupported modality type.")
         super().build(input_shape)
 
     @tf_autograph.experimental.do_not_convert
@@ -2380,15 +2642,11 @@ class MultiModalEmbedding(Layer, NNLearner):
         embeddings = []
         for idx, modality in enumerate(inputs):
             if isinstance(modality, Tensor):
-                modality_embed = (
-                    self.dense_layers[idx](
-                        modality
-                    )
+                modality_embed = self.dense_layers[idx](
+                    modality
                 )
             else:
-                raise ValueError(
-                    "Unsupported modality type."
-                )
+                raise ValueError("Unsupported modality type.")
             embeddings.append(modality_embed)
 
         return tf_concat(embeddings, axis=-1)
@@ -2404,9 +2662,7 @@ class MultiModalEmbedding(Layer, NNLearner):
             Configuration including `embed_dim`.
         """
         config = super().get_config().copy()
-        config.update({
-            'embed_dim': self.embed_dim
-        })
+        config.update({"embed_dim": self.embed_dim})
         return config
 
     @classmethod
@@ -2430,8 +2686,7 @@ class MultiModalEmbedding(Layer, NNLearner):
 
 
 @register_keras_serializable(
-    'geoprior.nn.components', 
-    name="HierarchicalAttention_"
+    "geoprior.nn.components", name="HierarchicalAttention_"
 )
 class HierarchicalAttention_(Layer, NNLearner):
     r"""
@@ -2527,12 +2782,10 @@ class HierarchicalAttention_(Layer, NNLearner):
 
         # Multi-head attention for short/long
         self.short_term_attention = MultiHeadAttention(
-            num_heads=num_heads,
-            key_dim=units
+            num_heads=num_heads, key_dim=units
         )
         self.long_term_attention = MultiHeadAttention(
-            num_heads=num_heads,
-            key_dim=units
+            num_heads=num_heads, key_dim=units
         )
 
     @tf_autograph.experimental.do_not_convert
@@ -2562,27 +2815,17 @@ class HierarchicalAttention_(Layer, NNLearner):
 
         # Linear projections to unify
         # dimensionality
-        short_term = self.short_term_dense(
-            short_term
-        )
-        long_term = self.long_term_dense(
-            long_term
-        )
+        short_term = self.short_term_dense(short_term)
+        long_term = self.long_term_dense(long_term)
 
         # Multi-head attention on short_term
-        short_term_attention = (
-            self.short_term_attention(
-                short_term,
-                short_term
-            )
+        short_term_attention = self.short_term_attention(
+            short_term, short_term
         )
 
         # Multi-head attention on long_term
-        long_term_attention = (
-            self.long_term_attention(
-                long_term,
-                long_term
-            )
+        long_term_attention = self.long_term_attention(
+            long_term, long_term
         )
 
         # Combine
@@ -2601,11 +2844,13 @@ class HierarchicalAttention_(Layer, NNLearner):
             and 'long_term_dense' config.
         """
         config = super().get_config().copy()
-        config.update({
-            'units': self.units,
-            'short_term_dense': self.short_term_dense.get_config(),
-            'long_term_dense': self.long_term_dense.get_config()
-        })
+        config.update(
+            {
+                "units": self.units,
+                "short_term_dense": self.short_term_dense.get_config(),
+                "long_term_dense": self.long_term_dense.get_config(),
+            }
+        )
         return config
 
     @classmethod
@@ -2627,9 +2872,9 @@ class HierarchicalAttention_(Layer, NNLearner):
         """
         return cls(**config)
 
+
 @register_keras_serializable(
-    'geoprior.nn.components',
-    name="CrossAttention_"
+    "geoprior.nn.components", name="CrossAttention_"
 )
 class CrossAttention_(Layer, NNLearner):
     r"""
@@ -2734,8 +2979,7 @@ class CrossAttention_(Layer, NNLearner):
         self.source2_dense = Dense(units)
         # Multi-head attention
         self.cross_attention = MultiHeadAttention(
-            num_heads=num_heads,
-            key_dim=units
+            num_heads=num_heads, key_dim=units
         )
 
     @tf_autograph.experimental.do_not_convert
@@ -2765,9 +3009,7 @@ class CrossAttention_(Layer, NNLearner):
         source2 = self.source2_dense(source2)
         # Apply cross attention
         return self.cross_attention(
-            query=source1,
-            value=source2,
-            key=source2
+            query=source1, value=source2, key=source2
         )
 
     def get_config(self):
@@ -2782,7 +3024,7 @@ class CrossAttention_(Layer, NNLearner):
             'units'.
         """
         config = super().get_config().copy()
-        config.update({'units': self.units})
+        config.update({"units": self.units})
         return config
 
     @classmethod
@@ -2803,16 +3045,17 @@ class CrossAttention_(Layer, NNLearner):
             A new instance of CrossAttention.
         """
         return cls(**config)
-    
+
+
 @register_keras_serializable(
-    'geoprior.nn.components', name="CrossAttention"
+    "geoprior.nn.components", name="CrossAttention"
 )
 class CrossAttention(Layer, NNLearner):
     r"""
     CrossAttention that attends ``source1`` (query) to ``source2``
     (key/value) with optional masks.
 
-   
+
     attention_mask : Tensor, optional
         Bool / 0‑1 mask broadcastable to (B, Tq, Tv). Passed
         directly to Keras ``MultiHeadAttention``.
@@ -2840,9 +3083,9 @@ class CrossAttention(Layer, NNLearner):
         inputs,
         training: bool = False,
         *,
-        attention_mask: Optional[Tensor] = None,
-        query_mask: Optional[Tensor] = None,
-        value_mask: Optional[Tensor] = None,
+        attention_mask: Tensor | None = None,
+        query_mask: Tensor | None = None,
+        value_mask: Tensor | None = None,
         use_causal_mask: bool = False,
         **kwargs,
     ):
@@ -2858,7 +3101,7 @@ class CrossAttention(Layer, NNLearner):
             Indicates if the layer is in training
             mode (for dropout, if any).
             Defaults to ``False``.
-        
+
         attention_mask : Tensor, optional
             Bool / 0‑1 mask broadcastable to (B, Tq, Tv). Passed
             directly to Keras ``MultiHeadAttention``.
@@ -2875,26 +3118,35 @@ class CrossAttention(Layer, NNLearner):
             A tensor of shape (batch_size, time_steps,
             units) representing cross-attended features.
         """
-        
-        source1, source2 = inputs  # shapes: (B, Tq, Fq), (B, Tv, Fv)
+
+        source1, source2 = (
+            inputs  # shapes: (B, Tq, Fq), (B, Tv, Fv)
+        )
 
         # Project to common dim
         q = self.source1_dense(source1)
         kv = self.source2_dense(source2)
 
         # Build attention_mask if needed
-        if attention_mask is None and (query_mask is not None
-                                       or value_mask is not None):
+        if attention_mask is None and (
+            query_mask is not None or value_mask is not None
+        ):
             # default to all True if one side is None
             if query_mask is None:
                 query_mask = tf_ones_like(
-                    source1[..., 0], dtype=tf_bool)
+                    source1[..., 0], dtype=tf_bool
+                )
             if value_mask is None:
                 value_mask = tf_ones_like(
-                    source2[..., 0], dtype=tf_bool)
+                    source2[..., 0], dtype=tf_bool
+                )
 
-            qm = tf_expand_dims(tf_cast(query_mask, tf_bool), axis=-1)
-            vm = tf_expand_dims(tf_cast(value_mask, tf_bool), axis=1)
+            qm = tf_expand_dims(
+                tf_cast(query_mask, tf_bool), axis=-1
+            )
+            vm = tf_expand_dims(
+                tf_cast(value_mask, tf_bool), axis=1
+            )
             # (B, Tq, 1) & (B, 1, Tv) -> (B, Tq, Tv)
             attention_mask = tf_logical_and(qm, vm)
 
@@ -2909,7 +3161,7 @@ class CrossAttention(Layer, NNLearner):
 
     def get_config(self):
         cfg = super().get_config().copy()
-        cfg.update({'units': self.units})
+        cfg.update({"units": self.units})
         return cfg
 
     @classmethod
@@ -2918,8 +3170,7 @@ class CrossAttention(Layer, NNLearner):
 
 
 @register_keras_serializable(
-    'geoprior.nn.components', 
-    name="MemoryAugmentedAttention_"
+    "geoprior.nn.components", name="MemoryAugmentedAttention_"
 )
 class MemoryAugmentedAttention_(Layer, NNLearner):
     r"""
@@ -3003,17 +3254,13 @@ class MemoryAugmentedAttention_(Layer, NNLearner):
 
     @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
     def __init__(
-        self,
-        units: int,
-        memory_size: int,
-        num_heads: int
+        self, units: int, memory_size: int, num_heads: int
     ):
         super().__init__()
         self.units = units
         self.memory_size = memory_size
         self.attention = MultiHeadAttention(
-            num_heads=num_heads,
-            key_dim=units
+            num_heads=num_heads, key_dim=units
         )
 
     def build(self, input_shape):
@@ -3025,14 +3272,14 @@ class MemoryAugmentedAttention_(Layer, NNLearner):
         Parameters
         ----------
         input_shape : tuple
-            Shape of the input, e.g. 
+            Shape of the input, e.g.
             (batch_size, time_steps, units).
         """
         self.memory = self.add_weight(
             "memory",
             shape=(self.memory_size, self.units),
             initializer="zeros",
-            trainable=True
+            trainable=True,
         )
         super().build(input_shape)
 
@@ -3054,22 +3301,21 @@ class MemoryAugmentedAttention_(Layer, NNLearner):
         -------
         tf.Tensor
             A tensor of the same shape as inputs:
-            (batch_size, time_steps, units), 
+            (batch_size, time_steps, units),
             augmented by the learned memory.
         """
         # Expand memory to match batch dimension
         batch_size = tf_shape(inputs)[0]
         memory_expanded = tf_expand_dims(self.memory, axis=0)
         memory_expanded = tf_tile(
-            memory_expanded,
-            [batch_size, 1, 1]
+            memory_expanded, [batch_size, 1, 1]
         )
 
         # Attend memory with inputs as query
         memory_attended = self.attention(
             query=inputs,
             value=memory_expanded,
-            key=memory_expanded
+            key=memory_expanded,
         )
         # Residual connection
         return memory_attended + inputs
@@ -3085,10 +3331,12 @@ class MemoryAugmentedAttention_(Layer, NNLearner):
             'memory_size'.
         """
         config = super().get_config().copy()
-        config.update({
-            'units': self.units,
-            'memory_size': self.memory_size
-        })
+        config.update(
+            {
+                "units": self.units,
+                "memory_size": self.memory_size,
+            }
+        )
         return config
 
     @classmethod
@@ -3110,14 +3358,17 @@ class MemoryAugmentedAttention_(Layer, NNLearner):
         """
         return cls(**config)
 
+
 @register_keras_serializable(
-    'geoprior.nn.components', name="MemoryAugmentedAttention"
+    "geoprior.nn.components", name="MemoryAugmentedAttention"
 )
 class MemoryAugmentedAttention(Layer, NNLearner):
     r"""Memory-augmented attention with optional masking."""
 
     @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
-    def __init__(self, units: int, memory_size: int, num_heads: int):
+    def __init__(
+        self, units: int, memory_size: int, num_heads: int
+    ):
         super().__init__()
         self.units = units
         self.memory_size = memory_size
@@ -3140,30 +3391,38 @@ class MemoryAugmentedAttention(Layer, NNLearner):
         inputs,
         training: bool = False,
         *,
-        attention_mask: Optional[Tensor] = None,
-        query_mask: Optional[Tensor] = None,
-        value_mask: Optional[Tensor] = None,
+        attention_mask: Tensor | None = None,
+        query_mask: Tensor | None = None,
+        value_mask: Tensor | None = None,
         use_causal_mask: bool = False,
         **kwargs,
     ):
         # inputs: (B, T, U)
         batch_size = tf_shape(inputs)[0]
 
-        mem = tf_expand_dims(self.memory, 0)          # (1, M, U)
-        mem = tf_tile(mem, [batch_size, 1, 1])        # (B, M, U)
+        mem = tf_expand_dims(self.memory, 0)  # (1, M, U)
+        mem = tf_tile(mem, [batch_size, 1, 1])  # (B, M, U)
 
         # Build attention_mask if only per-sequence masks given
-        if attention_mask is None and (query_mask is not None
-                                       or value_mask is not None):
+        if attention_mask is None and (
+            query_mask is not None or value_mask is not None
+        ):
             if query_mask is None:
-                query_mask = tf_ones_like(inputs[..., 0], dtype=tf_bool)
+                query_mask = tf_ones_like(
+                    inputs[..., 0], dtype=tf_bool
+                )
             if value_mask is None:
                 value_mask = tf_ones(
-                    (batch_size, self.memory_size), dtype=tf_bool
+                    (batch_size, self.memory_size),
+                    dtype=tf_bool,
                 )
-            qm = tf_expand_dims(tf_cast(query_mask, tf_bool), -1)  # (B,T,1)
-            vm = tf_expand_dims(tf_cast(value_mask, tf_bool), 1)   # (B,1,M)
-            attention_mask = tf_logical_and(qm, vm)                # (B,T,M)
+            qm = tf_expand_dims(
+                tf_cast(query_mask, tf_bool), -1
+            )  # (B,T,1)
+            vm = tf_expand_dims(
+                tf_cast(value_mask, tf_bool), 1
+            )  # (B,1,M)
+            attention_mask = tf_logical_and(qm, vm)  # (B,T,M)
 
         mem_att = self.attention(
             query=inputs,
@@ -3177,16 +3436,21 @@ class MemoryAugmentedAttention(Layer, NNLearner):
 
     def get_config(self):
         cfg = super().get_config().copy()
-        cfg.update({'units': self.units,
-                    'memory_size': self.memory_size})
+        cfg.update(
+            {
+                "units": self.units,
+                "memory_size": self.memory_size,
+            }
+        )
         return cfg
 
     @classmethod
     def from_config(cls, config):
         return cls(**config)
 
+
 @register_keras_serializable(
-    'geoprior.nn.components', name="HierarchicalAttention"
+    "geoprior.nn.components", name="HierarchicalAttention"
 )
 class HierarchicalAttention(Layer, NNLearner):
     r"""Short/long-term MHA with optional masks."""
@@ -3210,8 +3474,8 @@ class HierarchicalAttention(Layer, NNLearner):
         inputs,
         training: bool = False,
         *,
-        short_mask: Optional[Tensor] = None,
-        long_mask: Optional[Tensor] = None,
+        short_mask: Tensor | None = None,
+        long_mask: Tensor | None = None,
         use_causal_mask: bool = False,
         **kwargs,
     ):
@@ -3253,9 +3517,13 @@ class HierarchicalAttention(Layer, NNLearner):
 
     def get_config(self):
         cfg = super().get_config().copy()
-        cfg.update({'units': self.units,
-                    'short_term_dense': self.short_term_dense.get_config(),
-                    'long_term_dense': self.long_term_dense.get_config()})
+        cfg.update(
+            {
+                "units": self.units,
+                "short_term_dense": self.short_term_dense.get_config(),
+                "long_term_dense": self.long_term_dense.get_config(),
+            }
+        )
         return cfg
 
     @classmethod
@@ -3264,8 +3532,7 @@ class HierarchicalAttention(Layer, NNLearner):
 
 
 @register_keras_serializable(
-    'geoprior.nn.components', 
-    name="AdaptiveQuantileLoss"
+    "geoprior.nn.components", name="AdaptiveQuantileLoss"
 )
 class AdaptiveQuantileLoss(Loss, NNLearner):
     r"""
@@ -3342,10 +3609,13 @@ class AdaptiveQuantileLoss(Loss, NNLearner):
     """
 
     @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
-    def __init__(self, quantiles: Optional[List[float]], 
-                 name="AdaptiveQuantileLoss"):
+    def __init__(
+        self,
+        quantiles: list[float] | None,
+        name="AdaptiveQuantileLoss",
+    ):
         super().__init__(name=name)
-        if quantiles == 'auto':
+        if quantiles == "auto":
             quantiles = [0.1, 0.5, 0.9]
         self.quantiles = quantiles
 
@@ -3376,22 +3646,18 @@ class AdaptiveQuantileLoss(Loss, NNLearner):
         # Expand y_true to match y_pred's quantile
         # dimension
         y_true_expanded = tf_expand_dims(
-            y_true,
-            axis=2
+            y_true, axis=2
         )  # => (B, H, 1, O)
         error = y_true_expanded - y_pred
         quantiles = tf_constant(
-            self.quantiles,
-            dtype=tf_float32
+            self.quantiles, dtype=tf_float32
         )
         quantiles = tf_reshape(
-            quantiles,
-            [1, 1, len(self.quantiles), 1]
+            quantiles, [1, 1, len(self.quantiles), 1]
         )
         # quantile loss
         quantile_loss = tf_maximum(
-            quantiles * error,
-            (quantiles - 1) * error
+            quantiles * error, (quantiles - 1) * error
         )
         return tf_reduce_mean(quantile_loss)
 
@@ -3405,7 +3671,7 @@ class AdaptiveQuantileLoss(Loss, NNLearner):
             Dictionary with 'quantiles'.
         """
         config = super().get_config().copy()
-        config.update({'quantiles': self.quantiles})
+        config.update({"quantiles": self.quantiles})
         return config
 
     @classmethod
@@ -3427,8 +3693,7 @@ class AdaptiveQuantileLoss(Loss, NNLearner):
 
 
 @register_keras_serializable(
-    'geoprior.nn.components',
-    name="AnomalyLoss"
+    "geoprior.nn.components", name="AnomalyLoss"
 )
 class AnomalyLoss(Loss, NNLearner):
     r"""
@@ -3498,13 +3763,14 @@ class AnomalyLoss(Loss, NNLearner):
     """
 
     @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
-    def __init__(self, weight: float = 1.0, name="AnomalyLoss"):
-
+    def __init__(
+        self, weight: float = 1.0, name="AnomalyLoss"
+    ):
         super().__init__(name=name)
         self.weight = weight
 
     @tf_autograph.experimental.do_not_convert
-    def call(self, anomaly_scores: Tensor, y_pred=None): 
+    def call(self, anomaly_scores: Tensor, y_pred=None):
         r"""
         Forward pass that computes the mean squared
         anomaly score multiplied by `weight`.
@@ -3514,7 +3780,7 @@ class AnomalyLoss(Loss, NNLearner):
         ``anomaly_scores`` : tf.Tensor
             Tensor of shape (B, H, D) representing
             anomaly scores.
-        ``y_pred``: Optional 
+        ``y_pred``: Optional
            Does nothing, just for API consistency.
 
         Returns
@@ -3538,7 +3804,7 @@ class AnomalyLoss(Loss, NNLearner):
             Includes 'weight'.
         """
         config = super().get_config().copy()
-        config.update({'weight': self.weight})
+        config.update({"weight": self.weight})
         return config
 
     @classmethod
@@ -3560,8 +3826,7 @@ class AnomalyLoss(Loss, NNLearner):
 
 
 @register_keras_serializable(
-    'geoprior.nn.components', 
-    name="MultiObjectiveLoss"
+    "geoprior.nn.components", name="MultiObjectiveLoss"
 )
 class MultiObjectiveLoss(Loss, NNLearner):
     r"""
@@ -3652,19 +3917,18 @@ class MultiObjectiveLoss(Loss, NNLearner):
     def __init__(
         self,
         quantile_loss_fn,
-        anomaly_loss_fn, 
-        anomaly_scores =None, 
-        name="MultiObjectiveLoss"
+        anomaly_loss_fn,
+        anomaly_scores=None,
+        name="MultiObjectiveLoss",
     ):
         super().__init__(name=name)
-        
+
         self.quantile_loss_fn = quantile_loss_fn
         self.anomaly_loss_fn = anomaly_loss_fn
-        self.anomaly_scores = anomaly_scores 
+        self.anomaly_scores = anomaly_scores
 
     @tf_autograph.experimental.do_not_convert
     def call(self, y_true, y_pred):
-             
         r"""
         Compute combined quantile and anomaly loss.
 
@@ -3689,16 +3953,14 @@ class MultiObjectiveLoss(Loss, NNLearner):
             quantile loss and anomaly loss (if
             anomaly_scores is provided).
         """
-        quantile_loss = self.quantile_loss_fn(
-            y_true,
-            y_pred
-        )
-        
-        if self.anomaly_scores  is not None:
+        quantile_loss = self.quantile_loss_fn(y_true, y_pred)
+
+        if self.anomaly_scores is not None:
             anomaly_loss = self.anomaly_loss_fn(
-                # Avoid Keras signature to raise error then 
+                # Avoid Keras signature to raise error then
                 # pass y_pred as None,
-                self.anomaly_scores, y_pred =None, 
+                self.anomaly_scores,
+                y_pred=None,
             )
             return quantile_loss + anomaly_loss
         return quantile_loss
@@ -3715,10 +3977,12 @@ class MultiObjectiveLoss(Loss, NNLearner):
             quantile_loss_fn and anomaly_loss_fn.
         """
         config = super().get_config().copy()
-        config.update({
-            'quantile_loss_fn': self.quantile_loss_fn.get_config(),
-            'anomaly_loss_fn': self.anomaly_loss_fn.get_config()
-        })
+        config.update(
+            {
+                "quantile_loss_fn": self.quantile_loss_fn.get_config(),
+                "anomaly_loss_fn": self.anomaly_loss_fn.get_config(),
+            }
+        )
         return config
 
     @classmethod
@@ -3741,19 +4005,19 @@ class MultiObjectiveLoss(Loss, NNLearner):
         """
         # Rebuild sub-layers from their configs
         quantile_loss_fn = AdaptiveQuantileLoss.from_config(
-            config['quantile_loss_fn']
+            config["quantile_loss_fn"]
         )
         anomaly_loss_fn = AnomalyLoss.from_config(
-            config['anomaly_loss_fn']
+            config["anomaly_loss_fn"]
         )
         return cls(
             quantile_loss_fn=quantile_loss_fn,
-            anomaly_loss_fn=anomaly_loss_fn
+            anomaly_loss_fn=anomaly_loss_fn,
         )
 
+
 @register_keras_serializable(
-    'geoprior.nn.components', 
-    name="ExplainableAttention"
+    "geoprior.nn.components", name="ExplainableAttention"
 )
 class ExplainableAttention(Layer, NNLearner):
     r"""
@@ -3844,8 +4108,7 @@ class ExplainableAttention(Layer, NNLearner):
         # MultiHeadAttention, focusing on returning
         # the attention scores
         self.attention = MultiHeadAttention(
-            num_heads=num_heads,
-            key_dim=key_dim
+            num_heads=num_heads, key_dim=key_dim
         )
 
     @tf_autograph.experimental.do_not_convert
@@ -3869,9 +4132,7 @@ class ExplainableAttention(Layer, NNLearner):
             (B, num_heads, T, T).
         """
         _, attention_scores = self.attention(
-            inputs,
-            inputs,
-            return_attention_scores=True
+            inputs, inputs, return_attention_scores=True
         )
         return attention_scores
 
@@ -3886,10 +4147,12 @@ class ExplainableAttention(Layer, NNLearner):
             and 'key_dim'.
         """
         config = super().get_config().copy()
-        config.update({
-            'num_heads': self.num_heads,
-            'key_dim': self.key_dim
-        })
+        config.update(
+            {
+                "num_heads": self.num_heads,
+                "key_dim": self.key_dim,
+            }
+        )
         return config
 
     @classmethod
@@ -3912,9 +4175,8 @@ class ExplainableAttention(Layer, NNLearner):
 
 
 @register_keras_serializable(
-    'geoprior.nn.components', 
-    name="MultiDecoder"
- )
+    "geoprior.nn.components", name="MultiDecoder"
+)
 class MultiDecoder(Layer, NNLearner):
     r"""
     MultiDecoder for multi-horizon forecasting [1]_.
@@ -4000,8 +4262,7 @@ class MultiDecoder(Layer, NNLearner):
         self.num_horizons = num_horizons
         # Create a Dense decoder for each horizon
         self.decoders = [
-            Dense(output_dim)
-            for _ in range(num_horizons)
+            Dense(output_dim) for _ in range(num_horizons)
         ]
 
     @tf_autograph.experimental.do_not_convert
@@ -4023,9 +4284,7 @@ class MultiDecoder(Layer, NNLearner):
         tf.Tensor
             A 3D tensor of shape (B, H, O).
         """
-        outputs = [
-            decoder(x) for decoder in self.decoders
-        ]
+        outputs = [decoder(x) for decoder in self.decoders]
         return tf_stack(outputs, axis=1)
 
     def get_config(self):
@@ -4040,10 +4299,12 @@ class MultiDecoder(Layer, NNLearner):
             and 'num_horizons'.
         """
         config = super().get_config().copy()
-        config.update({
-            'output_dim': self.output_dim,
-            'num_horizons': self.num_horizons
-        })
+        config.update(
+            {
+                "output_dim": self.output_dim,
+                "num_horizons": self.num_horizons,
+            }
+        )
         return config
 
     @classmethod
@@ -4065,8 +4326,8 @@ class MultiDecoder(Layer, NNLearner):
 
 
 @register_keras_serializable(
-    'geoprior.nn.components', 
-    name="MultiResolutionAttentionFusion"
+    "geoprior.nn.components",
+    name="MultiResolutionAttentionFusion",
 )
 class MultiResolutionAttentionFusion(Layer, NNLearner):
     r"""
@@ -4157,8 +4418,7 @@ class MultiResolutionAttentionFusion(Layer, NNLearner):
         self.num_heads = num_heads
         # MultiHeadAttention instance
         self.attention = MultiHeadAttention(
-            num_heads=num_heads,
-            key_dim=units
+            num_heads=num_heads, key_dim=units
         )
 
     @tf_autograph.experimental.do_not_convert
@@ -4194,16 +4454,15 @@ class MultiResolutionAttentionFusion(Layer, NNLearner):
             Configuration for serialization.
         """
         config = super().get_config().copy()
-        config.update({
-            'units': self.units,
-            'num_heads': self.num_heads
-        })
+        config.update(
+            {"units": self.units, "num_heads": self.num_heads}
+        )
         return config
 
     @classmethod
     def from_config(cls, config):
         r"""
-        Instantiate a new 
+        Instantiate a new
         MultiResolutionAttentionFusion layer from
         config.
 
@@ -4221,8 +4480,7 @@ class MultiResolutionAttentionFusion(Layer, NNLearner):
 
 
 @register_keras_serializable(
-    'geoprior.nn.components',
-    name="DynamicTimeWindow"
+    "geoprior.nn.components", name="DynamicTimeWindow"
 )
 class DynamicTimeWindow(Layer, NNLearner):
     r"""
@@ -4278,9 +4536,9 @@ class DynamicTimeWindow(Layer, NNLearner):
 
     References
     ----------
-    .. [1] Lim, B., & Zohren, S. (2021). 
+    .. [1] Lim, B., & Zohren, S. (2021).
            "Time-series forecasting with deep
-           learning: a survey." 
+           learning: a survey."
            *Philosophical Transactions of
            the Royal Society A*, 379(2194),
            20200209.
@@ -4315,11 +4573,11 @@ class DynamicTimeWindow(Layer, NNLearner):
         Returns
         -------
         tf.Tensor
-            A sliced tensor of shape 
-            :math:`(B, W, D)` where W = 
+            A sliced tensor of shape
+            :math:`(B, W, D)` where W =
             `max_window_size`.
         """
-        return inputs[:, -self.max_window_size:, :]
+        return inputs[:, -self.max_window_size :, :]
 
     def get_config(self):
         r"""
@@ -4331,9 +4589,9 @@ class DynamicTimeWindow(Layer, NNLearner):
             Contains 'max_window_size'.
         """
         config = super().get_config().copy()
-        config.update({
-            'max_window_size': self.max_window_size
-        })
+        config.update(
+            {"max_window_size": self.max_window_size}
+        )
         return config
 
     @classmethod
@@ -4356,8 +4614,8 @@ class DynamicTimeWindow(Layer, NNLearner):
 
 
 @register_keras_serializable(
-    'geoprior.nn.components', 
-    name="QuantileDistributionModeling"
+    "geoprior.nn.components",
+    name="QuantileDistributionModeling",
 )
 class QuantileDistributionModeling(Layer, NNLearner):
     r"""
@@ -4432,8 +4690,8 @@ class QuantileDistributionModeling(Layer, NNLearner):
     @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
     def __init__(
         self,
-        quantiles: Optional[Union[str, List[float]]],
-        output_dim: int
+        quantiles: str | list[float] | None,
+        output_dim: int,
     ):
         r"""
         Initialize the QuantileDistributionModeling
@@ -4449,7 +4707,7 @@ class QuantileDistributionModeling(Layer, NNLearner):
             the deterministic case.
         """
         super().__init__()
-        if quantiles == 'auto':
+        if quantiles == "auto":
             quantiles = [0.1, 0.5, 0.9]
         self.quantiles = quantiles
         self.output_dim = output_dim
@@ -4505,10 +4763,12 @@ class QuantileDistributionModeling(Layer, NNLearner):
             Contains 'quantiles' and 'output_dim'.
         """
         config = super().get_config().copy()
-        config.update({
-            'quantiles': self.quantiles,
-            'output_dim': self.output_dim
-        })
+        config.update(
+            {
+                "quantiles": self.quantiles,
+                "output_dim": self.output_dim,
+            }
+        )
         return config
 
     @classmethod
@@ -4532,8 +4792,7 @@ class QuantileDistributionModeling(Layer, NNLearner):
 
 
 @register_keras_serializable(
-    'geoprior.nn.components', 
-    name='MultiScaleLSTM'
+    "geoprior.nn.components", name="MultiScaleLSTM"
 )
 class MultiScaleLSTM(Layer, NNLearner):
     r"""
@@ -4615,18 +4874,16 @@ class MultiScaleLSTM(Layer, NNLearner):
     def __init__(
         self,
         lstm_units: int,
-        scales: Union[str, List[int], None] = None,
+        scales: str | list[int] | None = None,
         return_sequences: bool = False,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
-        if scales is None or scales == 'auto':
+        if scales is None or scales == "auto":
             scales = [1]
         # Validate that scales is a list of int
         scales = validate_nested_param(
-            scales,
-            List[int],
-            'scales'
+            scales, list[int], "scales"
         )
 
         self.lstm_units = lstm_units
@@ -4636,8 +4893,7 @@ class MultiScaleLSTM(Layer, NNLearner):
         # Create an LSTM for each scale
         self.lstm_layers = [
             LSTM(
-                lstm_units,
-                return_sequences=return_sequences
+                lstm_units, return_sequences=return_sequences
             )
             for _ in scales
         ]
@@ -4667,11 +4923,12 @@ class MultiScaleLSTM(Layer, NNLearner):
               on the scale sub-sampling.
         """
         outputs = []
-        for scale, lstm in zip(self.scales, self.lstm_layers):
+        for scale, lstm in zip(
+            self.scales, self.lstm_layers, strict=False
+        ):
             scaled_input = inputs[:, ::scale, :]
             lstm_output = lstm(
-                scaled_input,
-                training=training
+                scaled_input, training=training
             )
             outputs.append(lstm_output)
 
@@ -4696,11 +4953,13 @@ class MultiScaleLSTM(Layer, NNLearner):
             Configuration dictionary.
         """
         config = super().get_config().copy()
-        config.update({
-            'lstm_units': self.lstm_units,
-            'scales': self.scales,
-            'return_sequences': self.return_sequences
-        })
+        config.update(
+            {
+                "lstm_units": self.lstm_units,
+                "scales": self.scales,
+                "return_sequences": self.return_sequences,
+            }
+        )
         return config
 
     @classmethod
@@ -4724,27 +4983,35 @@ class MultiScaleLSTM(Layer, NNLearner):
 
 
 @register_keras_serializable(
-    'geoprior.nn.components', name='CategoricalEmbeddingProcessor'
+    "geoprior.nn.components",
+    name="CategoricalEmbeddingProcessor",
 )
 class CategoricalEmbeddingProcessor(Layer, NNLearner):
     """Embeds multiple categorical features and concatenates them."""
+
     def __init__(
         self,
-        categorical_embedding_info: Dict[int, Tuple[int, int]],
+        categorical_embedding_info: dict[
+            int, tuple[int, int]
+        ],
         # Dict mapping feature index to (vocab_size, embedding_dim)
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
-        self.categorical_embedding_info = categorical_embedding_info
+        self.categorical_embedding_info = (
+            categorical_embedding_info
+        )
         self.embedding_layers = {}
 
         # Create Embedding layers based on info provided
-        for index, (vocab_size, embed_dim) in \
-                self.categorical_embedding_info.items():
+        for index, (
+            vocab_size,
+            embed_dim,
+        ) in self.categorical_embedding_info.items():
             self.embedding_layers[index] = Embedding(
                 input_dim=vocab_size,
                 output_dim=embed_dim,
-                name=f"cat_embed_idx_{index}"
+                name=f"cat_embed_idx_{index}",
             )
 
     def call(self, inputs):
@@ -4761,55 +5028,73 @@ class CategoricalEmbeddingProcessor(Layer, NNLearner):
         num_cat_features_provided = inputs.shape[-1]
 
         # Validate number of features matches expected keys
-        if num_cat_features_provided != len(self.categorical_embedding_info):
-             raise ValueError(
+        if num_cat_features_provided != len(
+            self.categorical_embedding_info
+        ):
+            raise ValueError(
                 f"Number of input categorical features ({num_cat_features_provided})"
                 f" does not match number of embedding layers"
                 f" ({len(self.categorical_embedding_info)})."
-                 )
+            )
 
         feature_index_counter = 0
-        for original_index in sorted(self.embedding_layers.keys()):
+        for original_index in sorted(
+            self.embedding_layers.keys()
+        ):
             # Assume the input tensor columns are ordered corresponding
             # to the sorted original indices.
-            if input_rank == 2: # Static: (Batch, NumCatFeatures)
-                feature_tensor = inputs[:, feature_index_counter]
-            elif input_rank == 3: # Dynamic/Future: (Batch, Time, NumCatFeatures)
-                feature_tensor = inputs[:, :, feature_index_counter]
+            if (
+                input_rank == 2
+            ):  # Static: (Batch, NumCatFeatures)
+                feature_tensor = inputs[
+                    :, feature_index_counter
+                ]
+            elif (
+                input_rank == 3
+            ):  # Dynamic/Future: (Batch, Time, NumCatFeatures)
+                feature_tensor = inputs[
+                    :, :, feature_index_counter
+                ]
             else:
-                raise ValueError(f"Unsupported input rank: {input_rank}")
+                raise ValueError(
+                    f"Unsupported input rank: {input_rank}"
+                )
 
             # Apply embedding layer corresponding to the original index
-            embed_layer = self.embedding_layers[original_index]
+            embed_layer = self.embedding_layers[
+                original_index
+            ]
             embeddings.append(embed_layer(feature_tensor))
             feature_index_counter += 1
 
         # Concatenate embeddings along the last dimension
         if not embeddings:
-            return None # Or handle appropriately if no categoricals
+            return None  # Or handle appropriately if no categoricals
         return tf_concat(embeddings, axis=-1)
 
     def get_config(self):
         config = super().get_config()
-        config.update({
-            "categorical_embedding_info": self.categorical_embedding_info,
-        })
+        config.update(
+            {
+                "categorical_embedding_info": self.categorical_embedding_info,
+            }
+        )
         return config
 
     @classmethod
     def from_config(cls, config):
-         # Keras serialization handles nested layers like Embedding
+        # Keras serialization handles nested layers like Embedding
         return cls(**config)
-    
-    
+
+
 # -----functions --------------------------------------------------------------
 
+
 @register_keras_serializable(
-    'geoprior.nn.components', 
-    name='aggregate_multiscale'
+    "geoprior.nn.components", name="aggregate_multiscale"
 )
 def aggregate_multiscale(lstm_output, mode="auto"):
-    r"""Aggregate multi-scale LSTM outputs using 
+    r"""Aggregate multi-scale LSTM outputs using
     specified temporal fusion strategy.
 
     This function implements multiple strategies for combining outputs from
@@ -4817,7 +5102,7 @@ def aggregate_multiscale(lstm_output, mode="auto"):
     six aggregation modes: ``average``, ``sum``, ``flatten``, ``concat``,
     ``last`` (default fallback), and ``auto``[1]_.
     Designed for compatibility with ``MultiScaleLSTM`` layer outputs.
-    
+
     See more in :ref:`User Guide <user_guide>`.
 
     Parameters
@@ -4848,14 +5133,14 @@ def aggregate_multiscale(lstm_output, mode="auto"):
         - (B, T'*U*S) for ``flatten`` mode
         - (B, U*S) for ``concat`` mode (last timestep only)
         - (B, U*S) for ``auto`` mode
-        
-        In sum: 
+
+        In sum:
         - (B, U*S) for ``auto``/``last``, ``sum``, ``average``, ``concat``
         - (B, T'*U*S) for ``flatten`` mode.
 
     Notes
     -----
-    
+
     * Mode Comparison Table:
 
     +------------+---------------------+---------------------+-------------------+
@@ -4880,20 +5165,20 @@ def aggregate_multiscale(lstm_output, mode="auto"):
 
     Mathematical Formulation:
 
-    For S scales with outputs :math:`\{\mathbf{X}_s \in \mathbb{R}^{B \times T'_s 
+    For S scales with outputs :math:`\{\mathbf{X}_s \in \mathbb{R}^{B \times T'_s
     \times U}\}_{s=1}^S`:
 
     .. math::
-        \text{auto} &: \bigoplus_{s=1}^S \mathbf{X}_s^{(:, T'_s, :)} 
+        \text{auto} &: \bigoplus_{s=1}^S \mathbf{X}_s^{(:, T'_s, :)}
         \quad \text{(Last step concatenation)}
-        
+
         \text{sum} &: \bigoplus_{s=1}^S \sum_{t=1}^{T'_s} \mathbf{X}_s^{(:, t, :)}
-        
-        \text{average} &: \bigoplus_{s=1}^S \frac{1}{T'_s} \sum_{t=1}^{T'_s} 
+
+        \text{average} &: \bigoplus_{s=1}^S \frac{1}{T'_s} \sum_{t=1}^{T'_s}
         \mathbf{X}_s^{(:, t, :)}
-        
+
         \text{flatten} &: \text{vec}\left( \bigoplus_{s=1}^S \mathbf{X}_s \right)
-        
+
         \text{concat} &: \left( \bigoplus_{s=1}^S \mathbf{X}_s \right)^{(:, T', :)}
 
     where :math:`\bigoplus` = feature concatenation, :math:`\text{vec}` = flatten.
@@ -4910,19 +5195,19 @@ def aggregate_multiscale(lstm_output, mode="auto"):
     | Scale validity   | Only valid when     | Robust to arbitrary   |
     |                  | scales=[1,1,...]    | scale configurations  |
     +------------------+---------------------+-----------------------+
-    
+
     Examples
     --------
     >>> from geoprior.nn.components import aggregate_multiscale
     >>> import tensorflow as tf
-    
+
     # Three scales with different time dimensions
     >>> outputs = [
     ...     tf.random.normal((32, 10, 64)),  # Scale 1: T'=10
     ...     tf.random.normal((32, 5, 64)),   # Scale 2: T'=5
     ...     tf.random.normal((32, 2, 64))    # Scale 3: T'=2
     ... ]
-    
+
     # Default auto mode (last timesteps)
     >>> agg_auto = aggregate_multiscale(outputs, mode='auto')
     >>> agg_auto.shape
@@ -4932,9 +5217,9 @@ def aggregate_multiscale(lstm_output, mode="auto"):
     >>> agg_last = aggregate_multiscale(outputs, mode='last')
     >>> print(agg_last.shape)
     (32, 192)
-    
+
     # Flatten mode (requires manual padding for equal T')
-    >>> padded_outputs = [tf.pad(o, [[0,0],[0,3],[0,0]]) for o in outputs[:2]] 
+    >>> padded_outputs = [tf.pad(o, [[0,0],[0,3],[0,0]]) for o in outputs[:2]]
     >>> padded_outputs.append(outputs[2])
     >>> agg_flat = aggregate_multiscale(padded_outputs, mode='flatten')
     >>> agg_flat.shape
@@ -4953,71 +5238,71 @@ def aggregate_multiscale(lstm_output, mode="auto"):
        379(2194), 20200209. https://doi.org/10.1098/rsta.2020.0209
     """
     # "auto", use the last LastStep-First Approach
-    if mode is None: 
+    if mode is None:
         # No additional aggregation needed
-        lstm_features = lstm_output  # (B, units * len(scales))
+        lstm_features = (
+            lstm_output  # (B, units * len(scales))
+        )
 
     # Apply chosen aggregation to full sequences
     elif mode == "average":
         # Average over time dimension for each scale and then concatenate
         averaged_outputs = [
-            tf_reduce_mean(o, axis=1) 
-            for o in lstm_output
+            tf_reduce_mean(o, axis=1) for o in lstm_output
         ]  # Each is (B, units)
         lstm_features = tf_concat(
-            averaged_outputs,
-            axis=-1
+            averaged_outputs, axis=-1
         )  # (B, units * len(scales))
 
-    elif mode== "flatten":
+    elif mode == "flatten":
         # Flatten time and feature dimensions for all scales
         # Assume equal time lengths for all scales
         concatenated = tf_concat(
-            lstm_output, 
-            axis=-1
+            lstm_output, axis=-1
         )  # (B, T', units*len(scales))
         shape = tf_shape(concatenated)
-        (batch_size,
-         time_dim,
-         feat_dim) = shape[0], shape[1], shape[2]
-        lstm_features = tf_reshape(
-            concatenated,
-            [batch_size, time_dim * feat_dim]
+        (batch_size, time_dim, feat_dim) = (
+            shape[0],
+            shape[1],
+            shape[2],
         )
-    elif mode =='sum': 
+        lstm_features = tf_reshape(
+            concatenated, [batch_size, time_dim * feat_dim]
+        )
+    elif mode == "sum":
         # Sum over time dimension for each scale and concatenate
         summed_outputs = [
-            tf_reduce_sum(o, axis=1) 
-            for o in lstm_output
-            ]
-        lstm_features = tf_concat(
-            summed_outputs, axis=-1)
-        
-    elif mode=="concat": 
+            tf_reduce_sum(o, axis=1) for o in lstm_output
+        ]
+        lstm_features = tf_concat(summed_outputs, axis=-1)
+
+    elif mode == "concat":
         # Concatenate along the feature dimension for each
         # time step and take the last time step
         concatenated = tf_concat(
-            lstm_output, axis=-1)  # (B, T', units * len(scales))
-        last_output = concatenated[:, -1, :]  # (B, units * len(scales))
+            lstm_output, axis=-1
+        )  # (B, T', units * len(scales))
+        last_output = concatenated[
+            :, -1, :
+        ]  # (B, units * len(scales))
         lstm_features = last_output
-        
-    else: # "last" or "auto"
+
+    else:  # "last" or "auto"
         # Default fallback: take the last time step from each scale
         # and concatenate
         last_outputs = [
-            o[:, -1, :] 
-            for o in lstm_output
+            o[:, -1, :] for o in lstm_output
         ]  # (B, units)
         lstm_features = tf_concat(
-            last_outputs,
-            axis=-1
+            last_outputs, axis=-1
         )  # (B, units * len(scales))
-    
-    return lstm_features 
+
+    return lstm_features
+
 
 def aggregate_multiscale_on_3d(
-    lstm_output: Union[Tensor, List[Tensor]],
-    mode: str = "auto"
+    lstm_output: Tensor | list[Tensor],
+    mode: str = "auto",
 ) -> Tensor:
     r"""Aggregate multi-scale LSTM outputs using a specified strategy.
 
@@ -5062,15 +5347,17 @@ def aggregate_multiscale_on_3d(
     if not isinstance(lstm_output, list):
         # Input is likely already a 2D tensor, return as is.
         return lstm_output
-    
+
     if not lstm_output:
-        raise ValueError("Input `lstm_output` list cannot be empty.")
+        raise ValueError(
+            "Input `lstm_output` list cannot be empty."
+        )
 
     # --- New 'concat' behavior to produce a single 3D tensor ---
     if mode == "concat":
         # This mode pads sequences to the same length and concatenates
         # on the feature axis, preserving the time dimension.
-        
+
         # 1. Find the maximum sequence length in the list of tensors.
         max_len = 0
         for tensor in lstm_output:
@@ -5080,15 +5367,21 @@ def aggregate_multiscale_on_3d(
                     f"3D tensors, but found shape {tensor.shape}"
                 )
             max_len = tf_maximum(max_len, tf_shape(tensor)[1])
-            
+
         # 2. Pad each tensor to the max length.
         padded_tensors = []
         for tensor in lstm_output:
             current_len = tf_shape(tensor)[1]
             # Paddings format: [[dim1_before, dim1_after], [dim2_before, dim2_after], ...]
-            paddings = [[0, 0], [0, max_len - current_len], [0, 0]]
-            padded_tensors.append(tf_pad(tensor, paddings, "CONSTANT"))
-        
+            paddings = [
+                [0, 0],
+                [0, max_len - current_len],
+                [0, 0],
+            ]
+            padded_tensors.append(
+                tf_pad(tensor, paddings, "CONSTANT")
+            )
+
         # 3. Concatenate along the feature axis (-1).
         return tf_concat(padded_tensors, axis=-1)
 
@@ -5109,22 +5402,28 @@ def aggregate_multiscale_on_3d(
         # This mode requires all sequences to have the same length.
         concatenated = tf_concat(lstm_output, axis=-1)
         shape = tf_shape(concatenated)
-        batch_size, time_dim, feat_dim = shape[0], shape[1], shape[2]
-        return tf_reshape(concatenated, [batch_size, time_dim * feat_dim])
-        
+        batch_size, time_dim, feat_dim = (
+            shape[0],
+            shape[1],
+            shape[2],
+        )
+        return tf_reshape(
+            concatenated, [batch_size, time_dim * feat_dim]
+        )
+
     else:  # Default for "last" or "auto"
         # Takes the last time step from each sequence and concatenates.
         last_outputs = [o[:, -1, :] for o in lstm_output]
         return tf_concat(last_outputs, axis=-1)
 
+
 @register_keras_serializable(
-    'geoprior.nn.components', 
-    name='aggregate_time_window_output'
+    "geoprior.nn.components",
+    name="aggregate_time_window_output",
 )
 def aggregate_time_window_output(
-        time_window_output:Tensor,
-        mode: Optional[str]=None
-    ):
+    time_window_output: Tensor, mode: str | None = None
+):
     """
     Aggregates time window output features based on the specified
     aggregation method.
@@ -5209,7 +5508,7 @@ def aggregate_time_window_output(
        Year.
 
     """
-    mode = mode or 'flatten' 
+    mode = mode or "flatten"
     if mode == "last":
         # Select the features corresponding to the last time step for
         # each sample.
@@ -5217,7 +5516,9 @@ def aggregate_time_window_output(
 
     elif mode == "average":
         # Compute the mean of the features across the time dimension.
-        final_features = tf_reduce_mean(time_window_output, axis=1)
+        final_features = tf_reduce_mean(
+            time_window_output, axis=1
+        )
 
     elif mode == "flatten":
         # Retrieve the dynamic shape of the input tensor.
@@ -5225,13 +5526,13 @@ def aggregate_time_window_output(
         batch_size, time_dim, feat_dim = (
             shape[0],
             shape[1],
-            shape[2]
+            shape[2],
         )
         # Flatten the time and feature dimensions into a single vector
         # per sample.
         final_features = tf_reshape(
             time_window_output,
-            [batch_size, time_dim * feat_dim]
+            [batch_size, time_dim * feat_dim],
         )
 
     else:
@@ -5243,33 +5544,37 @@ def aggregate_time_window_output(
 
     return final_features
 
-def create_causal_mask(size: Union[int,Tensor]) -> Tensor:
+
+def create_causal_mask(size: int | Tensor) -> Tensor:
     """
     Creates a causal attention mask of shape [1,1,seq_len,seq_len]
     where mask[0,0,i,j] = 1.0 if j > i else 0.0.
     """
-    
+
     # Make sure size is a 0-D int32 Tensor
     size = tf_cast(size, tf_int32)
 
     # Build a vector [0,1,2,...,size-1]
-    idxs = tf_range(size)                  # shape: [size]
+    idxs = tf_range(size)  # shape: [size]
 
     # Compare row < col for every pair (i,j)
     #   row_idxs: [size,1], col_idxs: [1,size]
-    row_idxs = tf_expand_dims(idxs, 1)     # [size,1]
-    col_idxs = tf_expand_dims(idxs, 0)     # [1,size]
+    row_idxs = tf_expand_dims(idxs, 1)  # [size,1]
+    col_idxs = tf_expand_dims(idxs, 0)  # [1,size]
 
     # mask2d[i,j] = True if j > i, else False
-    mask2d = tf_greater(col_idxs, row_idxs)  # [size,size], dtype=bool
+    mask2d = tf_greater(
+        col_idxs, row_idxs
+    )  # [size,size], dtype=bool
 
     # Cast to float (1.0 for masked positions, 0.0 elsewhere)
-    mask2d = tf_cast(mask2d, tf_float32)     # [size,size]
+    mask2d = tf_cast(mask2d, tf_float32)  # [size,size]
 
     # Expand to [1,1,size,size] so it broadcasts over (batch, heads)
     mask = tf_expand_dims(tf_expand_dims(mask2d, 0), 1)
 
     return mask
+
 
 # def create_causal_mask(size: Union[int, Tensor]) -> Tensor:
 #     """Creates a causal attention mask of shape [1,1,seq_len,seq_len]."""
@@ -5289,16 +5594,20 @@ def create_causal_mask(size: Union[int,Tensor]) -> Tensor:
 
 #     return mask
 
-def _create_causal_mask(size: Union[int, Tensor]) -> Tensor:
+
+def _create_causal_mask(size: int | Tensor) -> Tensor:
     """Creates a causal attention mask for the decoder."""
-    mask = 1 - tf_linalg.band_part(tf_ones((size, size)), -1, 0)
+    mask = 1 - tf_linalg.band_part(
+        tf_ones((size, size)), -1, 0
+    )
     # Add batch and head dimensions for broadcasting
-    return mask[tf_expand_dims(tf_range(size), 0), :] # (1, 1, seq_len, seq_len) -> Keras MHA expects (B, T, T) or (B, N_heads, T, T)
-                                                      # TF MHA expects (B, N_heads, T, T)
-                                                      # Let's make it (1,1,T,T) for TF MHA layer, it will broadcast
+    return mask[
+        tf_expand_dims(tf_range(size), 0), :
+    ]  # (1, 1, seq_len, seq_len) -> Keras MHA expects (B, T, T) or (B, N_heads, T, T)
+    # TF MHA expects (B, N_heads, T, T)
+    # Let's make it (1,1,T,T) for TF MHA layer, it will broadcast
     # # Keras MHA expects mask shape (batch_size, num_heads, query_length, key_length)
     # # or (batch_size, query_length, key_length)
     # # For causal, query_length == key_length == size
     # return tf_expand_dims(tf_expand_dims(
     #     1 - tf_linalg.band_part(tf_ones((size, size)), -1, 0), axis=0), axis=0)
-

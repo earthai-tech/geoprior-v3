@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -13,10 +12,12 @@ This module acts as the single source of truth for dependency management,
 allowing other parts of the library to gracefully handle cases where a
 backend might not be installed.
 """
+
 from __future__ import annotations
+
 import importlib.util
 import warnings
-from typing import Dict, Optional, Literal 
+from typing import Literal
 
 # --- Standardized Error and Warning Messages ---
 
@@ -43,7 +44,8 @@ _KERAS_FALLBACK_WARNING = (
     "compatibility, it is highly recommended to install TensorFlow."
 )
 
-def check_backends(names: str) -> Dict[str, bool]:
+
+def check_backends(names: str) -> dict[str, bool]:
     """
     Checks for the presence of one or more specified packages.
 
@@ -73,19 +75,25 @@ def check_backends(names: str) -> Dict[str, bool]:
     >>> check_backends('numpy__pandas')
     {'numpy': True, 'pandas': True}
     """
-    package_list = [pkg.strip() for pkg in names.split('__')]
+    package_list = [pkg.strip() for pkg in names.split("__")]
     status = {
-        pkg: importlib.util.find_spec(pkg) is not None for pkg in package_list
+        pkg: importlib.util.find_spec(pkg) is not None
+        for pkg in package_list
     }
     return status
 
+
 def import_dependencies(
-    name: str = 'tensorflow',
-    extra_msg: Optional[str] = None,
-    error: str = 'warn',
+    name: str = "tensorflow",
+    extra_msg: str | None = None,
+    error: str = "warn",
     allow_keras_fallback: bool = True,
-) -> Literal['KerasDependencies', 'DummyKerasDeps',
-             'KerasTunerDependencies','DummyKT']:
+) -> Literal[
+    "KerasDependencies",
+    "DummyKerasDeps",
+    "KerasTunerDependencies",
+    "DummyKT",
+]:
     """
     Dynamically loads backend dependencies or returns a dummy object.
 
@@ -112,35 +120,58 @@ def import_dependencies(
         An instance of the appropriate real dependency loader or its
         dummy counterpart.
     """
-    if name == 'tensorflow':
-        tf_found = check_backends('tensorflow')['tensorflow']
-        keras_found = check_backends('keras')['keras']
+    if name == "tensorflow":
+        tf_found = check_backends("tensorflow")["tensorflow"]
+        keras_found = check_backends("keras")["keras"]
 
         if tf_found:
             from .compat.tf import KerasDependencies
-            return KerasDependencies(extra_msg=extra_msg, error=error)
-        
+
+            return KerasDependencies(
+                extra_msg=extra_msg, error=error
+            )
+
         elif allow_keras_fallback and keras_found:
-            warnings.warn(_KERAS_FALLBACK_WARNING, UserWarning, stacklevel=2)
+            warnings.warn(
+                _KERAS_FALLBACK_WARNING,
+                UserWarning,
+                stacklevel=2,
+            )
             from .compat.tf import KerasDependencies
-            return KerasDependencies(extra_msg=extra_msg, error=error)
-        
-        else: # Neither TensorFlow nor Keras is found
+
+            return KerasDependencies(
+                extra_msg=extra_msg, error=error
+            )
+
+        else:  # Neither TensorFlow nor Keras is found
             from ._dummies import DummyKerasDeps
+
             if extra_msg:
-                warnings.warn(str(extra_msg), ImportWarning, stacklevel=2)
+                warnings.warn(
+                    str(extra_msg),
+                    ImportWarning,
+                    stacklevel=2,
+                )
             return DummyKerasDeps()
 
-    elif name == 'keras_tuner':
-        if check_backends('keras_tuner')['keras_tuner']:
+    elif name == "keras_tuner":
+        if check_backends("keras_tuner")["keras_tuner"]:
             from .compat.kt import KerasTunerDependencies
-            return KerasTunerDependencies(extra_msg=extra_msg, error=error)
+
+            return KerasTunerDependencies(
+                extra_msg=extra_msg, error=error
+            )
         else:
             from ._dummies import DummyKT
+
             if extra_msg:
-                 warnings.warn(str(extra_msg), ImportWarning, stacklevel=2)
+                warnings.warn(
+                    str(extra_msg),
+                    ImportWarning,
+                    stacklevel=2,
+                )
             return DummyKT()
-            
+
     else:
         raise ValueError(
             f"Unsupported dependency name: '{name}'. "

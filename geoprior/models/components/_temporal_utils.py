@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Author: LKouadio <etanoyau@gmail.com>
-# Adapted from: earthai-tech/fusionlab-learn — https://github.com/earthai-tech/gofast
+# Adapted from: earthai-tech/fusionlab-learn https://github.com/earthai-tech/gofast
 # Modified for GeoPrior-v3 API.
 
 """
@@ -13,17 +12,16 @@ Temporal utilities:
 
 from __future__ import annotations
 
-from typing import List, Union, Optional
-
 from ._config import (
     Tensor,
-    tf_concat, 
-    tf_reduce_mean, 
-    tf_reduce_sum, 
-    tf_shape, tf_reshape,
-    tf_pad, tf_maximum,
     register_keras_serializable,
-
+    tf_concat,
+    tf_maximum,
+    tf_pad,
+    tf_reduce_mean,
+    tf_reduce_sum,
+    tf_reshape,
+    tf_shape,
 )
 
 __all__ = [
@@ -32,12 +30,12 @@ __all__ = [
     "aggregate_time_window_output",
 ]
 
+
 @register_keras_serializable(
-    'geoprior.nn.components', 
-    name='aggregate_multiscale'
+    "geoprior.nn.components", name="aggregate_multiscale"
 )
 def aggregate_multiscale(lstm_output, mode="auto"):
-    r"""Aggregate multi-scale LSTM outputs using 
+    r"""Aggregate multi-scale LSTM outputs using
     specified temporal fusion strategy.
 
     This function implements multiple strategies for combining outputs from
@@ -45,7 +43,7 @@ def aggregate_multiscale(lstm_output, mode="auto"):
     six aggregation modes: ``average``, ``sum``, ``flatten``, ``concat``,
     ``last`` (default fallback), and ``auto``[1]_.
     Designed for compatibility with ``MultiScaleLSTM`` layer outputs.
-    
+
     See more in :ref:`User Guide <user_guide>`.
 
     Parameters
@@ -76,14 +74,14 @@ def aggregate_multiscale(lstm_output, mode="auto"):
         - (B, T'*U*S) for ``flatten`` mode
         - (B, U*S) for ``concat`` mode (last timestep only)
         - (B, U*S) for ``auto`` mode
-        
-        In sum: 
+
+        In sum:
         - (B, U*S) for ``auto``/``last``, ``sum``, ``average``, ``concat``
         - (B, T'*U*S) for ``flatten`` mode.
 
     Notes
     -----
-    
+
     * Mode Comparison Table:
 
     +------------+---------------------+---------------------+-------------------+
@@ -108,20 +106,20 @@ def aggregate_multiscale(lstm_output, mode="auto"):
 
     Mathematical Formulation:
 
-    For S scales with outputs :math:`\{\mathbf{X}_s \in \mathbb{R}^{B \times T'_s 
+    For S scales with outputs :math:`\{\mathbf{X}_s \in \mathbb{R}^{B \times T'_s
     \times U}\}_{s=1}^S`:
 
     .. math::
-        \text{auto} &: \bigoplus_{s=1}^S \mathbf{X}_s^{(:, T'_s, :)} 
+        \text{auto} &: \bigoplus_{s=1}^S \mathbf{X}_s^{(:, T'_s, :)}
         \quad \text{(Last step concatenation)}
-        
+
         \text{sum} &: \bigoplus_{s=1}^S \sum_{t=1}^{T'_s} \mathbf{X}_s^{(:, t, :)}
-        
-        \text{average} &: \bigoplus_{s=1}^S \frac{1}{T'_s} \sum_{t=1}^{T'_s} 
+
+        \text{average} &: \bigoplus_{s=1}^S \frac{1}{T'_s} \sum_{t=1}^{T'_s}
         \mathbf{X}_s^{(:, t, :)}
-        
+
         \text{flatten} &: \text{vec}\left( \bigoplus_{s=1}^S \mathbf{X}_s \right)
-        
+
         \text{concat} &: \left( \bigoplus_{s=1}^S \mathbf{X}_s \right)^{(:, T', :)}
 
     where :math:`\bigoplus` = feature concatenation, :math:`\text{vec}` = flatten.
@@ -138,19 +136,19 @@ def aggregate_multiscale(lstm_output, mode="auto"):
     | Scale validity   | Only valid when     | Robust to arbitrary   |
     |                  | scales=[1,1,...]    | scale configurations  |
     +------------------+---------------------+-----------------------+
-    
+
     Examples
     --------
     >>> from geoprior.nn.components import aggregate_multiscale
     >>> import tensorflow as tf
-    
+
     # Three scales with different time dimensions
     >>> outputs = [
     ...     tf.random.normal((32, 10, 64)),  # Scale 1: T'=10
     ...     tf.random.normal((32, 5, 64)),   # Scale 2: T'=5
     ...     tf.random.normal((32, 2, 64))    # Scale 3: T'=2
     ... ]
-    
+
     # Default auto mode (last timesteps)
     >>> agg_auto = aggregate_multiscale(outputs, mode='auto')
     >>> agg_auto.shape
@@ -160,9 +158,9 @@ def aggregate_multiscale(lstm_output, mode="auto"):
     >>> agg_last = aggregate_multiscale(outputs, mode='last')
     >>> print(agg_last.shape)
     (32, 192)
-    
+
     # Flatten mode (requires manual padding for equal T')
-    >>> padded_outputs = [tf.pad(o, [[0,0],[0,3],[0,0]]) for o in outputs[:2]] 
+    >>> padded_outputs = [tf.pad(o, [[0,0],[0,3],[0,0]]) for o in outputs[:2]]
     >>> padded_outputs.append(outputs[2])
     >>> agg_flat = aggregate_multiscale(padded_outputs, mode='flatten')
     >>> agg_flat.shape
@@ -181,71 +179,71 @@ def aggregate_multiscale(lstm_output, mode="auto"):
        379(2194), 20200209. https://doi.org/10.1098/rsta.2020.0209
     """
     # "auto", use the last LastStep-First Approach
-    if mode is None: 
+    if mode is None:
         # No additional aggregation needed
-        lstm_features = lstm_output  # (B, units * len(scales))
+        lstm_features = (
+            lstm_output  # (B, units * len(scales))
+        )
 
     # Apply chosen aggregation to full sequences
     elif mode == "average":
         # Average over time dimension for each scale and then concatenate
         averaged_outputs = [
-            tf_reduce_mean(o, axis=1) 
-            for o in lstm_output
+            tf_reduce_mean(o, axis=1) for o in lstm_output
         ]  # Each is (B, units)
         lstm_features = tf_concat(
-            averaged_outputs,
-            axis=-1
+            averaged_outputs, axis=-1
         )  # (B, units * len(scales))
 
-    elif mode== "flatten":
+    elif mode == "flatten":
         # Flatten time and feature dimensions for all scales
         # Assume equal time lengths for all scales
         concatenated = tf_concat(
-            lstm_output, 
-            axis=-1
+            lstm_output, axis=-1
         )  # (B, T', units*len(scales))
         shape = tf_shape(concatenated)
-        (batch_size,
-         time_dim,
-         feat_dim) = shape[0], shape[1], shape[2]
-        lstm_features = tf_reshape(
-            concatenated,
-            [batch_size, time_dim * feat_dim]
+        (batch_size, time_dim, feat_dim) = (
+            shape[0],
+            shape[1],
+            shape[2],
         )
-    elif mode =='sum': 
+        lstm_features = tf_reshape(
+            concatenated, [batch_size, time_dim * feat_dim]
+        )
+    elif mode == "sum":
         # Sum over time dimension for each scale and concatenate
         summed_outputs = [
-            tf_reduce_sum(o, axis=1) 
-            for o in lstm_output
-            ]
-        lstm_features = tf_concat(
-            summed_outputs, axis=-1)
-        
-    elif mode=="concat": 
+            tf_reduce_sum(o, axis=1) for o in lstm_output
+        ]
+        lstm_features = tf_concat(summed_outputs, axis=-1)
+
+    elif mode == "concat":
         # Concatenate along the feature dimension for each
         # time step and take the last time step
         concatenated = tf_concat(
-            lstm_output, axis=-1)  # (B, T', units * len(scales))
-        last_output = concatenated[:, -1, :]  # (B, units * len(scales))
+            lstm_output, axis=-1
+        )  # (B, T', units * len(scales))
+        last_output = concatenated[
+            :, -1, :
+        ]  # (B, units * len(scales))
         lstm_features = last_output
-        
-    else: # "last" or "auto"
+
+    else:  # "last" or "auto"
         # Default fallback: take the last time step from each scale
         # and concatenate
         last_outputs = [
-            o[:, -1, :] 
-            for o in lstm_output
+            o[:, -1, :] for o in lstm_output
         ]  # (B, units)
         lstm_features = tf_concat(
-            last_outputs,
-            axis=-1
+            last_outputs, axis=-1
         )  # (B, units * len(scales))
-    
-    return lstm_features 
+
+    return lstm_features
+
 
 def aggregate_multiscale_on_3d(
-    lstm_output: Union[Tensor, List[Tensor]],
-    mode: str = "auto"
+    lstm_output: Tensor | list[Tensor],
+    mode: str = "auto",
 ) -> Tensor:
     r"""Aggregate multi-scale LSTM outputs using a specified strategy.
 
@@ -290,15 +288,17 @@ def aggregate_multiscale_on_3d(
     if not isinstance(lstm_output, list):
         # Input is likely already a 2D tensor, return as is.
         return lstm_output
-    
+
     if not lstm_output:
-        raise ValueError("Input `lstm_output` list cannot be empty.")
+        raise ValueError(
+            "Input `lstm_output` list cannot be empty."
+        )
 
     # --- New 'concat' behavior to produce a single 3D tensor ---
     if mode == "concat":
         # This mode pads sequences to the same length and concatenates
         # on the feature axis, preserving the time dimension.
-        
+
         # 1. Find the maximum sequence length in the list of tensors.
         max_len = 0
         for tensor in lstm_output:
@@ -308,15 +308,21 @@ def aggregate_multiscale_on_3d(
                     f"3D tensors, but found shape {tensor.shape}"
                 )
             max_len = tf_maximum(max_len, tf_shape(tensor)[1])
-            
+
         # 2. Pad each tensor to the max length.
         padded_tensors = []
         for tensor in lstm_output:
             current_len = tf_shape(tensor)[1]
             # Paddings format: [[dim1_before, dim1_after], [dim2_before, dim2_after], ...]
-            paddings = [[0, 0], [0, max_len - current_len], [0, 0]]
-            padded_tensors.append(tf_pad(tensor, paddings, "CONSTANT"))
-        
+            paddings = [
+                [0, 0],
+                [0, max_len - current_len],
+                [0, 0],
+            ]
+            padded_tensors.append(
+                tf_pad(tensor, paddings, "CONSTANT")
+            )
+
         # 3. Concatenate along the feature axis (-1).
         return tf_concat(padded_tensors, axis=-1)
 
@@ -337,22 +343,28 @@ def aggregate_multiscale_on_3d(
         # This mode requires all sequences to have the same length.
         concatenated = tf_concat(lstm_output, axis=-1)
         shape = tf_shape(concatenated)
-        batch_size, time_dim, feat_dim = shape[0], shape[1], shape[2]
-        return tf_reshape(concatenated, [batch_size, time_dim * feat_dim])
-        
+        batch_size, time_dim, feat_dim = (
+            shape[0],
+            shape[1],
+            shape[2],
+        )
+        return tf_reshape(
+            concatenated, [batch_size, time_dim * feat_dim]
+        )
+
     else:  # Default for "last" or "auto"
         # Takes the last time step from each sequence and concatenates.
         last_outputs = [o[:, -1, :] for o in lstm_output]
         return tf_concat(last_outputs, axis=-1)
 
+
 @register_keras_serializable(
-    'geoprior.nn.components', 
-    name='aggregate_time_window_output'
+    "geoprior.nn.components",
+    name="aggregate_time_window_output",
 )
 def aggregate_time_window_output(
-        time_window_output:Tensor,
-        mode: Optional[str]=None
-    ):
+    time_window_output: Tensor, mode: str | None = None
+):
     """
     Aggregates time window output features based on the specified
     aggregation method.
@@ -437,7 +449,7 @@ def aggregate_time_window_output(
        Year.
 
     """
-    mode = mode or 'flatten' 
+    mode = mode or "flatten"
     if mode == "last":
         # Select the features corresponding to the last time step for
         # each sample.
@@ -445,7 +457,9 @@ def aggregate_time_window_output(
 
     elif mode == "average":
         # Compute the mean of the features across the time dimension.
-        final_features = tf_reduce_mean(time_window_output, axis=1)
+        final_features = tf_reduce_mean(
+            time_window_output, axis=1
+        )
 
     elif mode == "flatten":
         # Retrieve the dynamic shape of the input tensor.
@@ -453,13 +467,13 @@ def aggregate_time_window_output(
         batch_size, time_dim, feat_dim = (
             shape[0],
             shape[1],
-            shape[2]
+            shape[2],
         )
         # Flatten the time and feature dimensions into a single vector
         # per sample.
         final_features = tf_reshape(
             time_window_output,
-            [batch_size, time_dim * feat_dim]
+            [batch_size, time_dim * feat_dim],
         )
 
     else:

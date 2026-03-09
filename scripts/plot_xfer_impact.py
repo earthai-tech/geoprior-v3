@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -51,24 +50,25 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
-import re
+from typing import Any
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.gridspec import GridSpec
-from matplotlib.gridspec import GridSpecFromSubplotSpec
+from matplotlib.gridspec import (
+    GridSpec,
+    GridSpecFromSubplotSpec,
+)
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
-from . import config as cfg
-from . import utils as u
-
 from geoprior.utils.transfer import xfer_risk
 
+from . import config as cfg
+from . import utils as u
 
 _DIR_CANON = {
     "a_to_b": "A_to_B",
@@ -85,7 +85,7 @@ class TextFlags:
     show_ticklabels: bool
     show_title: bool
     show_panel_titles: bool
-    title: Optional[str]
+    title: str | None
 
 
 def _canon_dir(x: Any) -> str:
@@ -93,9 +93,8 @@ def _canon_dir(x: Any) -> str:
     k = s.lower()
     return _DIR_CANON.get(k, s)
 
-_BASELINE_INV = {
-    v: k for (k, v) in cfg._BASELINE_MAP.items()
-}
+
+_BASELINE_INV = {v: k for (k, v) in cfg._BASELINE_MAP.items()}
 
 
 def _dir_for_panel(*, direc: Any, strat: str) -> str:
@@ -105,12 +104,18 @@ def _dir_for_panel(*, direc: Any, strat: str) -> str:
         return _BASELINE_INV.get(d, d)
     return d
 
+
 def _to_num(df: pd.DataFrame, col: str) -> None:
     if col in df.columns:
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
+
 def _metrics_unit(df: pd.DataFrame) -> str:
-    for c in ("subsidence_unit", "metrics_unit", "metric_unit"):
+    for c in (
+        "subsidence_unit",
+        "metrics_unit",
+        "metric_unit",
+    ):
         if c in df.columns:
             s = df[c].dropna()
             if not s.empty:
@@ -120,6 +125,7 @@ def _metrics_unit(df: pd.DataFrame) -> str:
                 if u0.startswith("mm"):
                     return "mm"
     return "mm"
+
 
 def _canon_cols(df: pd.DataFrame) -> pd.DataFrame:
     aliases = {
@@ -148,19 +154,15 @@ def _canon_cols(df: pd.DataFrame) -> pd.DataFrame:
         "target_city",
     ):
         if c in df.columns:
-            df[c] = (
-                df[c].astype(str)
-                .str.strip()
-                .str.lower()
-            )
+            df[c] = df[c].astype(str).str.strip().str.lower()
 
     if "direction" in df.columns:
         df["direction"] = df["direction"].map(_canon_dir)
 
     for c in (
         "overall_mae",
-        "overall_rmse", 
-        "overall_rmse", 
+        "overall_rmse",
+        "overall_rmse",
         "overall_r2",
         "coverage80",
         "sharpness80",
@@ -186,11 +188,10 @@ def _find_xfer_csv(src: Any) -> Path:
     return Path(p)
 
 
-def _find_xfer_json(csv_p: Path) -> Optional[Path]:
+def _find_xfer_json(csv_p: Path) -> Path | None:
     root = csv_p.parent
     p = u.find_latest(root, ("xfer_results.json",))
     return None if p is None else Path(p)
-
 
 
 def _is_pair_dir(p: Path) -> bool:
@@ -215,14 +216,17 @@ def _row_matches(
     strategy: str,
     split: str,
     calib: str,
-    rescale_mode: Optional[str],
+    rescale_mode: str | None,
 ) -> bool:
     if df is None or df.empty:
         return False
     m = df["strategy"].eq(str(strategy).lower())
     m &= df["split"].eq(str(split).lower())
     m &= df["calibration"].eq(str(calib).lower())
-    if rescale_mode is not None and "rescale_mode" in df.columns:
+    if (
+        rescale_mode is not None
+        and "rescale_mode" in df.columns
+    ):
         m &= df["rescale_mode"].eq(str(rescale_mode).lower())
     return bool(m.any())
 
@@ -230,12 +234,12 @@ def _row_matches(
 def _pick_latest_csvs_by_strategy(
     pair_dir: Path,
     *,
-    strategies: List[str],
+    strategies: list[str],
     split: str,
     calib: str,
     rescale_mode: str,
     baseline_rescale: str,
-) -> Dict[str, Path]:
+) -> dict[str, Path]:
     """
     From pair_dir (cityA__cityB), pick the latest run folder
     per strategy, based on the content of xfer_results.csv.
@@ -244,10 +248,14 @@ def _pick_latest_csvs_by_strategy(
     cands = u.find_all(pair_dir, pats, must_exist=True)
 
     want = [str(s).lower() for s in strategies]
-    picked: Dict[str, Path] = {}
+    picked: dict[str, Path] = {}
 
     def _rm(s: str) -> str:
-        return baseline_rescale if s == "baseline" else rescale_mode
+        return (
+            baseline_rescale
+            if s == "baseline"
+            else rescale_mode
+        )
 
     # pass 1: require rescale match
     for fp in cands:
@@ -296,12 +304,14 @@ def _pick_latest_csvs_by_strategy(
 def _load_multi_jobs(
     pair_dir: Path,
     *,
-    strategies: List[str],
+    strategies: list[str],
     split: str,
     calib: str,
     rescale_mode: str,
     baseline_rescale: str,
-) -> Tuple[pd.DataFrame, List[Dict[str, Any]], Dict[str, Path]]:
+) -> tuple[
+    pd.DataFrame, list[dict[str, Any]], dict[str, Path]
+]:
     picked = _pick_latest_csvs_by_strategy(
         pair_dir,
         strategies=strategies,
@@ -311,11 +321,11 @@ def _load_multi_jobs(
         baseline_rescale=baseline_rescale,
     )
 
-    dfs: List[pd.DataFrame] = []
-    rows: List[Dict[str, Any]] = []
+    dfs: list[pd.DataFrame] = []
+    rows: list[dict[str, Any]] = []
     seen_eval: set = set()
 
-    for s, fp in picked.items():
+    for _s, fp in picked.items():
         try:
             d0 = pd.read_csv(fp)
             dfs.append(d0)
@@ -328,7 +338,9 @@ def _load_multi_jobs(
             jp = jp2 if jp2 is not None else jp
         if jp.exists():
             for r in _load_json_rows(jp):
-                key = str(r.get("csv_eval", "")) or str(r.get("csv_future", ""))
+                key = str(r.get("csv_eval", "")) or str(
+                    r.get("csv_future", "")
+                )
                 if key and key in seen_eval:
                     continue
                 if key:
@@ -336,9 +348,15 @@ def _load_multi_jobs(
                 rows.append(r)
 
     if not dfs:
-        raise SystemExit(f"No usable xfer_results.csv under {pair_dir}")
+        raise SystemExit(
+            f"No usable xfer_results.csv under {pair_dir}"
+        )
 
-    return pd.concat(dfs, axis=0, ignore_index=True), rows, picked
+    return (
+        pd.concat(dfs, axis=0, ignore_index=True),
+        rows,
+        picked,
+    )
 
 
 def _subset(
@@ -348,7 +366,7 @@ def _subset(
     strategy: str,
     split: str,
     calib: str,
-    rescale_mode: Optional[str],
+    rescale_mode: str | None,
     baseline_rescale: str,
 ) -> pd.DataFrame:
     d = _canon_dir(direction)
@@ -401,7 +419,7 @@ def _pick_metric(
     strategy: str,
     split: str,
     calib: str,
-    rescale_mode: Optional[str],
+    rescale_mode: str | None,
     baseline_rescale: str,
     col: str,
 ) -> float:
@@ -418,6 +436,7 @@ def _pick_metric(
         return float("nan")
     return _reduce_vals(sub[col].values)
 
+
 def _tgt_color(df: pd.DataFrame, direction: str) -> str:
     d = _canon_dir(direction)
     sub = df[df["direction"].eq(d)]
@@ -427,8 +446,12 @@ def _tgt_color(df: pd.DataFrame, direction: str) -> str:
     tc = u.canonical_city(tc)  # keep canonical casing
     return cfg.CITY_COLORS.get(
         tc,
-        cfg.CITY_COLORS.get(tc.title(), cfg.CITY_COLORS.get(tc.lower(), "#777777")),
+        cfg.CITY_COLORS.get(
+            tc.title(),
+            cfg.CITY_COLORS.get(tc.lower(), "#777777"),
+        ),
     )
+
 
 def _dir_label(df: pd.DataFrame, direction: str) -> str:
     d = _canon_dir(direction)
@@ -452,9 +475,9 @@ def _plot_retention(
     *,
     split: str,
     calib: str,
-    directions: List[str],
-    strategies: List[str],
-    rescale_mode: Optional[str],
+    directions: list[str],
+    strategies: list[str],
+    rescale_mode: str | None,
     baseline_rescale: str,
     metric: str,
     text: TextFlags,
@@ -544,6 +567,7 @@ def _plot_retention(
     _clean_axes(ax)
     ax.grid(False)
 
+
 def _pick_horizons(
     df: pd.DataFrame,
     *,
@@ -562,7 +586,12 @@ def _pick_horizons(
             hs.append(h)
 
     hs = sorted(set(hs), key=lambda s: int(s[1:]))
-    return hs[:max_n] if hs else [f"H{i}" for i in range(1, max_n + 1)]
+    return (
+        hs[:max_n]
+        if hs
+        else [f"H{i}" for i in range(1, max_n + 1)]
+    )
+
 
 def _plot_horizon_ret(
     ax: Any,
@@ -572,8 +601,8 @@ def _plot_horizon_ret(
     metric: str,
     split: str,
     calib: str,
-    strategies: List[str],
-    rescale_mode: Optional[str],
+    strategies: list[str],
+    rescale_mode: str | None,
     baseline_rescale: str,
     text: TextFlags,
 ) -> None:
@@ -637,7 +666,6 @@ def _plot_horizon_ret(
                 ys.append(b / v if v != 0.0 else float("nan"))
             else:
                 ys.append(v / b if b != 0.0 else float("nan"))
-    
 
         yarr = np.asarray(ys, dtype=float)
         m = np.isfinite(yarr)
@@ -656,13 +684,14 @@ def _plot_horizon_ret(
 
     ax.axhline(1.0, linestyle="--", linewidth=0.7)
     ax.set_xticks(x)
-    ax.set_xticklabels(hs)  # shows H2/H3/H4 if that’s what exists
+    ax.set_xticklabels(
+        hs
+    )  # shows H2/H3/H4 if that’s what exists
     # ax.set_ylim(0.0, 1.25)
     if opt == "max":
         ax.set_ylim(-1.0, 1.25)
     else:
         ax.set_ylim(0.0, 1.25)
-        
 
     if text.show_labels:
         # ax.set_ylabel("R² retention")
@@ -683,6 +712,7 @@ def _plot_horizon_ret(
     _clean_axes(ax)
     ax.grid(False)
 
+
 def _plot_cov_sharp(
     ax: Any,
     df: pd.DataFrame,
@@ -690,8 +720,8 @@ def _plot_cov_sharp(
     direction: str,
     split: str,
     calib: str,
-    strategies: List[str],
-    rescale_mode: Optional[str],
+    strategies: list[str],
+    rescale_mode: str | None,
     baseline_rescale: str,
     cov_target: float,
     text: TextFlags,
@@ -733,9 +763,9 @@ def _plot_cov_sharp(
         linewidth=0.7,
     )
     ax.set_ylim(0.0, 1.0)
-    
+
     unit = _metrics_unit(df)
-    
+
     if text.show_labels:
         ax.set_xlabel(f"Sharpness80 ({unit})")
         ax.set_ylabel("Coverage80")
@@ -751,7 +781,7 @@ def _plot_cov_sharp(
     ax.grid(False)
 
 
-def _load_json_rows(p: Path) -> List[Dict[str, Any]]:
+def _load_json_rows(p: Path) -> list[dict[str, Any]]:
     try:
         obj = json.loads(p.read_text(encoding="utf-8"))
     except Exception:
@@ -776,19 +806,18 @@ def _norm_rel_path(s: str) -> Path:
     return p
 
 
-
 def _risk_tables(
-    rows: List[Dict[str, Any]],
+    rows: list[dict[str, Any]],
     *,
     split: str,
     calib: str,
     threshold: float,
-) -> Tuple[pd.DataFrame, Dict[Tuple[str, str], pd.DataFrame]]:
+) -> tuple[pd.DataFrame, dict[tuple[str, str], pd.DataFrame]]:
     if xfer_risk is None:
         return pd.DataFrame(), {}
 
-    items: List[Dict[str, Any]] = []
-    rel: Dict[Tuple[str, str], List[pd.DataFrame]] = {}
+    items: list[dict[str, Any]] = []
+    rel: dict[tuple[str, str], list[pd.DataFrame]] = {}
 
     for r in rows:
         if str(r.get("split", "")).lower() != split:
@@ -799,8 +828,9 @@ def _risk_tables(
         # strat = str(r.get("strategy", "")).lower()
         # direc = _canon_dir(r.get("direction", ""))
         strat = str(r.get("strategy", "")).lower()
-        direc = _dir_for_panel(direc=r.get("direction", ""),
-                               strat=strat)
+        direc = _dir_for_panel(
+            direc=r.get("direction", ""), strat=strat
+        )
 
         pth = _norm_rel_path(str(r.get("csv_eval", "")))
         if not pth.exists():
@@ -856,7 +886,7 @@ def _risk_tables(
 
     tab = pd.DataFrame(items)
 
-    rel_out: Dict[Tuple[str, str], pd.DataFrame] = {}
+    rel_out: dict[tuple[str, str], pd.DataFrame] = {}
     for k, parts in rel.items():
         if not parts:
             continue
@@ -877,10 +907,10 @@ def _plot_risk(
     ax_bs: Any,
     *,
     tab: pd.DataFrame,
-    rel: Dict[Tuple[str, str], pd.DataFrame],
-    directions: List[str],
-    strategies: List[str],
-    dir_colors: Dict[str, str],
+    rel: dict[tuple[str, str], pd.DataFrame],
+    directions: list[str],
+    strategies: list[str],
+    dir_colors: dict[str, str],
     text: TextFlags,
 ) -> None:
     if tab.empty:
@@ -913,7 +943,9 @@ def _plot_risk(
                 rr["p_mean"].to_numpy(float),
                 rr["y_rate"].to_numpy(float),
                 color=color,
-                linestyle=cfg._STRAT_LINESTYLE.get(key[1], "-"),
+                linestyle=cfg._STRAT_LINESTYLE.get(
+                    key[1], "-"
+                ),
                 marker=cfg._STRAT_MARKER.get(key[1], "o"),
                 markersize=2.8,
                 linewidth=1.0,
@@ -981,14 +1013,13 @@ def _plot_risk(
     ax_bs.grid(False)
 
 
-
 def _hotspot_tables(
-    rows: List[Dict[str, Any]],
+    rows: list[dict[str, Any]],
     *,
     split: str,
     calib: str,
-    strategies: List[str],
-    directions: List[str],
+    strategies: list[str],
+    directions: list[str],
     ref_strategy: str,
     score: str,
     horizon: str,
@@ -998,7 +1029,7 @@ def _hotspot_tables(
     if xfer_risk is None:
         return pd.DataFrame()
 
-    dfs: Dict[Tuple[str, str], pd.DataFrame] = {}
+    dfs: dict[tuple[str, str], pd.DataFrame] = {}
 
     for r in rows:
         if str(r.get("split", "")).lower() != split:
@@ -1035,7 +1066,7 @@ def _hotspot_tables(
 
     ref = str(ref_strategy).lower()
 
-    out: List[Dict[str, Any]] = []
+    out: list[dict[str, Any]] = []
 
     for d in directions:
         dd = _canon_dir(d)
@@ -1080,12 +1111,12 @@ def _hotspot_tables(
 
 
 def _hotspot_series(
-    rows: List[Dict[str, Any]],
+    rows: list[dict[str, Any]],
     *,
     split: str,
     calib: str,
-    strategies: List[str],
-    directions: List[str],
+    strategies: list[str],
+    directions: list[str],
     ref_strategy: str,
     score: str,
     horizon: str,
@@ -1095,7 +1126,7 @@ def _hotspot_series(
     if xfer_risk is None:
         return pd.DataFrame()
 
-    dfs: Dict[Tuple[str, str], pd.DataFrame] = {}
+    dfs: dict[tuple[str, str], pd.DataFrame] = {}
 
     for r in rows:
         if str(r.get("split", "")).lower() != split:
@@ -1106,8 +1137,9 @@ def _hotspot_series(
         # strat = str(r.get("strategy", "")).lower()
         # direc = _canon_dir(r.get("direction", ""))
         strat = str(r.get("strategy", "")).lower()
-        direc = _dir_for_panel(direc=r.get("direction", ""),
-                               strat=strat)
+        direc = _dir_for_panel(
+            direc=r.get("direction", ""), strat=strat
+        )
         pth = _norm_rel_path(str(r.get("csv_eval", "")))
         if not pth.exists():
             continue
@@ -1134,7 +1166,7 @@ def _hotspot_series(
         dfs[(direc, strat)] = rk
 
     ref = str(ref_strategy).lower()
-    out: List[pd.DataFrame] = []
+    out: list[pd.DataFrame] = []
 
     for d in directions:
         dd = _canon_dir(d)
@@ -1178,10 +1210,10 @@ def _plot_hotspots_bar(
     ax_s: Any,
     *,
     tab: pd.DataFrame,
-    directions: List[str],
-    strategies: List[str],
+    directions: list[str],
+    strategies: list[str],
     ref_strategy: str,
-    dir_colors: Dict[str, str],
+    dir_colors: dict[str, str],
     k: int,
     errorbars: bool,
     text: TextFlags,
@@ -1200,7 +1232,8 @@ def _plot_hotspots_bar(
 
     ref = str(ref_strategy).lower()
     comps = [
-        str(s).lower() for s in strategies
+        str(s).lower()
+        for s in strategies
         if str(s).lower() != ref
     ]
 
@@ -1278,7 +1311,7 @@ def _plot_hotspots_timeline(
     ax_s_ba: Any,
     *,
     series: pd.DataFrame,
-    strategies: List[str],
+    strategies: list[str],
     ref_strategy: str,
     k: int,
     text: TextFlags,
@@ -1297,7 +1330,8 @@ def _plot_hotspots_timeline(
 
     ref = str(ref_strategy).lower()
     comps = [
-        str(s).lower() for s in strategies
+        str(s).lower()
+        for s in strategies
         if str(s).lower() != ref
     ]
 
@@ -1309,7 +1343,7 @@ def _plot_hotspots_timeline(
         *,
         direction: str,
         col: str,
-        ylim: Tuple[float, float],
+        ylim: tuple[float, float],
     ) -> None:
         dd = _canon_dir(direction)
         for s in comps:
@@ -1381,11 +1415,11 @@ def _add_legends_fig(
     fig: Any,
     df: pd.DataFrame,
     *,
-    directions: List[str],
-    strategies: List[str],
+    directions: list[str],
+    strategies: list[str],
     y: float,
 ) -> None:
-    dir_handles: List[Any] = []
+    dir_handles: list[Any] = []
     for d in directions:
         lab = _dir_label(df, d)
         face = _tgt_color(df, d)
@@ -1402,7 +1436,8 @@ def _add_legends_fig(
     for s in strategies:
         strat_handles.append(
             Line2D(
-                [0], [0],
+                [0],
+                [0],
                 color="#111111",
                 linestyle=cfg._STRAT_LINESTYLE.get(s, "-"),
                 marker=cfg._STRAT_MARKER.get(s, "o"),
@@ -1411,7 +1446,7 @@ def _add_legends_fig(
                 label=cfg._STRAT_LABEL.get(s, s),
             )
         )
-        
+
     fig.legend(
         handles=dir_handles,
         frameon=False,
@@ -1433,19 +1468,20 @@ def _add_legends_fig(
         labelspacing=0.25,
     )
 
+
 def render(
     df: pd.DataFrame,
     *,
     split: str,
     calib: str,
-    strategies: List[str],
-    directions: List[str],
-    rescale_mode: Optional[str],
+    strategies: list[str],
+    directions: list[str],
+    rescale_mode: str | None,
     baseline_rescale: str,
     horizon_metric: str,
     cov_target: float,
     threshold: float,
-    xfer_rows: List[Dict[str, Any]],
+    xfer_rows: list[dict[str, Any]],
     add_hotspots: bool,
     hotspot_k: int,
     hotspot_score: str,
@@ -1455,7 +1491,7 @@ def render(
     hotspot_errorbars: bool,
     out: Path,
     text: TextFlags,
-) -> Tuple[Path, Path]:
+) -> tuple[Path, Path]:
     u.set_paper_style()
 
     hs = str(hotspot_style).lower().strip()
@@ -1478,14 +1514,14 @@ def render(
     gs_a = GridSpecFromSubplotSpec(
         1, 2, subplot_spec=gs[0, 0], wspace=0.55
     )
-        
+
     ax_a1 = fig.add_subplot(gs_a[0, 0])
     ax_a2 = fig.add_subplot(gs_a[0, 1])
 
     gs_b = GridSpecFromSubplotSpec(
         1, 2, subplot_spec=gs[0, 1], wspace=0.55
     )
-    
+
     ax_b1 = fig.add_subplot(gs_b[0, 0])
     ax_b2 = fig.add_subplot(gs_b[0, 1])
 
@@ -1608,8 +1644,7 @@ def render(
     )
 
     dir_colors = {
-        _canon_dir(d): _tgt_color(df, d)
-        for d in directions
+        _canon_dir(d): _tgt_color(df, d) for d in directions
     }
     _plot_risk(
         ax_d1,
@@ -1693,26 +1728,24 @@ def render(
         )
 
         unit = _metrics_unit(df)
-        ax_d1.set_title(f"(d) Reliability @ {threshold:g} {unit}")
+        ax_d1.set_title(
+            f"(d) Reliability @ {threshold:g} {unit}"
+        )
         ax_d2.set_title("(d) Brier")
         if add_hotspots and ax_e1 is not None:
             k0 = int(hotspot_k)
             if hs == "timeline" and ax_e3 is not None:
                 ax_e1.set_title(
-                    f"(e) J@{k0}: "
-                    + _dir_label(df, "A_to_B")
+                    f"(e) J@{k0}: " + _dir_label(df, "A_to_B")
                 )
                 ax_e2.set_title(
-                    f"(e) J@{k0}: "
-                    + _dir_label(df, "B_to_A")
+                    f"(e) J@{k0}: " + _dir_label(df, "B_to_A")
                 )
                 ax_e3.set_title(
-                    f"(e) ρ@{k0}: "
-                    + _dir_label(df, "A_to_B")
+                    f"(e) ρ@{k0}: " + _dir_label(df, "A_to_B")
                 )
                 ax_e4.set_title(
-                    f"(e) ρ@{k0}: "
-                    + _dir_label(df, "B_to_A")
+                    f"(e) ρ@{k0}: " + _dir_label(df, "B_to_A")
                 )
             else:
                 ax_e1.set_title(f"(e) Hotspots J@{k0}")
@@ -1720,7 +1753,7 @@ def render(
 
     has_leg = bool(text.show_legend)
     has_ttl = bool(text.show_title)
-    
+
     if has_leg:
         y_leg = 0.995 if not has_ttl else 0.965
         _add_legends_fig(
@@ -1730,13 +1763,13 @@ def render(
             strategies=strategies,
             y=y_leg,
         )
-    
+
     if has_ttl:
         t0 = "Supplementary Figure Sy — Transfer impact"
         t = u.resolve_title(default=t0, title=text.title)
         y_ttl = 0.94 if has_leg else 0.99
         fig.suptitle(t, x=0.02, y=y_ttl, ha="left")
-    
+
     # reserve headroom for (legend + title)
     if has_leg and has_ttl:
         fig.subplots_adjust(top=0.86)
@@ -1744,7 +1777,7 @@ def render(
         fig.subplots_adjust(top=0.90)
     elif has_ttl:
         fig.subplots_adjust(top=0.93)
-        
+
     # top = 0.86 if (has_leg and has_ttl) else (
     #     0.90 if has_leg else (0.93 if has_ttl else 0.98))
     # fig.tight_layout(rect=[0.0, 0.0, 1.0, top])
@@ -1764,7 +1797,7 @@ def render(
     return png, svg
 
 
-def parse_args(argv: List[str] | None = None) -> Any:
+def parse_args(argv: list[str] | None = None) -> Any:
     ap = argparse.ArgumentParser(
         prog="plot-xfer-impact",
         description=(
@@ -1848,7 +1881,6 @@ def parse_args(argv: List[str] | None = None) -> Any:
         help="Exceedance threshold for risk panel",
     )
 
-
     ap.add_argument(
         "--add-hotspots",
         type=str,
@@ -1928,7 +1960,7 @@ def _text_flags(args: Any) -> TextFlags:
 
 
 def figSx_xfer_impact_main(
-    argv: List[str] | None = None,
+    argv: list[str] | None = None,
 ) -> None:
     u.ensure_script_dirs()
 
@@ -1942,13 +1974,13 @@ def figSx_xfer_impact_main(
     strategies = [str(s).lower() for s in args.strategies]
     directions = ["A_to_B", "B_to_A"]
 
-    rows: List[Dict[str, Any]] = []
+    rows: list[dict[str, Any]] = []
 
     rm = str(args.rescale_mode).lower()
     brm = str(args.baseline_rescale).lower()
 
-    rows: List[Dict[str, Any]] = []
-    picked: Dict[str, Path] = {}
+    rows: list[dict[str, Any]] = []
+    picked: dict[str, Path] = {}
 
     # --- Resolve CSV(s) ---
     if args.xfer_csv:
@@ -1994,7 +2026,7 @@ def figSx_xfer_impact_main(
     df = df[df["calibration"].eq(calib)].copy()
     if df.empty:
         raise SystemExit("No rows after calib filter.")
-    
+
     out = u.resolve_fig_out(args.out)
 
     png, svg = render(
@@ -2029,7 +2061,7 @@ def figSx_xfer_impact_main(
     print(f"[OK] Wrote {svg}")
 
 
-def main(argv: List[str] | None = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     figSx_xfer_impact_main(argv)
 
 

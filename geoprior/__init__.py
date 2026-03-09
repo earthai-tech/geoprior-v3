@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2026-present
 
@@ -28,7 +27,6 @@ import sys
 import types
 import warnings
 
-
 # Keep import-time noise minimal (mirrors fusionlab init pattern).
 logging.basicConfig(level=logging.WARNING)
 logging.getLogger("matplotlib.font_manager").disabled = True
@@ -38,6 +36,7 @@ def _lazy_import(module_name: str, alias: str | None = None):
     """
     Lazily import a module to reduce initial package load time.
     """
+
     def _lazy_loader():
         return importlib.import_module(module_name)
 
@@ -125,6 +124,7 @@ logging.getLogger("tensorflow").setLevel(logging.ERROR)
 # Initialize structured logging for GeoPrior if available.
 try:
     from ._util import initialize_logging  # optional glue
+
     try:
         initialize_logging()
     except Exception:

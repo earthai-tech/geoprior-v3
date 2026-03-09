@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Created on Wed Oct 26 17:10:05 2022
 
 from __future__ import annotations
@@ -13,16 +12,16 @@ from .version import Version
 # manage some dependencies when updating versions
 
 VERSIONS = {
-    "qtpy":"0.3", 
+    "qtpy": "0.3",
     "numpydoc": "1.0.4",
-    "pyproj":"3.3.0", 
+    "pyproj": "3.3.0",
     "tqdm": "4.30.1",
-    "pycsamt": "1.1.2" ,
-    "xgboost": "1.5.0" ,
-    "click":"7.1.2",
-    "missingno":"0.5.1" ,
-    'pandas_profiling':"0.1.7", 
-    "pyjanitor": "0.1",  
+    "pycsamt": "1.1.2",
+    "xgboost": "1.5.0",
+    "click": "7.1.2",
+    "missingno": "0.5.1",
+    "pandas_profiling": "0.1.7",
+    "pyjanitor": "0.1",
     "bs4": "4.8.2",
     "blosc": "1.20.1",
     "bottleneck": "1.3.1",
@@ -32,7 +31,7 @@ VERSIONS = {
     "html5lib": "1.1",
     "gcsfs": "0.6.0",
     "jinja2": "2.11",
-    "joblib":'1.2.0', 
+    "joblib": "1.2.0",
     "lxml.etree": "4.5.0",
     "markupsafe": "2.0.1",
     "matplotlib": "3.3.2",
@@ -57,7 +56,7 @@ VERSIONS = {
     "xlrd": "2.0.1",
     "xlwt": "1.3.0",
     "xlsxwriter": "1.2.2",
-    "yellowbrick": "1.5.0", 
+    "yellowbrick": "1.5.0",
     "zstandard": "0.15.2",
 }
 
@@ -92,18 +91,21 @@ def get_version(module: types.ModuleType) -> str:
             # snappy doesn't contain attributes to confirm it's version
             # See https://github.com/andrix/python-snappy/pull/119
             return ""
-        raise ImportError(f"Can't determine version for {module.__name__}")
+        raise ImportError(
+            f"Can't determine version for {module.__name__}"
+        )
     if module.__name__ == "psycopg2":
         # psycopg2 appends " (dt dec pq3 ext lo64)" to it's version
         version = version.split()[0]
     return version
+
 
 def import_optional_dependency(
     name: str,
     extra: str = "",
     errors: str = "raise",
     min_version: str | None = None,
-    exception:Exception=None 
+    exception: Exception = None,
 ):
     """
     Import an optional dependency.
@@ -132,7 +134,7 @@ def import_optional_dependency(
         Specify a minimum version that is different from the global pandas
         minimum version required.
     exception: callable, BaseException
-        Can be your own package exception rather than ImportError 
+        Can be your own package exception rather than ImportError
     Returns
     -------
     maybe_module : Optional[ModuleType]
@@ -145,12 +147,16 @@ def import_optional_dependency(
     assert errors in {"warn", "raise", "ignore"}
 
     package_name = INSTALL_MAPPING.get(name)
-    install_name = package_name if package_name is not None else name
-    
-    exception = ImportError  if exception is None else exception 
-    if not callable (exception):
-        exception = ImportError 
-    
+    install_name = (
+        package_name if package_name is not None else name
+    )
+
+    exception = (
+        ImportError if exception is None else exception
+    )
+    if not callable(exception):
+        exception = ImportError
+
     msg = (
         f"Missing optional dependency '{install_name}'. {extra} "
         f"Use pip or conda to install {install_name}."
@@ -159,7 +165,7 @@ def import_optional_dependency(
         module = importlib.import_module(name)
     except ImportError:
         if errors == "raise":
-            raise exception (msg )
+            raise exception(msg)
         else:
             return None
 
@@ -170,16 +176,22 @@ def import_optional_dependency(
         module_to_get = sys.modules[install_name]
     else:
         module_to_get = module
-    minimum_version = min_version if min_version is not None else VERSIONS.get(parent)
+    minimum_version = (
+        min_version
+        if min_version is not None
+        else VERSIONS.get(parent)
+    )
     if minimum_version:
         version = get_version(module_to_get)
-        if version and Version(version) < Version(minimum_version):
+        if version and Version(version) < Version(
+            minimum_version
+        ):
             msg = (
                 f"Watex requires version '{minimum_version}' or newer of '{parent}' "
                 f"(version '{version}' currently installed)."
             )
             if errors == "warn":
-                warnings.warn(msg, UserWarning)
+                warnings.warn(msg, UserWarning, stacklevel=2)
                 return None
             elif errors == "raise":
                 raise exception(msg)

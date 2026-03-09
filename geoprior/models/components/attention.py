@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Author: LKouadio <etanoyau@gmail.com>
 # Adapted from: earthai-tech/fusionlab-learn — https://github.com/earthai-tech/gofast
@@ -10,38 +9,35 @@ Attention-centric layers for FusionLab.
 
 from __future__ import annotations
 
-from typing import Optional
-from numbers import Real, Integral
+from numbers import Integral, Real
 
 from ...api.property import NNLearner
-from ...compat.sklearn import validate_params, Interval
+from ...compat.sklearn import Interval, validate_params
 from ...utils.deps_utils import ensure_pkg
-from ._config import (                                  
-    KERAS_BACKEND, 
-    DEP_MSG, 
-    _logger,
+from ._config import (
+    DEP_MSG,
+    KERAS_BACKEND,
+    Dense,
+    Dropout,
+    Layer,
     LayerNormalization,
-    MultiHeadAttention, 
-    Dropout, 
-    Dense, 
-    Layer, 
-    Tensor, 
+    MultiHeadAttention,
+    Tensor,
+    _logger,
     register_keras_serializable,
-    tf_shape, 
-    tf_expand_dims, 
-    tf_tile, 
-    tf_bool, 
-    tf_add, 
+    tf_add,
+    tf_autograph,
+    tf_bool,
     tf_cast,
-    tf_logical_and, 
-    tf_ones_like, 
-    tf_ones, 
-    tf_autograph 
+    tf_expand_dims,
+    tf_logical_and,
+    tf_ones,
+    tf_ones_like,
+    tf_shape,
+    tf_tile,
 )
 from .gating_norm import GatedResidualNetwork
 from .misc import Activation
-
-
 
 __all__ = [
     "TemporalAttentionLayer",
@@ -52,28 +48,36 @@ __all__ = [
     "MultiResolutionAttentionFusion",
 ]
 
+
 @register_keras_serializable(
-    'geoprior.nn.components',
-    name="TemporalAttentionLayer"
+    "geoprior.nn.components", name="TemporalAttentionLayer"
 )
 class TemporalAttentionLayer(Layer):
     """Temporal Attention Layer conditioning query with context."""
 
-    @validate_params({
-         "units": [Interval(Integral, 0, None, closed='left')],
-         "num_heads": [Interval(Integral, 0, None, closed='left')],
-         "dropout_rate": [Interval(Real, 0, 1, closed="both")],
-         "use_batch_norm": [bool],
-     })
+    @validate_params(
+        {
+            "units": [
+                Interval(Integral, 0, None, closed="left")
+            ],
+            "num_heads": [
+                Interval(Integral, 0, None, closed="left")
+            ],
+            "dropout_rate": [
+                Interval(Real, 0, 1, closed="both")
+            ],
+            "use_batch_norm": [bool],
+        }
+    )
     @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
     def __init__(
         self,
         units: int,
         num_heads: int,
         dropout_rate: float = 0.0,
-        activation: str = 'elu',
+        activation: str = "elu",
         use_batch_norm: bool = False,
-        **kwargs
+        **kwargs,
     ):
         """Initializes the TemporalAttentionLayer."""
         super().__init__(**kwargs)
@@ -81,26 +85,32 @@ class TemporalAttentionLayer(Layer):
         self.num_heads = num_heads
         self.dropout_rate = dropout_rate
         self.use_batch_norm = use_batch_norm
-        self.activation_str = Activation(activation).activation_str 
+        self.activation_str = Activation(
+            activation
+        ).activation_str
 
         # --- Define Internal Layers ---
         self.multi_head_attention = MultiHeadAttention(
             num_heads=num_heads,
             key_dim=units,
             dropout=dropout_rate,
-            name="mha"
+            name="mha",
         )
-        self.dropout = Dropout(dropout_rate, name="attn_dropout")
-        self.layer_norm1 = LayerNormalization(name="layer_norm_1")
+        self.dropout = Dropout(
+            dropout_rate, name="attn_dropout"
+        )
+        self.layer_norm1 = LayerNormalization(
+            name="layer_norm_1"
+        )
 
         # GRN to process the input context_vector
         # Ensure this is a single instance, passing the activation string
         self.context_grn = GatedResidualNetwork(
-            units=units, # Output matches main path 'units'
+            units=units,  # Output matches main path 'units'
             dropout_rate=dropout_rate,
             activation=self.activation_str,
             use_batch_norm=self.use_batch_norm,
-            name="context_grn"
+            name="context_grn",
             # Note: GRN's internal activation handling should be fixed
         )
 
@@ -111,29 +121,31 @@ class TemporalAttentionLayer(Layer):
             dropout_rate=dropout_rate,
             activation=self.activation_str,
             use_batch_norm=self.use_batch_norm,
-            name="output_grn"
+            name="output_grn",
         )
-        
+
     def build(self, input_shape):
         """Builds internal layers, especially GRNs."""
         # input_shape corresponds to the main 'inputs' tensor (B, T, U)
-        if not isinstance(input_shape, (list, tuple)):
-             # If only main input shape is passed (common)
-             main_input_shape = tuple(input_shape)
-        elif len(input_shape) == 2: 
+        if not isinstance(input_shape, list | tuple):
+            # If only main input shape is passed (common)
+            main_input_shape = tuple(input_shape)
+        elif len(input_shape) == 2:
             #  [inputs_shape, context_shape] rarelly happended
-             main_input_shape = tuple(input_shape[0])
-             # Optionally build context_grn if context_shape is known
-             context_shape = tuple(input_shape[1])
-             if not self.context_grn.built:
-                  self.context_grn.build(context_shape)
+            main_input_shape = tuple(input_shape[0])
+            # Optionally build context_grn if context_shape is known
+            context_shape = tuple(input_shape[1])
+            if not self.context_grn.built:
+                self.context_grn.build(context_shape)
         else:
-             raise ValueError(
-                 "Unexpected input_shape format for build.")
- 
+            raise ValueError(
+                "Unexpected input_shape format for build."
+            )
+
         if len(main_input_shape) < 3:
             raise ValueError(
-                "TemporalAttentionLayer expects input rank >= 3")
+                "TemporalAttentionLayer expects input rank >= 3"
+            )
 
         # Define expected input shape for output_grn
         # It receives output from layer_norm1, which has same shape as input
@@ -149,11 +161,13 @@ class TemporalAttentionLayer(Layer):
         super().build(input_shape)
         # Developer comment: Layer built status should now be True.
 
-    def call(self, inputs, context_vector=None, training=False):
+    def call(
+        self, inputs, context_vector=None, training=False
+    ):
         """Forward pass of the temporal attention layer."""
         # Input shapes: inputs=(B, T, U), context_vector=(B, U_ctx)
 
-        query = inputs # Default query
+        query = inputs  # Default query
         processed_context = None
 
         # --- Process Context Vector (if provided) ---
@@ -161,59 +175,76 @@ class TemporalAttentionLayer(Layer):
             # Pass context_vector as the main input 'x' to context_grn
             processed_context = self.context_grn(
                 x=context_vector,
-                context=None, # No nested context for the context_grn itself
-                training=training
+                context=None,  # No nested context for the context_grn itself
+                training=training,
             )
             # Output shape: (B, units)
 
             # Expand context across time: (B, units) -> (B, 1, units)
-            context_expanded = tf_expand_dims(processed_context, axis=1)
+            context_expanded = tf_expand_dims(
+                processed_context, axis=1
+            )
             # Add to inputs (broadcasting handles time dimension)
             query = tf_add(inputs, context_expanded)
             # Comment: Query now incorporates static context.
 
         # --- Multi-Head Self-Attention ---
         attn_output = self.multi_head_attention(
-            query=query, value=inputs, key=inputs, training=training
-        ) # Shape: (B, T, units)
+            query=query,
+            value=inputs,
+            key=inputs,
+            training=training,
+        )  # Shape: (B, T, units)
 
         # --- Add & Norm (First Residual Connection) ---
-        attn_output_dropout = self.dropout(attn_output, training=training)
+        attn_output_dropout = self.dropout(
+            attn_output, training=training
+        )
         # Residual connection uses original 'inputs'
-        x_attn = self.layer_norm1(tf_add(inputs, attn_output_dropout))
+        x_attn = self.layer_norm1(
+            tf_add(inputs, attn_output_dropout)
+        )
         # Shape: (B, T, units)
 
         # --- Position-wise Feedforward (Final GRN) ---
         # This GRN takes the output of the attention block as input 'x'
         # It does not receive the external 'context_vector' here.
         # --- DEBUG lines ---
-        _logger.debug("\nDEBUG>> About to call self.output_grn")
+        _logger.debug(
+            "\nDEBUG>> About to call self.output_grn"
+        )
         _logger.debug(
             "DEBUG>> Type of self.output_grn:"
-            f" {type(self.output_grn)}")
+            f" {type(self.output_grn)}"
+        )
         _logger.debug(
             "DEBUG>> Is self.output_grn callable:"
-            f" {callable(self.output_grn)}")
+            f" {callable(self.output_grn)}"
+        )
         try:
             # Try accessing an attribute expected on a Keras layer
             _logger.debug(
                 "DEBUG>> self.output_grn name:"
-                f" {self.output_grn.name}")
+                f" {self.output_grn.name}"
+            )
             _logger.debug(
                 "DEBUG>> self.output_grn built status:"
-                f" {self.output_grn.built}")
+                f" {self.output_grn.built}"
+            )
         except AttributeError as ae:
-             _logger.debug(
-                 "DEBUG>> Failed to access attributes"
-                 f" of self.output_grn: {ae}")
+            _logger.debug(
+                "DEBUG>> Failed to access attributes"
+                f" of self.output_grn: {ae}"
+            )
         _logger.debug(
-            f"DEBUG>> Input x_attn shape: {tf_shape(x_attn)}\n")
-        
+            f"DEBUG>> Input x_attn shape: {tf_shape(x_attn)}\n"
+        )
+
         # --- End DEBUG lines ---
         output = self.output_grn(
             x=x_attn,
-            context=None, # No external context for the final GRN
-            training=training
+            context=None,  # No external context for the final GRN
+            training=training,
         )
         # Shape: (B, T, units)
         return output
@@ -221,13 +252,15 @@ class TemporalAttentionLayer(Layer):
     def get_config(self):
         """Returns the layer configuration."""
         config = super().get_config()
-        config.update({
-            'units': self.units,
-            'num_heads': self.num_heads,
-            'dropout_rate': self.dropout_rate,
-            'activation': self.activation_str, 
-            'use_batch_norm': self.use_batch_norm,
-        })
+        config.update(
+            {
+                "units": self.units,
+                "num_heads": self.num_heads,
+                "dropout_rate": self.dropout_rate,
+                "activation": self.activation_str,
+                "use_batch_norm": self.use_batch_norm,
+            }
+        )
         return config
 
     @classmethod
@@ -235,9 +268,9 @@ class TemporalAttentionLayer(Layer):
         """Creates layer from its config."""
         return cls(**config)
 
+
 @register_keras_serializable(
-    'geoprior.nn.components',
-    name="CrossAttention_"
+    "geoprior.nn.components", name="CrossAttention_"
 )
 class CrossAttention_(Layer, NNLearner):
     r"""
@@ -342,8 +375,7 @@ class CrossAttention_(Layer, NNLearner):
         self.source2_dense = Dense(units)
         # Multi-head attention
         self.cross_attention = MultiHeadAttention(
-            num_heads=num_heads,
-            key_dim=units
+            num_heads=num_heads, key_dim=units
         )
 
     @tf_autograph.experimental.do_not_convert
@@ -373,9 +405,7 @@ class CrossAttention_(Layer, NNLearner):
         source2 = self.source2_dense(source2)
         # Apply cross attention
         return self.cross_attention(
-            query=source1,
-            value=source2,
-            key=source2
+            query=source1, value=source2, key=source2
         )
 
     def get_config(self):
@@ -390,7 +420,7 @@ class CrossAttention_(Layer, NNLearner):
             'units'.
         """
         config = super().get_config().copy()
-        config.update({'units': self.units})
+        config.update({"units": self.units})
         return config
 
     @classmethod
@@ -411,16 +441,17 @@ class CrossAttention_(Layer, NNLearner):
             A new instance of CrossAttention.
         """
         return cls(**config)
-    
+
+
 @register_keras_serializable(
-    'geoprior.nn.components', name="CrossAttention"
+    "geoprior.nn.components", name="CrossAttention"
 )
 class CrossAttention(Layer, NNLearner):
     r"""
     CrossAttention that attends ``source1`` (query) to ``source2``
     (key/value) with optional masks.
 
-   
+
     attention_mask : Tensor, optional
         Bool / 0‑1 mask broadcastable to (B, Tq, Tv). Passed
         directly to Keras ``MultiHeadAttention``.
@@ -448,9 +479,9 @@ class CrossAttention(Layer, NNLearner):
         inputs,
         training: bool = False,
         *,
-        attention_mask: Optional[Tensor] = None,
-        query_mask: Optional[Tensor] = None,
-        value_mask: Optional[Tensor] = None,
+        attention_mask: Tensor | None = None,
+        query_mask: Tensor | None = None,
+        value_mask: Tensor | None = None,
         use_causal_mask: bool = False,
         **kwargs,
     ):
@@ -466,7 +497,7 @@ class CrossAttention(Layer, NNLearner):
             Indicates if the layer is in training
             mode (for dropout, if any).
             Defaults to ``False``.
-        
+
         attention_mask : Tensor, optional
             Bool / 0‑1 mask broadcastable to (B, Tq, Tv). Passed
             directly to Keras ``MultiHeadAttention``.
@@ -483,26 +514,35 @@ class CrossAttention(Layer, NNLearner):
             A tensor of shape (batch_size, time_steps,
             units) representing cross-attended features.
         """
-        
-        source1, source2 = inputs  # shapes: (B, Tq, Fq), (B, Tv, Fv)
+
+        source1, source2 = (
+            inputs  # shapes: (B, Tq, Fq), (B, Tv, Fv)
+        )
 
         # Project to common dim
         q = self.source1_dense(source1)
         kv = self.source2_dense(source2)
 
         # Build attention_mask if needed
-        if attention_mask is None and (query_mask is not None
-                                       or value_mask is not None):
+        if attention_mask is None and (
+            query_mask is not None or value_mask is not None
+        ):
             # default to all True if one side is None
             if query_mask is None:
                 query_mask = tf_ones_like(
-                    source1[..., 0], dtype=tf_bool)
+                    source1[..., 0], dtype=tf_bool
+                )
             if value_mask is None:
                 value_mask = tf_ones_like(
-                    source2[..., 0], dtype=tf_bool)
+                    source2[..., 0], dtype=tf_bool
+                )
 
-            qm = tf_expand_dims(tf_cast(query_mask, tf_bool), axis=-1)
-            vm = tf_expand_dims(tf_cast(value_mask, tf_bool), axis=1)
+            qm = tf_expand_dims(
+                tf_cast(query_mask, tf_bool), axis=-1
+            )
+            vm = tf_expand_dims(
+                tf_cast(value_mask, tf_bool), axis=1
+            )
             # (B, Tq, 1) & (B, 1, Tv) -> (B, Tq, Tv)
             attention_mask = tf_logical_and(qm, vm)
 
@@ -517,7 +557,7 @@ class CrossAttention(Layer, NNLearner):
 
     def get_config(self):
         cfg = super().get_config().copy()
-        cfg.update({'units': self.units})
+        cfg.update({"units": self.units})
         return cfg
 
     @classmethod
@@ -526,13 +566,15 @@ class CrossAttention(Layer, NNLearner):
 
 
 @register_keras_serializable(
-    'geoprior.nn.components', name="MemoryAugmentedAttention"
+    "geoprior.nn.components", name="MemoryAugmentedAttention"
 )
 class MemoryAugmentedAttention(Layer, NNLearner):
     r"""Memory-augmented attention with optional masking."""
 
     @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
-    def __init__(self, units: int, memory_size: int, num_heads: int):
+    def __init__(
+        self, units: int, memory_size: int, num_heads: int
+    ):
         super().__init__()
         self.units = units
         self.memory_size = memory_size
@@ -555,30 +597,38 @@ class MemoryAugmentedAttention(Layer, NNLearner):
         inputs,
         training: bool = False,
         *,
-        attention_mask: Optional[Tensor] = None,
-        query_mask: Optional[Tensor] = None,
-        value_mask: Optional[Tensor] = None,
+        attention_mask: Tensor | None = None,
+        query_mask: Tensor | None = None,
+        value_mask: Tensor | None = None,
         use_causal_mask: bool = False,
         **kwargs,
     ):
         # inputs: (B, T, U)
         batch_size = tf_shape(inputs)[0]
 
-        mem = tf_expand_dims(self.memory, 0)          # (1, M, U)
-        mem = tf_tile(mem, [batch_size, 1, 1])        # (B, M, U)
+        mem = tf_expand_dims(self.memory, 0)  # (1, M, U)
+        mem = tf_tile(mem, [batch_size, 1, 1])  # (B, M, U)
 
         # Build attention_mask if only per-sequence masks given
-        if attention_mask is None and (query_mask is not None
-                                       or value_mask is not None):
+        if attention_mask is None and (
+            query_mask is not None or value_mask is not None
+        ):
             if query_mask is None:
-                query_mask = tf_ones_like(inputs[..., 0], dtype=tf_bool)
+                query_mask = tf_ones_like(
+                    inputs[..., 0], dtype=tf_bool
+                )
             if value_mask is None:
                 value_mask = tf_ones(
-                    (batch_size, self.memory_size), dtype=tf_bool
+                    (batch_size, self.memory_size),
+                    dtype=tf_bool,
                 )
-            qm = tf_expand_dims(tf_cast(query_mask, tf_bool), -1)  # (B,T,1)
-            vm = tf_expand_dims(tf_cast(value_mask, tf_bool), 1)   # (B,1,M)
-            attention_mask = tf_logical_and(qm, vm)                # (B,T,M)
+            qm = tf_expand_dims(
+                tf_cast(query_mask, tf_bool), -1
+            )  # (B,T,1)
+            vm = tf_expand_dims(
+                tf_cast(value_mask, tf_bool), 1
+            )  # (B,1,M)
+            attention_mask = tf_logical_and(qm, vm)  # (B,T,M)
 
         mem_att = self.attention(
             query=inputs,
@@ -592,17 +642,21 @@ class MemoryAugmentedAttention(Layer, NNLearner):
 
     def get_config(self):
         cfg = super().get_config().copy()
-        cfg.update({'units': self.units,
-                    'memory_size': self.memory_size})
+        cfg.update(
+            {
+                "units": self.units,
+                "memory_size": self.memory_size,
+            }
+        )
         return cfg
 
     @classmethod
     def from_config(cls, config):
         return cls(**config)
 
+
 @register_keras_serializable(
-    'geoprior.nn.components', 
-    name="HierarchicalAttention_"
+    "geoprior.nn.components", name="HierarchicalAttention_"
 )
 class HierarchicalAttention_(Layer, NNLearner):
     r"""
@@ -698,12 +752,10 @@ class HierarchicalAttention_(Layer, NNLearner):
 
         # Multi-head attention for short/long
         self.short_term_attention = MultiHeadAttention(
-            num_heads=num_heads,
-            key_dim=units
+            num_heads=num_heads, key_dim=units
         )
         self.long_term_attention = MultiHeadAttention(
-            num_heads=num_heads,
-            key_dim=units
+            num_heads=num_heads, key_dim=units
         )
 
     @tf_autograph.experimental.do_not_convert
@@ -733,27 +785,17 @@ class HierarchicalAttention_(Layer, NNLearner):
 
         # Linear projections to unify
         # dimensionality
-        short_term = self.short_term_dense(
-            short_term
-        )
-        long_term = self.long_term_dense(
-            long_term
-        )
+        short_term = self.short_term_dense(short_term)
+        long_term = self.long_term_dense(long_term)
 
         # Multi-head attention on short_term
-        short_term_attention = (
-            self.short_term_attention(
-                short_term,
-                short_term
-            )
+        short_term_attention = self.short_term_attention(
+            short_term, short_term
         )
 
         # Multi-head attention on long_term
-        long_term_attention = (
-            self.long_term_attention(
-                long_term,
-                long_term
-            )
+        long_term_attention = self.long_term_attention(
+            long_term, long_term
         )
 
         # Combine
@@ -772,11 +814,13 @@ class HierarchicalAttention_(Layer, NNLearner):
             and 'long_term_dense' config.
         """
         config = super().get_config().copy()
-        config.update({
-            'units': self.units,
-            'short_term_dense': self.short_term_dense.get_config(),
-            'long_term_dense': self.long_term_dense.get_config()
-        })
+        config.update(
+            {
+                "units": self.units,
+                "short_term_dense": self.short_term_dense.get_config(),
+                "long_term_dense": self.long_term_dense.get_config(),
+            }
+        )
         return config
 
     @classmethod
@@ -797,8 +841,10 @@ class HierarchicalAttention_(Layer, NNLearner):
             specified configuration.
         """
         return cls(**config)
+
+
 @register_keras_serializable(
-    'geoprior.nn.components', name="HierarchicalAttention"
+    "geoprior.nn.components", name="HierarchicalAttention"
 )
 class HierarchicalAttention(Layer, NNLearner):
     r"""Short/long-term MHA with optional masks."""
@@ -822,8 +868,8 @@ class HierarchicalAttention(Layer, NNLearner):
         inputs,
         training: bool = False,
         *,
-        short_mask: Optional[Tensor] = None,
-        long_mask: Optional[Tensor] = None,
+        short_mask: Tensor | None = None,
+        long_mask: Tensor | None = None,
         use_causal_mask: bool = False,
         **kwargs,
     ):
@@ -865,18 +911,22 @@ class HierarchicalAttention(Layer, NNLearner):
 
     def get_config(self):
         cfg = super().get_config().copy()
-        cfg.update({'units': self.units,
-                    'short_term_dense': self.short_term_dense.get_config(),
-                    'long_term_dense': self.long_term_dense.get_config()})
+        cfg.update(
+            {
+                "units": self.units,
+                "short_term_dense": self.short_term_dense.get_config(),
+                "long_term_dense": self.long_term_dense.get_config(),
+            }
+        )
         return cfg
 
     @classmethod
     def from_config(cls, config):
         return cls(**config)
 
+
 @register_keras_serializable(
-    'geoprior.nn.components', 
-    name="ExplainableAttention"
+    "geoprior.nn.components", name="ExplainableAttention"
 )
 class ExplainableAttention(Layer, NNLearner):
     r"""
@@ -967,8 +1017,7 @@ class ExplainableAttention(Layer, NNLearner):
         # MultiHeadAttention, focusing on returning
         # the attention scores
         self.attention = MultiHeadAttention(
-            num_heads=num_heads,
-            key_dim=key_dim
+            num_heads=num_heads, key_dim=key_dim
         )
 
     @tf_autograph.experimental.do_not_convert
@@ -992,9 +1041,7 @@ class ExplainableAttention(Layer, NNLearner):
             (B, num_heads, T, T).
         """
         _, attention_scores = self.attention(
-            inputs,
-            inputs,
-            return_attention_scores=True
+            inputs, inputs, return_attention_scores=True
         )
         return attention_scores
 
@@ -1009,10 +1056,12 @@ class ExplainableAttention(Layer, NNLearner):
             and 'key_dim'.
         """
         config = super().get_config().copy()
-        config.update({
-            'num_heads': self.num_heads,
-            'key_dim': self.key_dim
-        })
+        config.update(
+            {
+                "num_heads": self.num_heads,
+                "key_dim": self.key_dim,
+            }
+        )
         return config
 
     @classmethod
@@ -1035,8 +1084,8 @@ class ExplainableAttention(Layer, NNLearner):
 
 
 @register_keras_serializable(
-    'geoprior.nn.components', 
-    name="MultiResolutionAttentionFusion"
+    "geoprior.nn.components",
+    name="MultiResolutionAttentionFusion",
 )
 class MultiResolutionAttentionFusion(Layer, NNLearner):
     r"""
@@ -1127,8 +1176,7 @@ class MultiResolutionAttentionFusion(Layer, NNLearner):
         self.num_heads = num_heads
         # MultiHeadAttention instance
         self.attention = MultiHeadAttention(
-            num_heads=num_heads,
-            key_dim=units
+            num_heads=num_heads, key_dim=units
         )
 
     @tf_autograph.experimental.do_not_convert
@@ -1164,16 +1212,15 @@ class MultiResolutionAttentionFusion(Layer, NNLearner):
             Configuration for serialization.
         """
         config = super().get_config().copy()
-        config.update({
-            'units': self.units,
-            'num_heads': self.num_heads
-        })
+        config.update(
+            {"units": self.units, "num_heads": self.num_heads}
+        )
         return config
 
     @classmethod
     def from_config(cls, config):
         r"""
-        Instantiate a new 
+        Instantiate a new
         MultiResolutionAttentionFusion layer from
         config.
 
@@ -1188,4 +1235,3 @@ class MultiResolutionAttentionFusion(Layer, NNLearner):
             A new instance of this layer.
         """
         return cls(**config)
-    

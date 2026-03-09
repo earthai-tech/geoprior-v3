@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -40,14 +39,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional
 
-import numpy as np
-import math
-import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 from . import config as cfg
 from . import utils
@@ -58,7 +56,7 @@ from . import utils
 # -------------------------------------------------------------------
 def _require_cols(
     df: pd.DataFrame,
-    cols: List[str],
+    cols: list[str],
     *,
     ctx: str,
 ) -> None:
@@ -78,11 +76,12 @@ def _sci_tex(x: float, sig: int = 3) -> str:
     if x == 0.0:
         return "0"
     exp = int(math.floor(math.log10(abs(x))))
-    mant = x / (10.0 ** exp)
+    mant = x / (10.0**exp)
     mant_s = f"{mant:.{sig}g}"
     return rf"{mant_s}\times 10^{{{exp}}}"
 
-def _paper_bound_ticks() -> List[str]:
+
+def _paper_bound_ticks() -> list[str]:
     return [
         r"$K_{\max}$",
         r"$K_{\min}$",
@@ -134,7 +133,7 @@ def compute_flags(
     *,
     rtol: float,
     ridge_thr: float,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     K = df["K_est_med_mps"].to_numpy(float)
     tau = df["tau_est_med_sec"].to_numpy(float)
     Hd = df["Hd_est_med"].to_numpy(float)
@@ -171,10 +170,10 @@ def compute_flags(
 
 
 def summarize_counts(
-    flags: Dict[str, np.ndarray],
+    flags: dict[str, np.ndarray],
     *,
     use: str,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     if use not in ("primary", "any"):
         raise ValueError("use must be 'primary' or 'any'")
 
@@ -213,7 +212,7 @@ def summarize_counts(
 
 def build_category_table(
     df: pd.DataFrame,
-    flags: Dict[str, np.ndarray],
+    flags: dict[str, np.ndarray],
 ) -> pd.DataFrame:
     lith = None
     if "lith_idx" in df.columns:
@@ -233,7 +232,7 @@ def build_category_table(
         ("neither", "Neither"),
     ]
 
-    rows: List[dict] = []
+    rows: list[dict] = []
 
     for use in ("primary", "any"):
         clipped = (
@@ -254,7 +253,11 @@ def build_category_table(
         n_all = int(len(df))
         for key, lab in cats:
             c = int(masks[key].sum())
-            f = float(c) / float(n_all) if n_all else float("nan")
+            f = (
+                float(c) / float(n_all)
+                if n_all
+                else float("nan")
+            )
             rows.append(
                 {
                     "use": use,
@@ -284,7 +287,9 @@ def build_category_table(
                         "use": use,
                         "group": "lithology",
                         "lith_idx": int(li),
-                        "lithology": lith_names.get(li, f"L{li}"),
+                        "lithology": lith_names.get(
+                            li, f"L{li}"
+                        ),
                         "category": lab,
                         "count": c,
                         "denom": denom,
@@ -321,7 +326,7 @@ def _panel_label(
 def plot_sm3_bounds_ridge_summary(
     df: pd.DataFrame,
     *,
-    flags: Dict[str, np.ndarray],
+    flags: dict[str, np.ndarray],
     bounds: BoundInfo,
     ridge_thr: float,
     use: str,
@@ -337,7 +342,7 @@ def plot_sm3_bounds_ridge_summary(
     show_panel_titles: bool,
     show_panel_labels: bool,
     paper_format: bool,
-    title: Optional[str],
+    title: str | None,
 ) -> None:
     utils.ensure_script_dirs()
     utils.set_paper_style(fontsize=int(font), dpi=int(dpi))
@@ -372,12 +377,26 @@ def plot_sm3_bounds_ridge_summary(
     _beautify(axA)
     _panel_label(axA, "a", show_panel_labels)
 
-    labels = ["K@max", "K@min", "τ@min", "τ@max", "Hd@max", "Hd@min"]
+    labels = [
+        "K@max",
+        "K@min",
+        "τ@min",
+        "τ@max",
+        "Hd@max",
+        "Hd@min",
+    ]
     if paper_format:
         labels = _paper_bound_ticks()
         rot, ha = 0, "center"
     else:
-        labels = ["K@max","K@min","τ@min","τ@max","Hd@max","Hd@min"]
+        labels = [
+            "K@max",
+            "K@min",
+            "τ@min",
+            "τ@max",
+            "Hd@max",
+            "Hd@min",
+        ]
         rot, ha = 30, "right"
 
     counts = np.array(
@@ -409,7 +428,11 @@ def plot_sm3_bounds_ridge_summary(
         axA.set_title("Bound hits inferred from runs", pad=2)
 
     for i, c in enumerate(counts.tolist()):
-        pct = (100.0 * float(c) / float(n)) if n else float("nan")
+        pct = (
+            (100.0 * float(c) / float(n))
+            if n
+            else float("nan")
+        )
         axA.text(
             i,
             c + 0.5,
@@ -437,9 +460,12 @@ def plot_sm3_bounds_ridge_summary(
                 f"Hd_max={bounds.Hd_max:g}"
             )
         axA.text(
-            0.02, 0.02, msg,
+            0.02,
+            0.02,
+            msg,
             transform=axA.transAxes,
-            va="bottom", ha="left",
+            va="bottom",
+            ha="left",
             bbox=dict(
                 boxstyle="round,pad=0.2",
                 facecolor="white",
@@ -460,7 +486,9 @@ def plot_sm3_bounds_ridge_summary(
     rr_f = rr_f[np.isfinite(rr_f)]
 
     axB.hist(rr_f, bins=18)
-    axB.axvline(float(ridge_thr), linestyle="--", linewidth=0.9)
+    axB.axvline(
+        float(ridge_thr), linestyle="--", linewidth=0.9
+    )
 
     if show_labels:
         # axB.set_xlabel("ridge_resid_q50 (decades)")
@@ -475,7 +503,9 @@ def plot_sm3_bounds_ridge_summary(
         axB.set_title("Ridge non-identifiability", pad=2)
 
     if rr_f.size:
-        frac_r = float((rr_f > float(ridge_thr)).sum()) / float(rr_f.size)
+        frac_r = float(
+            (rr_f > float(ridge_thr)).sum()
+        ) / float(rr_f.size)
     else:
         frac_r = float("nan")
 
@@ -483,18 +513,18 @@ def plot_sm3_bounds_ridge_summary(
         axB.text(
             0.03,
             0.97,
-            f"Strong ridge (> {ridge_thr:g}) = {100*frac_r:.1f}%",
+            f"Strong ridge (> {ridge_thr:g}) = {100 * frac_r:.1f}%",
             transform=axB.transAxes,
             va="top",
             ha="left",
-             bbox=dict(
+            bbox=dict(
                 boxstyle="round,pad=0.2",
                 facecolor="white",
                 alpha=0.85,
                 linewidth=0.0,
             ),
-         )
-    
+        )
+
     # -------------------------
     # (c) 2×2 matrix
     # -------------------------
@@ -504,8 +534,14 @@ def plot_sm3_bounds_ridge_summary(
 
     mat = np.array(
         [
-            [int((~clipped & ~ridge).sum()), int((~clipped & ridge).sum())],
-            [int((clipped & ~ridge).sum()), int((clipped & ridge).sum())],
+            [
+                int((~clipped & ~ridge).sum()),
+                int((~clipped & ridge).sum()),
+            ],
+            [
+                int((clipped & ~ridge).sum()),
+                int((clipped & ridge).sum()),
+            ],
         ],
         dtype=int,
     )
@@ -525,8 +561,18 @@ def plot_sm3_bounds_ridge_summary(
         axC.set_title(f"Clipping vs ridge ({use})", pad=2)
 
     for (i, j), v in np.ndenumerate(mat):
-        pct = (100.0 * float(v) / float(n)) if n else float("nan")
-        axC.text(j, i, f"{v}\n({pct:.1f}%)", ha="center", va="center")
+        pct = (
+            (100.0 * float(v) / float(n))
+            if n
+            else float("nan")
+        )
+        axC.text(
+            j,
+            i,
+            f"{v}\n({pct:.1f}%)",
+            ha="center",
+            va="center",
+        )
 
     # -------------------------
     # (d) Fractions overall/by lith
@@ -535,13 +581,34 @@ def plot_sm3_bounds_ridge_summary(
     _beautify(axD)
     _panel_label(axD, "d", show_panel_labels)
 
-    cats = ["Clipped+Ridge", "Clipped only", "Ridge only", "Neither"]
+    cats = [
+        "Clipped+Ridge",
+        "Clipped only",
+        "Ridge only",
+        "Neither",
+    ]
     fracs = np.array(
         [
-            float(both.sum()) / float(n) if n else float("nan"),
-            float(clip_only.sum()) / float(n) if n else float("nan"),
-            float(ridge_only.sum()) / float(n) if n else float("nan"),
-            float(neither.sum()) / float(n) if n else float("nan"),
+            (
+                float(both.sum()) / float(n)
+                if n
+                else float("nan")
+            ),
+            (
+                float(clip_only.sum()) / float(n)
+                if n
+                else float("nan")
+            ),
+            (
+                float(ridge_only.sum()) / float(n)
+                if n
+                else float("nan")
+            ),
+            (
+                float(neither.sum()) / float(n)
+                if n
+                else float("nan")
+            ),
         ],
         dtype=float,
     )
@@ -552,11 +619,17 @@ def plot_sm3_bounds_ridge_summary(
         if show_ticklabels:
             if paper_format:
                 axD.set_xticklabels(
-                    ["Clipped\n+ ridge","Clipped\nonly",
-                     "Ridge\nonly","Neither"]
+                    [
+                        "Clipped\n+ ridge",
+                        "Clipped\nonly",
+                        "Ridge\nonly",
+                        "Neither",
+                    ]
                 )
             else:
-                axD.set_xticklabels(cats, rotation=25, ha="right")
+                axD.set_xticklabels(
+                    cats, rotation=25, ha="right"
+                )
 
         else:
             axD.set_xticklabels([])
@@ -566,17 +639,24 @@ def plot_sm3_bounds_ridge_summary(
             axD.set_ylabel("Fraction")
 
         if show_panel_titles:
-            axD.set_title("Category fractions (overall)", pad=2)
+            axD.set_title(
+                "Category fractions (overall)", pad=2
+            )
     else:
         lith = df["lith_idx"].to_numpy(int)
-        lith_names = {0: "Fine", 1: "Mixed", 2: "Coarse", 3: "Rock"}
+        lith_names = {
+            0: "Fine",
+            1: "Mixed",
+            2: "Coarse",
+            3: "Rock",
+        }
         order = [0, 1, 2, 3]
         x = np.arange(len(order))
         bottoms = np.zeros_like(x, float)
 
         masks = [both, clip_only, ridge_only, neither]
-        for lab, m in zip(cats, masks):
-            vals: List[float] = []
+        for lab, m in zip(cats, masks, strict=False):
+            vals: list[float] = []
             for li in order:
                 mm = lith == li
                 denom = float(mm.sum())
@@ -591,7 +671,9 @@ def plot_sm3_bounds_ridge_summary(
 
         axD.set_xticks(x)
         if show_ticklabels:
-            axD.set_xticklabels([lith_names[i] for i in order])
+            axD.set_xticklabels(
+                [lith_names[i] for i in order]
+            )
         else:
             axD.set_xticklabels([])
         axD.set_ylim(0, 1)
@@ -616,7 +698,7 @@ def plot_sm3_bounds_ridge_summary(
         )
         fig.suptitle(ttl, x=0.02, ha="left")
 
-    utils.save_figure(fig, out, dpi = int(dpi))
+    utils.save_figure(fig, out, dpi=int(dpi))
 
     # -------------------------
     # Exports: JSON + CSV
@@ -631,9 +713,11 @@ def plot_sm3_bounds_ridge_summary(
     cat_df.to_csv(out_csv_p, index=False)
 
     payload = {
-        "csv": str(Path(df.attrs.get("csv_path", "")).resolve())
-        if df.attrs.get("csv_path")
-        else "",
+        "csv": (
+            str(Path(df.attrs.get("csv_path", "")).resolve())
+            if df.attrs.get("csv_path")
+            else ""
+        ),
         "bounds_inferred": {
             "K_min": bounds.K_min,
             "K_max": bounds.K_max,
@@ -661,7 +745,7 @@ def plot_sm3_bounds_ridge_summary(
 # CLI
 # -------------------------------------------------------------------
 def plot_sm3_bounds_ridge_summary_main(
-    argv: Optional[List[str]] = None,
+    argv: list[str] | None = None,
 ) -> None:
     ap = argparse.ArgumentParser(
         prog="plot-sm3-bounds-ridge-summary",
@@ -698,7 +782,9 @@ def plot_sm3_bounds_ridge_summary_main(
     ap.add_argument("--rtol", type=float, default=1e-6)
 
     ap.add_argument("--dpi", type=int, default=cfg.PAPER_DPI)
-    ap.add_argument("--font", type=int, default=cfg.PAPER_FONT)
+    ap.add_argument(
+        "--font", type=int, default=cfg.PAPER_FONT
+    )
 
     ap.add_argument(
         "--paper-format",
@@ -724,7 +810,9 @@ def plot_sm3_bounds_ridge_summary_main(
         help="Show panel letters a–d (true/false).",
     )
 
-    utils.add_plot_text_args(ap, default_out="sm3-clip-vs-ridge")
+    utils.add_plot_text_args(
+        ap, default_out="sm3-clip-vs-ridge"
+    )
 
     args = ap.parse_args(argv)
 
@@ -746,7 +834,9 @@ def plot_sm3_bounds_ridge_summary_main(
                 "--only-identify set but missing identify."
             )
         want = str(args.only_identify).strip().lower()
-        got = df["identify"].astype(str).str.strip().str.lower()
+        got = (
+            df["identify"].astype(str).str.strip().str.lower()
+        )
         df = df.loc[got == want].copy()
 
     if args.nx_min is not None:
@@ -766,11 +856,21 @@ def plot_sm3_bounds_ridge_summary_main(
         ridge_thr=float(args.ridge_thr),
     )
 
-    show_legend = utils.str_to_bool(args.show_legend, default=True)
-    show_labels = utils.str_to_bool(args.show_labels, default=True)
-    show_ticks = utils.str_to_bool(args.show_ticklabels, default=True)
-    show_title = utils.str_to_bool(args.show_title, default=True)
-    show_pt = utils.str_to_bool(args.show_panel_titles, default=True)
+    show_legend = utils.str_to_bool(
+        args.show_legend, default=True
+    )
+    show_labels = utils.str_to_bool(
+        args.show_labels, default=True
+    )
+    show_ticks = utils.str_to_bool(
+        args.show_ticklabels, default=True
+    )
+    show_title = utils.str_to_bool(
+        args.show_title, default=True
+    )
+    show_pt = utils.str_to_bool(
+        args.show_panel_titles, default=True
+    )
     show_pl = utils.str_to_bool(
         args.show_panel_labels,
         default=True,
@@ -798,7 +898,7 @@ def plot_sm3_bounds_ridge_summary_main(
     )
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     plot_sm3_bounds_ridge_summary_main(argv)
 
 

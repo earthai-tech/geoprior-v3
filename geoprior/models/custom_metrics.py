@@ -1,21 +1,17 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 â€” https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
-# Author: LKouadio <etanoyau@gmail.com>
-# website:https://lkouadio.com
-
+# Author: LKouadio <https://lkouadio.com>
 
 from __future__ import annotations
 
 from collections import OrderedDict
 
 from . import KERAS_DEPS, dependency_message
-
 from .keras_metrics import (
-    Coverage80,
     MAEQ50,
     MSEQ50,
+    Coverage80,
     Sharpness80,
 )
 

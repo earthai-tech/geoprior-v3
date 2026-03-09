@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3  https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -8,8 +7,8 @@ from __future__ import annotations
 
 import importlib
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Dict, List, Optional, Tuple
 
 
 @dataclass(frozen=True)
@@ -24,7 +23,7 @@ class _CmdSpec:
 # Registry (primary names are hyphenated)
 # ---------------------------------------------------------------------
 
-_CMD: Dict[str, _CmdSpec] = {
+_CMD: dict[str, _CmdSpec] = {
     # Main paper figures
     "plot-driver-response": _CmdSpec(
         "plot_driver_response",
@@ -163,13 +162,11 @@ _CMD: Dict[str, _CmdSpec] = {
         "update_ablation_records_main",
         "Patch ablation_record.jsonl with post-hoc metrics.",
     ),
-
     "build-model-metrics": _CmdSpec(
         "build_model_metrics",
         "build_model_metrics_main",
         "Build unified metrics tables (CSV/JSON).",
     ),
-
     "build-ablation-table": _CmdSpec(
         "build_ablation_table",
         "build_ablation_table_main",
@@ -195,19 +192,18 @@ _CMD: Dict[str, _CmdSpec] = {
         "tag_clusters_with_zones_main",
         "Assign hotspot clusters to Zone IDs.",
     ),
-    
 }
 
 
 # Backward-compatible aliases
-_ALIASES: Dict[str, str] = {
+_ALIASES: dict[str, str] = {
     "plot_uncertainty_extras": "plot-uncertainty-extras",
     "plot-sm3-bounds-ridge": "plot-sm3-bounds-ridge-summary",
 }
 
 
 # Help groups (only presentation; does not affect CLI)
-_GROUPS: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
+_GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
     (
         "Figures",
         (
@@ -217,7 +213,7 @@ _GROUPS: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
             "plot-uncertainty",
             "plot-spatial-forecasts",
             "plot-transfer-impact",
-            "plot-hotspot-analytics"
+            "plot-hotspot-analytics",
         ),
     ),
     (
@@ -243,14 +239,14 @@ _GROUPS: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
             "compute-brier-exceedance",
             "compute-hotspots",
             "summarize-hotspots",
-            "update-ablation-records", 
+            "update-ablation-records",
             "build-ablation-table",
-            "build-model-metrics", 
-            "extend-forecast", 
-            "make-boundary", 
-            "make-exposure", 
+            "build-model-metrics",
+            "extend-forecast",
+            "make-boundary",
+            "make-exposure",
             "make-district-grid",
-            "tag-clusters-with-zones"
+            "tag-clusters-with-zones",
         ),
     ),
 )
@@ -272,7 +268,7 @@ def _load_callable(spec: _CmdSpec) -> Callable[..., None]:
 def _call_with_sysargv(
     fn: Callable[[], None],
     cmd: str,
-    argv: Optional[List[str]],
+    argv: list[str] | None,
 ) -> None:
     old = list(sys.argv)
     sys.argv = [f"python -m scripts {cmd}"]
@@ -284,7 +280,7 @@ def _call_with_sysargv(
         sys.argv = old
 
 
-def _print_group(title: str, cmds: Tuple[str, ...]) -> None:
+def _print_group(title: str, cmds: tuple[str, ...]) -> None:
     print(f"{title}:")
 
     width = 30
@@ -324,7 +320,7 @@ def _print_help() -> None:
     print("  python -m scripts <command> -h")
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     args = list(argv) if argv is not None else sys.argv[1:]
 
     if not args or args[0] in ("-h", "--help", "help"):

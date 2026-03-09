@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
@@ -10,7 +9,6 @@ import argparse
 import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Tuple
 
 import pandas as pd
 
@@ -24,7 +22,7 @@ class RowSpec:
     rec: float
 
 
-def _safe_float(x: object) -> Optional[float]:
+def _safe_float(x: object) -> float | None:
     if x is None:
         return None
     if isinstance(x, float) and math.isnan(x):
@@ -44,27 +42,27 @@ def _acc(tp: int, tn: int, fp: int, fn: int) -> float:
     return 100.0 * (tp + tn) / den if den else 0.0
 
 
-def _prec(tp: int, fp: int) -> Optional[float]:
+def _prec(tp: int, fp: int) -> float | None:
     den = tp + fp
     return 100.0 * tp / den if den else None
 
 
-def _rec(tp: int, fn: int) -> Optional[float]:
+def _rec(tp: int, fn: int) -> float | None:
     den = tp + fn
     return 100.0 * tp / den if den else None
 
 
-def _f1(tp: int, fp: int, fn: int) -> Optional[float]:
+def _f1(tp: int, fp: int, fn: int) -> float | None:
     den = 2 * tp + fp + fn
     return 100.0 * (2 * tp) / den if den else None
 
 
-def _spec(tn: int, fp: int) -> Optional[float]:
+def _spec(tn: int, fp: int) -> float | None:
     den = tn + fp
     return 100.0 * tn / den if den else None
 
 
-def _npv(tn: int, fn: int) -> Optional[float]:
+def _npv(tn: int, fn: int) -> float | None:
     den = tn + fn
     return 100.0 * tn / den if den else None
 
@@ -77,7 +75,7 @@ def _mcc(tp: int, tn: int, fp: int, fn: int) -> float:
     return num / math.sqrt(a)
 
 
-def _close(a: Optional[float], b: float, tol: float) -> bool:
+def _close(a: float | None, b: float, tol: float) -> bool:
     if a is None:
         return False
     return abs(a - b) <= tol
@@ -92,7 +90,7 @@ def _reconstruct_counts(
     rec: float,
     f1: float,
     tol: float,
-) -> Optional[Tuple[int, int, int, int]]:
+) -> tuple[int, int, int, int] | None:
     """
     Reconstruct integer TP/FP/FN/TN given (P,N) and
     reported metrics (Acc, Prec, Rec, F1).
@@ -116,7 +114,15 @@ def _reconstruct_counts(
         # => FP = TP*(100/prec - 1)
         fp0 = int(round(tp * (100.0 / prec - 1.0)))
         fp_cands = set(
-            [fp0 - 3, fp0 - 2, fp0 - 1, fp0, fp0 + 1, fp0 + 2, fp0 + 3]
+            [
+                fp0 - 3,
+                fp0 - 2,
+                fp0 - 1,
+                fp0,
+                fp0 + 1,
+                fp0 + 2,
+                fp0 + 3,
+            ]
         )
 
         for fp in sorted(fp_cands):
@@ -144,15 +150,15 @@ def _reconstruct_counts(
 
 
 def _infer_pn(
-    rows: List[RowSpec],
+    rows: list[RowSpec],
     *,
     n_test: int,
     tol: float,
-) -> Tuple[int, int]:
+) -> tuple[int, int]:
     """
     Find (P,N) such that every row can be reconstructed.
     """
-    best: Tuple[int, int, int] = (-1, -1, -1)
+    best: tuple[int, int, int] = (-1, -1, -1)
     for p in range(0, n_test + 1):
         n = n_test - p
         ok = 0
@@ -182,14 +188,14 @@ def _infer_pn(
     )
 
 
-def _load_metric_rows(csv_path: Path) -> List[RowSpec]:
+def _load_metric_rows(csv_path: Path) -> list[RowSpec]:
     df = pd.read_csv(csv_path)
     need = ["Model", "Acc", "F1", "Prec", "Rec"]
     for c in need:
         if c not in df.columns:
             raise ValueError(f"Missing column: {c}")
 
-    rows: List[RowSpec] = []
+    rows: list[RowSpec] = []
     for _, r in df.iterrows():
         rows.append(
             RowSpec(
@@ -204,13 +210,13 @@ def _load_metric_rows(csv_path: Path) -> List[RowSpec]:
 
 
 def _counts_to_df(
-    rows: List[RowSpec],
+    rows: list[RowSpec],
     *,
     p: int,
     n: int,
     tol: float,
 ) -> pd.DataFrame:
-    out_rows: List[Dict[str, object]] = []
+    out_rows: list[dict[str, object]] = []
     for r in rows:
         counts = _reconstruct_counts(
             p=p,
@@ -236,10 +242,16 @@ def _counts_to_df(
                 "FN": fn,
                 "TN": tn,
                 "Acc%": _round2(_acc(tp, tn, fp, fn)),
-                "Prec%": _round2(_prec(tp, fp) or float("nan")),
+                "Prec%": _round2(
+                    _prec(tp, fp) or float("nan")
+                ),
                 "Rec%": _round2(_rec(tp, fn) or float("nan")),
-                "F1%": _round2(_f1(tp, fp, fn) or float("nan")),
-                "Specificity%": _round2(_spec(tn, fp) or float("nan")),
+                "F1%": _round2(
+                    _f1(tp, fp, fn) or float("nan")
+                ),
+                "Specificity%": _round2(
+                    _spec(tn, fp) or float("nan")
+                ),
                 "NPV%": _round2(_npv(tn, fn) or float("nan")),
                 "MCC": float(f"{_mcc(tp, tn, fp, fn):.4f}"),
                 "PredPos": tp + fp,
@@ -274,9 +286,7 @@ def main() -> None:
         n_total = int(df_data.shape[0])
         n_test = int(round(n_total * float(args.test_ratio)))
     else:
-        raise ValueError(
-            "Provide --n-test or --data-csv."
-        )
+        raise ValueError("Provide --n-test or --data-csv.")
 
     p, n = _infer_pn(rows, n_test=n_test, tol=float(args.tol))
 

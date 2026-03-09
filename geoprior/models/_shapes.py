@@ -1,15 +1,17 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
-# Author: LKouadio <etanoyau@gmail.com>
-# website:https://lkouadio.com
+# Author: LKouadio <https://lkouadio.com>
 
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Optional, Sequence, Tuple
-import numpy as np 
+from collections.abc import Callable, Sequence
+from typing import (
+    Any,
+)
+
+import numpy as np
 
 from . import KERAS_DEPS, dependency_message
 
@@ -33,14 +35,14 @@ tf_size = KERAS_DEPS.size
 tf_reshape = KERAS_DEPS.reshape
 tf_broadcast_to = KERAS_DEPS.broadcast_to
 tf_gather = KERAS_DEPS.gather
-tf_where = KERAS_DEPS.where 
-tf_equal = KERAS_DEPS.equal 
-tf_executing_eagerly =KERAS_DEPS.executing_eagerly
-tf_rank = KERAS_DEPS.rank 
-tf_cond = KERAS_DEPS.cond 
-tf_sort = KERAS_DEPS.sort 
-tf_reduce_mean = KERAS_DEPS.reduce_mean 
-tf_transpose =KERAS_DEPS.transpose 
+tf_where = KERAS_DEPS.where
+tf_equal = KERAS_DEPS.equal
+tf_executing_eagerly = KERAS_DEPS.executing_eagerly
+tf_rank = KERAS_DEPS.rank
+tf_cond = KERAS_DEPS.cond
+tf_sort = KERAS_DEPS.sort
+tf_reduce_mean = KERAS_DEPS.reduce_mean
+tf_transpose = KERAS_DEPS.transpose
 tf_abs = KERAS_DEPS.abs
 
 DEP_MSG = dependency_message("nn._shapes")
@@ -99,6 +101,7 @@ def _as_BHO(y_true: Tensor, y_pred: Tensor | None = None):
 
     return tf_cast(y, tf_float32)
 
+
 def _as_BHQO(y_pred: Any, n_q: int = 3) -> Any:
     """
     Canonicalize predictions to (B, H, Q, O) for debug.
@@ -128,6 +131,7 @@ def _as_BHQO(y_pred: Any, n_q: int = 3) -> Any:
         return tf_expand_dims(y, axis=-1)
 
     return y
+
 
 def _as_BHO_like_pred(x: Tensor, dtype=tf_float32):
     """Normalize (B,H,*) to (B,H,1)/(B,H,O)."""
@@ -254,6 +258,7 @@ def _interval80_as_BHO(y_pred: Tensor, q_axis: int = 2):
     p = _q50_as_BHO(yp, q_axis=q_axis)
     return tf_cast(p, tf_float32), tf_cast(p, tf_float32)
 
+
 def infer_quantile_axis(t, n_q=3):
     """
     Infer which axis holds quantiles of length n_q (typically 3: q10,q50,q90).
@@ -287,7 +292,11 @@ def infer_quantile_axis(t, n_q=3):
 
     # ---- 3) Strong conventions / common layouts ----
     # (B,H,Q,O)
-    if rank == 4 and dims[2] == n_q and dims[-1] not in (n_q, 2):
+    if (
+        rank == 4
+        and dims[2] == n_q
+        and dims[-1] not in (n_q, 2)
+    ):
         return 2
 
     # (B,H,O,Q)
@@ -342,7 +351,7 @@ def _mean_crossing_score(
 
 def _safe_transpose(
     y: np.ndarray,
-    axes: Tuple[int, int, int, int],
+    axes: tuple[int, int, int, int],
 ) -> np.ndarray:
     return np.transpose(y, axes)
 
@@ -442,8 +451,8 @@ def canonicalize_BHQO_quantiles_np(
 
     # Multiple candidates (e.g., H==Q==3):
     # pick best by minimal quantile crossing score.
-    best_name: Optional[str] = None
-    best_arr: Optional[np.ndarray] = None
+    best_name: str | None = None
+    best_arr: np.ndarray | None = None
     best_score = float("inf")
 
     for name, arr in options:
@@ -478,6 +487,7 @@ def canonicalize_BHQO_quantiles_np(
 
     return best_arr
 
+
 def _to_numpy(x: Any) -> np.ndarray:
     """Convert tensor/array-like to numpy array."""
     if hasattr(x, "numpy"):
@@ -485,7 +495,7 @@ def _to_numpy(x: Any) -> np.ndarray:
     return np.asarray(x)
 
 
-def _static_shape(x: Any) -> Optional[Tuple[int, ...]]:
+def _static_shape(x: Any) -> tuple[int, ...] | None:
     """Return static shape tuple if available."""
     shp = getattr(x, "shape", None)
     if shp is None:
@@ -551,7 +561,7 @@ def infer_q_axis(
     try:
         dyn = tf_shape(yq)
         rank = int(tf_rank(yq).numpy())
-    except :
+    except:
         if verbose:
             msg = (
                 "infer_q_axis: dynamic shape failed; "
@@ -588,7 +598,7 @@ def _crossing_rates(
     q_lo: np.ndarray,
     q_mid: np.ndarray,
     q_hi: np.ndarray,
-) -> Tuple[float, float, float]:
+) -> tuple[float, float, float]:
     """Compute basic crossing rates."""
     c1 = float(np.mean(q_lo > q_mid))
     c2 = float(np.mean(q_mid > q_hi))
@@ -606,7 +616,7 @@ def debug_val_interval(
     default_q_axis: int = 2,
     verbose: int = 1,
     log_fn: Callable[[str], None] = print,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Debug quantile crossing on a tf.data.Dataset.
 
@@ -617,7 +627,7 @@ def debug_val_interval(
         max_batches = 2
     max_batches = int(max_batches)
 
-    summary: Dict[str, Any] = {
+    summary: dict[str, Any] = {
         "batches": 0,
         "q_axis": None,
         "crossings": [],
@@ -720,14 +730,14 @@ def debug_tensor_interval(
     default_q_axis: int = 2,
     verbose: int = 1,
     log_fn: Callable[[str], None] = print,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Debug quantile crossing for pre-collected tensors/arrays.
     """
     y_np = _to_numpy(y_true)
     s_np = _to_numpy(s_q)
 
-    out: Dict[str, Any] = {
+    out: dict[str, Any] = {
         "name": str(name),
         "y_shape": tuple(y_np.shape),
         "s_shape": tuple(s_np.shape),
@@ -820,6 +830,7 @@ def debug_tensor_interval(
 
     return out
 
+
 def _logs_to_py(logs, *, keep_none=True):
     out = {}
     for k, v in (logs or {}).items():
@@ -844,13 +855,13 @@ def _logs_to_py(logs, *, keep_none=True):
         out[k] = v
     return out
 
+
 def canonicalize_to_BHQO_using_contract(
     s_pred,
     *,
     q_values=(0.1, 0.5, 0.9),
     enforce_monotone=True,
 ):
-
     n_q = len(q_values)
 
     if s_pred.shape.rank == 3:
@@ -882,9 +893,10 @@ def canonicalize_to_BHQO_using_contract(
 
     return out
 
+
 def canonicalize_to_BHQO_using_ytrue(
-        s_pred, y_true, q_values=(0.1,0.5,0.9)
-    ):
+    s_pred, y_true, q_values=(0.1, 0.5, 0.9)
+):
     """
     s_pred: (B,?, ?,1) rank-4
     y_true: (B,H,1)
@@ -892,16 +904,20 @@ def canonicalize_to_BHQO_using_ytrue(
     """
 
     q_values = list(q_values)
-    med = int(min(range(len(
-        q_values)), key=lambda i: abs(q_values[i]-0.5)))
+    med = int(
+        min(
+            range(len(q_values)),
+            key=lambda i: abs(q_values[i] - 0.5),
+        )
+    )
 
     # Candidate A: assume BHQO already
     A = s_pred
-    A_q50 = A[:, :, med, :]          # (B,H,1)
+    A_q50 = A[:, :, med, :]  # (B,H,1)
 
     # Candidate B: assume BQHO -> transpose to BHQO
     B = tf_transpose(s_pred, [0, 2, 1, 3])
-    B_q50 = B[:, :, med, :]          # (B,H,1)
+    B_q50 = B[:, :, med, :]  # (B,H,1)
 
     # Score by MAE against y_true in model space
     maeA = tf_reduce_mean(tf_abs(A_q50 - y_true))
@@ -913,6 +929,7 @@ def canonicalize_to_BHQO_using_ytrue(
     out = tf_sort(out, axis=2)
     return out
 
+
 def debug_quantile_crossing_np(
     s_pred: Any,
     n_q: int = 3,
@@ -922,7 +939,7 @@ def debug_quantile_crossing_np(
     log_fn: Callable[[str], None] = print,
     try_repair: bool = False,
     repair_mode: str = "sort",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Debug quantile crossing rates for two common layouts.
 
@@ -936,7 +953,7 @@ def debug_quantile_crossing_np(
     """
     s_np = _to_numpy(s_pred)
 
-    out: Dict[str, Any] = {
+    out: dict[str, Any] = {
         "name": str(name),
         "shape": tuple(s_np.shape),
         "n_q": int(n_q),
@@ -986,7 +1003,7 @@ def debug_quantile_crossing_np(
         q10: np.ndarray,
         q50: np.ndarray,
         q90: np.ndarray,
-    ) -> Tuple[Tuple[float, float, float], float]:
+    ) -> tuple[tuple[float, float, float], float]:
         rates = _crossing_rates(q10, q50, q90)
         score = float(rates[0] + rates[1] + rates[2])
         return rates, score
@@ -1010,7 +1027,9 @@ def debug_quantile_crossing_np(
                     f"{rates} score={score:.6f}"
                 )
         except Exception as e:
-            out["notes"].append(f"layout_A slicing failed: {e}")
+            out["notes"].append(
+                f"layout_A slicing failed: {e}"
+            )
 
     # ---- Layout B: (B,Q,H,1) ----
     if s_np.shape[1] == n_q:
@@ -1031,7 +1050,9 @@ def debug_quantile_crossing_np(
                     f"{rates} score={score:.6f}"
                 )
         except Exception as e:
-            out["notes"].append(f"layout_B slicing failed: {e}")
+            out["notes"].append(
+                f"layout_B slicing failed: {e}"
+            )
 
     # Pick best available layout by minimal score.
     cand = []

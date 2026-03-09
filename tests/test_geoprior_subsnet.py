@@ -4,7 +4,6 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-
 tf = pytest.importorskip("tensorflow")
 
 
@@ -12,7 +11,10 @@ def _import_geoprior_subsnet():
     candidates = [
         ("geoprior.models", "GeoPriorSubsNet"),
         ("geoprior.models.subsidence", "GeoPriorSubsNet"),
-        ("geoprior.models.subsidence.models", "GeoPriorSubsNet"),
+        (
+            "geoprior.models.subsidence.models",
+            "GeoPriorSubsNet",
+        ),
     ]
     errors = []
     for module_name, attr in candidates:
@@ -72,12 +74,18 @@ def batch_inputs(dims):
     x = np.linspace(10.0, 11.0, h, dtype=np.float32)
     y = np.linspace(20.0, 20.5, h, dtype=np.float32)
     coords = np.stack([t, x, y], axis=-1)
-    coords = np.broadcast_to(coords[None, ...], (b, h, 3)).copy()
+    coords = np.broadcast_to(
+        coords[None, ...], (b, h, 3)
+    ).copy()
 
-    dynamic = np.arange(b * h * d, dtype=np.float32).reshape(b, h, d)
+    dynamic = np.arange(b * h * d, dtype=np.float32).reshape(
+        b, h, d
+    )
     dynamic = dynamic / (dynamic.max() + 1.0)
 
-    future = np.arange(b * h * f, dtype=np.float32).reshape(b, h, f)
+    future = np.arange(b * h * f, dtype=np.float32).reshape(
+        b, h, f
+    )
     future = future / (future.max() + 1.0)
 
     static = np.arange(b * s, dtype=np.float32).reshape(b, s)
@@ -104,7 +112,9 @@ def targets(batch_inputs):
 
 @pytest.fixture()
 def dataset(batch_inputs, targets):
-    ds = tf.data.Dataset.from_tensor_slices((batch_inputs, targets))
+    ds = tf.data.Dataset.from_tensor_slices(
+        (batch_inputs, targets)
+    )
     return ds.batch(2)
 
 
@@ -161,13 +171,23 @@ def _compile_model(model):
     return model
 
 
-def test_build_and_call_return_expected_outputs(dims, scaling_kwargs, batch_inputs):
+def test_build_and_call_return_expected_outputs(
+    dims, scaling_kwargs, batch_inputs
+):
     model = _make_model(dims, scaling_kwargs)
     model.build(
         {
             "static_features": (None, dims["static_dim"]),
-            "dynamic_features": (None, dims["horizon"], dims["dynamic_dim"]),
-            "future_features": (None, dims["horizon"], dims["future_dim"]),
+            "dynamic_features": (
+                None,
+                dims["horizon"],
+                dims["dynamic_dim"],
+            ),
+            "future_features": (
+                None,
+                dims["horizon"],
+                dims["future_dim"],
+            ),
             "coords": (None, dims["horizon"], 3),
             "H_field": (None, dims["horizon"], 1),
         }
@@ -176,26 +196,45 @@ def test_build_and_call_return_expected_outputs(dims, scaling_kwargs, batch_inpu
     y = model(batch_inputs, training=False)
 
     assert list(y.keys()) == ["subs_pred", "gwl_pred"]
-    assert y["subs_pred"].shape == (dims["batch"], dims["horizon"], 1)
-    assert y["gwl_pred"].shape == (dims["batch"], dims["horizon"], 1)
+    assert y["subs_pred"].shape == (
+        dims["batch"],
+        dims["horizon"],
+        1,
+    )
+    assert y["gwl_pred"].shape == (
+        dims["batch"],
+        dims["horizon"],
+        1,
+    )
     assert model.K_head is not None
     assert model.Ss_head is not None
     assert model.tau_head is not None
 
 
-def test_forward_with_aux_exposes_physics_tensors(dims, scaling_kwargs, batch_inputs):
+def test_forward_with_aux_exposes_physics_tensors(
+    dims, scaling_kwargs, batch_inputs
+):
     model = _make_model(dims, scaling_kwargs)
 
-    y_pred, aux = model.forward_with_aux(batch_inputs, training=False)
+    y_pred, aux = model.forward_with_aux(
+        batch_inputs, training=False
+    )
 
     assert set(y_pred) == {"subs_pred", "gwl_pred"}
-    assert {"data_final", "data_mean_raw", "phys_mean_raw", "phys_features_raw_3d"}.issubset(aux)
+    assert {
+        "data_final",
+        "data_mean_raw",
+        "phys_mean_raw",
+        "phys_features_raw_3d",
+    }.issubset(aux)
     assert aux["phys_mean_raw"].shape[0] == dims["batch"]
     assert aux["phys_mean_raw"].shape[1] == dims["horizon"]
     assert aux["phys_mean_raw"].shape[-1] in (3, 4)
 
 
-def test_closure_locked_regime_freezes_tau_head(dims, scaling_kwargs):
+def test_closure_locked_regime_freezes_tau_head(
+    dims, scaling_kwargs
+):
     model = _make_model(
         dims,
         scaling_kwargs,
@@ -204,8 +243,16 @@ def test_closure_locked_regime_freezes_tau_head(dims, scaling_kwargs):
     model.build(
         {
             "static_features": (None, dims["static_dim"]),
-            "dynamic_features": (None, dims["horizon"], dims["dynamic_dim"]),
-            "future_features": (None, dims["horizon"], dims["future_dim"]),
+            "dynamic_features": (
+                None,
+                dims["horizon"],
+                dims["dynamic_dim"],
+            ),
+            "future_features": (
+                None,
+                dims["horizon"],
+                dims["future_dim"],
+            ),
             "coords": (None, dims["horizon"], 3),
             "H_field": (None, dims["horizon"], 1),
         }
@@ -215,7 +262,9 @@ def test_closure_locked_regime_freezes_tau_head(dims, scaling_kwargs):
     assert model.tau_head.trainable is False
 
 
-def test_missing_coords_raises(dims, scaling_kwargs, batch_inputs):
+def test_missing_coords_raises(
+    dims, scaling_kwargs, batch_inputs
+):
     model = _make_model(dims, scaling_kwargs)
     bad_inputs = dict(batch_inputs)
     bad_inputs.pop("coords")
@@ -224,31 +273,51 @@ def test_missing_coords_raises(dims, scaling_kwargs, batch_inputs):
         model(bad_inputs, training=False)
 
 
-def test_hard_bounds_without_bounds_raise(dims, scaling_kwargs):
-    model = _make_model(dims, scaling_kwargs, bounds_mode="hard")
+def test_hard_bounds_without_bounds_raise(
+    dims, scaling_kwargs
+):
+    model = _make_model(
+        dims, scaling_kwargs, bounds_mode="hard"
+    )
 
     with pytest.raises(ValueError, match="requires bounds"):
         model.build(
             {
                 "static_features": (None, dims["static_dim"]),
-                "dynamic_features": (None, dims["horizon"], dims["dynamic_dim"]),
-                "future_features": (None, dims["horizon"], dims["future_dim"]),
+                "dynamic_features": (
+                    None,
+                    dims["horizon"],
+                    dims["dynamic_dim"],
+                ),
+                "future_features": (
+                    None,
+                    dims["horizon"],
+                    dims["future_dim"],
+                ),
                 "coords": (None, dims["horizon"], 3),
                 "H_field": (None, dims["horizon"], 1),
             }
         )
 
 
-def test_split_helpers_cover_point_and_legacy_q_fallback(dims, scaling_kwargs):
+def test_split_helpers_cover_point_and_legacy_q_fallback(
+    dims, scaling_kwargs
+):
     model = _make_model(dims, scaling_kwargs)
 
-    point = tf.zeros((2, dims["horizon"], 2), dtype=tf.float32)
+    point = tf.zeros(
+        (2, dims["horizon"], 2), dtype=tf.float32
+    )
     subs, gwl = model.split_data_predictions(point)
     assert subs.shape == (2, dims["horizon"], 1)
     assert gwl.shape == (2, dims["horizon"], 1)
 
-    legacy_phys = tf.zeros((2, dims["horizon"], 3), dtype=tf.float32)
-    k, ss, dlogtau, q = model.split_physics_predictions(legacy_phys)
+    legacy_phys = tf.zeros(
+        (2, dims["horizon"], 3), dtype=tf.float32
+    )
+    k, ss, dlogtau, q = model.split_physics_predictions(
+        legacy_phys
+    )
     assert k.shape[-1] == 1
     assert ss.shape[-1] == 1
     assert dlogtau.shape[-1] == 1
@@ -256,8 +325,14 @@ def test_split_helpers_cover_point_and_legacy_q_fallback(dims, scaling_kwargs):
     np.testing.assert_allclose(q.numpy(), 0.0)
 
 
-def test_config_roundtrip_reconstructs_model(dims, scaling_kwargs, batch_inputs):
-    model = _make_model(dims, scaling_kwargs, identifiability_regime="anchored")
+def test_config_roundtrip_reconstructs_model(
+    dims, scaling_kwargs, batch_inputs
+):
+    model = _make_model(
+        dims,
+        scaling_kwargs,
+        identifiability_regime="anchored",
+    )
     _ = model(batch_inputs, training=False)
 
     cfg = model.get_config()
@@ -270,10 +345,16 @@ def test_config_roundtrip_reconstructs_model(dims, scaling_kwargs, batch_inputs)
     assert list(out.keys()) == ["subs_pred", "gwl_pred"]
 
 
-def test_compile_rejects_non_positive_mul_lambda_offset(dims, scaling_kwargs):
-    model = _make_model(dims, scaling_kwargs, offset_mode="mul")
+def test_compile_rejects_non_positive_mul_lambda_offset(
+    dims, scaling_kwargs
+):
+    model = _make_model(
+        dims, scaling_kwargs, offset_mode="mul"
+    )
 
-    with pytest.raises(ValueError, match="lambda_offset must be > 0"):
+    with pytest.raises(
+        ValueError, match="lambda_offset must be > 0"
+    ):
         model.compile(
             optimizer=tf.keras.optimizers.Adam(1e-3),
             loss={"subs_pred": "mse", "gwl_pred": "mse"},
@@ -288,14 +369,25 @@ def test_allow_missing_targets_flag_controls_test_step(
     batch_inputs,
     targets,
 ):
-    strict_model = _compile_model(_make_model(dims, scaling_kwargs))
+    strict_model = _compile_model(
+        _make_model(dims, scaling_kwargs)
+    )
     with pytest.raises(KeyError, match="Missing targets"):
-        strict_model.test_step((batch_inputs, {"subs_pred": targets["subs_pred"]}))
+        strict_model.test_step(
+            (
+                batch_inputs,
+                {"subs_pred": targets["subs_pred"]},
+            )
+        )
 
     relaxed_scaling = dict(scaling_kwargs)
     relaxed_scaling["allow_missing_targets"] = True
-    relaxed_model = _compile_model(_make_model(dims, relaxed_scaling))
-    logs = relaxed_model.test_step((batch_inputs, {"subs_pred": targets["subs_pred"]}))
+    relaxed_model = _compile_model(
+        _make_model(dims, relaxed_scaling)
+    )
+    logs = relaxed_model.test_step(
+        (batch_inputs, {"subs_pred": targets["subs_pred"]})
+    )
 
     assert "data_loss" in logs
     assert "total_loss" in logs
@@ -311,7 +403,9 @@ def test_evaluate_physics_and_export_payload_smoke(
     model = _compile_model(_make_model(dims, scaling_kwargs))
     _ = model(batch_inputs, training=False)
 
-    phys = model.evaluate_physics(batch_inputs, return_maps=True)
+    phys = model.evaluate_physics(
+        batch_inputs, return_maps=True
+    )
     assert "epsilon_prior" in phys
     assert "epsilon_cons" in phys
     assert "tau" in phys

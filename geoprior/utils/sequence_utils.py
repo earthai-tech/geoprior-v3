@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # https://lkouadio.com
@@ -6,41 +5,39 @@
 # Author: LKouadio <etanoyau@gmail.com>
 
 
-from  __future__ import annotations 
+from __future__ import annotations
 
+import logging
 import os
-import logging 
-import warnings 
-from typing import ( 
-    Optional, 
-    List, 
-    Tuple, 
-    Dict, 
-    Union, 
-    Callable, 
-    Literal, 
-    Any
+import warnings
+from collections.abc import Callable
+from typing import (
+    Any,
+    Literal,
 )
+
 import numpy as np
-from numpy.lib.stride_tricks import sliding_window_view
 import pandas as pd
-
+from numpy.lib.stride_tricks import sliding_window_view
 from sklearn.preprocessing import MinMaxScaler
-from ..core.checks import ( 
-    exist_features, 
-    check_datetime, 
-)
 
-from ..decorators import isdf 
+from geoprior._optdeps import HAS_TQDM, with_progress
+
+from ..core.checks import (
+    check_datetime,
+    exist_features,
+)
+from ..decorators import isdf
 from .generic_utils import vlog
-from geoprior._optdeps import HAS_TQDM, with_progress 
- 
 
 __all__ = [
-    'check_sequence_feasibility', 'get_sequence_counts',
-    'generate_pinn_sequences', 'generate_ts_sequences', 
-    'build_future_sequences_npz'
- ]
+    "check_sequence_feasibility",
+    "get_sequence_counts",
+    "generate_pinn_sequences",
+    "generate_ts_sequences",
+    "build_future_sequences_npz",
+]
+
 
 @isdf
 def build_future_sequences_npz(
@@ -65,14 +62,14 @@ def build_future_sequences_npz(
     model_name: str | None = None,
     artifacts_dir: str | None = None,
     prefix: str = "future",
-    future_mode: str ="auto", 
+    future_mode: str = "auto",
     normalize_coords: bool = False,
     coord_scaler: Any | None = None,
     verbose: int = 1,
     logger=None,
-    stop_check: Callable[[], bool] = None, 
-    progress_hook: Optional[Callable[[float], None]] = None,
-    **kws,  
+    stop_check: Callable[[], bool] = None,
+    progress_hook: Callable[[float], None] | None = None,
+    **kws,
 ) -> dict:
     """
     Build history–future sequences and save them as compressed NPZ files.
@@ -290,6 +287,7 @@ default 'auto'
     >>> result["future_targets_npz"]
     'results/zhongshan/future_npz/zhongshan_future_targets.npz'
     """
+
     def _p(frac: float) -> None:
         if progress_hook is not None:
             # clamp, avoid crashing
@@ -300,7 +298,7 @@ default 'auto'
                 pass
 
     _p(0.0)  # start
-    
+
     # ------------------------------------------------------------------
     # Small helpers
     # ------------------------------------------------------------------
@@ -313,25 +311,36 @@ default 'auto'
         if pd.api.types.is_datetime64_any_dtype(series):
             return series.dt.year.to_numpy(dtype=float)
         try:
-            return pd.to_numeric(series, errors="coerce").to_numpy(dtype=float)
+            return pd.to_numeric(
+                series, errors="coerce"
+            ).to_numpy(dtype=float)
         except Exception:
             vals, _ = pd.factorize(series)
             return vals.astype(float)
 
     future_mode_norm = (future_mode or "auto").lower()
-    if future_mode_norm not in ("auto", "pure-inference", "pure-data-driven"):
+    if future_mode_norm not in (
+        "auto",
+        "pure-inference",
+        "pure-data-driven",
+    ):
         raise ValueError(
             "build_future_sequences_npz: 'future_mode' must be one of "
             "{'auto', 'pure-inference', 'pure-data-driven'}; "
             f"got {future_mode!r}."
         )
 
-    if artifacts_dir is None or not str(artifacts_dir).strip():
+    if (
+        artifacts_dir is None
+        or not str(artifacts_dir).strip()
+    ):
         artifacts_dir = os.getcwd()
 
     normalize_coords = bool(normalize_coords)
     if normalize_coords:
-        if coord_scaler is None or not hasattr(coord_scaler, "transform"):
+        if coord_scaler is None or not hasattr(
+            coord_scaler, "transform"
+        ):
             raise ValueError(
                 "build_future_sequences_npz: normalize_coords=True requires a "
                 "fitted `coord_scaler` (same one used in Stage-1)."
@@ -342,22 +351,26 @@ default 'auto'
     # ------------------------------------------------------------------
 
     exist_features(
-        df_scaled, features=time_col, 
-        message="Time col{time_col} column is missing."
+        df_scaled,
+        features=time_col,
+        message="Time col{time_col} column is missing.",
     )
-    
-    vlog("Validating time-series dataset...", 
-         level=1, verbose=verbose)
-    
+
+    vlog(
+        "Validating time-series dataset...",
+        level=1,
+        verbose=verbose,
+    )
+
     check_datetime(
         df_scaled,
-        dt_cols= time_col, 
+        dt_cols=time_col,
         ops="check_only",
         consider_dt_as="numeric",
-        accept_dt=True, 
-        allow_int=True, 
+        accept_dt=True,
+        allow_int=True,
     )
-    
+
     t_series = df_scaled[time_col]
     t_idx_all = _to_time_index(t_series)
     mask_finite = np.isfinite(t_idx_all)
@@ -390,7 +403,9 @@ default 'auto'
             ) from e
 
     # History times: last T distinct times <= train_end_idx
-    hist_candidates = unique_times[unique_times <= train_end_idx]
+    hist_candidates = unique_times[
+        unique_times <= train_end_idx
+    ]
     if hist_candidates.size < T:
         raise ValueError(
             "build_future_sequences_npz: not enough past time points "
@@ -403,7 +418,11 @@ default 'auto'
     # Step (for synthetic future): median positive diff or 1.0
     if hist_times.size >= 2:
         diffs = np.diff(hist_times)
-        step = float(np.median(diffs[diffs > 0])) if np.any(diffs > 0) else 1.0
+        step = (
+            float(np.median(diffs[diffs > 0]))
+            if np.any(diffs > 0)
+            else 1.0
+        )
     else:
         step = 1.0
 
@@ -412,7 +431,11 @@ default 'auto'
 
     # Horizon H
     if forecast_horizon is None:
-        H = int(data_future_all.size) if data_future_all.size > 0 else 1
+        H = (
+            int(data_future_all.size)
+            if data_future_all.size > 0
+            else 1
+        )
     else:
         H = int(forecast_horizon)
     if H <= 0:
@@ -437,11 +460,13 @@ default 'auto'
             ) from e
 
     # Candidate data-driven future times (>= f_start_idx, after last_hist)
-    data_future_needed = data_future_all[data_future_all >= f_start_idx][:H]
+    data_future_needed = data_future_all[
+        data_future_all >= f_start_idx
+    ][:H]
     has_enough_future_data = data_future_needed.size == H
-    
+
     _p(0.1)
-    
+
     # Decide effective mode + future times
     using_synthetic_future = False
     if future_mode_norm == "pure-data-driven":
@@ -481,7 +506,9 @@ default 'auto'
     if using_synthetic_future:
         all_times_needed = hist_times
     else:
-        all_times_needed = np.concatenate([hist_times, fut_times])
+        all_times_needed = np.concatenate(
+            [hist_times, fut_times]
+        )
 
     if verbose:
         vlog(
@@ -519,14 +546,36 @@ default 'auto'
         )
 
     # Normalize lists
-    static_features = list(static_features) if static_features is not None else []
-    dynamic_features = list(dynamic_features) if dynamic_features is not None else []
-    future_features = list(future_features) if future_features is not None else []
-    group_id_cols = list(group_id_cols) if group_id_cols is not None else []
+    static_features = (
+        list(static_features)
+        if static_features is not None
+        else []
+    )
+    dynamic_features = (
+        list(dynamic_features)
+        if dynamic_features is not None
+        else []
+    )
+    future_features = (
+        list(future_features)
+        if future_features is not None
+        else []
+    )
+    group_id_cols = (
+        list(group_id_cols)
+        if group_id_cols is not None
+        else []
+    )
 
-    static_cols = [c for c in static_features if c in df_win.columns]
-    dyn_cols = [c for c in dynamic_features if c in df_win.columns]
-    fut_cols = [c for c in future_features if c in df_win.columns]
+    static_cols = [
+        c for c in static_features if c in df_win.columns
+    ]
+    dyn_cols = [
+        c for c in dynamic_features if c in df_win.columns
+    ]
+    fut_cols = [
+        c for c in future_features if c in df_win.columns
+    ]
 
     mode_norm = (mode or "").lower()
     is_tft_like = mode_norm.startswith("tft")
@@ -549,9 +598,8 @@ default 'auto'
     # ------------------------------------------------------------------
 
     def _rows_for_times(
-          required: np.ndarray, 
-          g_df: pd.DataFrame
-        ) -> list | None:
+        required: np.ndarray, g_df: pd.DataFrame
+    ) -> list | None:
         """Pick one row per required time from a group."""
         g_time_idx = _to_time_index(g_df[time_col])
         order = np.argsort(g_time_idx)
@@ -560,11 +608,14 @@ default 'auto'
 
         rows: list[pd.Series] = []
         for t_req in required:
-            m = (g_time_sorted == t_req)
+            m = g_time_sorted == t_req
             if not np.any(m):
                 return None
             sub = g_sorted.loc[m]
-            if time_col_num is not None and time_col_num in sub.columns:
+            if (
+                time_col_num is not None
+                and time_col_num in sub.columns
+            ):
                 sub = sub.sort_values(time_col_num)
             rows.append(sub.iloc[-1])
         return rows
@@ -581,7 +632,10 @@ default 'auto'
         for t_val in fut_times_arr:
             row = last_row.copy()
             row[time_col] = t_val
-            if time_col_num is not None and time_col_num in row.index:
+            if (
+                time_col_num is not None
+                and time_col_num in row.index
+            ):
                 try:
                     row[time_col_num] = float(t_val)
                 except Exception:
@@ -593,7 +647,7 @@ default 'auto'
     coords_list, dyn_list, fut_list = [], [], []
     static_list, H_list = [], []
     subs_target_list, gwl_target_list = [], []
-    
+
     if group_id_cols:
         grouped = df_win.groupby(group_id_cols)
         n_groups = grouped.ngroups
@@ -624,24 +678,29 @@ default 'auto'
             desc=f"[Future] groups ({model_name or ''})".strip(),
             leave=False,
             ascii=True,
-            log_fn=_log_progress_line,  
-            mininterval=1.0,             # optional: don't spam too often
+            log_fn=_log_progress_line,
+            mininterval=1.0,  # optional: don't spam too often
         )
     else:
         iter_groups = group_iter
 
     dropped_groups = 0
-    
+
     for gi, (gid, g) in enumerate(iter_groups, start=1):
-        
         # after finishing this group:
         _p(0.1 + 0.8 * (gi + 1) / n_groups)
-        
+
         if stop_check and stop_check():
-            raise InterruptedError("Sequence generation aborted.")
+            raise InterruptedError(
+                "Sequence generation aborted."
+            )
         # If tqdm is present, keep vlog quieter; if not, use your previous pattern
         if not use_tqdm:
-            if verbose and (gi == 1 or gi % log_every == 0 or gi == n_groups):
+            if verbose and (
+                gi == 1
+                or gi % log_every == 0
+                or gi == n_groups
+            ):
                 vlog(
                     f"[Future] Processing group {gi}/{n_groups} gid={gid!r}",
                     verbose=verbose,
@@ -671,7 +730,9 @@ default 'auto'
 
         # 2) Future rows: data-driven or synthetic
         if using_synthetic_future:
-            fut_rows = _build_synthetic_future_rows(hist_rows, fut_times)
+            fut_rows = _build_synthetic_future_rows(
+                hist_rows, fut_times
+            )
         else:
             fut_rows = _rows_for_times(fut_times, g)
             if fut_rows is None:
@@ -689,11 +750,16 @@ default 'auto'
         # Dynamic features: history only
         if dyn_cols:
             dyn_seq = np.stack(
-                [row[dyn_cols].to_numpy(dtype=np.float32) for row in hist_rows],
+                [
+                    row[dyn_cols].to_numpy(dtype=np.float32)
+                    for row in hist_rows
+                ],
                 axis=0,
             )
         else:
-            dyn_seq = np.zeros((len(hist_rows), 0), dtype=np.float32)
+            dyn_seq = np.zeros(
+                (len(hist_rows), 0), dtype=np.float32
+            )
 
         # Future features
         if fut_cols:
@@ -702,27 +768,48 @@ default 'auto'
             else:
                 rows_for_future = fut_rows
             fut_seq = np.stack(
-                [row[fut_cols].to_numpy(dtype=np.float32) for row in rows_for_future],
+                [
+                    row[fut_cols].to_numpy(dtype=np.float32)
+                    for row in rows_for_future
+                ],
                 axis=0,
             )
         else:
-            T_fut = len(hist_rows) + len(fut_rows) if is_tft_like else len(fut_rows)
+            T_fut = (
+                len(hist_rows) + len(fut_rows)
+                if is_tft_like
+                else len(fut_rows)
+            )
             fut_seq = np.zeros((T_fut, 0), dtype=np.float32)
 
         # Coords for horizon (t, lon, lat)
         t_vals = []
         for row in fut_rows:
-            if time_col_num is not None and time_col_num in row.index:
+            if (
+                time_col_num is not None
+                and time_col_num in row.index
+            ):
                 t_vals.append(row[time_col_num])
             else:
                 t_vals.append(row[time_col])
         t_vals = np.array(t_vals, dtype=np.float32)
-        lon_vals = np.array([row[lon_col] for row in fut_rows], dtype=np.float32)
-        lat_vals = np.array([row[lat_col] for row in fut_rows], dtype=np.float32)
-        coords = np.stack([t_vals, lon_vals, lat_vals], axis=-1)
+        lon_vals = np.array(
+            [row[lon_col] for row in fut_rows],
+            dtype=np.float32,
+        )
+        lat_vals = np.array(
+            [row[lat_col] for row in fut_rows],
+            dtype=np.float32,
+        )
+        coords = np.stack(
+            [t_vals, lon_vals, lat_vals], axis=-1
+        )
 
         # H_field over horizon
-        if h_field_col is not None and h_field_col in g.columns:
+        if (
+            h_field_col is not None
+            and h_field_col in g.columns
+        ):
             h_vals = np.array(
                 [row[h_field_col] for row in fut_rows],
                 dtype=np.float32,
@@ -733,14 +820,20 @@ default 'auto'
 
         # Static features (one vector per group)
         if static_cols:
-            static_vec = hist_rows[0][static_cols].to_numpy(dtype=np.float32)
+            static_vec = hist_rows[0][static_cols].to_numpy(
+                dtype=np.float32
+            )
         else:
             static_vec = np.zeros(0, dtype=np.float32)
 
         # Targets over horizon
         if using_synthetic_future:
-            subs_vals = np.full(len(fut_rows), np.nan, dtype=np.float32)
-            gwl_vals = np.full(len(fut_rows), np.nan, dtype=np.float32)
+            subs_vals = np.full(
+                len(fut_rows), np.nan, dtype=np.float32
+            )
+            gwl_vals = np.full(
+                len(fut_rows), np.nan, dtype=np.float32
+            )
         else:
             if subs_col is not None and subs_col in g.columns:
                 subs_vals = np.array(
@@ -748,7 +841,9 @@ default 'auto'
                     dtype=np.float32,
                 )
             else:
-                subs_vals = np.full(len(fut_rows), np.nan, dtype=np.float32)
+                subs_vals = np.full(
+                    len(fut_rows), np.nan, dtype=np.float32
+                )
 
             if gwl_col is not None and gwl_col in g.columns:
                 gwl_vals = np.array(
@@ -756,7 +851,9 @@ default 'auto'
                     dtype=np.float32,
                 )
             else:
-                gwl_vals = np.full(len(fut_rows), np.nan, dtype=np.float32)
+                gwl_vals = np.full(
+                    len(fut_rows), np.nan, dtype=np.float32
+                )
 
         subs_seq = subs_vals.reshape(-1, 1)
         gwl_seq = gwl_vals.reshape(-1, 1)
@@ -800,14 +897,18 @@ default 'auto'
     # coords_arr shape: (N, H, 3) with order [t, x, y]
     # --------------------------------------------------------------
     if normalize_coords:
-        coords_flat = coords_arr.reshape(-1, 3).astype(np.float32, copy=False)
+        coords_flat = coords_arr.reshape(-1, 3).astype(
+            np.float32, copy=False
+        )
         if not np.isfinite(coords_flat).all():
             raise ValueError(
                 "build_future_sequences_npz: coords contain non-finite values; "
                 "cannot apply coord_scaler.transform()."
             )
         coords_flat = coord_scaler.transform(coords_flat)
-        coords_arr = coords_flat.reshape(coords_arr.shape).astype(np.float32, copy=False)
+        coords_arr = coords_flat.reshape(
+            coords_arr.shape
+        ).astype(np.float32, copy=False)
     else:
         coords_arr = coords_arr.astype(np.float32, copy=False)
 
@@ -824,8 +925,12 @@ default 'auto'
     }
 
     os.makedirs(artifacts_dir, exist_ok=True)
-    future_inputs_npz = os.path.join(artifacts_dir, f"{prefix}_inputs.npz")
-    future_targets_npz = os.path.join(artifacts_dir, f"{prefix}_targets.npz")
+    future_inputs_npz = os.path.join(
+        artifacts_dir, f"{prefix}_inputs.npz"
+    )
+    future_targets_npz = os.path.join(
+        artifacts_dir, f"{prefix}_targets.npz"
+    )
 
     _save_npz(future_inputs_npz, future_inputs_np)
     _save_npz(future_targets_npz, future_targets_np)
@@ -836,36 +941,40 @@ default 'auto'
             f"  inputs : {future_inputs_npz}\n"
             f"  targets: {future_targets_npz}\n"
             f"  mode   : {eff_future_mode}"
-            + (" (synthetic future targets=NaN)"
-               if using_synthetic_future else ""),
+            + (
+                " (synthetic future targets=NaN)"
+                if using_synthetic_future
+                else ""
+            ),
             verbose=verbose,
             level=1,
             logger=logger,
         )
     # After saving NPZs:
     _p(1.0)
-    
+
     return {
         f"{prefix}_inputs_npz": future_inputs_npz,
         f"{prefix}_targets_npz": future_targets_npz,
     }
 
 
-
-@isdf 
+@isdf
 def check_sequence_feasibility(
     df: pd.DataFrame,
     *,
     time_col: str,
-    group_id_cols: Optional[List[str]] = None,
+    group_id_cols: list[str] | None = None,
     time_steps: int = 12,
     forecast_horizon: int = 3,
-    engine: Literal["vectorized", "native", "pyarrow"] = "vectorized",
-    mode: Optional[str] = None,  
+    engine: Literal[
+        "vectorized", "native", "pyarrow"
+    ] = "vectorized",
+    mode: str | None = None,
     logger: Callable[[str], None] = print,
     verbose: int = 0,
     error: Literal["raise", "warn", "ignore"] = "warn",
-) -> Tuple[bool, Dict[Union[str, Tuple], int]]:
+) -> tuple[bool, dict[str | tuple, int]]:
     """
     Quick pre-flight feasibility check for sliding-window sequence
     generation
@@ -875,7 +984,7 @@ def check_sequence_feasibility(
     large NumPy tensors.  It is typically called immediately before
     :pyfunc:`prepare_pinn_data_sequences` or similar generators to “fail
     fast’’ on data shortages.
-    
+
     Parameters
     ----------
     df : pandas.DataFrame
@@ -911,11 +1020,11 @@ def check_sequence_feasibility(
         0 → silent, 1 → summary lines, 2 → per-group detail.
     error : {'raise', 'warn', 'ignore'}, default 'warn'
         Action when *no* group is long enough.
-    
+
         * ``'raise'`` – raise :class:`SequenceGeneratorError`.
         * ``'warn'``  – emit :class:`UserWarning`, return ``False``.
         * ``'ignore'`` – stay silent, return ``False``.
-    
+
     Returns
     -------
     feasible : bool
@@ -925,28 +1034,28 @@ def check_sequence_feasibility(
         Mapping **group key → # sequences**.
         The key is a tuple of the group values—or *None* when
         *group_id_cols* is *None*.
-    
+
     Raises
     ------
     SequenceGeneratorError
         Raised only when ``error='raise'`` *and* all groups fail the length
         check.
-    
+
     Notes
     -----
     A group passes the check iff
-    
+
     .. math::
-    
+
        \\text{len(group)} \\;\\ge\\; T_\\text{past} + H
-    
+
     No validation of time-gaps, duplicates, or NaNs is performed; those are
     deferred to the full preparation routine.
-    
+
     The **Arrow backend** (``engine='pyarrow'``) can accelerate very wide
     frames because each column is represented as a contiguous Arrow array
     with cheap zero-copy slicing.
-    
+
     Examples
     --------
     * Minimal usage
@@ -963,7 +1072,7 @@ def check_sequence_feasibility(
     True
     >>> counts            # doctest: +ELLIPSIS
     {'A': 9, 'B': 9}
-    
+
     * Fail-fast behaviour
 
     >>> check_sequence_feasibility(
@@ -976,7 +1085,7 @@ def check_sequence_feasibility(
     Traceback (most recent call last):
     ...
     SequenceGeneratorError: No group is long enough ...
-    
+
     * Switching engines
 
     >>> _ , _ = check_sequence_feasibility(
@@ -987,14 +1096,15 @@ def check_sequence_feasibility(
     ...     verbose=1,
     ... )
     ✅ Feasible: 1 234 567 sequences possible.
-    
+
     References
     ----------
     * McKinney, W. *pandas 2.0 User Guide*, sec. “GroupBy: split-apply-combine’’.
     * Arrow Project. (2025). *Arrow Columnar Memory Format v2*.
 
     """
-    # --- tiny inline logger 
+
+    # --- tiny inline logger
     def _v(msg: str, *, lvl: int = 1) -> None:
         vlog(msg, verbose=verbose, level=lvl, logger=logger)
 
@@ -1003,20 +1113,20 @@ def check_sequence_feasibility(
 
     # deterministic ordering
     # or just df; sorting not needed for counts
-    
+
     # sort_cols = (group_id_cols or []) + [time_col]
     # df_sorted = df.sort_values(sort_cols)
-    
+
     # inside your feasibility function
     total_sequences, counts, sizes = get_sequence_counts(
         df,
         group_id_cols=group_id_cols,
         min_len=min_len,
-        engine=engine,        
+        engine=engine,
         verbose=verbose,
-        logger=logger,    
+        logger=logger,
     )
-    
+
     if total_sequences == 0:
         longest = int(sizes.max()) if not sizes.empty else 0
         msg = (
@@ -1037,14 +1147,18 @@ def check_sequence_feasibility(
         return False, counts
 
     # _v(rf"✅ Feasible: {total_sequences} sequences possible.", lvl=1)
-    _v(f" Feasible: {total_sequences} sequences possible.", lvl=1)
+    _v(
+        f" Feasible: {total_sequences} sequences possible.",
+        lvl=1,
+    )
     return True, counts
+
 
 def _sequence_counts_fast(
     df: pd.DataFrame,
-    group_id_cols: Optional[List[str]],
+    group_id_cols: list[str] | None,
     min_len: int,
-) -> Tuple[int, Dict[Union[str, Tuple], int], pd.Series]:
+) -> tuple[int, dict[str | tuple, int], pd.Series]:
     """Vectorised: one C call → group sizes, then NumPy math."""
     if group_id_cols:
         sizes = df.groupby(group_id_cols, sort=False).size()
@@ -1052,21 +1166,26 @@ def _sequence_counts_fast(
         sizes = pd.Series([len(df)], index=[None])
 
     n_seq_series = np.maximum(sizes - min_len + 1, 0)
-    return int(n_seq_series.sum()), n_seq_series.to_dict(), sizes
+    return (
+        int(n_seq_series.sum()),
+        n_seq_series.to_dict(),
+        sizes,
+    )
+
 
 def _sequence_counts_loop(
     df: pd.DataFrame,
-    group_id_cols: Optional[List[str]],
+    group_id_cols: list[str] | None,
     min_len: int,
-) -> Tuple[int, Dict[Union[str, Tuple], int], pd.Series]:
+) -> tuple[int, dict[str | tuple, int], pd.Series]:
     """Original Python loop – slower but easy to single-step."""
     if group_id_cols:
         iterator = df.groupby(group_id_cols)
     else:
         iterator = [(None, df)]
 
-    counts: Dict[Union[str, Tuple], int] = {}
-    sizes_dict: Dict[Union[str, Tuple], int] = {}
+    counts: dict[str | tuple, int] = {}
+    sizes_dict: dict[str | tuple, int] = {}
     total_sequences = 0
 
     for g_key, g_df in iterator:
@@ -1079,16 +1198,19 @@ def _sequence_counts_loop(
     sizes = pd.Series(sizes_dict)
     return total_sequences, counts, sizes
 
+
 @isdf
 def get_sequence_counts(
     df: pd.DataFrame,
     *,
-    group_id_cols: Optional[List[str]],
+    group_id_cols: list[str] | None,
     min_len: int,
-    engine: Literal["vectorized", "native", "pyarrow"] = "vectorized",
+    engine: Literal[
+        "vectorized", "native", "pyarrow"
+    ] = "vectorized",
     verbose: int = 0,
     logger=print,
-) -> Tuple[int, Dict[Union[str, Tuple], int], pd.Series]:
+) -> tuple[int, dict[str | tuple, int], pd.Series]:
     """
     Return the **total** number of feasible sliding-window sequences and
     a mapping *group → count* using the requested execution *engine*.
@@ -1105,6 +1227,7 @@ def get_sequence_counts(
           then runs the vectorised path.  Falls back silently to
           ``'vectorized'`` when *pyarrow* is not installed.
     """
+
     def _v(msg: str, lvl: int = 1) -> None:
         vlog(msg, verbose=verbose, level=lvl, logger=logger)
 
@@ -1113,7 +1236,10 @@ def get_sequence_counts(
             import pyarrow  # noqa: F401
         except ImportError:  # ⇢ graceful fallback
             # _v("⚠  pyarrow not installed — reverting to 'vectorized'.", lvl=1)
-            _v("  pyarrow not installed — reverting to 'vectorized'.", lvl=1)
+            _v(
+                "  pyarrow not installed — reverting to 'vectorized'.",
+                lvl=1,
+            )
             engine = "vectorized"
 
     if engine == "pyarrow":
@@ -1121,17 +1247,20 @@ def get_sequence_counts(
         pd.options.mode.dtype_backend = "pyarrow"
         try:
             total, counts, sizes = _sequence_counts_fast(
-                df, group_id_cols, min_len)
+                df, group_id_cols, min_len
+            )
         finally:
             pd.options.mode.dtype_backend = old_backend
 
     elif engine == "vectorized":
         total, counts, sizes = _sequence_counts_fast(
-            df, group_id_cols, min_len)
+            df, group_id_cols, min_len
+        )
 
     elif engine == "native":
         total, counts, sizes = _sequence_counts_loop(
-            df, group_id_cols, min_len)
+            df, group_id_cols, min_len
+        )
 
     else:  # pragma: no cover
         raise ValueError(
@@ -1150,37 +1279,42 @@ def get_sequence_counts(
 
     return total, counts, sizes
 
-@isdf 
+
+@isdf
 def generate_pinn_sequences(
     df: pd.DataFrame,
     time_col: str,
     subsidence_col: str,
     gwl_col: str,
-    dynamic_cols: List[str],
-    static_cols: Optional[List[str]] = None,
-    future_cols: Optional[List[str]] = None,
-    spatial_cols: Optional[Tuple[str, str]] = None,
-    group_id_cols: Optional[List[str]] = None,
+    dynamic_cols: list[str],
+    static_cols: list[str] | None = None,
+    future_cols: list[str] | None = None,
+    spatial_cols: tuple[str, str] | None = None,
+    group_id_cols: list[str] | None = None,
     time_steps: int = 12,
     forecast_horizon: int = 3,
     output_subsidence_dim: int = 1,
     output_gwl_dim: int = 1,
-    mode: str = 'pihal_like',
+    mode: str = "pihal_like",
     normalize_coords: bool = True,
-    cols_to_scale: Union[List[str], str, None] = None,
-    method: str = 'rolling',
+    cols_to_scale: list[str] | str | None = None,
+    method: str = "rolling",
     stride: int = 1,
-    random_samples: Optional[int] = None,
+    random_samples: int | None = None,
     expand_step: int = 1,
     n_bootstrap: int = 0,
-    progress_hook: Optional[Callable[[float], None]] = None,
-    stop_check: Optional[Callable[[], bool]] = None,
+    progress_hook: Callable[[float], None] | None = None,
+    stop_check: Callable[[], bool] | None = None,
     verbose: int = 1,
-    _logger: Optional[Union[logging.Logger, Callable[[str], None]]] = None,
-    **kwargs
-) -> Tuple[Dict[str, np.ndarray],
-           Dict[str, np.ndarray],
-           Optional[MinMaxScaler]]:
+    _logger: logging.Logger
+    | Callable[[str], None]
+    | None = None,
+    **kwargs,
+) -> tuple[
+    dict[str, np.ndarray],
+    dict[str, np.ndarray],
+    MinMaxScaler | None,
+]:
     """
     Generate input/target arrays for PINN models using various sampling
     methods (rolling, strided, random, expanding, bootstrap).
@@ -1250,6 +1384,7 @@ def generate_pinn_sequences(
     coord_scaler : MinMaxScaler or None
         Fitted scaler for coords, if normalization was applied.
     """
+
     def _v(msg, lvl):
         vlog(msg, verbose=verbose, level=lvl, logger=_logger)
 
@@ -1259,10 +1394,13 @@ def generate_pinn_sequences(
         return {}, {}, None
 
     # Split into groups
-    groups = [g for _, g in df.groupby(group_id_cols)] \
-             if group_id_cols else [df]
+    groups = (
+        [g for _, g in df.groupby(group_id_cols)]
+        if group_id_cols
+        else [df]
+    )
 
-    sequences: List[Tuple[pd.DataFrame,int]] = []
+    sequences: list[tuple[pd.DataFrame, int]] = []
     L = time_steps + forecast_horizon
 
     total_groups = len(groups)
@@ -1274,28 +1412,39 @@ def generate_pinn_sequences(
         length = len(gdf)
         max_start = length - L
         if max_start < 0:
-            _v(f"Group {gi} too short (len={length}); skipping.", 2)
+            _v(
+                f"Group {gi} too short (len={length}); skipping.",
+                2,
+            )
             continue
 
         # Determine start indices by method
-        if method == 'rolling':
+        if method == "rolling":
             starts = range(0, max_start + 1)
-        elif method == 'strided':
+        elif method == "strided":
             starts = range(0, max_start + 1, stride)
-        elif method == 'random':
+        elif method == "random":
             all_starts = list(range(0, max_start + 1))
-            if random_samples is None or random_samples > len(all_starts):
+            if random_samples is None or random_samples > len(
+                all_starts
+            ):
                 starts = all_starts
             else:
                 starts = np.random.choice(
-                    all_starts,random_samples, replace=False
-                    )
-        elif method == 'expanding':
-            starts = list(range(0, max_start + 1, expand_step))
-        elif method == 'bootstrap':
+                    all_starts, random_samples, replace=False
+                )
+        elif method == "expanding":
+            starts = list(
+                range(0, max_start + 1, expand_step)
+            )
+        elif method == "bootstrap":
             block_size = L
-            blocks = list(range(0, length - block_size + 1, block_size))
-            starts = np.random.choice(blocks, n_bootstrap, replace=True)
+            blocks = list(
+                range(0, length - block_size + 1, block_size)
+            )
+            starts = np.random.choice(
+                blocks, n_bootstrap, replace=True
+            )
         else:
             raise ValueError(f"Unknown method '{method}'")
 
@@ -1304,18 +1453,27 @@ def generate_pinn_sequences(
 
         # Report group‐level progress
         if progress_hook:
-            progress_hook((gi+1)/total_groups * 0.5)
+            progress_hook((gi + 1) / total_groups * 0.5)
 
     # Build arrays from these starts
     inputs, targets, coord_scaler = _build_from_starts(
         sequences,
-        time_col, time_steps, forecast_horizon,
-        subsidence_col, gwl_col,
-        dynamic_cols, static_cols or [],
-        future_cols or [], spatial_cols,
-        mode, normalize_coords, cols_to_scale,
-        output_subsidence_dim, output_gwl_dim,
-        verbose, _logger
+        time_col,
+        time_steps,
+        forecast_horizon,
+        subsidence_col,
+        gwl_col,
+        dynamic_cols,
+        static_cols or [],
+        future_cols or [],
+        spatial_cols,
+        mode,
+        normalize_coords,
+        cols_to_scale,
+        output_subsidence_dim,
+        output_gwl_dim,
+        verbose,
+        _logger,
     )
 
     # Final progress
@@ -1326,26 +1484,28 @@ def generate_pinn_sequences(
 
 
 def _build_from_starts(
-    seqs: List[Tuple[pd.DataFrame,int]],
+    seqs: list[tuple[pd.DataFrame, int]],
     time_col: str,
     T: int,
     H: int,
     subs_col: str,
     gwl_col: str,
-    dyn_cols: List[str],
-    stat_cols: List[str],
-    fut_cols: List[str],
-    spatial_cols: Optional[Tuple[str,str]],
+    dyn_cols: list[str],
+    stat_cols: list[str],
+    fut_cols: list[str],
+    spatial_cols: tuple[str, str] | None,
     mode: str,
     norm_coords: bool,
-    cols_to_scale: Union[List[str],str,None],
+    cols_to_scale: list[str] | str | None,
     out_sub_dim: int,
     out_gwl_dim: int,
     verbose: int = 1,
-    _logger=None
-) -> Tuple[Dict[str,np.ndarray],
-           Dict[str,np.ndarray],
-           Optional[MinMaxScaler]]:
+    _logger=None,
+) -> tuple[
+    dict[str, np.ndarray],
+    dict[str, np.ndarray],
+    MinMaxScaler | None,
+]:
     def _v(msg, lvl):
         vlog(msg, verbose=verbose, level=lvl, logger=_logger)
 
@@ -1354,25 +1514,36 @@ def _build_from_starts(
 
     # Allocate arrays
     coords = np.zeros((N, H, 3), dtype=np.float32)
-    dyn    = np.zeros((N, T, len(dyn_cols)), dtype=np.float32)
-    stat   = np.zeros((N, len(stat_cols)), dtype=np.float32)\
-             if stat_cols else None
-    fut_len = T+H if mode=='tft_like' else H
-    fut    = np.zeros((N, fut_len, len(fut_cols)),
-                      dtype=np.float32) if fut_cols else None
-    subs   = np.zeros((N, H, out_sub_dim), dtype=np.float32)
-    gwl_a  = np.zeros((N, H, out_gwl_dim), dtype=np.float32)
+    dyn = np.zeros((N, T, len(dyn_cols)), dtype=np.float32)
+    stat = (
+        np.zeros((N, len(stat_cols)), dtype=np.float32)
+        if stat_cols
+        else None
+    )
+    fut_len = T + H if mode == "tft_like" else H
+    fut = (
+        np.zeros(
+            (N, fut_len, len(fut_cols)), dtype=np.float32
+        )
+        if fut_cols
+        else None
+    )
+    subs = np.zeros((N, H, out_sub_dim), dtype=np.float32)
+    gwl_a = np.zeros((N, H, out_gwl_dim), dtype=np.float32)
 
     # Fit coordinate scaler if needed
     if norm_coords and spatial_cols:
         all_blocks = []
         for gdf, i in seqs:
-            window = gdf.iloc[i:i+T+H]
-            block = np.stack([
-                window[time_col].values[:H],
-                window[spatial_cols[0]].values[:H],
-                window[spatial_cols[1]].values[:H]
-            ], axis=1)
+            window = gdf.iloc[i : i + T + H]
+            block = np.stack(
+                [
+                    window[time_col].values[:H],
+                    window[spatial_cols[0]].values[:H],
+                    window[spatial_cols[1]].values[:H],
+                ],
+                axis=1,
+            )
             all_blocks.append(block)
         flat = np.vstack(all_blocks)
         coord_scl = MinMaxScaler().fit(flat)
@@ -1381,75 +1552,95 @@ def _build_from_starts(
 
     # Fill arrays
     for idx, (gdf, i) in enumerate(seqs):
-        window = gdf.iloc[i:i+T+H]
+        window = gdf.iloc[i : i + T + H]
         dyn[idx] = window.iloc[:T][dyn_cols].values
         if stat is not None:
             stat[idx] = gdf.iloc[0][stat_cols].values
         if fut is not None:
-            if mode == 'tft_like':
-                fut[idx] = window.iloc[:T+H][fut_cols].values
+            if mode == "tft_like":
+                fut[idx] = window.iloc[: T + H][
+                    fut_cols
+                ].values
             else:
-                fut[idx] = window.iloc[T:T+H][fut_cols].values
+                fut[idx] = window.iloc[T : T + H][
+                    fut_cols
+                ].values
 
         # Coordinates
-        block = np.stack([
-            window[time_col].values[:H],
-            (window[spatial_cols[0]].values[:H]
-             if spatial_cols else np.zeros(H)),
-            (window[spatial_cols[1]].values[:H]
-             if spatial_cols else np.zeros(H))
-        ], axis=1)
-        coords[idx] = coord_scl.transform(block) if coord_scl else block
+        block = np.stack(
+            [
+                window[time_col].values[:H],
+                (
+                    window[spatial_cols[0]].values[:H]
+                    if spatial_cols
+                    else np.zeros(H)
+                ),
+                (
+                    window[spatial_cols[1]].values[:H]
+                    if spatial_cols
+                    else np.zeros(H)
+                ),
+            ],
+            axis=1,
+        )
+        coords[idx] = (
+            coord_scl.transform(block) if coord_scl else block
+        )
 
         # Targets
-        subs[idx] = window.iloc[T:T+H][subs_col].values\
-                    .reshape(H, out_sub_dim)
-        gwl_a[idx] = window.iloc[T:T+H][gwl_col].values\
-                     .reshape(H, out_gwl_dim)
+        subs[idx] = window.iloc[T : T + H][
+            subs_col
+        ].values.reshape(H, out_sub_dim)
+        gwl_a[idx] = window.iloc[T : T + H][
+            gwl_col
+        ].values.reshape(H, out_gwl_dim)
 
         if verbose >= 3 and idx % 1000 == 0:
-            _v(f"   → Processed sequence {idx+1}/{N}", 2)
+            _v(f"   → Processed sequence {idx + 1}/{N}", 2)
 
-    inputs = {'coords': coords, 'dynamic_features': dyn}
-    if stat is not None:  inputs['static_features'] = stat
-    if fut is not None:   inputs['future_features'] = fut
-    targets = {'subsidence': subs, 'gwl': gwl_a}
+    inputs = {"coords": coords, "dynamic_features": dyn}
+    if stat is not None:
+        inputs["static_features"] = stat
+    if fut is not None:
+        inputs["future_features"] = fut
+    targets = {"subsidence": subs, "gwl": gwl_a}
 
     _v("Sequence building complete.", 1)
     return inputs, targets, coord_scl
 
-@isdf 
+
+@isdf
 def generate_ts_sequences(
     df: pd.DataFrame,
     time_col: str,
-    dynamic_cols: List[str],
-    static_cols: Optional[List[str]] = None,
-    future_cols: Optional[List[str]] = None,
-    spatial_cols: Optional[Tuple[str,str]] = None,
-    group_id_cols: Optional[List[str]] = None,
+    dynamic_cols: list[str],
+    static_cols: list[str] | None = None,
+    future_cols: list[str] | None = None,
+    spatial_cols: tuple[str, str] | None = None,
+    group_id_cols: list[str] | None = None,
     time_steps: int = 12,
     forecast_horizon: int = 1,
     normalize_coords: bool = True,
-    cols_to_scale: Union[List[str], str, None] = None,
-    method: str = 'rolling',
+    cols_to_scale: list[str] | str | None = None,
+    method: str = "rolling",
     stride: int = 1,
-    random_samples: Optional[int] = None,
+    random_samples: int | None = None,
     expand_step: int = 1,
     n_bootstrap: int = 0,
-    progress_hook: Optional[Callable[[float], None]] = None,
-    stop_check: Optional[Callable[[], bool]] = None,
+    progress_hook: Callable[[float], None] | None = None,
+    stop_check: Callable[[], bool] | None = None,
     verbose: int = 1,
-    _logger: Optional[Callable[[str], None]] = None,
-    **kwargs
-) -> Tuple[
-    Dict[str, np.ndarray],
-    Dict[str, np.ndarray],
-    Optional[MinMaxScaler]
+    _logger: Callable[[str], None] | None = None,
+    **kwargs,
+) -> tuple[
+    dict[str, np.ndarray],
+    dict[str, np.ndarray],
+    MinMaxScaler | None,
 ]:
     """
     Generate time-series windows for encoder/decoder and covariates.
     Supports rolling, strided, random, expanding, and bootstrap.
-    
+
     Parameters
     ----------
     df : pd.DataFrame
@@ -1507,6 +1698,7 @@ def generate_ts_sequences(
     SequenceGeneratorError
         If no valid windows could be generated.
     """
+
     def _v(msg, lvl):
         vlog(msg, verbose=verbose, level=lvl, logger=_logger)
 
@@ -1533,17 +1725,20 @@ def generate_ts_sequences(
         dyn = gdf[dynamic_cols].values
         win = sliding_window_view(dyn, window_shape=L, axis=0)
         idx = np.arange(win.shape[0])
-        if method == 'strided':
+        if method == "strided":
             idx = idx[::stride]
-        elif method == 'random':
+        elif method == "random":
             if random_samples and random_samples < len(idx):
-                idx = np.random.choice(idx, random_samples,
-                                       replace=False)
-        elif method == 'expanding':
+                idx = np.random.choice(
+                    idx, random_samples, replace=False
+                )
+        elif method == "expanding":
             idx = idx[::expand_step]
-        elif method == 'bootstrap':
-            idx = np.random.randint(0, len(idx), size=n_bootstrap)
-        elif method != 'rolling':
+        elif method == "bootstrap":
+            idx = np.random.randint(
+                0, len(idx), size=n_bootstrap
+            )
+        elif method != "rolling":
             raise ValueError(f"Unknown method {method}")
 
         if idx.size == 0:
@@ -1551,74 +1746,94 @@ def generate_ts_sequences(
 
         enc = win[idx, :time_steps]
         dec = win[idx, time_steps:]
-        all_enc.append(enc); all_dec.append(dec)
+        all_enc.append(enc)
+        all_dec.append(dec)
 
         if static_cols:
-            st = gdf.iloc[0][static_cols].values.astype(np.float32)
-            all_stat.append(np.repeat(st[None,:], len(idx), 0))
+            st = gdf.iloc[0][static_cols].values.astype(
+                np.float32
+            )
+            all_stat.append(
+                np.repeat(st[None, :], len(idx), 0)
+            )
 
         if future_cols:
             fut = gdf[future_cols].values
-            fw = sliding_window_view(fut, window_shape=forecast_horizon,
-                                     axis=0)
-            fw = fw[time_steps:time_steps+len(idx)]
+            fw = sliding_window_view(
+                fut, window_shape=forecast_horizon, axis=0
+            )
+            fw = fw[time_steps : time_steps + len(idx)]
             all_fut.append(fw)
 
         if spatial_cols:
-            t,x,y = (gdf[c].values for c in 
-                     (time_col,)+spatial_cols)
-            coord = np.stack([
-                sliding_window_view(t, L,0)[idx,time_steps:],
-                sliding_window_view(x, L,0)[idx,time_steps:],
-                sliding_window_view(y, L,0)[idx,time_steps:]
-            ],1)
+            t, x, y = (
+                gdf[c].values
+                for c in (time_col,) + spatial_cols
+            )
+            coord = np.stack(
+                [
+                    sliding_window_view(t, L, 0)[
+                        idx, time_steps:
+                    ],
+                    sliding_window_view(x, L, 0)[
+                        idx, time_steps:
+                    ],
+                    sliding_window_view(y, L, 0)[
+                        idx, time_steps:
+                    ],
+                ],
+                1,
+            )
             all_coord.append(coord)
 
         total += len(idx)
         if progress_hook:
-            progress_hook(min(1.0, total/ (len(df)//L + 1)))
+            progress_hook(
+                min(1.0, total / (len(df) // L + 1))
+            )
 
     if not all_enc:
         raise SequenceGeneratorError(
             "No sequences generated (series too short)"
         )
 
-    Xe = np.concatenate(all_enc,0)
-    Xd = np.concatenate(all_dec,0)
-    inputs = {'encoder_inputs': Xe}
-    targets = {'decoder_targets': Xd}
+    Xe = np.concatenate(all_enc, 0)
+    Xd = np.concatenate(all_dec, 0)
+    inputs = {"encoder_inputs": Xe}
+    targets = {"decoder_targets": Xd}
     if static_cols:
-        inputs['static'] = np.concatenate(all_stat,0)
+        inputs["static"] = np.concatenate(all_stat, 0)
     if future_cols:
-        inputs['future'] = np.concatenate(all_fut,0)
+        inputs["future"] = np.concatenate(all_fut, 0)
     if spatial_cols:
-        coords = np.concatenate(all_coord,0)
+        coords = np.concatenate(all_coord, 0)
         if normalize_coords:
-            flat = coords.reshape(-1,3)
+            flat = coords.reshape(-1, 3)
             coord_scl = MinMaxScaler().fit(flat)
-            inputs['coords'] = coord_scl.transform(
-                flat).reshape(coords.shape)
+            inputs["coords"] = coord_scl.transform(
+                flat
+            ).reshape(coords.shape)
         else:
             coord_scl = None
-            inputs['coords'] = coords
+            inputs["coords"] = coords
     else:
         coord_scl = None
 
-    _v(f"Generated {Xe.shape[0]} windows",1)
+    _v(f"Generated {Xe.shape[0]} windows", 1)
     return inputs, targets, coord_scl
 
 
 def _generate_ts_sequences(
-    series: Union[np.ndarray, pd.Series],
+    series: np.ndarray | pd.Series,
     time_steps: int = 12,
     forecast_horizon: int = 1,
-    method: str = 'rolling',        # 'rolling','strided','random','expanding','bootstrap'
-    stride: int = 1,                # for 'strided'
-    random_samples: Optional[int] = None,  # for 'random'
-    expand_step: int = 1,           # for 'expanding'
-    n_bootstrap: int = 0,           # for 'bootstrap'
-    shuffle: bool = False           # whether to shuffle final arrays
-) -> Tuple[np.ndarray, np.ndarray]:
+    method: str = "rolling",  # 'rolling','strided','random','expanding','bootstrap'
+    stride: int = 1,  # for 'strided'
+    random_samples: int | None = None,  # for 'random'
+    expand_step: int = 1,  # for 'expanding'
+    n_bootstrap: int = 0,  # for 'bootstrap'
+    shuffle: bool = False,  # whether to shuffle final arrays
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Generate (X, y) arrays from a 1D series.
 
@@ -1662,44 +1877,59 @@ def _generate_ts_sequences(
         If `method` is unknown or if the series is too short.
     """
     # ensure numpy array
-    arr = series.values if isinstance(series, pd.Series) else np.asarray(series)
+    arr = (
+        series.values
+        if isinstance(series, pd.Series)
+        else np.asarray(series)
+    )
     M = arr.shape[0]
     L = time_steps + forecast_horizon
     max_start = M - L
     if max_start < 0:
         # not enough data for even one window
-        return np.empty((0, time_steps)), np.empty((0, forecast_horizon))
+        return np.empty((0, time_steps)), np.empty(
+            (0, forecast_horizon)
+        )
 
     # rolling windows via stride_tricks
     windows = sliding_window_view(arr, window_shape=L)
 
-    if method == 'rolling':
-        idx = np.arange(max_start+1)
-    elif method == 'strided':
-        idx = np.arange(0, max_start+1, stride)
-    elif method == 'random':
-        all_idx = np.arange(max_start+1)
-        if random_samples is None or random_samples >= len(all_idx):
+    if method == "rolling":
+        idx = np.arange(max_start + 1)
+    elif method == "strided":
+        idx = np.arange(0, max_start + 1, stride)
+    elif method == "random":
+        all_idx = np.arange(max_start + 1)
+        if random_samples is None or random_samples >= len(
+            all_idx
+        ):
             idx = all_idx
         else:
-            idx = np.random.choice(all_idx, random_samples, replace=False)
-    elif method == 'expanding':
-        idx = np.arange(0, max_start+1, expand_step)
-    elif method == 'bootstrap':
+            idx = np.random.choice(
+                all_idx, random_samples, replace=False
+            )
+    elif method == "expanding":
+        idx = np.arange(0, max_start + 1, expand_step)
+    elif method == "bootstrap":
         # pick random blocks of length L
-        idx = np.random.randint(0, max_start+1, size=n_bootstrap)
+        idx = np.random.randint(
+            0, max_start + 1, size=n_bootstrap
+        )
     else:
         raise ValueError(f"Unknown method: {method}")
 
     # slice out X and y
     X = windows[idx, :time_steps]
-    y = windows[idx, time_steps:time_steps+forecast_horizon]
+    y = windows[
+        idx, time_steps : time_steps + forecast_horizon
+    ]
 
     if shuffle:
         p = np.random.permutation(len(X))
         X, y = X[p], y[p]
 
     return X, y
+
 
 class SequenceGeneratorError(RuntimeError):
     """Raised when no sequence can be generated with the given settings."""

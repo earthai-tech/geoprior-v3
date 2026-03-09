@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
@@ -31,12 +30,12 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any
 
 import pandas as pd
-
 
 _TS_RE = re.compile(r"^\d{8}-\d{6}$")
 
@@ -47,7 +46,7 @@ class XferResolved:
 
     run_dir: Path
     csv_path: Path
-    json_path: Optional[Path]
+    json_path: Path | None
 
 
 def as_path(x: Any) -> Path:
@@ -65,12 +64,12 @@ def is_timestamp_dir(p: Path) -> bool:
         return False
 
 
-def list_timestamp_dirs(pair_dir: Path) -> List[Path]:
+def list_timestamp_dirs(pair_dir: Path) -> list[Path]:
     """List timestamp-named run dirs under a pair dir."""
     pair_dir = as_path(pair_dir)
     if not pair_dir.exists():
         return []
-    out: List[Path] = []
+    out: list[Path] = []
     for c in pair_dir.iterdir():
         if is_timestamp_dir(c):
             out.append(c)
@@ -174,7 +173,7 @@ def load_xfer_results_csv(src: Any) -> pd.DataFrame:
     return df
 
 
-def load_xfer_results_json(src: Any) -> List[Dict[str, Any]]:
+def load_xfer_results_json(src: Any) -> list[dict[str, Any]]:
     """Load xfer_results.json as a list of dicts.
 
     Notes
@@ -224,7 +223,7 @@ _REQUIRED_FUT = (
 
 def _ensure_cols(
     df: pd.DataFrame,
-    req: Tuple[str, ...],
+    req: tuple[str, ...],
 ) -> None:
     miss = [c for c in req if c not in df.columns]
     if miss:
@@ -250,7 +249,7 @@ def load_future_csv(path: Any) -> pd.DataFrame:
 
 
 def iter_job_csv_paths(
-    xfer_json: List[Dict[str, Any]],
+    xfer_json: list[dict[str, Any]],
     *,
     kind: str = "eval",
 ) -> Iterable[Path]:

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -9,16 +8,15 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.ticker import ScalarFormatter
+import numpy as np
 from matplotlib.gridspec import GridSpec
+from matplotlib.ticker import ScalarFormatter
 
 from . import config as cfg
 from . import utils
-
 
 # ================================================================
 # 1) Payload loading (v3.2)
@@ -26,7 +24,8 @@ from . import utils
 #    - Fallback to raw NPZ + optional sidecar meta JSON
 # ================================================================
 
-def _load_payload(path: str) -> Tuple[dict, dict]:
+
+def _load_payload(path: str) -> tuple[dict, dict]:
     try:
         from geoprior.nn.pinn.io import (  # type: ignore
             load_physics_payload as _lp,
@@ -43,8 +42,7 @@ def _load_payload(path: str) -> Tuple[dict, dict]:
 
     if p.suffix.lower() != ".npz":
         raise ValueError(
-            "Fallback loader expects .npz. "
-            f"Got: {p.name!r}"
+            f"Fallback loader expects .npz. Got: {p.name!r}"
         )
 
     with np.load(str(p)) as z:
@@ -59,21 +57,31 @@ def _load_payload(path: str) -> Tuple[dict, dict]:
             meta = {}
 
     # v3.2 aliasing: tau_prior <-> tau_closure
-    if "tau_prior" not in payload and "tau_closure" in payload:
+    if (
+        "tau_prior" not in payload
+        and "tau_closure" in payload
+    ):
         payload["tau_prior"] = payload["tau_closure"]
-    if "tau_closure" not in payload and "tau_prior" in payload:
+    if (
+        "tau_closure" not in payload
+        and "tau_prior" in payload
+    ):
         payload["tau_closure"] = payload["tau_prior"]
 
     if (
         "log10_tau_prior" not in payload
         and "log10_tau_closure" in payload
     ):
-        payload["log10_tau_prior"] = payload["log10_tau_closure"]
+        payload["log10_tau_prior"] = payload[
+            "log10_tau_closure"
+        ]
     if (
         "log10_tau_closure" not in payload
         and "log10_tau_prior" in payload
     ):
-        payload["log10_tau_closure"] = payload["log10_tau_prior"]
+        payload["log10_tau_closure"] = payload[
+            "log10_tau_prior"
+        ]
 
     return payload, meta
 
@@ -97,11 +105,12 @@ def _finite_mask(*arrs: np.ndarray) -> np.ndarray:
         m &= np.isfinite(a)
     return m
 
+
 def _apply_paper_axis_format(
     ax,
     *,
     axis: str = "both",
-    scilimits: Tuple[int, int] = (-2, 2),
+    scilimits: tuple[int, int] = (-2, 2),
     use_offset: bool = True,
 ) -> None:
     """
@@ -126,11 +135,12 @@ def _apply_paper_axis_format(
         ax.yaxis.get_offset_text().set_size(9)
     except Exception:
         pass
-    
+
+
 def _subsample_idx(
     n: int,
-    frac: Optional[float],
-    max_n: Optional[int],
+    frac: float | None,
+    max_n: int | None,
     seed: int,
 ) -> np.ndarray:
     idx = np.arange(n)
@@ -153,7 +163,7 @@ def _subsample_idx(
 # ================================================================
 # 2) Labels / units (use config + meta; avoid hardcoding)
 # ================================================================
-def _meta_unit(meta: dict, key: str) -> Optional[str]:
+def _meta_unit(meta: dict, key: str) -> str | None:
     units = (meta or {}).get("units", {}) or {}
     u = units.get(key)
     if u:
@@ -173,11 +183,12 @@ def _tau_prior_symbol(meta: dict) -> str:
 #     if f:
 #         if "kappa_bar" in str(f):
 #             return r"\kappa\,H^2S_s/(\pi^2K)"
-        
+
 #         return r"H_d^2S_s/(\pi^2\kappa K)"
 
 #     # Single source (config)
 #     return cfg.CLOSURES.get("tau_prior", r"\tau_{\mathrm{prior}}")
+
 
 def _strip_math(s: str) -> str:
     # Remove outer $...$ if present (config strings often include $)
@@ -185,6 +196,7 @@ def _strip_math(s: str) -> str:
     if s.startswith("$") and s.endswith("$") and len(s) >= 2:
         return s[1:-1]
     return s
+
 
 def _sci_tex(x: float, sig: int = 3) -> str:
     """
@@ -210,7 +222,7 @@ def _strip_dollars(s: str) -> str:
     return s
 
 
-def _unit_to_tex(unit: Optional[str]) -> str:
+def _unit_to_tex(unit: str | None) -> str:
     if not unit:
         return r"\mathrm{m\,s^{-1}}"
     u = str(unit).strip().lower().replace(" ", "")
@@ -243,8 +255,8 @@ def _embed_offsets_into_labels(
     ax,
     *,
     x_base: str,
-    x_unit_tex: Optional[str],
-    y_base: Optional[str] = None,
+    x_unit_tex: str | None,
+    y_base: str | None = None,
 ) -> None:
     """
     Hide axis offset texts and embed them into labels.
@@ -262,7 +274,8 @@ def _embed_offsets_into_labels(
     if y_base and oy:
         ax.set_ylabel(rf"${y_base}\,({oy})$")
         ax.yaxis.get_offset_text().set_visible(False)
-        
+
+
 def _tau_prior_formula(meta: dict) -> str:
     """
     Return a LaTeX math expression (NO surrounding $) describing
@@ -287,12 +300,20 @@ def _tau_prior_formula(meta: dict) -> str:
 
         # If meta provides a plain-text-like closure, map to a nice fraction
         # (best-effort for your known patterns)
-        if "hd" in lo and "ss" in lo and "kappa" in lo and "pi" in lo:
+        if (
+            "hd" in lo
+            and "ss" in lo
+            and "kappa" in lo
+            and "pi" in lo
+        ):
             # decide whether it's κ_b or κ
-            ksym = r"\kappa_b" if ("kappa_b" in lo or "κ_b" in sf) else r"\kappa"
+            ksym = (
+                r"\kappa_b"
+                if ("kappa_b" in lo or "κ_b" in sf)
+                else r"\kappa"
+            )
             return (
-                r"\frac{H_d^2\,S_s}"
-                rf"{{\pi^2\,{ksym}\,K}}"
+                r"\frac{H_d^2\,S_s}" rf"{{\pi^2\,{ksym}\,K}}"
             )
 
         # last resort: show it as-is (but make it math-safe)
@@ -301,7 +322,11 @@ def _tau_prior_formula(meta: dict) -> str:
     # 2) Single source from config
     # cfg.CLOSURES["tau_prior"] includes full "$...$" with "tau_prior ≈ .../..."
     # We extract the RHS and format it as a fraction.
-    cfg_expr = _strip_math(cfg.CLOSURES.get("tau_prior", r"\tau_{\mathrm{prior}}"))
+    cfg_expr = _strip_math(
+        cfg.CLOSURES.get(
+            "tau_prior", r"\tau_{\mathrm{prior}}"
+        )
+    )
 
     # If config already contains a fraction, just return it
     if r"\frac" in cfg_expr:
@@ -309,12 +334,11 @@ def _tau_prior_formula(meta: dict) -> str:
 
     # Your canonical config RHS: H_d^2 S_s / (pi^2 kappa_b K)
     # Return a clean fraction RHS only.
-    return (
-        r"\frac{H_d^2\,S_s}"
-        r"{\pi^2\,\kappa_b\,K}"
-    )
+    return r"\frac{H_d^2\,S_s}" r"{\pi^2\,\kappa_b\,K}"
 
     # return r"\frac{\kappa\,H^2\,S_s}{\pi^2\,K}"
+
+
 # ================================================================
 # 3) Stats
 # ================================================================
@@ -340,7 +364,12 @@ def _r2_corr(x: np.ndarray, y: np.ndarray) -> float:
 def _eps_prior_ln(tau: np.ndarray, tp: np.ndarray) -> float:
     tau = np.asarray(tau, float).reshape(-1)
     tp = np.asarray(tp, float).reshape(-1)
-    m = np.isfinite(tau) & np.isfinite(tp) & (tau > 0) & (tp > 0)
+    m = (
+        np.isfinite(tau)
+        & np.isfinite(tp)
+        & (tau > 0)
+        & (tp > 0)
+    )
     if m.sum() == 0:
         return float("nan")
     dif = np.log(tau[m]) - np.log(tp[m])
@@ -379,7 +408,7 @@ def _hexbin_panel(
     y: np.ndarray,
     *,
     gridsize: int,
-    clip_q: Tuple[float, float],
+    clip_q: tuple[float, float],
     xlabel: str,
     ylabel: str,
     draw_diag: bool,
@@ -394,8 +423,14 @@ def _hexbin_panel(
         raise ValueError("No finite points for hexbin.")
 
     qlo, qhi = float(clip_q[0]), float(clip_q[1])
-    xlo, xhi = np.nanpercentile(x, qlo), np.nanpercentile(x, qhi)
-    ylo, yhi = np.nanpercentile(y, qlo), np.nanpercentile(y, qhi)
+    xlo, xhi = (
+        np.nanpercentile(x, qlo),
+        np.nanpercentile(x, qhi),
+    )
+    ylo, yhi = (
+        np.nanpercentile(y, qlo),
+        np.nanpercentile(y, qhi),
+    )
 
     keep = (x >= xlo) & (x <= xhi) & (y >= ylo) & (y <= yhi)
     if keep.sum() > 0:
@@ -403,7 +438,11 @@ def _hexbin_panel(
         y = y[keep]
 
     def _pad(lo, hi, ref):
-        if not np.isfinite(lo) or not np.isfinite(hi) or lo >= hi:
+        if (
+            not np.isfinite(lo)
+            or not np.isfinite(hi)
+            or lo >= hi
+        ):
             lo, hi = np.nanmin(ref), np.nanmax(ref)
         span = hi - lo
         if not np.isfinite(span) or span <= 0:
@@ -513,10 +552,10 @@ def _resolve_payload_path(src: Any) -> Path:
 def _prepare_case(
     src: Any,
     *,
-    city: Optional[str],
+    city: str | None,
     cons_kind: str,
-    subsample_frac: Optional[float],
-    max_points: Optional[int],
+    subsample_frac: float | None,
+    max_points: int | None,
     seed: int,
 ) -> dict:
     payload_path = _resolve_payload_path(src)
@@ -534,7 +573,9 @@ def _prepare_case(
     Hd = _pick(payload, "Hd", "H")
 
     if cons_kind == "scaled":
-        cons = _pick(payload, "cons_res_scaled", "cons_res_vals")
+        cons = _pick(
+            payload, "cons_res_scaled", "cons_res_vals"
+        )
         cons_key = (
             "cons_res_scaled"
             if "cons_res_scaled" in payload
@@ -613,14 +654,14 @@ def _prepare_case(
 # 6) Figure assembly (generic loop over cases)
 # ================================================================
 def render_physics_sanity(
-    cases: List[dict],
+    cases: list[dict],
     *,
     outbase: Path,
     dpi: int,
     fontsize: int,
     gridsize: int,
     hist_bins: int,
-    clip_q: Tuple[float, float],
+    clip_q: tuple[float, float],
     plot_mode: str,
     tau_scale: str,
     show_labels: bool,
@@ -629,10 +670,10 @@ def render_physics_sanity(
     show_panel_labels: bool,
     show_ticklabels: bool,
     show_legend: bool,
-    title: Optional[str],
-    paper_format: bool, 
-    paper_no_offset: bool
-) -> Dict[str, dict]:
+    title: str | None,
+    paper_format: bool,
+    paper_no_offset: bool,
+) -> dict[str, dict]:
     utils.set_paper_style(dpi=dpi, fontsize=fontsize)
 
     plot_mode = str(plot_mode).lower()
@@ -682,7 +723,12 @@ def render_physics_sanity(
         tau = d["tau"]
         tp = d["tau_prior"]
 
-        mp = np.isfinite(tau) & np.isfinite(tp) & (tau > 0) & (tp > 0)
+        mp = (
+            np.isfinite(tau)
+            & np.isfinite(tp)
+            & (tau > 0)
+            & (tp > 0)
+        )
         tau = tau[mp]
         tp = tp[mp]
 
@@ -703,9 +749,9 @@ def render_physics_sanity(
         return lp, (lt - lp), r2, eps_pr, delta, c
 
     letters = ["a", "b", "c", "d"]
-    stats: Dict[str, dict] = {}
+    stats: dict[str, dict] = {}
     hist_axes = []
-    
+
     for i, case in enumerate(cases):
         x, y, r2, ep, dlt, cst = _prep_xy(case)
 
@@ -714,7 +760,9 @@ def render_physics_sanity(
         hist_axes.append(axR)
 
         _panel_label(axL, letters[2 * i], show_panel_labels)
-        _panel_label(axR, letters[2 * i + 1], show_panel_labels)
+        _panel_label(
+            axR, letters[2 * i + 1], show_panel_labels
+        )
 
         hb = _hexbin_panel(
             axL,
@@ -756,7 +804,9 @@ def render_physics_sanity(
             axL.axhline(dlt, color="k", linewidth=0.8)
 
         if not show_ticklabels:
-            axL.tick_params(labelbottom=False, labelleft=False)
+            axL.tick_params(
+                labelbottom=False, labelleft=False
+            )
 
         if show_panel_titles:
             axL.set_title(case["city"])
@@ -764,11 +814,11 @@ def render_physics_sanity(
         axL.text(
             0.98,
             0.03,
-            fr"$R^2={r2:.3f}$"
+            rf"$R^2={r2:.3f}$"
             "\n"
-            fr"$\varepsilon_{{prior}}={ep:.3f}$"
+            rf"$\varepsilon_{{prior}}={ep:.3f}$"
             "\n"
-            fr"$\tau\approx {cst:.1e}\,{tau_sym}$",
+            rf"$\tau\approx {cst:.1e}\,{tau_sym}$",
             transform=axL.transAxes,
             va="bottom",
             ha="right",
@@ -781,7 +831,9 @@ def render_physics_sanity(
         )
 
         if show_legend:
-            cb = fig.colorbar(hb, ax=axL, fraction=0.046, pad=0.04)
+            cb = fig.colorbar(
+                hb, ax=axL, fraction=0.046, pad=0.04
+            )
             cb.set_label(r"$\log_{10}(\mathrm{count})$")
 
         eps_cons = _eps_rms(case["cons"])
@@ -798,17 +850,19 @@ def render_physics_sanity(
             if paper_format:
                 eps_tex = _sci_tex(eps_cons, sig=3)
                 axR.set_title(
-                    fr"{case['city']}  "
-                    fr"$\varepsilon_{{cons}}={eps_tex}$"
+                    rf"{case['city']}  "
+                    rf"$\varepsilon_{{cons}}={eps_tex}$"
                 )
             else:
                 axR.set_title(
-                    fr"{case['city']}  "
-                    fr"$\varepsilon_{{cons}}={eps_cons:.3g}$"
+                    rf"{case['city']}  "
+                    rf"$\varepsilon_{{cons}}={eps_cons:.3g}$"
                 )
 
         if not show_ticklabels:
-            axR.tick_params(labelbottom=False, labelleft=False)
+            axR.tick_params(
+                labelbottom=False, labelleft=False
+            )
 
         stats[case["city"]] = {
             "r2_logtau": r2,
@@ -822,9 +876,13 @@ def render_physics_sanity(
         if paper_format:
             # Left panels: residual axis can have tiny numbers (e.g., 2e-4)
             # Hist panels: x can be 1e-5 scale; y can be 1e5..1e6 scale
-            _apply_paper_axis_format(axL, axis="y", scilimits=(-2, 2))
-            _apply_paper_axis_format(axR, axis="both", scilimits=(-2, 2))
-            
+            _apply_paper_axis_format(
+                axL, axis="y", scilimits=(-2, 2)
+            )
+            _apply_paper_axis_format(
+                axR, axis="both", scilimits=(-2, 2)
+            )
+
     if show_title:
         if title:
             st = str(title)
@@ -852,14 +910,16 @@ def render_physics_sanity(
                     rf"${tau_sym}={tau_form}$; "
                     r"$R_{\mathrm{cons}}$ distribution"
                 )
-    
+
         fig.suptitle(st, x=0.02, y=0.99, ha="left")
 
     if paper_format and paper_no_offset:
         # Need a draw so ScalarFormatter computes offset text
         fig.canvas.draw()
-    
-        unit_tex = cons_u or "m/s"   # what you already inferred
+
+        unit_tex = (
+            cons_u or "m/s"
+        )  # what you already inferred
         for axR in hist_axes:
             # x: R_cons with units; y: Density
             _embed_offsets_into_labels(
@@ -868,7 +928,7 @@ def render_physics_sanity(
                 x_unit_tex=unit_tex,
                 y_base=r"\mathrm{Density}",
             )
-        
+
     outbase.parent.mkdir(parents=True, exist_ok=True)
     utils.save_figure(fig, outbase, dpi=int(dpi))
 
@@ -879,7 +939,7 @@ def render_physics_sanity(
 # 7) Optional extra figures (generic loop over cases)
 # ================================================================
 def _extra_k_from_tau(
-    cases: List[dict],
+    cases: list[dict],
     *,
     outbase: Path,
     dpi: int,
@@ -889,7 +949,7 @@ def _extra_k_from_tau(
 ) -> None:
     utils.set_paper_style(dpi=dpi, fontsize=fontsize)
 
-    pairs: List[Tuple[np.ndarray, np.ndarray, str, str]] = []
+    pairs: list[tuple[np.ndarray, np.ndarray, str, str]] = []
     for c in cases:
         p = c["payload"]
         K = _pick(p, "K")
@@ -899,7 +959,12 @@ def _extra_k_from_tau(
 
         K = _to_1d(K)
         Kt = _to_1d(Kt)
-        m = np.isfinite(K) & np.isfinite(Kt) & (K > 0) & (Kt > 0)
+        m = (
+            np.isfinite(K)
+            & np.isfinite(Kt)
+            & (K > 0)
+            & (Kt > 0)
+        )
         pairs.append(
             (
                 np.log10(K[m]),
@@ -922,22 +987,33 @@ def _extra_k_from_tau(
 
         d0 = min(ax.get_xlim()[0], ax.get_ylim()[0])
         d1 = max(ax.get_xlim()[1], ax.get_ylim()[1])
-        ax.plot([d0, d1], [d0, d1], linestyle="--", color="#444444")
+        ax.plot(
+            [d0, d1],
+            [d0, d1],
+            linestyle="--",
+            color="#444444",
+        )
 
         if show_labels:
             ax.set_xlabel(r"$\log_{10}(K)$")
-            ax.set_ylabel(r"$\log_{10}(K_{\mathrm{from}\ \tau})$")
+            ax.set_ylabel(
+                r"$\log_{10}(K_{\mathrm{from}\ \tau})$"
+            )
 
         if show_title:
             ax.set_title(name)
 
-    fig.savefig(str(outbase) + "-k-from-tau.png", bbox_inches="tight")
-    fig.savefig(str(outbase) + "-k-from-tau.svg", bbox_inches="tight")
+    fig.savefig(
+        str(outbase) + "-k-from-tau.png", bbox_inches="tight"
+    )
+    fig.savefig(
+        str(outbase) + "-k-from-tau.svg", bbox_inches="tight"
+    )
     plt.close(fig)
 
 
 def _extra_closure_check(
-    cases: List[dict],
+    cases: list[dict],
     *,
     outbase: Path,
     dpi: int,
@@ -947,7 +1023,7 @@ def _extra_closure_check(
 ) -> None:
     utils.set_paper_style(dpi=dpi, fontsize=fontsize)
 
-    pairs: List[Tuple[np.ndarray, np.ndarray, str, str]] = []
+    pairs: list[tuple[np.ndarray, np.ndarray, str, str]] = []
     for c in cases:
         p = c["payload"]
         tp = _pick(p, "tau_prior", "tau_closure")
@@ -957,7 +1033,12 @@ def _extra_closure_check(
 
         tp = _to_1d(tp)
         tc = _to_1d(tc)
-        m = np.isfinite(tp) & np.isfinite(tc) & (tp > 0) & (tc > 0)
+        m = (
+            np.isfinite(tp)
+            & np.isfinite(tc)
+            & (tp > 0)
+            & (tc > 0)
+        )
         pairs.append(
             (
                 np.log10(tp[m]),
@@ -968,7 +1049,9 @@ def _extra_closure_check(
         )
 
     if len(pairs) != len(cases):
-        print("[WARN] Missing tau_closure_calc; skipping extra.")
+        print(
+            "[WARN] Missing tau_closure_calc; skipping extra."
+        )
         return
 
     fig = plt.figure(figsize=(6.6, 3.2))
@@ -980,10 +1063,17 @@ def _extra_closure_check(
 
         d0 = min(ax.get_xlim()[0], ax.get_ylim()[0])
         d1 = max(ax.get_xlim()[1], ax.get_ylim()[1])
-        ax.plot([d0, d1], [d0, d1], linestyle="--", color="#444444")
+        ax.plot(
+            [d0, d1],
+            [d0, d1],
+            linestyle="--",
+            color="#444444",
+        )
 
         if show_labels:
-            ax.set_xlabel(r"$\log_{10}(\tau_{\mathrm{prior}})$")
+            ax.set_xlabel(
+                r"$\log_{10}(\tau_{\mathrm{prior}})$"
+            )
             ax.set_ylabel(
                 r"$\log_{10}(\tau_{\mathrm{closure\ calc}})$"
             )
@@ -991,15 +1081,21 @@ def _extra_closure_check(
         if show_title:
             ax.set_title(name)
 
-    fig.savefig(str(outbase) + "-closure-check.png", bbox_inches="tight")
-    fig.savefig(str(outbase) + "-closure-check.svg", bbox_inches="tight")
+    fig.savefig(
+        str(outbase) + "-closure-check.png",
+        bbox_inches="tight",
+    )
+    fig.savefig(
+        str(outbase) + "-closure-check.svg",
+        bbox_inches="tight",
+    )
     plt.close(fig)
 
 
 # ================================================================
 # 8) CLI
 # ================================================================
-def _parse_csv_list(s: str) -> List[str]:
+def _parse_csv_list(s: str) -> list[str]:
     parts = [p.strip() for p in str(s).split(",")]
     return [p for p in parts if p]
 
@@ -1056,14 +1152,20 @@ def _add_args(ap) -> None:
         metavar=("QLOW", "QHIGH"),
     )
 
-    ap.add_argument("--subsample-frac", type=float, default=None)
+    ap.add_argument(
+        "--subsample-frac", type=float, default=None
+    )
     ap.add_argument("--max-points", type=int, default=None)
     ap.add_argument("--seed", type=int, default=42)
 
     ap.add_argument("--dpi", type=int, default=cfg.PAPER_DPI)
-    ap.add_argument("--fontsize", type=int, default=cfg.PAPER_FONT)
+    ap.add_argument(
+        "--fontsize", type=int, default=cfg.PAPER_FONT
+    )
 
-    utils.add_plot_text_args(ap, default_out="fig4_physics_sanity")
+    utils.add_plot_text_args(
+        ap, default_out="fig4_physics_sanity"
+    )
     ap.add_argument(
         "--show-panel-labels",
         type=str,
@@ -1083,7 +1185,7 @@ def _add_args(ap) -> None:
         default="none",
         help="Comma list: none,k-from-tau,closure",
     )
-    
+
     ap.add_argument(
         "--paper-format",
         action="store_true",
@@ -1103,7 +1205,10 @@ def _add_args(ap) -> None:
         ),
     )
 
-def plot_physics_sanity_main(argv: Optional[List[str]] = None) -> None:
+
+def plot_physics_sanity_main(
+    argv: list[str] | None = None,
+) -> None:
     ap = argparse.ArgumentParser(
         prog="plot-physics-sanity",
         description=(
@@ -1118,13 +1223,17 @@ def plot_physics_sanity_main(argv: Optional[List[str]] = None) -> None:
 
     show_labels = utils.str_to_bool(args.show_labels)
     show_title = utils.str_to_bool(args.show_title)
-    show_panel_titles = utils.str_to_bool(args.show_panel_titles)
-    show_panel_labels = utils.str_to_bool(args.show_panel_labels)
+    show_panel_titles = utils.str_to_bool(
+        args.show_panel_titles
+    )
+    show_panel_labels = utils.str_to_bool(
+        args.show_panel_labels
+    )
     show_ticklabels = utils.str_to_bool(args.show_ticklabels)
     show_legend = utils.str_to_bool(args.show_legend)
-    
-    paper_format=bool(args.paper_format),
-    paper_no_offset=bool(args.paper_no_offset),
+
+    paper_format = (bool(args.paper_format),)
+    paper_no_offset = (bool(args.paper_no_offset),)
 
     srcs = list(args.src or [])
     if len(srcs) != 2:
@@ -1134,8 +1243,8 @@ def plot_physics_sanity_main(argv: Optional[List[str]] = None) -> None:
     while len(cities) < len(srcs):
         cities.append(None)
 
-    cases: List[dict] = []
-    for s, c in zip(srcs, cities):
+    cases: list[dict] = []
+    for s, c in zip(srcs, cities, strict=False):
         cases.append(
             _prepare_case(
                 s,
@@ -1168,8 +1277,8 @@ def plot_physics_sanity_main(argv: Optional[List[str]] = None) -> None:
         show_ticklabels=show_ticklabels,
         show_legend=show_legend,
         title=args.title,
-        paper_format=paper_format, 
-        paper_no_offset= paper_no_offset
+        paper_format=paper_format,
+        paper_no_offset=paper_no_offset,
     )
 
     extras = _parse_csv_list(args.extra)
@@ -1203,7 +1312,7 @@ def plot_physics_sanity_main(argv: Optional[List[str]] = None) -> None:
     print(f"[OK] wrote {base}.png/.svg")
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     plot_physics_sanity_main(argv)
 
 
@@ -1237,5 +1346,3 @@ if __name__ == "__main__":
 #   --src some/runB \
 #   --city Nansha \
 #   --city Zhongshan
-
-

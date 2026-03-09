@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
-# https://lkouadio.com
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
-# Author: LKouadio <etanoyau@gmail.com>
+# Author: LKouadio <https://lkouadio.com>
 
 from __future__ import annotations
 
@@ -12,7 +10,6 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
-
 
 HoldoutStrategy = Literal["random", "spatial_block"]
 
@@ -71,7 +68,9 @@ def _groups_with_all_years(
         return d0[group_cols].drop_duplicates().copy()
 
     need = len(required_years)
-    cnt = d0.groupby(group_cols, sort=False)[time_col].nunique()
+    cnt = d0.groupby(group_cols, sort=False)[
+        time_col
+    ].nunique()
     ok = cnt[cnt == need].index
 
     if isinstance(ok, pd.MultiIndex):
@@ -80,7 +79,9 @@ def _groups_with_all_years(
         return out.reset_index(drop=True)
 
     # single group col
-    return pd.DataFrame({group_cols[0]: ok}).reset_index(drop=True)
+    return pd.DataFrame({group_cols[0]: ok}).reset_index(
+        drop=True
+    )
 
 
 def compute_group_masks(
@@ -99,7 +100,9 @@ def compute_group_masks(
 
     This assumes annual steps and integer years in time_col.
     """
-    req_train = _year_span(train_end_year, time_steps + horizon)
+    req_train = _year_span(
+        train_end_year, time_steps + horizon
+    )
     req_fcst = _year_span(train_end_year, time_steps)
 
     v_train = _groups_with_all_years(
@@ -123,7 +126,9 @@ def compute_group_masks(
     )
 
 
-def _hash_groups(df: pd.DataFrame, group_cols: list[str]) -> pd.Series:
+def _hash_groups(
+    df: pd.DataFrame, group_cols: list[str]
+) -> pd.Series:
     """
     Stable-ish 64-bit hash per row for group membership filtering.
 
@@ -173,7 +178,9 @@ class HoldoutSplit:
         sb = set(b[g[0]].to_numpy())
         sc = set(c[g[0]].to_numpy())
         if sa & sb or sa & sc or sb & sc:
-            raise RuntimeError("Holdout groups are not disjoint.")
+            raise RuntimeError(
+                "Holdout groups are not disjoint."
+            )
 
 
 def split_groups_holdout(
@@ -198,7 +205,11 @@ def split_groups_holdout(
         z = groups.iloc[0:0].copy()
         return HoldoutSplit(z, z, z)
 
-    if val_frac < 0 or test_frac < 0 or (val_frac + test_frac) >= 1.0:
+    if (
+        val_frac < 0
+        or test_frac < 0
+        or (val_frac + test_frac) >= 1.0
+    ):
         raise ValueError("Bad val/test fractions.")
 
     g = groups.drop_duplicates().reset_index(drop=True)
@@ -207,13 +218,23 @@ def split_groups_holdout(
 
     if strategy == "spatial_block":
         if x_col is None or y_col is None:
-            raise ValueError("spatial_block needs x_col and y_col.")
+            raise ValueError(
+                "spatial_block needs x_col and y_col."
+            )
         if block_size is None or float(block_size) <= 0:
-            raise ValueError("spatial_block needs block_size > 0.")
+            raise ValueError(
+                "spatial_block needs block_size > 0."
+            )
 
-        bx = np.floor(g[x_col].to_numpy(float) / float(block_size))
-        by = np.floor(g[y_col].to_numpy(float) / float(block_size))
-        blocks = pd.DataFrame({"bx": bx.astype(int), "by": by.astype(int)})
+        bx = np.floor(
+            g[x_col].to_numpy(float) / float(block_size)
+        )
+        by = np.floor(
+            g[y_col].to_numpy(float) / float(block_size)
+        )
+        blocks = pd.DataFrame(
+            {"bx": bx.astype(int), "by": by.astype(int)}
+        )
 
         b_id = pd.util.hash_pandas_object(blocks, index=False)
         uniq = pd.DataFrame({"b": b_id}).drop_duplicates()
@@ -224,11 +245,17 @@ def split_groups_holdout(
         n_val = max(1, int(round(val_frac * n)))
         n_train = max(1, n - n_val - n_test)
 
-        b_train = set(uniq.iloc[perm[:n_train]]["b"].to_numpy())
-        b_val = set(
-            uniq.iloc[perm[n_train : n_train + n_val]]["b"].to_numpy()
+        b_train = set(
+            uniq.iloc[perm[:n_train]]["b"].to_numpy()
         )
-        b_test = set(uniq.iloc[perm[n_train + n_val :]]["b"].to_numpy())
+        b_val = set(
+            uniq.iloc[perm[n_train : n_train + n_val]][
+                "b"
+            ].to_numpy()
+        )
+        b_test = set(
+            uniq.iloc[perm[n_train + n_val :]]["b"].to_numpy()
+        )
 
         in_train = b_id.isin(b_train).to_numpy()
         in_val = b_id.isin(b_val).to_numpy()

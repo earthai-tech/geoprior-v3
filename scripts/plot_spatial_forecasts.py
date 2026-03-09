@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -8,26 +7,26 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
-import numpy as np
-import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 from . import config as cfg
 from . import utils
 
-
 _CITY_A = cfg.CITY_CANON.get("ns", "Nansha")
 _CITY_B = cfg.CITY_CANON.get("zh", "Zhongshan")
+
 
 # ---------------------------------------------------------------------
 # IO helpers
 # ---------------------------------------------------------------------
 def _require_cols(
     df: pd.DataFrame,
-    cols: List[str],
+    cols: list[str],
     *,
     where: str,
 ) -> None:
@@ -40,13 +39,14 @@ def _canonize(
     df: pd.DataFrame,
     *,
     where: str,
-    required: List[str],
+    required: list[str],
 ) -> pd.DataFrame:
     # NOTE: ensure_columns returns a mapping;
     # it mutates df in-place.
     utils.ensure_columns(df, aliases=cfg._BASE_ALIASES)
     _require_cols(df, required, where=where)
     return df
+
 
 def _load_calib_df(path: str) -> pd.DataFrame:
     p = utils.as_path(path)
@@ -82,6 +82,7 @@ def _load_calib_df(path: str) -> pd.DataFrame:
 
     return df
 
+
 def _load_future_df(path: str) -> pd.DataFrame:
     p = utils.as_path(path)
     df = pd.read_csv(p)
@@ -114,10 +115,11 @@ def _load_future_df(path: str) -> pd.DataFrame:
 
     return df
 
+
 def _pick_calib_path(
     art: utils.Artifacts,
     split: str,
-) -> Tuple[Optional[Path], str]:
+) -> tuple[Path | None, str]:
     if split == "val":
         return (art.forecast_val_csv, "val")
     if split == "test":
@@ -131,7 +133,7 @@ def _pick_calib_path(
 def _pick_future_path(
     art: utils.Artifacts,
     split: str,
-) -> Tuple[Optional[Path], str]:
+) -> tuple[Path | None, str]:
     if split == "val":
         return (art.forecast_future_csv, "val")
     if split == "test":
@@ -145,11 +147,11 @@ def _pick_future_path(
 def _resolve_city(
     *,
     city: str,
-    src: Optional[str],
-    calib: Optional[str],
-    future: Optional[str],
+    src: str | None,
+    calib: str | None,
+    future: str | None,
     split: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Resolve (calib_df, future_df) for one city.
 
@@ -157,7 +159,7 @@ def _resolve_city(
       1) manual overrides: --*-calib and --*-future
       2) auto-detect from --*-src with --split selection
     """
-    out: Dict[str, Any] = {"name": city}
+    out: dict[str, Any] = {"name": city}
     out["color"] = cfg.CITY_COLORS.get(city, "#333333")
 
     if calib and future:
@@ -191,7 +193,9 @@ def _resolve_city(
     out["calib_df"] = _load_calib_df(str(c_p))
     out["future_df"] = _load_future_df(str(f_p))
     out["split"] = c_lab
-    out["src_note"] = f"{c_p.name} + {f_p.name} ({c_lab}/{f_lab})"
+    out["src_note"] = (
+        f"{c_p.name} + {f_p.name} ({c_lab}/{f_lab})"
+    )
 
     return out
 
@@ -220,7 +224,9 @@ def _coord_kind(df: pd.DataFrame) -> str:
 
 
 def _subset_year(df: pd.DataFrame, year: int) -> pd.DataFrame:
-    return df.loc[df["coord_t"].astype(int).eq(int(year))].copy()
+    return df.loc[
+        df["coord_t"].astype(int).eq(int(year))
+    ].copy()
 
 
 def _compute_cum_calib(
@@ -232,14 +238,12 @@ def _compute_cum_calib(
     k = str(kind).strip().lower()
 
     if k in ("rate", "increment"):
-        df2["subs_cum_actual"] = (
-            df2.groupby("sample_idx")["subsidence_actual"]
-            .cumsum()
-        )
-        df2["subs_cum_q50"] = (
-            df2.groupby("sample_idx")["subsidence_q50"]
-            .cumsum()
-        )
+        df2["subs_cum_actual"] = df2.groupby("sample_idx")[
+            "subsidence_actual"
+        ].cumsum()
+        df2["subs_cum_q50"] = df2.groupby("sample_idx")[
+            "subsidence_q50"
+        ].cumsum()
     else:
         # already cumulative
         df2["subs_cum_actual"] = df2["subsidence_actual"]
@@ -257,20 +261,22 @@ def _compute_cum_q50(
     k = str(kind).strip().lower()
 
     if k in ("rate", "increment"):
-        df2["subs_cum_q50"] = (
-            df2.groupby("sample_idx")["subsidence_q50"]
-            .cumsum()
-        )
+        df2["subs_cum_q50"] = df2.groupby("sample_idx")[
+            "subsidence_q50"
+        ].cumsum()
     else:
         df2["subs_cum_q50"] = df2["subsidence_q50"]
 
     return df2
 
+
 def _extent_from_panels(
-    panels: Dict[str, Tuple[np.ndarray, np.ndarray, np.ndarray]],
-) -> Optional[Tuple[float, float, float, float]]:
-    xs: List[np.ndarray] = []
-    ys: List[np.ndarray] = []
+    panels: dict[
+        str, tuple[np.ndarray, np.ndarray, np.ndarray]
+    ],
+) -> tuple[float, float, float, float] | None:
+    xs: list[np.ndarray] = []
+    ys: list[np.ndarray] = []
     for _k, (x, y, _v) in panels.items():
         if x.size and y.size:
             xs.append(x)
@@ -293,8 +299,8 @@ def _grid_mean(
     v: np.ndarray,
     *,
     res: int,
-    extent: Tuple[float, float, float, float],
-) -> Tuple[np.ndarray, Tuple[float, float, float, float]]:
+    extent: tuple[float, float, float, float],
+) -> tuple[np.ndarray, tuple[float, float, float, float]]:
     """
     Rasterize (mean in bin) to res x res grid.
 
@@ -307,7 +313,9 @@ def _grid_mean(
     xb = np.linspace(xmin, xmax, res + 1)
     yb = np.linspace(ymin, ymax, res + 1)
 
-    sumv, _, _ = np.histogram2d(x, y, bins=[xb, yb], weights=v)
+    sumv, _, _ = np.histogram2d(
+        x, y, bins=[xb, yb], weights=v
+    )
     cnts, _, _ = np.histogram2d(x, y, bins=[xb, yb])
 
     with np.errstate(invalid="ignore", divide="ignore"):
@@ -318,9 +326,9 @@ def _grid_mean(
 
 
 def _clip_bounds(
-    vals: List[np.ndarray],
+    vals: list[np.ndarray],
     clip: float,
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     good = []
     for v in vals:
         if v is None:
@@ -351,7 +359,7 @@ def _axes_cleanup(ax: plt.Axes) -> None:
         ax.spines[s].set_visible(False)
 
 
-def _infer_unit(cities: List[Dict[str, Any]]) -> str:
+def _infer_unit(cities: list[dict[str, Any]]) -> str:
     for c in cities:
         df = c.get("calib_df")
         if isinstance(df, pd.DataFrame):
@@ -367,24 +375,24 @@ def _infer_unit(cities: List[Dict[str, Any]]) -> str:
 # ---------------------------------------------------------------------
 def plot_fig6_spatial_forecasts(
     *,
-    cities: List[Dict[str, Any]],
+    cities: list[dict[str, Any]],
     year_val: int,
-    years_fore: List[int],
+    years_fore: list[int],
     cumulative: bool,
-    subsidence_kind: str, 
+    subsidence_kind: str,
     grid_res: int,
     clip: float,
     cmap_name: str,
     hotspot_mode: str,
     hotspot_q: float,
     out: str,
-    out_hotspots: Optional[str],
+    out_hotspots: str | None,
     dpi: int,
     font: int,
     show_legend: bool,
     show_title: bool,
     show_panel_titles: bool,
-    title: Optional[str],
+    title: str | None,
 ) -> None:
     """
     Two columns fixed:
@@ -403,12 +411,11 @@ def plot_fig6_spatial_forecasts(
     utils.ensure_script_dirs()
     utils.set_paper_style(fontsize=int(font), dpi=int(dpi))
 
-    unit = _infer_unit(cities)
+    _infer_unit(cities)
     subs_kind = str(subsidence_kind).strip().lower()
     plot_cum = bool(cumulative) or (subs_kind == "cumulative")
 
     cmap = plt.get_cmap(cmap_name)
-    
 
     # Build per-city panel dictionaries and extents
     for c in cities:
@@ -417,55 +424,61 @@ def plot_fig6_spatial_forecasts(
 
         calib_use = calib_df
         fut_use = fut_df
-        
+
         if plot_cum:
-            calib_use = _compute_cum_calib(calib_df, kind=subs_kind)
+            calib_use = _compute_cum_calib(
+                calib_df, kind=subs_kind
+            )
             fut_use = _compute_cum_q50(fut_df, kind=subs_kind)
-        
+
         obs = _subset_year(calib_use, year_val)
         pred = obs.copy()
-        
-        panels: Dict[str, Tuple[np.ndarray, np.ndarray, np.ndarray]] = {}
-        
+
+        panels: dict[
+            str, tuple[np.ndarray, np.ndarray, np.ndarray]
+        ] = {}
+
         x = obs["coord_x"].to_numpy()
         y = obs["coord_y"].to_numpy()
-        
+
         if plot_cum:
             v0 = obs["subs_cum_actual"].to_numpy()
             v1 = pred["subs_cum_q50"].to_numpy()
         else:
             v0 = obs["subsidence_actual"].to_numpy()
             v1 = pred["subsidence_q50"].to_numpy()
-        
+
         panels["obs"] = (x, y, v0)
         panels["pred"] = (x, y, v1)
-        
+
         for yy in years_fore:
             dyy = _subset_year(fut_use, int(yy))
             if dyy.empty:
                 continue
-        
+
             xf = dyy["coord_x"].to_numpy()
             yf = dyy["coord_y"].to_numpy()
-        
+
             if plot_cum:
                 vf = dyy["subs_cum_q50"].to_numpy()
             else:
                 vf = dyy["subsidence_q50"].to_numpy()
-        
+
             panels[f"Y{int(yy)}"] = (xf, yf, vf)
 
         c["panels"] = panels
 
         ext = _extent_from_panels(panels)
         if ext is None:
-            raise ValueError(f"{c['name']}: no points to plot.")
+            raise ValueError(
+                f"{c['name']}: no points to plot."
+            )
         c["extent"] = ext
 
         c["coord_kind"] = _coord_kind(calib_df)
 
     # Global vmin/vmax across all cities/panels
-    all_vals: List[np.ndarray] = []
+    all_vals: list[np.ndarray] = []
     for c in cities:
         for _k, (_x, _y, v) in c["panels"].items():
             all_vals.append(v)
@@ -498,7 +511,7 @@ def plot_fig6_spatial_forecasts(
     )
 
     # Hotspot export accumulator
-    hs_rows: List[Dict[str, Any]] = []
+    hs_rows: list[dict[str, Any]] = []
 
     def _add_hotspots(
         *,
@@ -506,11 +519,11 @@ def plot_fig6_spatial_forecasts(
         panel: str,
         kind: str,
         year: int,
-        extent: Tuple[float, float, float, float],
+        extent: tuple[float, float, float, float],
         z: np.ndarray,
         metric: np.ndarray,
         thr: float,
-        base: Optional[np.ndarray],
+        base: np.ndarray | None,
     ) -> None:
         xmin, xmax, ymin, ymax = extent
         ny, nx = z.shape
@@ -526,7 +539,7 @@ def plot_fig6_spatial_forecasts(
             if not np.isfinite(vv):
                 continue
 
-            rec: Dict[str, Any] = {
+            rec: dict[str, Any] = {
                 "city": city,
                 "panel": panel,
                 "kind": kind,
@@ -553,18 +566,20 @@ def plot_fig6_spatial_forecasts(
         x: np.ndarray,
         y: np.ndarray,
         v: np.ndarray,
-        extent: Tuple[float, float, float, float],
+        extent: tuple[float, float, float, float],
         coord_kind: str,
-        delta_base: Optional[
-            Tuple[np.ndarray, np.ndarray, np.ndarray]
-        ],
+        delta_base: (
+            tuple[np.ndarray, np.ndarray, np.ndarray] | None
+        ),
         title_txt: str,
-    ) -> Optional[mpl.image.AxesImage]:
+    ) -> mpl.image.AxesImage | None:
         if x.size == 0:
             ax.set_axis_off()
             return None
 
-        z, ext = _grid_mean(x, y, v, res=grid_res, extent=extent)
+        z, ext = _grid_mean(
+            x, y, v, res=grid_res, extent=extent
+        )
 
         aspect = "equal"
         if coord_kind == "lonlat":
@@ -600,7 +615,10 @@ def plot_fig6_spatial_forecasts(
                     )
                     metric = np.abs(z - base_z)
 
-            if metric is not None and np.isfinite(metric).any():
+            if (
+                metric is not None
+                and np.isfinite(metric).any()
+            ):
                 thr = float(np.nanquantile(metric, hotspot_q))
 
                 try:
@@ -650,7 +668,9 @@ def plot_fig6_spatial_forecasts(
         return im
 
     # Delta baselines (obs year) per city
-    baselines: Dict[str, Tuple[np.ndarray, np.ndarray, np.ndarray]] = {}
+    baselines: dict[
+        str, tuple[np.ndarray, np.ndarray, np.ndarray]
+    ] = {}
     for c in cities:
         x0, y0, v0 = c["panels"]["obs"]
         baselines[c["name"]] = (x0, y0, v0)
@@ -740,7 +760,9 @@ def plot_fig6_spatial_forecasts(
         if out_hotspots:
             out_hs = utils.as_path(out_hotspots)
         else:
-            out_hs = utils.resolve_out_out("fig6-hotspot-points.csv")
+            out_hs = utils.resolve_out_out(
+                "fig6-hotspot-points.csv"
+            )
 
         pd.DataFrame(hs_rows).to_csv(out_hs, index=False)
         print(f"[OK] wrote {out_hs}")
@@ -817,7 +839,7 @@ def _add_fig6_args(ap: argparse.ArgumentParser) -> None:
         action="store_true",
         help="Use cumulative q50 for forecast years.",
     )
-    
+
     ap.add_argument(
         "--subsidence-kind",
         type=str,
@@ -881,7 +903,7 @@ def _add_fig6_args(ap: argparse.ArgumentParser) -> None:
 
 
 def plot_fig6_spatial_forecasts_main(
-    argv: Optional[List[str]] = None,
+    argv: list[str] | None = None,
 ) -> None:
     ap = argparse.ArgumentParser(
         prog="plot-spatial-forecasts",
@@ -890,14 +912,20 @@ def plot_fig6_spatial_forecasts_main(
     _add_fig6_args(ap)
     args = ap.parse_args(argv)
 
-    show_legend = utils.str_to_bool(args.show_legend, default=True)
-    show_title = utils.str_to_bool(args.show_title, default=True)
-    show_pt = utils.str_to_bool(args.show_panel_titles, default=True)
+    show_legend = utils.str_to_bool(
+        args.show_legend, default=True
+    )
+    show_title = utils.str_to_bool(
+        args.show_title, default=True
+    )
+    show_pt = utils.str_to_bool(
+        args.show_panel_titles, default=True
+    )
 
     cities0 = utils.resolve_cities(args)
     if not cities0:
         cities0 = [_CITY_A, _CITY_B]
-    
+
     want_ns = _CITY_A in cities0
     want_zh = _CITY_B in cities0
 
@@ -905,7 +933,7 @@ def plot_fig6_spatial_forecasts_main(
         want_ns = True
         want_zh = True
 
-    cities: List[Dict[str, Any]] = []
+    cities: list[dict[str, Any]] = []
     if want_ns:
         cities.append(
             _resolve_city(
@@ -949,7 +977,7 @@ def plot_fig6_spatial_forecasts_main(
     )
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     plot_fig6_spatial_forecasts_main(argv)
 
 

@@ -1,19 +1,23 @@
-# -*- coding: utf-8 -*-
 # License: Apache-2.0
 # Copyright (c) 2026-present
 # Author: LKouadio <etanoyau@gmail.com>
 
-from __future__ import annotations 
+from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+
 from .generic_utils import rename_dict_keys
 
-
 _DEFAULT_EXCLUDE_KEYS = {
-    "data_final", "data_mean_raw",
-    "phys_final", "phys_mean_raw",
-    "aux", "physics", "maps",
+    "data_final",
+    "data_mean_raw",
+    "phys_final",
+    "phys_mean_raw",
+    "aux",
+    "physics",
+    "maps",
 }
+
 
 def _metric_key_from_name(name: str):
     # Keras names: "subs_pred_mae", "subs_pred_coverage80", "gwl_pred_mse", ...
@@ -27,6 +31,7 @@ def _metric_key_from_name(name: str):
         return "gwl_pred"
     return None
 
+
 def _safe_to_numpy(x, *, mode="auto"):
     """
     Convert to numpy only when it is safe.
@@ -38,7 +43,7 @@ def _safe_to_numpy(x, *, mode="auto"):
     """
     if mode == "never":
         return x
-    if hasattr(x, "numpy") and callable(getattr(x, "numpy")):
+    if hasattr(x, "numpy") and callable(x.numpy):
         if mode == "always":
             return x.numpy()
         # auto: try, but don't crash (graph/XLA will throw)
@@ -50,9 +55,12 @@ def _safe_to_numpy(x, *, mode="auto"):
 
 
 def get_output_names(
-        model=None, y=None, y_pred=None, *, 
-        exclude_keys=_DEFAULT_EXCLUDE_KEYS
-    ):
+    model=None,
+    y=None,
+    y_pred=None,
+    *,
+    exclude_keys=_DEFAULT_EXCLUDE_KEYS,
+):
     """
     Try to obtain stable output names (best-effort, Keras-3-safe).
     Priority:
@@ -62,14 +70,20 @@ def get_output_names(
       4) keys from y dict
     """
     if model is not None:
-        for attr in ("_output_keys", "_output_names", "output_names"):
+        for attr in (
+            "_output_keys",
+            "_output_names",
+            "output_names",
+        ):
             names = getattr(model, attr, None)
             if names:
                 return [str(n) for n in list(names)]
 
     for obj in (y_pred, y):
         if isinstance(obj, Mapping):
-            keys = [k for k in obj.keys() if k not in exclude_keys]
+            keys = [
+                k for k in obj.keys() if k not in exclude_keys
+            ]
             if keys:
                 return list(keys)
 
@@ -115,7 +129,10 @@ def as_tuple(
     if isinstance(obj, Mapping):
         if names is None:
             names = get_output_names(
-                model=model, y=obj, y_pred=None, exclude_keys=exclude_keys
+                model=model,
+                y=obj,
+                y_pred=None,
+                exclude_keys=exclude_keys,
             )
 
         if names:
@@ -123,21 +140,31 @@ def as_tuple(
             missing = []
             for n in names:
                 if n in obj:
-                    out.append(_safe_to_numpy(obj[n], mode=to_numpy))
+                    out.append(
+                        _safe_to_numpy(obj[n], mode=to_numpy)
+                    )
                 else:
                     missing.append(n)
             if missing and strict:
                 raise KeyError(
-                    f"{ctx}: missing keys {missing}. Available keys={list(obj.keys())}")
+                    f"{ctx}: missing keys {missing}. Available keys={list(obj.keys())}"
+                )
             return tuple(out)
 
         # No names: keep insertion order excluding known aux keys
-        return tuple(_safe_to_numpy(v, mode=to_numpy)
-                     for k, v in obj.items() if k not in exclude_keys)
+        return tuple(
+            _safe_to_numpy(v, mode=to_numpy)
+            for k, v in obj.items()
+            if k not in exclude_keys
+        )
 
     # Avoid treating strings as sequences
-    if isinstance(obj, Sequence) and not isinstance(obj, (str, bytes)):
-        return tuple(_safe_to_numpy(v, mode=to_numpy) for v in obj)
+    if isinstance(obj, Sequence) and not isinstance(
+        obj, str | bytes
+    ):
+        return tuple(
+            _safe_to_numpy(v, mode=to_numpy) for v in obj
+        )
 
     return (_safe_to_numpy(obj, mode=to_numpy),)
 
@@ -154,7 +181,7 @@ def update_compiled_metrics(
     y_pred,
     *,
     output_names=None,
-    to_numpy="never",   # keep "never" for real training
+    to_numpy="never",  # keep "never" for real training
 ):
     """
     Keras-3-safe compiled metrics updater.
@@ -170,17 +197,33 @@ def update_compiled_metrics(
     if cm is None:
         return
 
-    names = output_names or get_output_names(model=model, y=y_true, y_pred=y_pred)
+    names = output_names or get_output_names(
+        model=model, y=y_true, y_pred=y_pred
+    )
     # Prefer dicts if available (matches your compile(loss=dict, metrics=dict))
-    yt = _prune_dict(y_true, names) if isinstance(y_true, Mapping) else y_true
-    yp = _prune_dict(y_pred, names) if isinstance(y_pred, Mapping) else y_pred
+    yt = (
+        _prune_dict(y_true, names)
+        if isinstance(y_true, Mapping)
+        else y_true
+    )
+    yp = (
+        _prune_dict(y_pred, names)
+        if isinstance(y_pred, Mapping)
+        else y_pred
+    )
 
     # Optional numpy conversion (debug only; keep default "never")
     if to_numpy != "never":
         if isinstance(yt, Mapping):
-            yt = {k: _safe_to_numpy(v, mode=to_numpy) for k, v in yt.items()}
+            yt = {
+                k: _safe_to_numpy(v, mode=to_numpy)
+                for k, v in yt.items()
+            }
         if isinstance(yp, Mapping):
-            yp = {k: _safe_to_numpy(v, mode=to_numpy) for k, v in yp.items()}
+            yp = {
+                k: _safe_to_numpy(v, mode=to_numpy)
+                for k, v in yp.items()
+            }
 
     # Attempt 1: dict update (best match for your compile config)
     try:
@@ -191,8 +234,20 @@ def update_compiled_metrics(
 
     # Attempt 2: tuple/list update
     try:
-        yt_list = as_tuple(y_true, names=names, model=model, ctx="y_true", to_numpy=to_numpy)
-        yp_list = as_tuple(y_pred, names=names, model=model, ctx="y_pred", to_numpy=to_numpy)
+        yt_list = as_tuple(
+            y_true,
+            names=names,
+            model=model,
+            ctx="y_true",
+            to_numpy=to_numpy,
+        )
+        yp_list = as_tuple(
+            y_pred,
+            names=names,
+            model=model,
+            ctx="y_pred",
+            to_numpy=to_numpy,
+        )
         cm.update_state(list(yt_list), list(yp_list))
         return
     except Exception:
@@ -201,18 +256,25 @@ def update_compiled_metrics(
     # Attempt 3: manual per-metric update (last resort, never crash)
     try:
         metrics = getattr(cm, "metrics", []) or []
-        if isinstance(y_true, Mapping) and isinstance(y_pred, Mapping):
+        if isinstance(y_true, Mapping) and isinstance(
+            y_pred, Mapping
+        ):
             for m in metrics:
-                key = _metric_key_from_name(getattr(m, "name", "") or "")
+                key = _metric_key_from_name(
+                    getattr(m, "name", "") or ""
+                )
                 if not key:
                     continue
                 if key in y_true and key in y_pred:
                     try:
-                        m.update_state(y_true[key], y_pred[key])
+                        m.update_state(
+                            y_true[key], y_pred[key]
+                        )
                     except Exception:
                         continue
     except Exception:
         return
+
 
 def _canonicalize_targets(targets):
     """
@@ -234,12 +296,18 @@ def _canonicalize_targets(targets):
 
         return rename_dict_keys(
             tgt,
-            param_to_rename={"subsidence": "subs_pred", "gwl": "gwl_pred"},
+            param_to_rename={
+                "subsidence": "subs_pred",
+                "gwl": "gwl_pred",
+            },
         )
 
-    if isinstance(targets, (tuple, list)):
+    if isinstance(targets, tuple | list):
         if len(targets) == 2:
-            return {"subs_pred": targets[0], "gwl_pred": targets[1]}
+            return {
+                "subs_pred": targets[0],
+                "gwl_pred": targets[1],
+            }
         if len(targets) == 1:
             return {"subs_pred": targets[0]}
 

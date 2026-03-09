@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
@@ -20,23 +19,16 @@ All functions are independent from plotting libraries.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import (
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-)
 
 import numpy as np
 import pandas as pd
 
-
 # ----------------------------------------------------------
 # Basic scores
 # ----------------------------------------------------------
+
 
 def mae(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     y_true = np.asarray(y_true, dtype=float)
@@ -81,6 +73,7 @@ def r2_score(y_true: np.ndarray, y_pred: np.ndarray) -> float:
 # ----------------------------------------------------------
 # Interval metrics
 # ----------------------------------------------------------
+
 
 def interval_width(
     df: pd.DataFrame,
@@ -185,14 +178,14 @@ def summarize_by(
     hi: str = "subsidence_q90",
 ) -> pd.DataFrame:
     """Groupwise summary for eval csv tables."""
-    rows: List[Dict[str, object]] = []
+    rows: list[dict[str, object]] = []
 
     for keys, g in df.groupby(list(group_cols), dropna=False):
         if not isinstance(keys, tuple):
             keys = (keys,)
         s = summarize_eval_df(g, y=y, pred=pred, lo=lo, hi=hi)
-        row: Dict[str, object] = {}
-        for c, v in zip(group_cols, keys):
+        row: dict[str, object] = {}
+        for c, v in zip(group_cols, keys, strict=False):
             row[c] = v
         row.update(
             {
@@ -213,6 +206,7 @@ def summarize_by(
 # ----------------------------------------------------------
 # Pareto frontier
 # ----------------------------------------------------------
+
 
 def pareto_frontier_mask(
     x: np.ndarray,
@@ -286,6 +280,7 @@ def mark_pareto_frontier(
 # xfer_results.csv reshaping helpers
 # ----------------------------------------------------------
 
+
 def melt_horizon_cols(
     df: pd.DataFrame,
     *,
@@ -296,8 +291,7 @@ def melt_horizon_cols(
 ) -> pd.DataFrame:
     """Melt wide horizon cols like per_horizon_r2.H1."""
     cols = [
-        c for c in df.columns
-        if str(c).startswith(prefix)
+        c for c in df.columns if str(c).startswith(prefix)
     ]
     if not cols:
         cols_out = list(id_cols)
@@ -310,9 +304,11 @@ def melt_horizon_cols(
         var_name="_var",
         value_name=value_name,
     )
-    long[horizon_name] = long["_var"].astype(str).str.split(
-        ".", n=1, expand=True
-    )[1]
+    long[horizon_name] = (
+        long["_var"]
+        .astype(str)
+        .str.split(".", n=1, expand=True)[1]
+    )
     long = long.drop(columns=["_var"])
     return long
 

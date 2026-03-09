@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -36,11 +35,11 @@ from __future__ import annotations
 import argparse
 import glob
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 from . import config as cfg
 from . import utils
@@ -49,7 +48,9 @@ from . import utils
 # -------------------------------------------------------------------
 # Small helpers
 # -------------------------------------------------------------------
-def _smart_glob(path_or_glob: Optional[str]) -> Optional[Path]:
+def _smart_glob(
+    path_or_glob: str | None,
+) -> Path | None:
     """
     Resolve a path or glob.
 
@@ -79,8 +80,8 @@ def _smart_glob(path_or_glob: Optional[str]) -> Optional[Path]:
 
 
 def _extract_factors_per_horizon(
-    meta: Optional[Dict[str, Any]],
-) -> Optional[List[float]]:
+    meta: dict[str, Any] | None,
+) -> list[float] | None:
     """
     Robustly extract horizon scale factors from GeoPrior JSON.
 
@@ -109,7 +110,7 @@ def _extract_factors_per_horizon(
         return out or None
 
     if isinstance(fac, dict):
-        items: List[Tuple[int, float]] = []
+        items: list[tuple[int, float]] = []
         for k, v in fac.items():
             ks = str(k).strip().lower()
             if ks.startswith("h"):
@@ -135,10 +136,10 @@ def _extract_factors_per_horizon(
 # -------------------------------------------------------------------
 def _coverage_sharpness_by_horizon(
     df: pd.DataFrame,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    horizons: List[int] = []
-    cov: List[float] = []
-    shp: List[float] = []
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    horizons: list[int] = []
+    cov: list[float] = []
+    shp: list[float] = []
 
     for h, g in df.groupby("forecast_step", sort=True):
         horizons.append(int(h))
@@ -166,8 +167,8 @@ def _bootstrap_ci(
     *,
     B: int,
     alpha: float = 0.05,
-    rng: Optional[np.random.Generator] = None,
-) -> Tuple[float, float]:
+    rng: np.random.Generator | None = None,
+) -> tuple[float, float]:
     rng = rng or np.random.default_rng(42)
     x = np.asarray(x, dtype=float).ravel()
     n = x.size
@@ -186,7 +187,7 @@ def _bootstrap_ci(
     return (float(lo), float(hi))
 
 
-def _empirical_cdf_ks(u: np.ndarray) -> Tuple[float, float]:
+def _empirical_cdf_ks(u: np.ndarray) -> tuple[float, float]:
     """
     KS statistic vs Uniform(0,1), with asymptotic p-value.
 
@@ -248,11 +249,11 @@ def _pit_from_three_quantiles(
 
 def _reliability_points(
     df: pd.DataFrame,
-    taus: List[float],
-    qcmap: Dict[float, str],
-) -> List[Tuple[float, float]]:
+    taus: list[float],
+    qcmap: dict[float, str],
+) -> list[tuple[float, float]]:
     y = df["subsidence_actual"].to_numpy()
-    pts: List[Tuple[float, float]] = []
+    pts: list[tuple[float, float]] = []
 
     for t in taus:
         q = df[qcmap[t]].to_numpy()
@@ -263,13 +264,13 @@ def _reliability_points(
 
 def _quantile_residuals(
     df: pd.DataFrame,
-    taus: List[float],
-    qcmap: Dict[float, str],
-) -> Dict[float, np.ndarray]:
-    out: Dict[float, np.ndarray] = {}
+    taus: list[float],
+    qcmap: dict[float, str],
+) -> dict[float, np.ndarray]:
+    out: dict[float, np.ndarray] = {}
 
     for t in taus:
-        res: List[float] = []
+        res: list[float] = []
         for _, g in df.groupby("forecast_step", sort=True):
             emp = np.mean(
                 g["subsidence_actual"].to_numpy()
@@ -289,8 +290,8 @@ def summarize_city(
     *,
     city: str,
     B: int,
-    taus: Tuple[float, float, float] = (0.1, 0.5, 0.9),
-) -> Dict[str, Any]:
+    taus: tuple[float, float, float] = (0.1, 0.5, 0.9),
+) -> dict[str, Any]:
     qc = {
         0.1: "subsidence_q10",
         0.5: "subsidence_q50",
@@ -299,8 +300,8 @@ def summarize_city(
 
     H, cov, shp = _coverage_sharpness_by_horizon(df)
 
-    cov_ci: List[Tuple[float, float]] = []
-    shp_ci: List[Tuple[float, float]] = []
+    cov_ci: list[tuple[float, float]] = []
+    shp_ci: list[tuple[float, float]] = []
 
     rng = np.random.default_rng(42)
 
@@ -369,10 +370,10 @@ def summarize_city(
 # -------------------------------------------------------------------
 def plot_s5(
     *,
-    nansha: Optional[Dict[str, Any]],
-    zhongshan: Optional[Dict[str, Any]],
-    factors_n: Optional[List[float]],
-    factors_z: Optional[List[float]],
+    nansha: dict[str, Any] | None,
+    zhongshan: dict[str, Any] | None,
+    factors_n: list[float] | None,
+    factors_z: list[float] | None,
     out_stem: Path,
     dpi: int,
     show_legends: bool,
@@ -380,11 +381,11 @@ def plot_s5(
     show_ticklabels: bool,
     show_title: bool,
     show_panel_titles: bool,
-    title: Optional[str],
+    title: str | None,
 ) -> None:
     utils.set_paper_style(dpi=int(dpi))
 
-    horizons: List[np.ndarray] = []
+    horizons: list[np.ndarray] = []
     if nansha is not None:
         horizons.append(nansha["horizons"])
     if zhongshan is not None:
@@ -420,7 +421,7 @@ def plot_s5(
             label="Ideal",
         )
 
-        def _one(city: Optional[Dict[str, Any]], name: str):
+        def _one(city: dict[str, Any] | None, name: str):
             if city is None:
                 return
             pts = city["reliability"].get(int(h), [])
@@ -525,7 +526,10 @@ def plot_s5(
 
     # C) Coverage vs horizon
     ax_cov = fig.add_subplot(gs[1, max(2, nH - 1) :])
-    for city, name in ((nansha, "Nansha"), (zhongshan, "Zhongshan")):
+    for city, name in (
+        (nansha, "Nansha"),
+        (zhongshan, "Zhongshan"),
+    ):
         if city is None:
             continue
         Hc = city["horizons"]
@@ -580,7 +584,10 @@ def plot_s5(
 
     # D) Sharpness vs horizon
     ax_shp = fig.add_subplot(gs[2, 0:2])
-    for city, name in ((nansha, "Nansha"), (zhongshan, "Zhongshan")):
+    for city, name in (
+        (nansha, "Nansha"),
+        (zhongshan, "Zhongshan"),
+    ):
         if city is None:
             continue
         Hc = city["horizons"]
@@ -625,7 +632,9 @@ def plot_s5(
 
     # E) Calibration factors (optional)
     ax_fac = fig.add_subplot(gs[2, max(2, nH - 1) :])
-    have_fac = (factors_n is not None) or (factors_z is not None)
+    have_fac = (factors_n is not None) or (
+        factors_z is not None
+    )
 
     if have_fac:
         x = np.arange(nH, dtype=float)
@@ -684,7 +693,9 @@ def plot_s5(
 
     # F) Quantile residuals vs horizon
     ax_qr = fig.add_subplot(gs[3, :])
-    for t, style in zip([0.1, 0.5, 0.9], ["--", "-", "--"]):
+    for t, style in zip(
+        [0.1, 0.5, 0.9], ["--", "-", "--"], strict=False
+    ):
         if nansha is not None:
             ax_qr.plot(
                 nansha["horizons"],
@@ -725,7 +736,9 @@ def plot_s5(
         ax_qr.set_yticks([])
 
     if show_legends:
-        ax_qr.legend(frameon=False, ncol=3, loc="upper center")
+        ax_qr.legend(
+            frameon=False, ncol=3, loc="upper center"
+        )
 
     if show_title:
         fig.suptitle(
@@ -739,7 +752,7 @@ def plot_s5(
             y=0.995,
             fontweight="bold",
         )
-    
+
     utils.save_figure(fig, str(out_stem), dpi=int(dpi))
     # fig.savefig(str(out_stem) + ".png", bbox_inches="tight")
     # fig.savefig(str(out_stem) + ".pdf", bbox_inches="tight")
@@ -751,12 +764,12 @@ def plot_s5(
 # -------------------------------------------------------------------
 def write_tables(
     *,
-    nansha: Optional[Dict[str, Any]],
-    zhongshan: Optional[Dict[str, Any]],
+    nansha: dict[str, Any] | None,
+    zhongshan: dict[str, Any] | None,
     out_csv: Path,
     out_tex: Path,
 ) -> None:
-    rows: List[Dict[str, Any]] = []
+    rows: list[dict[str, Any]] = []
     for city in (nansha, zhongshan):
         if city is None:
             continue
@@ -765,14 +778,18 @@ def write_tables(
                 {
                     "city": city["city"],
                     "horizon": int(h),
-                    "coverage80": float(city["coverage80"][i]),
+                    "coverage80": float(
+                        city["coverage80"][i]
+                    ),
                     "coverage80_lo": float(
                         city["coverage80_ci"][i, 0]
                     ),
                     "coverage80_hi": float(
                         city["coverage80_ci"][i, 1]
                     ),
-                    "sharpness80": float(city["sharpness80"][i]),
+                    "sharpness80": float(
+                        city["sharpness80"][i]
+                    ),
                     "sharpness80_lo": float(
                         city["sharpness80_ci"][i, 0]
                     ),
@@ -790,12 +807,9 @@ def write_tables(
 
     utils.ensure_dir(out_tex.parent)
     with out_tex.open("w", encoding="utf-8") as f:
+        f.write("\\begin{table}[t]\\centering\\small\n")
         f.write(
-            "\\begin{table}[t]\\centering\\small\n"
-        )
-        f.write(
-            "\\begin{tabular}{l r r r r r r r r r}"
-            "\\toprule\n"
+            "\\begin{tabular}{l r r r r r r r r r}\\toprule\n"
         )
         f.write(
             "City & H & Cov$_{80}$ & CI$_{lo}$ & "
@@ -832,7 +846,7 @@ def _pick_forecast_from_src(
     src: Any,
     *,
     split: str,
-) -> Optional[Path]:
+) -> Path | None:
     art = utils.detect_artifacts(src)
 
     if split == "val":
@@ -845,7 +859,7 @@ def _pick_forecast_from_src(
     return art.forecast_val_csv
 
 
-def _pick_phys_json_from_src(src: Any) -> Optional[Path]:
+def _pick_phys_json_from_src(src: Any) -> Path | None:
     # Prefer interpretable JSON when available.
     p = utils.find_phys_json(src)
     if p is not None:
@@ -857,7 +871,9 @@ def _pick_phys_json_from_src(src: Any) -> Optional[Path]:
 # -------------------------------------------------------------------
 # CLI (new API)
 # -------------------------------------------------------------------
-def parse_args(argv: List[str] | None = None) -> argparse.Namespace:
+def parse_args(
+    argv: list[str] | None = None,
+) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         prog="plot_uncertainty_extras",
         description=(
@@ -952,7 +968,7 @@ def parse_args(argv: List[str] | None = None) -> argparse.Namespace:
 
 
 def supp_figS5_uncertainty_extras_main(
-    argv: List[str] | None = None,
+    argv: list[str] | None = None,
 ) -> None:
     args = parse_args(argv)
     utils.ensure_script_dirs()
@@ -964,10 +980,18 @@ def supp_figS5_uncertainty_extras_main(
     want_ns = "Nansha" in cities
     want_zh = "Zhongshan" in cities
 
-    show_leg = utils.str_to_bool(args.show_legend, default=True)
-    show_lbl = utils.str_to_bool(args.show_labels, default=True)
-    show_tkl = utils.str_to_bool(args.show_ticklabels, default=True)
-    show_tit = utils.str_to_bool(args.show_title, default=True)
+    show_leg = utils.str_to_bool(
+        args.show_legend, default=True
+    )
+    show_lbl = utils.str_to_bool(
+        args.show_labels, default=True
+    )
+    show_tkl = utils.str_to_bool(
+        args.show_ticklabels, default=True
+    )
+    show_tit = utils.str_to_bool(
+        args.show_title, default=True
+    )
     show_pt = utils.str_to_bool(
         args.show_panel_titles,
         default=True,
@@ -984,7 +1008,9 @@ def supp_figS5_uncertainty_extras_main(
         jp = _smart_glob(args.ns_phys_json)
 
         if fp is None and args.ns_src:
-            fp = _pick_forecast_from_src(args.ns_src, split=args.split)
+            fp = _pick_forecast_from_src(
+                args.ns_src, split=args.split
+            )
         if jp is None and args.ns_src:
             jp = _pick_phys_json_from_src(args.ns_src)
 
@@ -1002,7 +1028,9 @@ def supp_figS5_uncertainty_extras_main(
         jp = _smart_glob(args.zh_phys_json)
 
         if fp is None and args.zh_src:
-            fp = _pick_forecast_from_src(args.zh_src, split=args.split)
+            fp = _pick_forecast_from_src(
+                args.zh_src, split=args.split
+            )
         if jp is None and args.zh_src:
             jp = _pick_phys_json_from_src(args.zh_src)
 
@@ -1018,7 +1046,9 @@ def supp_figS5_uncertainty_extras_main(
         else None
     )
     zhongshan = (
-        summarize_city(df_z, city="Zhongshan", B=args.bootstrap)
+        summarize_city(
+            df_z, city="Zhongshan", B=args.bootstrap
+        )
         if df_z is not None
         else None
     )
@@ -1058,13 +1088,13 @@ def supp_figS5_uncertainty_extras_main(
     print(f"[OK] table: {tab_stem}.csv/.tex")
 
 
-def main(argv: List[str] | None = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     supp_figS5_uncertainty_extras_main(argv)
 
 
 if __name__ == "__main__":
     main()
-    
+
 # Example runs
 
 # Auto-discover from run folders:

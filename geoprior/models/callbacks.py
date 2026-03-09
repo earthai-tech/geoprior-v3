@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
-# Author: LKouadio <etanoyau@gmail.com>
-# website:https://lkouadio.com
+# Author: LKouadio <https://lkouadio.com>
 
 """
 Utility callbacks for training and tuning.
@@ -12,11 +10,17 @@ Utility callbacks for training and tuning.
 
 from __future__ import annotations
 
-from typing import ( 
-    Iterable, Optional, Set, Any, 
-    Callable, Mapping, Sequence, 
-    Union, Dict, Tuple 
+from collections.abc import (
+    Callable,
+    Iterable,
+    Mapping,
+    Sequence,
 )
+from typing import (
+    Any,
+    Union,
+)
+
 import numpy as np
 
 from . import KERAS_DEPS
@@ -26,29 +30,28 @@ from .keras_metrics import (
     MSEQ50,
 )
 
-
 Callback = KERAS_DEPS.Callback
-Tensor = KERAS_DEPS.Tensor 
+Tensor = KERAS_DEPS.Tensor
 
-tf_nest = KERAS_DEPS.nest 
+tf_nest = KERAS_DEPS.nest
 tf_convert_to_tensor = KERAS_DEPS.convert_to_tensor
-tf_reshape = KERAS_DEPS.reshape 
-tf_shape = KERAS_DEPS.shape 
-tf_transpose = KERAS_DEPS.transpose 
-tf_reduce_mean = KERAS_DEPS.reduce_mean 
-tf_cast = KERAS_DEPS.cast 
-tf_float32 = KERAS_DEPS.float32 
-tf_minimum = KERAS_DEPS.minimum 
-tf_maximum = KERAS_DEPS.maximum 
-tf_abs = KERAS_DEPS.abs 
-tf_square = KERAS_DEPS.square 
-tf_identity = KERAS_DEPS.identity 
-tf_expand_dims = KERAS_DEPS.expand_dims 
+tf_reshape = KERAS_DEPS.reshape
+tf_shape = KERAS_DEPS.shape
+tf_transpose = KERAS_DEPS.transpose
+tf_reduce_mean = KERAS_DEPS.reduce_mean
+tf_cast = KERAS_DEPS.cast
+tf_float32 = KERAS_DEPS.float32
+tf_minimum = KERAS_DEPS.minimum
+tf_maximum = KERAS_DEPS.maximum
+tf_abs = KERAS_DEPS.abs
+tf_square = KERAS_DEPS.square
+tf_identity = KERAS_DEPS.identity
+tf_expand_dims = KERAS_DEPS.expand_dims
 tf_broadcast_to = KERAS_DEPS.broadcast_to
 tf_logical_and = KERAS_DEPS.logical_and
 
 ScheduleType = Union[
-    Callable[[Optional[int], int, float], float],
+    Callable[[int | None, int, float], float],
     Mapping[int, float],
     Sequence[float],
     None,
@@ -63,9 +66,8 @@ __all__ = [
     "FrozenValQuantileMonitor",
     "FrozenValQuantilePrinter",
     "FrozenValQuantileLogger",
-    "LambdaOffsetScheduler", 
-    "LambdaOffsetStepScheduler"
-    
+    "LambdaOffsetScheduler",
+    "LambdaOffsetStepScheduler",
 ]
 
 
@@ -159,8 +161,8 @@ class LambdaOffsetScheduler(Callback):
         unit: str = "epoch",
         when: str = "begin",
         warmup: int = 10,
-        start: Optional[float] = None,
-        end: Optional[float] = None,
+        start: float | None = None,
+        end: float | None = None,
         clamp_positive: bool = True,
         verbose: int = 1,
     ) -> None:
@@ -177,17 +179,21 @@ class LambdaOffsetScheduler(Callback):
         self.verbose = int(verbose)
 
         self.step_: int = 0
-        self.last_value_: Optional[float] = None
+        self.last_value_: float | None = None
 
         if self.unit not in ("epoch", "step"):
-            raise ValueError("unit must be 'epoch' or 'step'.")
+            raise ValueError(
+                "unit must be 'epoch' or 'step'."
+            )
         if self.when not in ("begin", "end"):
             raise ValueError("when must be 'begin' or 'end'.")
 
     # -----------------------
     # Lifecycle
     # -----------------------
-    def on_train_begin(self, logs: Optional[dict] = None) -> None:
+    def on_train_begin(
+        self, logs: dict | None = None
+    ) -> None:
         self.step_ = 0
         self.last_value_ = None
 
@@ -209,22 +215,30 @@ class LambdaOffsetScheduler(Callback):
     # -----------------------
     # Epoch hooks
     # -----------------------
-    def on_epoch_begin(self, epoch: int, logs: Optional[dict] = None) -> None:
+    def on_epoch_begin(
+        self, epoch: int, logs: dict | None = None
+    ) -> None:
         if self.unit == "epoch" and self.when == "begin":
             self._maybe_update(epoch=epoch, step=self.step_)
 
-    def on_epoch_end(self, epoch: int, logs: Optional[dict] = None) -> None:
+    def on_epoch_end(
+        self, epoch: int, logs: dict | None = None
+    ) -> None:
         if self.unit == "epoch" and self.when == "end":
             self._maybe_update(epoch=epoch, step=self.step_)
 
     # -----------------------
     # Step hooks
     # -----------------------
-    def on_train_batch_begin(self, batch: int, logs: Optional[dict] = None) -> None:
+    def on_train_batch_begin(
+        self, batch: int, logs: dict | None = None
+    ) -> None:
         if self.unit == "step" and self.when == "begin":
             self._maybe_update(epoch=None, step=self.step_)
 
-    def on_train_batch_end(self, batch: int, logs: Optional[dict] = None) -> None:
+    def on_train_batch_end(
+        self, batch: int, logs: dict | None = None
+    ) -> None:
         if self.unit == "step" and self.when == "end":
             self._maybe_update(epoch=None, step=self.step_)
         self.step_ += 1
@@ -246,23 +260,39 @@ class LambdaOffsetScheduler(Callback):
         # mode == "mul"
         return 0.1, 1.0
 
-    def _default_schedule_value(self, epoch: Optional[int], step: int) -> float:
-        idx = int(epoch) if self.unit == "epoch" else int(step)
+    def _default_schedule_value(
+        self, epoch: int | None, step: int
+    ) -> float:
+        idx = (
+            int(epoch) if self.unit == "epoch" else int(step)
+        )
         d_start, d_end = self._mode_defaults()
-        start = float(self.start) if self.start is not None else d_start
-        end = float(self.end) if self.end is not None else d_end
-        return _linear_warmup_value(idx, start=start, end=end, warmup=self.warmup)
+        start = (
+            float(self.start)
+            if self.start is not None
+            else d_start
+        )
+        end = (
+            float(self.end) if self.end is not None else d_end
+        )
+        return _linear_warmup_value(
+            idx, start=start, end=end, warmup=self.warmup
+        )
 
     def _get_scheduled_value(
         self,
-        epoch: Optional[int],
+        epoch: int | None,
         step: int,
         current: float,
-    ) -> Optional[float]:
-        idx = int(epoch) if self.unit == "epoch" else int(step)
+    ) -> float | None:
+        idx = (
+            int(epoch) if self.unit == "epoch" else int(step)
+        )
 
         if self.schedule is None:
-            return self._default_schedule_value(epoch=epoch, step=step)
+            return self._default_schedule_value(
+                epoch=epoch, step=step
+            )
 
         if callable(self.schedule):
             return float(self.schedule(epoch, step, current))
@@ -285,14 +315,22 @@ class LambdaOffsetScheduler(Callback):
             raise ValueError("lambda_offset must be finite.")
 
         mode = str(getattr(self.model, "offset_mode", "mul"))
-        if self.clamp_positive and mode == "mul" and value <= 0.0:
+        if (
+            self.clamp_positive
+            and mode == "mul"
+            and value <= 0.0
+        ):
             raise ValueError(
                 "lambda_offset must be > 0 when offset_mode='mul'."
             )
 
-    def _maybe_update(self, epoch: Optional[int], step: int) -> None:
+    def _maybe_update(
+        self, epoch: int | None, step: int
+    ) -> None:
         cur = self._current_value()
-        new = self._get_scheduled_value(epoch=epoch, step=step, current=cur)
+        new = self._get_scheduled_value(
+            epoch=epoch, step=step, current=cur
+        )
 
         if new is None:
             return
@@ -317,10 +355,12 @@ class LambdaOffsetScheduler(Callback):
             f"clamp_positive={self.clamp_positive}, verbose={self.verbose})"
         )
 
+
 class LambdaOffsetStepScheduler(LambdaOffsetScheduler):
     def __init__(self, *args, **kwargs):
         kwargs["unit"] = "step"
         super().__init__(*args, **kwargs)
+
 
 class NaNGuard(Callback):
     r"""
@@ -371,7 +411,7 @@ class NaNGuard(Callback):
     cascade into repeated trial failures. ``NaNGuard`` stops the current trial
     as soon as a non-finite metric is observed, helping you fail fast, save
     time, and surface bad configurations cleanly.
-    
+
     * The callback resets its state at ``on_train_begin`` so it can be reused
       across multiple tuner trials.
     * Values in ``logs`` are often Python floats, but may also be NumPy arrays
@@ -414,7 +454,7 @@ class NaNGuard(Callback):
 
     def __init__(
         self,
-        limit_to: Optional[Iterable[str]] = None,
+        limit_to: Iterable[str] | None = None,
         check_train: bool = True,
         check_val: bool = True,
         check_epoch_end: bool = True,
@@ -422,7 +462,9 @@ class NaNGuard(Callback):
         verbose: int = 1,
     ) -> None:
         super().__init__()
-        self.limit_to: Optional[Set[str]] = set(limit_to) if limit_to else None
+        self.limit_to: set[str] | None = (
+            set(limit_to) if limit_to else None
+        )
         self.check_train = bool(check_train)
         self.check_val = bool(check_val)
         self.check_epoch_end = bool(check_epoch_end)
@@ -431,14 +473,16 @@ class NaNGuard(Callback):
 
         # Runtime state
         self.tripped_: bool = False
-        self.last_bad_key_: Optional[str] = None
+        self.last_bad_key_: str | None = None
         self.last_bad_value_: Any = None
-        self.last_bad_phase_: Optional[str] = None
+        self.last_bad_phase_: str | None = None
 
     # -----------------------
     # Lifecycle helpers
     # -----------------------
-    def on_train_begin(self, logs: Optional[dict] = None) -> None:
+    def on_train_begin(
+        self, logs: dict | None = None
+    ) -> None:
         # Reset state for a fresh run/trial
         self.tripped_ = False
         self.last_bad_key_ = None
@@ -448,21 +492,33 @@ class NaNGuard(Callback):
     # -----------------------
     # Hooks
     # -----------------------
-    def on_train_batch_end(self, batch: int, logs: Optional[dict] = None) -> None:
+    def on_train_batch_end(
+        self, batch: int, logs: dict | None = None
+    ) -> None:
         if not self.check_train or self.tripped_:
             return
-        self._scan_logs_and_maybe_trip(logs or {}, where="train-batch")
+        self._scan_logs_and_maybe_trip(
+            logs or {}, where="train-batch"
+        )
 
-    def on_test_batch_end(self, batch: int, logs: Optional[dict] = None) -> None:
+    def on_test_batch_end(
+        self, batch: int, logs: dict | None = None
+    ) -> None:
         # Called for validation batches during fit()
         if not self.check_val or self.tripped_:
             return
-        self._scan_logs_and_maybe_trip(logs or {}, where="val-batch")
+        self._scan_logs_and_maybe_trip(
+            logs or {}, where="val-batch"
+        )
 
-    def on_epoch_end(self, epoch: int, logs: Optional[dict] = None) -> None:
+    def on_epoch_end(
+        self, epoch: int, logs: dict | None = None
+    ) -> None:
         if not self.check_epoch_end or self.tripped_:
             return
-        self._scan_logs_and_maybe_trip(logs or {}, where="epoch-end")
+        self._scan_logs_and_maybe_trip(
+            logs or {}, where="epoch-end"
+        )
 
     # -----------------------
     # Core logic
@@ -489,11 +545,17 @@ class NaNGuard(Callback):
             # Be conservative: if we can't decide, don't trip on it
             return False
 
-    def _scan_logs_and_maybe_trip(self, logs: dict, where: str) -> None:
+    def _scan_logs_and_maybe_trip(
+        self, logs: dict, where: str
+    ) -> None:
         if not logs:
             return
 
-        keys = (self.limit_to & logs.keys()) if self.limit_to else logs.keys()
+        keys = (
+            (self.limit_to & logs.keys())
+            if self.limit_to
+            else logs.keys()
+        )
 
         for k in keys:
             v = logs.get(k, None)
@@ -507,12 +569,16 @@ class NaNGuard(Callback):
                 self.last_bad_value_ = v
                 self.last_bad_phase_ = where
                 if self.verbose:
-                    print(f"[NaNGuard] Non-finite metric '{k}' detected in {where}; stopping.")
+                    print(
+                        f"[NaNGuard] Non-finite metric '{k}' detected in {where}; stopping."
+                    )
                 # Stop current fit() cleanly
                 self.model.stop_training = True
                 if self.raise_on_nan:
                     # Raise after signaling stop so outer orchestrators can catch
-                    raise RuntimeError(f"NaNGuard tripped on '{k}' during {where}.")
+                    raise RuntimeError(
+                        f"NaNGuard tripped on '{k}' during {where}."
+                    )
                 break
 
     # -----------------------
@@ -530,48 +596,49 @@ class NaNGuard(Callback):
             f"verbose={self.verbose})"
         )
 
+
 class FrozenValQuantileMonitor(Callback):
     """
-   Print the same diagnostics every epoch on a frozen val batch.
+    Print the same diagnostics every epoch on a frozen val batch.
 
-   This callback freezes the *first* batch of the provided
-   validation data (dataset / sequence / tuple) at train start,
-   then re-evaluates that exact batch at every epoch end.
+    This callback freezes the *first* batch of the provided
+    validation data (dataset / sequence / tuple) at train start,
+    then re-evaluates that exact batch at every epoch end.
 
-   It is designed to catch:
-   - quantile crossings (e.g., q10 > q90)
-   - when crossings begin and whether they recover
-   - fixed-batch coverage/sharpness/MAE/MSE for q50
+    It is designed to catch:
+    - quantile crossings (e.g., q10 > q90)
+    - when crossings begin and whether they recover
+    - fixed-batch coverage/sharpness/MAE/MSE for q50
 
-   Parameters
-   ----------
-   val_data : Any
-        Validation source. One of:
-        - tf.data.Dataset yielding (x, y) or (x, y, sw)
-        - Keras Sequence / iterable yielding batches
-        - Tuple (x, y) or (x, y, sw)
+    Parameters
+    ----------
+    val_data : Any
+         Validation source. One of:
+         - tf.data.Dataset yielding (x, y) or (x, y, sw)
+         - Keras Sequence / iterable yielding batches
+         - Tuple (x, y) or (x, y, sw)
 
-   outputs : Sequence[str] | None, optional
-        Output names to monitor. If None, monitors all keys
-        when y is a dict; otherwise monitors a single output.
+    outputs : Sequence[str] | None, optional
+         Output names to monitor. If None, monitors all keys
+         when y is a dict; otherwise monitors a single output.
 
-   quantiles : Sequence[float] | None, optional
-        Quantiles expected in predictions (e.g. (0.1,0.5,0.9)).
-        If None, the callback treats predictions as point
-        forecasts and skips band diagnostics.
+    quantiles : Sequence[float] | None, optional
+         Quantiles expected in predictions (e.g. (0.1,0.5,0.9)).
+         If None, the callback treats predictions as point
+         forecasts and skips band diagnostics.
 
-   alpha : float, optional
-        Central interval mass for coverage/sharpness.
-        Default is 0.8 (i.e., 80% interval).
+    alpha : float, optional
+         Central interval mass for coverage/sharpness.
+         Default is 0.8 (i.e., 80% interval).
 
-   every : int, optional
-        Print every `every` epochs. Default is 1.
+    every : int, optional
+         Print every `every` epochs. Default is 1.
 
-   prefix : str, optional
-        Prefix for printed blocks.
+    prefix : str, optional
+         Prefix for printed blocks.
 
-   print_fn : Callable[[str], None] | None, optional
-        Custom printer. Default uses builtin print().
+    print_fn : Callable[[str], None] | None, optional
+         Custom printer. Default uses builtin print().
     """
 
     def __init__(
@@ -587,8 +654,12 @@ class FrozenValQuantileMonitor(Callback):
     ) -> None:
         super().__init__()
         self._val_data = val_data
-        self._outputs = None if outputs is None else list(outputs)
-        self._qs = None if quantiles is None else list(quantiles)
+        self._outputs = (
+            None if outputs is None else list(outputs)
+        )
+        self._qs = (
+            None if quantiles is None else list(quantiles)
+        )
         self._alpha = float(alpha)
         self._every = max(1, int(every))
         self._prefix = str(prefix)
@@ -608,7 +679,7 @@ class FrozenValQuantileMonitor(Callback):
     def _take_one_batch(self) -> tuple[Any, Any, Any]:
         vd = self._val_data
 
-        if isinstance(vd, (tuple, list)):
+        if isinstance(vd, tuple | list):
             if len(vd) == 2:
                 return vd[0], vd[1], None
             if len(vd) == 3:
@@ -621,7 +692,7 @@ class FrozenValQuantileMonitor(Callback):
         it = iter(vd)
         batch = next(it)
 
-        if isinstance(batch, (tuple, list)):
+        if isinstance(batch, tuple | list):
             if len(batch) == 2:
                 return batch[0], batch[1], None
             if len(batch) == 3:
@@ -631,9 +702,10 @@ class FrozenValQuantileMonitor(Callback):
             "val_data must yield (x,y) or (x,y,sw)."
         )
 
-
     def _to_tensor_tree(self, obj: Any) -> Any:
-        return tf_nest.map_structure(tf_convert_to_tensor, obj)
+        return tf_nest.map_structure(
+            tf_convert_to_tensor, obj
+        )
 
     def _as_dict(
         self,
@@ -644,10 +716,10 @@ class FrozenValQuantileMonitor(Callback):
         if isinstance(y, Mapping):
             return dict(y)
 
-        if isinstance(y, (tuple, list)):
+        if isinstance(y, tuple | list):
             out: dict[str, Any] = {}
             if names and len(names) == len(y):
-                for k, v in zip(names, y):
+                for k, v in zip(names, y, strict=False):
                     out[str(k)] = v
                 return out
             for i, v in enumerate(y):
@@ -659,7 +731,9 @@ class FrozenValQuantileMonitor(Callback):
 
         return {"y": y}
 
-    def _nearest_idx(self, qs: Sequence[float], q: float) -> int:
+    def _nearest_idx(
+        self, qs: Sequence[float], q: float
+    ) -> int:
         q = float(q)
         best = 0
         best_d = float("inf")
@@ -702,7 +776,7 @@ class FrozenValQuantileMonitor(Callback):
             # assume (B,H,Q,O) unless q_axis says otherwise
             if q_axis is None or q_axis == 2:
                 qn = y.shape[2]
-                has_q = (qn is not None and qn > 1)
+                has_q = qn is not None and qn > 1
                 return y, bool(has_q)
 
             # move q_axis -> 2
@@ -712,7 +786,7 @@ class FrozenValQuantileMonitor(Callback):
             axes.insert(2, src)
             y = tf_transpose(y, perm=axes)
             qn = y.shape[2]
-            has_q = (qn is not None and qn > 1)
+            has_q = qn is not None and qn > 1
             return y, bool(has_q)
 
         if r == 3:
@@ -759,12 +833,18 @@ class FrozenValQuantileMonitor(Callback):
     # ------------------------------
     # Keras hooks
     # ------------------------------
-    def on_train_begin(self, logs: dict | None = None) -> None:
+    def on_train_begin(
+        self, logs: dict | None = None
+    ) -> None:
         xb, yb, sw = self._take_one_batch()
 
         self._xb = self._to_tensor_tree(xb)
         self._yb = self._to_tensor_tree(yb)
-        self._sw = self._to_tensor_tree(sw) if sw is not None else None
+        self._sw = (
+            self._to_tensor_tree(sw)
+            if sw is not None
+            else None
+        )
 
         qs = self._qs
         if qs is None or len(qs) == 0:
@@ -796,7 +876,9 @@ class FrozenValQuantileMonitor(Callback):
 
         yp = self.model(self._xb, training=False)
 
-        out_names = list(getattr(self.model, "output_names", []))
+        out_names = list(
+            getattr(self.model, "output_names", [])
+        )
 
         y_true_d = self._as_dict(self._yb, names=out_names)
         y_pred_d = self._as_dict(yp, names=out_names)
@@ -806,8 +888,12 @@ class FrozenValQuantileMonitor(Callback):
             keys = list(y_true_d.keys())
 
         # header
-        loss = self._fmt(self._f(logs.get("loss", float("nan"))))
-        vloss = self._fmt(self._f(logs.get("val_loss", float("nan"))))
+        loss = self._fmt(
+            self._f(logs.get("loss", float("nan")))
+        )
+        vloss = self._fmt(
+            self._f(logs.get("val_loss", float("nan")))
+        )
 
         self._print(
             f"{self._prefix} epoch={ep} "
@@ -824,16 +910,20 @@ class FrozenValQuantileMonitor(Callback):
             # metrics (reuse your exact metric logic)
             m_mae = MAEQ50()
             m_mse = MSEQ50()
-            
+
             m_mae.update_state(yt_raw, yp_raw)
             m_mse.update_state(yt_raw, yp_raw)
-            
+
             mae = self._fmt(self._f(m_mae.result()))
             mse = self._fmt(self._f(m_mse.result()))
-            
-            do_band = self._qs is not None and len(self._qs) >= 2
+
+            do_band = (
+                self._qs is not None and len(self._qs) >= 2
+            )
             if do_band:
-                cov, shp = self._cov_shp_from_band(yt_raw, yp_raw)
+                cov, shp = self._cov_shp_from_band(
+                    yt_raw, yp_raw
+                )
             else:
                 cov, shp = "na", "na"
 
@@ -873,8 +963,8 @@ class FrozenValQuantileMonitor(Callback):
 
             self._print(
                 f"  {k}: mae50={mae} mse50={mse} "
-                f"cov{int(self._alpha*100):d}={cov} "
-                f"shp{int(self._alpha*100):d}={shp}"
+                f"cov{int(self._alpha * 100):d}={cov} "
+                f"shp{int(self._alpha * 100):d}={shp}"
             )
             self._print(
                 f"    cross(q10>q90)={cross_1090} "
@@ -921,7 +1011,9 @@ class FrozenValQuantileMonitor(Callback):
         cov = tf_reduce_mean(inside)
         shp = tf_reduce_mean(tf_abs(hi2 - lo2))
 
-        return self._fmt(self._f(cov)), self._fmt(self._f(shp))
+        return self._fmt(self._f(cov)), self._fmt(
+            self._f(shp)
+        )
 
 
 class FrozenValQuantilePrinter(KERAS_DEPS.Callback):
@@ -955,12 +1047,11 @@ class FrozenValQuantilePrinter(KERAS_DEPS.Callback):
         val_data: Any,
         y_key: str = "subs_pred",
         pred_key: str = "subs_pred",
-        q_values: Tuple[float, ...] = (0.1, 0.5, 0.9),
+        q_values: tuple[float, ...] = (0.1, 0.5, 0.9),
         every: int = 1,
         prefix: str = "[val-qdiag]",
     ) -> None:
         super().__init__()
-
 
         self._y_key = str(y_key)
         self._p_key = str(pred_key)
@@ -973,13 +1064,16 @@ class FrozenValQuantilePrinter(KERAS_DEPS.Callback):
         self._xb = self._freeze(xb)
         self._yb = self._freeze(yb)
 
-    def _take_one(self, val_data: Any) -> Tuple[Any, Any]:
+    def _take_one(self, val_data: Any) -> tuple[Any, Any]:
         if hasattr(val_data, "take"):
             it = iter(val_data.take(1))
             xb, yb = next(it)
             return xb, yb
 
-        if isinstance(val_data, (tuple, list)) and len(val_data) == 2:
+        if (
+            isinstance(val_data, tuple | list)
+            and len(val_data) == 2
+        ):
             return val_data[0], val_data[1]
 
         raise TypeError(
@@ -987,14 +1081,13 @@ class FrozenValQuantilePrinter(KERAS_DEPS.Callback):
         )
 
     def _freeze(self, x: Any) -> Any:
-
         if isinstance(x, dict):
             out = {}
             for k, v in x.items():
                 out[k] = tf_identity(tf_convert_to_tensor(v))
             return out
 
-        if isinstance(x, (tuple, list)):
+        if isinstance(x, tuple | list):
             typ = type(x)
             return typ(self._freeze(v) for v in x)
 
@@ -1046,7 +1139,6 @@ class FrozenValQuantilePrinter(KERAS_DEPS.Callback):
         return yp
 
     def _mean(self, x: Any) -> float:
-
         return float(
             tf_reduce_mean(tf_cast(x, tf_float32)).numpy()
         )
@@ -1054,7 +1146,7 @@ class FrozenValQuantilePrinter(KERAS_DEPS.Callback):
     def on_epoch_end(
         self,
         epoch: int,
-        logs: Optional[Dict[str, Any]] = None,
+        logs: dict[str, Any] | None = None,
     ) -> None:
         if (epoch % self._every) != 0:
             return
@@ -1077,7 +1169,9 @@ class FrozenValQuantilePrinter(KERAS_DEPS.Callback):
         yt = tf_convert_to_tensor(y_true)[..., 0]
 
         q10 = q[:, :, 0, 0]
-        q50 = q[:, :, 1, 0] if self._nq >= 2 else q[:, :, 0, 0]
+        q50 = (
+            q[:, :, 1, 0] if self._nq >= 2 else q[:, :, 0, 0]
+        )
         q90 = q[:, :, -1, 0]
 
         c10_50 = self._mean(q10 > q50)
@@ -1107,6 +1201,7 @@ class FrozenValQuantilePrinter(KERAS_DEPS.Callback):
         )
         print(msg)
 
+
 class FrozenValQuantileLogger(Callback):
     """
     Frozen val quantile diagnostics that write into `logs`.
@@ -1133,7 +1228,7 @@ class FrozenValQuantileLogger(Callback):
         val_data: Any,
         y_key: str = "subs_pred",
         pred_key: str = "subs_pred",
-        q_values: Tuple[float, ...] = (0.1, 0.5, 0.9),
+        q_values: tuple[float, ...] = (0.1, 0.5, 0.9),
         every: int = 1,
         log_prefix: str = "diag/",
         also_print: bool = False,
@@ -1153,13 +1248,16 @@ class FrozenValQuantileLogger(Callback):
         self._yb = self._freeze(yb)
 
     # same helpers as printer
-    def _take_one(self, val_data: Any) -> Tuple[Any, Any]:
+    def _take_one(self, val_data: Any) -> tuple[Any, Any]:
         if hasattr(val_data, "take"):
             it = iter(val_data.take(1))
             xb, yb = next(it)
             return xb, yb
 
-        if isinstance(val_data, (tuple, list)) and len(val_data) == 2:
+        if (
+            isinstance(val_data, tuple | list)
+            and len(val_data) == 2
+        ):
             return val_data[0], val_data[1]
 
         raise TypeError(
@@ -1167,21 +1265,19 @@ class FrozenValQuantileLogger(Callback):
         )
 
     def _freeze(self, x: Any) -> Any:
- 
         if isinstance(x, dict):
             out = {}
             for k, v in x.items():
                 out[k] = tf_identity(tf_convert_to_tensor(v))
             return out
 
-        if isinstance(x, (tuple, list)):
+        if isinstance(x, tuple | list):
             typ = type(x)
             return typ(self._freeze(v) for v in x)
 
         return tf_identity(tf_convert_to_tensor(x))
 
     def _to_BHQO(self, y_pred: Any, y_true: Any) -> Any:
-
         yp = tf_convert_to_tensor(y_pred)
         r = yp.shape.rank
 
@@ -1224,11 +1320,10 @@ class FrozenValQuantileLogger(Callback):
     def on_epoch_end(
         self,
         epoch: int,
-        logs: Optional[Dict[str, Any]] = None,
+        logs: dict[str, Any] | None = None,
     ) -> None:
         if (epoch % self._every) != 0:
             return
-
 
         logs = logs if logs is not None else {}
 
@@ -1247,7 +1342,9 @@ class FrozenValQuantileLogger(Callback):
         yt = tf_convert_to_tensor(y_true)[..., 0]
 
         q10 = q[:, :, 0, 0]
-        q50 = q[:, :, 1, 0] if self._nq >= 2 else q[:, :, 0, 0]
+        q50 = (
+            q[:, :, 1, 0] if self._nq >= 2 else q[:, :, 0, 0]
+        )
         q90 = q[:, :, -1, 0]
 
         c10_50 = self._mean(q10 > q50)
@@ -1278,7 +1375,7 @@ class FrozenValQuantileLogger(Callback):
                 f"c10_90={c10_90:.4f}"
             )
             print(msg)
-            
+
     def _cov_shp_from_band(
         self,
         yt_raw: Any,
@@ -1318,4 +1415,6 @@ class FrozenValQuantileLogger(Callback):
         cov = tf_reduce_mean(inside)
         shp = tf_reduce_mean(tf_abs(hi2 - lo2))
 
-        return self._fmt(self._f(cov)), self._fmt(self._f(shp))
+        return self._fmt(self._f(cov)), self._fmt(
+            self._f(shp)
+        )

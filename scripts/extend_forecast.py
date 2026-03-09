@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
@@ -8,7 +7,7 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from . import config as cfg
 from . import extend_utils as ex
@@ -27,8 +26,8 @@ def _slug_city(name: str) -> str:
     return str(name).strip().lower().replace(" ", "_")
 
 
-def _resolve_cities(args) -> List[str]:
-    picked: List[str] = []
+def _resolve_cities(args) -> list[str]:
+    picked: list[str] = []
 
     if getattr(args, "use_ns", False):
         picked.append(_city_ns())
@@ -41,7 +40,7 @@ def _resolve_cities(args) -> List[str]:
     raw = str(getattr(args, "cities", "") or "")
     parts = [p.strip().lower() for p in raw.split(",")]
 
-    out: List[str] = []
+    out: list[str] = []
     for p in parts:
         if not p:
             continue
@@ -52,7 +51,7 @@ def _resolve_cities(args) -> List[str]:
 def _pick_paths(
     art: utils.Artifacts,
     split: str,
-) -> Tuple[Optional[Path], Optional[Path], str]:
+) -> tuple[Path | None, Path | None, str]:
     if split == "val":
         return (
             art.forecast_val_csv,
@@ -86,12 +85,12 @@ def _pick_paths(
 def _resolve_one_city(
     *,
     city: str,
-    src: Optional[str],
-    eval_csv: Optional[str],
-    future_csv: Optional[str],
+    src: str | None,
+    eval_csv: str | None,
+    future_csv: str | None,
     split: str,
-) -> Dict[str, Any]:
-    out: Dict[str, Any] = {"city": city}
+) -> dict[str, Any]:
+    out: dict[str, Any] = {"city": city}
 
     if eval_csv and future_csv:
         out["eval_csv"] = utils.as_path(eval_csv)
@@ -243,7 +242,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def extend_forecast_main(
-    argv: Optional[List[str]] = None,
+    argv: list[str] | None = None,
 ) -> None:
     args = build_parser().parse_args(argv)
 
@@ -260,7 +259,7 @@ def extend_forecast_main(
         want_ns = True
         want_zh = True
 
-    jobs: List[Dict[str, Any]] = []
+    jobs: list[dict[str, Any]] = []
 
     if want_ns:
         jobs.append(
@@ -309,18 +308,20 @@ def extend_forecast_main(
             cc=cc,
         )
 
-        out_p = _out_path(str(args.out), city=city, multi=multi)
+        out_p = _out_path(
+            str(args.out), city=city, multi=multi
+        )
         out_p.parent.mkdir(parents=True, exist_ok=True)
 
         out_df.to_csv(out_p, index=False)
 
         print(
             f"[OK] {city}: wrote {out_p} "
-            f"({j.get('src_note','')})"
+            f"({j.get('src_note', '')})"
         )
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     extend_forecast_main(argv)
 
 

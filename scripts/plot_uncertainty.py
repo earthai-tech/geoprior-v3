@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -8,15 +7,14 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 from . import config as cfg
 from . import utils
-
 
 _QMAP = {
     "subsidence_q10": 0.10,
@@ -42,7 +40,7 @@ def quantile_reliability(
     else:
       nominal, empirical
     """
-    rows: List[Dict[str, Any]] = []
+    rows: list[dict[str, Any]] = []
 
     if by_horizon:
         for h, g in df.groupby("forecast_step"):
@@ -63,10 +61,10 @@ def quantile_reliability(
         return out.sort_values(["forecast_step", "nominal"])
 
     for qc, q in _QMAP.items():
-        emp = float(
-            np.mean(df[ycol].values <= df[qc].values)
+        emp = float(np.mean(df[ycol].values <= df[qc].values))
+        rows.append(
+            {"nominal": float(q), "empirical": float(emp)}
         )
-        rows.append({"nominal": float(q), "empirical": float(emp)})
     out = pd.DataFrame(rows)
     if out.empty:
         return out
@@ -90,7 +88,7 @@ def interval_stats(
       one-row DataFrame with coverage80, sharpness80
     """
 
-    def _one(sub: pd.DataFrame) -> Dict[str, float]:
+    def _one(sub: pd.DataFrame) -> dict[str, float]:
         l = sub[lower].values
         u = sub[upper].values
         y = sub[ycol].values
@@ -99,7 +97,7 @@ def interval_stats(
         return {"coverage80": cov, "sharpness80": shp}
 
     if by_horizon:
-        rows: List[Dict[str, Any]] = []
+        rows: list[dict[str, Any]] = []
         for h, g in df.groupby("forecast_step"):
             rows.append({"forecast_step": int(h), **_one(g)})
         out = pd.DataFrame(rows)
@@ -111,7 +109,7 @@ def interval_stats(
 
 
 def per_horizon_from_phys(
-    meta: Dict[str, Any],
+    meta: dict[str, Any],
 ) -> pd.DataFrame:
     """
     Extract per-horizon coverage/sharpness from GeoPrior JSON.
@@ -139,7 +137,7 @@ def per_horizon_from_phys(
             s = s[1:]
         return int(float(s))
 
-    rows: List[Dict[str, Any]] = []
+    rows: list[dict[str, Any]] = []
     keys = sorted(cov.keys(), key=_h)
     for k in keys:
         if k not in shp:
@@ -277,12 +275,13 @@ def plot_reliability(
 
     _axes_cleanup(ax)
 
+
 def plot_horizon_row(
     fig: plt.Figure,
-    gs_row: List[Any],
-    rel_items: List[Tuple[str, pd.DataFrame, str]],
+    gs_row: list[Any],
+    rel_items: list[tuple[str, pd.DataFrame, str]],
     *,
-    horizons: List[int],
+    horizons: list[int],
     show_mini_titles: bool,
     show_mini_legend: bool,
     show_labels: bool,
@@ -449,7 +448,7 @@ def plot_radial(
 
 def _annot_interval_calib(
     ax: plt.Axes,
-    meta: Dict[str, Any],
+    meta: dict[str, Any],
     *,
     enabled: bool,
 ) -> None:
@@ -489,7 +488,7 @@ def _annot_interval_calib(
 def _pick_split_path(
     art: utils.Artifacts,
     split: str,
-) -> Tuple[Optional[Path], str]:
+) -> tuple[Path | None, str]:
     if split == "val":
         return (art.forecast_val_csv, "val")
     if split == "test":
@@ -504,11 +503,11 @@ def _pick_split_path(
 def _resolve_city_inputs(
     *,
     city: str,
-    src: Optional[str],
-    forecast: Optional[str],
-    phys_json: Optional[str],
+    src: str | None,
+    forecast: str | None,
+    phys_json: str | None,
     split: str,
-) -> Tuple[pd.DataFrame, Dict[str, Any], str, str]:
+) -> tuple[pd.DataFrame, dict[str, Any], str, str]:
     """
     Returns:
       (forecast_df, phys_meta_mm, split_label, src_note)
@@ -557,7 +556,9 @@ def _build_metrics_table(
     int_source: str,
 ) -> pd.DataFrame:
     r0 = _pivot_emp(rel_all, by_horizon=False)
-    r0_row = r0.iloc[0] if not r0.empty else pd.Series(dtype=float)
+    r0_row = (
+        r0.iloc[0] if not r0.empty else pd.Series(dtype=float)
+    )
     rh = _pivot_emp(rel_h, by_horizon=True)
 
     if int_all.empty:
@@ -572,7 +573,7 @@ def _build_metrics_table(
         "interval_source": int_source,
     }
 
-    rows: List[Dict[str, Any]] = []
+    rows: list[dict[str, Any]] = []
 
     # overall row (forecast_step=0)
     rows.append(
@@ -604,9 +605,15 @@ def _build_metrics_table(
                     "forecast_step": h,
                     "coverage80": cov,
                     "sharpness80": shp,
-                    "emp_q10": float(rr.get("emp_q10", np.nan)),
-                    "emp_q50": float(rr.get("emp_q50", np.nan)),
-                    "emp_q90": float(rr.get("emp_q90", np.nan)),
+                    "emp_q10": float(
+                        rr.get("emp_q10", np.nan)
+                    ),
+                    "emp_q50": float(
+                        rr.get("emp_q50", np.nan)
+                    ),
+                    "emp_q90": float(
+                        rr.get("emp_q90", np.nan)
+                    ),
                 }
             )
 
@@ -618,10 +625,10 @@ def _build_metrics_table(
 # ---------------------------------------------------------------------
 def plot_fig5_uncertainty(
     *,
-    ns_df: Optional[pd.DataFrame],
-    zh_df: Optional[pd.DataFrame],
-    ns_meta: Optional[Dict[str, Any]],
-    zh_meta: Optional[Dict[str, Any]],
+    ns_df: pd.DataFrame | None,
+    zh_df: pd.DataFrame | None,
+    ns_meta: dict[str, Any] | None,
+    zh_meta: dict[str, Any] | None,
     split_ns: str,
     split_zh: str,
     out: str,
@@ -638,7 +645,7 @@ def plot_fig5_uncertainty(
     show_mini_legend: bool,
     show_json_notes: bool,
     radial_title: str,
-    title: Optional[str],
+    title: str | None,
 ) -> None:
     """
     Fig. 5:
@@ -648,7 +655,7 @@ def plot_fig5_uncertainty(
 
     Supports 1-city and 2-city layouts.
     """
-    cities: List[Dict[str, Any]] = []
+    cities: list[dict[str, Any]] = []
 
     if ns_df is not None:
         cities.append(
@@ -768,10 +775,7 @@ def plot_fig5_uncertainty(
     for i, c in enumerate(cities):
         ax = fig.add_subplot(gs_top[0, i])
 
-        t = (
-            f"Reliability • {c['name']} "
-            f"({c['split']})"
-        )
+        t = f"Reliability • {c['name']} ({c['split']})"
 
         plot_reliability(
             ax,
@@ -795,11 +799,9 @@ def plot_fig5_uncertainty(
     # -----------------------------
     # Middle row: mini horizon row
     # -----------------------------
-    rel_items: List[Tuple[str, pd.DataFrame, str]] = []
+    rel_items: list[tuple[str, pd.DataFrame, str]] = []
     for c in cities:
-        rel_items.append(
-            (c["name"], c["rel_h"], c["color"])
-        )
+        rel_items.append((c["name"], c["rel_h"], c["color"]))
 
     gs_row = [gs_mid[0, i] for i in range(n_h)]
     plot_horizon_row(
@@ -808,9 +810,7 @@ def plot_fig5_uncertainty(
         rel_items,
         horizons=horizons,
         show_mini_titles=show_mini_titles,
-        show_mini_legend=(
-            show_legend and show_mini_legend
-        ),
+        show_mini_legend=(show_legend and show_mini_legend),
         show_labels=show_labels,
         show_ticklabels=show_ticklabels,
     )
@@ -861,7 +861,7 @@ def plot_fig5_uncertainty(
     #     bbox_inches="tight",
     # )
     # plt.close(fig)
-    
+
     utils.save_figure(
         fig,
         out,
@@ -870,7 +870,7 @@ def plot_fig5_uncertainty(
     # -----------------------------
     # Export metrics table
     # -----------------------------
-    tabs: List[pd.DataFrame] = []
+    tabs: list[pd.DataFrame] = []
     for c in cities:
         tabs.append(
             _build_metrics_table(
@@ -887,7 +887,6 @@ def plot_fig5_uncertainty(
     tbl = pd.concat(tabs, ignore_index=True)
     out_csv_p = utils.resolve_out_out(out_csv)
     tbl.to_csv(out_csv_p, index=False)
-
 
 
 # ---------------------------------------------------------------------
@@ -944,7 +943,9 @@ def _add_plot_fig5_args(ap: argparse.ArgumentParser) -> None:
     )
 
     ap.add_argument("--dpi", type=int, default=cfg.PAPER_DPI)
-    ap.add_argument("--font", type=int, default=cfg.PAPER_FONT)
+    ap.add_argument(
+        "--font", type=int, default=cfg.PAPER_FONT
+    )
 
     ap.add_argument(
         "--out-csv",
@@ -991,7 +992,7 @@ def _add_plot_fig5_args(ap: argparse.ArgumentParser) -> None:
 
 
 def plot_fig5_uncertainty_main(
-    argv: Optional[List[str]] = None,
+    argv: list[str] | None = None,
 ) -> None:
     ap = argparse.ArgumentParser(
         prog="plot-uncertainty",
@@ -1001,13 +1002,19 @@ def plot_fig5_uncertainty_main(
     args = ap.parse_args(argv)
 
     # Text toggles (common, consistent across scripts)
-    show_legend = utils.str_to_bool(args.show_legend, default=True)
-    show_labels = utils.str_to_bool(args.show_labels, default=True)
+    show_legend = utils.str_to_bool(
+        args.show_legend, default=True
+    )
+    show_labels = utils.str_to_bool(
+        args.show_labels, default=True
+    )
     show_ticks = utils.str_to_bool(
         args.show_ticklabels,
         default=True,
     )
-    show_title = utils.str_to_bool(args.show_title, default=True)
+    show_title = utils.str_to_bool(
+        args.show_title, default=True
+    )
     show_pt = utils.str_to_bool(
         args.show_panel_titles,
         default=True,
@@ -1043,7 +1050,7 @@ def plot_fig5_uncertainty_main(
     #         "Fig. 5 layout expects both cities. "
     #         "Use default cities (ns,zh)."
     #     )
-    
+
     want_ns = "Nansha" in cities
     want_zh = "Zhongshan" in cities
 
@@ -1099,13 +1106,13 @@ def plot_fig5_uncertainty_main(
     )
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     plot_fig5_uncertainty_main(argv)
 
 
 if __name__ == "__main__":
     main()
-    
+
 # Example runs (auto-pick test if present, else val):
 
 # python -m scripts.plot_uncertainty \

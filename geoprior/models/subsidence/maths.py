@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3  https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -11,20 +10,20 @@ Short docs only; full docs later.
 
 from __future__ import annotations
 
-from typing import ( 
-    Mapping, 
-    Any, Dict, 
-    Optional, Sequence, 
-    Tuple, Union
+from collections.abc import Mapping, Sequence
+from typing import (
+    Any,
+    Optional,
 )
 
 import numpy as np
 
-
+from ...api.docs import (
+    DocstringComponents,
+    _halnet_core_params,
+)
 from ...logging import OncePerMessageFilter, get_logger
-from ...api.docs import DocstringComponents, _halnet_core_params
-
-from .. import KERAS_DEPS, dependency_message 
+from .. import KERAS_DEPS, dependency_message
 from .utils import coord_ranges, get_h_ref_si, get_sk
 
 K = KERAS_DEPS
@@ -107,7 +106,7 @@ _param_docs = DocstringComponents.from_nested_components(
 # Constants + types
 _EPSILON = 1e-15
 
-AxisLike = Optional[Union[int, Sequence[int]]]
+AxisLike = Optional[int | Sequence[int]]
 
 # Time units + scaling
 TIME_UNIT_TO_SECONDS = {
@@ -276,13 +275,17 @@ class LogClipConstraint(Constraint):
             self.min_value,
             self.max_value,
         )
-        
+
+
 def vprint(verbose: int, *args) -> None:
     """Verbose print (eager-friendly)."""
     if int(verbose) > 0:
         tf_print(*args)
 
-def tf_print_nonfinite(tag: str, x: Tensor, summarize: int = 6) -> Tensor:
+
+def tf_print_nonfinite(
+    tag: str, x: Tensor, summarize: int = 6
+) -> Tensor:
     """Print a compact report ONLY if x contains NaN/Inf (graph-safe)."""
     x = tf_convert_to_tensor(x, dtype=tf_float32)
     is_nan = tf_is_nan(x)
@@ -296,61 +299,92 @@ def tf_print_nonfinite(tag: str, x: Tensor, summarize: int = 6) -> Tensor:
         # safe stats: replace bad values with 0 for min/max/mean
         x_safe = tf_where(is_bad, tf_zeros_like(x), x)
         tf_print(
-            "[NONFINITE]", tag,
-            "| shape=", tf_shape(x),
-            "| n_bad=", n_bad, "n_nan=", n_nan, "n_inf=", n_inf,
-            "| min=", tf_reduce_min(x_safe),
-            "| max=", tf_reduce_max(x_safe),
-            "| mean=", tf_reduce_mean(x_safe),
+            "[NONFINITE]",
+            tag,
+            "| shape=",
+            tf_shape(x),
+            "| n_bad=",
+            n_bad,
+            "n_nan=",
+            n_nan,
+            "n_inf=",
+            n_inf,
+            "| min=",
+            tf_reduce_min(x_safe),
+            "| max=",
+            tf_reduce_max(x_safe),
+            "| mean=",
+            tf_reduce_mean(x_safe),
             summarize=summarize,
         )
         return tf_constant(0, tf_int32)
 
-    return tf_cond(n_bad > 0, _do_print, lambda: tf_constant(0, tf_int32))
+    return tf_cond(
+        n_bad > 0, _do_print, lambda: tf_constant(0, tf_int32)
+    )
+
 
 # ---------------------------------------------------------------------
 # Q-kind support (gw forcing)
 # ---------------------------------------------------------------------
 
-def resolve_q_kind(sk: Optional[Dict[str, Any]]) -> str:
+
+def resolve_q_kind(sk: dict[str, Any] | None) -> str:
     """Normalize Q meaning for gw forcing."""
     if not sk:
         return "per_volume"
 
-    v = get_sk(sk, "Q_kind", "q_kind", "gw_q_kind", default="per_volume")
+    v = get_sk(
+        sk,
+        "Q_kind",
+        "q_kind",
+        "gw_q_kind",
+        default="per_volume",
+    )
     mode = str(v).strip().lower()
 
-    if mode in ("pervol", "per_volume", "volumetric", "per_volume_rate"):
+    if mode in (
+        "pervol",
+        "per_volume",
+        "volumetric",
+        "per_volume_rate",
+    ):
         return "per_volume"
-    if mode in ("recharge", "recharge_rate", "infiltration", "r"):
+    if mode in (
+        "recharge",
+        "recharge_rate",
+        "infiltration",
+        "r",
+    ):
         return "recharge_rate"
     if mode in ("head_rate", "dhdt", "head_forcing", "qh"):
         return "head_rate"
 
     return "per_volume"
 
+
 def q_to_gw_source_term_si(
     model,
     Q_logits: Tensor,
     *,
-    Ss_field: Optional[Tensor],
-    H_field: Optional[Tensor],
+    Ss_field: Tensor | None,
+    H_field: Tensor | None,
     coords_normalized: bool,
-    t_range_units: Optional[Tensor],
-    time_units: Optional[str],
-    scaling_kwargs: Optional[Dict[str, Any]],
-    H_floor: float = 1e0, #1e-6,
+    t_range_units: Tensor | None,
+    time_units: str | None,
+    scaling_kwargs: dict[str, Any] | None,
+    H_floor: float = 1e0,  # 1e-6,
     verbose: int = 0,
 ) -> Tensor:
     r"""
     Convert ``Q_logits`` into a GW source term in SI units.
-    
+
     This helper maps the network output ``Q_logits`` into a source
     term :math:`Q_{term}` that is compatible with the groundwater
     PDE residual used by the model:
-    
+
     .. math::
-    
+
        R_{gw}
        =
        S_s \, \frac{\partial h}{\partial t}
@@ -358,47 +392,47 @@ def q_to_gw_source_term_si(
        \nabla \cdot (K \nabla h)
        -
        Q_{term}
-    
+
     The returned tensor always has units of 1/s so it can be
     subtracted directly in :math:`R_{gw}`.
-    
+
     Overview
     --------
     The model can interpret the raw output ``Q_logits`` in multiple
     ways depending on ``Q_kind`` resolved from ``scaling_kwargs``.
     All modes must end with :math:`Q_{term}` in 1/s, but the meaning
     of ``Q_logits`` differs:
-    
+
     ``per_volume``
         ``Q_logits`` represents a volumetric forcing rate already in
         inverse time units (either 1/time_unit or 1/s depending on
         flags). This is the simplest and most backward-compatible
         interpretation.
-    
+
     ``recharge_rate``
         ``Q_logits`` represents a recharge flux expressed as a length
         rate (m/time_unit or m/s). It is converted into a volumetric
         rate by dividing by an effective thickness :math:`H`:
-    
+
         .. math::
-    
+
            Q_{term} = \frac{R}{H}
-    
+
         where :math:`R` is in m/s and :math:`H` is in m, giving 1/s.
-    
+
     ``head_rate``
         ``Q_logits`` represents a head-rate forcing (m/time_unit or
         m/s) that enters the storage term. Since the storage term is
         :math:`S_s \, dh/dt`, the equivalent forcing in the residual
         is:
-    
+
         .. math::
-    
+
            Q_{term} = S_s \, q_h
-    
+
         where :math:`q_h` is in m/s and :math:`S_s` is in 1/m,
         yielding 1/s.
-    
+
     Time normalization handling
     ---------------------------
     When coordinates are normalized (typical in this project), the
@@ -407,103 +441,103 @@ def q_to_gw_source_term_si(
     it must be converted back to the intended time units before any
     SI conversion. This function delegates that correction to the
     internal helper ``_apply_q_normalized_time_rule`` using:
-    
+
     * ``coords_normalized``
     * ``t_range_units`` (the time range in model time units)
     * ``scaling_kwargs`` flags
-    
+
     After this correction, unit conversion is applied based on the
     selected ``Q_kind`` and SI flags.
-    
+
     Mode details
     ------------
     per_volume
     ~~~~~~~~~~
     In this mode the model output is treated as already being an
     inverse-time quantity.
-    
+
     If either of the following flags is True:
-    
+
     * ``Q_in_per_second`` or
     * ``Q_in_si``
-    
+
     then ``Q_logits`` is assumed to already be in 1/s and returned
     directly.
-    
+
     Otherwise, it is assumed to be in 1/time_unit and converted to
     1/s via:
-    
+
     .. math::
-    
+
        Q_{term} = Q \cdot \frac{1}{sec\_per\_time\_unit}
-    
+
     where ``sec_per_time_unit`` depends on ``time_units``.
-    
+
     recharge_rate
     ~~~~~~~~~~~~~
     Here, ``Q_logits`` is treated as a length rate :math:`R`:
-    
+
     .. math::
-    
+
        R \in \mathrm{m}/\mathrm{s}
-    
+
     It is converted from m/time_unit to m/s unless
     ``Q_length_in_si`` is True.
-    
+
     The volumetric rate is then computed as:
-    
+
     .. math::
-    
+
        Q_{term} = \frac{R}{H}
-    
+
     To prevent division instability, the thickness is floored:
-    
+
     .. math::
-    
+
        H_{safe} = \max(H, H_{floor})
-    
+
     and the returned value is:
-    
+
     .. math::
-    
+
        Q_{term} = \frac{R}{H_{safe}}
-    
+
     head_rate
     ~~~~~~~~~
     Here, ``Q_logits`` is treated as a head-rate :math:`q_h`:
-    
+
     .. math::
-    
+
        q_h \in \mathrm{m}/\mathrm{s}
-    
+
     It is converted from m/time_unit to m/s unless
     ``Q_length_in_si`` is True.
-    
+
     The residual forcing is:
-    
+
     .. math::
-    
+
        Q_{term} = S_s \, q_h
-    
+
     If ``Ss_field`` is missing, a robust fallback consistent with
     the rest of the model is used:
-    
+
     .. math::
-    
+
        S_s \approx m_v \, gamma_w
-    
+
     where :math:`m_v` is taken from the model and :math:`gamma_w`
     is the configured unit weight of water.
-    
+
     Parameters
     ----------
     This function is typically called from the physics core where
     all arguments are already defined. For meanings and expected
     shapes, refer to the caller that constructs the GW residual
     and its inputs.
-    
+
     In brief:
-    
+
     * ``Q_logits`` is the network output for the forcing channel.
     * ``Ss_field`` and ``H_field`` are the effective fields used
       by the PDE, broadcastable to the batch-horizon layout.
@@ -513,19 +547,19 @@ def q_to_gw_source_term_si(
       interpreting rates.
     * ``scaling_kwargs`` provides configuration including ``Q_kind``
       and unit flags.
-    
+
     Returns
     -------
     Q_term : Tensor
         Source term :math:`Q_{term}` in 1/s, broadcastable to the
         GW residual layout (typically (B,H,1)).
-    
+
     Raises
     ------
     ValueError
         If ``Q_kind='recharge_rate'`` is selected but ``H_field`` is
         not provided.
-    
+
     Notes
     -----
     * Choose ``per_volume`` when you want a direct 1/s forcing that
@@ -535,14 +569,14 @@ def q_to_gw_source_term_si(
       dividing by thickness.
     * Choose ``head_rate`` when you want forcing to act like an
       additive term to :math:`dh/dt` inside the storage term.
-    
+
     Examples
     --------
     Assuming the physics core has already produced ``Q_logits`` and
     the effective fields:
-    
+
     .. code-block:: python
-    
+
        Q_term = q_to_gw_source_term_si(
            model,
            Q_logits,
@@ -553,26 +587,26 @@ def q_to_gw_source_term_si(
            time_units=time_units,
            scaling_kwargs=scaling_kwargs,
        )
-    
+
     See Also
     --------
     rate_to_per_second
         Converts values in 1/time_unit or m/time_unit to SI per
         second rates.
-    
+
     _apply_q_normalized_time_rule
         Corrects rates if the time coordinate was normalized.
-    
+
     resolve_q_kind
         Resolves the configured Q interpretation mode from the
         scaling configuration.
-    
+
     References
     ----------
     .. [1] Bear, J.
        Dynamics of Fluids in Porous Media. Dover (1988).
        (Groundwater flow equation and source terms).
-    
+
     .. [2] de Marsily, G.
        Quantitative Hydrogeology. Academic Press (1986).
        (Units and interpretation of recharge and forcing terms).
@@ -591,31 +625,51 @@ def q_to_gw_source_term_si(
 
     if kind == "per_volume":
         # Backward-compatible flags for volumetric Q:
-        Q_in_per_second = bool(get_sk(sk, "Q_in_per_second", default=False))
+        Q_in_per_second = bool(
+            get_sk(sk, "Q_in_per_second", default=False)
+        )
         Q_in_si = bool(get_sk(sk, "Q_in_si", default=False))
         if Q_in_per_second or Q_in_si:
             Q_per_s = Q_base
         else:
-            Q_per_s = rate_to_per_second(Q_base, time_units=time_units)
+            Q_per_s = rate_to_per_second(
+                Q_base, time_units=time_units
+            )
 
-        vprint(verbose, "Q_kind=per_volume, Q_term(1/s)=", Q_per_s)
+        vprint(
+            verbose,
+            "Q_kind=per_volume, Q_term(1/s)=",
+            Q_per_s,
+        )
         return Q_per_s
 
     # For the other kinds, interpret Q as a LENGTH RATE (m/time)
     # Use a *separate* flag so we don't conflict with Q_in_si default=True.
-    Q_len_in_si = bool(get_sk(sk, "Q_length_in_si", default=False))
+    Q_len_in_si = bool(
+        get_sk(sk, "Q_length_in_si", default=False)
+    )
     if Q_len_in_si:
         Q_m_per_s = Q_base
     else:
-        Q_m_per_s = rate_to_per_second(Q_base, time_units=time_units)
+        Q_m_per_s = rate_to_per_second(
+            Q_base, time_units=time_units
+        )
 
     if kind == "recharge_rate":
         if H_field is None:
-            raise ValueError("Q_kind='recharge_rate' requires H_field.")
+            raise ValueError(
+                "Q_kind='recharge_rate' requires H_field."
+            )
         H_safe = tf_maximum(
-            tf_cast(H_field, tf_float32), tf_constant(H_floor, tf_float32))
+            tf_cast(H_field, tf_float32),
+            tf_constant(H_floor, tf_float32),
+        )
         Q_term = Q_m_per_s / H_safe
-        vprint(verbose, "Q_kind=recharge_rate, Q_term(1/s)=", Q_term)
+        vprint(
+            verbose,
+            "Q_kind=recharge_rate, Q_term(1/s)=",
+            Q_term,
+        )
         return Q_term
 
     # kind == "head_rate"
@@ -627,16 +681,16 @@ def q_to_gw_source_term_si(
 
     Q_term = tf_cast(Ss_eff, tf_float32) * Q_m_per_s
     vprint(verbose, "Q_kind=head_rate, Q_term(1/s)=", Q_term)
-    
+
     return Q_term
 
 
 def _apply_q_normalized_time_rule(
     Q_base: Tensor,
     *,
-    sk: Optional[Dict[str, Any]],
+    sk: dict[str, Any] | None,
     coords_normalized: bool,
-    t_range_units: Optional[Tensor],
+    t_range_units: Tensor | None,
 ) -> Tensor:
     """
     If Q was produced w.r.t normalized time, convert it back to per-time_unit
@@ -645,7 +699,9 @@ def _apply_q_normalized_time_rule(
     if not sk:
         return Q_base
 
-    Q_wrt_norm_t = bool(get_sk(sk, "Q_wrt_normalized_time", default=False))
+    Q_wrt_norm_t = bool(
+        get_sk(sk, "Q_wrt_normalized_time", default=False)
+    )
     if coords_normalized and Q_wrt_norm_t:
         if t_range_units is None:
             tR, _, _ = coord_ranges(sk)
@@ -654,17 +710,20 @@ def _apply_q_normalized_time_rule(
                     "Q_wrt_normalized_time=True but coord_ranges['t'] missing."
                 )
             t_range_units = tf_constant(float(tR), tf_float32)
-        Q_base = Q_base / (t_range_units + tf_constant(_EPSILON, tf_float32))
+        Q_base = Q_base / (
+            t_range_units + tf_constant(_EPSILON, tf_float32)
+        )
 
     return Q_base
+
 
 def q_to_per_second(
     Q_base: Tensor,
     *,
-    scaling_kwargs: Optional[Dict[str, Any]],
-    time_units: Optional[str],
+    scaling_kwargs: dict[str, Any] | None,
+    time_units: str | None,
     coords_normalized: bool,
-    t_range_units: Optional[Tensor] = None,
+    t_range_units: Tensor | None = None,
     eps: float = 1e-12,
 ) -> Tensor:
     """
@@ -682,7 +741,9 @@ def q_to_per_second(
     Q = tf_cast(Q_base, tf_float32)
 
     # If produced w.r.t normalized time, de-normalize by t_range (in time_units)
-    if coords_normalized and bool(get_sk(sk, "Q_wrt_normalized_time", default=False)):
+    if coords_normalized and bool(
+        get_sk(sk, "Q_wrt_normalized_time", default=False)
+    ):
         if t_range_units is None:
             tR, _, _ = coord_ranges(sk)
             if tR is None:
@@ -710,8 +771,8 @@ def cons_step_to_cons_residual(
     cons_step_m: Tensor,
     *,
     dt_units: Tensor,
-    scaling_kwargs: Optional[Dict[str, Any]],
-    time_units: Optional[str],
+    scaling_kwargs: dict[str, Any] | None,
+    time_units: str | None,
     eps: float = 1e-12,
 ) -> Tensor:
     """
@@ -741,10 +802,12 @@ def cons_step_to_cons_residual(
     dt_sec = dt_to_seconds(dt_u, time_units=time_units)
     dt_sec = tf_maximum(dt_sec, tf_constant(eps, tf_float32))
     return cons_step_m / dt_sec
- 
+
+
 # ---------------------------------------------------------------------
 # Physics residuals / priors
 # ---------------------------------------------------------------------
+
 
 def _canon_mv_prior_mode(v) -> str:
     """
@@ -755,16 +818,16 @@ def _canon_mv_prior_mode(v) -> str:
 
     s = str(v).strip().lower()
     s = s.replace("-", "_")
-    
+
     # ---- explicit off/disable ----
     if s in (
-            "off", 
-            "none", 
-            "disabled", 
-            "disable", 
-            "false", 
-            "0"
-        ):
+        "off",
+        "none",
+        "disabled",
+        "disable",
+        "false",
+        "0",
+    ):
         return "off"
 
     # Default / detach-style synonyms.
@@ -820,6 +883,7 @@ def _get_mv_prior_mode(model) -> str:
 
     return _canon_mv_prior_mode(v)
 
+
 def _resolve_mv_prior_weight(
     model,
     *,
@@ -827,7 +891,7 @@ def _resolve_mv_prior_weight(
     warmup_steps=None,
     step=None,
     dtype=tf_float32,
-) -> Optional[Tensor]:
+) -> Tensor | None:
     """
     Resolve mv-prior weight with delay + warmup.
 
@@ -1012,11 +1076,12 @@ def resolve_mv_gamma_log_target_from_logSs(
 
     return log_target
 
+
 def _mv_prior_disabled_return(
     *,
     as_loss: bool,
-    Ss_field: Optional[Tensor],
-    logSs: Optional[Tensor],
+    Ss_field: Tensor | None,
+    logSs: Tensor | None,
     dtype=tf_float32,
 ) -> Tensor:
     """
@@ -1046,12 +1111,13 @@ def _mv_prior_is_disabled(model, *, mode: str) -> bool:
     lam = float(getattr(model, "lambda_mv", 0.0))
     return lam <= 0.0
 
+
 def compute_mv_prior(
     model,
-    Ss_field: Optional[Tensor] = None,
+    Ss_field: Tensor | None = None,
     *,
-    logSs: Optional[Tensor] = None,
-    mode: Optional[str] = None,
+    logSs: Tensor | None = None,
+    mode: str | None = None,
     as_loss: bool = True,
     weight=None,
     warmup_steps=None,
@@ -1063,83 +1129,83 @@ def compute_mv_prior(
 ):
     r"""
     Compute an m_v - gamma_w prior from predicted S_s.
-    
+
     This routine builds a log-space residual that ties the model's
     specific storage :math:`S_s` to the consolidation coefficient
     :math:`m_v` and the unit weight of water :math:`gamma_w` via:
-    
+
     .. math::
-    
+
        S_s \approx m_v \, \gamma_w
-    
+
     The constraint is applied in log space for numerical stability:
-    
+
     .. math::
-    
+
        r = \log(S_s) - \log(m_v \, \gamma_w)
-    
+
     Depending on ``mode``, gradients may be blocked or allowed to
     flow through :math:`S_s` (or its log) to control stability.
-    
+
     Mathematical objective
     ----------------------
     If ``as_loss=True``, this function returns a scalar loss built
     from two components:
-    
+
     1) A global mismatch term based on the mean residual:
-    
+
     .. math::
-    
+
        \bar{r} = \mathrm{mean}(r)
-    
+
     .. math::
-    
+
        L_g = \mathrm{Huber}(\bar{r}; delta)
-    
+
     2) A dispersion term that discourages spatial or batch-wide
     scatter around the mean residual:
-    
+
     .. math::
-    
+
        L_d = \mathrm{mean}(
            \mathrm{Huber}(r - \bar{r}; delta)
        )
-    
+
     The total loss is:
-    
+
     .. math::
-    
+
        L = L_g + alpha\_disp \, L_d
-    
+
     Optionally, an additional weight and warmup ramp may be applied:
-    
+
     .. math::
-    
+
        L \leftarrow w(step) \, L
-    
+
     Mode semantics and gradient flow
     --------------------------------
     The choice of mode controls where gradients are allowed.
-    
+
     ``calibrate`` (default)
         Uses :func:`tf.stop_gradient` on ``Ss_field`` before taking
         :math:`\log(S_s)`. This calibrates :math:`m_v` without
         reshaping the :math:`S_s` field produced by the trunk.
-    
+
         This is typically the safest choice when the mean settlement
         is physics-driven and the network already has strong physics
         constraints elsewhere.
-    
+
     ``field``
         Backpropagates through ``Ss_field``. This can be unstable
         when :math:`S_s` becomes small because:
-    
+
         .. math::
-    
+
            \frac{\partial \log(S_s)}{\partial S_s} = \frac{1}{S_s}
-    
+
         so gradients can be amplified.
-    
+
     ``logss``
         Backpropagates through ``logSs`` directly. This is often
         more stable than ``field`` because the log transform is
@@ -1147,76 +1213,76 @@ def compute_mv_prior(
         example, using guarded exponentiation in the field
         composer). Use this when you want a stronger anchoring of
         the log-storage field without the 1/S_s amplification.
-    
+
     Inputs used
     -----------
     This function requires exactly one of:
-    
+
     * ``logSs`` when ``mode='logss'``, or
     * ``Ss_field`` when ``mode!='logss'``.
-    
+
     The log target term :math:`\log(m_v \, \gamma_w)` is obtained
     from the model configuration through helper resolvers. These
     helpers may also apply internal conventions such as:
-    
+
     * whether :math:`m_v` is learnable or fixed,
     * the unit system for :math:`gamma_w`,
     * safe floors ``eps`` to avoid :math:`\log(0)`.
-    
+
     Parameters
     ----------
     model : Any
         Model instance providing :math:`m_v`, :math:`gamma_w`,
         scaling configuration, and optional scheduling state used
         by helper resolvers.
-    
+
     Ss_field : Tensor, optional
         Specific storage field :math:`S_s` in 1/m. Required unless
         ``mode='logss'``. The expected shape is broadcastable to
         the physics batch layout (typically (B,H,1) or (B,1,1)).
-    
+
     logSs : Tensor, optional
         Log-specific storage :math:`\log(S_s)`. Required when
         ``mode='logss'``. Prefer passing the raw log output from
         the field composer to preserve true bound violations.
-    
+
     mode : str, optional
         Prior mode controlling gradient flow. If None, the mode is
         resolved from model configuration. Supported modes are
         ``'calibrate'``, ``'field'``, and ``'logss'`` (aliases may
         be accepted by the internal canonicalizer).
-    
+
     as_loss : bool, default=True
         If True, return a scalar loss :math:`L`. If False, return
         the residual field :math:`r`.
-    
+
     weight : float or Tensor, optional
         Optional multiplicative factor applied to the returned loss.
         If None, the function may still derive a weight from model
         configuration.
-    
+
     warmup_steps : int, optional
         If provided, enables an internal warmup schedule for the
         prior weight via helper logic (for example a linear ramp
         from 0 to 1 over ``warmup_steps``).
-    
+
     step : int or Tensor, optional
         Training step index passed to the warmup logic. If None, the
         warmup logic may use model state or disable warmup.
-    
+
     alpha_disp : float, default=0.1
         Weight for the dispersion penalty :math:`L_d`.
-    
+
     delta : float, default=1.0
         Huber threshold parameter used by the robust penalty.
-    
+
     eps : float, default=_EPSILON
         Positive floor used when computing :math:`\log(S_s)` to
         avoid :math:`\log(0)` and reduce numerical issues.
-    
+
     verbose : int, default=0
         Verbosity flag forwarded to internal helpers for debugging.
-    
+
     Returns
     -------
     loss_or_residual : Tensor
@@ -1224,13 +1290,13 @@ def compute_mv_prior(
         prior loss. If ``as_loss=False``, the residual field
         :math:`r` with the same shape as ``logSs`` (or derived
         logSs from ``Ss_field``).
-    
+
     Raises
     ------
     ValueError
         If required inputs are missing for the selected mode
         (for example, ``mode='logss'`` without ``logSs``).
-    
+
     Notes
     -----
     Why log space
@@ -1239,26 +1305,26 @@ def compute_mv_prior(
     reduces sensitivity to absolute magnitudes. It also aligns with
     how bounds on :math:`K` and :math:`S_s` are often expressed in
     log space.
-    
+
     Why the mean + dispersion split
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Calibrating :math:`m_v` is primarily a global adjustment. The
     mean term penalizes systematic mismatch, while the dispersion
     term discourages pathological spatial variability in the prior
     residual without forcing every location to match exactly.
-    
+
     Scheduling
     ~~~~~~~~~~
     In many training regimes, it is beneficial to ramp this prior
     after the data loss stabilizes. The optional warmup hook allows
     a gradual introduction to avoid early domination.
-    
+
     Examples
     --------
     Compute a scalar MV prior loss in calibrate mode:
-    
+
     .. code-block:: python
-    
+
        loss_mv = compute_mv_prior(
            model,
            Ss_field=Ss_field,
@@ -1267,23 +1333,23 @@ def compute_mv_prior(
            alpha_disp=0.1,
            delta=1.0,
        )
-    
+
     Use the residual field for diagnostics (no reduction):
-    
+
     .. code-block:: python
-    
+
        r_mv = compute_mv_prior(
            model,
            Ss_field=Ss_field,
            mode="field",
            as_loss=False,
        )
-    
+
     Use logSs from the field composer (preferred for strong
     anchoring without 1/S_s amplification):
-    
+
     .. code-block:: python
-    
+
        K, Ss, tau, tau_phys, Hd, dlogtau, logK, logSs, log_tau, log_tau_phys = (
            compose_physics_fields(...)
        )
@@ -1293,24 +1359,24 @@ def compute_mv_prior(
            mode="logss",
            as_loss=True,
        )
-    
+
     See Also
     --------
     compose_physics_fields
         Produces ``logSs`` consistent with guarded exponentiation.
-    
+
     compute_consistency_prior
         Prior linking learned tau to physically implied tau.
-    
+
     assemble_physics_loss
         Combines MV prior with other physics terms and offsets.
-    
+
     References
     ----------
     .. [1] Terzaghi, K., Peck, R. B., and Mesri, G.
        Soil Mechanics in Engineering Practice. Wiley (1996).
        (Consolidation theory and storage relations).
-    
+
     .. [2] Huber, P. J.
        Robust Statistics. Wiley (1981).  (Huber loss).
     """
@@ -1331,7 +1397,7 @@ def compute_mv_prior(
             Ss_field=Ss_field,
             logSs=logSs,
         )
-    
+
     # ----------------------------------------------------------
     # 2) Build log-space residual r.
     # ----------------------------------------------------------
@@ -1380,7 +1446,7 @@ def compute_mv_prior(
     # ----------------------------------------------------------
     # 3) Scalar loss: global mismatch + dispersion penalty.
     # ----------------------------------------------------------
-    
+
     r_bar = tf_reduce_mean(r)
     loss_g = huber(r_bar, delta=delta)
 
@@ -1425,6 +1491,7 @@ def _get_mv_prior_units(model) -> str:
         return "strict"
 
     return str(v).strip().lower()
+
 
 def _safe_log_mv(model, *, eps=_EPSILON) -> Tensor:
     """
@@ -1529,6 +1596,7 @@ def resolve_mv_gamma_log_target(
 
     return log_target
 
+
 # -----------------------------
 # Reusable numeric helpers
 # -----------------------------
@@ -1570,7 +1638,7 @@ def compute_gw_flow_residual(
     d_K_dh_dy_dy: Tensor,
     Ss_field: Tensor,
     *,
-    Q: Optional[Tensor] = None,
+    Q: Tensor | None = None,
     verbose: int = 0,
 ) -> Tensor:
     """Groundwater flow PDE residual (NaN/Inf-safe, broadcast-safe)."""
@@ -1578,45 +1646,56 @@ def compute_gw_flow_residual(
         return tf_zeros_like(dh_dt)
 
     # --- convert + sanitize core terms ---
-    dh_dt = _finite_or_zero(tf_convert_to_tensor(dh_dt, dtype=tf_float32))
-    d_K_dh_dx_dx = _finite_or_zero(tf_convert_to_tensor(d_K_dh_dx_dx, dtype=dh_dt.dtype))
-    d_K_dh_dy_dy = _finite_or_zero(tf_convert_to_tensor(d_K_dh_dy_dy, dtype=dh_dt.dtype))
-    Ss_field = _finite_or_zero(tf_convert_to_tensor(Ss_field, dtype=dh_dt.dtype))
-    
+    dh_dt = _finite_or_zero(
+        tf_convert_to_tensor(dh_dt, dtype=tf_float32)
+    )
+    d_K_dh_dx_dx = _finite_or_zero(
+        tf_convert_to_tensor(d_K_dh_dx_dx, dtype=dh_dt.dtype)
+    )
+    d_K_dh_dy_dy = _finite_or_zero(
+        tf_convert_to_tensor(d_K_dh_dy_dy, dtype=dh_dt.dtype)
+    )
+    Ss_field = _finite_or_zero(
+        tf_convert_to_tensor(Ss_field, dtype=dh_dt.dtype)
+    )
+
     # --- Q: scalar / (H,) / (B,H) / (B,H,1) -> (B,H,1) ---
     if Q is None:
         Qv = tf_zeros_like(dh_dt)
     else:
         Qv = tf_convert_to_tensor(Q, dtype=dh_dt.dtype)
-        Qv = ensure_3d(Qv)                         # scalar->(1,1,1), (H,)->(1,H,1), (B,H)->(B,H,1)
-        Qv = tf_broadcast_to(Qv, tf_shape(dh_dt))  # now broadcast is valid
+        Qv = ensure_3d(
+            Qv
+        )  # scalar->(1,1,1), (H,)->(1,H,1), (B,H)->(B,H,1)
+        Qv = tf_broadcast_to(
+            Qv, tf_shape(dh_dt)
+        )  # now broadcast is valid
         Qv = _finite_or_zero(Qv)
 
     div_K_grad_h = d_K_dh_dx_dx + d_K_dh_dy_dy
     storage_term = Ss_field * dh_dt
 
     out = storage_term - div_K_grad_h - Qv
-    out = _finite_or_zero(out)  # optional, but makes the "output finite" contract explicit
+    out = _finite_or_zero(
+        out
+    )  # optional, but makes the "output finite" contract explicit
 
     if verbose > 6:
         vprint(verbose, "gw: dh_dt=", dh_dt)
         vprint(verbose, "gw: div=", div_K_grad_h)
         vprint(verbose, "gw: Q=", Qv)
         vprint(verbose, "gw: out=", out)
-    
-        tf_print( 
-            "to_rms(Ss_field * dh_dt)=", 
+
+        tf_print(
+            "to_rms(Ss_field * dh_dt)=",
             to_rms(Ss_field * dh_dt),
-        
-            'to_rms(div_K_grad_h)=',
+            "to_rms(div_K_grad_h)=",
             to_rms(div_K_grad_h),
-            
-            'to_rms(Qv)=',
+            "to_rms(Qv)=",
             to_rms(Qv),
-            
-            'to_rms(out)=',
+            "to_rms(out)=",
             to_rms(out),
-            )
+        )
 
     return out
 
@@ -1629,12 +1708,12 @@ def compute_consolidation_residual(
     H_field: Tensor,
     tau_field: Tensor,
     *,
-    Ss_field: Optional[Tensor] = None,
-    inputs: Optional[Dict[str, Tensor]] = None,
+    Ss_field: Tensor | None = None,
+    inputs: dict[str, Tensor] | None = None,
     verbose: int = 0,
 ) -> Tensor:
     """Consolidation PDE residual (Voigt)."""
-    
+
     if "consolidation" not in model.pde_modes_active:
         return tf_zeros_like(ds_dt)
 
@@ -1704,7 +1783,7 @@ def _positive_part(
     mode = str(mode).strip().lower()
 
     x = tf_cast(x, tf_float32)
-    x = _finite_or_zero(x)  
+    x = _finite_or_zero(x)
 
     if mode == "none":
         y = x
@@ -1719,7 +1798,9 @@ def _positive_part(
         b = tf_constant(float(beta), dtype=x.dtype)
         y = tf_softplus(b * x) / b
         if bool(zero_at_origin):
-            log2 = tf_constant(float(np.log(2.0)), dtype=x.dtype)
+            log2 = tf_constant(
+                float(np.log(2.0)), dtype=x.dtype
+            )
             y = y - (log2 / b)
 
     else:
@@ -1733,6 +1814,7 @@ def _positive_part(
 
     return y
 
+
 def equilibrium_compaction_si(
     *,
     h_mean_si: Tensor,
@@ -1744,7 +1826,7 @@ def equilibrium_compaction_si(
     relu_beta: float = 20.0,
     stop_grad_ref: bool = True,
     drawdown_zero_at_origin: bool = False,
-    drawdown_clip_max: Optional[float] = None,
+    drawdown_clip_max: float | None = None,
     eps: float = _EPSILON,
     verbose: int = 0,
 ) -> Tensor:
@@ -1967,23 +2049,34 @@ def equilibrium_compaction_si(
        (2000).
     """
 
-
     h_mean_si = _ensure_3d(tf_cast(h_mean_si, tf_float32))
-    h_ref_si = _broadcast_like(_ensure_3d(tf_cast(h_ref_si, tf_float32)), h_mean_si)
-    Ss_field = _broadcast_like(_ensure_3d(Ss_field), h_mean_si)
-    H_field_si = _broadcast_like(_ensure_3d(H_field_si), h_mean_si)
+    h_ref_si = _broadcast_like(
+        _ensure_3d(tf_cast(h_ref_si, tf_float32)), h_mean_si
+    )
+    Ss_field = _broadcast_like(
+        _ensure_3d(Ss_field), h_mean_si
+    )
+    H_field_si = _broadcast_like(
+        _ensure_3d(H_field_si), h_mean_si
+    )
 
     def _n_bad(x: Tensor) -> Tensor:
-        return tf_reduce_sum(tf_cast(~tf_math.is_finite(x), tf_int32))
+        return tf_reduce_sum(
+            tf_cast(~tf_math.is_finite(x), tf_int32)
+        )
 
     # --- debug counts BEFORE sanitization
     vprint(
         verbose,
         "[equilibrium_compaction_si] nonfinite counts (pre):",
-        "h_mean", _n_bad(h_mean_si),
-        "h_ref", _n_bad(h_ref_si),
-        "Ss", _n_bad(Ss_field),
-        "H", _n_bad(H_field_si),
+        "h_mean",
+        _n_bad(h_mean_si),
+        "h_ref",
+        _n_bad(h_ref_si),
+        "Ss",
+        _n_bad(Ss_field),
+        "H",
+        _n_bad(H_field_si),
     )
 
     # --- sanitize ALL inputs (this is what makes your tests pass)
@@ -2002,10 +2095,14 @@ def equilibrium_compaction_si(
     vprint(
         verbose,
         "[equilibrium_compaction_si] nonfinite counts (post):",
-        "h_mean", _n_bad(h_mean_si),
-        "h_ref", _n_bad(h_ref_si),
-        "Ss", _n_bad(Ss_field),
-        "H", _n_bad(H_field_si),
+        "h_mean",
+        _n_bad(h_mean_si),
+        "h_ref",
+        _n_bad(h_ref_si),
+        "Ss",
+        _n_bad(Ss_field),
+        "H",
+        _n_bad(H_field_si),
     )
 
     if bool(stop_grad_ref):
@@ -2014,13 +2111,20 @@ def equilibrium_compaction_si(
     vprint(
         verbose,
         "[equilibrium_compaction_si] shapes:",
-        "h_mean", h_mean_si.shape,
-        "h_ref", h_ref_si.shape,
-        "Ss", Ss_field.shape,
-        "H", H_field_si.shape,
-        "| mode=", drawdown_mode,
-        "| rule=", drawdown_rule,
-        "| stop_grad_ref=", stop_grad_ref,
+        "h_mean",
+        h_mean_si.shape,
+        "h_ref",
+        h_ref_si.shape,
+        "Ss",
+        Ss_field.shape,
+        "H",
+        H_field_si.shape,
+        "| mode=",
+        drawdown_mode,
+        "| rule=",
+        drawdown_rule,
+        "| stop_grad_ref=",
+        stop_grad_ref,
     )
 
     rule = str(drawdown_rule).strip().lower()
@@ -2043,16 +2147,22 @@ def equilibrium_compaction_si(
     )
 
     if drawdown_clip_max is not None:
-        mx = tf_constant(float(drawdown_clip_max), dtype=delta_h.dtype)
+        mx = tf_constant(
+            float(drawdown_clip_max), dtype=delta_h.dtype
+        )
         delta_h = tf_clip_by_value(
-            delta_h, tf_constant(eps, dtype=delta_h.dtype), mx)
+            delta_h, tf_constant(eps, dtype=delta_h.dtype), mx
+        )
 
     vprint(
         verbose,
         "[equilibrium_compaction_si] delta_h stats:",
-        "min=", tf_reduce_min(delta_h),
-        "max=", tf_reduce_max(delta_h),
-        "mean=", tf_reduce_mean(delta_h),
+        "min=",
+        tf_reduce_min(delta_h),
+        "max=",
+        tf_reduce_max(delta_h),
+        "mean=",
+        tf_reduce_mean(delta_h),
     )
 
     s_eq = Ss_field * delta_h * H_field_si
@@ -2061,12 +2171,17 @@ def equilibrium_compaction_si(
     vprint(
         verbose,
         "[equilibrium_compaction_si] s_eq stats:",
-        "min=", tf_reduce_min(s_eq),
-        "max=", tf_reduce_max(s_eq),
-        "mean=", tf_reduce_mean(s_eq),
-        "| nonfinite=", _n_bad(s_eq),
+        "min=",
+        tf_reduce_min(s_eq),
+        "max=",
+        tf_reduce_max(s_eq),
+        "mean=",
+        tf_reduce_mean(s_eq),
+        "| nonfinite=",
+        _n_bad(s_eq),
     )
     return s_eq
+
 
 def integrate_consolidation_mean(
     *,
@@ -2076,8 +2191,8 @@ def integrate_consolidation_mean(
     tau_field: Tensor,
     h_ref_si: Tensor,
     s_init_si: Tensor,
-    dt: Optional[Tensor] = None,
-    time_units: Optional[str] = "yr",
+    dt: Tensor | None = None,
+    time_units: str | None = "yr",
     method: str = "exact",
     eps_tau: float = 1e-12,
     relu_beta: float = 20.0,
@@ -2085,204 +2200,203 @@ def integrate_consolidation_mean(
     drawdown_rule: str = "ref_minus_mean",
     stop_grad_ref: bool = True,
     drawdown_zero_at_origin: bool = False,
-    drawdown_clip_max: Optional[float] = None,
+    drawdown_clip_max: float | None = None,
     verbose: int = 0,
 ) -> Tensor:
-
     r"""
     Integrate mean consolidation settlement over a forecast horizon.
-    
+
     This routine evolves the mean settlement state
     :math:`\bar{s}(t)` using a stable, shape-safe time stepper that is
     compatible with TensorFlow graph execution. It is designed for the
     GeoPriorSubsNet "Option-1" mean path, where the mean subsidence is
     physics-driven from the predicted head.
-    
+
     The integrator advances a first-order relaxation model:
-    
+
     .. math::
-    
+
        \frac{d\bar{s}}{dt} =
        \frac{s_{eq}(t) - \bar{s}(t)}{\tau(t)}
-    
+
     where:
-    
+
     * :math:`\bar{s}(t)` is the mean settlement state (m),
     * :math:`s_{eq}(t)` is the equilibrium compaction (m),
     * :math:`\tau(t)` is a consolidation time scale (s).
-    
+
     The equilibrium compaction is computed by
     :func:`equilibrium_compaction_si`:
-    
+
     .. math::
-    
+
        s_{eq}(t) = S_s(t)\, \Delta h(t)\, H(t)
-    
+
     with :math:`S_s` (1/m), :math:`H` (m), and drawdown
     :math:`\Delta h` (m) formed from ``h_mean_si`` and ``h_ref_si``
     using ``drawdown_rule`` and gated by ``drawdown_mode``.
-    
+
     Discrete-time update
     --------------------
     Let :math:`t_0, ..., t_{H-1}` be the horizon times and let
     :math:`\Delta t_i` be the step duration in seconds. The state
     update can be done in two ways:
-    
+
     Exact step (stable for large :math:`\Delta t/\tau`)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     For each step :math:`i`:
-    
+
     .. math::
-    
+
        a_i = \exp\left(-\frac{\Delta t_i}{\tau_i}\right)
-    
+
     .. math::
-    
+
        \bar{s}_{i} =
        a_i\, \bar{s}_{i-1} + (1-a_i)\, s_{eq,i}
-    
+
     This is the closed-form solution of the linear ODE assuming
     :math:`s_{eq}` and :math:`\tau` are constant on the step.
-    
+
     Euler step (simple, less stable)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     For each step :math:`i`:
-    
+
     .. math::
-    
+
        \bar{s}_{i} =
        \bar{s}_{i-1} +
        \Delta t_i\, \frac{s_{eq,i} - \bar{s}_{i-1}}{\tau_i}
-    
+
     Use ``method="exact"`` unless you have a strong reason to match
     a legacy discretization.
-    
+
     Time and units
     --------------
     The integrator expects:
-    
+
     * ``h_mean_si`` and ``h_ref_si`` in meters,
     * ``Ss_field`` in 1/m,
     * ``H_field_si`` in meters,
     * ``tau_field`` in seconds,
     * ``dt`` expressed in ``time_units`` and converted to seconds
       internally via :func:`dt_to_seconds`.
-    
+
     If ``dt`` is None, a unit step of ``1`` is used per horizon index,
     interpreted in ``time_units``.
-    
+
     Shape contract and horizon alignment
     ------------------------------------
     Internally, this function forces a strict ``(B, H, 1)`` layout for
     the evolving state and for all step inputs, because TensorFlow
     scan operations can widen shapes when rank is ambiguous.
-    
+
     Inputs that vary with time may be provided as:
-    
+
     * length ``H``  : already aligned,
     * length ``H+1``: treated as state-length, sliced to ``[:-1]``,
     * length ``H-1``: treated as step-length, padded by prepending the
       first entry, producing length ``H``,
     * length ``1``  : broadcast across horizon.
-    
+
     This alignment is applied to ``dt`` and ``tau_field``. The
     equilibrium sequence ``s_eq`` is computed at length ``H``.
-    
+
     Stability and sanitization
     --------------------------
     This integrator aggressively sanitizes non-finite values:
-    
+
     * ``dt`` and ``dt_sec`` are mapped through a finite-or-zero rule,
       then clamped to non-negative.
     * ``tau`` is sanitized and lower-bounded by ``eps_tau``.
     * The final output is passed through a finite-or-zero rule.
-    
+
     These guards are intended to prevent training from crashing when
     upstream predictions temporarily produce NaN/Inf.
-    
+
     Parameters
     ----------
     h_mean_si : Tensor
         Mean head in meters. Shape ``(B, H, 1)`` or ``(B, H)``.
         The last dim is forced to 1 for scan stability.
-    
+
     Ss_field : Tensor
         Specific storage :math:`S_s` in 1/m. Broadcastable to
         ``(B, H, 1)``.
-    
+
     H_field_si : Tensor
         Compressible thickness :math:`H` in meters. Broadcastable to
         ``(B, H, 1)``.
-    
+
     tau_field : Tensor
         Consolidation time scale :math:`\tau` in seconds.
         Broadcastable to ``(B, H, 1)`` or horizon-aligned by the
         alignment rules described above.
-    
+
     h_ref_si : Tensor
         Reference head (meters). Broadcastable to ``h_mean_si``.
         If ``stop_grad_ref=True``, gradients are stopped through this
         reference inside :func:`equilibrium_compaction_si`.
-    
+
     s_init_si : Tensor
         Initial settlement state at the horizon origin. This is the
         initial value used by the scan initializer. It is expected to
         represent the settlement at the first horizon time.
         Typical shape is ``(B, 1, 1)`` or ``(B, 1)``.
-    
+
     dt : Tensor, optional
         Step duration in ``time_units``. If provided, it must be
         broadcastable and is horizon-aligned. If None, a unit step of
         ones is used.
-    
+
     time_units : str, default="yr"
         Units for ``dt``. Converted to seconds via :func:`dt_to_seconds`.
         Examples include "yr", "day", "hour", or "unitless", depending
         on your pipeline.
-    
+
     method : {"exact", "euler"}, default="exact"
         Integration scheme. "exact" uses the closed-form step for a
         first-order linear relaxation. "euler" uses forward Euler.
-    
+
     eps_tau : float, default=1e-12
         Lower bound for ``tau`` to prevent division by zero and
         undefined exponentials.
-    
+
     relu_beta : float, default=20.0
         Smoothness parameter forwarded to
         :func:`equilibrium_compaction_si` for ``drawdown_mode="smooth_relu"``.
-    
+
     drawdown_mode : str, default="smooth_relu"
         Drawdown gating forwarded to :func:`equilibrium_compaction_si`.
         Common values: "smooth_relu", "relu", "softplus", "none".
-    
+
     drawdown_rule : str, default="ref_minus_mean"
         Drawdown rule forwarded to :func:`equilibrium_compaction_si`.
         Use "ref_minus_mean" for head-loss convention. Use
         "mean_minus_ref" for depth-like (down-positive) signals.
-    
+
     stop_grad_ref : bool, default=True
         Forwarded to :func:`equilibrium_compaction_si`. If True, stops
         gradient through ``h_ref_si`` to prevent reference drift.
-    
+
     drawdown_zero_at_origin : bool, default=False
         Forwarded to :func:`equilibrium_compaction_si`. If True, shifts
         smooth drawdown gating so the value at zero is near zero.
-    
+
     drawdown_clip_max : float or None, default=None
         Forwarded to :func:`equilibrium_compaction_si`. If set, clips
         drawdown after gating to avoid extreme values dominating loss.
-    
+
     verbose : int, default=0
         Verbosity for printing basic statistics and shape info.
-    
+
     Returns
     -------
     s_bar_si : Tensor
         Mean cumulative settlement over the horizon in meters, shape
         ``(B, H, 1)``. The sequence is the scan output of the chosen
         stepper initialized at ``s_init_si``.
-    
+
     Notes
     -----
     Relationship to model outputs
@@ -2291,27 +2405,27 @@ def integrate_consolidation_mean(
     settlement mean is computed by integrating the relaxation ODE.
     The model may optionally add a learned residual around this mean,
     but the returned value here is the physics mean only.
-    
+
     Interpreting the horizon index
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     This function produces a length-H sequence. If your horizon times
     represent the future steps 1..H, ensure that ``dt`` and ``h_mean_si``
     are consistent with that convention. If you supply sequences of
     length H+1 (state nodes), the last node is dropped by alignment.
-    
+
     Numerical behavior
     ~~~~~~~~~~~~~~~~~~
     The exact update has the desirable limit:
-    
+
     * If :math:`\Delta t_i \ll \tau_i`, then
       :math:`\bar{s}_i \approx \bar{s}_{i-1}` (slow relaxation).
     * If :math:`\Delta t_i \gg \tau_i`, then
       :math:`\bar{s}_i \approx s_{eq,i}` (fast equilibration).
-    
+
     Examples
     --------
     Integrate with unit yearly steps and exact update:
-    
+
     >>> s_bar = integrate_consolidation_mean(
     ...     h_mean_si=h_mean,
     ...     Ss_field=Ss,
@@ -2322,9 +2436,9 @@ def integrate_consolidation_mean(
     ...     time_units="yr",
     ...     method="exact",
     ... )
-    
+
     Use explicit dt (months) and Euler update:
-    
+
     >>> s_bar = integrate_consolidation_mean(
     ...     h_mean_si=h_mean,
     ...     Ss_field=Ss,
@@ -2336,9 +2450,9 @@ def integrate_consolidation_mean(
     ...     time_units="month",
     ...     method="euler",
     ... )
-    
+
     Flip drawdown rule for depth-like signals:
-    
+
     >>> s_bar = integrate_consolidation_mean(
     ...     h_mean_si=depth_mean,
     ...     Ss_field=Ss,
@@ -2348,27 +2462,27 @@ def integrate_consolidation_mean(
     ...     s_init_si=s0,
     ...     drawdown_rule="mean_minus_ref",
     ... )
-    
+
     See Also
     --------
     equilibrium_compaction_si
         Computes :math:`s_{eq}(t)` from head/drawdown and fields.
-    
+
     tau_phys_from_fields
         Computes a physically motivated baseline time scale.
-    
+
     settlement_state_for_pde
         Converts predicted settlement representations to an ODE state.
-    
+
     References
     ----------
     .. [1] Terzaghi, K.
        Theoretical Soil Mechanics. Wiley (1943).
-    
+
     .. [2] Wang, H. F.
        Theory of Linear Poroelasticity. Princeton University Press
        (2000).
-    
+
     .. [3] Zienkiewicz, O. C., Taylor, R. L.
        The Finite Element Method, Vol. 3. Butterworth-Heinemann (2000).
     """
@@ -2377,22 +2491,22 @@ def integrate_consolidation_mean(
         """Align x time-length to horizon H (or keep length 1)."""
         xt = _ensure_3d(tf_cast(x, tf_float32))
         tx = tf_shape(xt)[1]
-    
+
         # If provided as state-length (H+1), slice to horizon H.
         xt = tf_cond(
             tf_equal(tx, H + 1),
             lambda: xt[:, :-1, :],
             lambda: xt,
         )
-    
+
         # If provided as step-length (H-1), pad to horizon H by
         # repeating the first step (consistent with dt inference).
         tx2 = tf_shape(xt)[1]
-    
+
         def _pad_prepend() -> Tensor:
             first = xt[:, :1, :]
             return tf_concat([first, xt], axis=1)
-    
+
         xt = tf_cond(
             tf_logical_and(
                 tf_greater(H, 1),
@@ -2401,7 +2515,7 @@ def integrate_consolidation_mean(
             _pad_prepend,
             lambda: xt,
         )
-    
+
         # Now must be length H or 1.
         tx3 = tf_shape(xt)[1]
         ok = tf_logical_or(tf_equal(tx3, H), tf_equal(tx3, 1))
@@ -2429,9 +2543,12 @@ def integrate_consolidation_mean(
     vprint(
         verbose,
         "[integrate_consolidation_mean] B,H =",
-        B, H,
-        "| time_units=", time_units,
-        "| method=", method,
+        B,
+        H,
+        "| time_units=",
+        time_units,
+        "| method=",
+        method,
     )
 
     # --- dt in seconds (BH1) -----------------------------------
@@ -2444,9 +2561,9 @@ def integrate_consolidation_mean(
     else:
         dt_in = _align_to_horizon(dt, name="dt")
         dt = _broadcast_like(dt_in, h_mean_si)
-        
+
     dt = tf_reshape(dt, [B, H, 1])
-    
+
     # sanitize dt before converting
     dt = _finite_or_zero(dt)
     # Optional: disallow negative time steps
@@ -2454,17 +2571,22 @@ def integrate_consolidation_mean(
 
     dt_sec = dt_to_seconds(dt, time_units=time_units)
     dt_sec = tf_reshape(dt_sec, [B, H, 1])
-    
+
     # sanitize dt_sec too (unit conversion could create non-finite)
     dt_sec = _finite_or_zero(dt_sec)
-    dt_sec = tf_maximum(dt_sec, tf_constant(0.0, dtype=dt_sec.dtype))
+    dt_sec = tf_maximum(
+        dt_sec, tf_constant(0.0, dtype=dt_sec.dtype)
+    )
 
     vprint(
         verbose,
         "[integrate_consolidation_mean] dt_sec stats:",
-        "min=", tf_reduce_min(dt_sec),
-        "max=", tf_reduce_max(dt_sec),
-        "mean=", tf_reduce_mean(dt_sec),
+        "min=",
+        tf_reduce_min(dt_sec),
+        "max=",
+        tf_reduce_max(dt_sec),
+        "mean=",
+        tf_reduce_mean(dt_sec),
     )
 
     # --- tau (BH1) ---------------------------------------------
@@ -2473,16 +2595,17 @@ def integrate_consolidation_mean(
     tau = tf_reshape(tau, [B, H, 1])
 
     tf_debugging.assert_equal(
-        tf_shape(tau)[1], H,
-        message=( 
+        tf_shape(tau)[1],
+        H,
+        message=(
             "integrate_consolidation_mean:"
             " tau horizon must match h_mean_si horizon"
-            )
+        ),
     )
 
     # sanitize tau BEFORE clamping
     tau = _finite_or_zero(tau)
-    
+
     tau = tf_maximum(
         tau,
         tf_constant(eps_tau, dtype=tf_float32),
@@ -2491,9 +2614,12 @@ def integrate_consolidation_mean(
     vprint(
         verbose,
         "[integrate_consolidation_mean] tau stats:",
-        "min=", tf_reduce_min(tau),
-        "max=", tf_reduce_max(tau),
-        "mean=", tf_reduce_mean(tau),
+        "min=",
+        tf_reduce_min(tau),
+        "max=",
+        tf_reduce_max(tau),
+        "mean=",
+        tf_reduce_mean(tau),
     )
 
     # --- equilibrium compaction (BH1) --------------------------
@@ -2525,25 +2651,28 @@ def integrate_consolidation_mean(
     # s0 = s0[:, :1, :1]
     # s0 = tf_reshape(s0, [B, 1, 1])
     # s0 = _finite_or_zero(s0)
-    
+
     # s0_2d = tf_reshape(s0[:, 0, :], [B, 1])
-    
+
     s0 = _ensure_3d(tf_cast(s_init_si, tf_float32))
     s0 = s0[:, :1, :1]
-    
+
     # broadcast to (B,1,1) using the same mechanism as dt/tau
     s0 = _broadcast_like(s0, h_mean_si[:, :1, :1])
     s0 = tf_reshape(s0, [B, 1, 1])
-    
+
     s0 = _finite_or_zero(s0)
     s0_2d = tf_reshape(s0[:, 0, :], [B, 1])
 
     vprint(
         verbose,
         "[integrate_consolidation_mean] s_init stats:",
-        "min=", tf_reduce_min(s0_2d),
-        "max=", tf_reduce_max(s0_2d),
-        "mean=", tf_reduce_mean(s0_2d),
+        "min=",
+        tf_reduce_min(s0_2d),
+        "max=",
+        tf_reduce_max(s0_2d),
+        "mean=",
+        tf_reduce_mean(s0_2d),
     )
 
     if tf_transpose is None or tf_scan is None:
@@ -2559,7 +2688,7 @@ def integrate_consolidation_mean(
 
     def step(
         prev: Tensor,
-        elems: Tuple[Tensor, Tensor, Tensor],
+        elems: tuple[Tensor, Tensor, Tensor],
     ) -> Tensor:
         dt_i, tau_i, seq_i = elems
 
@@ -2571,10 +2700,8 @@ def integrate_consolidation_mean(
 
         if method == "exact":
             a = tf_exp(
-                -dt_i / (
-                    tau_i
-                    + tf_constant(_EPSILON, tau_i.dtype)
-                )
+                -dt_i
+                / (tau_i + tf_constant(_EPSILON, tau_i.dtype))
             )
             nxt = prev * a + seq_i * (1.0 - a)
         else:
@@ -2596,11 +2723,15 @@ def integrate_consolidation_mean(
     vprint(
         verbose,
         "[integrate_consolidation_mean] s_bar stats:",
-        "min=", tf_reduce_min(s_bar),
-        "max=", tf_reduce_max(s_bar),
-        "mean=", tf_reduce_mean(s_bar),
+        "min=",
+        tf_reduce_min(s_bar),
+        "max=",
+        tf_reduce_max(s_bar),
+        "mean=",
+        tf_reduce_mean(s_bar),
     )
     return s_bar
+
 
 def compute_consolidation_step_residual(
     *,
@@ -2610,8 +2741,8 @@ def compute_consolidation_step_residual(
     H_field_si: Tensor,
     tau_field: Tensor,
     h_ref_si: Tensor,
-    dt: Optional[Tensor] = None,
-    time_units: Optional[str] = "yr",
+    dt: Tensor | None = None,
+    time_units: str | None = "yr",
     method: str = "exact",
     eps_tau: float = 1e-12,
     relu_beta: float = 20.0,
@@ -2619,197 +2750,197 @@ def compute_consolidation_step_residual(
     drawdown_rule: str = "ref_minus_mean",
     stop_grad_ref: bool = True,
     drawdown_zero_at_origin: bool = False,
-    drawdown_clip_max: Optional[float] = None,
+    drawdown_clip_max: float | None = None,
     verbose: int = 0,
 ) -> Tensor:
     r"""
     Compute a one-step consolidation residual in SI space.
-    
+
     This function forms a per-step residual that penalizes violations of
     a first-order consolidation relaxation model over a sequence of
     states. It is intended for physics diagnostics and for PDE-style
     training objectives where the settlement state is predicted (or
     derived) and should satisfy a stable time-stepping rule.
-    
+
     Model and notation
     ------------------
     Let the settlement state be :math:`s(t)` (m). The governing ODE is a
     Voigt-style relaxation toward an equilibrium settlement
     :math:`s_{eq}(t)`:
-    
+
     .. math::
-    
+
        \frac{ds}{dt} = \frac{s_{eq}(t) - s(t)}{\tau(t)}
-    
+
     where :math:`\tau(t)` is a (possibly space/time varying) time scale
     in seconds. The equilibrium settlement is computed from head
     drawdown:
-    
+
     .. math::
-    
+
        s_{eq}(t) = S_s(t)\, \Delta h(t)\, H(t)
-    
+
     with :math:`S_s` in 1/m and :math:`H` in m. The drawdown
     :math:`\Delta h(t)` is constructed from ``h_mean_si`` and ``h_ref_si``
     using ``drawdown_rule`` and is gated by ``drawdown_mode`` via
     :func:`equilibrium_compaction_si`.
-    
+
     Discrete residual definition
     ----------------------------
     Given state samples :math:`s_n = s(t_n)` and a step duration
     :math:`\Delta t_n` (seconds), this routine computes a one-step
     prediction :math:`\hat{s}_{n+1}` from :math:`s_n` and :math:`s_{eq,n}`
     and returns the residual:
-    
+
     .. math::
-    
+
        r_n = s_{n+1} - \hat{s}_{n+1}
-    
+
     The residual has units of meters and is produced for
     :math:`n = 0, ..., T-2`, hence the output time length is ``T-1``.
-    
+
     Two steppers are supported:
-    
+
     Exact step (closed-form, stable)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Assuming :math:`s_{eq}` and :math:`\tau` are constant over the step:
-    
+
     .. math::
-    
+
        a_n = \exp\left(-\frac{\Delta t_n}{\tau_n}\right)
-    
+
     .. math::
-    
+
        \hat{s}_{n+1} =
        a_n s_n + (1-a_n) s_{eq,n}
-    
+
     Euler step (forward Euler)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
     .. math::
-    
+
        \hat{s}_{n+1} =
        s_n + \Delta t_n \frac{s_{eq,n} - s_n}{\tau_n}
-    
+
     The "exact" update is unconditionally stable for stiff regimes
     (:math:`\Delta t / \tau` large). Euler may be unstable unless
     :math:`\Delta t \ll \tau`.
-    
+
     Time and units
     --------------
     * Inputs are SI: meters, seconds, and 1/m as documented below.
     * ``dt`` is interpreted in ``time_units`` and converted to seconds
       using :func:`dt_to_seconds`.
-    
+
     Shape contract and alignment
     ----------------------------
     Let ``s_state_si`` and ``h_mean_si`` have shape ``(B, T, 1)`` (or
     ``(B, T)`` which is promoted to ``(B, T, 1)``). This function forms
     step-aligned sequences of length ``H = T-1``:
-    
+
     * :math:`s_n = s[:, :-1]` and :math:`s_{n+1} = s[:, 1:]`
     * :math:`h_n = h[:, :-1]`
-    
+
     Time-varying fields may be provided with time length:
-    
+
     * ``T``     : state-length, sliced to ``T-1`` steps,
     * ``T-1``   : already step-length,
     * ``1``     : broadcast across steps.
-    
+
     After alignment, fields are broadcast to ``(B, T-1, 1)``.
-    
+
     Numerical safety
     ----------------
     This routine sanitizes key quantities:
-    
+
     * Non-finite values are mapped through a finite-or-zero rule.
     * ``tau`` is clamped below by ``eps_tau``.
     * ``dt`` converted to seconds is clamped to non-negative.
-    
+
     These guards prevent crashes during training when upstream model
     outputs temporarily produce NaN/Inf.
-    
+
     Parameters
     ----------
     s_state_si : Tensor
         Settlement state in meters. Shape ``(B, T, 1)`` or ``(B, T)``.
         This is the state used in the stepper (often incremental).
-    
+
     h_mean_si : Tensor
         Mean head (or depth-like signal) in meters. Shape must match
         ``s_state_si`` in the time dimension ``T``. The stepper uses
         ``h_mean_si[:, :-1]`` to compute :math:`s_{eq,n}`.
-    
+
     Ss_field : Tensor
         Specific storage :math:`S_s` in 1/m. Time length may be ``T``,
         ``T-1``, or ``1``; it is aligned to steps and broadcast.
-    
+
     H_field_si : Tensor
         Compressible thickness :math:`H` in meters. Time length may be
         ``T``, ``T-1``, or ``1``; it is aligned to steps and broadcast.
-    
+
     tau_field : Tensor
         Consolidation time scale :math:`\tau` in seconds. Time length may
         be ``T``, ``T-1``, or ``1``; it is aligned to steps and clamped
         below by ``eps_tau``.
-    
+
     h_ref_si : Tensor
         Reference head (or reference depth) in meters. Time length may be
         ``T``, ``T-1``, or ``1``; it is aligned to steps. If
         ``stop_grad_ref=True``, gradients are stopped through this
         reference inside :func:`equilibrium_compaction_si`.
-    
+
     dt : Tensor, optional
         Step duration in ``time_units``. Time length may be ``T``,
         ``T-1``, or ``1``. If None, a unit step is used for every step.
-    
+
     time_units : str, default="yr"
         Units for ``dt`` prior to conversion to seconds via
         :func:`dt_to_seconds`.
-    
+
     method : {"exact", "euler"}, default="exact"
         Stepping scheme used to build :math:`\hat{s}_{n+1}`.
-    
+
     eps_tau : float, default=1e-12
         Lower bound for ``tau`` to prevent division by zero and overflow
         in stiff regimes.
-    
+
     relu_beta : float, default=20.0
         Smoothness parameter forwarded to :func:`equilibrium_compaction_si`
         when ``drawdown_mode="smooth_relu"``.
-    
+
     drawdown_mode : str, default="smooth_relu"
         Forwarded to :func:`equilibrium_compaction_si`. Controls the
         positive-part gating applied to drawdown.
-    
+
     drawdown_rule : str, default="ref_minus_mean"
         Forwarded to :func:`equilibrium_compaction_si`. Controls the sign
         convention for drawdown. Use "ref_minus_mean" for head loss and
         "mean_minus_ref" for depth-like (down-positive) signals.
-    
+
     stop_grad_ref : bool, default=True
         Forwarded to :func:`equilibrium_compaction_si`. If True, prevents
         gradients through the reference signal ``h_ref_si``.
-    
+
     drawdown_zero_at_origin : bool, default=False
         Forwarded to :func:`equilibrium_compaction_si`. If True, shifts
         the smooth drawdown gate so the value at zero is near zero.
-    
+
     drawdown_clip_max : float or None, default=None
         Forwarded to :func:`equilibrium_compaction_si`. Clips drawdown
         after gating to reduce extreme values.
-    
+
     verbose : int, default=0
         Verbosity for basic shape and residual statistics.
-    
+
     Returns
     -------
     res : Tensor
         One-step residual sequence in meters, shape ``(B, T-1, 1)``:
-    
+
         .. math::
-    
+
            r_n = s_{n+1} - \hat{s}_{n+1}
-    
+
     Notes
     -----
     Incremental vs cumulative state
@@ -2820,18 +2951,18 @@ def compute_consolidation_step_residual(
     ``s_state_si`` and ``s_eq`` are expressed in the same state space.
     A mismatch (e.g., residuals on incremental state but equilibrium in
     cumulative units) will produce biased residuals.
-    
+
     When to prefer the exact step
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     If the ratio :math:`\Delta t / \tau` is frequently larger than 1,
     Euler updates can become numerically unstable. The exact step is
     stable in both stiff and non-stiff regimes and is typically the best
     default for physics losses.
-    
+
     Examples
     --------
     Compute residuals for a horizon sequence:
-    
+
     >>> r = compute_consolidation_step_residual(
     ...     s_state_si=s_state,
     ...     h_mean_si=h_mean,
@@ -2843,9 +2974,9 @@ def compute_consolidation_step_residual(
     ...     time_units="yr",
     ...     method="exact",
     ... )
-    
+
     Flip drawdown rule for depth-like inputs:
-    
+
     >>> r = compute_consolidation_step_residual(
     ...     s_state_si=s_state,
     ...     h_mean_si=depth,
@@ -2855,23 +2986,23 @@ def compute_consolidation_step_residual(
     ...     h_ref_si=depth_ref,
     ...     drawdown_rule="mean_minus_ref",
     ... )
-    
+
     See Also
     --------
     integrate_consolidation_mean
         Integrates the same relaxation model forward in time.
-    
+
     equilibrium_compaction_si
         Computes equilibrium settlement from drawdown and fields.
-    
+
     dt_to_seconds
         Converts ``dt`` in ``time_units`` to SI seconds.
-    
+
     References
     ----------
     .. [1] Terzaghi, K.
        Theoretical Soil Mechanics. Wiley (1943).
-    
+
     .. [2] Wang, H. F.
        Theory of Linear Poroelasticity. Princeton University Press
        (2000).
@@ -2902,11 +3033,11 @@ def compute_consolidation_step_residual(
     # ---------------------------------------------------------
     # 2) Build step-aligned sequences (length H = T-1).
     # ---------------------------------------------------------
-    s_n = s_state[:, :-1, :]     # (B,H,1)
-    s_np1 = s_state[:, 1:, :]   # (B,H,1)
-    h_n = h_state[:, :-1, :]    # (B,H,1)
+    s_n = s_state[:, :-1, :]  # (B,H,1)
+    s_np1 = s_state[:, 1:, :]  # (B,H,1)
+    h_n = h_state[:, :-1, :]  # (B,H,1)
 
-    H = tf_shape(s_n)[1]        # H = T-1
+    H = tf_shape(s_n)[1]  # H = T-1
 
     # ---------------------------------------------------------
     # 3) Helper: align a time series to step length H.
@@ -2915,7 +3046,9 @@ def compute_consolidation_step_residual(
     #      - (B,H,1) -> keep
     #      - (B,1,1) -> broadcast later
     # ---------------------------------------------------------
-    def _align_to_steps(x: Optional[Tensor], name: str) -> Optional[Tensor]:
+    def _align_to_steps(
+        x: Tensor | None, name: str
+    ) -> Tensor | None:
         if x is None:
             return None
 
@@ -3003,15 +3136,19 @@ def compute_consolidation_step_residual(
     m = str(method).strip().lower()
 
     # Calculate ratio for stability check
-    dt_tau_ratio = dt_sec / (tau + tf_constant(_EPSILON, tau.dtype))
-    
-    use_exact = tf_logical_or( # noqa
-        tf_equal(m, "exact"), 
-        tf_reduce_any(dt_tau_ratio > 1.0) # Safety switch
+    dt_tau_ratio = dt_sec / (
+        tau + tf_constant(_EPSILON, tau.dtype)
+    )
+
+    use_exact = tf_logical_or(  # noqa
+        tf_equal(m, "exact"),
+        tf_reduce_any(dt_tau_ratio > 1.0),  # Safety switch
     )
 
     def _step_exact():
-        a = tf_exp(-dt_sec / (tau + tf_constant(_EPSILON, tau.dtype)))
+        a = tf_exp(
+            -dt_sec / (tau + tf_constant(_EPSILON, tau.dtype))
+        )
         return s_n * a + s_eq_n * (1.0 - a)
 
     def _step_euler():
@@ -3023,16 +3160,16 @@ def compute_consolidation_step_residual(
     if m == "exact":
         pred = _step_exact()
     else:
-        # Hybrid safety: use exact where stiff, euler where safe? 
+        # Hybrid safety: use exact where stiff, euler where safe?
         # Easier to just force exact if user didn't strictly demand pure euler behavior
         # But for now, let's just use the user choice but warn/clamp.
-        
+
         # Better: just use exact. It's unconditionally stable.
         pred = _step_euler()
 
     # NOTE: I highly recommend changing the default in __init__ to 'exact'
     # if it isn't already.
-    
+
     res = s_np1 - pred
     res = _finite_or_zero(res)
 
@@ -3048,6 +3185,7 @@ def compute_consolidation_step_residual(
     )
     return res
 
+
 def tau_phys_from_fields(
     model,
     K_field: Tensor,
@@ -3056,8 +3194,8 @@ def tau_phys_from_fields(
     *,
     eps: float = _EPSILON,
     verbose: int = 0,
-    return_log: bool = False, 
-) -> Tuple[Tensor, Tensor]:
+    return_log: bool = False,
+) -> tuple[Tensor, Tensor]:
     r"""
     Compute the physics closure consolidation timescale ``tau_phys``
     and the effective drainage thickness ``Hd``.
@@ -3270,60 +3408,75 @@ def tau_phys_from_fields(
     H_safe = finite_floor(H_field, eps=eps)
 
     # --- Effective Thickness Logic ---
-    use_hd = bool(getattr(model, "use_effective_thickness", False))
+    use_hd = bool(
+        getattr(model, "use_effective_thickness", False)
+    )
     if use_hd:
         f = getattr(model, "Hd_factor", 1.0)
         f = tf_cast(f, H_safe.dtype)
         # finite check for factor
-        f = tf_where(tf_math.is_finite(f), f, tf_constant(1.0, H_safe.dtype))
+        f = tf_where(
+            tf_math.is_finite(f),
+            f,
+            tf_constant(1.0, H_safe.dtype),
+        )
         Hd = H_safe * f
     else:
         Hd = H_safe
-    
+
     Hd = finite_floor(Hd, eps=eps)
-    
+
     # --- Kappa Logic ---
     kappa = model._kappa_value()
     kappa = tf_cast(kappa, H_safe.dtype)
-    kappa = tf_where(tf_math.is_finite(kappa), kappa, tf_constant(1.0, H_safe.dtype))
+    kappa = tf_where(
+        tf_math.is_finite(kappa),
+        kappa,
+        tf_constant(1.0, H_safe.dtype),
+    )
     kappa = finite_floor(kappa, eps=eps)
 
     # --- Log-Space Computation (Stable) ---
     # log(tau) = log(C) + log(Ss) + 2*log(Hd) - log(K)
-    
+
     log_Ss = tf_math.log(Ss_safe)
-    log_K  = tf_math.log(K_safe)
+    log_K = tf_math.log(K_safe)
     log_Hd = tf_math.log(Hd)
     log_pi = tf_math.log(pi_sq)
     log_kap = tf_math.log(kappa)
 
     # Formula depends on kappa_mode
     mode = str(getattr(model, "kappa_mode", "bar"))
-    
+
     if mode == "bar":
         # tau = kappa * H^2 * Ss / (pi^2 * K)
         # log_tau = log(k) + 2log(H) + log(Ss) - log(pi^2) - log(K)
-        # Note: using H_safe here typically, or Hd? 
-        # Code usually assumes Hd for diffusion path length. 
+        # Note: using H_safe here typically, or Hd?
+        # Code usually assumes Hd for diffusion path length.
         # Using H_safe to match original code structure:
-        log_H = tf_math.log(H_safe) 
-        log_tau = log_kap + 2.0*log_H + log_Ss - log_pi - log_K
+        log_H = tf_math.log(H_safe)
+        log_tau = (
+            log_kap + 2.0 * log_H + log_Ss - log_pi - log_K
+        )
     else:
-        # tau = (Hd/H)^2 * H^2 * Ss / (pi^2 * kappa * K) 
+        # tau = (Hd/H)^2 * H^2 * Ss / (pi^2 * kappa * K)
         #     = Hd^2 * Ss / (pi^2 * kappa * K)
-        log_tau = 2.0*log_Hd + log_Ss - log_pi - log_kap - log_K
+        log_tau = (
+            2.0 * log_Hd + log_Ss - log_pi - log_kap - log_K
+        )
 
     if return_log:
         return log_tau, Hd
 
-    # Only exp() at the very end. 
+    # Only exp() at the very end.
     # If log_tau is huge (e.g. 50), exp() overflows, but gradient of exp is manageable.
     tau_phys = tf_exp(log_tau)
-    
+
     vprint(verbose, "tau_phys: log_tau=", log_tau)
     vprint(verbose, "tau_phys: out=", tau_phys)
 
     return tau_phys, Hd
+
 
 def compute_consistency_prior(
     model,
@@ -3336,126 +3489,126 @@ def compute_consistency_prior(
 ) -> Tensor:
     r"""
     Compute the consolidation timescale consistency prior.
-    
+
     This prior constrains the learned consolidation timescale ``tau``
     to remain physically consistent with the permeability-storage-
     thickness closure implied by the poroelastic consolidation model.
     It returns the *log-space mismatch*:
-    
+
     .. math::
-    
+
        R_{\mathrm{prior}}
        = \log(\tau_{\mathrm{learned}})
          - \log(\tau_{\mathrm{phys}})
-    
+
     where :math:`\tau_{\mathrm{phys}}` is computed from the predicted
     fields :math:`K`, :math:`S_s`, and :math:`H` through
     :func:`tau_phys_from_fields`.
-    
+
     Log-space is used for two reasons:
-    
+
     1. Positivity: :math:`\tau > 0` is enforced implicitly.
     2. Scale: timescales may span orders of magnitude; comparing
        logs yields a relative-type error signal.
-    
+
     Mathematical formulation
     ------------------------
     Let the model predict effective fields (all SI):
-    
+
     * :math:`K(x,y)` in m/s (hydraulic conductivity),
     * :math:`S_s(x,y)` in 1/m (specific storage),
     * :math:`H(x,y)` in m (compressible thickness),
     * :math:`\tau_{\mathrm{learned}}(x,y)` in s (learned timescale).
-    
+
     A common 1D Terzaghi-style drainage closure gives a characteristic
     timescale:
-    
+
     .. math::
-    
+
        \tau_{\mathrm{phys}}
        = \frac{H_d^2 \, S_s}{\pi^2 \, c_v}
-    
+
     with consolidation coefficient:
-    
+
     .. math::
-    
+
        c_v = \frac{K}{S_s}
-    
+
     or, equivalently, for a diffusion-like closure:
-    
+
     .. math::
-    
+
        \tau_{\mathrm{phys}}
        = \frac{H_d^2 \, S_s}{\pi^2 \, K}
-    
+
     where :math:`H_d` is the effective drainage thickness (often a
     fraction of :math:`H`, e.g. :math:`H_d = \mathrm{hd\_factor}\,H`).
     The exact form used is delegated to :func:`tau_phys_from_fields`,
     which may incorporate additional model parameters such as
     :math:`\kappa` (compressibility/bulk coupling) or boundary
     conditions.
-    
+
     The prior residual returned by this function is:
-    
+
     .. math::
-    
+
        R_{\mathrm{prior}}(x,y)
        = \log(\max(\tau_{\mathrm{learned}}(x,y), \varepsilon))
          - \log(\tau_{\mathrm{phys}}(x,y))
-    
+
     where :math:`\varepsilon` is a small constant used to avoid
     ``log(0)`` when the learned timescale becomes numerically small.
-    
+
     This residual is typically used inside an L2 penalty:
-    
+
     .. math::
-    
+
        L_{\mathrm{prior}}
        = \mathbb{E}\left[R_{\mathrm{prior}}^2\right]
-    
+
     and contributes to the physics loss with a user-controlled weight
     (e.g., ``lambda_prior``).
-    
+
     Parameters
     ----------
     model : Any
         Model instance providing configuration used by
         :func:`tau_phys_from_fields` (for example, effective thickness
         settings, kappa mode, bounds, and scaling config).
-    
+
     K_field : Tensor
         Effective hydraulic conductivity :math:`K` in SI units (m/s).
         Expected shape is broadcastable to ``(B, H, 1)``.
-    
+
     Ss_field : Tensor
         Effective specific storage :math:`S_s` in SI units (1/m).
         Expected shape is broadcastable to ``(B, H, 1)``.
-    
+
     tau_field : Tensor
         Learned timescale :math:`\tau_{\mathrm{learned}}` in SI seconds.
         Expected shape is broadcastable to ``(B, H, 1)``.
-    
+
     H_field : Tensor
         Thickness :math:`H` in SI meters. Expected shape is
         broadcastable to ``(B, H, 1)``.
-    
+
     verbose : int, default=0
         Verbosity level for debug printing.
-    
+
     Returns
     -------
     residual : Tensor
         Log-space prior residual:
-    
+
         .. math::
-    
+
            R_{\mathrm{prior}}
            = \log(\tau_{\mathrm{learned}})
              - \log(\tau_{\mathrm{phys}})
-    
+
         Shape follows the broadcasted shape of the inputs, typically
         ``(B, H, 1)``.
-    
+
     Notes
     -----
     Numerical stability
@@ -3465,39 +3618,39 @@ def compute_consistency_prior(
     * :func:`tau_phys_from_fields` is called with ``return_log=True``
       to compute :math:`\log(\tau_{\mathrm{phys}})` directly, avoiding
       the unstable pattern ``log(exp(log_tau))``.
-    
+
     Interpretation
     ~~~~~~~~~~~~~~
     * ``residual = 0`` means the learned timescale matches the closure.
     * Positive values indicate :math:`\tau_{\mathrm{learned}}` is larger
       (slower consolidation) than predicted by the closure.
     * Negative values indicate a smaller (faster) learned timescale.
-    
+
     Examples
     --------
     Compute and reduce to an L2 prior loss:
-    
+
     >>> R_prior = compute_consistency_prior(
     ...     model, K_field=K, Ss_field=Ss,
     ...     tau_field=tau, H_field=H
     ... )
     >>> loss_prior = tf.reduce_mean(tf.square(R_prior))
-    
+
     See Also
     --------
     tau_phys_from_fields
         Computes :math:`\tau_{\mathrm{phys}}` from :math:`K`, :math:`S_s`,
         and :math:`H` (and model configuration).
-    
+
     compose_physics_fields
         Builds bounded/guarded SI fields and returns both learned
         and closure timescales in log-space.
-    
+
     References
     ----------
     .. [1] Terzaghi, K.
        Theoretical Soil Mechanics. Wiley (1943).
-    
+
     .. [2] Wang, H. F.
        Theory of Linear Poroelasticity. Princeton University Press
        (2000).
@@ -3516,16 +3669,21 @@ def compute_consistency_prior(
         Ss_field,
         H_field,
         verbose=0,
-        return_log=True # Use the new flag
+        return_log=True,  # Use the new flag
     )
 
     out = log_tau_learned - log_tau_phys
 
-    vprint(verbose, "cons_prior: log_tau_learned=", log_tau_learned)
+    vprint(
+        verbose,
+        "cons_prior: log_tau_learned=",
+        log_tau_learned,
+    )
     vprint(verbose, "cons_prior: log_tau_phys=", log_tau_phys)
     vprint(verbose, "cons_prior: out=", out)
 
     return out
+
 
 def compute_smoothness_prior(
     dK_dx: Tensor,
@@ -3533,113 +3691,113 @@ def compute_smoothness_prior(
     dSs_dx: Tensor,
     dSs_dy: Tensor,
     *,
-    K_field: Optional[Tensor] = None,
-    Ss_field: Optional[Tensor] = None,
+    K_field: Tensor | None = None,
+    Ss_field: Tensor | None = None,
     already_log: bool = False,
     verbose: int = 0,
 ) -> Tensor:
     r"""
     Compute a smoothness prior on spatial gradients of physics fields.
-    
+
     This function builds a spatial regularizer that penalizes rapid
     variation of the permeability-like field ``K`` and the storage
     field ``Ss`` over the spatial coordinates. In the GeoPrior PINN,
     this prior stabilizes the inverse problem by discouraging
     unrealistic high-frequency spatial structure in learned fields.
-    
+
     The preferred penalty is applied in *log-space*:
-    
+
     .. math::
-    
+
        R_{\mathrm{smooth}}
        = \left\|\nabla \log K\right\|^2
          + \left\|\nabla \log S_s\right\|^2
-    
+
     where, in 2D:
-    
+
     .. math::
-    
+
        \left\|\nabla \log K\right\|^2
        = \left(\frac{\partial \log K}{\partial x}\right)^2
          + \left(\frac{\partial \log K}{\partial y}\right)^2
-    
+
     and similarly for :math:`S_s`. Penalizing gradients of logs is
     often preferable to raw gradients because it regularizes *relative*
     changes (order-of-magnitude variations) rather than absolute
     changes.
-    
+
     Implementation modes
     --------------------
     The function supports three modes, chosen by inputs:
-    
+
     1. ``already_log=True``:
        Inputs ``dK_dx`` etc. are interpreted as
        :math:`\partial_x \log K` and so on, and the penalty is:
-    
+
        .. math::
-    
+
           R_{\mathrm{smooth}}
           = (d\log K/dx)^2 + (d\log K/dy)^2
             + (d\log S_s/dx)^2 + (d\log S_s/dy)^2
-    
+
     2. ``already_log=False`` with ``K_field`` and ``Ss_field``:
        The function converts raw gradients to log-gradients using:
-    
+
        .. math::
-    
+
           \frac{\partial \log K}{\partial x}
           = \frac{1}{K}\frac{\partial K}{\partial x}
-    
+
        and similarly for the other terms. For numerical stability,
        denominators are floored by a small constant ``eps_div``:
-    
+
        .. math::
-    
+
           K_{\mathrm{denom}} = \max(K, \varepsilon_{\mathrm{div}})
-    
+
        This avoids exploding ratios when ``K`` or ``Ss`` are very small.
-    
+
     3. Fallback (rare):
        If ``K_field`` and ``Ss_field`` are not provided, it penalizes
        the raw gradients directly:
-    
+
        .. math::
-    
+
           R_{\mathrm{smooth}}
           = (dK/dx)^2 + (dK/dy)^2
             + (dS_s/dx)^2 + (dS_s/dy)^2
-    
+
     Parameters
     ----------
     dK_dx, dK_dy : Tensor
         Spatial gradients of ``K`` with respect to x and y. If
         ``already_log=True``, these are gradients of ``logK`` instead.
-    
+
     dSs_dx, dSs_dy : Tensor
         Spatial gradients of ``Ss`` with respect to x and y. If
         ``already_log=True``, these are gradients of ``logSs`` instead.
-    
+
     K_field : Tensor or None, default=None
         Field ``K`` in SI units (m/s). Used only when converting
         raw gradients to log-gradients.
-    
+
     Ss_field : Tensor or None, default=None
         Field ``Ss`` in SI units (1/m). Used only when converting
         raw gradients to log-gradients.
-    
+
     already_log : bool, default=False
         If True, treat the input gradients as log-gradients.
-    
+
     verbose : int, default=0
         Verbosity level for debug printing.
-    
+
     Returns
     -------
     residual : Tensor
         Smoothness residual map. Typical shape is ``(B, H, 1)`` or a
         broadcast-compatible shape. This quantity is usually squared
         and reduced to form ``loss_smooth``.
-    
+
     Notes
     -----
     Why log-space regularization?
@@ -3648,7 +3806,7 @@ def compute_smoothness_prior(
     orders of magnitude across space. Penalizing gradients of ``logK``
     naturally encourages spatial smoothness in a multiplicative sense,
     which aligns with common geostatistical assumptions.
-    
+
     Stability of division
     ~~~~~~~~~~~~~~~~~~~~~
     When converting ``dK`` to ``dlogK = dK / K``, small ``K`` can
@@ -3656,52 +3814,54 @@ def compute_smoothness_prior(
     ``eps_div`` is applied only for the conversion step, so that
     regions with effectively zero permeability do not dominate the
     regularizer.
-    
+
     Examples
     --------
     Penalty in log-space using provided fields:
-    
+
     >>> R_smooth = compute_smoothness_prior(
     ...     dK_dx, dK_dy, dSs_dx, dSs_dy,
     ...     K_field=K, Ss_field=Ss, already_log=False
     ... )
     >>> loss_smooth = tf.reduce_mean(tf.square(R_smooth))
-    
+
     Direct log-gradient mode (inputs already log-gradients):
-    
+
     >>> R_smooth = compute_smoothness_prior(
     ...     dlogK_dx, dlogK_dy, dlogSs_dx, dlogSs_dy,
     ...     already_log=True
     ... )
-    
+
     See Also
     --------
     compose_physics_fields
         Produces bounded SI fields ``K_field`` and ``Ss_field`` and
         associated log values for diagnostics and priors.
-    
+
     ensure_si_derivative_frame
         Converts autodiff derivatives to SI-consistent spatial
         derivatives suitable for smoothness penalties.
-    
+
     References
     ----------
     .. [1] Tarantola, A.
        Inverse Problem Theory and Methods for Model Parameter
        Estimation. SIAM (2005).
-    
+
     .. [2] Rasmussen, C. E., and Williams, C. K. I.
        Gaussian Processes for Machine Learning. MIT Press (2006).
     """
 
     # Safe epsilon for division
-    eps_div = tf_constant(1e-6, dtype=tf_float32) 
+    eps_div = tf_constant(1e-6, dtype=tf_float32)
 
     if already_log:
         # Inputs are already d(logK)/dx, etc.
         out = (
-            tf_square(dK_dx) + tf_square(dK_dy)
-            + tf_square(dSs_dx) + tf_square(dSs_dy)
+            tf_square(dK_dx)
+            + tf_square(dK_dy)
+            + tf_square(dSs_dx)
+            + tf_square(dSs_dy)
         )
         vprint(verbose, "smooth(log-direct): out=", out)
         return out
@@ -3709,33 +3869,36 @@ def compute_smoothness_prior(
     if (K_field is not None) and (Ss_field is not None):
         # We want d(logK) = dK / K.
         # STABILITY FIX: Use a larger epsilon or clip K for the denominator only.
-        # A tiny K implies K is essentially zero/impermeable. 
+        # A tiny K implies K is essentially zero/impermeable.
         # We don't want to penalize dK variations when K is 1e-15 vs 1e-16.
-        
+
         K_denom = tf_maximum(K_field, eps_div)
         Ss_denom = tf_maximum(Ss_field, eps_div)
 
-        dlogK_dx  = dK_dx  / K_denom
-        dlogK_dy  = dK_dy  / K_denom
+        dlogK_dx = dK_dx / K_denom
+        dlogK_dy = dK_dy / K_denom
         dlogSs_dx = dSs_dx / Ss_denom
         dlogSs_dy = dSs_dy / Ss_denom
-        
+
         out = (
-            tf_square(dlogK_dx) + tf_square(dlogK_dy)
-            + tf_square(dlogSs_dx) + tf_square(dlogSs_dy)
+            tf_square(dlogK_dx)
+            + tf_square(dlogK_dy)
+            + tf_square(dlogSs_dx)
+            + tf_square(dlogSs_dy)
         )
         vprint(verbose, "smooth(log-div): out=", out)
         return out
 
     # Fallback to raw gradients (rarely used but safe)
-    out = ( 
-        tf_square(dK_dx) 
-        + tf_square(dK_dy) 
-        + tf_square(dSs_dx) 
+    out = (
+        tf_square(dK_dx)
+        + tf_square(dK_dy)
+        + tf_square(dSs_dx)
         + tf_square(dSs_dy)
     )
     vprint(verbose, "smooth(raw): out=", out)
     return out
+
 
 # ---------------------------------------------------------------------
 # Bounds + field composition
@@ -3762,6 +3925,7 @@ def _soft_barrier_l2(
 def _reduce_barrier_mean(v: Tensor) -> Tensor:
     v = tf_where(tf_math.is_finite(v), v, tf_zeros_like(v))
     return tf_reduce_mean(v)
+
 
 def _soft_clip(
     x: Tensor,
@@ -3811,7 +3975,7 @@ def _soft_clip(
 
 #     # replace NaN/Inf with 0 to avoid propagating non-finites
 #     raw_log = tf_where(
-#         tf_math.is_finite(raw_log), raw_log, 
+#         tf_math.is_finite(raw_log), raw_log,
 #         tf_zeros_like(raw_log)
 #     )
 
@@ -3827,6 +3991,7 @@ def _soft_clip(
 #         tf_debugging.assert_all_finite(field,    f"{name} field non-finite")
 
 #     return field, raw_log, log_safe
+
 
 def exp_from_bounds(
     raw_log,
@@ -3871,7 +4036,9 @@ def exp_from_bounds(
         # numeric safety guard-band, but smooth
         lo_g = log_min - tf_constant(guard_f, dtype)
         hi_g = log_max + tf_constant(guard_f, dtype)
-        log_safe = _soft_clip(raw_log, lo_g, hi_g, beta=beta_f)
+        log_safe = _soft_clip(
+            raw_log, lo_g, hi_g, beta=beta_f
+        )
 
         # physical bounds penalty (differentiable)
         pen = _soft_barrier_l2(
@@ -3903,78 +4070,78 @@ def get_log_bounds(
     as_tensor: bool = True,
     dtype=tf_float32,
     verbose: int = 0,
-) -> Tuple[Any, Any, Any, Any]:
+) -> tuple[Any, Any, Any, Any]:
     r"""
     Get validated log-space bounds for K and Ss.
-    
+
     This helper reads bounds from ``model.scaling_kwargs['bounds']``
     and returns a 4-tuple:
-    
+
     ``(logK_min, logK_max, logSs_min, logSs_max)``.
-    
+
     It supports two equivalent representations:
-    
+
     * Direct log-bounds:
       ``logK_min/logK_max`` and ``logSs_min/logSs_max``.
     * Linear bounds converted to logs:
       ``K_min/K_max`` and ``Ss_min/Ss_max``.
-    
+
     If bounds are missing, the function returns
     ``(None, None, None, None)``.
-    
+
     Parameters
     ----------
     model : Any
         Model-like object with an optional ``scaling_kwargs`` dict.
         Bounds are read from ``model.scaling_kwargs['bounds']``.
-    
+
     as_tensor : bool, default=True
         If True, return Tensor scalars created with ``tf_constant``.
         If False, return Python floats.
-    
+
     dtype : tf.DType, default=tf_float32
         Tensor dtype used when ``as_tensor=True``.
-    
+
     verbose : int, default=0
         Verbosity level for optional debug printing.
-    
+
     Returns
     -------
     logK_min, logK_max, logSs_min, logSs_max : tuple
         Log-space bounds as Tensor scalars (if ``as_tensor=True``),
         otherwise Python floats.
-    
+
         If bounds are not configured, returns:
         ``(None, None, None, None)``.
-    
+
     Raises
     ------
     ValueError
         If bounds exist but are invalid, including:
-    
+
         * non-finite values (NaN or inf)
         * non-positive linear bounds (<= 0)
         * unordered bounds (max <= min)
-    
+
     Notes
     -----
     Validation contract
     ~~~~~~~~~~~~~~~~~~~
     This function never emits NaN log bounds. If the configuration
     contains invalid entries, it fails fast with ``ValueError``.
-    
+
     Conversion precedence
     ~~~~~~~~~~~~~~~~~~~~~
     If log-bounds are present, they are used directly. Otherwise,
     the function looks for linear bounds and converts them via:
-    
+
     .. math::
-    
+
        \log K_{\min} = \log(K_{\min}), \quad
        \log K_{\max} = \log(K_{\max}),
-    
+
     and similarly for :math:`S_s`.
-    
+
     Optional Ss heuristic
     ~~~~~~~~~~~~~~~~~~~~
     If ``Ss_min/Ss_max`` appear to be compressibility-like values
@@ -3982,28 +4149,28 @@ def get_log_bounds(
     to :math:`S_s` using :math:`S_s = m_v \gamma_w` when a finite
     ``model.gamma_w`` is available. This heuristic is best-effort
     and never raises by itself.
-    
+
     Examples
     --------
     Use Tensor bounds for downstream math:
-    
+
     >>> logK_min, logK_max, logSs_min, logSs_max = get_log_bounds(
     ...     model, as_tensor=True
     ... )
-    
+
     Return Python floats for inspection:
-    
+
     >>> bounds = get_log_bounds(model, as_tensor=False)
     >>> print(bounds)
-    
+
     See Also
     --------
     get_log_tau_bounds
         Companion helper for tau bounds in log space.
-    
+
     compute_bounds_residual
         Uses these bounds to compute normalized violations.
-    
+
     References
     ----------
     .. [1] Nocedal, J., and Wright, S. J. Numerical Optimization.
@@ -4028,7 +4195,7 @@ def get_log_bounds(
         *,
         name_min: str,
         name_max: str,
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """Validate linear bounds are finite and positive."""
         if (not _is_finite(vmin)) or (not _is_finite(vmax)):
             raise ValueError(
@@ -4053,7 +4220,7 @@ def get_log_bounds(
         *,
         name_min: str,
         name_max: str,
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """Validate log-bounds are finite and ordered."""
         if (not _is_finite(lmin)) or (not _is_finite(lmax)):
             raise ValueError(
@@ -4070,7 +4237,7 @@ def get_log_bounds(
     def _maybe_convert_ss_from_mv(
         vmin: float,
         vmax: float,
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """
         Heuristic: if Ss bounds look like m_v, convert using gamma_w.
 
@@ -4087,8 +4254,11 @@ def get_log_bounds(
                 return vmin, vmax
 
             # mv_config.initial_value is only used as a sanity hint.
-            mv0 = getattr(getattr(model, "mv_config", None),
-                          "initial_value", None)
+            mv0 = getattr(
+                getattr(model, "mv_config", None),
+                "initial_value",
+                None,
+            )
             mv0 = float(mv0) if mv0 is not None else None
 
             ss_exp = (mv0 * gw_f) if mv0 else None
@@ -4115,7 +4285,7 @@ def get_log_bounds(
         log_max_key: str,
         lin_min_key: str,
         lin_max_key: str,
-    ) -> Tuple[Optional[float], Optional[float]]:
+    ) -> tuple[float | None, float | None]:
         """
         Read either log-bounds or linear bounds and return log-bounds.
 
@@ -4145,7 +4315,9 @@ def get_log_bounds(
         vmax = _as_float(b[lin_max_key])
 
         # Optional: detect Ss_min/max passed as m_v.
-        if (lin_min_key == "Ss_min") and (lin_max_key == "Ss_max"):
+        if (lin_min_key == "Ss_min") and (
+            lin_max_key == "Ss_max"
+        ):
             vmin, vmax = _maybe_convert_ss_from_mv(vmin, vmax)
 
         vmin, vmax = _validate_lin_pair(
@@ -4194,20 +4366,20 @@ def get_log_tau_bounds(
     as_tensor: bool = True,
     dtype=tf_float32,
     verbose: int = 0,
-) -> Tuple[Any, Any]:
+) -> tuple[Any, Any]:
     r"""
     Get validated log-space bounds for the consolidation timescale.
-    
+
     This helper returns a 2-tuple:
-    
+
     ``(log_tau_min, log_tau_max)``,
-    
+
     where :math:`\tau` is the consolidation timescale expressed in
     SI seconds, and the returned bounds are in log-seconds.
-    
+
     The function reads bounds from ``model.scaling_kwargs['bounds']``
     with the following precedence:
-    
+
     1. Explicit log bounds:
        ``log_tau_min`` and ``log_tau_max`` (already log-seconds).
     2. Linear bounds in seconds:
@@ -4216,87 +4388,87 @@ def get_log_tau_bounds(
        ``tau_min_units`` and ``tau_max_units`` multiplied by the
        seconds-per-time-unit factor inferred from ``time_units``.
     4. Robust defaults if nothing is provided.
-    
+
     Parameters
     ----------
     model : Any
         Model-like object with an optional ``scaling_kwargs`` dict.
         Tau bounds are read from ``model.scaling_kwargs['bounds']``.
-    
+
     as_tensor : bool, default=True
         If True, return Tensor scalars created with ``tf_constant``.
         If False, return Python floats.
-    
+
     dtype : tf.DType, default=tf_float32
         Tensor dtype used when ``as_tensor=True``.
-    
+
     verbose : int, default=0
         Verbosity level for optional debug printing.
-    
+
     Returns
     -------
     log_tau_min, log_tau_max : tuple
         Log-space bounds (log-seconds). Returned as Tensor scalars
         when ``as_tensor=True``, otherwise as Python floats.
-    
+
     Raises
     ------
     ValueError
         If user-provided bounds exist but are invalid, including:
-    
+
         * non-finite values (NaN or inf)
         * non-positive linear bounds (<= 0)
         * unordered bounds (max <= min) for explicit log bounds
-    
+
     Notes
     -----
     Units and meaning
     ~~~~~~~~~~~~~~~~~
     The consolidation timescale :math:`\tau` controls the relaxation
     rate in a first-order consolidation closure, e.g.:
-    
+
     .. math::
-    
+
        \partial_t s = \frac{s_{eq}(h) - s}{\tau},
-    
+
     where :math:`s` is settlement and :math:`s_{eq}` is the
     equilibrium settlement implied by head (or drawdown).
-    
+
     Default behavior
     ~~~~~~~~~~~~~~~~
     If no tau bounds are provided, robust defaults are used:
-    
+
     * ``tau_min = 7 days``
     * ``tau_max = 300 years``
-    
+
     Both are converted to seconds and then logged. A warning may be
     emitted to make the defaulting explicit.
-    
+
     Swapped linear bounds
     ~~~~~~~~~~~~~~~~~~~~~
     If linear bounds are provided with ``tau_max < tau_min``, the
     function may swap them to maintain a valid interval.
-    
+
     Examples
     --------
     Use Tensor bounds for log-space clipping:
-    
+
     >>> log_tau_min, log_tau_max = get_log_tau_bounds(model)
-    
+
     Return floats for reporting:
-    
+
     >>> log_tau_min, log_tau_max = get_log_tau_bounds(
     ...     model, as_tensor=False
     ... )
-    
+
     See Also
     --------
     get_log_bounds
         Bounds helper for log(K) and log(Ss).
-    
+
     compute_bounds_residual
         Computes normalized bound violations using these limits.
-    
+
     References
     ----------
     .. [1] Terzaghi, K. Theoretical Soil Mechanics. Wiley (1943).
@@ -4310,14 +4482,16 @@ def get_log_tau_bounds(
     def _is_finite(v: float) -> bool:
         return bool(np.isfinite(v))
 
-    def _need_raise(v: Optional[float]) -> bool:
+    def _need_raise(v: float | None) -> bool:
         return (v is not None) and (not _is_finite(float(v)))
 
     # 1) Explicit log-bounds (already in log-seconds).
-    log_min = get_sk(bounds, "log_tau_min",
-                     default=None, cast=float)
-    log_max = get_sk(bounds, "log_tau_max",
-                     default=None, cast=float)
+    log_min = get_sk(
+        bounds, "log_tau_min", default=None, cast=float
+    )
+    log_max = get_sk(
+        bounds, "log_tau_max", default=None, cast=float
+    )
 
     if _need_raise(log_min) or _need_raise(log_max):
         raise ValueError(
@@ -4341,32 +4515,42 @@ def get_log_tau_bounds(
         return out
 
     # 2) Linear tau bounds (seconds).
-    tau_min = get_sk(bounds, "tau_min", default=None, cast=float)
-    tau_max = get_sk(bounds, "tau_max", default=None, cast=float)
+    tau_min = get_sk(
+        bounds, "tau_min", default=None, cast=float
+    )
+    tau_max = get_sk(
+        bounds, "tau_max", default=None, cast=float
+    )
 
     if _need_raise(tau_min) or _need_raise(tau_max):
         raise ValueError("tau_min/tau_max must be finite.")
 
     # 2b) Linear tau bounds in "time_units".
     if (tau_min is None) or (tau_max is None):
-        tau_min_u = get_sk(bounds, "tau_min_units",
-                           default=None, cast=float)
-        tau_max_u = get_sk(bounds, "tau_max_units",
-                           default=None, cast=float)
+        tau_min_u = get_sk(
+            bounds, "tau_min_units", default=None, cast=float
+        )
+        tau_max_u = get_sk(
+            bounds, "tau_max_units", default=None, cast=float
+        )
 
         if _need_raise(tau_min_u) or _need_raise(tau_max_u):
             raise ValueError(
                 "tau_min_units/tau_max_units must be finite."
             )
 
-        if (tau_min_u is not None) and (tau_max_u is not None):
+        if (tau_min_u is not None) and (
+            tau_max_u is not None
+        ):
             tu = (
                 get_sk(sk, "time_units", default=None)
                 or getattr(model, "time_units", None)
                 or "yr"
             )
             key = normalize_time_units(tu)
-            sec_per = float(TIME_UNIT_TO_SECONDS.get(key, 1.0))
+            sec_per = float(
+                TIME_UNIT_TO_SECONDS.get(key, 1.0)
+            )
             tau_min = float(tau_min_u) * sec_per
             tau_max = float(tau_max_u) * sec_per
 
@@ -4398,7 +4582,9 @@ def get_log_tau_bounds(
             f"Got {tau_min}, {tau_max}."
         )
     if tau_max < tau_min:
-        logger.warning("tau_max < tau_min; swapping tau bounds.")
+        logger.warning(
+            "tau_max < tau_min; swapping tau bounds."
+        )
         tau_min, tau_max = tau_max, tau_min
 
     log_min = float(np.log(tau_min))
@@ -4426,61 +4612,61 @@ def bounded_exp(
 ):
     r"""
     Exponentiate a raw parameter inside hard log-bounds.
-    
+
     This helper maps an unconstrained tensor ``raw`` to a positive
     field by interpolating in log space between ``log_min`` and
     ``log_max``. The mapping is smooth and bounded:
-    
+
     .. math::
-    
+
        z = \sigma(\mathrm{raw}), \quad
        \log v = \log v_{min} + z(\log v_{max} - \log v_{min}), \quad
        v = \exp(\log v) + \varepsilon,
-    
+
     where :math:`\sigma` is the logistic sigmoid and
     :math:`\varepsilon` is a small positive floor.
-    
+
     This is used when ``bounds_mode="hard"`` to ensure learned
     fields such as :math:`K`, :math:`S_s`, or :math:`\tau` never
     leave their configured ranges.
-    
+
     Parameters
     ----------
     raw : Tensor
         Unconstrained logit-like tensor (any shape). Non-finite
         entries are sanitized to zeros to avoid NaN propagation.
-    
+
     log_min : Tensor
         Lower bound in log space. Must be finite for strict
         correctness, but non-finite values are sanitized to a safe
         constant to prevent NaNs.
-    
+
     log_max : Tensor
         Upper bound in log space. Must be finite for strict
         correctness, but non-finite values are sanitized to a safe
         constant to prevent NaNs.
-    
+
     eps : float, default=_EPSILON
         Positive floor added after exponentiation to guarantee
         strictly positive output.
-    
+
     return_log : bool, default=False
         If True, return ``(out, logv)`` where ``logv`` is the bounded
         log value actually exponentiated. If False, return ``out``
         only.
-    
+
     verbose : int, default=0
         Verbosity level for optional debug printing.
-    
+
     Returns
     -------
     out : Tensor
         Positive bounded field tensor with the same shape as ``raw``.
-    
+
     logv : Tensor, optional
         Bounded log value used to compute ``out``. Returned only
         when ``return_log=True``.
-    
+
     Notes
     -----
     Hard bounds via sigmoid
@@ -4488,39 +4674,39 @@ def bounded_exp(
     The sigmoid interpolation produces values strictly inside the
     interval (up to numerical precision). This avoids the gradient
     discontinuity of direct clipping while still enforcing bounds.
-    
+
     Sanitization policy
     ~~~~~~~~~~~~~~~~~~~
     To prevent NaNs and Infs from contaminating training, the
     function sanitizes:
-    
+
     * non-finite values in ``raw`` to zeros,
     * non-finite values in bounds to safe constants,
     * swapped bounds by repairing the interval ordering.
-    
+
     This behavior is defensive and prioritizes numerical stability.
-    
+
     Examples
     --------
     Bound a raw logit field to the K interval:
-    
+
     >>> K, logK = bounded_exp(
     ...     rawK, logK_min, logK_max, return_log=True
     ... )
-    
+
     Bound a tau field (already in log seconds bounds):
-    
+
     >>> tau = bounded_exp(raw_tau, log_tau_min, log_tau_max)
-    
+
     See Also
     --------
     guarded_exp_from_bounds
         Soft-bounds path that keeps raw logs for penalties while
         guarding exponentiation overflow.
-    
+
     compose_physics_fields
         Uses bounded_exp to build K, Ss, and tau fields.
-    
+
     References
     ----------
     .. [1] Goodfellow, I., Bengio, Y., and Courville, A. Deep
@@ -4532,7 +4718,9 @@ def bounded_exp(
 
     # Sanitize inputs to avoid NaN propagation.
     raw = tf_cast(raw, tf_float32)
-    raw = tf_where(tf_math.is_finite(raw), raw, tf_zeros_like(raw))
+    raw = tf_where(
+        tf_math.is_finite(raw), raw, tf_zeros_like(raw)
+    )
 
     log_min = tf_cast(log_min, tf_float32)
     log_max = tf_cast(log_max, tf_float32)
@@ -4578,14 +4766,16 @@ def finite_floor(x: Tensor, eps: float) -> Tensor:
     x = tf_where(tf_math.is_finite(x), x, eps_t)
     return tf_maximum(x, eps_t)
 
+
 def _finite_or_zero(x: Tensor) -> Tensor:
     x = tf_cast(x, tf_float32)
     return tf_where(tf_math.is_finite(x), x, tf_zeros_like(x))
 
+
 def _get_bounds_loss_cfg(
     model: Any = None,
-    scaling_kwargs: Optional[dict] = None,
-) -> Dict[str, Any]:
+    scaling_kwargs: dict | None = None,
+) -> dict[str, Any]:
     def _as_map(x: Any) -> Mapping[str, Any]:
         return x if isinstance(x, Mapping) else {}
 
@@ -4594,7 +4784,9 @@ def _get_bounds_loss_cfg(
             return default
         return getattr(model, name, default)
 
-    def _take(sk: Mapping[str, Any], key: str, cur: Any) -> Any:
+    def _take(
+        sk: Mapping[str, Any], key: str, cur: Any
+    ) -> Any:
         # If user/profile put None by mistake, ignore it
         if key in sk:
             v = sk.get(key)
@@ -4610,26 +4802,26 @@ def _get_bounds_loss_cfg(
     mode = _attr("bounds_mode", "soft")
     kind = _attr("bounds_loss_kind", "both")
 
-    beta  = _attr("bounds_beta", 20.0)
+    beta = _attr("bounds_beta", 20.0)
     guard = _attr("bounds_guard", 5.0)
-    w_b   = _attr("bounds_w", 1.0)
+    w_b = _attr("bounds_w", 1.0)
 
     inc_tau = _attr("bounds_include_tau", True)
-    w_tau   = _attr("bounds_tau_w", 1.0)
+    w_tau = _attr("bounds_tau_w", 1.0)
 
     sources = [sk_model, sk_arg]
 
     # 1) flat keys
     for sk in sources:
-        mode  = _take(sk, "bounds_mode", mode)
-        kind  = _take(sk, "bounds_loss_kind", kind)
+        mode = _take(sk, "bounds_mode", mode)
+        kind = _take(sk, "bounds_loss_kind", kind)
 
-        beta  = _take(sk, "bounds_beta", beta)
+        beta = _take(sk, "bounds_beta", beta)
         guard = _take(sk, "bounds_guard", guard)
-        w_b   = _take(sk, "bounds_w", w_b)
+        w_b = _take(sk, "bounds_w", w_b)
 
         inc_tau = _take(sk, "bounds_include_tau", inc_tau)
-        w_tau   = _take(sk, "bounds_tau_w", w_tau)
+        w_tau = _take(sk, "bounds_tau_w", w_tau)
 
     # 2) nested dict
     nested_keys = (
@@ -4651,15 +4843,15 @@ def _get_bounds_loss_cfg(
         if not isinstance(nested, Mapping):
             continue
 
-        mode  = _take(nested, "mode", mode)
-        kind  = _take(nested, "kind", kind)
+        mode = _take(nested, "mode", mode)
+        kind = _take(nested, "kind", kind)
 
-        beta  = _take(nested, "beta", beta)
+        beta = _take(nested, "beta", beta)
         guard = _take(nested, "guard", guard)
-        w_b   = _take(nested, "w", w_b)
+        w_b = _take(nested, "w", w_b)
 
         inc_tau = _take(nested, "include_tau", inc_tau)
-        w_tau   = _take(nested, "tau_w", w_tau)
+        w_tau = _take(nested, "tau_w", w_tau)
 
     mode = str(mode).strip().lower()
     kind = str(kind).strip().lower()
@@ -4673,6 +4865,7 @@ def _get_bounds_loss_cfg(
         include_tau=bool(inc_tau),
         tau_w=float(w_tau),
     )
+
 
 def compose_physics_fields(
     model,
@@ -4921,7 +5114,7 @@ def compose_physics_fields(
     """
 
     bc = _get_bounds_loss_cfg(model)
-    
+
     mode = bc["mode"]
     beta = bc["beta"]
     guard = bc["guard"]
@@ -4936,14 +5129,23 @@ def compose_physics_fields(
         tf_print_nonfinite("compose/tau_base", tau_base)
 
     coords_xy0 = tf_concat(
-        [tf_zeros_like(coords_flat[..., :1]), coords_flat[..., 1:]],
+        [
+            tf_zeros_like(coords_flat[..., :1]),
+            coords_flat[..., 1:],
+        ],
         axis=-1,
     )
     coords_xy0 = _finite_or_zero(coords_xy0)
-    
-    K_corr = _finite_or_zero(model.K_coord_mlp(coords_xy0, training=training))
-    Ss_corr = _finite_or_zero(model.Ss_coord_mlp(coords_xy0, training=training))
-    tau_corr = _finite_or_zero(model.tau_coord_mlp(coords_xy0, training=training))
+
+    K_corr = _finite_or_zero(
+        model.K_coord_mlp(coords_xy0, training=training)
+    )
+    Ss_corr = _finite_or_zero(
+        model.Ss_coord_mlp(coords_xy0, training=training)
+    )
+    tau_corr = _finite_or_zero(
+        model.tau_coord_mlp(coords_xy0, training=training)
+    )
 
     if verbose > 6:
         tf_print_nonfinite("compose/K_corr", K_corr)
@@ -4954,9 +5156,12 @@ def compose_physics_fields(
     rawSs = Ss_base + Ss_corr
 
     # bounds_mode = str(getattr(model, "bounds_mode", "soft")).strip().lower()
-    
+
     logK_min, logK_max, logSs_min, logSs_max = get_log_bounds(
-        model, as_tensor=True, dtype=rawK.dtype, verbose=verbose,
+        model,
+        as_tensor=True,
+        dtype=rawK.dtype,
+        verbose=verbose,
     )
     # # ---- K, Ss  ----
     # if bounds_mode == "hard":
@@ -4973,15 +5178,14 @@ def compose_physics_fields(
     #     # Keep raw log-params (useful for priors/diagnostics),
     #     # but NEVER feed an unbounded log into exp() in float32.
     #     K_field,  logK,  _ = guarded_exp_from_bounds(
-    #         rawK,  logK_min,  logK_max, eps=eps_KSs, 
+    #         rawK,  logK_min,  logK_max, eps=eps_KSs,
     #         guard=5.0, name="K"
     #     )
     #     Ss_field, logSs, _ = guarded_exp_from_bounds(
     #         rawSs, logSs_min, logSs_max,eps=eps_KSs,
     #         guard=5.0, name="Ss"
     #     )
-    
-    
+
     # ---- K, Ss (policy-driven) ----
     K_field, logK_raw, logK_safe, pK = exp_from_bounds(
         rawK,
@@ -4994,7 +5198,7 @@ def compose_physics_fields(
         dtype=rawK.dtype,
         name="K",
     )
-    
+
     Ss_field, logSs_raw, logSs_safe, pS = exp_from_bounds(
         rawSs,
         logSs_min,
@@ -5006,7 +5210,7 @@ def compose_physics_fields(
         dtype=rawSs.dtype,
         name="Ss",
     )
-    
+
     # What to return as "logK/logSs" depends on policy:
     # - soft/none: return raw (useful for penalties/diagnostics)
     # - hard/sigmoid: return safe (already within bounds)
@@ -5016,37 +5220,50 @@ def compose_physics_fields(
     else:
         logK = logK_safe
         logSs = logSs_safe
-    
+
     loss_bounds_KSs = tf_constant(float(w_b), rawK.dtype) * (
-        _reduce_barrier_mean(pK) +
-        _reduce_barrier_mean(pS)
+        _reduce_barrier_mean(pK) + _reduce_barrier_mean(pS)
     )
-    
+
     # Optional: keep the asserts, but now they won't trip from exp overflow.
-    tf_debugging.assert_all_finite(logK,    "rawK/logK non-finite")
-    tf_debugging.assert_all_finite(logSs,   "rawSs/logSs non-finite")
-    tf_debugging.assert_all_finite(K_field, "K_field non-finite")
-    tf_debugging.assert_all_finite(Ss_field,"Ss_field non-finite")
-    
+    tf_debugging.assert_all_finite(
+        logK, "rawK/logK non-finite"
+    )
+    tf_debugging.assert_all_finite(
+        logSs, "rawSs/logSs non-finite"
+    )
+    tf_debugging.assert_all_finite(
+        K_field, "K_field non-finite"
+    )
+    tf_debugging.assert_all_finite(
+        Ss_field, "Ss_field non-finite"
+    )
+
     # ---- tau ( log-space composition + bounds) ----
     delta_log_tau = _finite_or_zero(tau_base + tau_corr)
 
     if verbose > 6:
         tf_print_nonfinite("compose/rawK", rawK)
         tf_print_nonfinite("compose/rawSs", rawSs)
-        tf_print_nonfinite("compose/delta_log_tau", delta_log_tau)
+        tf_print_nonfinite(
+            "compose/delta_log_tau", delta_log_tau
+        )
 
     # 1. Capture output as LOG value (because return_log=True)
     log_tau_phys, Hd_eff = tau_phys_from_fields(
-        model, K_field, Ss_field, H_si, return_log=True, 
+        model,
+        K_field,
+        Ss_field,
+        H_si,
+        return_log=True,
         verbose=0,
     )
-    
+
     # 2. Calculate linear tau_phys safely from log (for logging/debugging)
     tau_phys = tf_exp(log_tau_phys)
-    
+
     # ---- tau (policy-driven) ----
-    
+
     # 3. Calculate total log directly (avoiding re-logging the exp)
     #    Previous bad logic: log(max(exp(log_x), eps)) -> redundant and lossy
     #    New logic: just add the logs directly.
@@ -5058,7 +5275,7 @@ def compose_physics_fields(
         dtype=log_tau_total.dtype,
         verbose=0,
     )
-    
+
     # if bounds_mode == "hard":
     #     # true hard bounds: clip in log-space (keeps tau_phys anchoring)
     #     log_tau = tf_clip_by_value(log_tau_total, log_tau_min, log_tau_max)
@@ -5072,7 +5289,7 @@ def compose_physics_fields(
     #     log_tau_safe = tf_clip_by_value(log_tau, guard_lo, guard_hi)
 
     #     tau_field = tf_exp(log_tau_safe) + tf_constant(eps_tau, log_tau.dtype)
-    
+
     tau_field, logTau_raw, logTau_safe, pT = exp_from_bounds(
         log_tau_total,
         log_tau_min,
@@ -5084,27 +5301,31 @@ def compose_physics_fields(
         dtype=log_tau_total.dtype,
         name="tau",
     )
-    
+
     if mode in ("soft", "none"):
         log_tau = logTau_raw
     else:
         log_tau = logTau_safe
-    
+
     loss_bounds_tau = tf_zeros_like(loss_bounds_KSs)
-    
+
     if include_tau:
-        loss_bounds_tau = tf_constant(float(w_tau), log_tau.dtype) * (
-            _reduce_barrier_mean(pT)
-        )
-    
+        loss_bounds_tau = tf_constant(
+            float(w_tau), log_tau.dtype
+        ) * (_reduce_barrier_mean(pT))
+
     loss_bounds = loss_bounds_KSs + loss_bounds_tau
 
     if verbose > 6:
         tf_print_nonfinite("compose/K_field", K_field)
         tf_print_nonfinite("compose/Ss_field", Ss_field)
         tf_print_nonfinite("compose/tau_phys", tau_phys)
-        tf_print_nonfinite("compose/log_tau_phys", log_tau_phys)
-        tf_print_nonfinite("compose/log_tau_total", log_tau_total)
+        tf_print_nonfinite(
+            "compose/log_tau_phys", log_tau_phys
+        )
+        tf_print_nonfinite(
+            "compose/log_tau_total", log_tau_total
+        )
         tf_print_nonfinite("compose/tau_field", tau_field)
 
     vprint(verbose, "fields: K=", K_field)
@@ -5121,10 +5342,11 @@ def compose_physics_fields(
         delta_log_tau,
         logK,
         logSs,
-        log_tau,        # return log_tau for bounds penalty + diagnostics
-        log_tau_phys,   # optional but very useful for priors/diagnostics
+        log_tau,  # return log_tau for bounds penalty + diagnostics
+        log_tau_phys,  # optional but very useful for priors/diagnostics
         loss_bounds,
     )
+
 
 def _log_bounds_residual(
     logv: Tensor,
@@ -5175,59 +5397,59 @@ def compute_bounds_residual(
     model: Any,
     *,
     H_field: Tensor,
-    logK: Optional[Tensor] = None,
-    logSs: Optional[Tensor] = None,
-    log_tau: Optional[Tensor] = None,
-    K_field: Optional[Tensor] = None,
-    Ss_field: Optional[Tensor] = None,
-    tau_field: Optional[Tensor] = None,
-    eps: float = _EPSILON, 
+    logK: Tensor | None = None,
+    logSs: Tensor | None = None,
+    log_tau: Tensor | None = None,
+    K_field: Tensor | None = None,
+    Ss_field: Tensor | None = None,
+    tau_field: Tensor | None = None,
+    eps: float = _EPSILON,
     verbose: int = 0,
 ) -> tuple[Tensor, Tensor, Tensor, Tensor]:
     r"""
     Compute differentiable bound-violation residuals for the learned
     physics fields.
-    
+
     This function converts configured parameter bounds into *residual
     maps* that can be squared and averaged to form a soft penalty term
     (e.g., :math:`L_\mathrm{bounds} = \mathrm{mean}(R^2)`).
-    
+
     The bounds policy is driven by ``model.scaling_kwargs['bounds']`` and
     supports:
-    
+
     * Linear-space bounds for drained thickness :math:`H` (meters).
     * Log-space bounds for :math:`K`, :math:`S_s`, and :math:`\tau`.
-    
+
     The returned residuals are normalized by the corresponding bound
     ranges, so they are roughly comparable across parameters.
-    
+
     Mathematical formulation
     ------------------------
     Let :math:`z` be a scalar parameter with bounds
     :math:`z_{\min} \le z \le z_{\max}`. A standard non-negative violation
     is:
-    
+
     .. math::
-    
+
        v(z) = \max(z_{\min} - z, 0) + \max(z - z_{\max}, 0).
-    
+
     This function returns a *range-normalized* residual:
-    
+
     .. math::
-    
+
        R(z) = \frac{v(z)}{\max(z_{\max} - z_{\min}, \varepsilon)}.
-    
+
     For log-bounded parameters (conductivity, storage, and timescale), the
     same definition is applied in log space. For example, if
     :math:`\ell_K = \log K`, then:
-    
+
     .. math::
-    
+
        R_K = R(\ell_K; \ell_{K,\min}, \ell_{K,\max}),
-    
+
     where :math:`\ell_{K,\min} = \log K_{\min}` and
     :math:`\ell_{K,\max} = \log K_{\max}`.
-    
+
     Preferred usage in soft bounds mode
     -----------------------------------
     When ``bounds_mode="soft"``, it is preferable to pass the raw log
@@ -5235,23 +5457,23 @@ def compute_bounds_residual(
     "guarded exponential" is applied. This ensures that the penalty
     reflects the true magnitude of out-of-range logits, even if the
     corresponding fields are exponentiated using an overflow guard.
-    
+
     If raw logs are not provided, the function falls back to inferring
     logs from the fields via ``log(max(field, eps))``. This is safe, but
     may under-estimate violations if the field values were produced by a
     guarded mapping.
-    
+
     Parameters
     ----------
     model : Any
         Model-like object providing:
-    
+
         * ``scaling_kwargs`` with optional bounds + bounds policy keys.
         * Accessors used by ``get_log_bounds`` and ``get_log_tau_bounds``.
         * (Optional) pre-resolved bound tensors cached by the model.
-    
+
         Bounds configuration is read from ``model.scaling_kwargs``:
-    
+
         * ``bounds`` (dict): numeric ranges such as ``H_min/H_max``,
           ``K_min/K_max`` or ``logK_min/logK_max``, similarly for
           ``Ss`` and optionally ``tau``.
@@ -5266,64 +5488,64 @@ def compute_bounds_residual(
         Drained thickness field :math:`H` in SI meters. Shape must be
         broadcastable to ``(B, H, 1)``. Bounds are applied in linear space
         using keys ``H_min`` and ``H_max`` when present.
-    
+
     logK : Tensor, optional
         Log-conductivity :math:`\log K` (preferred). If provided, bounds
         are applied directly in log space and ``K_field`` is not needed.
-    
+
     logSs : Tensor, optional
         Log-specific storage :math:`\log S_s` (preferred). If provided,
         bounds are applied directly in log space and ``Ss_field`` is not
         needed.
-    
+
     log_tau : Tensor, optional
         Log-timescale :math:`\log \tau` in seconds (preferred). If
         provided, bounds are applied directly in log space and
         ``tau_field`` is not needed.
-    
+
     K_field : Tensor, optional
         Conductivity field :math:`K` (meters per second). Used only if
         ``logK`` is not provided.
-    
+
     Ss_field : Tensor, optional
         Specific storage field :math:`S_s` (inverse meters). Used only if
         ``logSs`` is not provided.
-    
+
     tau_field : Tensor, optional
         Timescale field :math:`\tau` (seconds). Used only if ``log_tau`` is
         not provided.
-    
+
     eps : float, default=_EPSILON
         Small positive constant used to avoid division by zero and
         undefined logs, via :math:`\max(\cdot, \varepsilon)`.
-    
+
     verbose : int, default=0
         Verbosity level for optional debug printing.
-    
+
     Returns
     -------
     R_H : Tensor
         Residual map for thickness bounds violations. Same shape as
         ``H_field`` (broadcasted as needed). All values are non-negative.
-    
+
     R_K : Tensor
         Residual map for conductivity log-bounds violations. Same shape as
         ``H_field`` (broadcasted as needed). All values are non-negative.
-    
+
     R_Ss : Tensor
         Residual map for specific storage log-bounds violations. Same
         shape as ``H_field`` (broadcasted as needed). All values are
         non-negative.
-    
+
     R_tau : Tensor
         Residual map for timescale log-bounds violations. Same shape as
         ``H_field`` (broadcasted as needed). All values are non-negative.
-        
+
     loss_bounds_barrier : Tensor
         Non-negative scalar barrier penalty induced by the configured
         bounds policy (typically K/Ss and optionally tau). This is the
         *barrier component only*.
-    
+
         Notes
         -----
         Any *residual-style* bound penalty (range-normalized violation
@@ -5336,43 +5558,43 @@ def compute_bounds_residual(
     Bounds configuration
     ~~~~~~~~~~~~~~~~~~~~
     The function reads bounds from:
-    
+
     * ``model.scaling_kwargs.get('bounds', {})`` for ``H_min`` and ``H_max``.
     * ``get_log_bounds(model, ...)`` for log-space bounds of :math:`K` and
       :math:`S_s` (typically ``logK_min``, ``logK_max``, ``logSs_min``,
       ``logSs_max``).
     * ``get_log_tau_bounds(model, ...)`` for log-space bounds of
       :math:`\tau` (typically ``logTau_min`` and ``logTau_max``).
-    
+
     1) Linear-space bounds (thickness)
        * ``scaling_kwargs['bounds']['H_min']`` and
          ``scaling_kwargs['bounds']['H_max']`` (meters)
-    
+
     2) Log-space bounds (K and Ss)
        Bounds are resolved by ``get_log_bounds(model, ...)``, which
        may be backed by any of the following configuration entries:
-    
+
        * Direct log bounds:
          ``bounds['logK_min']`` / ``bounds['logK_max']``,
          ``bounds['logSs_min']`` / ``bounds['logSs_max']``
-    
+
        * Or linear bounds that can be converted to logs:
          ``bounds['K_min']`` / ``bounds['K_max']``,
          ``bounds['Ss_min']`` / ``bounds['Ss_max']``
-    
+
     3) Log-space bounds (tau)
        Bounds are resolved by ``get_log_tau_bounds(model, ...)``,
        typically from:
-    
+
        * Direct log bounds:
          ``bounds['logTau_min']`` / ``bounds['logTau_max']``
-    
+
        * Or linear bounds convertible to logs:
          ``bounds['tau_min']`` / ``bounds['tau_max']``
-    
+
     If a bound is missing (or the accessor returns ``None``),
     the corresponding residual is returned as zeros.
-    
+
     Interaction with bounds policy
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Keys such as ``bounds_mode``, ``bounds_beta``, ``bounds_guard``,
@@ -5394,11 +5616,11 @@ def compute_bounds_residual(
     Debugging tip
     ~~~~~~~~~~~~~
     To debug bounds behavior, log the two components separately:
-    
+
     * ``loss_bounds_resid`` from these residual maps:
       ``mean(square(concat([R_H, R_K, R_Ss, R_tau])))``
     * ``loss_bounds_barrier`` returned by ``compose_physics_fields``
-    
+
     Then feed only their configured combination into the final
     physics loss according to ``bounds_loss_kind``.
 
@@ -5406,7 +5628,7 @@ def compute_bounds_residual(
     Examples
     --------
     Compute residuals from raw logs (recommended in soft mode):
-    
+
     >>> R_H, R_K, R_Ss, R_tau = compute_bounds_residual(
     ...     model,
     ...     H_field=H_si,
@@ -5414,9 +5636,9 @@ def compute_bounds_residual(
     ...     logSs=logSs,
     ...     log_tau=log_tau,
     ... )
-    
+
     Fallback when only fields are available:
-    
+
     >>> R_H, R_K, R_Ss, R_tau = compute_bounds_residual(
     ...     model,
     ...     H_field=H_si,
@@ -5424,29 +5646,29 @@ def compute_bounds_residual(
     ...     Ss_field=Ss_field,
     ...     tau_field=tau_field,
     ... )
-    
+
     Create a scalar penalty:
-    
+
     >>> bounds_res = tf_concat([R_H, R_K, R_Ss, R_tau], axis=-1)
     >>> loss_bounds = tf_reduce_mean(tf_square(bounds_res))
-    
+
     See Also
     --------
     compose_physics_fields
         Produces both raw logs and exponentiated fields.
-    
+
     get_log_bounds, get_log_tau_bounds
         Retrieve log-space bounds for :math:`K`, :math:`S_s`, and
         :math:`\tau`.
-    
+
     _log_bounds_residual
         Internal helper that converts log-values to normalized residuals.
-    
+
     References
     ----------
     .. [1] Nocedal, J., and Wright, S. J. Numerical Optimization.
        Springer (2006).
-    
+
     .. [2] Boyd, S., and Vandenberghe, L. Convex Optimization.
        Cambridge University Press (2004).
     """
@@ -5500,7 +5722,9 @@ def compute_bounds_residual(
             if K_field is None:
                 R_K = tf_zeros_like(H_safe)
             else:
-                K_safe = tf_maximum(tf_cast(K_field, dtype), eps_t)
+                K_safe = tf_maximum(
+                    tf_cast(K_field, dtype), eps_t
+                )
                 logK_hat = tf_math.log(K_safe)
                 R_K = _log_bounds_residual(
                     logK_hat,
@@ -5559,7 +5783,9 @@ def compute_bounds_residual(
             name="tau",
         )
     elif tau_field is not None:
-        tau_safe = tf_maximum(tf_cast(tau_field, dtype), eps_t)
+        tau_safe = tf_maximum(
+            tf_cast(tau_field, dtype), eps_t
+        )
         log_tau_hat = tf_math.log(tau_safe)
         R_tau = _log_bounds_residual(
             log_tau_hat,
@@ -5578,17 +5804,18 @@ def compute_bounds_residual(
 
     return R_H, R_K, R_Ss, R_tau
 
+
 def _compute_bounds_residual(
     model,
     K_field: Tensor,
     Ss_field: Tensor,
     H_field: Tensor,
     *,
-    eps:float=1e-12, 
+    eps: float = 1e-12,
     verbose: int = 0,
-) -> Tuple[Tensor, Tensor, Tensor]:
+) -> tuple[Tensor, Tensor, Tensor]:
     """Bounds residuals for H,K,Ss.
-    
+
     Preferred usage in soft bounds mode
     -----------------------------------
     When ``model.scaling_kwargs['bounds_mode'] == 'soft'``, the
@@ -5596,7 +5823,7 @@ def _compute_bounds_residual(
     computed inside ``compose_physics_fields``) while the forward
     mapping from logits to fields may also use a numeric guard
     (e.g. ``bounds_guard``) to prevent overflow.
-    
+
     For the most informative residual-style diagnostics, pass the
     *raw* log-parameters (``logK``, ``logSs``, ``log_tau``) produced
     *before* any guarded exponential / squashing is applied. This
@@ -5604,13 +5831,13 @@ def _compute_bounds_residual(
     raw parameters from the configured log-bounds, even if the
     corresponding physical fields were produced by a guarded
     mapping.
-    
+
     If raw logs are not provided, the function falls back to
     inferring logs from the fields via ``log(max(field, eps))``.
     This is numerically safe, but it can *under-estimate*
     violations when the forward mapping clips or guards extreme
     values (e.g. due to ``bounds_guard`` or hard/sigmoid modes).
-    
+
     Important
     ~~~~~~~~~
     ``compute_bounds_residual`` always returns *violation residuals*
@@ -5619,7 +5846,7 @@ def _compute_bounds_residual(
     (1) the residual penalty derived from these residual maps and
     (2) the barrier penalty returned by ``compose_physics_fields``,
     according to ``scaling_kwargs['bounds_loss_kind']``.
-    
+
     """
     dtype = K_field.dtype
     eps = tf_constant(eps, dtype=dtype)
@@ -5628,7 +5855,7 @@ def _compute_bounds_residual(
     K_safe = tf_maximum(K_field, eps)
     Ss_safe = tf_maximum(Ss_field, eps)
     H_safe = tf_maximum(H_field, eps)
-    
+
     bounds_cfg = (model.scaling_kwargs or {}).get(
         "bounds",
         {},
@@ -5686,7 +5913,7 @@ def _compute_bounds_residual(
         R_Ss = tf_zeros_like(Ss_safe)
     else:
         R_Ss = log_bound(Ss_safe, logSs_min, logSs_max)
-    
+
     if verbose > 6:
         vprint(verbose, "bounds: R_H=", R_H)
         vprint(verbose, "bounds: R_K=", R_K)
@@ -5704,51 +5931,51 @@ def guard_scale_with_residual(
 ) -> Tensor:
     r"""
     Guard a residual scale using the observed residual magnitude.
-    
+
     This helper prevents residual normalization from exploding
     when a nominal scale is too small compared with the actual
     residual values observed on the current batch.
-    
+
     Mathematical intent
     -------------------
     Given a residual tensor :math:`r` and a proposed scale
     :math:`s`, this function produces a guarded scale
     :math:`\hat{s}` such that:
-    
+
     .. math::
-    
+
        \hat{s} \ge s_{floor}
-    
+
     and also:
-    
+
     .. math::
-    
+
        \hat{s} \ge r_{ref}
-    
+
     .. math::
-    
+
        \hat{s} \ge 0.1\, r_{max}
-    
+
     where:
-    
+
     .. math::
-    
+
        r_{ref} = \mathrm{mean}(|r|) + \varepsilon
-    
+
     .. math::
-    
+
        r_{max} = \mathrm{max}(|r|) + \varepsilon
-    
+
     This ensures the normalized residual:
-    
+
     .. math::
-    
+
        \tilde{r} = \frac{r}{\hat{s}}
-    
+
     is not arbitrarily large solely because the scale estimate
     collapsed (for example, due to degenerate dt, missing
     features, or transient NaN handling upstream).
-    
+
     Key properties
     --------------
     * Robust to NaN/Inf in ``residual`` and ``scale``:
@@ -5758,31 +5985,31 @@ def guard_scale_with_residual(
       cannot reduce loss by manipulating the scale path.
     * Uses both a typical magnitude (mean) and a tail proxy
       (max) to avoid under-scaling when outliers occur.
-    
+
     Parameters
     ----------
     residual : Tensor
         Residual tensor :math:`r`. Any shape is accepted.
         Values are flattened internally to compute statistics.
-    
+
     scale : Tensor
         Proposed residual scale :math:`s`. May be scalar-like
         (recommended). If non-finite, it is replaced by
         ``floor``.
-    
+
     floor : float
         Minimal allowed scale :math:`s_{floor}`. This protects
         against division by tiny values.
-    
+
     eps : float, default=_EPSILON
         Small positive constant :math:`\varepsilon` added to the
         residual statistics to prevent zero magnitudes.
-    
+
     Returns
     -------
     scale_guarded : Tensor
         Guarded scale :math:`\hat{s}` with stop-gradient applied.
-    
+
     Notes
     -----
     Why guard against residual magnitude
@@ -5791,19 +6018,19 @@ def guard_scale_with_residual(
     nearly constant series) it may become very small. Dividing
     a non-trivial residual by that small scale can dominate the
     training objective and destabilize optimization.
-    
+
     Why the 0.1 * max term
     ~~~~~~~~~~~~~~~~~~~~~~
     The mean alone can underestimate the needed scale when
     residuals have heavy tails or occasional spikes. Including a
     fraction of the max provides a simple tail-sensitive guard.
-    
+
     Examples
     --------
     This function is typically used before scaling residuals:
-    
+
     .. code-block:: python
-    
+
        scale_gw = _gw_scale_core(...)
        scale_gw = guard_scale_with_residual(
            residual=R_gw,
@@ -5811,15 +6038,15 @@ def guard_scale_with_residual(
            floor=1e-8,
        )
        R_gw_scaled = scale_residual(R_gw, scale_gw)
-    
+
     See Also
     --------
     scale_residual
         Divide a residual by a stop-gradient scale safely.
-    
+
     to_rms
         Compute RMS magnitudes when you want RMS-based scaling.
-    
+
     References
     ----------
     .. [1] Goodfellow, I., Bengio, Y., and Courville, A.
@@ -5846,58 +6073,60 @@ def guard_scale_with_residual(
 
     return tf_stop_gradient(tf_maximum(s, floor_t))
 
+
 def scale_residual(
-    residual: Tensor, 
-    scale: Tensor, *, 
-    floor: float = _EPSILON
- ) -> Tensor:
+    residual: Tensor,
+    scale: Tensor,
+    *,
+    floor: float = _EPSILON,
+) -> Tensor:
     r"""
     Scale a residual by a (guarded) normalization factor.
-    
+
     This helper divides a residual tensor by a positive scale,
     with strict safeguards against non-finite or tiny scales.
     The scale is treated as a constant with respect to
     backpropagation (stop-gradient).
-    
+
     Mathematical definition
     -----------------------
     Given a residual :math:`r` and a scale :math:`s`, the scaled
     residual is:
-    
+
     .. math::
-    
+
        \tilde{r} = \frac{r}{\hat{s} + \varepsilon}
-    
+
     where:
-    
+
     .. math::
-    
+
        \hat{s} = \mathrm{stop\_grad}(\max(s, s_{floor}))
-    
+
     and any non-finite :math:`s` is replaced by :math:`s_{floor}`
     before flooring.
-    
+
     This ensures that :math:`\tilde{r}` remains finite and that
     gradients flow only through :math:`r`, not through the scale.
-    
+
     Parameters
     ----------
     residual : Tensor
         Residual tensor :math:`r` to normalize.
-    
+
     scale : Tensor
         Scale tensor :math:`s` (typically scalar-like). If it is
         NaN/Inf, it is replaced with ``floor``.
-    
+
     floor : float, default=_EPSILON
         Minimal allowed scale :math:`s_{floor}`.
-    
+
     Returns
     -------
     residual_scaled : Tensor
         Scaled residual :math:`\tilde{r}` with the same shape as
         ``residual``.
-    
+
     Notes
     -----
     Use with guard_scale_with_residual
@@ -5906,31 +6135,31 @@ def scale_residual(
     it can occasionally be too small. In that case, call
     :func:`guard_scale_with_residual` first to ensure the scale
     is consistent with observed residual magnitudes.
-    
+
     Why stop-gradient
     ~~~~~~~~~~~~~~~~~
     Residual scaling is a conditioning tool. Allowing gradients
     to adjust the scale can create degenerate solutions where
     the model inflates the scale instead of reducing the
     residual.
-    
+
     Examples
     --------
     .. code-block:: python
-    
+
        s = _finite_or_zero(scale_est)
        s = guard_scale_with_residual(R, s, floor=1e-8)
        R_scaled = scale_residual(R, s, floor=1e-8)
-    
+
     See Also
     --------
     guard_scale_with_residual
         Strengthen a scale using residual statistics.
-    
+
     compute_scales
         Compute robust scales for consolidation and groundwater
         residuals.
-    
+
     References
     ----------
     .. [1] Bottou, L., Curtis, F. E., and Nocedal, J.
@@ -5946,7 +6175,10 @@ def scale_residual(
 
     s = tf_maximum(s, f)
     s = tf_stop_gradient(s)
-    return residual / (s + tf_constant(_EPSILON, residual.dtype))
+    return residual / (
+        s + tf_constant(_EPSILON, residual.dtype)
+    )
+
 
 def _cons_scale_core(
     *,
@@ -5965,227 +6197,227 @@ def _cons_scale_core(
 ) -> Tensor:
     r"""
     Compute the consolidation residual scale.
-    
+
     This helper builds a robust, positive scale used to
     non-dimensionalize (or weight) the consolidation residual.
     It is designed to be stable under noisy early training,
     variable horizons, and occasional non-finite values.
-    
+
     The scale is a stop-gradient quantity. It is computed from
     simple batch statistics so that it adapts to the magnitude
     of the current batch while not injecting gradients back into
     the model through the normalization path.
-    
+
     Mathematical intent
     -------------------
     Let :math:`s_{b,t}` be the settlement state (m) for batch
     index :math:`b` and time index :math:`t` over a horizon
     length :math:`H`.
-    
+
     A consolidation residual is typically expressed as either:
-    
+
     1) step form (meters per step)
-    
+
     .. math::
-    
+
        R_{cons}^{step}(t)
        = s_{t+1} - s_t
          - \hat{\Delta s}_t
-    
+
     2) rate form (meters per time)
-    
+
     .. math::
-    
+
        R_{cons}^{rate}(t)
        = \frac{ds}{dt}
          - \frac{s_{eq}(t) - s(t)}{\tau(t)}
-    
+
     To make such residuals comparable across batches and to
     prevent any single term from dominating due to scale alone,
     we normalize by a characteristic magnitude:
-    
+
     .. math::
-    
+
        \tilde{R}_{cons} = \frac{R_{cons}}{c_*}
-    
+
     where :math:`c_*` is the "consolidation scale" returned by
     this function.
-    
+
     This helper computes :math:`c_*` from two sources:
-    
+
     A) empirical change statistics from the settlement series
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Define per-step increments:
-    
+
     .. math::
-    
+
        \Delta s_{b,t} = s_{b,t+1} - s_{b,t}
-    
+
     Let :math:`|\Delta s|` denote absolute increments flattened
     over batch and time. Two robust summary statistics are used:
-    
+
     .. math::
-    
+
        d_{ref} = \mathrm{mean}(|\Delta s|)
-    
+
     .. math::
-    
+
        d_{max} = \mathrm{max}(|\Delta s|)
-    
+
     Both are treated as constants w.r.t. gradients
     (:func:`tf.stop_gradient`).
-    
+
     Depending on ``mode``, the base scale is:
-    
+
     * ``mode="step"`` (meters per step)
-    
+
       .. math::
-    
+
          c_{base} =
          \max(d_{ref}, 0.1\, d_{max})
-    
+
     * ``mode="time_unit"`` (meters per time_unit)
-    
+
       Let :math:`\Delta t_{ref,u}` be a representative step size
       in "time_units" (the caller provides ``dt_ref_u``):
-    
+
       .. math::
-    
+
          c_{base} =
          \max\left(
            \frac{d_{ref}}{\Delta t_{ref,u}},
            0.1\,\frac{d_{max}}{\Delta t_{ref,u}}
          \right)
-    
+
     * otherwise (SI rate, meters per second)
-    
+
       Let :math:`\Delta t_{ref,s}` be a representative step size
       in seconds (the caller provides ``dt_ref_s``):
-    
+
       .. math::
-    
+
          c_{base} =
          \max\left(
            \frac{d_{ref}}{\Delta t_{ref,s}},
            0.1\,\frac{d_{max}}{\Delta t_{ref,s}}
          \right)
-    
+
     B) optional relaxation and equilibrium misfit statistics
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     When ``use_relax=True``, an additional scale component is
     computed from the equilibrium settlement implied by the
     fields and drawdown proxy.
-    
+
     A non-negative drawdown proxy is formed as:
-    
+
     .. math::
-    
+
        \Delta h = \max(h_{ref} - h, 0)
-    
+
     An equilibrium settlement is then:
-    
+
     .. math::
-    
+
        s_{eq} = S_s \, \Delta h \, H_f
-    
+
     where :math:`S_s` is specific storage (1/m) and :math:`H_f`
     is a thickness (m). The equilibrium misfit magnitude is:
-    
+
     .. math::
-    
+
        e = |s_{eq} - s|
-    
+
     Flatten :math:`e` over batch and time and compute:
-    
+
     .. math::
-    
+
        e_{ref} = \mathrm{mean}(e) + \varepsilon
-    
+
     .. math::
-    
+
        e_{max} = \mathrm{max}(e) + \varepsilon
-    
+
     How this affects the scale depends on ``mode``:
-    
+
     * ``mode="step"``
-    
+
       In step units, equilibrium misfit is already in meters,
       so it can directly act as a characteristic magnitude:
-    
+
       .. math::
-    
+
          c_* \leftarrow
          \max(c_{base}, e_{ref}, 0.1\,e_{max})
-    
+
     * rate modes (meters per time)
-    
+
       Convert the misfit to a characteristic relaxation rate:
-    
+
       .. math::
-    
+
          r = \left|\frac{s_{eq} - s}{\tau}\right|
-    
+
       For SI rate mode, :math:`r` is in m/s. For ``mode="time_unit"``,
       convert m/s to m/time_unit using the number of seconds per
       unit :math:`\mathrm{sec}_{u}`:
-    
+
       .. math::
-    
+
          r_{u} = r\, \mathrm{sec}_{u}
-    
+
       Then summarize:
-    
+
       .. math::
-    
+
          r_{ref} = \mathrm{mean}(r) + \varepsilon
-    
+
       .. math::
-    
+
          r_{max} = \mathrm{max}(r) + \varepsilon
-    
+
       And update:
-    
+
       .. math::
-    
+
          c_* \leftarrow
          \max(c_{base}, r_{ref}, 0.1\,r_{max})
-    
+
     Final flooring and gradient behavior
     ------------------------------------
     A positive floor is enforced:
-    
+
     .. math::
-    
+
        c_* \leftarrow \max(c_*, c_{floor})
-    
+
     and the result is stop-gradient:
-    
+
     .. math::
-    
+
        c_* \leftarrow \mathrm{stop\_grad}(c_*)
-    
+
     This ensures the scale cannot collapse to zero and cannot
     backpropagate into model parameters.
-    
+
     Parameters
     ----------
     Refer to :func:`compute_scales` for the definition and
     meaning of all inputs. This helper assumes all tensors are
     already broadcastable to ``(B, H, 1)`` and represent SI
     quantities consistent with the consolidation objective.
-    
+
     Returns
     -------
     cons_scale : Tensor
         A scalar Tensor (or scalar-like Tensor) representing the
         consolidation scale :math:`c_*`.
-    
+
         Units depend on ``mode``:
-    
+
         * ``"step"``     : meters per step
         * ``"time_unit"``: meters per time_unit
         * otherwise      : meters per second
-    
+
     Notes
     -----
     Why both mean and max
@@ -6194,44 +6426,44 @@ def _cons_scale_core(
     to outliers while still reacting when the batch contains
     rare but very large changes (which can otherwise produce
     under-scaling and exploding normalized residuals).
-    
+
     Why stop-gradient
     ~~~~~~~~~~~~~~~~~
     The scale is a diagnostic normalization factor. Letting
     gradients flow through statistics such as mean/max can
     create undesirable feedback loops where the model learns to
     change the scale instead of reducing the residual.
-    
+
     Drawdown proxy
     ~~~~~~~~~~~~~~
     The drawdown proxy here uses a hard positive-part gate
     :math:`\max(h_{ref} - h, 0)`. If your pipeline uses a smooth
     gate or a different sign convention, that logic should be
     handled by the caller before reaching this helper.
-    
+
     Examples
     --------
     This function is not intended to be called directly.
     Use :func:`compute_scales`, which computes both
     consolidation and groundwater residual scales and handles
     time-unit conversions and input sanitization.
-    
+
     See Also
     --------
     compute_scales
         Public interface that computes residual scales.
-    
+
     equilibrium_compaction_si
         Computes :math:`s_{eq}` given fields and drawdown logic.
-    
+
     dt_to_seconds
         Conversion of time step sizes to SI seconds.
-    
+
     References
     ----------
     .. [1] Terzaghi, K.
        Theoretical Soil Mechanics. Wiley (1943).
-    
+
     .. [2] Wang, H. F.
        Theory of Linear Poroelasticity. Princeton University Press
        (2000).
@@ -6273,7 +6505,9 @@ def _cons_scale_core(
     H_len = tf_shape(s)[1]
     has_ds = tf_greater(H_len, tf_constant(1, tf_int32))
 
-    ds_ref, ds_max = tf_cond(has_ds, _ds_stats, _ds_stats_zero)
+    ds_ref, ds_max = tf_cond(
+        has_ds, _ds_stats, _ds_stats_zero
+    )
 
     # ------------------------------------------------------
     # Base scale from ds (step / rate).
@@ -6314,9 +6548,7 @@ def _cons_scale_core(
         eq_ref = tf_stop_gradient(
             tf_reduce_mean(eq_vec) + eps
         )
-        eq_max = tf_stop_gradient(
-            tf_reduce_max(eq_vec) + eps
-        )
+        eq_max = tf_stop_gradient(tf_reduce_max(eq_vec) + eps)
 
         if mode == "step":
             # In step mode, keep as meters/step.
@@ -6354,6 +6586,7 @@ def _cons_scale_core(
     cons = tf_maximum(cons, floor_t)
     return tf_stop_gradient(cons)
 
+
 def _gw_scale_core(
     *,
     h: Tensor,
@@ -6361,46 +6594,46 @@ def _gw_scale_core(
     dt_ref_s: Tensor,
     time_units: str,
     gw_units: str,
-    dh_dt: Optional[Tensor],
-    div_K_grad_h: Optional[Tensor],
-    Q: Optional[Tensor],
+    dh_dt: Tensor | None,
+    div_K_grad_h: Tensor | None,
+    Q: Tensor | None,
     floor: float,
 ) -> Tensor:
     r"""
     Compute the groundwater-flow residual scale.
-    
+
     This helper builds a robust, positive scale used to
     non-dimensionalize (or weight) the groundwater PDE residual.
     It is intended to stabilize training by ensuring the PDE
     term has a comparable magnitude across batches, horizons,
     and unit conventions.
-    
+
     The scale is computed from batch statistics and returned as
     a stop-gradient value, so it does not backpropagate through
     the normalization path.
-    
+
     Mathematical intent
     -------------------
     A common 2D groundwater-flow residual in specific-storage
     form is:
-    
+
     .. math::
-    
+
        R_{gw}
        = S_s \,\frac{\partial h}{\partial t}
          - \nabla \cdot (K \nabla h)
          - Q
-    
+
     where:
-    
+
     * :math:`h` is hydraulic head (m),
     * :math:`S_s` is specific storage (1/m),
     * :math:`K` is hydraulic conductivity (m/s),
     * :math:`Q` is a volumetric forcing per storage thickness,
       expressed here in compatible residual units.
-    
+
     In SI, each term has units of 1/s:
-    
+
     * storage term:
       :math:`S_s \, \partial_t h` has
       :math:`(1/m) (m/s) = 1/s`
@@ -6410,153 +6643,153 @@ def _gw_scale_core(
       scaling handled upstream
     * forcing term:
       :math:`Q` is assumed already mapped to 1/s
-    
+
     The normalized residual is:
-    
+
     .. math::
-    
+
        \tilde{R}_{gw} = \frac{R_{gw}}{g_*}
-    
+
     where :math:`g_*` is the groundwater scale returned by this
     function.
-    
+
     Scale construction
     ------------------
     This helper uses three optional contributors:
-    
+
     A) storage-term magnitude
     ~~~~~~~~~~~~~~~~~~~~~~~~
     A representative head-rate magnitude is estimated from either
     a provided :math:`\partial_t h` (``dh_dt``) or from finite
     differences across the horizon.
-    
+
     If ``dh_dt`` is not provided, define step head differences:
-    
+
     .. math::
-    
+
        \Delta h_{b,t} = h_{b,t+1} - h_{b,t}
-    
+
     Let :math:`\Delta t_{ref,s}` be a representative step size
     in seconds (caller-provided ``dt_ref_s``). Define:
-    
+
     .. math::
-    
+
        \dot{h}_{ref} =
        \frac{\mathrm{mean}(|\Delta h|)}{\Delta t_{ref,s}}
-    
+
     .. math::
-    
+
        \dot{h}_{max} =
        \frac{\mathrm{max}(|\Delta h|)}{\Delta t_{ref,s}}
-    
+
     If ``dh_dt`` is provided, its mean and max absolute values
     are used directly as :math:`\dot{h}_{ref}` and
     :math:`\dot{h}_{max}`.
-    
+
     A representative storage coefficient magnitude is computed as:
-    
+
     .. math::
-    
+
        S_{s,ref} = \mathrm{mean}(|S_s|)
-    
+
     The storage-term reference scales are:
-    
+
     .. math::
-    
+
        s_{ref}  = S_{s,ref}\,\dot{h}_{ref}
-    
+
     .. math::
-    
+
        s_{max}  = S_{s,ref}\,\dot{h}_{max}
-    
+
     and the initial scale is:
-    
+
     .. math::
-    
+
        g_* \leftarrow \max(s_{ref}, 0.1\,s_{max})
-    
+
     B) divergence-term magnitude (optional)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     If the divergence contribution
     :math:`d = \nabla \cdot (K \nabla h)` is provided upstream as
     ``div_K_grad_h``, its batch statistics contribute:
-    
+
     .. math::
-    
+
        d_{ref} = \mathrm{mean}(|d|) + \varepsilon
-    
+
     .. math::
-    
+
        d_{max} = \mathrm{max}(|d|) + \varepsilon
-    
+
     and the scale is updated:
-    
+
     .. math::
-    
+
        g_* \leftarrow \max(g_*, d_{ref}, 0.1\,d_{max})
-    
+
     C) forcing-term magnitude (optional)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     If forcing ``Q`` is provided (assumed in compatible units),
     its batch statistics contribute:
-    
+
     .. math::
-    
+
        q_{ref} = \mathrm{mean}(|Q|) + \varepsilon
-    
+
     .. math::
-    
+
        q_{max} = \mathrm{max}(|Q|) + \varepsilon
-    
+
     and the scale is updated:
-    
+
     .. math::
-    
+
        g_* \leftarrow \max(g_*, q_{ref}, 0.1\,q_{max})
-    
+
     Flooring, units, and gradients
     ------------------------------
     A positive floor is enforced:
-    
+
     .. math::
-    
+
        g_* \leftarrow \max(g_*, g_{floor})
-    
+
     The result is returned with stop-gradient:
-    
+
     .. math::
-    
+
        g_* \leftarrow \mathrm{stop\_grad}(g_*)
-    
+
     By default, :math:`g_*` is in SI (1/s). If ``gw_units`` is
     ``"time_unit"``, the scale is converted to 1/time_unit using
     the seconds-per-unit constant :math:`\mathrm{sec}_u`:
-    
+
     .. math::
-    
+
        g_*^{(u)} = g_* \,\mathrm{sec}_u
-    
+
     so that dividing a residual expressed in 1/time_unit by
     :math:`g_*^{(u)}` remains consistent.
-    
+
     Parameters
     ----------
     Refer to :func:`compute_scales` for the meaning and expected
     units of all inputs. This helper assumes inputs are already
     broadcastable to ``(B, H, 1)`` and consistent with the PDE
     assembly used upstream.
-    
+
     Returns
     -------
     gw_scale : Tensor
         A scalar Tensor (or scalar-like Tensor) representing the
         groundwater scale :math:`g_*`.
-    
+
         Units:
-    
+
         * default         : 1/s
         * gw_units="time_unit" : 1/time_unit
-    
+
     Notes
     -----
     Why mean and max
@@ -6565,14 +6798,14 @@ def _gw_scale_core(
     scale that tracks typical magnitudes while remaining
     sensitive to rare but large values that can otherwise cause
     under-scaling and unstable normalized residuals.
-    
+
     Why stop-gradient
     ~~~~~~~~~~~~~~~~~
     The scale is a normalization constant, not a learnable
     quantity. Allowing gradients through batch statistics can
     create feedback loops where the model changes the scale
     instead of reducing the residual.
-    
+
     What "compatible units" means for div and Q
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     This helper assumes ``div_K_grad_h`` and ``Q`` are already
@@ -6580,29 +6813,29 @@ def _gw_scale_core(
     i.e. compatible with 1/s in SI. Any spatial-coordinate
     normalization and chain-rule rescaling should be handled
     upstream.
-    
+
     Examples
     --------
     This function is not intended to be called directly.
     Use :func:`compute_scales`, which computes both residual
     scales and manages time-unit conversions and sanitization.
-    
+
     See Also
     --------
     compute_scales
         Public interface that computes both cons and gw scales.
-    
+
     seconds_per_time_unit
         Converts a time-unit string into seconds per unit.
-    
+
     dt_to_seconds
         Converts per-step dt into SI seconds.
-    
+
     References
     ----------
     .. [1] Bear, J.
        Dynamics of Fluids in Porous Media. Dover (1972).
-    
+
     .. [2] Wang, H. F.
        Theory of Linear Poroelasticity. Princeton University Press
        (2000).
@@ -6710,6 +6943,7 @@ def _gw_scale_core(
 
     return tf_stop_gradient(gw)
 
+
 def compute_scales(
     model,
     *,
@@ -6718,181 +6952,181 @@ def compute_scales(
     h_mean: Tensor,
     K_field: Tensor,
     Ss_field: Tensor,
-    tau_field: Optional[Tensor] = None,
-    H_field: Optional[Tensor] = None,
-    h_ref_si: Optional[Tensor] = None,
-    Q: Optional[Tensor] = None,
-    dt: Optional[Tensor] = None,
-    time_units: Optional[str] = None,
-    dh_dt: Optional[Tensor] = None,
-    div_K_grad_h: Optional[Tensor] = None,
+    tau_field: Tensor | None = None,
+    H_field: Tensor | None = None,
+    h_ref_si: Tensor | None = None,
+    Q: Tensor | None = None,
+    dt: Tensor | None = None,
+    time_units: str | None = None,
+    dh_dt: Tensor | None = None,
+    div_K_grad_h: Tensor | None = None,
     verbose: int = 0,
-) -> Dict[str, Tensor]:
+) -> dict[str, Tensor]:
     r"""
     Compute robust normalization scales for physics residuals.
-    
+
     This function estimates per-batch (or per-sample) scale factors
     used to non-dimensionalize physics residuals before squaring and
     averaging. The goal is to make losses comparable across sites,
     time spans, and coordinate encodings, and to prevent a single
     residual from dominating due to unit magnitude alone.
-    
+
     The returned scales are typically used as:
-    
+
     .. math::
-    
+
        R_{cons}^{*} = \frac{R_{cons}}{s_{cons}}, \qquad
        R_{gw}^{*}   = \frac{R_{gw}}{s_{gw}},
-    
+
     where :math:`s_{cons}` and :math:`s_{gw}` are produced by this
     function (with floors applied for numerical safety).
-    
+
     The routine is intentionally defensive. It sanitizes shapes to
     ``(B, H, 1)``, guards non-finite values, enforces positive dt,
     and applies safe floors before any division or reduction.
-    
+
     Parameters
     ----------
     model : Any
         Model-like object holding configuration in
         ``model.scaling_kwargs`` and optionally ``model.time_units``
         and ``model.h_ref``. This function reads:
-    
+
         * consolidation display mode from ``resolve_cons_units(sk)``
         * groundwater display mode from ``resolve_gw_units(sk)``
         * coordinate normalization flags via ``sk['coords_normalized']``
         * coordinate ranges via ``coord_ranges(sk)``
         * auto floors via ``resolve_auto_scale_floor(kind, sk)``
-    
+
     t : Tensor
         Time coordinate tensor. Expected shape is ``(B, H, 1)`` or
         ``(B, H)``. Units follow the dataset time encoding. If
         ``coords_normalized=True``, ``t`` is assumed normalized and
         is de-normalized using ``coord_ranges(sk)['t']`` when dt is
         inferred internally.
-    
+
     s_mean : Tensor
         Mean settlement state used for consolidation scaling.
         Expected shape is ``(B, H, 1)`` or ``(B, H)``.
-    
+
     h_mean : Tensor
         Mean head state used for scaling. Expected shape is
         ``(B, H, 1)`` or ``(B, H)``. Units should match the model
         internal convention (typically SI meters).
-    
+
     K_field : Tensor
         Effective conductivity field. Present for signature
         compatibility and potential future scale heuristics. Current
         logic does not require this argument directly.
-    
+
     Ss_field : Tensor
         Effective specific storage field :math:`S_s`. Used by both
         consolidation and groundwater scale heuristics. Expected
         shape is broadcastable to ``(B, H, 1)``.
-    
+
     tau_field : Tensor, optional
         Consolidation timescale :math:`tau` in seconds. Provide this
         together with ``H_field`` to enable relaxation-aware
         consolidation scaling.
-    
+
     H_field : Tensor, optional
         Drained thickness :math:`H` in meters. Used with
         ``tau_field`` for relaxation-aware consolidation scaling.
-    
+
     h_ref_si : Tensor, optional
         Reference head :math:`h_{ref}` in meters. If not provided,
         the function falls back to ``model.h_ref`` (or 0.0). The
         value is broadcast to ``(B, H, 1)`` and sanitized.
-    
+
     Q : Tensor, optional
         Source term used in the groundwater residual scaling.
         Expected shape is broadcastable to ``(B, H, 1)``.
-    
+
     dt : Tensor, optional
         Time step tensor in the dataset time units. If provided,
         it is used directly (after shape normalization). If None,
         dt is inferred from ``t``. The inferred dt is de-normalized
         when ``coords_normalized=True``.
-    
+
     time_units : str, optional
         Name of the dataset time unit (e.g., "year", "day",
         "second"). If None, the function resolves it from
         ``sk['time_units']`` or ``model.time_units``. It is used to
         convert dt to seconds.
-    
+
     dh_dt : Tensor, optional
         Precomputed :math:`dh/dt` in SI units (m/s). If provided,
         groundwater scaling can use it directly rather than
         reconstructing a representative magnitude.
-    
+
     div_K_grad_h : Tensor, optional
         Precomputed divergence term for groundwater flow,
         :math:`\nabla \cdot (K \nabla h)`, in SI units. If provided,
         it is used as a representative magnitude for groundwater
         scaling.
-    
+
     verbose : int, default=0
         Verbosity level. If > 0, basic statistics of computed scales
         may be printed.
-    
+
     Returns
     -------
     scales : dict[str, Tensor]
         Dictionary with keys:
-    
+
         * ``'cons_scale'`` : Tensor
           Scale for consolidation residuals.
         * ``'gw_scale'`` : Tensor
           Scale for groundwater-flow residuals.
-    
+
         Each value is shaped as ``(B, 1, 1)`` or broadcastable to
         ``(B, H, 1)``, depending on internal heuristics.
-    
+
     Notes
     -----
     Why scaling is needed
     ~~~~~~~~~~~~~~~~~~~~~
     Consolidation and groundwater residuals can differ by many
     orders of magnitude depending on:
-    
+
     * the dataset time unit (years vs seconds),
     * coordinate normalization spans (t, x, y),
     * site geometry and hydro-mechanical priors,
     * whether residuals are reported in SI or display units.
-    
+
     A stable scaling strategy prevents trivial unit choices from
     changing optimization dynamics.
-    
+
     dt construction and safety
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
     If ``dt`` is not provided, dt is inferred as consecutive
     differences along horizon:
-    
+
     * if :math:`H > 1`, :math:`dt_h = t_{h} - t_{h-1}`
     * else, dt defaults to 1.0 (in dataset time units)
-    
+
     When ``coords_normalized=True``, dt is multiplied by the raw
     time span ``t_range`` from ``coord_ranges(sk)`` to recover dt in
     dataset time units. dt is then converted to seconds via
     ``dt_to_seconds(dt, time_units=...)``.
-    
+
     All dt paths apply:
-    
+
     * absolute value
     * finite sanitization
     * a positive floor
     * a final lower bound using ``seconds_per_time_unit(time_units)``
-    
+
     This guards against degenerate dt values that would explode
     scales.
-    
+
     Relaxation-aware consolidation scaling
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     If both ``tau_field`` and ``H_field`` are provided, consolidation
     scales may incorporate a relaxation time scale to better match
     the form of the consolidation closure used by the model. If they
     are not provided, a simpler heuristic is used.
-    
+
     Groundwater scaling inputs
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
     Groundwater scales are computed from representative magnitudes
@@ -6900,17 +7134,17 @@ def compute_scales(
     ``dh_dt`` and ``div_K_grad_h`` when provided. The scaling also
     accounts for display unit policies returned by
     ``resolve_gw_units(sk)``.
-    
+
     This function is not traced
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
     This wrapper is not decorated with ``tf.function`` because it
     accepts a Python ``model`` object. Callers may wrap the function
     at a higher level if a stable tracing boundary is desired.
-    
+
     Examples
     --------
     Compute scales inside the physics path:
-    
+
     >>> scales = compute_scales(
     ...     model,
     ...     t=t,
@@ -6927,23 +7161,23 @@ def compute_scales(
     ...     dh_dt=dh_dt,
     ...     div_K_grad_h=dKdhx + dKdhy,
     ... )
-    
+
     Use the returned scales to normalize residuals:
-    
+
     >>> cons_scaled = R_cons / scales["cons_scale"]
     >>> gw_scaled = R_gw / scales["gw_scale"]
-    
+
     See Also
     --------
     scale_residual
         Applies a scale and floor to a residual tensor.
-    
+
     resolve_auto_scale_floor
         Resolves "auto" floors for scale denominators.
-    
+
     ensure_si_derivative_frame
         Converts raw autodiff derivatives to SI-consistent forms.
-    
+
     References
     ----------
     .. [1] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
@@ -6973,34 +7207,32 @@ def compute_scales(
             or "unitless"
         )
 
-    
     def _diffs():
         return tt[:, 1:, :] - tt[:, :-1, :]
-    
+
     def _ones():
         return tf_zeros_like(s[:, :1, :]) + 1.0
-    
+
     # --- Build dt in *time_units*.
     if dt is None:
         tt = tf_cast(t, tf_float32)
         if tt.shape.rank == 2:
             tt = tt[:, :, None]
-            
+
         H = tf_shape(tt)[1]
 
         # if (tt.shape.rank >= 2) and (tt.shape[1] > 1):
         #     dt_step = tt[:, 1:, :] - tt[:, :-1, :]
         # else:
         #     dt_step = tf_zeros_like(s[:, :1, :]) + 1.0
-        
+
         dt_step = tf_cond(tf_greater(H, 1), _diffs, _ones)
 
         # De-normalize if coords were normalized.
         coords_norm = bool(sk.get("coords_normalized", False))
         tR, _, _ = coord_ranges(sk)
         if coords_norm and tR:
-            dt_step = dt_step * tf_cast(float(tR),
-                                        tf_float32)
+            dt_step = dt_step * tf_cast(float(tR), tf_float32)
     else:
         dt_step = tf_cast(dt, tf_float32)
         if dt_step.shape.rank == 2:
@@ -7030,8 +7262,9 @@ def compute_scales(
 
     # --- h_ref broadcast (finite).
     if h_ref_si is None:
-        h_ref_si = tf_cast(getattr(model, "h_ref", 0.0),
-                           tf_float32)
+        h_ref_si = tf_cast(
+            getattr(model, "h_ref", 0.0), tf_float32
+        )
     href = tf_convert_to_tensor(h_ref_si, tf_float32)
     href = tf_broadcast_to(href, tf_shape(h))
     href = _finite_or_zero(href)
@@ -7040,10 +7273,10 @@ def compute_scales(
     # cons_floor_def = _EPSILON
     # if mode in ("step", "time_unit"):
     #     cons_floor_def = 1e-6
-    
+
     cons_floor = resolve_auto_scale_floor("cons", sk)
-    gw_floor   = resolve_auto_scale_floor("gw", sk)
-    
+    gw_floor = resolve_auto_scale_floor("gw", sk)
+
     # cons_floor = float(
     #     get_sk(sk, "cons_scale_floor", default=cons_floor_def)
     # )
@@ -7052,7 +7285,9 @@ def compute_scales(
     # )
 
     # --- Optional tau/H (shape-safe).
-    use_relax = (tau_field is not None) and (H_field is not None)
+    use_relax = (tau_field is not None) and (
+        H_field is not None
+    )
 
     if use_relax:
         tau = tf_cast(tau_field, tf_float32)
@@ -7127,38 +7362,50 @@ def resolve_auto_scale_floor(
         Lower floor to capture subtler groundwater dynamics.
     """
     sk = scaling_kwargs or {}
-    
+
     # 1. Check user override in config (e.g., "cons_scale_floor": 1e-12)
     #    We strip "auto" if it appears as a string literal.
-    val = get_sk(sk, f"{key}_scale_floor", default=default_val)
-    
-    if isinstance(val, (float, int)) and not isinstance(val, bool):
+    val = get_sk(
+        sk, f"{key}_scale_floor", default=default_val
+    )
+
+    if isinstance(val, float | int) and not isinstance(
+        val, bool
+    ):
         return float(val)
-        
+
     if str(val).lower() != "auto":
         try:
             return float(val)
         except (ValueError, TypeError):
-            pass # Fallthrough to auto logic
+            pass  # Fallthrough to auto logic
 
     # 2. "Auto" Logic: Derive based on Units
     time_units = get_sk(sk, "time_units", default="year")
-    
+
     # Calculate conversion factor: 1 "time_unit" = X seconds
     try:
-        sec_per_unit = float(seconds_per_time_unit(time_units))
+        sec_per_unit = float(
+            seconds_per_time_unit(time_units)
+        )
     except Exception:
-        sec_per_unit = 31556952.0 # Default to year if unknown
-        
+        sec_per_unit = (
+            31556952.0  # Default to year if unknown
+        )
+
     # Define Safe SI Baselines (float32 stability thresholds)
     # m/s for cons, 1/s for gw
-    SI_BASE_CONS = 1e-7 
-    SI_BASE_GW   = 1e-9 
+    SI_BASE_CONS = 1e-7
+    SI_BASE_GW = 1e-9
 
     if key == "cons":
         # Target units: "second", "time_unit", or "step"
-        resid_units = str(get_sk(sk, "cons_residual_units", default="second")).lower()
-        
+        resid_units = str(
+            get_sk(
+                sk, "cons_residual_units", default="second"
+            )
+        ).lower()
+
         if "second" in resid_units:
             return SI_BASE_CONS
         elif "time" in resid_units:
@@ -7171,17 +7418,22 @@ def resolve_auto_scale_floor(
 
     elif key == "gw":
         # Target units: "second" or "time_unit"
-        resid_units = str(get_sk(sk, "gw_residual_units", default="time_unit")).lower()
-        
+        resid_units = str(
+            get_sk(
+                sk, "gw_residual_units", default="time_unit"
+            )
+        ).lower()
+
         if "second" in resid_units:
             return SI_BASE_GW
         elif "time" in resid_units:
             # Convert 1/s -> 1/year
             # floor = (1/s) * (s/unit) = 1/unit
             return SI_BASE_GW * sec_per_unit
-            
+
     # Fallback safe default
     return 1e-7
+
 
 def resolve_gw_units(sk):
     v = get_sk(sk, "gw_residual_units", default="time_unit")
@@ -7190,8 +7442,9 @@ def resolve_gw_units(sk):
         return "second"
     return "time_unit"
 
+
 def resolve_cons_units(
-    sk: Optional[Dict[str, Any]],
+    sk: dict[str, Any] | None,
 ) -> str:
     """Normalize consolidation residual units."""
     if not sk:
@@ -7212,6 +7465,7 @@ def resolve_cons_units(
 
     return mode
 
+
 # ---------------------------------------------------------------------
 # Settlement-kind adaptation
 # ---------------------------------------------------------------------
@@ -7219,106 +7473,109 @@ def settlement_state_for_pde(
     s_pred_si: Tensor,
     t: Tensor,
     *,
-    scaling_kwargs: Optional[Dict[str, Any]] = None,
-    inputs: Optional[Dict[str, Tensor]] = None,
-    time_units: Optional[str] = None,
+    scaling_kwargs: dict[str, Any] | None = None,
+    inputs: dict[str, Tensor] | None = None,
+    time_units: str | None = None,
     baseline_keys: Sequence[str] = (
-        "s0_si", "subs0_si", "s_ref_si", "subs_ref_si",
+        "s0_si",
+        "subs0_si",
+        "s_ref_si",
+        "subs_ref_si",
     ),
-    dt: Optional[Tensor] = None,                 
-    return_incremental: bool = True,            
+    dt: Tensor | None = None,
+    return_incremental: bool = True,
     verbose: int = 0,
 ) -> Tensor:
     r"""
     Map predicted settlement output into a PDE-ready settlement state.
-    
+
     This helper converts a model settlement output ``s_pred_si`` into
     a consistent settlement time series in SI meters that can be used
     as the state variable in the consolidation residual and related
     physics terms.
-    
+
     The model can represent settlement in different output modes
     controlled by ``scaling_kwargs['subsidence_kind']``:
-    
+
     * ``"cumulative"`` : ``s_pred_si`` already represents cumulative
       settlement :math:`s(t)` (meters).
     * ``"increment"`` : ``s_pred_si`` represents per-step increments
       :math:`\Delta s_h` (meters per step).
     * ``"rate"`` : ``s_pred_si`` represents a settlement rate
       :math:`ds/dt` (meters per time unit).
-    
+
     The function first constructs a cumulative series :math:`s(t)`
     and then optionally returns the incremental state
     :math:`s_{inc}(t)` used by the ODE/PDE residuals.
-    
+
     Parameters
     ----------
     s_pred_si : Tensor
         Predicted settlement output in SI meters (or SI meters per
         time unit when ``subsidence_kind="rate"``). Expected shapes:
-    
+
         * ``(B, H, 1)`` (preferred)
         * ``(B, H)`` will be promoted to ``(B, H, 1)``
-    
+
     t : Tensor
         Time coordinate used to infer :math:`\Delta t` when
         ``subsidence_kind="rate"`` and ``dt`` is not provided.
         Expected shape is ``(B, H, 1)`` or ``(B, H)``.
-    
+
     scaling_kwargs : dict, optional
         Scaling and configuration dictionary. This function reads
         ``subsidence_kind`` via:
-    
+
         ``get_sk(sk, 'subsidence_kind', default='cumulative')``
-    
+
         If not provided, defaults to ``{}``.
-    
+
     inputs : dict[str, Tensor], optional
         Optional batch inputs that may contain a baseline settlement
         value :math:`s_0` (SI meters). If provided, the function
         searches for the first available tensor among ``baseline_keys``
         and uses it as :math:`s_0`.
-    
+
     time_units : str, optional
         Name of the dataset time unit (e.g., "year", "day"). This
         argument is informational here and is logged for diagnostics.
         When ``subsidence_kind="rate"``, the interpretation of
         ``s_pred_si`` is "meters per time unit".
-    
+
     baseline_keys : Sequence[str], default=("s0_si", "subs0_si",
     "s_ref_si", "subs_ref_si")
         Candidate keys to locate a baseline settlement tensor
         :math:`s_0` in ``inputs``. The first match found is used.
-    
+
     dt : Tensor, optional
         Time step per horizon in dataset time units. Used only when
         ``subsidence_kind="rate"``. Expected shape is ``(B, H, 1)``
         or ``(B, H)``. If None, dt is inferred from ``t`` by finite
         differences, with a fallback of 1.0 for the first step.
-    
+
     return_incremental : bool, default=True
         If True, return the incremental settlement state:
-    
+
         .. math::
-    
+
            s_{inc}(t_h) = s(t_h) - s_0,
-    
+
         shaped like ``(B, H, 1)``. If False, return the cumulative
         settlement series :math:`s(t_h)`.
-    
+
     verbose : int, default=0
         Verbosity level. When > 0, prints basic diagnostics of the
         selected mode and intermediate tensors.
-    
+
     Returns
     -------
     s_state : Tensor
         Settlement state in SI meters with shape ``(B, H, 1)``.
-    
+
         If ``return_incremental=True`` the output is
         :math:`s_{inc}(t)` (incremental since :math:`s_0`). Otherwise
         the output is the cumulative series :math:`s(t)`.
-    
+
     Notes
     -----
     Baseline handling
@@ -7327,63 +7584,63 @@ def settlement_state_for_pde(
     at the reference time :math:`t_0` used by the physics residuals.
     If no baseline is provided, :math:`s_0` defaults to zero with
     shape ``(B, 1, 1)`` and is broadcast over the horizon.
-    
+
     Cumulative construction
     ~~~~~~~~~~~~~~~~~~~~~~~
     The function builds a cumulative settlement series :math:`s(t)`
     according to ``subsidence_kind``:
-    
+
     1) ``subsidence_kind="cumulative"``
-    
+
        ``s_pred_si`` is assumed to already represent :math:`s(t)`:
-    
+
        .. math::
-    
+
           s(t_h) = s_{pred}(t_h).
-    
+
        This includes cases where the caller already added a baseline,
        e.g., :math:`s(t) = s_0 + s_{inc}(t)`.
-    
+
     2) ``subsidence_kind="increment"``
-    
+
        ``s_pred_si`` is interpreted as per-step increments:
-    
+
        .. math::
-    
+
           s(t_h) = s_0 + \sum_{j=0}^{h} \Delta s_j.
-    
+
     3) ``subsidence_kind="rate"``
-    
+
        ``s_pred_si`` is interpreted as a rate in meters per time unit:
-    
+
        .. math::
-    
+
           \Delta s_h = \left(\frac{ds}{dt}\right)_h \Delta t_h,
           \qquad
           s(t_h) = s_0 + \sum_{j=0}^{h} \Delta s_j.
-    
+
        If ``dt`` is not provided, :math:`\Delta t_h` is inferred from
        the time coordinate tensor ``t`` using finite differences. The
        first step uses a fallback of 1.0 (for backward compatibility).
-    
+
     Incremental state for PDE/ODE residuals
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Many physics residuals are written for an incremental settlement
     state :math:`s_{inc}(t)` that starts at zero at :math:`t_0`. When
     ``return_incremental=True`` the function returns:
-    
+
     .. math::
-    
+
        s_{inc}(t_h) = s(t_h) - s_0.
-    
+
     This makes it safe to concatenate an explicit initial state
     (e.g., ``s0_inc=0``) when constructing a state sequence for an
     exact-step consolidation integrator.
-    
+
     Examples
     --------
     Convert per-step increments to an incremental PDE state:
-    
+
     >>> sk = {"subsidence_kind": "increment"}
     >>> s_inc = settlement_state_for_pde(
     ...     s_pred_si=ds_pred_m,
@@ -7392,9 +7649,9 @@ def settlement_state_for_pde(
     ...     inputs={"s0_si": s0_m},
     ...     return_incremental=True,
     ... )
-    
+
     Convert a rate output using provided dt:
-    
+
     >>> sk = {"subsidence_kind": "rate"}
     >>> s_inc = settlement_state_for_pde(
     ...     s_pred_si=dsdt_pred_m_per_u,
@@ -7404,30 +7661,30 @@ def settlement_state_for_pde(
     ...     inputs={"s0_si": s0_m},
     ...     return_incremental=True,
     ... )
-    
+
     Return the cumulative series instead:
-    
+
     >>> s_cum = settlement_state_for_pde(
     ...     s_pred_si=s_pred_m,
     ...     t=coords_t,
     ...     scaling_kwargs={"subsidence_kind": "cumulative"},
     ...     return_incremental=False,
     ... )
-    
+
     See Also
     --------
     compute_consolidation_step_residual
         Builds the consolidation residual from settlement and head
         states.
-    
+
     cons_step_to_cons_residual
         Converts a step residual into a residual consistent with the
         PDE time convention.
-    
+
     integrate_consolidation_mean
         Integrates a consolidation mean settlement trajectory used as
         a physics-driven prediction path.
-    
+
     References
     ----------
     .. [1] Terzaghi, K. Theoretical Soil Mechanics. Wiley (1943).
@@ -7436,12 +7693,21 @@ def settlement_state_for_pde(
     """
 
     sk = scaling_kwargs or {}
-    kind = str(
-        get_sk(sk, "subsidence_kind", default="cumulative")
-        ).strip().lower()
+    kind = (
+        str(
+            get_sk(
+                sk, "subsidence_kind", default="cumulative"
+            )
+        )
+        .strip()
+        .lower()
+    )
 
     s = tf_cast(s_pred_si, tf_float32)
-    if getattr(s, "shape", None) is not None and s.shape.rank == 2:
+    if (
+        getattr(s, "shape", None) is not None
+        and s.shape.rank == 2
+    ):
         s = s[:, :, None]
 
     # --- baseline s0 (SI meters) ---
@@ -7464,7 +7730,6 @@ def settlement_state_for_pde(
     if s0 is None:
         s0 = tf_zeros_like(s[:, :1, :])
 
-
     vprint(verbose, "settlement_kind=", kind)
     vprint(verbose, "s_pred_si=", s)
     vprint(verbose, "s0=", s0)
@@ -7484,12 +7749,18 @@ def settlement_state_for_pde(
         # s is ds/dt (meters / time_unit)
         if dt is not None:
             dtt = tf_cast(dt, tf_float32)
-            if getattr(dtt, "shape", None) is not None and dtt.shape.rank == 2:
+            if (
+                getattr(dtt, "shape", None) is not None
+                and dtt.shape.rank == 2
+            ):
                 dtt = dtt[:, :, None]
             ds = s * dtt
         else:
             tt = tf_cast(t, tf_float32)
-            if getattr(tt, "shape", None) is not None and tt.shape.rank == 2:
+            if (
+                getattr(tt, "shape", None) is not None
+                and tt.shape.rank == 2
+            ):
                 tt = tt[:, :, None]
             dtn = tt[:, 1:, :] - tt[:, :-1, :]
             # fallback default for first step (kept for backward compat)
@@ -7510,85 +7781,88 @@ def settlement_state_for_pde(
     # Return incremental ODE state if requested: s_inc(t)=s_cum(t)-s0
     # -------------------------------------------------------------
     if return_incremental:
-        s0H = s0 + tf_zeros_like(s_cum)  # broadcast to (B,H,1)
+        s0H = s0 + tf_zeros_like(
+            s_cum
+        )  # broadcast to (B,H,1)
         return s_cum - s0H
 
     return s_cum
+
 
 def to_rms(
     x: Tensor,
     *,
     axis: AxisLike = None,
     keepdims: bool = False,
-    eps: Optional[float] = None,
+    eps: float | None = None,
     ms_floor: float | None = None,
-    rms_floor: Optional[float] = None,
+    rms_floor: float | None = None,
     nan_policy: str = "propagate",
     dtype: Any = None,
 ) -> Tensor:
     r"""
     Compute the root-mean-square (RMS) of a tensor.
-    
+
     This utility computes:
-    
+
     .. math::
-    
+
        \mathrm{RMS}(x)
        = \sqrt{\mathbb{E}[x^2]}
-    
+
     over the requested reduction axes. It is designed for robust
     diagnostics in physics-informed training loops, where tensors may
     contain extremely small values (needing ``float64``) or occasional
     non-finite entries (handled via ``nan_policy``).
-    
+
     Parameters
     ----------
     x : Tensor
         Input tensor. Any shape is accepted. The computation is
         performed in ``dtype`` (default float32).
-    
+
     axis : int or Sequence[int] or None, default=None
         Axis or axes to reduce.
-    
+
         * If None, reduce over all dimensions and return a scalar.
         * If an int or sequence, reduce only those axes.
-    
+
     keepdims : bool, default=False
         If True, keep reduced dimensions with length 1.
-    
+
     eps : float or None, default=None
         Optional lower bound applied to the mean-square value before
         the square root is taken. If provided and > 0, the mean-square
         is floored as:
-    
+
         .. math::
-    
+
            \mathrm{MS} = \max(\mathrm{MS}, \mathrm{eps})
-    
+
         where :math:`\mathrm{MS} = \mathbb{E}[x^2]`.
-    
+
     ms_floor : float or None, default=None
         Alias for an additional mean-square floor applied after
         ``eps``. If provided and > 0, it is applied as:
-    
+
         .. math::
-    
+
            \mathrm{MS} = \max(\mathrm{MS}, \mathrm{ms\_floor})
-    
+
         This can be useful when you want a hard numerical floor but
         prefer to keep ``eps`` reserved for "epsilon-like" smoothing.
-    
+
     rms_floor : float or None, default=None
         Optional lower bound applied after taking the square root.
         If provided and > 0:
-    
+
         .. math::
-    
+
            \mathrm{RMS} = \max(\mathrm{RMS}, \mathrm{rms\_floor})
-    
+
     nan_policy : {"propagate", "raise", "omit"}, default="propagate"
         Policy for handling non-finite values (NaN/Inf):
-    
+
         * ``"propagate"``:
           Use the standard reduction. Non-finite values propagate
           through ``mean`` and the RMS becomes non-finite.
@@ -7598,26 +7872,26 @@ def to_rms(
         * ``"omit"``:
           Ignore non-finite entries by treating them as missing. The
           RMS is computed from finite entries only:
-    
+
           .. math::
-    
+
              \mathrm{MS}
              = \frac{\sum x_i^2}{N_f}
-    
+
           where :math:`N_f` is the count of finite entries along the
           reduced axes (clipped to at least 1).
-    
+
     dtype : Any, default=None
         Compute dtype. If None, uses ``tf_float32`` for speed.
         Pass ``dtype=tf_float64`` when diagnosing very small residuals
         or when accumulated rounding error matters.
-    
+
     Returns
     -------
     rms : Tensor
         RMS value reduced along ``axis``. If ``axis=None`` the result
         is a scalar tensor; otherwise it has the reduced shape.
-    
+
     Notes
     -----
     Flooring behavior
@@ -7625,46 +7899,46 @@ def to_rms(
     Floors are opt-in. If ``eps is None`` and ``ms_floor is None``,
     no flooring is applied to the mean-square. If ``rms_floor is
     None``, no flooring is applied to the RMS.
-    
+
     A common pattern for stable logging of near-zero residuals is to
     use a small mean-square floor with float64 diagnostics:
-    
+
     * ``dtype=tf_float64`` to reduce rounding error.
     * ``ms_floor`` to avoid taking ``sqrt(0)`` when a later operation
       applies ``log`` or divides by RMS.
-    
+
     Non-finite handling
     ~~~~~~~~~~~~~~~~~~~
     ``nan_policy="omit"`` is intended for diagnostics and logging.
     For training-time physics losses, prefer cleaning tensors before
     the loss is computed, so gradients are well-defined.
-    
+
     Examples
     --------
     Compute RMS over all entries:
-    
+
     >>> r = to_rms(x)
-    
+
     Compute per-batch RMS (reduce over horizon and channel axes):
-    
+
     >>> r_b = to_rms(x, axis=(1, 2))
-    
+
     Omit non-finite values when logging a residual map:
-    
+
     >>> eps_gw = to_rms(R_gw, nan_policy="omit", dtype=tf_float64)
-    
+
     Apply a small mean-square floor for stable downstream log:
-    
+
     >>> eps = to_rms(R, ms_floor=1e-30, dtype=tf_float64)
-    
+
     See Also
     --------
     scale_residual
         Scales residuals by computed characteristic scales.
-    
+
     guard_scale_with_residual
         Ensures a scale is safe when residuals are near zero.
-    
+
     References
     ----------
     .. [1] Goodfellow, I., Bengio, Y., and Courville, A.
@@ -7740,13 +8014,14 @@ def to_rms(
 
     return rms
 
+
 def _as_bool(x: Any, default: bool = False) -> bool:
     """Parse bool-like values robustly (bool/int/str)."""
     if x is None:
         return bool(default)
     if isinstance(x, bool):
         return x
-    if isinstance(x, (int, float)):
+    if isinstance(x, int | float):
         return bool(int(x))
     if isinstance(x, str):
         s = x.strip().lower()
@@ -7756,8 +8031,10 @@ def _as_bool(x: Any, default: bool = False) -> bool:
             return False
     return bool(default)
 
+
 def _cast_lower_str(v):
     return str(v).strip().lower()
+
 
 def _cast_optional_float(v):
     if v is None:
@@ -7768,6 +8045,7 @@ def _cast_optional_float(v):
             return None
     return float(v)
 
+
 def resolve_cons_drawdown_options(
     scaling_kwargs,
     *,
@@ -7775,9 +8053,9 @@ def resolve_cons_drawdown_options(
     default_rule: str = "ref_minus_mean",
     default_stop_grad_ref: bool = True,
     default_zero_at_origin: bool = False,
-    default_clip_max: Optional[float] = None,
+    default_clip_max: float | None = None,
     default_relu_beta: float = 20.0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Resolve consolidation drawdown options from scaling_kwargs.
 
     Supported keys (prefer the 'cons_*' names):
@@ -7797,52 +8075,72 @@ def resolve_cons_drawdown_options(
     sk = scaling_kwargs or {}
 
     mode = get_sk(
-        sk, "cons_drawdown_mode",
+        sk,
+        "cons_drawdown_mode",
         default=default_mode,
         cast=_cast_lower_str,
     )
     rule = get_sk(
-        sk, "cons_drawdown_rule",
+        sk,
+        "cons_drawdown_rule",
         default=default_rule,
         cast=_cast_lower_str,
     )
     stopg = get_sk(
-        sk, "cons_stop_grad_ref",
+        sk,
+        "cons_stop_grad_ref",
         default=default_stop_grad_ref,
         cast=lambda x: _as_bool(x, default_stop_grad_ref),
     )
     zero0 = get_sk(
-        sk, "cons_drawdown_zero_at_origin",
+        sk,
+        "cons_drawdown_zero_at_origin",
         default=default_zero_at_origin,
         cast=lambda x: _as_bool(x, default_zero_at_origin),
     )
     clipm = get_sk(
-        sk, "cons_drawdown_clip_max",
+        sk,
+        "cons_drawdown_clip_max",
         default=default_clip_max,
         cast=_cast_optional_float,
     )
     beta = get_sk(
-        sk, "cons_relu_beta",
+        sk,
+        "cons_relu_beta",
         default=default_relu_beta,
         cast=float,
     )
 
-    allowed_modes = {"smooth_relu", "relu", "softplus", "none"}
+    allowed_modes = {
+        "smooth_relu",
+        "relu",
+        "softplus",
+        "none",
+    }
     allowed_rules = {"ref_minus_mean", "mean_minus_ref"}
 
     if mode not in allowed_modes:
-        pol = _cast_lower_str(get_sk(sk, "scaling_error_policy", default="raise"))
+        pol = _cast_lower_str(
+            get_sk(
+                sk, "scaling_error_policy", default="raise"
+            )
+        )
         if pol == "raise":
             raise ValueError(
-                f"drawdown_mode must be {sorted(allowed_modes)}; got {mode!r}")
+                f"drawdown_mode must be {sorted(allowed_modes)}; got {mode!r}"
+            )
         mode = default_mode
 
     if rule not in allowed_rules:
-        pol = _cast_lower_str(get_sk(
-            sk, "scaling_error_policy", default="raise"))
+        pol = _cast_lower_str(
+            get_sk(
+                sk, "scaling_error_policy", default="raise"
+            )
+        )
         if pol == "raise":
             raise ValueError(
-                f"drawdown_rule must be {sorted(allowed_rules)}; got {rule!r}")
+                f"drawdown_rule must be {sorted(allowed_rules)}; got {rule!r}"
+            )
         rule = default_rule
 
     return {
@@ -7854,11 +8152,13 @@ def resolve_cons_drawdown_options(
         "relu_beta": beta,
     }
 
+
 # ---------------------------------------
-# Helpers 
+# Helpers
 # ---------------------------------------
 
-def normalize_time_units(u: Optional[str]) -> str:
+
+def normalize_time_units(u: str | None) -> str:
     """Normalize time unit strings."""
     if u is None:
         return "unitless"
@@ -7882,7 +8182,7 @@ def normalize_time_units(u: Optional[str]) -> str:
 
 
 def seconds_per_time_unit(
-    time_units: Optional[str],
+    time_units: str | None,
     *,
     dtype=tf_float32,
 ) -> Tensor:
@@ -7896,12 +8196,15 @@ def seconds_per_time_unit(
             f"Supported: {keys}"
         )
 
-    return tf_constant(float(TIME_UNIT_TO_SECONDS[key]), dtype=dtype)
+    return tf_constant(
+        float(TIME_UNIT_TO_SECONDS[key]), dtype=dtype
+    )
 
 
 # ---------------------------------------------------------------------
 # v3.2 helpers: physics-driven mean settlement via stable stepping
 # ---------------------------------------------------------------------
+
 
 def ensure_3d(x: Tensor) -> Tensor:
     """
@@ -7930,7 +8233,9 @@ def ensure_3d(x: Tensor) -> Tensor:
             return tf_expand_dims(x, axis=-1)
         if r_static == 3:
             return x
-        raise ValueError(f"_ensure_3d: rank {r_static} not supported")
+        raise ValueError(
+            f"_ensure_3d: rank {r_static} not supported"
+        )
 
     # --- Fallback: dynamic rank (only if static is unknown) ---
     r = tf_rank(x)
@@ -7954,38 +8259,47 @@ def ensure_3d(x: Tensor) -> Tensor:
     x = tf_cond(tf_equal(tf_rank(x), 1), r1, lambda: x)
     x = tf_cond(tf_equal(tf_rank(x), 2), r2, lambda: x)
     tf_debugging.assert_equal(
-        tf_rank(x), 3, 
-        message="_ensure_3d must return rank-3"
+        tf_rank(x), 3, message="_ensure_3d must return rank-3"
     )
     return x
 
+
 def _ensure_3d(x: Tensor) -> Tensor:
     """Ensure (B,T,1) shape."""
-    if getattr(x, "shape", None) is not None and x.shape.rank == 2:
+    if (
+        getattr(x, "shape", None) is not None
+        and x.shape.rank == 2
+    ):
         return x[:, :, None]
     return x
 
 
-def _broadcast_like(x: Optional[Tensor], like: Tensor) -> Tensor:
+def _broadcast_like(x: Tensor | None, like: Tensor) -> Tensor:
     """Convert and broadcast x to the shape of `like` (dtype preserved)."""
     if x is None:
         return tf_zeros_like(like)
     xt = tf_convert_to_tensor(x, dtype=like.dtype)
     return tf_broadcast_to(xt, tf_shape(like))
 
-def dt_to_seconds(dt: Tensor, *, time_units: Optional[str]) -> Tensor:
+
+def dt_to_seconds(
+    dt: Tensor, *, time_units: str | None
+) -> Tensor:
     """dt(time_units) -> seconds."""
     dt = tf_convert_to_tensor(dt)
     dt = tf_cast(dt, tf_float32)
     dt = _finite_or_zero(dt)  # NaN/Inf -> 0
-    dt = tf_maximum(dt, tf_constant(0.0, dt.dtype))  # no negative dt
+    dt = tf_maximum(
+        dt, tf_constant(0.0, dt.dtype)
+    )  # no negative dt
     sec = seconds_per_time_unit(time_units, dtype=dt.dtype)
     return dt * sec
+
 
 def rate_to_per_second(
     dz_dt: Tensor,
     *,
-    time_units: Optional[str],
+    time_units: str | None,
 ) -> Tensor:
     """d/d(time_units) -> d/ds."""
     sec = seconds_per_time_unit(time_units, dtype=dz_dt.dtype)
@@ -8002,26 +8316,33 @@ def positive(x: Tensor, *, eps: float = _EPSILON) -> Tensor:
     """Softplus positivity."""
     return tf_softplus(x) + tf_constant(eps, x.dtype)
 
+
 def _stats(name: str, x: Tensor) -> None:
     x = tf_cast(x, tf_float32)
     tf_print(
         name,
-        "shape=", tf_shape(x),
-        "min=", tf_reduce_min(x),
-        "mean=", tf_reduce_mean(x),
-        "max=", tf_reduce_max(x),
+        "shape=",
+        tf_shape(x),
+        "min=",
+        tf_reduce_min(x),
+        "mean=",
+        tf_reduce_mean(x),
+        "max=",
+        tf_reduce_max(x),
         summarize=8,
     )
+
 
 def _frac_leq_zero(x: Tensor) -> Tensor:
     x = tf_cast(x, tf_float32)
     return tf_reduce_mean(tf_cast(x <= 0.0, tf_float32))
 
+
 def _assert_grads_finite(
     grads: list[Tensor | None],
     vars_: list[Tensor],
 ) -> None:
-    for g, v in zip(grads, vars_):
+    for g, v in zip(grads, vars_, strict=False):
         if g is None:
             continue
         tf_debugging.assert_all_finite(

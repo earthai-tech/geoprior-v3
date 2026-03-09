@@ -1,65 +1,82 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Author: LKouadio <etanoyau@gmail.com>
 # Adapted from: earthai-tech/fusionlab-learn — https://github.com/earthai-tech/fusionlab-learn
 # Modified for GeoPrior-v3 API.
 
-""" Metrics """
+"""Metrics"""
 
-from __future__ import annotations 
+from __future__ import annotations
+
 import inspect
-from numbers import Real, Integral 
-from typing import  Sequence, Optional, Literal, Union
-
 import warnings
-import numpy as np 
+from collections.abc import Sequence
+from numbers import Integral, Real
+from typing import Literal
 
-from sklearn.utils.validation import check_consistent_length 
+import numpy as np
+from sklearn.utils.validation import check_consistent_length
 
 from ..api.types import MultioutputLiteral, NanPolicyLiteral
-from ..compat.sklearn import StrOptions, validate_params, check_array
-from ..utils.generic_utils import are_all_values_in_bounds 
+from ..compat.sklearn import (
+    StrOptions,
+    check_array,
+    validate_params,
+)
+from ..utils.generic_utils import are_all_values_in_bounds
 
 __all__ = [
-    'coverage_score',
-    'continuous_ranked_probability_score', 
-    'weighted_interval_score', 
-    'prediction_stability_score' , 
-    'time_weighted_mean_absolute_error', 
-    'quantile_calibration_error', 
-    'mean_interval_width_score', 
-    'theils_u_score',
-    'get_scorer'
-   ]
+    "coverage_score",
+    "continuous_ranked_probability_score",
+    "weighted_interval_score",
+    "prediction_stability_score",
+    "time_weighted_mean_absolute_error",
+    "quantile_calibration_error",
+    "mean_interval_width_score",
+    "theils_u_score",
+    "get_scorer",
+]
 
-@validate_params({
-    'y_true': ['array-like'],
-    'y_median': ['array-like'],
-    'y_lower': ['array-like'],
-    'y_upper': ['array-like'],
-    'alphas': ['array-like'],
-    'time_weights': ['array-like', None, StrOptions({'inverse_time'})],
-    'sample_weight': ['array-like', None],
-    'nan_policy': [StrOptions({'omit', 'propagate', 'raise'})],
-    'multioutput': [StrOptions({'raw_values', 'uniform_average'})],
-    'warn_invalid_bounds': ['boolean'],
-    'eps': [Real],
-    'verbose': [Integral, bool],
-})
+
+@validate_params(
+    {
+        "y_true": ["array-like"],
+        "y_median": ["array-like"],
+        "y_lower": ["array-like"],
+        "y_upper": ["array-like"],
+        "alphas": ["array-like"],
+        "time_weights": [
+            "array-like",
+            None,
+            StrOptions({"inverse_time"}),
+        ],
+        "sample_weight": ["array-like", None],
+        "nan_policy": [
+            StrOptions({"omit", "propagate", "raise"})
+        ],
+        "multioutput": [
+            StrOptions({"raw_values", "uniform_average"})
+        ],
+        "warn_invalid_bounds": ["boolean"],
+        "eps": [Real],
+        "verbose": [Integral, bool],
+    }
+)
 def time_weighted_interval_score(
     y_true: np.ndarray,
     y_median: np.ndarray,
     y_lower: np.ndarray,
     y_upper: np.ndarray,
-    alphas: Union[Sequence[float], np.ndarray],
-    time_weights: Optional[Union[Sequence[float], str]] = 'inverse_time',
-    sample_weight: Optional[np.ndarray] = None,
-    nan_policy: NanPolicyLiteral = 'propagate',
-    multioutput: MultioutputLiteral = 'uniform_average',
+    alphas: Sequence[float] | np.ndarray,
+    time_weights: Sequence[float]
+    | str
+    | None = "inverse_time",
+    sample_weight: np.ndarray | None = None,
+    nan_policy: NanPolicyLiteral = "propagate",
+    multioutput: MultioutputLiteral = "uniform_average",
     warn_invalid_bounds: bool = True,
     eps: float = 1e-8,
-    verbose: int = 0
-) -> Union[float, np.ndarray]:
+    verbose: int = 0,
+) -> float | np.ndarray:
     r"""
     Compute the Time-Weighted Interval Score (TWIS).
 
@@ -174,127 +191,237 @@ def time_weighted_interval_score(
     if not (eps > 0):
         raise ValueError("eps must be positive.")
 
-    y_true_arr = check_array(y_true, ensure_2d=False, allow_nd=True,
-        dtype="numeric", force_all_finite=False, copy=False)
-    y_median_arr = check_array(y_median, ensure_2d=False, allow_nd=True,
-        dtype="numeric", force_all_finite=False, copy=False)
-    y_lower_arr = check_array(y_lower, ensure_2d=False, allow_nd=True,
-        dtype="numeric", force_all_finite=False, copy=False)
-    y_upper_arr = check_array(y_upper, ensure_2d=False, allow_nd=True,
-        dtype="numeric", force_all_finite=False, copy=False)
-    alphas_arr = check_array(alphas, ensure_2d=False, dtype="numeric",
-        force_all_finite=True)
+    y_true_arr = check_array(
+        y_true,
+        ensure_2d=False,
+        allow_nd=True,
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
+    )
+    y_median_arr = check_array(
+        y_median,
+        ensure_2d=False,
+        allow_nd=True,
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
+    )
+    y_lower_arr = check_array(
+        y_lower,
+        ensure_2d=False,
+        allow_nd=True,
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
+    )
+    y_upper_arr = check_array(
+        y_upper,
+        ensure_2d=False,
+        allow_nd=True,
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
+    )
+    alphas_arr = check_array(
+        alphas,
+        ensure_2d=False,
+        dtype="numeric",
+        force_all_finite=True,
+    )
 
-    if not (np.all(alphas_arr > eps) and np.all(alphas_arr < 1 - eps)):
+    if not (
+        np.all(alphas_arr > eps)
+        and np.all(alphas_arr < 1 - eps)
+    ):
         warnings.warn(
             "Some alpha values are very close to 0 or 1. Ensure they are "
             "meaningful for interval calculations (e.g., > eps and < 1-eps).",
-            UserWarning
+            UserWarning,
+            stacklevel=2,
         )
-    
+
     are_all_values_in_bounds(
-        alphas_arr, bounds=(0, 1), 
-        closed='neither', 
-        message= "All alpha values must be strictly between 0 and 1.", 
-        nan_policy = 'raise' 
+        alphas_arr,
+        bounds=(0, 1),
+        closed="neither",
+        message="All alpha values must be strictly between 0 and 1.",
+        nan_policy="raise",
     )
 
-    if alphas_arr.ndim > 1: alphas_arr = alphas_arr.squeeze()
-    if alphas_arr.ndim == 0 and alphas_arr.size == 1:
-        alphas_arr = alphas_arr.reshape(1,)
     if alphas_arr.ndim > 1:
-        raise ValueError(f"alphas must be 1D. Got {alphas_arr.shape}")
+        alphas_arr = alphas_arr.squeeze()
+    if alphas_arr.ndim == 0 and alphas_arr.size == 1:
+        alphas_arr = alphas_arr.reshape(
+            1,
+        )
+    if alphas_arr.ndim > 1:
+        raise ValueError(
+            f"alphas must be 1D. Got {alphas_arr.shape}"
+        )
     K_intervals = alphas_arr.shape[0]
 
     # Determine common processing shape: (N_samp, N_out, N_time)
     # And for bounds: (N_samp, N_out, K_int, N_time)
     y_true_ndim_orig = y_true_arr.ndim
-    if y_true_ndim_orig == 1: # (T,)
+    if y_true_ndim_orig == 1:  # (T,)
         y_true_proc = y_true_arr.reshape(1, 1, -1)
         y_median_proc = y_median_arr.reshape(1, 1, -1)
         # y_lower/upper expected: (K, T) -> (1,1,K,T)
-        if y_lower_arr.ndim == 2 and y_lower_arr.shape[0] == K_intervals:
-            y_lower_proc = y_lower_arr.reshape(1, 1, K_intervals, -1)
-            y_upper_proc = y_upper_arr.reshape(1, 1, K_intervals, -1)
-        else: 
-            raise ValueError(
-                "Shape mismatch for 1D y_true with y_lower/upper.")
-            
-    elif y_true_ndim_orig == 2: # (N, T)
-        y_true_proc = y_true_arr.reshape(y_true_arr.shape[0], 1, -1)
-        y_median_proc = y_median_arr.reshape(y_median_arr.shape[0], 1, -1)
-        # y_lower/upper expected: (N, K, T) -> (N,1,K,T)
-        if y_lower_arr.ndim == 3 and y_lower_arr.shape[1] == K_intervals:
+        if (
+            y_lower_arr.ndim == 2
+            and y_lower_arr.shape[0] == K_intervals
+        ):
             y_lower_proc = y_lower_arr.reshape(
-                y_lower_arr.shape[0], 1, K_intervals, -1)
+                1, 1, K_intervals, -1
+            )
             y_upper_proc = y_upper_arr.reshape(
-                y_upper_arr.shape[0], 1, K_intervals, -1)
-        else: 
+                1, 1, K_intervals, -1
+            )
+        else:
+            raise ValueError(
+                "Shape mismatch for 1D y_true with y_lower/upper."
+            )
+
+    elif y_true_ndim_orig == 2:  # (N, T)
+        y_true_proc = y_true_arr.reshape(
+            y_true_arr.shape[0], 1, -1
+        )
+        y_median_proc = y_median_arr.reshape(
+            y_median_arr.shape[0], 1, -1
+        )
+        # y_lower/upper expected: (N, K, T) -> (N,1,K,T)
+        if (
+            y_lower_arr.ndim == 3
+            and y_lower_arr.shape[1] == K_intervals
+        ):
+            y_lower_proc = y_lower_arr.reshape(
+                y_lower_arr.shape[0], 1, K_intervals, -1
+            )
+            y_upper_proc = y_upper_arr.reshape(
+                y_upper_arr.shape[0], 1, K_intervals, -1
+            )
+        else:
             raise ValueError(
                 "Shape mismatch for 2D y_true with y_lower/upper."
-                )
-    elif y_true_ndim_orig == 3: # (N, O, T)
+            )
+    elif y_true_ndim_orig == 3:  # (N, O, T)
         y_true_proc = y_true_arr
         y_median_proc = y_median_arr
         # y_lower/upper expected: (N, O, K, T)
-        if y_lower_arr.ndim == 4 and \
-           y_lower_arr.shape[2] == K_intervals:
-            y_lower_proc, y_upper_proc = y_lower_arr, y_upper_arr
-        else: 
+        if (
+            y_lower_arr.ndim == 4
+            and y_lower_arr.shape[2] == K_intervals
+        ):
+            y_lower_proc, y_upper_proc = (
+                y_lower_arr,
+                y_upper_arr,
+            )
+        else:
             raise ValueError(
-                "Shape mismatch for 3D y_true with y_lower/upper.")
+                "Shape mismatch for 3D y_true with y_lower/upper."
+            )
     else:
         raise ValueError("y_true must be 1D, 2D, or 3D.")
 
     # Final shape checks
     shapes_to_check = [
-        (y_true_proc.shape, y_median_proc.shape, "y_true/y_median base"),
-        ((y_true_proc.shape[0], y_true_proc.shape[1]),
-         (y_lower_proc.shape[0], y_lower_proc.shape[1]), "N,O for bounds"),
-        (y_true_proc.shape[2], y_lower_proc.shape[3], "N_timesteps mismatch")
+        (
+            y_true_proc.shape,
+            y_median_proc.shape,
+            "y_true/y_median base",
+        ),
+        (
+            (y_true_proc.shape[0], y_true_proc.shape[1]),
+            (y_lower_proc.shape[0], y_lower_proc.shape[1]),
+            "N,O for bounds",
+        ),
+        (
+            y_true_proc.shape[2],
+            y_lower_proc.shape[3],
+            "N_timesteps mismatch",
+        ),
     ]
     for sh1, sh2, msg in shapes_to_check:
         if sh1 != sh2:
-            raise ValueError(f"{msg} inconsistent: {sh1} vs {sh2}")
+            raise ValueError(
+                f"{msg} inconsistent: {sh1} vs {sh2}"
+            )
     if y_lower_proc.shape != y_upper_proc.shape:
-        raise ValueError("y_lower and y_upper processed shapes differ.")
+        raise ValueError(
+            "y_lower and y_upper processed shapes differ."
+        )
 
     n_samples, n_outputs, n_timesteps = y_true_proc.shape
 
-    if n_timesteps == 0: # Should be caught by earlier checks too
-        if multioutput == 'raw_values' and n_outputs > 1:
+    if (
+        n_timesteps == 0
+    ):  # Should be caught by earlier checks too
+        if multioutput == "raw_values" and n_outputs > 1:
             return np.full(n_outputs, np.nan)
         return np.nan
 
     # Process time_weights (same as time_weighted_accuracy_score)
     w_t: np.ndarray
     if time_weights is None:
-        w_t = np.full(n_timesteps, 1.0 / n_timesteps if n_timesteps > 0 else 0)
-    elif isinstance(time_weights, str) and time_weights == 'inverse_time':
-        if n_timesteps == 0: w_t = np.array([])
+        w_t = np.full(
+            n_timesteps,
+            1.0 / n_timesteps if n_timesteps > 0 else 0,
+        )
+    elif (
+        isinstance(time_weights, str)
+        and time_weights == "inverse_time"
+    ):
+        if n_timesteps == 0:
+            w_t = np.array([])
         else:
             w_t_raw = 1.0 / np.arange(1, n_timesteps + 1)
             sum_w_t_raw = np.sum(w_t_raw)
-            w_t = w_t_raw / sum_w_t_raw if sum_w_t_raw > eps else \
-                  np.full(n_timesteps, 1.0/n_timesteps if n_timesteps > 0 else 0)
+            w_t = (
+                w_t_raw / sum_w_t_raw
+                if sum_w_t_raw > eps
+                else np.full(
+                    n_timesteps,
+                    1.0 / n_timesteps
+                    if n_timesteps > 0
+                    else 0,
+                )
+            )
     else:
-        w_t = check_array(time_weights, ensure_2d=False, dtype="numeric",
-                          force_all_finite=True)
-        if w_t.ndim > 1: w_t = w_t.squeeze()
+        w_t = check_array(
+            time_weights,
+            ensure_2d=False,
+            dtype="numeric",
+            force_all_finite=True,
+        )
+        if w_t.ndim > 1:
+            w_t = w_t.squeeze()
         if w_t.shape[0] != n_timesteps:
             raise ValueError("time_weights length mismatch.")
         sum_w_t = np.sum(w_t)
         if sum_w_t < eps:
-            if np.any(w_t != 0): 
-                raise ValueError("Sum of time_weights near zero.")
-            w_t = np.zeros(n_timesteps) if n_timesteps > 0 else np.array([])
-        else: w_t = w_t / sum_w_t
+            if np.any(w_t != 0):
+                raise ValueError(
+                    "Sum of time_weights near zero."
+                )
+            w_t = (
+                np.zeros(n_timesteps)
+                if n_timesteps > 0
+                else np.array([])
+            )
+        else:
+            w_t = w_t / sum_w_t
 
     # Process sample_weight
     s_weights_proc = None
     if sample_weight is not None:
-        s_weights_proc = check_array(sample_weight, ensure_2d=False,
-            dtype="numeric", force_all_finite=True, copy=False)
+        s_weights_proc = check_array(
+            sample_weight,
+            ensure_2d=False,
+            dtype="numeric",
+            force_all_finite=True,
+            copy=False,
+        )
         check_consistent_length(y_true_proc, s_weights_proc)
         if s_weights_proc.ndim > 1:
             raise ValueError("sample_weight must be 1D.")
@@ -307,88 +434,118 @@ def time_weighted_interval_score(
     nan_mask_yl = np.isnan(y_lower_proc)
     nan_mask_yu = np.isnan(y_upper_proc)
     # Propagate K-dim NaNs to T-dim for combining: (N,O,T)
-    nan_mask_bounds_agg = np.any(nan_mask_yl | nan_mask_yu, axis=2)
+    nan_mask_bounds_agg = np.any(
+        nan_mask_yl | nan_mask_yu, axis=2
+    )
     # Overall NaN mask per (sample, output, timestep)
-    nan_mask_sot = nan_mask_yt | nan_mask_ym | nan_mask_bounds_agg
+    nan_mask_sot = (
+        nan_mask_yt | nan_mask_ym | nan_mask_bounds_agg
+    )
 
     y_true_calc, y_median_calc = y_true_proc, y_median_proc
     y_lower_calc, y_upper_calc = y_lower_proc, y_upper_proc
     current_s_weights = s_weights_proc
 
-    if np.any(nan_mask_sot): # If any NaN affects any S,O,T point
-        if nan_policy == 'raise':
+    if np.any(
+        nan_mask_sot
+    ):  # If any NaN affects any S,O,T point
+        if nan_policy == "raise":
             raise ValueError("NaNs detected in inputs.")
-        elif nan_policy == 'omit':
+        elif nan_policy == "omit":
             # Omit entire samples if any (S,O,T) point is affected
-            rows_with_any_nan = nan_mask_sot.any(axis=(1,2)) # (N,)
+            rows_with_any_nan = nan_mask_sot.any(
+                axis=(1, 2)
+            )  # (N,)
             rows_to_keep = ~rows_with_any_nan
             if not np.any(rows_to_keep):
-                if multioutput=='raw_values' and n_outputs>1: 
-                    return np.full(n_outputs,np.nan)
+                if (
+                    multioutput == "raw_values"
+                    and n_outputs > 1
+                ):
+                    return np.full(n_outputs, np.nan)
                 return np.nan
             y_true_calc = y_true_proc[rows_to_keep]
             y_median_calc = y_median_proc[rows_to_keep]
             y_lower_calc = y_lower_proc[rows_to_keep]
             y_upper_calc = y_upper_proc[rows_to_keep]
             if current_s_weights is not None:
-                current_s_weights = current_s_weights[rows_to_keep]
-            nan_mask_sot = nan_mask_sot[rows_to_keep] # For propagate
+                current_s_weights = current_s_weights[
+                    rows_to_keep
+                ]
+            nan_mask_sot = nan_mask_sot[
+                rows_to_keep
+            ]  # For propagate
 
-    if y_true_calc.shape[0] == 0: # All samples omitted
-        if multioutput=='raw_values' and n_outputs>1: 
-            return np.full(n_outputs,np.nan)
+    if y_true_calc.shape[0] == 0:  # All samples omitted
+        if multioutput == "raw_values" and n_outputs > 1:
+            return np.full(n_outputs, np.nan)
         return np.nan
 
     # --- 3. Compute WIS components per (S,O,T) ---
     # Expand y_true_calc, y_median_calc for broadcasting with K dim
-    y_t_exp = y_true_calc[..., np.newaxis, :] # (N,O,1,T)
-    
+    y_t_exp = y_true_calc[..., np.newaxis, :]  # (N,O,1,T)
+
     mae_term_sot = np.abs(
         y_median_calc - y_true_calc
-    ) # (N,O,T)
+    )  # (N,O,T)
 
     # Interval components: (N,O,K,T)
     interval_width_sokt = y_upper_calc - y_lower_calc
-    
+
     if warn_invalid_bounds:
-        with np.errstate(invalid='ignore'): invalid_b = y_lower_calc > y_upper_calc
+        with np.errstate(invalid="ignore"):
+            invalid_b = y_lower_calc > y_upper_calc
         if np.any(invalid_b):
             num_inv = np.sum(invalid_b)
-            perc = (num_inv/invalid_b.size)*100 if invalid_b.size>0 else 0
-            warnings.warn(f"{num_inv} ({perc:.2f}%) invalid L/U bounds.",
-                          UserWarning)
+            perc = (
+                (num_inv / invalid_b.size) * 100
+                if invalid_b.size > 0
+                else 0
+            )
+            warnings.warn(
+                f"{num_inv} ({perc:.2f}%) invalid L/U bounds.",
+                UserWarning,
+                stacklevel=2,
+            )
 
     # Reshape alphas for broadcasting: (1,1,K,1)
     alphas_exp_k = alphas_arr.reshape(1, 1, -1, 1)
 
     # WIS_alpha_k components (direct formulation)
-    wis_sharpness_sokt = (alphas_exp_k / 2.0) * interval_width_sokt
-    wis_underpen_sokt = (y_lower_calc - y_t_exp) * \
-                        (y_t_exp < y_lower_calc)
-    wis_overpen_sokt = (y_t_exp - y_upper_calc) * \
-                       (y_t_exp > y_upper_calc)
-    
+    wis_sharpness_sokt = (
+        alphas_exp_k / 2.0
+    ) * interval_width_sokt
+    wis_underpen_sokt = (y_lower_calc - y_t_exp) * (
+        y_t_exp < y_lower_calc
+    )
+    wis_overpen_sokt = (y_t_exp - y_upper_calc) * (
+        y_t_exp > y_upper_calc
+    )
+
     sum_interval_wis_components_sot = np.sum(
-        wis_sharpness_sokt + wis_underpen_sokt + wis_overpen_sokt,
-        axis=2 # Sum over K_intervals
-    ) # (N,O,T)
+        wis_sharpness_sokt
+        + wis_underpen_sokt
+        + wis_overpen_sokt,
+        axis=2,  # Sum over K_intervals
+    )  # (N,O,T)
 
     # WIS per (Sample, Output, Timestep)
     if K_intervals == 0:
         wis_sot = mae_term_sot
     else:
-        wis_sot = (mae_term_sot + sum_interval_wis_components_sot) / \
-                  (K_intervals + 1.0)
-    
+        wis_sot = (
+            mae_term_sot + sum_interval_wis_components_sot
+        ) / (K_intervals + 1.0)
+
     # Apply NaN mask if nan_policy is 'propagate'
-    if nan_policy == 'propagate':
+    if nan_policy == "propagate":
         wis_sot = np.where(nan_mask_sot, np.nan, wis_sot)
 
     # --- 4. Apply Time Weights ---
     # twis_so shape: (N_calc, O)
     twis_so = np.sum(
-        wis_sot * w_t.reshape(1,1,-1), # Broadcast w_t
-        axis=2 # Sum over timesteps
+        wis_sot * w_t.reshape(1, 1, -1),  # Broadcast w_t
+        axis=2,  # Sum over timesteps
     )
 
     # --- 5. Aggregate Scores ---
@@ -400,26 +557,36 @@ def time_weighted_interval_score(
                 twis_so, axis=0, weights=current_s_weights
             )
     else:
-        if nan_policy =='propagate': 
-            output_scores = np.mean (twis_so,  axis= 0 )
+        if nan_policy == "propagate":
+            output_scores = np.mean(twis_so, axis=0)
         else:
             output_scores = np.nanmean(twis_so, axis=0)
 
-    if multioutput == 'uniform_average':
+    if multioutput == "uniform_average":
         final_score = np.nanmean(output_scores)
-    elif multioutput == 'raw_values':
+    elif multioutput == "raw_values":
         final_score = output_scores
-    else: raise ValueError(f"Unknown multioutput: {multioutput}")
+    else:
+        raise ValueError(
+            f"Unknown multioutput: {multioutput}"
+        )
 
     # Adjust for original input dimensionality if scalar output expected
-    if y_true_ndim_orig <= 2 and multioutput == 'raw_values': # Incl. 1D y_true
-        if isinstance(final_score, np.ndarray) and final_score.size == 1:
+    if (
+        y_true_ndim_orig <= 2 and multioutput == "raw_values"
+    ):  # Incl. 1D y_true
+        if (
+            isinstance(final_score, np.ndarray)
+            and final_score.size == 1
+        ):
             final_score = final_score.item()
-            
-            # Already scalar
-    elif y_true_ndim_orig == 1 and multioutput == 'uniform_average': # Already scalar
-        pass
 
+            # Already scalar
+    elif (
+        y_true_ndim_orig == 1
+        and multioutput == "uniform_average"
+    ):  # Already scalar
+        pass
 
     if verbose >= 1:
         if isinstance(final_score, np.ndarray):
@@ -427,30 +594,42 @@ def time_weighted_interval_score(
                 print(f"TWIS computed: {final_score}")
         else:
             print(f"TWIS computed: {final_score:.4f}")
-            
+
     return final_score
 
 
-@validate_params({
-    'y_true': ['array-like'],
-    'y_pred': ['array-like'],
-    'time_weights': ['array-like', None, StrOptions({'inverse_time'})],
-    'sample_weight': ['array-like', None],
-    'nan_policy': [StrOptions({'omit', 'propagate', 'raise'})],
-    'multioutput': [StrOptions({'raw_values', 'uniform_average'})],
-    'eps': [Real],
-    'verbose': [Integral, bool],
-})
+@validate_params(
+    {
+        "y_true": ["array-like"],
+        "y_pred": ["array-like"],
+        "time_weights": [
+            "array-like",
+            None,
+            StrOptions({"inverse_time"}),
+        ],
+        "sample_weight": ["array-like", None],
+        "nan_policy": [
+            StrOptions({"omit", "propagate", "raise"})
+        ],
+        "multioutput": [
+            StrOptions({"raw_values", "uniform_average"})
+        ],
+        "eps": [Real],
+        "verbose": [Integral, bool],
+    }
+)
 def time_weighted_accuracy_score(
     y_true: np.ndarray,
     y_pred: np.ndarray,
-    time_weights: Optional[Union[Sequence[float], str]] = 'inverse_time',
-    sample_weight: Optional[np.ndarray] = None,
-    nan_policy: NanPolicyLiteral = 'propagate',
-    multioutput: MultioutputLiteral = 'uniform_average',
-    eps: float = 1e-8, 
-    verbose: int = 0
-) -> Union[float, np.ndarray]:
+    time_weights: Sequence[float]
+    | str
+    | None = "inverse_time",
+    sample_weight: np.ndarray | None = None,
+    nan_policy: NanPolicyLiteral = "propagate",
+    multioutput: MultioutputLiteral = "uniform_average",
+    eps: float = 1e-8,
+    verbose: int = 0,
+) -> float | np.ndarray:
     r"""
     Compute the Time-Weighted Accuracy (TWA) score.
 
@@ -556,12 +735,20 @@ def time_weighted_accuracy_score(
     # Let's assume check_array handles this by converting to object if needed.
 
     y_true_arr = check_array(
-        y_true, ensure_2d=False, allow_nd=True,
-        dtype=None, force_all_finite=False, copy=False # Allow any type
+        y_true,
+        ensure_2d=False,
+        allow_nd=True,
+        dtype=None,
+        force_all_finite=False,
+        copy=False,  # Allow any type
     )
     y_pred_arr = check_array(
-        y_pred, ensure_2d=False, allow_nd=True,
-        dtype=None, force_all_finite=False, copy=False
+        y_pred,
+        ensure_2d=False,
+        allow_nd=True,
+        dtype=None,
+        force_all_finite=False,
+        copy=False,
     )
 
     if not (eps > 0):
@@ -573,13 +760,17 @@ def time_weighted_accuracy_score(
         )
 
     y_input_ndim_orig = y_true_arr.ndim
-    if y_input_ndim_orig == 1: # Single sequence (T,)
+    if y_input_ndim_orig == 1:  # Single sequence (T,)
         y_true_proc = y_true_arr.reshape(1, 1, -1)
         y_pred_proc = y_pred_arr.reshape(1, 1, -1)
-    elif y_input_ndim_orig == 2: # (B, T)
-        y_true_proc = y_true_arr.reshape(y_true_arr.shape[0], 1, -1)
-        y_pred_proc = y_pred_arr.reshape(y_pred_arr.shape[0], 1, -1)
-    elif y_input_ndim_orig == 3: # (B, O, T)
+    elif y_input_ndim_orig == 2:  # (B, T)
+        y_true_proc = y_true_arr.reshape(
+            y_true_arr.shape[0], 1, -1
+        )
+        y_pred_proc = y_pred_arr.reshape(
+            y_pred_arr.shape[0], 1, -1
+        )
+    elif y_input_ndim_orig == 3:  # (B, O, T)
         y_true_proc = y_true_arr
         y_pred_proc = y_pred_arr
     else:
@@ -592,56 +783,86 @@ def time_weighted_accuracy_score(
 
     if n_timesteps == 0:
         if verbose >= 1:
-            print("TWA score requires at least 1 time step. Returning NaN.")
-        if multioutput == 'raw_values' and n_outputs > 1:
+            print(
+                "TWA score requires at least 1 time step. Returning NaN."
+            )
+        if multioutput == "raw_values" and n_outputs > 1:
             return np.full(n_outputs, np.nan)
         return np.nan
 
     # Process time_weights
     w_t: np.ndarray
-    if time_weights is None: # Uniform weights
-        w_t = np.full(n_timesteps, 1.0 / n_timesteps if n_timesteps > 0 else 0)
-    elif isinstance(time_weights, str) and \
-         time_weights == 'inverse_time':
+    if time_weights is None:  # Uniform weights
+        w_t = np.full(
+            n_timesteps,
+            1.0 / n_timesteps if n_timesteps > 0 else 0,
+        )
+    elif (
+        isinstance(time_weights, str)
+        and time_weights == "inverse_time"
+    ):
         if n_timesteps == 0:
-             w_t = np.array([])
+            w_t = np.array([])
         else:
             w_t_raw = 1.0 / np.arange(1, n_timesteps + 1)
             sum_w_t_raw = np.sum(w_t_raw)
-            w_t = w_t_raw / sum_w_t_raw if sum_w_t_raw > eps else \
-                  np.full(n_timesteps, 1.0 / n_timesteps if n_timesteps > 0 else 0)
-    else: # Custom array-like weights
+            w_t = (
+                w_t_raw / sum_w_t_raw
+                if sum_w_t_raw > eps
+                else np.full(
+                    n_timesteps,
+                    1.0 / n_timesteps
+                    if n_timesteps > 0
+                    else 0,
+                )
+            )
+    else:  # Custom array-like weights
         w_t = check_array(
-            time_weights, ensure_2d=False, dtype="numeric",
-            force_all_finite=True
+            time_weights,
+            ensure_2d=False,
+            dtype="numeric",
+            force_all_finite=True,
         )
-        if w_t.ndim > 1: w_t = w_t.squeeze()
+        if w_t.ndim > 1:
+            w_t = w_t.squeeze()
         if w_t.shape[0] != n_timesteps:
             raise ValueError(
                 f"Length of time_weights ({w_t.shape[0]}) must match "
                 f"n_timesteps ({n_timesteps})."
             )
         sum_w_t = np.sum(w_t)
-        if sum_w_t < eps: # Allow sum to be zero if all weights are zero
-             # If sum is zero but not all weights are zero (e.g. pos and neg)
-             if np.any(w_t != 0): 
-                 raise ValueError(
-                     "Sum of custom time_weights is near"
-                     " zero but elements are non-zero.")
-             # If all weights are zero, result will be zero unless NaNs involved
-             w_t = np.zeros(n_timesteps) if n_timesteps > 0 else np.array([])
+        if (
+            sum_w_t < eps
+        ):  # Allow sum to be zero if all weights are zero
+            # If sum is zero but not all weights are zero (e.g. pos and neg)
+            if np.any(w_t != 0):
+                raise ValueError(
+                    "Sum of custom time_weights is near"
+                    " zero but elements are non-zero."
+                )
+            # If all weights are zero, result will be zero unless NaNs involved
+            w_t = (
+                np.zeros(n_timesteps)
+                if n_timesteps > 0
+                else np.array([])
+            )
 
         else:
-            w_t = w_t / sum_w_t # Normalize
+            w_t = w_t / sum_w_t  # Normalize
 
     # Process sample_weight
     s_weights_proc = None
     if sample_weight is not None:
         s_weights_proc = check_array(
-            sample_weight, ensure_2d=False, dtype="numeric",
-            force_all_finite=True, copy=False
+            sample_weight,
+            ensure_2d=False,
+            dtype="numeric",
+            force_all_finite=True,
+            copy=False,
         )
-        check_consistent_length(y_true_proc, s_weights_proc) # n_samples
+        check_consistent_length(
+            y_true_proc, s_weights_proc
+        )  # n_samples
         if s_weights_proc.ndim > 1:
             raise ValueError(
                 f"sample_weight must be 1D. Got {s_weights_proc.shape}"
@@ -658,14 +879,18 @@ def time_weighted_accuracy_score(
     try:
         nan_mask_yt = np.isnan(y_true_proc.astype(float))
         nan_mask_yp = np.isnan(y_pred_proc.astype(float))
-    except (TypeError, ValueError): # If conversion to float fails (e.g. string labels)
+    except (
+        TypeError,
+        ValueError,
+    ):  # If conversion to float fails (e.g. string labels)
         # Fallback: assume no np.nan style NaNs, or user handles them.
         # This means nan_policy might not work as expected for non-numeric labels
         # if they contain non-standard NaNs.
         warnings.warn(
             "NaN detection failed for non-numeric y_true/y_pred. "
             "Ensure NaNs are handled or inputs are numeric for nan_policy.",
-            UserWarning
+            UserWarning,
+            stacklevel=2,
         )
         nan_mask_yt = np.full(y_true_proc.shape, False)
         nan_mask_yp = np.full(y_pred_proc.shape, False)
@@ -680,31 +905,48 @@ def time_weighted_accuracy_score(
     # For 'omit', remove entire samples if any of their (y_true or y_pred)
     # at any time step, for any output, is NaN.
     if np.any(nan_mask_sot):
-        if nan_policy == 'raise':
-            raise ValueError("NaNs detected in y_true or y_pred.")
-        elif nan_policy == 'omit':
+        if nan_policy == "raise":
+            raise ValueError(
+                "NaNs detected in y_true or y_pred."
+            )
+        elif nan_policy == "omit":
             if verbose >= 2:
-                print("NaNs detected. Omitting samples with NaNs.")
-            rows_with_any_nan = nan_mask_sot.any(axis=(1,2)) # (n_s,)
+                print(
+                    "NaNs detected. Omitting samples with NaNs."
+                )
+            rows_with_any_nan = nan_mask_sot.any(
+                axis=(1, 2)
+            )  # (n_s,)
             rows_to_keep = ~rows_with_any_nan
 
             if not np.any(rows_to_keep):
                 if verbose >= 1:
-                    print("All samples omitted. Returning NaN(s).")
-                if multioutput == 'raw_values' and n_outputs > 1:
+                    print(
+                        "All samples omitted. Returning NaN(s)."
+                    )
+                if (
+                    multioutput == "raw_values"
+                    and n_outputs > 1
+                ):
                     return np.full(n_outputs, np.nan)
                 return np.nan
 
             y_true_calc = y_true_proc[rows_to_keep]
             y_pred_calc = y_pred_proc[rows_to_keep]
             if current_s_weights is not None:
-                current_s_weights = current_s_weights[rows_to_keep]
-            nan_mask_sot = nan_mask_sot[rows_to_keep] # For propagate logic
+                current_s_weights = current_s_weights[
+                    rows_to_keep
+                ]
+            nan_mask_sot = nan_mask_sot[
+                rows_to_keep
+            ]  # For propagate logic
 
-    if y_true_calc.shape[0] == 0: # All samples omitted
+    if y_true_calc.shape[0] == 0:  # All samples omitted
         if verbose >= 1:
-            print("No samples left after NaN handling. Returning NaN(s).")
-        if multioutput == 'raw_values' and n_outputs > 1:
+            print(
+                "No samples left after NaN handling. Returning NaN(s)."
+            )
+        if multioutput == "raw_values" and n_outputs > 1:
             return np.full(n_outputs, np.nan)
         return np.nan
 
@@ -714,40 +956,56 @@ def time_weighted_accuracy_score(
 
     # Apply NaN mask if nan_policy is 'propagate'
     # This makes correctness NaN if original input was NaN
-    if nan_policy == 'propagate':
-        correct_preds = np.where(nan_mask_sot, np.nan, correct_preds)
+    if nan_policy == "propagate":
+        correct_preds = np.where(
+            nan_mask_sot, np.nan, correct_preds
+        )
 
     # Weighted sum of correctness for each trajectory (sample, output)
     # w_t is (n_timesteps,). Result: (n_samples_calc, n_outputs)
     twa_per_trajectory = np.sum(
-        correct_preds * w_t.reshape(1,1,-1), # Broadcast w_t
-        axis=2
+        correct_preds
+        * w_t.reshape(1, 1, -1),  # Broadcast w_t
+        axis=2,
     )
 
     # --- 4. Aggregate Scores ---
     if current_s_weights is not None:
-        if np.sum(current_s_weights) < eps: # Avoid division by zero
+        if (
+            np.sum(current_s_weights) < eps
+        ):  # Avoid division by zero
             output_scores = np.full(n_outputs, np.nan)
         else:
             # np.average propagates NaNs correctly
             output_scores = np.average(
-                twa_per_trajectory, axis=0, weights=current_s_weights
+                twa_per_trajectory,
+                axis=0,
+                weights=current_s_weights,
             )
     else:
         # np.nanmean handles NaNs from propagation
         output_scores = np.nanmean(twa_per_trajectory, axis=0)
 
-    if multioutput == 'uniform_average':
-        final_score = np.nanmean(output_scores) # Handles NaN outputs
-    elif multioutput == 'raw_values':
+    if multioutput == "uniform_average":
+        final_score = np.nanmean(
+            output_scores
+        )  # Handles NaN outputs
+    elif multioutput == "raw_values":
         final_score = output_scores
-    else: # Should not be reached
-        raise ValueError(f"Unknown multioutput mode: {multioutput}")
+    else:  # Should not be reached
+        raise ValueError(
+            f"Unknown multioutput mode: {multioutput}"
+        )
 
     # If original input was 1D/2D (single effective output),
     # and multioutput='raw_values', result should be scalar.
-    if (y_input_ndim_orig <= 2) and multioutput == 'raw_values':
-        if isinstance(final_score, np.ndarray) and final_score.size == 1:
+    if (
+        y_input_ndim_orig <= 2
+    ) and multioutput == "raw_values":
+        if (
+            isinstance(final_score, np.ndarray)
+            and final_score.size == 1
+        ):
             final_score = final_score.item()
 
     if verbose >= 1:
@@ -759,24 +1017,31 @@ def time_weighted_accuracy_score(
 
     return final_score
 
-@validate_params({
-    'y_true': ['array-like'],
-    'y_pred': ['array-like'],
-    'sample_weight': ['array-like', None],
-    'nan_policy': [StrOptions({'omit', 'propagate', 'raise'})],
-    'multioutput': [StrOptions({'raw_values', 'uniform_average'})],
-    'eps': [Real],
-    'verbose': [Integral, bool],
-})
+
+@validate_params(
+    {
+        "y_true": ["array-like"],
+        "y_pred": ["array-like"],
+        "sample_weight": ["array-like", None],
+        "nan_policy": [
+            StrOptions({"omit", "propagate", "raise"})
+        ],
+        "multioutput": [
+            StrOptions({"raw_values", "uniform_average"})
+        ],
+        "eps": [Real],
+        "verbose": [Integral, bool],
+    }
+)
 def theils_u_score(
     y_true: np.ndarray,
     y_pred: np.ndarray,
-    sample_weight: Optional[np.ndarray] = None,
-    nan_policy: NanPolicyLiteral = 'propagate',
-    multioutput: MultioutputLiteral = 'uniform_average',
-    eps: float = 1e-8, # For safe division
-    verbose: int = 0
-) -> Union[float, np.ndarray]:
+    sample_weight: np.ndarray | None = None,
+    nan_policy: NanPolicyLiteral = "propagate",
+    multioutput: MultioutputLiteral = "uniform_average",
+    eps: float = 1e-8,  # For safe division
+    verbose: int = 0,
+) -> float | np.ndarray:
     r"""
     Compute Theil's U Statistic.
 
@@ -886,12 +1151,20 @@ def theils_u_score(
     """
     # --- 1. Input Validation and Preprocessing ---
     y_true_arr = check_array(
-        y_true, ensure_2d=False, allow_nd=True,
-        dtype="numeric", force_all_finite=False, copy=False
+        y_true,
+        ensure_2d=False,
+        allow_nd=True,
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
     )
     y_pred_arr = check_array(
-        y_pred, ensure_2d=False, allow_nd=True,
-        dtype="numeric", force_all_finite=False, copy=False
+        y_pred,
+        ensure_2d=False,
+        allow_nd=True,
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
     )
 
     if not (eps > 0):
@@ -903,13 +1176,17 @@ def theils_u_score(
         )
 
     y_input_ndim_orig = y_true_arr.ndim
-    if y_input_ndim_orig == 1: # Single trajectory (T,)
+    if y_input_ndim_orig == 1:  # Single trajectory (T,)
         y_true_proc = y_true_arr.reshape(1, 1, -1)
         y_pred_proc = y_pred_arr.reshape(1, 1, -1)
-    elif y_input_ndim_orig == 2: # (B, T)
-        y_true_proc = y_true_arr.reshape(y_true_arr.shape[0], 1, -1)
-        y_pred_proc = y_pred_arr.reshape(y_pred_arr.shape[0], 1, -1)
-    elif y_input_ndim_orig == 3: # (B, O, T)
+    elif y_input_ndim_orig == 2:  # (B, T)
+        y_true_proc = y_true_arr.reshape(
+            y_true_arr.shape[0], 1, -1
+        )
+        y_pred_proc = y_pred_arr.reshape(
+            y_pred_arr.shape[0], 1, -1
+        )
+    elif y_input_ndim_orig == 3:  # (B, O, T)
         y_true_proc = y_true_arr
         y_pred_proc = y_pred_arr
     else:
@@ -922,8 +1199,10 @@ def theils_u_score(
 
     if n_timesteps < 2:
         if verbose >= 1:
-            print("Theil's U requires at least 2 time steps. Returning NaN.")
-        if multioutput == 'raw_values' and n_outputs > 1:
+            print(
+                "Theil's U requires at least 2 time steps. Returning NaN."
+            )
+        if multioutput == "raw_values" and n_outputs > 1:
             return np.full(n_outputs, np.nan)
         return np.nan
 
@@ -931,10 +1210,15 @@ def theils_u_score(
     s_weights_proc = None
     if sample_weight is not None:
         s_weights_proc = check_array(
-            sample_weight, ensure_2d=False, dtype="numeric",
-            force_all_finite=True, copy=False
+            sample_weight,
+            ensure_2d=False,
+            dtype="numeric",
+            force_all_finite=True,
+            copy=False,
         )
-        check_consistent_length(y_true_proc, s_weights_proc) # n_samples
+        check_consistent_length(
+            y_true_proc, s_weights_proc
+        )  # n_samples
         if s_weights_proc.ndim > 1:
             raise ValueError(
                 f"sample_weight must be 1D. Got {s_weights_proc.shape}"
@@ -943,51 +1227,76 @@ def theils_u_score(
     # --- 2. Handle NaNs ---
     # NaNs relevant for error calculation (involving t and t-1)
     # Mask for y_true[:,:,1:], y_pred[:,:,1:], y_true[:,:,:-1]
-    nan_mask_model_terms = np.isnan(y_true_proc[:,:,1:]) | \
-                           np.isnan(y_pred_proc[:,:,1:])
-    nan_mask_base_terms = np.isnan(y_true_proc[:,:,1:]) | \
-                          np.isnan(y_true_proc[:,:,:-1])
+    nan_mask_model_terms = np.isnan(
+        y_true_proc[:, :, 1:]
+    ) | np.isnan(y_pred_proc[:, :, 1:])
+    nan_mask_base_terms = np.isnan(
+        y_true_proc[:, :, 1:]
+    ) | np.isnan(y_true_proc[:, :, :-1])
 
     # Combined mask for any (sample, output) pair having NaN in relevant parts
     # A sample-output trajectory is problematic if any of its error terms is NaN
-    nan_in_model_traj = nan_mask_model_terms.any(axis=2) # (n_s, n_o)
-    nan_in_base_traj = nan_mask_base_terms.any(axis=2)   # (n_s, n_o)
-    nan_mask_so = nan_in_model_traj | nan_in_base_traj   # (n_s, n_o)
+    nan_in_model_traj = nan_mask_model_terms.any(
+        axis=2
+    )  # (n_s, n_o)
+    nan_in_base_traj = nan_mask_base_terms.any(
+        axis=2
+    )  # (n_s, n_o)
+    nan_mask_so = (
+        nan_in_model_traj | nan_in_base_traj
+    )  # (n_s, n_o)
 
     y_true_calc = y_true_proc
     y_pred_calc = y_pred_proc
     current_s_weights = s_weights_proc
 
-    if np.any(nan_mask_so): # Check if any NaN exists that affects calculation
-        if nan_policy == 'raise':
-            raise ValueError("NaNs detected in y_true or y_pred "
-                             "affecting error calculation.")
-        elif nan_policy == 'omit':
+    if np.any(
+        nan_mask_so
+    ):  # Check if any NaN exists that affects calculation
+        if nan_policy == "raise":
+            raise ValueError(
+                "NaNs detected in y_true or y_pred "
+                "affecting error calculation."
+            )
+        elif nan_policy == "omit":
             if verbose >= 2:
-                print("NaNs detected. Omitting samples with NaNs "
-                      "in relevant parts.")
+                print(
+                    "NaNs detected. Omitting samples with NaNs "
+                    "in relevant parts."
+                )
             # Omit entire samples (rows) if any output trajectory has NaNs
-            rows_with_any_nan = nan_mask_so.any(axis=1) # (n_samples,)
+            rows_with_any_nan = nan_mask_so.any(
+                axis=1
+            )  # (n_samples,)
             rows_to_keep = ~rows_with_any_nan
 
             if not np.any(rows_to_keep):
                 if verbose >= 1:
-                    print("All samples omitted. Returning NaN(s).")
-                if multioutput == 'raw_values' and n_outputs > 1:
+                    print(
+                        "All samples omitted. Returning NaN(s)."
+                    )
+                if (
+                    multioutput == "raw_values"
+                    and n_outputs > 1
+                ):
                     return np.full(n_outputs, np.nan)
                 return np.nan
 
             y_true_calc = y_true_proc[rows_to_keep]
             y_pred_calc = y_pred_proc[rows_to_keep]
             if current_s_weights is not None:
-                current_s_weights = current_s_weights[rows_to_keep]
+                current_s_weights = current_s_weights[
+                    rows_to_keep
+                ]
             # Update nan_mask_so for propagate logic if used later
             nan_mask_so = nan_mask_so[rows_to_keep]
 
-    if y_true_calc.shape[0] == 0: # All samples omitted
+    if y_true_calc.shape[0] == 0:  # All samples omitted
         if verbose >= 1:
-            print("No samples left after NaN handling. Returning NaN(s).")
-        if multioutput == 'raw_values' and n_outputs > 1:
+            print(
+                "No samples left after NaN handling. Returning NaN(s)."
+            )
+        if multioutput == "raw_values" and n_outputs > 1:
             return np.full(n_outputs, np.nan)
         return np.nan
 
@@ -995,10 +1304,10 @@ def theils_u_score(
     # errors shape: (n_samples_calc, n_outputs, n_timesteps - 1)
     err_model_sq = (
         y_true_calc[..., 1:] - y_pred_calc[..., 1:]
-    )**2
+    ) ** 2
     err_base_sq = (
         y_true_calc[..., 1:] - y_true_calc[..., :-1]
-    )**2
+    ) ** 2
 
     # Apply sample weights if provided
     if current_s_weights is not None:
@@ -1010,17 +1319,23 @@ def theils_u_score(
     # Sum of squared errors per output
     # axis=(0, 2) sums over samples and time dimensions
     # NaNs will propagate if nan_policy='propagate' as err arrays contain them
-    sse_model_per_output = np.sum(err_model_sq, axis=(0, 2)) # (n_outputs,)
-    sse_base_per_output = np.sum(err_base_sq, axis=(0, 2))  # (n_outputs,)
+    sse_model_per_output = np.sum(
+        err_model_sq, axis=(0, 2)
+    )  # (n_outputs,)
+    sse_base_per_output = np.sum(
+        err_base_sq, axis=(0, 2)
+    )  # (n_outputs,)
 
     # If nan_policy='propagate', ensure original NaNs lead to NaN scores
     # This check is more about ensuring that if an entire output channel
     # had NaNs from the start (via nan_mask_so), its score is NaN,
     # even if sums somehow became non-NaN (e.g., if weights were zero).
-    if nan_policy == 'propagate':
+    if nan_policy == "propagate":
         # nan_mask_so is (n_samples_calc, n_outputs) or original
         # We need (n_outputs,) mask: True if any sample for that output had NaN
-        output_had_nan = nan_mask_so.any(axis=0) # (n_outputs,)
+        output_had_nan = nan_mask_so.any(
+            axis=0
+        )  # (n_outputs,)
         sse_model_per_output = np.where(
             output_had_nan, np.nan, sse_model_per_output
         )
@@ -1030,14 +1345,16 @@ def theils_u_score(
 
     # --- 4. Compute Theil's U per output ---
     # Handle division by zero or near-zero sse_base
-    u_scores_sq = np.full(n_outputs, np.nan) # Initialize with NaN
+    u_scores_sq = np.full(
+        n_outputs, np.nan
+    )  # Initialize with NaN
     # Valid where sse_base_per_output is substantially non-zero
     valid_division = sse_base_per_output > eps
-    
+
     # Calculate ratio only for valid divisions
     u_scores_sq[valid_division] = (
-        sse_model_per_output[valid_division] /
-        sse_base_per_output[valid_division]
+        sse_model_per_output[valid_division]
+        / sse_base_per_output[valid_division]
     )
     # Special case: if sse_model is also near zero where sse_base is near zero
     # Some define U=1 if both are zero (model is as good as naive, which is perfect)
@@ -1045,21 +1362,28 @@ def theils_u_score(
     # Current: if sse_base <= eps, ratio is NaN. If sse_model is also 0, sqrt(NaN) is NaN.
     # If sse_model > 0 and sse_base <= eps, U is effectively infinite (bad model), results in NaN.
     # This seems reasonable: if baseline is non-informative (constant series), U is tricky.
-    
+
     u_scores_per_output = np.sqrt(u_scores_sq)
 
     # --- 5. Aggregate Scores ---
-    if multioutput == 'uniform_average':
+    if multioutput == "uniform_average":
         final_score = np.nanmean(u_scores_per_output)
-    elif multioutput == 'raw_values':
+    elif multioutput == "raw_values":
         final_score = u_scores_per_output
-    else: # Should not be reached
-        raise ValueError(f"Unknown multioutput mode: {multioutput}")
+    else:  # Should not be reached
+        raise ValueError(
+            f"Unknown multioutput mode: {multioutput}"
+        )
 
     # If original input was 1D/2D (single effective output),
     # and multioutput='raw_values', result should be scalar.
-    if (y_input_ndim_orig <= 2) and multioutput == 'raw_values':
-        if isinstance(final_score, np.ndarray) and final_score.size == 1:
+    if (
+        y_input_ndim_orig <= 2
+    ) and multioutput == "raw_values":
+        if (
+            isinstance(final_score, np.ndarray)
+            and final_score.size == 1
+        ):
             final_score = final_score.item()
 
     if verbose >= 1:
@@ -1072,26 +1396,32 @@ def theils_u_score(
     return final_score
 
 
-@validate_params({
-    'y_lower': ['array-like'],
-    'y_upper': ['array-like'],
-    'sample_weight': ['array-like', None],
-    'nan_policy': [StrOptions({'omit', 'propagate', 'raise'})],
-    'multioutput': [StrOptions({'raw_values', 'uniform_average'})],
-    'warn_invalid_bounds': ['boolean'],
-    'eps': [Real], 
-    'verbose': [Integral, bool]
-})
+@validate_params(
+    {
+        "y_lower": ["array-like"],
+        "y_upper": ["array-like"],
+        "sample_weight": ["array-like", None],
+        "nan_policy": [
+            StrOptions({"omit", "propagate", "raise"})
+        ],
+        "multioutput": [
+            StrOptions({"raw_values", "uniform_average"})
+        ],
+        "warn_invalid_bounds": ["boolean"],
+        "eps": [Real],
+        "verbose": [Integral, bool],
+    }
+)
 def mean_interval_width_score(
     y_lower: np.ndarray,
     y_upper: np.ndarray,
-    sample_weight: Optional[np.ndarray] = None,
-    nan_policy: NanPolicyLiteral = 'propagate',
-    multioutput: MultioutputLiteral = 'uniform_average',
+    sample_weight: np.ndarray | None = None,
+    nan_policy: NanPolicyLiteral = "propagate",
+    multioutput: MultioutputLiteral = "uniform_average",
     warn_invalid_bounds: bool = True,
-    eps: float = 1e-8, # Epsilon for safe division
-    verbose: int = 0
-) -> Union[float, np.ndarray]:
+    eps: float = 1e-8,  # Epsilon for safe division
+    verbose: int = 0,
+) -> float | np.ndarray:
     r"""
     Compute the Mean Interval Width (sharpness) of prediction intervals.
 
@@ -1192,12 +1522,20 @@ def mean_interval_width_score(
     """
     # --- 1. Input Validation and Preprocessing ---
     y_lower_arr = check_array(
-        y_lower, ensure_2d=False, allow_nd=True, # allow_nd for future?
-        dtype="numeric", force_all_finite=False, copy=False
+        y_lower,
+        ensure_2d=False,
+        allow_nd=True,  # allow_nd for future?
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
     )
     y_upper_arr = check_array(
-        y_upper, ensure_2d=False, allow_nd=True,
-        dtype="numeric", force_all_finite=False, copy=False
+        y_upper,
+        ensure_2d=False,
+        allow_nd=True,
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
     )
 
     if not (eps > 0):
@@ -1209,13 +1547,15 @@ def mean_interval_width_score(
         )
 
     y_input_ndim_orig = y_lower_arr.ndim
-    if y_input_ndim_orig == 0: # Scalar input
-         y_lower_proc = y_lower_arr.reshape(1,1)
-         y_upper_proc = y_upper_arr.reshape(1,1)
-    elif y_input_ndim_orig == 1: # (n_samples,)
-        y_lower_proc = y_lower_arr.reshape(-1, 1) # -> (n_s, 1 output)
+    if y_input_ndim_orig == 0:  # Scalar input
+        y_lower_proc = y_lower_arr.reshape(1, 1)
+        y_upper_proc = y_upper_arr.reshape(1, 1)
+    elif y_input_ndim_orig == 1:  # (n_samples,)
+        y_lower_proc = y_lower_arr.reshape(
+            -1, 1
+        )  # -> (n_s, 1 output)
         y_upper_proc = y_upper_arr.reshape(-1, 1)
-    elif y_input_ndim_orig == 2: # (n_samples, n_outputs)
+    elif y_input_ndim_orig == 2:  # (n_samples, n_outputs)
         y_lower_proc = y_lower_arr
         y_upper_proc = y_upper_arr
     else:
@@ -1231,10 +1571,15 @@ def mean_interval_width_score(
     s_weights_proc = None
     if sample_weight is not None:
         s_weights_proc = check_array(
-            sample_weight, ensure_2d=False, dtype="numeric",
-            force_all_finite=True, copy=False
+            sample_weight,
+            ensure_2d=False,
+            dtype="numeric",
+            force_all_finite=True,
+            copy=False,
         )
-        check_consistent_length(y_lower_proc, s_weights_proc) # n_samples
+        check_consistent_length(
+            y_lower_proc, s_weights_proc
+        )  # n_samples
         if s_weights_proc.ndim > 1:
             raise ValueError(
                 f"sample_weight must be 1D. Got {s_weights_proc.shape}"
@@ -1244,40 +1589,55 @@ def mean_interval_width_score(
     # nan_mask_so: (n_samples, n_outputs), True if y_lower_so or y_upper_so is NaN
     nan_mask_yl = np.isnan(y_lower_proc)
     nan_mask_yu = np.isnan(y_upper_proc)
-    nan_mask_so = nan_mask_yl | nan_mask_yu # (n_s, n_o)
+    nan_mask_so = nan_mask_yl | nan_mask_yu  # (n_s, n_o)
 
     y_lower_calc = y_lower_proc
     y_upper_calc = y_upper_proc
     current_s_weights = s_weights_proc
 
     if np.any(nan_mask_so):
-        if nan_policy == 'raise':
-            raise ValueError("NaNs detected in y_lower or y_upper.")
-        elif nan_policy == 'omit':
+        if nan_policy == "raise":
+            raise ValueError(
+                "NaNs detected in y_lower or y_upper."
+            )
+        elif nan_policy == "omit":
             if verbose >= 2:
-                print("NaNs detected. Omitting samples with NaNs.")
+                print(
+                    "NaNs detected. Omitting samples with NaNs."
+                )
             # Omit entire samples (rows) if any output has NaN in lower/upper
-            rows_with_any_nan = nan_mask_so.any(axis=1) # (n_samples,)
+            rows_with_any_nan = nan_mask_so.any(
+                axis=1
+            )  # (n_samples,)
             rows_to_keep = ~rows_with_any_nan
 
             if not np.any(rows_to_keep):
                 if verbose >= 1:
-                    print("All samples omitted. Returning NaN(s).")
-                if multioutput == 'raw_values' and n_outputs > 1:
+                    print(
+                        "All samples omitted. Returning NaN(s)."
+                    )
+                if (
+                    multioutput == "raw_values"
+                    and n_outputs > 1
+                ):
                     return np.full(n_outputs, np.nan)
                 return np.nan
 
             y_lower_calc = y_lower_proc[rows_to_keep]
             y_upper_calc = y_upper_proc[rows_to_keep]
             if current_s_weights is not None:
-                current_s_weights = current_s_weights[rows_to_keep]
+                current_s_weights = current_s_weights[
+                    rows_to_keep
+                ]
             # Update nan_mask_so for propagate logic if used later
             nan_mask_so = nan_mask_so[rows_to_keep]
 
-    if y_lower_calc.shape[0] == 0: # All samples omitted
+    if y_lower_calc.shape[0] == 0:  # All samples omitted
         if verbose >= 1:
-            print("No samples left after NaN handling. Returning NaN(s).")
-        if multioutput == 'raw_values' and n_outputs > 1:
+            print(
+                "No samples left after NaN handling. Returning NaN(s)."
+            )
+        if multioutput == "raw_values" and n_outputs > 1:
             return np.full(n_outputs, np.nan)
         return np.nan
 
@@ -1289,25 +1649,33 @@ def mean_interval_width_score(
         # Check on the data that will be used for width calculation
         # (could be y_lower_calc or y_lower_proc depending on NaN policy)
         # For simplicity, check on y_lower_calc, y_upper_calc
-        with np.errstate(invalid='ignore'): # For NaN comparisons
+        with np.errstate(
+            invalid="ignore"
+        ):  # For NaN comparisons
             invalid_bounds_mask = y_lower_calc > y_upper_calc
         if np.any(invalid_bounds_mask):
             num_invalid = np.sum(invalid_bounds_mask)
             # Use .size of the mask itself, not the original array,
             # as it might have been reduced by 'omit'
-            perc = (num_invalid / invalid_bounds_mask.size) * 100 if \
-                   invalid_bounds_mask.size > 0 else 0
+            perc = (
+                (num_invalid / invalid_bounds_mask.size) * 100
+                if invalid_bounds_mask.size > 0
+                else 0
+            )
             warnings.warn(
                 f"{num_invalid} ({perc:.2f}%) interval pairs found "
                 f"where y_lower > y_upper. Widths will be negative.",
-                UserWarning
+                UserWarning,
+                stacklevel=2,
             )
-            if verbose >=2:
-                print(f"Warning: {num_invalid} invalid bound pairs "
-                      "detected in calculated data.")
+            if verbose >= 2:
+                print(
+                    f"Warning: {num_invalid} invalid bound pairs "
+                    "detected in calculated data."
+                )
 
     # If nan_policy='propagate', ensure original NaNs lead to NaN widths
-    if nan_policy == 'propagate':
+    if nan_policy == "propagate":
         # nan_mask_so is (n_samples_calc, n_outputs) if 'omit' used,
         # or original shape if 'omit' not used.
         widths = np.where(nan_mask_so, np.nan, widths)
@@ -1315,7 +1683,9 @@ def mean_interval_width_score(
     # --- 4. Aggregate Scores ---
     # Aggregate across samples (axis 0), considering sample_weights
     if current_s_weights is not None:
-        if np.sum(current_s_weights) < eps: # Avoid division by zero
+        if (
+            np.sum(current_s_weights) < eps
+        ):  # Avoid division by zero
             output_scores = np.full(n_outputs, np.nan)
         else:
             # np.average propagates NaNs correctly
@@ -1324,57 +1694,76 @@ def mean_interval_width_score(
             )
     else:
         # NO weights → choose between propagate vs omit policies
-       if nan_policy == 'propagate':
-           # any NaN in widths → NaN in result
-           output_scores = np.mean(widths, axis=0)
-       else:  # e.g. 'omit'
-           # ignore NaNs when computing the mean
-           output_scores = np.nanmean(widths, axis=0)
+        if nan_policy == "propagate":
+            # any NaN in widths → NaN in result
+            output_scores = np.mean(widths, axis=0)
+        else:  # e.g. 'omit'
+            # ignore NaNs when computing the mean
+            output_scores = np.nanmean(widths, axis=0)
 
     # Handle multioutput aggregation
-    if multioutput == 'uniform_average':
-        final_score = np.nanmean(output_scores) # Handles NaN outputs
-    elif multioutput == 'raw_values':
+    if multioutput == "uniform_average":
+        final_score = np.nanmean(
+            output_scores
+        )  # Handles NaN outputs
+    elif multioutput == "raw_values":
         final_score = output_scores
-    else: # Should not be reached
-        raise ValueError(f"Unknown multioutput mode: {multioutput}")
+    else:  # Should not be reached
+        raise ValueError(
+            f"Unknown multioutput mode: {multioutput}"
+        )
 
     # If original input was 1D (single effective output),
     # and multioutput='raw_values', result should be scalar.
-    if (y_input_ndim_orig <= 1) and multioutput == 'raw_values':
-        if isinstance(final_score, np.ndarray) and final_score.size == 1:
+    if (
+        y_input_ndim_orig <= 1
+    ) and multioutput == "raw_values":
+        if (
+            isinstance(final_score, np.ndarray)
+            and final_score.size == 1
+        ):
             final_score = final_score.item()
 
     if verbose >= 1:
         if isinstance(final_score, np.ndarray):
             with np.printoptions(precision=4, suppress=True):
-                print(f"MeanIntervalWidthScore: {final_score}")
+                print(
+                    f"MeanIntervalWidthScore: {final_score}"
+                )
         else:
-            print(f"MeanIntervalWidthScore: {final_score:.4f}")
+            print(
+                f"MeanIntervalWidthScore: {final_score:.4f}"
+            )
 
     return final_score
 
 
-@validate_params({
-    'y_true': ['array-like'],
-    'y_pred': ['array-like'],
-    'quantiles': ['array-like'],
-    'sample_weight': ['array-like', None],
-    'nan_policy': [StrOptions({'omit', 'propagate', 'raise'})],
-    'multioutput': [StrOptions({'raw_values', 'uniform_average'})],
-    'eps': [Real],
-    'verbose': [Integral, bool],
-})
+@validate_params(
+    {
+        "y_true": ["array-like"],
+        "y_pred": ["array-like"],
+        "quantiles": ["array-like"],
+        "sample_weight": ["array-like", None],
+        "nan_policy": [
+            StrOptions({"omit", "propagate", "raise"})
+        ],
+        "multioutput": [
+            StrOptions({"raw_values", "uniform_average"})
+        ],
+        "eps": [Real],
+        "verbose": [Integral, bool],
+    }
+)
 def quantile_calibration_error(
     y_true: np.ndarray,
     y_pred: np.ndarray,
-    quantiles: Union[Sequence[float], np.ndarray],
-    sample_weight: Optional[np.ndarray] = None,
-    nan_policy: NanPolicyLiteral = 'propagate',
-    multioutput: MultioutputLiteral = 'uniform_average',
-    eps: float = 1e-8, 
-    verbose: int = 0
-) -> Union[float, np.ndarray]:
+    quantiles: Sequence[float] | np.ndarray,
+    sample_weight: np.ndarray | None = None,
+    nan_policy: NanPolicyLiteral = "propagate",
+    multioutput: MultioutputLiteral = "uniform_average",
+    eps: float = 1e-8,
+    verbose: int = 0,
+) -> float | np.ndarray:
     """
     Compute Quantile Calibration Error (QCE).
 
@@ -1480,16 +1869,26 @@ def quantile_calibration_error(
     """
     # --- 1. Input Validation and Preprocessing ---
     y_true_arr = check_array(
-        y_true, ensure_2d=False, allow_nd=True,
-        dtype="numeric", force_all_finite=False, copy=False
+        y_true,
+        ensure_2d=False,
+        allow_nd=True,
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
     )
     y_pred_arr = check_array(
-        y_pred, ensure_2d=False, allow_nd=True,
-        dtype="numeric", force_all_finite=False, copy=False
+        y_pred,
+        ensure_2d=False,
+        allow_nd=True,
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
     )
     q_arr = check_array(
-        quantiles, ensure_2d=False, dtype="numeric",
-        force_all_finite=True # Quantiles must be finite
+        quantiles,
+        ensure_2d=False,
+        dtype="numeric",
+        force_all_finite=True,  # Quantiles must be finite
     )
 
     if not (eps > 0):
@@ -1498,28 +1897,44 @@ def quantile_calibration_error(
         warnings.warn(
             "Quantiles should ideally be within (eps, 1-eps) for stability. "
             "Current implementation checks (0,1) strictly but uses eps for sums.",
-            UserWarning
+            UserWarning,
+            stacklevel=2,
         )
 
     are_all_values_in_bounds(
-        q_arr, nan_policy='raise', closed ="right", 
-        message="All quantile values must be strictly between 0 and 1."
+        q_arr,
+        nan_policy="raise",
+        closed="right",
+        message="All quantile values must be strictly between 0 and 1.",
     )
- 
-    if q_arr.ndim > 1: q_arr = q_arr.squeeze()
-    if q_arr.ndim == 0 and q_arr.size ==1 : q_arr = q_arr.reshape(1,)
+
     if q_arr.ndim > 1:
-        raise ValueError(f"quantiles must be 1D. Got {q_arr.shape}")
+        q_arr = q_arr.squeeze()
+    if q_arr.ndim == 0 and q_arr.size == 1:
+        q_arr = q_arr.reshape(
+            1,
+        )
+    if q_arr.ndim > 1:
+        raise ValueError(
+            f"quantiles must be 1D. Got {q_arr.shape}"
+        )
 
     n_quantiles = q_arr.shape[0]
     y_input_ndim_orig = y_true_arr.ndim
 
     # Reshape inputs for consistent processing: (n_samples, n_outputs, ...)
-    if y_input_ndim_orig == 1: # y_true (n_s,), y_pred (n_s, n_q)
-        y_true_proc = y_true_arr.reshape(-1, 1) # -> (n_s, 1)
-        if y_pred_arr.ndim == 2 and y_pred_arr.shape[1] == n_quantiles:
+    if (
+        y_input_ndim_orig == 1
+    ):  # y_true (n_s,), y_pred (n_s, n_q)
+        y_true_proc = y_true_arr.reshape(-1, 1)  # -> (n_s, 1)
+        if (
+            y_pred_arr.ndim == 2
+            and y_pred_arr.shape[1] == n_quantiles
+        ):
             # y_pred (n_s, n_q) -> (n_s, 1, n_q)
-            y_pred_proc = y_pred_arr.reshape(y_pred_arr.shape[0], 1, -1)
+            y_pred_proc = y_pred_arr.reshape(
+                y_pred_arr.shape[0], 1, -1
+            )
         else:
             raise ValueError(
                 "If y_true is 1D (n_samples,), y_pred must be 2D "
@@ -1527,11 +1942,15 @@ def quantile_calibration_error(
                 f"Got y_pred shape: {y_pred_arr.shape}, "
                 f"n_quantiles: {n_quantiles}"
             )
-    elif y_input_ndim_orig == 2: # y_true (n_s, n_o), y_pred (n_s, n_o, n_q)
+    elif (
+        y_input_ndim_orig == 2
+    ):  # y_true (n_s, n_o), y_pred (n_s, n_o, n_q)
         y_true_proc = y_true_arr
-        if y_pred_arr.ndim == 3 and \
-           y_pred_arr.shape[1] == y_true_proc.shape[1] and \
-           y_pred_arr.shape[2] == n_quantiles:
+        if (
+            y_pred_arr.ndim == 3
+            and y_pred_arr.shape[1] == y_true_proc.shape[1]
+            and y_pred_arr.shape[2] == n_quantiles
+        ):
             y_pred_proc = y_pred_arr
         else:
             raise ValueError(
@@ -1546,8 +1965,10 @@ def quantile_calibration_error(
         )
 
     check_consistent_length(y_true_proc, y_pred_proc)
-    if not (y_true_proc.shape[0] == y_pred_proc.shape[0] and \
-            y_true_proc.shape[1] == y_pred_proc.shape[1]):
+    if not (
+        y_true_proc.shape[0] == y_pred_proc.shape[0]
+        and y_true_proc.shape[1] == y_pred_proc.shape[1]
+    ):
         raise ValueError(
             "Processed y_true and y_pred shapes (n_samples, n_outputs) "
             "are inconsistent. "
@@ -1555,10 +1976,10 @@ def quantile_calibration_error(
             f"y_pred_proc: {y_pred_proc.shape[:2]}"
         )
     if y_pred_proc.shape[2] != n_quantiles:
-         raise ValueError(
-             "Mismatch in n_quantiles dimension for processed y_pred "
-             f"({y_pred_proc.shape[2]}) vs quantiles ({n_quantiles})."
-         )
+        raise ValueError(
+            "Mismatch in n_quantiles dimension for processed y_pred "
+            f"({y_pred_proc.shape[2]}) vs quantiles ({n_quantiles})."
+        )
 
     n_samples, n_outputs, _ = y_pred_proc.shape
 
@@ -1566,10 +1987,15 @@ def quantile_calibration_error(
     s_weights_proc = None
     if sample_weight is not None:
         s_weights_proc = check_array(
-            sample_weight, ensure_2d=False, dtype="numeric",
-            force_all_finite=True, copy=False
+            sample_weight,
+            ensure_2d=False,
+            dtype="numeric",
+            force_all_finite=True,
+            copy=False,
         )
-        check_consistent_length(y_true_proc, s_weights_proc) # n_samples
+        check_consistent_length(
+            y_true_proc, s_weights_proc
+        )  # n_samples
         if s_weights_proc.ndim > 1:
             raise ValueError(
                 f"sample_weight must be 1D. Got {s_weights_proc.shape}"
@@ -1587,31 +2013,44 @@ def quantile_calibration_error(
     current_s_weights = s_weights_proc
 
     if np.any(nan_mask_soq):
-        if nan_policy == 'raise':
-            raise ValueError("NaNs detected in y_true or y_pred.")
-        elif nan_policy == 'omit':
+        if nan_policy == "raise":
+            raise ValueError(
+                "NaNs detected in y_true or y_pred."
+            )
+        elif nan_policy == "omit":
             if verbose >= 2:
-                print("NaNs detected. Omitting samples with NaNs.")
-            rows_with_any_nan = nan_mask_soq.any(axis=(1,2))
+                print(
+                    "NaNs detected. Omitting samples with NaNs."
+                )
+            rows_with_any_nan = nan_mask_soq.any(axis=(1, 2))
             rows_to_keep = ~rows_with_any_nan
 
             if not np.any(rows_to_keep):
                 if verbose >= 1:
-                    print("All samples omitted. Returning NaN(s).")
-                if multioutput == 'raw_values' and n_outputs > 1:
+                    print(
+                        "All samples omitted. Returning NaN(s)."
+                    )
+                if (
+                    multioutput == "raw_values"
+                    and n_outputs > 1
+                ):
                     return np.full(n_outputs, np.nan)
                 return np.nan
 
             y_true_calc = y_true_proc[rows_to_keep]
             y_pred_calc = y_pred_proc[rows_to_keep]
             if current_s_weights is not None:
-                current_s_weights = current_s_weights[rows_to_keep]
+                current_s_weights = current_s_weights[
+                    rows_to_keep
+                ]
             nan_mask_soq = nan_mask_soq[rows_to_keep]
 
     if y_true_calc.shape[0] == 0:
         if verbose >= 1:
-            print("No samples left after NaN handling. Returning NaN(s).")
-        if multioutput == 'raw_values' and n_outputs > 1:
+            print(
+                "No samples left after NaN handling. Returning NaN(s)."
+            )
+        if multioutput == "raw_values" and n_outputs > 1:
             return np.full(n_outputs, np.nan)
         return np.nan
 
@@ -1620,35 +2059,57 @@ def quantile_calibration_error(
         y_true_calc[..., np.newaxis] <= y_pred_calc
     ).astype(float)
 
-    if nan_policy == 'propagate':
-        indicators = np.where(nan_mask_soq, np.nan, indicators)
+    if nan_policy == "propagate":
+        indicators = np.where(
+            nan_mask_soq, np.nan, indicators
+        )
 
     if current_s_weights is not None:
-        if np.sum(current_s_weights) < eps: # Check against eps
-            prop_observed = np.full((n_outputs, n_quantiles), np.nan)
+        if (
+            np.sum(current_s_weights) < eps
+        ):  # Check against eps
+            prop_observed = np.full(
+                (n_outputs, n_quantiles), np.nan
+            )
         else:
             prop_observed_list = []
             for o_idx in range(n_outputs):
                 o_q_props = []
                 for q_idx in range(n_quantiles):
-                    valid_indicators = indicators[:, o_idx, q_idx]
+                    valid_indicators = indicators[
+                        :, o_idx, q_idx
+                    ]
                     valid_weights = current_s_weights
-                    
-                    nan_indicator_mask = np.isnan(valid_indicators)
+
+                    nan_indicator_mask = np.isnan(
+                        valid_indicators
+                    )
                     if np.all(nan_indicator_mask):
                         o_q_props.append(np.nan)
                         continue
 
-                    finite_indicators = valid_indicators[~nan_indicator_mask]
-                    finite_weights = valid_weights[~nan_indicator_mask]
-                    
-                    sum_finite_weights = np.sum(finite_weights)
-                    if finite_indicators.size == 0 or sum_finite_weights < eps:
-                         o_q_props.append(np.nan)
+                    finite_indicators = valid_indicators[
+                        ~nan_indicator_mask
+                    ]
+                    finite_weights = valid_weights[
+                        ~nan_indicator_mask
+                    ]
+
+                    sum_finite_weights = np.sum(
+                        finite_weights
+                    )
+                    if (
+                        finite_indicators.size == 0
+                        or sum_finite_weights < eps
+                    ):
+                        o_q_props.append(np.nan)
                     else:
-                        o_q_props.append(np.average(
-                            finite_indicators, weights=finite_weights
-                        ))
+                        o_q_props.append(
+                            np.average(
+                                finite_indicators,
+                                weights=finite_weights,
+                            )
+                        )
                 prop_observed_list.append(o_q_props)
             prop_observed = np.array(prop_observed_list)
     else:
@@ -1659,21 +2120,30 @@ def quantile_calibration_error(
     if verbose >= 2:
         for o_idx in range(n_outputs):
             for q_idx, q_val in enumerate(q_arr):
-                print(f"  Output {o_idx}, QCE @ {q_val:.2f}: "
-                      f"{qce_per_oq[o_idx, q_idx]:.4f}")
+                print(
+                    f"  Output {o_idx}, QCE @ {q_val:.2f}: "
+                    f"{qce_per_oq[o_idx, q_idx]:.4f}"
+                )
 
     # --- 4. Aggregate Scores ---
     output_scores = np.nanmean(qce_per_oq, axis=1)
 
-    if multioutput == 'uniform_average':
+    if multioutput == "uniform_average":
         final_score = np.nanmean(output_scores)
-    elif multioutput == 'raw_values':
+    elif multioutput == "raw_values":
         final_score = output_scores
     else:
-        raise ValueError(f"Unknown multioutput mode: {multioutput}")
+        raise ValueError(
+            f"Unknown multioutput mode: {multioutput}"
+        )
 
-    if (y_input_ndim_orig == 1) and multioutput == 'raw_values':
-        if isinstance(final_score, np.ndarray) and final_score.size == 1:
+    if (
+        y_input_ndim_orig == 1
+    ) and multioutput == "raw_values":
+        if (
+            isinstance(final_score, np.ndarray)
+            and final_score.size == 1
+        ):
             final_score = final_score.item()
 
     if verbose >= 1:
@@ -1686,24 +2156,36 @@ def quantile_calibration_error(
     return final_score
 
 
-@validate_params({
-    'y_true': ['array-like'],
-    'y_pred': ['array-like'],
-    'time_weights': ['array-like', None, StrOptions({'inverse_time'})],
-    'sample_weight': ['array-like', None],
-    'nan_policy': [StrOptions({'omit', 'propagate', 'raise'})],
-    'multioutput': [StrOptions({'raw_values', 'uniform_average'})],
-    'verbose': [Integral, bool]
-})
+@validate_params(
+    {
+        "y_true": ["array-like"],
+        "y_pred": ["array-like"],
+        "time_weights": [
+            "array-like",
+            None,
+            StrOptions({"inverse_time"}),
+        ],
+        "sample_weight": ["array-like", None],
+        "nan_policy": [
+            StrOptions({"omit", "propagate", "raise"})
+        ],
+        "multioutput": [
+            StrOptions({"raw_values", "uniform_average"})
+        ],
+        "verbose": [Integral, bool],
+    }
+)
 def time_weighted_mean_absolute_error(
     y_true: np.ndarray,
     y_pred: np.ndarray,
-    time_weights: Optional[Union[Sequence[float], str]] = 'inverse_time',
-    sample_weight: Optional[np.ndarray] = None,
-    nan_policy: NanPolicyLiteral = 'propagate',
-    multioutput: MultioutputLiteral = 'uniform_average',
-    verbose: int = 0
-) -> Union[float, np.ndarray]:
+    time_weights: Sequence[float]
+    | str
+    | None = "inverse_time",
+    sample_weight: np.ndarray | None = None,
+    nan_policy: NanPolicyLiteral = "propagate",
+    multioutput: MultioutputLiteral = "uniform_average",
+    verbose: int = 0,
+) -> float | np.ndarray:
     """
     Compute the Time-Weighted Mean Absolute Error (TW-MAE).
 
@@ -1808,12 +2290,20 @@ def time_weighted_mean_absolute_error(
     """
     # --- 1. Input Validation and Preprocessing ---
     y_true_arr = check_array(
-        y_true, ensure_2d=False, allow_nd=True,
-        dtype="numeric", force_all_finite=False, copy=False
+        y_true,
+        ensure_2d=False,
+        allow_nd=True,
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
     )
     y_pred_arr = check_array(
-        y_pred, ensure_2d=False, allow_nd=True,
-        dtype="numeric", force_all_finite=False, copy=False
+        y_pred,
+        ensure_2d=False,
+        allow_nd=True,
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
     )
 
     if y_true_arr.shape != y_pred_arr.shape:
@@ -1823,15 +2313,19 @@ def time_weighted_mean_absolute_error(
         )
 
     y_input_ndim_orig = y_true_arr.ndim
-    if y_input_ndim_orig == 1: # Single sequence (T,)
+    if y_input_ndim_orig == 1:  # Single sequence (T,)
         # Reshape to (1 sample, 1 output, T timesteps)
         y_true_proc = y_true_arr.reshape(1, 1, -1)
         y_pred_proc = y_pred_arr.reshape(1, 1, -1)
-    elif y_input_ndim_orig == 2: # (B, T)
+    elif y_input_ndim_orig == 2:  # (B, T)
         # Reshape to (B samples, 1 output, T timesteps)
-        y_true_proc = y_true_arr.reshape(y_true_arr.shape[0], 1, -1)
-        y_pred_proc = y_pred_arr.reshape(y_pred_arr.shape[0], 1, -1)
-    elif y_input_ndim_orig == 3: # (B, O, T)
+        y_true_proc = y_true_arr.reshape(
+            y_true_arr.shape[0], 1, -1
+        )
+        y_pred_proc = y_pred_arr.reshape(
+            y_pred_arr.shape[0], 1, -1
+        )
+    elif y_input_ndim_orig == 3:  # (B, O, T)
         y_true_proc = y_true_arr
         y_pred_proc = y_pred_arr
     else:
@@ -1842,33 +2336,42 @@ def time_weighted_mean_absolute_error(
         )
 
     n_samples, n_outputs, n_timesteps = y_true_proc.shape
-    n_outputs_ret = n_outputs # For return shape if raw_values # noqa
 
     if n_timesteps == 0:
         if verbose >= 1:
-            print("TW-MAE requires at least 1 time step. Returning NaN.")
-        if multioutput == 'raw_values' and n_outputs > 1:
+            print(
+                "TW-MAE requires at least 1 time step. Returning NaN."
+            )
+        if multioutput == "raw_values" and n_outputs > 1:
             return np.full(n_outputs, np.nan)
         return np.nan
 
     # Process time_weights
-    if time_weights is None: # Uniform weights
+    if time_weights is None:  # Uniform weights
         w_t = np.full(n_timesteps, 1.0 / n_timesteps)
-    elif isinstance(time_weights, str) and \
-         time_weights == 'inverse_time':
-        if n_timesteps == 0: # Should be caught above
-             w_t = np.array([])
+    elif (
+        isinstance(time_weights, str)
+        and time_weights == "inverse_time"
+    ):
+        if n_timesteps == 0:  # Should be caught above
+            w_t = np.array([])
         else:
             w_t_raw = 1.0 / np.arange(1, n_timesteps + 1)
             sum_w_t_raw = np.sum(w_t_raw)
-            w_t = w_t_raw / sum_w_t_raw if sum_w_t_raw > 0 else \
-                  np.full(n_timesteps, 1.0/n_timesteps) # Avoid div by zero
-    else: # Custom array-like weights
+            w_t = (
+                w_t_raw / sum_w_t_raw
+                if sum_w_t_raw > 0
+                else np.full(n_timesteps, 1.0 / n_timesteps)
+            )  # Avoid div by zero
+    else:  # Custom array-like weights
         w_t = check_array(
-            time_weights, ensure_2d=False, dtype="numeric",
-            force_all_finite=True # Time weights should be finite
+            time_weights,
+            ensure_2d=False,
+            dtype="numeric",
+            force_all_finite=True,  # Time weights should be finite
         )
-        if w_t.ndim > 1: w_t = w_t.squeeze()
+        if w_t.ndim > 1:
+            w_t = w_t.squeeze()
         if w_t.shape[0] != n_timesteps:
             raise ValueError(
                 f"Length of time_weights ({w_t.shape[0]}) must match "
@@ -1879,14 +2382,17 @@ def time_weighted_mean_absolute_error(
             raise ValueError(
                 "Sum of custom time_weights must be positive."
             )
-        w_t = w_t / sum_w_t # Normalize
+        w_t = w_t / sum_w_t  # Normalize
 
     # Process sample_weight
     s_weights_proc = None
     if sample_weight is not None:
         s_weights_proc = check_array(
-            sample_weight, ensure_2d=False, dtype="numeric",
-            force_all_finite=True, copy=False
+            sample_weight,
+            ensure_2d=False,
+            dtype="numeric",
+            force_all_finite=True,
+            copy=False,
         )
         check_consistent_length(y_true_proc, s_weights_proc)
         if s_weights_proc.ndim > 1:
@@ -1898,40 +2404,57 @@ def time_weighted_mean_absolute_error(
     # nan_mask_so is (n_samples, n_outputs), True if that trajectory has NaN
     nan_mask_yt = np.isnan(y_true_proc).any(axis=2)
     nan_mask_yp = np.isnan(y_pred_proc).any(axis=2)
-    nan_mask_so = nan_mask_yt | nan_mask_yp # (n_samples, n_outputs)
+    nan_mask_so = (
+        nan_mask_yt | nan_mask_yp
+    )  # (n_samples, n_outputs)
 
     y_true_calc = y_true_proc
     y_pred_calc = y_pred_proc
     current_s_weights = s_weights_proc
 
     if np.any(nan_mask_so):
-        if nan_policy == 'raise':
-            raise ValueError("NaNs detected in y_true or y_pred.")
-        elif nan_policy == 'omit':
+        if nan_policy == "raise":
+            raise ValueError(
+                "NaNs detected in y_true or y_pred."
+            )
+        elif nan_policy == "omit":
             if verbose >= 2:
-                print("NaNs detected. Omitting samples with NaNs.")
+                print(
+                    "NaNs detected. Omitting samples with NaNs."
+                )
             # Omit entire samples (rows) if any output trajectory has NaNs
-            rows_with_any_nan = nan_mask_so.any(axis=1) # (n_samples,)
+            rows_with_any_nan = nan_mask_so.any(
+                axis=1
+            )  # (n_samples,)
             rows_to_keep = ~rows_with_any_nan
 
             if not np.any(rows_to_keep):
                 if verbose >= 1:
-                    print("All samples omitted. Returning NaN(s).")
-                if multioutput == 'raw_values' and n_outputs > 1:
+                    print(
+                        "All samples omitted. Returning NaN(s)."
+                    )
+                if (
+                    multioutput == "raw_values"
+                    and n_outputs > 1
+                ):
                     return np.full(n_outputs, np.nan)
                 return np.nan
 
             y_true_calc = y_true_proc[rows_to_keep]
             y_pred_calc = y_pred_proc[rows_to_keep]
             if current_s_weights is not None:
-                current_s_weights = current_s_weights[rows_to_keep]
+                current_s_weights = current_s_weights[
+                    rows_to_keep
+                ]
             # Update nan_mask_so for propagate logic if used later
             nan_mask_so = nan_mask_so[rows_to_keep]
 
-    if y_true_calc.shape[0] == 0: # All samples omitted
+    if y_true_calc.shape[0] == 0:  # All samples omitted
         if verbose >= 1:
-            print("No samples left after NaN handling. Returning NaN(s).")
-        if multioutput == 'raw_values' and n_outputs > 1:
+            print(
+                "No samples left after NaN handling. Returning NaN(s)."
+            )
+        if multioutput == "raw_values" and n_outputs > 1:
             return np.full(n_outputs, np.nan)
         return np.nan
 
@@ -1946,7 +2469,7 @@ def time_weighted_mean_absolute_error(
     twmae_per_trajectory = np.sum(abs_errors * w_t, axis=2)
 
     # If nan_policy='propagate', ensure original NaNs lead to NaN scores
-    if nan_policy == 'propagate':
+    if nan_policy == "propagate":
         # nan_mask_so is (n_samples_calc, n_outputs) if 'omit' used,
         # or (original_n_samples, n_outputs) if 'omit' not used.
         # If 'omit' not used, y_pred_calc is y_pred_proc.
@@ -1957,29 +2480,42 @@ def time_weighted_mean_absolute_error(
     # --- 4. Aggregate Scores ---
     # Aggregate across samples (axis 0), considering sample_weights
     if current_s_weights is not None:
-        if np.sum(current_s_weights) == 0: # Avoid division by zero
+        if (
+            np.sum(current_s_weights) == 0
+        ):  # Avoid division by zero
             output_scores = np.full(n_outputs, np.nan)
         else:
             # np.average propagates NaNs correctly
             output_scores = np.average(
-                twmae_per_trajectory, axis=0, weights=current_s_weights
+                twmae_per_trajectory,
+                axis=0,
+                weights=current_s_weights,
             )
     else:
         # np.mean propagates NaNs correctly
         output_scores = np.mean(twmae_per_trajectory, axis=0)
 
     # Handle multioutput aggregation
-    if multioutput == 'uniform_average':
-        final_score = np.mean(output_scores) # np.mean propagates NaNs
-    elif multioutput == 'raw_values':
+    if multioutput == "uniform_average":
+        final_score = np.mean(
+            output_scores
+        )  # np.mean propagates NaNs
+    elif multioutput == "raw_values":
         final_score = output_scores
-    else: # Should not be reached
-        raise ValueError(f"Unknown multioutput mode: {multioutput}")
+    else:  # Should not be reached
+        raise ValueError(
+            f"Unknown multioutput mode: {multioutput}"
+        )
 
     # If original input was 1D/2D (single effective output),
     # and multioutput='raw_values', result should be scalar.
-    if (y_input_ndim_orig <= 2) and multioutput == 'raw_values':
-        if isinstance(final_score, np.ndarray) and final_score.size == 1:
+    if (
+        y_input_ndim_orig <= 2
+    ) and multioutput == "raw_values":
+        if (
+            isinstance(final_score, np.ndarray)
+            and final_score.size == 1
+        ):
             final_score = final_score.item()
         # else: final_score is already scalar if it's np.nan
 
@@ -1993,20 +2529,30 @@ def time_weighted_mean_absolute_error(
     return final_score
 
 
-@validate_params({
-    'y_pred': ['array-like'],
-    'sample_weight': ['array-like', None],
-    'nan_policy': [StrOptions({'omit', 'propagate', 'raise'})],
-    'multioutput': [StrOptions({'raw_values', 'uniform_average'})],
-    'verbose': [Integral, bool]
-})
+@validate_params(
+    {
+        "y_pred": ["array-like"],
+        "sample_weight": ["array-like", None],
+        "nan_policy": [
+            StrOptions({"omit", "propagate", "raise"})
+        ],
+        "multioutput": [
+            StrOptions({"raw_values", "uniform_average"})
+        ],
+        "verbose": [Integral, bool],
+    }
+)
 def prediction_stability_score(
     y_pred: np.ndarray,
-    sample_weight: Optional[np.ndarray] = None,
-    nan_policy: Literal['omit', 'propagate', 'raise'] = 'propagate',
-    multioutput: Literal['raw_values', 'uniform_average'] = 'uniform_average',
-    verbose: int = 0
-) -> Union[float, np.ndarray]:
+    sample_weight: np.ndarray | None = None,
+    nan_policy: Literal[
+        "omit", "propagate", "raise"
+    ] = "propagate",
+    multioutput: Literal[
+        "raw_values", "uniform_average"
+    ] = "uniform_average",
+    verbose: int = 0,
+) -> float | np.ndarray:
     """
     Compute the Prediction Stability Score (PSS).
 
@@ -2063,18 +2609,24 @@ def prediction_stability_score(
     """
 
     y_pred_arr = check_array(
-        y_pred, ensure_2d=False, allow_nd=True,
-        dtype="numeric", force_all_finite=False, copy=False
+        y_pred,
+        ensure_2d=False,
+        allow_nd=True,
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
     )
 
     y_pred_ndim_orig = y_pred_arr.ndim
-    if y_pred_ndim_orig == 1: # Single trajectory (T,)
+    if y_pred_ndim_orig == 1:  # Single trajectory (T,)
         # Reshape to (1 sample, 1 output, T timesteps)
         y_pred_proc = y_pred_arr.reshape(1, 1, -1)
-    elif y_pred_ndim_orig == 2: # (B, T)
+    elif y_pred_ndim_orig == 2:  # (B, T)
         # Reshape to (B samples, 1 output, T timesteps)
-        y_pred_proc = y_pred_arr.reshape(y_pred_arr.shape[0], 1, -1)
-    elif y_pred_ndim_orig == 3: # (B, O, T)
+        y_pred_proc = y_pred_arr.reshape(
+            y_pred_arr.shape[0], 1, -1
+        )
+    elif y_pred_ndim_orig == 3:  # (B, O, T)
         y_pred_proc = y_pred_arr
     else:
         raise ValueError(
@@ -2087,18 +2639,25 @@ def prediction_stability_score(
 
     if n_timesteps < 2:
         if verbose >= 1:
-            print("PSS requires at least 2 time steps. Returning NaN.")
-        if multioutput == 'raw_values' and n_outputs > 1:
+            print(
+                "PSS requires at least 2 time steps. Returning NaN."
+            )
+        if multioutput == "raw_values" and n_outputs > 1:
             return np.full(n_outputs, np.nan)
         return np.nan
 
     weights_proc = None
     if sample_weight is not None:
         weights_proc = check_array(
-            sample_weight, ensure_2d=False, dtype="numeric",
-            force_all_finite=True, copy=False
+            sample_weight,
+            ensure_2d=False,
+            dtype="numeric",
+            force_all_finite=True,
+            copy=False,
         )
-        check_consistent_length(y_pred_proc, weights_proc) # Checks n_samples
+        check_consistent_length(
+            y_pred_proc, weights_proc
+        )  # Checks n_samples
         if weights_proc.ndim > 1:
             raise ValueError(
                 f"sample_weight must be 1D. Got shape {weights_proc.shape}"
@@ -2111,32 +2670,47 @@ def prediction_stability_score(
     current_weights = weights_proc
 
     if np.any(nan_mask_so):
-        if nan_policy == 'raise':
+        if nan_policy == "raise":
             raise ValueError("NaNs detected in y_pred.")
-        elif nan_policy == 'omit':
+        elif nan_policy == "omit":
             if verbose >= 2:
-                print("NaNs detected. Omitting samples with NaNs.")
+                print(
+                    "NaNs detected. Omitting samples with NaNs."
+                )
             # Omit entire samples (rows) if any of their outputs' trajectories have NaNs
-            rows_with_any_nan = nan_mask_so.any(axis=1) # (n_samples,)
+            rows_with_any_nan = nan_mask_so.any(
+                axis=1
+            )  # (n_samples,)
             rows_to_keep = ~rows_with_any_nan
 
             if not np.any(rows_to_keep):
                 if verbose >= 1:
-                    print("All samples omitted due to NaNs. Returning NaN(s).")
-                if multioutput == 'raw_values' and n_outputs > 1:
+                    print(
+                        "All samples omitted due to NaNs. Returning NaN(s)."
+                    )
+                if (
+                    multioutput == "raw_values"
+                    and n_outputs > 1
+                ):
                     return np.full(n_outputs, np.nan)
                 return np.nan
-            
+
             y_pred_calc = y_pred_proc[rows_to_keep]
             if current_weights is not None:
-                current_weights = current_weights[rows_to_keep]
+                current_weights = current_weights[
+                    rows_to_keep
+                ]
             # Update nan_mask_so for propagate logic if it were used after omit
-            nan_mask_so = nan_mask_so[rows_to_keep] # For consistency if used later
+            nan_mask_so = nan_mask_so[
+                rows_to_keep
+            ]  # For consistency if used later
 
-    if y_pred_calc.shape[0] == 0: # All samples omitted
+    if y_pred_calc.shape[0] == 0:  # All samples omitted
         if verbose >= 1:
-            print("No samples left after NaN handling. Returning NaN(s).")
-        if multioutput == 'raw_values' and n_outputs > 1:
+            print(
+                "No samples left after NaN handling. Returning NaN(s)."
+            )
+        if multioutput == "raw_values" and n_outputs > 1:
             return np.full(n_outputs, np.nan)
         return np.nan
 
@@ -2152,40 +2726,51 @@ def prediction_stability_score(
     pss_per_trajectory = np.mean(diffs, axis=2)
 
     # If nan_policy='propagate', ensure original NaNs lead to NaN scores
-    if nan_policy == 'propagate':
-         # nan_mask_so is (n_samples_calc, n_outputs) if 'omit' was applied to it
-         # or (original_n_samples, n_outputs) if 'omit' not applied.
-         # If 'omit' was not applied, y_pred_calc is y_pred_proc.
+    if nan_policy == "propagate":
+        # nan_mask_so is (n_samples_calc, n_outputs) if 'omit' was applied to it
+        # or (original_n_samples, n_outputs) if 'omit' not applied.
+        # If 'omit' was not applied, y_pred_calc is y_pred_proc.
         pss_per_trajectory = np.where(
             nan_mask_so, np.nan, pss_per_trajectory
         )
-    
+
     # Aggregate across samples (axis 0), considering weights
     if current_weights is not None:
-        if np.sum(current_weights) == 0: # Avoid division by zero
+        if (
+            np.sum(current_weights) == 0
+        ):  # Avoid division by zero
             output_scores = np.full(n_outputs, np.nan)
         else:
             # np.average propagates NaNs correctly if present in pss_per_trajectory
             output_scores = np.average(
-                pss_per_trajectory, axis=0, weights=current_weights
+                pss_per_trajectory,
+                axis=0,
+                weights=current_weights,
             )
     else:
         # np.mean propagates NaNs correctly
         output_scores = np.mean(pss_per_trajectory, axis=0)
 
     # Handle multioutput aggregation
-    if multioutput == 'uniform_average':
+    if multioutput == "uniform_average":
         # np.mean propagates NaNs
         final_score = np.mean(output_scores)
-    elif multioutput == 'raw_values':
+    elif multioutput == "raw_values":
         final_score = output_scores
-    else: # Should not be reached
-        raise ValueError(f"Unknown multioutput mode: {multioutput}")
+    else:  # Should not be reached
+        raise ValueError(
+            f"Unknown multioutput mode: {multioutput}"
+        )
 
     # If original y_pred was 1D or 2D (single effective output),
     # and multioutput='raw_values', result should be scalar.
-    if (y_pred_ndim_orig <= 2) and multioutput == 'raw_values':
-        if isinstance(final_score, np.ndarray) and final_score.size == 1:
+    if (
+        y_pred_ndim_orig <= 2
+    ) and multioutput == "raw_values":
+        if (
+            isinstance(final_score, np.ndarray)
+            and final_score.size == 1
+        ):
             final_score = final_score.item()
         # else: final_score is already scalar if it's np.nan
 
@@ -2195,34 +2780,42 @@ def prediction_stability_score(
                 print(f"PSS computed: {final_score}")
         else:
             print(f"PSS computed: {final_score:.4f}")
-            
+
     return final_score
 
 
-@validate_params({
-    'y_true': ['array-like'],
-    'y_lower': ['array-like'],
-    'y_upper': ['array-like'],
-    'y_median': ['array-like'],
-    'alphas': ['array-like'], # Sequence[float] implies iterable
-    'sample_weight': ['array-like', None],
-    'nan_policy': [StrOptions({'omit', 'propagate', 'raise'})],
-    'multioutput': [StrOptions({'raw_values', 'uniform_average'})],
-    'warn_invalid_bounds': ['boolean'],
-    'verbose': [Integral, bool]
-})
+@validate_params(
+    {
+        "y_true": ["array-like"],
+        "y_lower": ["array-like"],
+        "y_upper": ["array-like"],
+        "y_median": ["array-like"],
+        "alphas": [
+            "array-like"
+        ],  # Sequence[float] implies iterable
+        "sample_weight": ["array-like", None],
+        "nan_policy": [
+            StrOptions({"omit", "propagate", "raise"})
+        ],
+        "multioutput": [
+            StrOptions({"raw_values", "uniform_average"})
+        ],
+        "warn_invalid_bounds": ["boolean"],
+        "verbose": [Integral, bool],
+    }
+)
 def weighted_interval_score(
     y_true: np.ndarray,
     y_lower: np.ndarray,
     y_upper: np.ndarray,
     y_median: np.ndarray,
-    alphas: Union[Sequence[float], np.ndarray],
-    sample_weight: Optional[np.ndarray] = None,
-    nan_policy: NanPolicyLiteral = 'propagate',
-    multioutput: MultioutputLiteral = 'uniform_average',
+    alphas: Sequence[float] | np.ndarray,
+    sample_weight: np.ndarray | None = None,
+    nan_policy: NanPolicyLiteral = "propagate",
+    multioutput: MultioutputLiteral = "uniform_average",
     warn_invalid_bounds: bool = True,
-    verbose: int = 0
-) -> Union[float, np.ndarray]:
+    verbose: int = 0,
+) -> float | np.ndarray:
     """
     Compute the Weighted Interval Score (WIS).
 
@@ -2353,25 +2946,58 @@ def weighted_interval_score(
            (The paper discusses WIS and its components.)
     """
     # --- 1. Input Validation and Preprocessing ---
-    y_true_arr = check_array(y_true, ensure_2d=False,
-        dtype="numeric", force_all_finite=False, copy=False)
-    y_lower_arr = check_array(y_lower, ensure_2d=False, allow_nd=True,
-        dtype="numeric", force_all_finite=False, copy=False)
-    y_upper_arr = check_array(y_upper, ensure_2d=False, allow_nd=True,
-        dtype="numeric", force_all_finite=False, copy=False)
-    y_median_arr = check_array(y_median, ensure_2d=False,
-        dtype="numeric", force_all_finite=False, copy=False)
-    alphas_arr = check_array(alphas, ensure_2d=False, dtype="numeric",
-        force_all_finite=True, copy=False) # Alphas must be finite
+    y_true_arr = check_array(
+        y_true,
+        ensure_2d=False,
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
+    )
+    y_lower_arr = check_array(
+        y_lower,
+        ensure_2d=False,
+        allow_nd=True,
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
+    )
+    y_upper_arr = check_array(
+        y_upper,
+        ensure_2d=False,
+        allow_nd=True,
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
+    )
+    y_median_arr = check_array(
+        y_median,
+        ensure_2d=False,
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
+    )
+    alphas_arr = check_array(
+        alphas,
+        ensure_2d=False,
+        dtype="numeric",
+        force_all_finite=True,
+        copy=False,
+    )  # Alphas must be finite
 
     if not np.all((alphas_arr > 0) & (alphas_arr < 1)):
         raise ValueError(
             "All alpha values must be strictly between 0 and 1."
         )
     if alphas_arr.ndim > 1:
-        alphas_arr = alphas_arr.squeeze() # Ensure 1D if passed as (K,1) etc.
-    if alphas_arr.ndim == 0 and alphas_arr.size ==1 : # single alpha
-        alphas_arr = alphas_arr.reshape(1,) 
+        alphas_arr = (
+            alphas_arr.squeeze()
+        )  # Ensure 1D if passed as (K,1) etc.
+    if (
+        alphas_arr.ndim == 0 and alphas_arr.size == 1
+    ):  # single alpha
+        alphas_arr = alphas_arr.reshape(
+            1,
+        )
     if alphas_arr.ndim > 1:
         raise ValueError(
             f"alphas must be 1D. Got shape {alphas_arr.shape}"
@@ -2380,19 +3006,31 @@ def weighted_interval_score(
     K_intervals = alphas_arr.shape[0]
 
     if verbose >= 2:
-        print(f"Initial shapes: y_true={y_true_arr.shape}, "
-              f"y_lower={y_lower_arr.shape}, y_upper={y_upper_arr.shape}, "
-              f"y_median={y_median_arr.shape}, alphas={alphas_arr.shape}")
+        print(
+            f"Initial shapes: y_true={y_true_arr.shape}, "
+            f"y_lower={y_lower_arr.shape}, y_upper={y_upper_arr.shape}, "
+            f"y_median={y_median_arr.shape}, alphas={alphas_arr.shape}"
+        )
 
     y_true_ndim = y_true_arr.ndim
     if y_true_ndim == 1:
         y_true_proc = y_true_arr.reshape(-1, 1)
         y_median_proc = y_median_arr.reshape(-1, 1)
-        if y_lower_arr.ndim == 2 and y_lower_arr.shape[1] == K_intervals:
-            y_lower_proc = y_lower_arr.reshape(y_lower_arr.shape[0], 1, -1)
-            y_upper_proc = y_upper_arr.reshape(y_upper_arr.shape[0], 1, -1)
-        elif y_lower_arr.ndim == 3 and y_lower_arr.shape[1] == 1 \
-            and y_lower_arr.shape[2] == K_intervals:
+        if (
+            y_lower_arr.ndim == 2
+            and y_lower_arr.shape[1] == K_intervals
+        ):
+            y_lower_proc = y_lower_arr.reshape(
+                y_lower_arr.shape[0], 1, -1
+            )
+            y_upper_proc = y_upper_arr.reshape(
+                y_upper_arr.shape[0], 1, -1
+            )
+        elif (
+            y_lower_arr.ndim == 3
+            and y_lower_arr.shape[1] == 1
+            and y_lower_arr.shape[2] == K_intervals
+        ):
             y_lower_proc = y_lower_arr
             y_upper_proc = y_upper_arr
         else:
@@ -2404,9 +3042,11 @@ def weighted_interval_score(
     elif y_true_ndim == 2:
         y_true_proc = y_true_arr
         y_median_proc = y_median_arr
-        if y_lower_arr.ndim == 3 and \
-           y_lower_arr.shape[1] == y_true_proc.shape[1] and \
-           y_lower_arr.shape[2] == K_intervals:
+        if (
+            y_lower_arr.ndim == 3
+            and y_lower_arr.shape[1] == y_true_proc.shape[1]
+            and y_lower_arr.shape[2] == K_intervals
+        ):
             y_lower_proc = y_lower_arr
             y_upper_proc = y_upper_arr
         else:
@@ -2417,84 +3057,142 @@ def weighted_interval_score(
                 f", K_intervals={K_intervals}"
             )
     else:
-        raise ValueError(f"y_true must be 1D or 2D. Got {y_true_ndim}D.")
+        raise ValueError(
+            f"y_true must be 1D or 2D. Got {y_true_ndim}D."
+        )
 
     # Consistent lengths and shapes
     check_consistent_length(
         y_true_proc, y_median_proc, y_lower_proc, y_upper_proc
     )
-    if not (y_true_proc.shape[:2] == y_median_proc.shape[:2] == \
-            y_lower_proc.shape[:2] == y_upper_proc.shape[:2]):
-        raise ValueError("Shape mismatch in (n_samples, n_outputs) "
-                         "among processed inputs.")
-    if not (y_lower_proc.shape[2] == y_upper_proc.shape[2] == K_intervals):
-         raise ValueError("Mismatch in K_intervals dimension for "
-                          "y_lower/y_upper vs alphas.")
+    if not (
+        y_true_proc.shape[:2]
+        == y_median_proc.shape[:2]
+        == y_lower_proc.shape[:2]
+        == y_upper_proc.shape[:2]
+    ):
+        raise ValueError(
+            "Shape mismatch in (n_samples, n_outputs) "
+            "among processed inputs."
+        )
+    if not (
+        y_lower_proc.shape[2]
+        == y_upper_proc.shape[2]
+        == K_intervals
+    ):
+        raise ValueError(
+            "Mismatch in K_intervals dimension for "
+            "y_lower/y_upper vs alphas."
+        )
 
     if verbose >= 2:
-        print(f"Processed shapes: y_true_proc={y_true_proc.shape}, "
-              f"y_lower_proc={y_lower_proc.shape}, etc.")
+        print(
+            f"Processed shapes: y_true_proc={y_true_proc.shape}, "
+            f"y_lower_proc={y_lower_proc.shape}, etc."
+        )
 
     weights_proc = None
     if sample_weight is not None:
-        weights_proc = check_array(sample_weight, ensure_2d=False,
-            dtype="numeric", force_all_finite=True, copy=False)
+        weights_proc = check_array(
+            sample_weight,
+            ensure_2d=False,
+            dtype="numeric",
+            force_all_finite=True,
+            copy=False,
+        )
         check_consistent_length(y_true_proc, weights_proc)
         if weights_proc.ndim > 1:
-            raise ValueError(f"sample_weight must be 1D. Got {weights_proc.shape}")
+            raise ValueError(
+                f"sample_weight must be 1D. Got {weights_proc.shape}"
+            )
 
     # --- 2. Handle NaNs ---
-    nan_mask_yt = np.isnan(y_true_proc)    # (n_s, n_o)
+    nan_mask_yt = np.isnan(y_true_proc)  # (n_s, n_o)
     nan_mask_ym = np.isnan(y_median_proc)  # (n_s, n_o)
-    nan_mask_yl = np.isnan(y_lower_proc).any(axis=2) # (n_s, n_o)
-    nan_mask_yu = np.isnan(y_upper_proc).any(axis=2) # (n_s, n_o)
-    combined_nan_mask = nan_mask_yt | nan_mask_ym | nan_mask_yl | nan_mask_yu
+    nan_mask_yl = np.isnan(y_lower_proc).any(
+        axis=2
+    )  # (n_s, n_o)
+    nan_mask_yu = np.isnan(y_upper_proc).any(
+        axis=2
+    )  # (n_s, n_o)
+    combined_nan_mask = (
+        nan_mask_yt | nan_mask_ym | nan_mask_yl | nan_mask_yu
+    )
 
     y_true_calc, y_lower_calc, y_upper_calc, y_median_calc = (
-        y_true_proc, y_lower_proc, y_upper_proc, y_median_proc
+        y_true_proc,
+        y_lower_proc,
+        y_upper_proc,
+        y_median_proc,
     )
     current_weights = weights_proc
 
     if np.any(combined_nan_mask):
-        if nan_policy == 'raise':
+        if nan_policy == "raise":
             raise ValueError("NaNs detected in input arrays.")
-        elif nan_policy == 'omit':
-            if verbose >= 2: print("NaNs detected. Omitting affected rows.")
-            rows_with_any_nan = combined_nan_mask.any(axis=1) # (n_s,)
+        elif nan_policy == "omit":
+            if verbose >= 2:
+                print(
+                    "NaNs detected. Omitting affected rows."
+                )
+            rows_with_any_nan = combined_nan_mask.any(
+                axis=1
+            )  # (n_s,)
             rows_to_keep = ~rows_with_any_nan
             if not np.any(rows_to_keep):
-                if verbose >= 1: print("All samples omitted. Returning NaN(s).")
+                if verbose >= 1:
+                    print(
+                        "All samples omitted. Returning NaN(s)."
+                    )
                 n_out = y_true_proc.shape[1]
-                return np.full(n_out, np.nan) if \
-                    multioutput == 'raw_values' and y_true_ndim > 1 else np.nan
+                return (
+                    np.full(n_out, np.nan)
+                    if multioutput == "raw_values"
+                    and y_true_ndim > 1
+                    else np.nan
+                )
 
             y_true_calc = y_true_proc[rows_to_keep]
             y_lower_calc = y_lower_proc[rows_to_keep]
             y_upper_calc = y_upper_proc[rows_to_keep]
             y_median_calc = y_median_proc[rows_to_keep]
             if current_weights is not None:
-                current_weights = current_weights[rows_to_keep]
+                current_weights = current_weights[
+                    rows_to_keep
+                ]
         # For 'propagate', NaNs will flow through calculations.
 
-    if y_true_calc.shape[0] == 0: # All samples omitted
-        if verbose >= 1: print("No samples left. Returning NaN(s).")
+    if y_true_calc.shape[0] == 0:  # All samples omitted
+        if verbose >= 1:
+            print("No samples left. Returning NaN(s).")
         n_out = y_true_proc.shape[1]
-        return np.full(n_out, np.nan) if \
-            multioutput == 'raw_values' and y_true_ndim > 1 else np.nan
+        return (
+            np.full(n_out, np.nan)
+            if multioutput == "raw_values" and y_true_ndim > 1
+            else np.nan
+        )
 
     # --- 3. Warn for Invalid Bounds ---
     if warn_invalid_bounds:
-        with np.errstate(invalid='ignore'): # For NaN comparisons
-            invalid_b = y_lower_calc > y_upper_calc # (n_s, n_o, K)
+        with np.errstate(
+            invalid="ignore"
+        ):  # For NaN comparisons
+            invalid_b = (
+                y_lower_calc > y_upper_calc
+            )  # (n_s, n_o, K)
         if np.any(invalid_b):
             num_invalid = np.sum(invalid_b)
             perc = (num_invalid / invalid_b.size) * 100
             warnings.warn(
                 f"{num_invalid} ({perc:.2f}%) interval pairs found "
                 f"where y_lower > y_upper. These contribute to penalties.",
-                UserWarning
+                UserWarning,
+                stacklevel=2,
             )
-            if verbose >=2: print(f"Warning: {num_invalid} invalid bounds.")
+            if verbose >= 2:
+                print(
+                    f"Warning: {num_invalid} invalid bounds."
+                )
 
     # --- 4. Compute WIS Components ---
     # Reshape alphas for broadcasting: (1, 1, K_intervals)
@@ -2502,62 +3200,80 @@ def weighted_interval_score(
 
     # Median Absolute Error term (weighted by 0.5 in some formulations,
     # but here it's |y-m| directly as per formula)
-    mae_term = np.abs(y_median_calc - y_true_calc) # (n_s, n_o)
+    mae_term = np.abs(
+        y_median_calc - y_true_calc
+    )  # (n_s, n_o)
 
     # Interval Score (IS_alpha_k) components
     # y_true_calc needs to be (n_s, n_o, 1) for broadcasting with K dim
-    y_true_calc_exp = y_true_calc[..., np.newaxis] # (n_s, n_o, 1)
+    y_true_calc_exp = y_true_calc[
+        ..., np.newaxis
+    ]  # (n_s, n_o, 1)
 
-    interval_width = y_upper_calc - y_lower_calc # (n_s, n_o, K)
-    
+    interval_width = (
+        y_upper_calc - y_lower_calc
+    )  # (n_s, n_o, K)
+
     # WIS_alpha_k terms (per interval, per sample, per output)
     # WIS_alpha_k = (alpha_k/2) * width_k
     #             + (lower_k - y) * I(y < lower_k)
     #             + (y - upper_k) * I(y > upper_k)
     wis_term_width = (alphas_exp / 2.0) * interval_width
 
-    wis_term_under = (y_lower_calc - y_true_calc_exp) * \
-                     (y_true_calc_exp < y_lower_calc)
-    wis_term_over = (y_true_calc_exp - y_upper_calc) * \
-                    (y_true_calc_exp > y_upper_calc)
+    wis_term_under = (y_lower_calc - y_true_calc_exp) * (
+        y_true_calc_exp < y_lower_calc
+    )
+    wis_term_over = (y_true_calc_exp - y_upper_calc) * (
+        y_true_calc_exp > y_upper_calc
+    )
 
     # Sum of individual WIS_alpha_k contributions for each sample/output
     # Each element is WIS_alpha_k for that k
     per_interval_wis = (
         wis_term_width + wis_term_under + wis_term_over
-    ) # (n_s, n_o, K)
+    )  # (n_s, n_o, K)
     sum_of_per_interval_wis = np.sum(
         per_interval_wis, axis=2
-    ) # (n_s, n_o)
+    )  # (n_s, n_o)
 
     # Total WIS per sample and output
     # Denominator is K_intervals + 1 (for the median term)
-    if K_intervals == 0: # Only median absolute error
+    if K_intervals == 0:  # Only median absolute error
         wis_values = mae_term
     else:
-        wis_values = (mae_term + sum_of_per_interval_wis) / (K_intervals + 1.0)
+        wis_values = (mae_term + sum_of_per_interval_wis) / (
+            K_intervals + 1.0
+        )
 
     if verbose >= 3:
         print("WIS values per sample/output (first 5):")
-        print(wis_values[:min(5, wis_values.shape[0])])
+        print(wis_values[: min(5, wis_values.shape[0])])
 
     # --- 5. Aggregate Scores ---
     if current_weights is not None:
         if np.sum(current_weights) == 0:
-            output_scores = np.full(wis_values.shape[1], np.nan)
+            output_scores = np.full(
+                wis_values.shape[1], np.nan
+            )
         else:
             output_scores = np.average(
                 wis_values, axis=0, weights=current_weights
             )
     else:
-        output_scores = np.mean(wis_values, axis=0) # Handles NaNs from propagate
+        output_scores = np.mean(
+            wis_values, axis=0
+        )  # Handles NaNs from propagate
 
-    if multioutput == 'uniform_average':
-        final_score = np.mean(output_scores) # Handles NaNs from propagate
-    else: # 'raw_values'
+    if multioutput == "uniform_average":
+        final_score = np.mean(
+            output_scores
+        )  # Handles NaNs from propagate
+    else:  # 'raw_values'
         final_score = output_scores
 
-    if y_true_ndim == 1 and isinstance(final_score, np.ndarray):
+    if y_true_ndim == 1 and isinstance(
+        final_score, np.ndarray
+    ):
         if final_score.size == 1:
             final_score = final_score.item()
 
@@ -2571,23 +3287,28 @@ def weighted_interval_score(
     return final_score
 
 
-@validate_params({
-    'y_true': ['array-like'],
-    'y_pred': ['array-like'],
-    'sample_weight': ['array-like', None],
-    'nan_policy': [StrOptions({'omit', 'propagate', 'raise'})],
-    'multioutput': [StrOptions({'raw_values', 'uniform_average'})],
-    'verbose': [Integral, bool] 
-})
- 
+@validate_params(
+    {
+        "y_true": ["array-like"],
+        "y_pred": ["array-like"],
+        "sample_weight": ["array-like", None],
+        "nan_policy": [
+            StrOptions({"omit", "propagate", "raise"})
+        ],
+        "multioutput": [
+            StrOptions({"raw_values", "uniform_average"})
+        ],
+        "verbose": [Integral, bool],
+    }
+)
 def continuous_ranked_probability_score(
     y_true: np.ndarray,
     y_pred: np.ndarray,
-    sample_weight: Optional[np.ndarray] = None,
-    nan_policy: NanPolicyLiteral = 'propagate',
-    multioutput: MultioutputLiteral = 'uniform_average',
-    verbose: int = 0 
-) -> Union[float, np.ndarray]:
+    sample_weight: np.ndarray | None = None,
+    nan_policy: NanPolicyLiteral = "propagate",
+    multioutput: MultioutputLiteral = "uniform_average",
+    verbose: int = 0,
+) -> float | np.ndarray:
     """
     Compute the sample-based Continuous Ranked Probability Score (CRPS).
 
@@ -2641,7 +3362,7 @@ def continuous_ranked_probability_score(
     Examples
     --------
     >>> import numpy as np
-    >>> # from geoprior.metrics import continuous_ranked_probability_score 
+    >>> # from geoprior.metrics import continuous_ranked_probability_score
 
     >>> y_true_1d = np.array([0.5, 0.0, 1.0, np.nan])
     >>> y_pred_1d = np.array([
@@ -2703,17 +3424,26 @@ def continuous_ranked_probability_score(
     # Convert to NumPy arrays and ensure numeric type.
     # force_all_finite=False to handle NaNs according to nan_policy.
     y_true_arr = check_array(
-        y_true, ensure_2d=False, dtype="numeric",
-        force_all_finite=False, copy=False
+        y_true,
+        ensure_2d=False,
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
     )
     y_pred_arr = check_array(
-        y_pred, ensure_2d=False, allow_nd=True, # allow_nd for 3D
-        dtype="numeric", force_all_finite=False, copy=False
+        y_pred,
+        ensure_2d=False,
+        allow_nd=True,  # allow_nd for 3D
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
     )
 
     if verbose >= 2:
-        print(f"Initial shapes: y_true={y_true_arr.shape}, "
-              f"y_pred={y_pred_arr.shape}")
+        print(
+            f"Initial shapes: y_true={y_true_arr.shape}, "
+            f"y_pred={y_pred_arr.shape}"
+        )
 
     # Determine input dimensionality (single vs. multi-output y_true)
     y_true_ndim = y_true_arr.ndim
@@ -2722,9 +3452,13 @@ def continuous_ranked_probability_score(
         y_true_proc = y_true_arr.reshape(-1, 1)
         if y_pred_arr.ndim == 2:
             # Reshape y_pred to (n_samples, 1, n_ensemble)
-            y_pred_proc = y_pred_arr.reshape(y_pred_arr.shape[0], 1, -1)
-        elif y_pred_arr.ndim == 3 and y_pred_arr.shape[1] == 1:
-             y_pred_proc = y_pred_arr # Already (n_samples, 1, n_ensemble)
+            y_pred_proc = y_pred_arr.reshape(
+                y_pred_arr.shape[0], 1, -1
+            )
+        elif (
+            y_pred_arr.ndim == 3 and y_pred_arr.shape[1] == 1
+        ):
+            y_pred_proc = y_pred_arr  # Already (n_samples, 1, n_ensemble)
         else:
             raise ValueError(
                 "If y_true is 1D (n_samples,), y_pred must be 2D "
@@ -2733,8 +3467,10 @@ def continuous_ranked_probability_score(
             )
     elif y_true_ndim == 2:
         y_true_proc = y_true_arr
-        if y_pred_arr.ndim == 3 and \
-           y_pred_arr.shape[1] == y_true_arr.shape[1]:
+        if (
+            y_pred_arr.ndim == 3
+            and y_pred_arr.shape[1] == y_true_arr.shape[1]
+        ):
             y_pred_proc = y_pred_arr
         else:
             raise ValueError(
@@ -2750,35 +3486,43 @@ def continuous_ranked_probability_score(
 
     # Final shape checks for consistency
     check_consistent_length(y_true_proc, y_pred_proc)
-    if y_true_proc.shape[0] != y_pred_proc.shape[0] or \
-       y_true_proc.shape[1] != y_pred_proc.shape[1]:
+    if (
+        y_true_proc.shape[0] != y_pred_proc.shape[0]
+        or y_true_proc.shape[1] != y_pred_proc.shape[1]
+    ):
         raise ValueError(
             "Processed y_true and y_pred shapes are inconsistent. "
             f"y_true_proc: {y_true_proc.shape}, "
             f"y_pred_proc: {y_pred_proc.shape}"
         )
 
-    if y_pred_proc.shape[2] == 0: # No ensemble members
+    if y_pred_proc.shape[2] == 0:  # No ensemble members
         if verbose >= 1:
-            print("y_pred has no ensemble members. CRPS is undefined (NaN).")
+            print(
+                "y_pred has no ensemble members. CRPS is undefined (NaN)."
+            )
         # Result shape depends on multioutput and original y_true_ndim
         n_outputs = y_true_proc.shape[1]
-        if multioutput == 'raw_values' and y_true_ndim > 1:
+        if multioutput == "raw_values" and y_true_ndim > 1:
             return np.full(n_outputs, np.nan)
         return np.nan
 
-
     if verbose >= 2:
-        print(f"Processed shapes for calculation: "
-              f"y_true_proc={y_true_proc.shape}, "
-              f"y_pred_proc={y_pred_proc.shape}")
+        print(
+            f"Processed shapes for calculation: "
+            f"y_true_proc={y_true_proc.shape}, "
+            f"y_pred_proc={y_pred_proc.shape}"
+        )
 
     # Handle sample_weight
     weights_proc = None
     if sample_weight is not None:
         weights_proc = check_array(
-            sample_weight, ensure_2d=False, dtype="numeric",
-            force_all_finite=True, copy=False # Weights cannot be NaN
+            sample_weight,
+            ensure_2d=False,
+            dtype="numeric",
+            force_all_finite=True,
+            copy=False,  # Weights cannot be NaN
         )
         check_consistent_length(y_true_proc, weights_proc)
         if weights_proc.ndim > 1:
@@ -2786,39 +3530,61 @@ def continuous_ranked_probability_score(
                 f"sample_weight must be 1D. Got shape {weights_proc.shape}"
             )
         if verbose >= 3:
-            print(f"  sample_weight shape: {weights_proc.shape}")
+            print(
+                f"  sample_weight shape: {weights_proc.shape}"
+            )
 
     # --- 2. Handle NaNs based on nan_policy ---
     # Mask for NaNs: True if y_true_ij is NaN or any y_pred_ijk is NaN
-    nan_mask_y_true = np.isnan(y_true_proc) # (n_samples, n_outputs)
-    nan_mask_y_pred = np.isnan(y_pred_proc).any(axis=2) # (n_samples, n_outputs)
+    nan_mask_y_true = np.isnan(
+        y_true_proc
+    )  # (n_samples, n_outputs)
+    nan_mask_y_pred = np.isnan(y_pred_proc).any(
+        axis=2
+    )  # (n_samples, n_outputs)
     # Overall NaN mask for each sample-output pair
-    combined_nan_mask = nan_mask_y_true | nan_mask_y_pred # (n_s, n_o)
+    combined_nan_mask = (
+        nan_mask_y_true | nan_mask_y_pred
+    )  # (n_s, n_o)
 
     if np.any(combined_nan_mask):
-        if nan_policy == 'raise':
+        if nan_policy == "raise":
             if verbose >= 2:
-                print("NaNs detected and nan_policy='raise'. Raising error.")
+                print(
+                    "NaNs detected and nan_policy='raise'. Raising error."
+                )
             raise ValueError(
                 "NaNs detected in input arrays (y_true or y_pred)."
             )
-        elif nan_policy == 'omit':
+        elif nan_policy == "omit":
             if verbose >= 2:
-                print("NaNs detected with nan_policy='omit'. "
-                      "Omitting affected samples (rows).")
+                print(
+                    "NaNs detected with nan_policy='omit'. "
+                    "Omitting affected samples (rows)."
+                )
             # Omit entire rows if *any* output for that sample has a NaN
-            rows_with_any_nan = combined_nan_mask.any(axis=1) # (n_samples,)
+            rows_with_any_nan = combined_nan_mask.any(
+                axis=1
+            )  # (n_samples,)
             rows_to_keep = ~rows_with_any_nan
 
             if verbose >= 3:
-                print("Rows to keep after NaN omission:", rows_to_keep)
+                print(
+                    "Rows to keep after NaN omission:",
+                    rows_to_keep,
+                )
 
             if not np.any(rows_to_keep):
                 if verbose >= 1:
-                    print("All samples contained NaNs and were omitted. "
-                          "Returning NaN(s).")
+                    print(
+                        "All samples contained NaNs and were omitted. "
+                        "Returning NaN(s)."
+                    )
                 n_outputs = y_true_proc.shape[1]
-                if multioutput == 'raw_values' and y_true_ndim > 1:
+                if (
+                    multioutput == "raw_values"
+                    and y_true_ndim > 1
+                ):
                     return np.full(n_outputs, np.nan)
                 return np.nan
 
@@ -2828,25 +3594,31 @@ def continuous_ranked_probability_score(
                 weights_proc = weights_proc[rows_to_keep]
             # combined_nan_mask needs to be updated for propagate logic later
             # but for omit, it's not used further for indexing CRPS values
-        elif nan_policy == 'propagate':
+        elif nan_policy == "propagate":
             if verbose >= 2:
-                print("NaNs detected and nan_policy='propagate'. "
-                      "NaNs will propagate in CRPS calculation.")
+                print(
+                    "NaNs detected and nan_policy='propagate'. "
+                    "NaNs will propagate in CRPS calculation."
+                )
             # Calculations will proceed, NaNs in y_true_proc/y_pred_proc
             # will naturally lead to NaNs in crps_vals.
             y_true_calc = y_true_proc
             y_pred_calc = y_pred_proc
-        else: # Should not be reached due to @validate_params
-            raise ValueError(f"Unknown nan_policy: {nan_policy}")
-    else: # No NaNs detected initially
+        else:  # Should not be reached due to @validate_params
+            raise ValueError(
+                f"Unknown nan_policy: {nan_policy}"
+            )
+    else:  # No NaNs detected initially
         y_true_calc = y_true_proc
         y_pred_calc = y_pred_proc
 
-    if y_true_calc.shape[0] == 0: # All samples omitted
+    if y_true_calc.shape[0] == 0:  # All samples omitted
         if verbose >= 1:
-            print("No samples left after NaN handling. Returning NaN(s).")
+            print(
+                "No samples left after NaN handling. Returning NaN(s)."
+            )
         n_outputs = y_true_proc.shape[1]
-        if multioutput == 'raw_values' and y_true_ndim > 1:
+        if multioutput == "raw_values" and y_true_ndim > 1:
             return np.full(n_outputs, np.nan)
         return np.nan
 
@@ -2858,7 +3630,9 @@ def continuous_ranked_probability_score(
     )
     # Mean over ensemble members (axis 2)
     # If nan_policy='propagate', NaNs here will propagate.
-    term1 = np.mean(abs_diff_term1, axis=2) # Shape: (n_samples, n_outputs)
+    term1 = np.mean(
+        abs_diff_term1, axis=2
+    )  # Shape: (n_samples, n_outputs)
 
     # Term 2: 0.5 * E[|X - X'|]
     # = 0.5 * mean(|ensemble_member_i - ensemble_member_j|)
@@ -2867,21 +3641,26 @@ def continuous_ranked_probability_score(
     # y_pred_calc[..., :, np.newaxis] -> (n_s, n_o, n_e, 1)
     # y_pred_calc[..., np.newaxis, :] -> (n_s, n_o, 1, n_e)
     abs_diff_term2_pairs = np.abs(
-        y_pred_calc[..., :, np.newaxis] - y_pred_calc[..., np.newaxis, :]
+        y_pred_calc[..., :, np.newaxis]
+        - y_pred_calc[..., np.newaxis, :]
     )
     # Mean over pairs of ensemble members (axes 2 and 3)
     # If nan_policy='propagate', NaNs here will propagate.
-    m = y_pred_calc.shape[2] # Number of ensemble members
-    if m == 0: # Should have been caught earlier
+    m = y_pred_calc.shape[2]  # Number of ensemble members
+    if m == 0:  # Should have been caught earlier
         term2 = np.full_like(term1, np.nan)
-    elif m == 1: # Only one ensemble member, term2 is 0
+    elif m == 1:  # Only one ensemble member, term2 is 0
         term2 = np.zeros_like(term1)
     else:
         # Sum over (n_e, n_e) and divide by m*m, then by 2
         # Or mean over (n_e, n_e) and divide by 2
-        term2 = np.mean(abs_diff_term2_pairs, axis=(2, 3)) * 0.5
+        term2 = (
+            np.mean(abs_diff_term2_pairs, axis=(2, 3)) * 0.5
+        )
 
-    crps_values = term1 - term2  # Shape: (n_samples, n_outputs)
+    crps_values = (
+        term1 - term2
+    )  # Shape: (n_samples, n_outputs)
 
     # If nan_policy was 'propagate', NaNs from input should already be in crps_values.
     # If nan_policy was 'omit', combined_nan_mask is not relevant here as
@@ -2890,7 +3669,7 @@ def continuous_ranked_probability_score(
 
     if verbose >= 3:
         print("CRPS values per sample/output (first 5):")
-        print(crps_values[:min(5, crps_values.shape[0])])
+        print(crps_values[: min(5, crps_values.shape[0])])
 
     # --- 4. Aggregate scores ---
     # Apply sample weights if provided
@@ -2898,9 +3677,13 @@ def continuous_ranked_probability_score(
     #       but if crps_values contains NaNs (from 'propagate'), the
     #       result of weighted average for that output will be NaN.
     if weights_proc is not None:
-        if np.sum(weights_proc) == 0: # Avoid division by zero
+        if (
+            np.sum(weights_proc) == 0
+        ):  # Avoid division by zero
             # Average over samples (axis 0)
-            output_scores = np.full(crps_values.shape[1], np.nan)
+            output_scores = np.full(
+                crps_values.shape[1], np.nan
+            )
         else:
             output_scores = np.average(
                 crps_values, axis=0, weights=weights_proc
@@ -2913,17 +3696,21 @@ def continuous_ranked_probability_score(
         output_scores = np.mean(crps_values, axis=0)
 
     # Handle multioutput aggregation
-    if multioutput == 'uniform_average':
+    if multioutput == "uniform_average":
         # If output_scores contains NaNs (from propagate), mean will be NaN.
         final_score = np.mean(output_scores)
-    elif multioutput == 'raw_values':
+    elif multioutput == "raw_values":
         final_score = output_scores
-    else: # Should not be reached
-        raise ValueError(f"Unknown multioutput mode: {multioutput}")
+    else:  # Should not be reached
+        raise ValueError(
+            f"Unknown multioutput mode: {multioutput}"
+        )
 
     # If original y_true was 1D, result should be scalar,
     # even if multioutput='raw_values' (it would be a 1-element array).
-    if y_true_ndim == 1 and isinstance(final_score, np.ndarray):
+    if y_true_ndim == 1 and isinstance(
+        final_score, np.ndarray
+    ):
         if final_score.size == 1:
             final_score = final_score.item()
         # else: if it became scalar (e.g. np.nan), it's already fine
@@ -2938,28 +3725,33 @@ def continuous_ranked_probability_score(
     return final_score
 
 
-
-@validate_params({
-    'y_true': ['array-like'],
-    'y_lower': ['array-like'],
-    'y_upper': ['array-like'],
-    'sample_weight': ['array-like', None],
-    'nan_policy': [StrOptions({'omit', 'propagate', 'raise'})],
-    'multioutput': [StrOptions({'raw_values', 'uniform_average'})],
-    'warn_invalid_bounds': ['boolean'],
-    'verbose': [Integral] 
-})
+@validate_params(
+    {
+        "y_true": ["array-like"],
+        "y_lower": ["array-like"],
+        "y_upper": ["array-like"],
+        "sample_weight": ["array-like", None],
+        "nan_policy": [
+            StrOptions({"omit", "propagate", "raise"})
+        ],
+        "multioutput": [
+            StrOptions({"raw_values", "uniform_average"})
+        ],
+        "warn_invalid_bounds": ["boolean"],
+        "verbose": [Integral],
+    }
+)
 def coverage_score(
     y_true,
     y_lower,
     y_upper,
-    sample_weight: Optional[np.ndarray] = None,
-    nan_policy: NanPolicyLiteral = 'propagate',
-    multioutput: MultioutputLiteral = 'uniform_average',
+    sample_weight: np.ndarray | None = None,
+    nan_policy: NanPolicyLiteral = "propagate",
+    multioutput: MultioutputLiteral = "uniform_average",
     warn_invalid_bounds: bool = True,
-    eps: float = 1e-8, 
-    verbose: int = 0
-) -> Union[float, np.ndarray]:
+    eps: float = 1e-8,
+    verbose: int = 0,
+) -> float | np.ndarray:
     r"""
     Compute the coverage score of prediction intervals.
 
@@ -3085,321 +3877,419 @@ def coverage_score(
     #    Force_all_finite=False allows NaNs, which are handled by nan_policy.
     #    Copy=False is an optimization if inputs are already suitable arrays.
     y_true_p = check_array(
-        y_true, ensure_2d=False, allow_nd=True, 
-        dtype="numeric", force_all_finite=False, 
-        copy=False)
+        y_true,
+        ensure_2d=False,
+        allow_nd=True,
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
+    )
     y_lower_p = check_array(
-        y_lower, ensure_2d=False, 
-        allow_nd=True, dtype="numeric", 
-        force_all_finite=False, 
-        copy=False
-        )
+        y_lower,
+        ensure_2d=False,
+        allow_nd=True,
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
+    )
     y_upper_p = check_array(
-        y_upper, ensure_2d=False, 
-        allow_nd=True, dtype="numeric", 
-        force_all_finite=False, 
-        copy=False)
+        y_upper,
+        ensure_2d=False,
+        allow_nd=True,
+        dtype="numeric",
+        force_all_finite=False,
+        copy=False,
+    )
 
     y_true_orig_ndim = y_true_p.ndim
-    
+
     if not (eps > 0):
         raise ValueError("eps must be positive.")
 
     if verbose >= 3:
         print("Input shapes before reshaping:")
-        print(f"  y_true_p: {y_true_p.shape}, "
-              f"y_lower_p: {y_lower_p.shape},"
-              f" y_upper_p: {y_upper_p.shape}")
+        print(
+            f"  y_true_p: {y_true_p.shape}, "
+            f"y_lower_p: {y_lower_p.shape},"
+            f" y_upper_p: {y_upper_p.shape}"
+        )
 
     # Reshape 1D arrays to 2D (n_samples, 1 feature)
     # for consistent processing
     if y_true_p.ndim == 1:
         y_true_p = y_true_p.reshape(-1, 1)
-        if y_lower_p.ndim == 1: y_lower_p = y_lower_p.reshape(-1, 1)
+        if y_lower_p.ndim == 1:
+            y_lower_p = y_lower_p.reshape(-1, 1)
         # else: # check_consistent_length and shape equality will catch this
-        if y_upper_p.ndim == 1: y_upper_p = y_upper_p.reshape(-1, 1)
+        if y_upper_p.ndim == 1:
+            y_upper_p = y_upper_p.reshape(-1, 1)
         # else:
     elif y_true_p.ndim > 2:
         raise ValueError(
             "Inputs y_true, y_lower, y_upper must be"
-            f" 1D or 2D. Got {y_true_p.ndim}D for y_true.")
-    
+            f" 1D or 2D. Got {y_true_p.ndim}D for y_true."
+        )
+
     # All inputs should now be 2D for internal processing
-    # (or have failed if y_true was >2D or if 1D 
+    # (or have failed if y_true was >2D or if 1D
     # inputs had mismatched companions >1D)
 
     if verbose >= 3:
-        print("Input shapes after potential 1D->2D reshaping:")
-        print(f"  y_true_p: {y_true_p.shape}, y_lower_p:"
-              f" {y_lower_p.shape}, y_upper_p: {y_upper_p.shape}")
+        print(
+            "Input shapes after potential 1D->2D reshaping:"
+        )
+        print(
+            f"  y_true_p: {y_true_p.shape}, y_lower_p:"
+            f" {y_lower_p.shape}, y_upper_p: {y_upper_p.shape}"
+        )
 
     # Check for consistent shapes (length of samples and number of outputs)
     try:
-        check_consistent_length(y_true_p, y_lower_p, y_upper_p)
+        check_consistent_length(
+            y_true_p, y_lower_p, y_upper_p
+        )
     except ValueError as e:
-        if verbose >=2: print(f"Shape inconsistency (length): {e}")
+        if verbose >= 2:
+            print(f"Shape inconsistency (length): {e}")
         raise ValueError(
-             "y_true, y_lower, y_upper must have the"
-             " same number of samples (axis 0)."
-             f" Got shapes: y_true={y_true_p.shape},"
-             f" y_lower={y_lower_p.shape}, y_upper={y_upper_p.shape}"
+            "y_true, y_lower, y_upper must have the"
+            " same number of samples (axis 0)."
+            f" Got shapes: y_true={y_true_p.shape},"
+            f" y_lower={y_lower_p.shape}, y_upper={y_upper_p.shape}"
         ) from e
 
-    if not (y_true_p.shape == y_lower_p.shape == y_upper_p.shape):
+    if not (
+        y_true_p.shape == y_lower_p.shape == y_upper_p.shape
+    ):
         error_msg = (
             "y_true, y_lower, y_upper must have the same shape. "
             f"Got y_true: {y_true_p.shape}, y_lower:"
             f" {y_lower_p.shape}, y_upper: {y_upper_p.shape}."
         )
-        if verbose >=2: print(error_msg)
+        if verbose >= 2:
+            print(error_msg)
         raise ValueError(error_msg)
 
-    if y_true_p.size == 0: # Handle empty inputs early
-        if verbose >= 1: print("Inputs are empty. Returning NaN.")
-        return ( 
-            np.nan if multioutput == 'uniform_average' or y_true_orig_ndim == 1 
+    if y_true_p.size == 0:  # Handle empty inputs early
+        if verbose >= 1:
+            print("Inputs are empty. Returning NaN.")
+        return (
+            np.nan
+            if multioutput == "uniform_average"
+            or y_true_orig_ndim == 1
             else np.full(y_true_p.shape[1], np.nan)
         )
-            
 
     # Handle sample_weight
     weights = sample_weight
     if weights is not None:
         weights = check_array(
-            weights, ensure_2d=False, dtype="numeric", 
-            force_all_finite=True, copy=False)
+            weights,
+            ensure_2d=False,
+            dtype="numeric",
+            force_all_finite=True,
+            copy=False,
+        )
         check_consistent_length(y_true_p, weights)
         if weights.ndim > 1:
             raise ValueError(
-                f"sample_weight must be 1D. Got shape {weights.shape}")
-        if verbose >= 3: 
+                f"sample_weight must be 1D. Got shape {weights.shape}"
+            )
+        if verbose >= 3:
             print(f"  sample_weight shape: {weights.shape}")
 
     # 2. Handle NaNs
     # Create a mask for NaNs across any of the three
     # input arrays for each sample-output pair.
-    nan_mask_entries = np.isnan(
-        y_true_p) | np.isnan(y_lower_p) | np.isnan(y_upper_p)
+    nan_mask_entries = (
+        np.isnan(y_true_p)
+        | np.isnan(y_lower_p)
+        | np.isnan(y_upper_p)
+    )
 
     if np.any(nan_mask_entries):
-        if nan_policy == 'raise':
-            if verbose >= 2: 
-                print("NaNs detected and nan_policy='raise'. Raising error.")
+        if nan_policy == "raise":
+            if verbose >= 2:
+                print(
+                    "NaNs detected and nan_policy='raise'. Raising error."
+                )
             raise ValueError(
-                "NaNs detected in input arrays (y_true, y_lower, or y_upper).")
-        elif nan_policy == 'omit':
-            if verbose >= 2: 
+                "NaNs detected in input arrays (y_true, y_lower, or y_upper)."
+            )
+        elif nan_policy == "omit":
+            if verbose >= 2:
                 print(
                     "NaNs detected with nan_policy='omit'."
-                    " Omitting affected samples (rows).")
+                    " Omitting affected samples (rows)."
+                )
             # Omit entire rows (samples) if any of their values
             # (y_true, y_lower, or y_upper for any output) is NaN.
             rows_with_nan = np.any(nan_mask_entries, axis=1)
             rows_to_keep = ~rows_with_nan
 
-            if verbose >= 4: 
-                print(f"NaN omit mask (rows_to_keep): "
-                      f"{rows_to_keep[:10] if rows_to_keep.size > 10 else rows_to_keep}")
+            if verbose >= 4:
+                print(
+                    f"NaN omit mask (rows_to_keep): "
+                    f"{rows_to_keep[:10] if rows_to_keep.size > 10 else rows_to_keep}"
+                )
 
             if not np.any(rows_to_keep):
-                if verbose >=1: 
+                if verbose >= 1:
                     print(
                         "All samples contained NaNs and were"
-                        " omitted. Returning NaN(s).")
-                n_outputs = y_true_p.shape[1]
-                return ( 
-                    np.nan if multioutput == 'uniform_average' 
-                    or n_outputs == 1 else np.full(n_outputs, np.nan)
+                        " omitted. Returning NaN(s)."
                     )
+                n_outputs = y_true_p.shape[1]
+                return (
+                    np.nan
+                    if multioutput == "uniform_average"
+                    or n_outputs == 1
+                    else np.full(n_outputs, np.nan)
+                )
 
             y_true_p = y_true_p[rows_to_keep]
             y_lower_p = y_lower_p[rows_to_keep]
             y_upper_p = y_upper_p[rows_to_keep]
             if weights is not None:
                 weights = weights[rows_to_keep]
-            
-            if verbose >=2: 
-                print("Shapes after omitting NaN rows:"
-                      f" y_true_p: {y_true_p.shape}")
-            # Should be caught by `not np.any(rows_to_keep)` but as a safeguard    
-            if y_true_p.size == 0: 
-                if verbose >=1: 
+
+            if verbose >= 2:
+                print(
+                    "Shapes after omitting NaN rows:"
+                    f" y_true_p: {y_true_p.shape}"
+                )
+            # Should be caught by `not np.any(rows_to_keep)` but as a safeguard
+            if y_true_p.size == 0:
+                if verbose >= 1:
                     print(
                         "All samples resulted in empty arrays"
                         " after NaN omission. Returning NaN(s)."
                     )
-                n_outputs = ( 
-                    rows_with_nan.shape[0] if y_true_p.shape[1]==0 
-                    else y_true_p.shape[1] # Fallback if y_true_p is (0,0)
-                    )
-                n_outputs = ( 
-                    y_true_p.shape[1] if y_true_p.ndim == 2 
-                    and y_true_p.shape[1] > 0 else 1
-                    )
-                return ( 
-                    np.nan if multioutput == 'uniform_average' 
-                    or n_outputs == 1 else np.full(n_outputs, np.nan)
+                n_outputs = (
+                    rows_with_nan.shape[0]
+                    if y_true_p.shape[1] == 0
+                    else y_true_p.shape[
+                        1
+                    ]  # Fallback if y_true_p is (0,0)
+                )
+                n_outputs = (
+                    y_true_p.shape[1]
+                    if y_true_p.ndim == 2
+                    and y_true_p.shape[1] > 0
+                    else 1
+                )
+                return (
+                    np.nan
+                    if multioutput == "uniform_average"
+                    or n_outputs == 1
+                    else np.full(n_outputs, np.nan)
                 )
 
-
-        elif nan_policy == 'propagate':
-            if verbose >= 2: 
+        elif nan_policy == "propagate":
+            if verbose >= 2:
                 print(
                     "NaNs detected and nan_policy='propagate'."
-                    " NaNs will propagate to result.")
-                
+                    " NaNs will propagate to result."
+                )
+
             # NaNs in y_true_p, y_lower_p, y_upper_p will
             # lead to NaNs in coverage_mask.
             # np.average or np.mean will then correctly propagate this.
-    
+
     # 3. Check for invalid bounds (y_lower > y_upper)
     # This check is performed *after* NaN handling if 'omit' is used,
     # or on data that might contain NaNs if 'propagate' is used.
     if warn_invalid_bounds:
         # Temporarily ignore warnings from comparing NaNs if they are being propagated
-        with np.errstate(invalid='ignore' if nan_policy == 'propagate' else 'raise'):
+        with np.errstate(
+            invalid="ignore"
+            if nan_policy == "propagate"
+            else "raise"
+        ):
             invalid_bounds_mask = y_lower_p > y_upper_p
-        # np.any handles NaNs by treating them as False 
+        # np.any handles NaNs by treating them as False
         # in a boolean context unless all are NaN
-        if np.any(invalid_bounds_mask): 
-            num_invalid_bounds = np.sum(invalid_bounds_mask) # NaNs in mask become 0 here
+        if np.any(invalid_bounds_mask):
+            num_invalid_bounds = np.sum(
+                invalid_bounds_mask
+            )  # NaNs in mask become 0 here
             percentage_invalid = (
-                num_invalid_bounds / invalid_bounds_mask.size) * 100
+                num_invalid_bounds / invalid_bounds_mask.size
+            ) * 100
             warnings.warn(
                 f"{num_invalid_bounds} ({percentage_invalid:.2f}%)"
                 " sample-output pairs found where"
                 f" y_lower > y_upper. These will always count as uncovered.",
-                UserWarning
+                UserWarning,
+                stacklevel=2,
             )
-            if verbose >=2: 
-                print(f"Warning: {num_invalid_bounds}"
-                      " invalid bound pairs detected.")
+            if verbose >= 2:
+                print(
+                    f"Warning: {num_invalid_bounds}"
+                    " invalid bound pairs detected."
+                )
 
     # 4. Compute coverage mask
     # NaNs in inputs (if nan_policy='propagate') will result in NaNs in coverage_mask.
-    coverage_mask = (y_true_p >= y_lower_p) & (y_true_p <= y_upper_p)
+    coverage_mask = (y_true_p >= y_lower_p) & (
+        y_true_p <= y_upper_p
+    )
 
     if verbose >= 4:
-        print("Coverage mask (sample of up to 5x5 or 10 elements):")
+        print(
+            "Coverage mask (sample of up to 5x5 or 10 elements):"
+        )
         sample_to_print = coverage_mask
         if coverage_mask.ndim == 2:
-            sample_to_print = ( 
-                coverage_mask[:min(5, coverage_mask.shape[0]),
-                              :min(5, coverage_mask.shape[1])]
-                )
-        elif coverage_mask.ndim == 1: # Should not happen as we reshape to 2D
-            sample_to_print = coverage_mask[:min(10, coverage_mask.size)]
+            sample_to_print = coverage_mask[
+                : min(5, coverage_mask.shape[0]),
+                : min(5, coverage_mask.shape[1]),
+            ]
+        elif (
+            coverage_mask.ndim == 1
+        ):  # Should not happen as we reshape to 2D
+            sample_to_print = coverage_mask[
+                : min(10, coverage_mask.size)
+            ]
         print(sample_to_print)
 
     # 5. Compute score
-    # If coverage_mask is empty (e.g., 
+    # If coverage_mask is empty (e.g.,
     # all NaNs omitted and input was small), size will be 0.
     if coverage_mask.size == 0:
-        # This case should ideally be caught 
+        # This case should ideally be caught
         # earlier by checks on y_true_p.size after NaN omission
-        if verbose >= 1: 
-            print("Coverage mask is empty"
-                  " (e.g. all values omitted). Returning NaN.")
-        n_outputs = ( 
-            y_true_p.shape[1] if y_true_p.ndim == 2 
-            and y_true_p.shape[1] > 0 else 1
+        if verbose >= 1:
+            print(
+                "Coverage mask is empty"
+                " (e.g. all values omitted). Returning NaN."
             )
-        return ( 
-            np.nan if multioutput == 'uniform_average'
-            or n_outputs == 1 else np.full(n_outputs, np.nan)
-            )
+        n_outputs = (
+            y_true_p.shape[1]
+            if y_true_p.ndim == 2 and y_true_p.shape[1] > 0
+            else 1
+        )
+        return (
+            np.nan
+            if multioutput == "uniform_average"
+            or n_outputs == 1
+            else np.full(n_outputs, np.nan)
+        )
 
-    if multioutput == 'uniform_average':
+    if multioutput == "uniform_average":
         if weights is not None:
             sum_weights = np.sum(weights)
-            # Weighted average per output, then unweighted 
+            # Weighted average per output, then unweighted
             # average of these scores
             # Treat sum of weights close to zero as zero
-            if sum_weights < eps: 
-                if verbose >= 1 and sum_weights > 0: 
+            if sum_weights < eps:
+                if verbose >= 1 and sum_weights > 0:
                     # Warn if sum_weights is positive but too small
-                     warnings.warn(
-                         f"Sum of weights ({sum_weights}) is < eps ({eps})."
-                         " Result will be NaN.", UserWarning)
+                    warnings.warn(
+                        f"Sum of weights ({sum_weights}) is < eps ({eps})."
+                        " Result will be NaN.",
+                        UserWarning,
+                        stacklevel=2,
+                    )
                 # np.average with sum_weights=0 raises ZeroDivisionError
                 # or returns NaNs if weights contain NaNs that sum to 0.
                 # We want consistent NaN output if sum_weights < eps.
-                output_scores = np.full(coverage_mask.shape[1], np.nan)
-            else: 
-                output_scores = np.average(coverage_mask, axis=0, weights=weights)
-            # If nan_policy='propagate', output_scores can 
+                output_scores = np.full(
+                    coverage_mask.shape[1], np.nan
+                )
+            else:
+                output_scores = np.average(
+                    coverage_mask, axis=0, weights=weights
+                )
+            # If nan_policy='propagate', output_scores can
             # have NaNs. np.nanmean handles this.
-            coverage = ( 
-                np.nanmean( output_scores) if nan_policy != 'propagate' 
+            coverage = (
+                np.nanmean(output_scores)
+                if nan_policy != "propagate"
                 else np.mean(output_scores)
             )
         else:
             # Mean per output, then mean of means.
             # np.nanmean for outer mean if propagation could lead to NaN output_scores
-            output_scores = ( 
-                np.nanmean( coverage_mask, axis=0) 
-                if nan_policy != 'propagate' 
+            output_scores = (
+                np.nanmean(coverage_mask, axis=0)
+                if nan_policy != "propagate"
                 else np.mean(coverage_mask, axis=0)
             )
-            coverage = ( 
-                np.nanmean(output_scores) 
-                if nan_policy != 'propagate' 
+            coverage = (
+                np.nanmean(output_scores)
+                if nan_policy != "propagate"
                 else np.mean(output_scores)
             )
 
-    elif multioutput == 'raw_values':
+    elif multioutput == "raw_values":
         if weights is not None:
-            if np.sum(weights) == 0: 
-                coverage = np.full(coverage_mask.shape[1], np.nan)
-            else: 
-                coverage = np.average(coverage_mask, axis=0, weights=weights)
+            if np.sum(weights) == 0:
+                coverage = np.full(
+                    coverage_mask.shape[1], np.nan
+                )
+            else:
+                coverage = np.average(
+                    coverage_mask, axis=0, weights=weights
+                )
         else:
-            # For 'propagate', np.nanmean correctly 
+            # For 'propagate', np.nanmean correctly
             # computes mean for columns ignoring NaNs within them,
             # BUT if a value that should propagate IS a NaN,
             # that column's mean should BE NaN.
             # So, simple .mean() is better for 'propagate'.
-            coverage = ( 
-                np.mean(coverage_mask, axis=0) 
-                if nan_policy == 'propagate' 
+            coverage = (
+                np.mean(coverage_mask, axis=0)
+                if nan_policy == "propagate"
                 else np.nanmean(coverage_mask, axis=0)
             )
             # Re-check logic for propagate with raw_values:
             # If policy is propagate, NaNs in coverage_mask
             # should make the corresponding output_score NaN.
-            # np.mean(axis=0) does this. np.nanmean(axis=0) 
+            # np.mean(axis=0) does this. np.nanmean(axis=0)
             # would ignore NaNs, which contradicts 'propagate'.
-            if nan_policy == 'propagate':
+            if nan_policy == "propagate":
                 coverage = np.mean(
-                    coverage_mask.astype(float), axis=0) # Ensure float for NaNs
-            else: # 'omit' (NaNs removed) or 'raise' (no NaNs)
+                    coverage_mask.astype(float), axis=0
+                )  # Ensure float for NaNs
+            else:  # 'omit' (NaNs removed) or 'raise' (no NaNs)
                 coverage = np.mean(coverage_mask, axis=0)
-    else: # Should not be reached due to @validate_params
-        raise ValueError(f"Unknown multioutput mode: {multioutput}")
+    else:  # Should not be reached due to @validate_params
+        raise ValueError(
+            f"Unknown multioutput mode: {multioutput}"
+        )
 
     # If original input was 1D, and multioutput='raw_values', result should be scalar.
-    if y_true_orig_ndim == 1 and multioutput == 'raw_values':
-        if isinstance(coverage, np.ndarray) and coverage.size == 1:
+    if y_true_orig_ndim == 1 and multioutput == "raw_values":
+        if (
+            isinstance(coverage, np.ndarray)
+            and coverage.size == 1
+        ):
             coverage = coverage.item()
         # else: coverage is already scalar if it's np.nan from an empty set.
 
     if verbose >= 1:
         if isinstance(coverage, np.ndarray):
-            with np.printoptions(precision=4, suppress=True): # Changed precision
+            with np.printoptions(
+                precision=4, suppress=True
+            ):  # Changed precision
                 print(f"Coverage computed: {coverage}")
-        else: # Scalar
-            print(f"Coverage computed: {coverage:.4f}") # Changed precision
+        else:  # Scalar
+            print(
+                f"Coverage computed: {coverage:.4f}"
+            )  # Changed precision
 
     return coverage
 
-SCORERS= {
-    "time_weighted_accuracy_score": time_weighted_accuracy_score, 
-    "theils_u_score": theils_u_score, 
-    "quantile_calibration_error": quantile_calibration_error, 
-    "time_weighted_mean_absolute_error": time_weighted_mean_absolute_error, 
-    "continuous_ranked_probability_score": continuous_ranked_probability_score, 
-    
-    }
+
+SCORERS = {
+    "time_weighted_accuracy_score": time_weighted_accuracy_score,
+    "theils_u_score": theils_u_score,
+    "quantile_calibration_error": quantile_calibration_error,
+    "time_weighted_mean_absolute_error": time_weighted_mean_absolute_error,
+    "continuous_ranked_probability_score": continuous_ranked_probability_score,
+}
+
 
 def get_scorer(scoring, include_sklearn: bool = True):
     """
@@ -3423,10 +4313,9 @@ def get_scorer(scoring, include_sklearn: bool = True):
     ValueError
         If the name is not found, or the callable’s signature is invalid.
     """
-    from ..compat.sklearn import ( 
-        get_scorer as _sk_get_scorer, 
-        SCORERS as _sk_scorers
-    )
+    from ..compat.sklearn import SCORERS as _sk_scorers
+    from ..compat.sklearn import get_scorer as _sk_get_scorer
+
     # 1) If it's already a callable, verify its signature
     if callable(scoring):
         sig = inspect.signature(scoring)
@@ -3450,7 +4339,10 @@ def get_scorer(scoring, include_sklearn: bool = True):
 
         # 4) Not found anywhere
         valid = sorted(SCORERS.keys()) + (
-            sorted(_sk_scorers.keys()) if include_sklearn else [])
+            sorted(_sk_scorers.keys())
+            if include_sklearn
+            else []
+        )
         raise ValueError(
             f"Scorer '{scoring}' not found. Available scorers:\n  "
             + "\n  ".join(valid)
@@ -3460,43 +4352,3 @@ def get_scorer(scoring, include_sklearn: bool = True):
     raise ValueError(
         f"`scoring` must be a string or callable, got {type(scoring).__name__}."
     )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 

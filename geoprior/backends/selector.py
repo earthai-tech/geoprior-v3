@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # https://lkouadio.com
@@ -7,37 +6,37 @@
 
 
 """
-Provides an interface to select different computation backends within 
-the `gofast` package, ensuring flexibility  between various numerical and 
-machine learning frameworks. It includes support for popular backends such 
+Provides an interface to select different computation backends within
+the `gofast` package, ensuring flexibility  between various numerical and
+machine learning frameworks. It includes support for popular backends such
 as NumPy, SciPy, Dask, CuPy, and neural network (NN) libraries.
 
 Classes
 -------
 BackendSelector
-    A class for selecting the appropriate computational backend dynamically 
-    based on the user's environment and needs. This class leverages the 
+    A class for selecting the appropriate computational backend dynamically
+    based on the user's environment and needs. This class leverages the
     `EnsureMethod` decorator to prioritize `select_backend` execution.
 
 Dependencies
 ------------
 - `NumpyBackend`: Supports standard numerical operations with NumPy.
-- `ScipyBackend`: Adds functionality for scientific and advanced 
+- `ScipyBackend`: Adds functionality for scientific and advanced
   mathematical operations with SciPy.
-- `DaskBackend`: Provides parallel computation and scalable data 
+- `DaskBackend`: Provides parallel computation and scalable data
   processing using Dask.
-- `CuPyBackend`: Allows GPU-accelerated computing with CuPy, compatible 
+- `CuPyBackend`: Allows GPU-accelerated computing with CuPy, compatible
   with CUDA-enabled devices.
-- `NNBackend`: Enables machine learning and deep learning functionality 
+- `NNBackend`: Enables machine learning and deep learning functionality
   through neural network libraries.
-- `EnsureMethod`: A decorator used to ensure that the `select_backend` 
+- `EnsureMethod`: A decorator used to ensure that the `select_backend`
   method is prioritized for execution.
 
 Usage
 -----
-The `BackendSelector` class is designed to help users dynamically choose 
-the backend that best fits their computational environment. It is useful 
-in workflows that require seamless transitions between CPU and GPU 
+The `BackendSelector` class is designed to help users dynamically choose
+the backend that best fits their computational environment. It is useful
+in workflows that require seamless transitions between CPU and GPU
 resources or between different data processing libraries.
 
 Examples
@@ -48,56 +47,61 @@ Examples
 
 Notes
 -----
-The `select_backend` method, decorated with `EnsureMethod`, operates in 
-soft mode with warnings, enabling flexible backend selection and handling 
+The `select_backend` method, decorated with `EnsureMethod`, operates in
+soft mode with warnings, enabling flexible backend selection and handling
 potentially missing methods gracefully.
 
 __all__
 -------
-- `BackendSelector`: Exposes the `BackendSelector` class for backend 
+- `BackendSelector`: Exposes the `BackendSelector` class for backend
   management.
 
 """
+
 import subprocess
 import warnings
 from typing import Literal
 
+from ..api.property import BaseClass
+from ..decorators import EnsureMethod
+from ..utils.deps_utils import ensure_pkg
+from .cupy import CuPyBackend
+from .dask import DaskBackend
+from .nn import NNBackend
 from .numpy import NumpyBackend
 from .scipy import ScipyBackend
-from .dask import DaskBackend
-from .cupy import CuPyBackend
-from .nn import NNBackend 
 
-from ..decorators import EnsureMethod 
-from ..api.property import BaseClass 
-from ..utils.deps_utils import ensure_pkg 
+__all__ = [
+    "BackendSelector",
+    "select_backend_n",
+    "safe_cast",
+    "check_processor",
+]
 
-__all__= ["BackendSelector", "select_backend_n", "safe_cast",
-          "check_processor"]
 
-@EnsureMethod("select_backend", error='warn', mode='soft'  )
+@EnsureMethod("select_backend", error="warn", mode="soft")
 class BackendSelector(BaseClass):
     """
-    A flexible class that manages and selects the most suitable computational 
-    backend for `gofast` tasks. The `BackendSelector` allows users to specify 
-    their preferred backend for both general computations (e.g., using 
-    NumPy, SciPy) and neural network computations (e.g., using TensorFlow, 
-    PyTorch), or to enable automatic selection based on system capabilities 
+    A flexible class that manages and selects the most suitable computational
+    backend for `gofast` tasks. The `BackendSelector` allows users to specify
+    their preferred backend for both general computations (e.g., using
+    NumPy, SciPy) and neural network computations (e.g., using TensorFlow,
+    PyTorch), or to enable automatic selection based on system capabilities
     and installed libraries.
 
     Parameters
     ----------
     preferred_backend : str, optional
-        The preferred backend for general computations. Supported options 
-        include `"numpy"`, `"scipy"`, `"dask"`, and `"cupy"`. If `None`, 
+        The preferred backend for general computations. Supported options
+        include `"numpy"`, `"scipy"`, `"dask"`, and `"cupy"`. If `None`,
         automatic selection is applied.
     preferred_nn_backend : str, optional
-        The preferred backend for neural network computations. Supported 
-        options are `"tensorflow"` and `"pytorch"`. If `None`, automatic 
+        The preferred backend for neural network computations. Supported
+        options are `"tensorflow"` and `"pytorch"`. If `None`, automatic
         selection is applied.
     verbose : int, optional
-        Sets the verbosity level of the class output. `0` means no output, 
-        while higher values increase the verbosity of feedback messages 
+        Sets the verbosity level of the class output. `0` means no output,
+        while higher values increase the verbosity of feedback messages
         regarding backend selection.
 
     Attributes
@@ -105,34 +109,34 @@ class BackendSelector(BaseClass):
     backends : dict
         Maps general backend names to their corresponding class implementations.
     nn_backends : dict
-        Maps neural network backend names to `NNBackend`, which selects 
+        Maps neural network backend names to `NNBackend`, which selects
         between TensorFlow and PyTorch.
     selected_backend : object
         An instance of the selected backend class for general computations.
     selected_nn_backend : object
-        An instance of the selected neural network backend class for deep 
+        An instance of the selected neural network backend class for deep
         learning computations.
 
     Methods
     -------
     select_backend(preferred_backend)
-        Selects the general computation backend based on user preference or 
+        Selects the general computation backend based on user preference or
         an automatic fallback if no valid preference is provided.
     select_nn_backend(preferred_nn_backend)
-        Selects the neural network backend based on user preference or an 
+        Selects the neural network backend based on user preference or an
         automatic fallback if no valid preference is provided.
     is_gpu_available()
-        Checks if a CUDA-compatible GPU is available for GPU-accelerated 
+        Checks if a CUDA-compatible GPU is available for GPU-accelerated
         computations.
     is_dask_available()
         Checks if Dask is installed for distributed computations.
     is_scipy_available()
         Checks if SciPy is available for advanced scientific computations.
     auto_select_backend()
-        Automatically selects the most suitable general backend based on 
+        Automatically selects the most suitable general backend based on
         system resources.
     auto_select_nn_backend()
-        Automatically selects the most suitable neural network backend 
+        Automatically selects the most suitable neural network backend
         (TensorFlow or PyTorch).
     get_backend()
         Returns the currently selected general backend instance.
@@ -147,7 +151,7 @@ class BackendSelector(BaseClass):
     >>> backend_selector = BackendSelector(preferred_backend='scipy')
     >>> backend = backend_selector.get_backend()
     >>> array = backend.array([1, 2, 3])
-    
+
     If no backend is specified, an automatic selection is made:
 
     >>> backend_selector = BackendSelector()
@@ -161,11 +165,11 @@ class BackendSelector(BaseClass):
 
     Notes
     -----
-    The `BackendSelector` prioritizes GPU-accelerated backends for general 
-    computation tasks by checking for `CuPy` support. If unavailable, it 
-    defaults to `Dask`, `SciPy`, or `NumPy` in that order. Neural network 
-    backend selection prioritizes TensorFlow if both it and PyTorch are 
-    available, providing flexibility based on user configuration and system 
+    The `BackendSelector` prioritizes GPU-accelerated backends for general
+    computation tasks by checking for `CuPy` support. If unavailable, it
+    defaults to `Dask`, `SciPy`, or `NumPy` in that order. Neural network
+    backend selection prioritizes TensorFlow if both it and PyTorch are
+    available, providing flexibility based on user configuration and system
     capabilities.
 
     See Also
@@ -179,27 +183,30 @@ class BackendSelector(BaseClass):
     .. [2] Abadi, M., Agarwal, A., Barham, P., et al. (2016). "TensorFlow:
            Large-Scale Machine Learning on Heterogeneous Distributed Systems."
            arXiv preprint arXiv:1603.04467.
-    .. [3] Paszke, A., Gross, S., Massa, F., et al. (2019). "PyTorch: An 
+    .. [3] Paszke, A., Gross, S., Massa, F., et al. (2019). "PyTorch: An
            Imperative Style, High-Performance Deep Learning Library."
            Advances in Neural Information Processing Systems, 32.
     """
 
     def __init__(
-        self, 
-        preferred_backend=None, 
-        preferred_nn_backend=None, 
-        verbose=0
-        ):
-        
+        self,
+        preferred_backend=None,
+        preferred_nn_backend=None,
+        verbose=0,
+    ):
         self.backends = {
             "numpy": NumpyBackend,
             "scipy": ScipyBackend,
             "dask": DaskBackend,
-            "cupy": CuPyBackend
+            "cupy": CuPyBackend,
         }
         self.nn_backends = {
-            "tensorflow": NNBackend(backend="tensorflow", init=False),
-            "pytorch": NNBackend(backend="pytorch", init= False)
+            "tensorflow": NNBackend(
+                backend="tensorflow", init=False
+            ),
+            "pytorch": NNBackend(
+                backend="pytorch", init=False
+            ),
         }
         self.verbose = verbose
         self.alias_map = {
@@ -210,24 +217,28 @@ class BackendSelector(BaseClass):
             "cp": "cupy",
             "cy": "cupy",
             "nn": "nn",
-            "neural": "nn"
+            "neural": "nn",
         }
-        self.selected_backend = self.select_backend(preferred_backend)
+        self.selected_backend = self.select_backend(
+            preferred_backend
+        )
         if preferred_nn_backend is not None:
-            self.selected_nn_backend = self.select_nn_backend(preferred_nn_backend)
+            self.selected_nn_backend = self.select_nn_backend(
+                preferred_nn_backend
+            )
 
     def select_backend(self, preferred_backend):
         """
-        Selects the general computation backend based on user preference 
-        or defaults to automatic selection if the specified preference 
+        Selects the general computation backend based on user preference
+        or defaults to automatic selection if the specified preference
         is unavailable.
 
         Parameters
         ----------
         preferred_backend : str
-            User-specified backend for general computations. Can be one of 
-            `"numpy"`, `"scipy"`, `"dask"`, or `"cupy"`. Shortened forms, 
-            such as `"np"` for `"numpy"` and `"cp"` for `"cupy"`, are 
+            User-specified backend for general computations. Can be one of
+            `"numpy"`, `"scipy"`, `"dask"`, or `"cupy"`. Shortened forms,
+            such as `"np"` for `"numpy"` and `"cp"` for `"cupy"`, are
             also supported.
 
         Returns
@@ -237,8 +248,8 @@ class BackendSelector(BaseClass):
 
         Notes
         -----
-        If `preferred_backend` is not available or is not provided, the 
-        `auto_select_backend` method is called to automatically determine 
+        If `preferred_backend` is not available or is not provided, the
+        `auto_select_backend` method is called to automatically determine
         the most suitable backend.
 
         Examples
@@ -248,24 +259,30 @@ class BackendSelector(BaseClass):
         DaskBackend selected by user preference.
         """
 
-        normalized_backend = self.alias_map.get(preferred_backend, preferred_backend)
+        normalized_backend = self.alias_map.get(
+            preferred_backend, preferred_backend
+        )
         if normalized_backend in self.backends:
-            backend_instance = self.backends[normalized_backend]()
+            backend_instance = self.backends[
+                normalized_backend
+            ]()
             if self.verbose > 0:
-                print(f"{normalized_backend.capitalize()}Backend selected by user preference.")
+                print(
+                    f"{normalized_backend.capitalize()}Backend selected by user preference."
+                )
             return backend_instance
         return self.auto_select_backend()
 
     def select_nn_backend(self, preferred_nn_backend):
         """
-        Selects the neural network backend based on user preference or 
-        defaults to automatic selection if the specified preference 
+        Selects the neural network backend based on user preference or
+        defaults to automatic selection if the specified preference
         is unavailable.
 
         Parameters
         ----------
         preferred_nn_backend : str
-            User-specified neural network backend for computations, 
+            User-specified neural network backend for computations,
             either `"tensorflow"` or `"pytorch"`.
 
         Returns
@@ -275,8 +292,8 @@ class BackendSelector(BaseClass):
 
         Notes
         -----
-        If `preferred_nn_backend` is not available or is not provided, the 
-        `auto_select_nn_backend` method is called to determine the optimal 
+        If `preferred_nn_backend` is not available or is not provided, the
+        `auto_select_nn_backend` method is called to determine the optimal
         backend, prioritizing `"tensorflow"`.
 
         Examples
@@ -288,10 +305,13 @@ class BackendSelector(BaseClass):
 
         if preferred_nn_backend in self.nn_backends:
             if self.verbose > 0:
-                print(f"{preferred_nn_backend.capitalize()}"
-                      " selected for neural network computations.")
-            return self.nn_backends[preferred_nn_backend]._initialize_backend(
-                preferred_nn_backend)
+                print(
+                    f"{preferred_nn_backend.capitalize()}"
+                    " selected for neural network computations."
+                )
+            return self.nn_backends[
+                preferred_nn_backend
+            ]._initialize_backend(preferred_nn_backend)
         return self.auto_select_nn_backend()
 
     def is_gpu_available(self):
@@ -305,8 +325,8 @@ class BackendSelector(BaseClass):
 
         Notes
         -----
-        This method attempts a simple GPU operation using the `cupy` library. 
-        If `cupy` is installed and a GPU is accessible, the function returns 
+        This method attempts a simple GPU operation using the `cupy` library.
+        If `cupy` is installed and a GPU is accessible, the function returns
         `True`.
 
         Examples
@@ -318,13 +338,13 @@ class BackendSelector(BaseClass):
 
         try:
             import cupy as _cp
+
             _cp.array([1])
             return True
         except ImportError:
             return False
         except Exception:  # covers CUDA runtime errors
             return False
-
 
     def is_dask_available(self):
         """
@@ -337,8 +357,8 @@ class BackendSelector(BaseClass):
 
         Notes
         -----
-        Dask is used for large-scale computations on distributed systems. 
-        This method confirms its installation without initializing any 
+        Dask is used for large-scale computations on distributed systems.
+        This method confirms its installation without initializing any
         Dask components.
 
         Examples
@@ -349,14 +369,15 @@ class BackendSelector(BaseClass):
         """
 
         try:
-            import dask #noqa
+            import dask  # noqa
+
             return True
         except ImportError:
             return False
 
     def is_scipy_available(self):
         """
-        Checks whether the SciPy library is available for scientific 
+        Checks whether the SciPy library is available for scientific
         computations.
 
         Returns
@@ -366,8 +387,8 @@ class BackendSelector(BaseClass):
 
         Notes
         -----
-        SciPy provides advanced scientific and numerical computing functions. 
-        This method ensures SciPy is available for computations requiring 
+        SciPy provides advanced scientific and numerical computing functions.
+        This method ensures SciPy is available for computations requiring
         high precision and functionality beyond what is offered by NumPy.
 
         Examples
@@ -378,15 +399,16 @@ class BackendSelector(BaseClass):
         """
 
         try:
-            import scipy # # noqa
+            import scipy  # # noqa
+
             return True
         except ImportError:
             return False
 
     def auto_select_backend(self):
         """
-        Automatically selects the most suitable general backend based on 
-        system capabilities, prioritizing GPU-accelerated computations 
+        Automatically selects the most suitable general backend based on
+        system capabilities, prioritizing GPU-accelerated computations
         where available.
 
         Returns
@@ -418,13 +440,15 @@ class BackendSelector(BaseClass):
         else:
             selected_backend = "numpy"
         if self.verbose > 0:
-            print(f"{selected_backend.capitalize()}Backend"
-                  " selected for general computations.")
+            print(
+                f"{selected_backend.capitalize()}Backend"
+                " selected for general computations."
+            )
         return self.backends[selected_backend]()
 
     def auto_select_nn_backend(self):
         """
-        Automatically selects the most suitable neural network backend, 
+        Automatically selects the most suitable neural network backend,
         prioritizing TensorFlow if both TensorFlow and PyTorch are available.
 
         Returns
@@ -439,8 +463,8 @@ class BackendSelector(BaseClass):
 
         Notes
         -----
-        This method attempts to import TensorFlow and PyTorch in order. 
-        If TensorFlow is found, it is selected as the default neural network 
+        This method attempts to import TensorFlow and PyTorch in order.
+        If TensorFlow is found, it is selected as the default neural network
         backend. If TensorFlow is unavailable, PyTorch is chosen if available.
 
         Examples
@@ -451,24 +475,31 @@ class BackendSelector(BaseClass):
         """
 
         try:
-            import tensorflow as tf # noqa
+            import tensorflow as tf  # noqa
+
             if self.verbose > 0:
-                print("TensorFlow selected for neural network computations.")
+                print(
+                    "TensorFlow selected for neural network computations."
+                )
             return self.nn_backends["tensorflow"]
         except ImportError:
             try:
-                import torch # noqa
+                import torch  # noqa
+
                 if self.verbose > 0:
-                    print("PyTorch selected for neural network computations.")
+                    print(
+                        "PyTorch selected for neural network computations."
+                    )
                 return self.nn_backends["pytorch"]
             except ImportError:
                 raise ImportError(
                     "Neither TensorFlow nor PyTorch is"
-                    " available for neural network computations.")
+                    " available for neural network computations."
+                )
 
     def get_backend(self):
         """
-        Retrieves the selected general backend instance for performing 
+        Retrieves the selected general backend instance for performing
         computational tasks.
 
         Returns
@@ -486,7 +517,7 @@ class BackendSelector(BaseClass):
 
     def get_nn_backend(self):
         """
-        Retrieves the selected neural network backend instance for 
+        Retrieves the selected neural network backend instance for
         performing deep learning tasks.
 
         Returns
@@ -501,31 +532,33 @@ class BackendSelector(BaseClass):
         """
 
         return self.selected_nn_backend
- 
+
 
 @ensure_pkg(
-    "torch", 
+    "torch",
     extra="backend is set to ``torch`` while it is not installed.",
-    partial_check= True,
-    condition= lambda *args, **kwargs: kwargs.get("backend") in ("torch", "pytorch")
-    )
+    partial_check=True,
+    condition=lambda *args, **kwargs: kwargs.get("backend")
+    in ("torch", "pytorch"),
+)
 @ensure_pkg(
-    "tensorflow", 
+    "tensorflow",
     extra="backend is set to ``tensorflow`` while it is not installed.",
-    partial_check= True,
-    condition= lambda *args, **kwargs: kwargs.get("backend") in ("tensorflow", "tf")
-    )
-
+    partial_check=True,
+    condition=lambda *args, **kwargs: kwargs.get("backend")
+    in ("tensorflow", "tf"),
+)
 def select_backend_n(
-        backend=None, return_module=False, return_both=False):
+    backend=None, return_module=False, return_both=False
+):
     """
     Select the backend for computation based on the input string.
 
-    This function maps various input string representations to standardized 
-    backend names or their corresponding modules. It is used to choose the 
-    appropriate backend for performing computations, such as NumPy, TensorFlow, 
-    or PyTorch. This allows the user to provide different variations of backend 
-    names, and the function will return the corresponding backend in a 
+    This function maps various input string representations to standardized
+    backend names or their corresponding modules. It is used to choose the
+    appropriate backend for performing computations, such as NumPy, TensorFlow,
+    or PyTorch. This allows the user to provide different variations of backend
+    names, and the function will return the corresponding backend in a
     consistent format or the actual backend module.
 
     Parameters
@@ -536,22 +569,22 @@ def select_backend_n(
         - `'torch'`, `'pytorch'` for PyTorch.
         - `'tensorflow'`, `'tf'` for TensorFlow.
 
-        The parameter is case-insensitive, so variations like `'TensorFlow'`, 
-        `'TF'`, or `'np'` are also valid. If `None` is provided, the default 
+        The parameter is case-insensitive, so variations like `'TensorFlow'`,
+        `'TF'`, or `'np'` are also valid. If `None` is provided, the default
         backend will be NumPy.
-    
+
     return_module : bool, default=False
-        If `True`, the function returns the actual backend module (`numpy`, 
-        `torch`, or `tensorflow`). If `False`, it returns the standardized 
+        If `True`, the function returns the actual backend module (`numpy`,
+        `torch`, or `tensorflow`). If `False`, it returns the standardized
         backend string (`'numpy'`, `'torch'`, or `'tensorflow'`).
-    
+
     return_both : bool, default=False
-        If `True`, the function returns a tuple containing both the standardized 
-        backend string and the corresponding backend module. This is useful 
+        If `True`, the function returns a tuple containing both the standardized
+        backend string and the corresponding backend module. This is useful
         when both the name and the module are needed for further operations.
 
         - When `return_both` is `True`, the function returns:
-          (`'numpy'`, numpy_module), (`'torch'`, torch_module), or 
+          (`'numpy'`, numpy_module), (`'torch'`, torch_module), or
           (`'tensorflow'`, tensorflow_module).
 
         - If `return_both` is `True`, the `return_module` parameter is ignored.
@@ -559,72 +592,72 @@ def select_backend_n(
     Returns
     -------
     str or module or tuple of (str, module)
-        - If `return_both` is `True`, returns a tuple containing the standardized 
+        - If `return_both` is `True`, returns a tuple containing the standardized
           backend string and the corresponding backend module.
-        - If `return_module` is `True`, returns the corresponding backend 
+        - If `return_module` is `True`, returns the corresponding backend
           module:
           - `numpy` module for `'numpy'`.
           - `torch` module for `'torch'`.
           - `tensorflow` module for `'tensorflow'`.
-        - If both `return_module` and `return_both` are `False`, returns the 
-          standardized backend string, one of `'numpy'`, `'torch'`, or 
-          `'tensorflow'`. 
+        - If both `return_module` and `return_both` are `False`, returns the
+          standardized backend string, one of `'numpy'`, `'torch'`, or
+          `'tensorflow'`.
 
     Raises
     ------
     ValueError
-        If the provided `backend` is not recognized, a `ValueError` is raised 
+        If the provided `backend` is not recognized, a `ValueError` is raised
         with a message indicating the valid options.
 
     Notes
     -----
-    - The backend parameter allows flexibility for users to choose between 
-      different backend libraries (e.g., NumPy for standard computation, 
-      TensorFlow for GPU-accelerated computation, or PyTorch for deep learning 
+    - The backend parameter allows flexibility for users to choose between
+      different backend libraries (e.g., NumPy for standard computation,
+      TensorFlow for GPU-accelerated computation, or PyTorch for deep learning
       tasks).
-    - If `None` is passed, the function defaults to NumPy, which is the 
+    - If `None` is passed, the function defaults to NumPy, which is the
       fallback option for most computations.
-    - The backend parameter is case-insensitive, so it will handle different 
-      cases of the backend names (e.g., `'TensorFlow'`, `'TF'` will be 
+    - The backend parameter is case-insensitive, so it will handle different
+      cases of the backend names (e.g., `'TensorFlow'`, `'TF'` will be
       correctly mapped to `'tensorflow'`).
     - If an unsupported backend is provided, a `ValueError` will be raised.
-    - When `return_module` or `return_both` is `True`, ensure that the 
-      corresponding backend library is installed in your environment to avoid 
+    - When `return_module` or `return_both` is `True`, ensure that the
+      corresponding backend library is installed in your environment to avoid
       `ImportError`.
 
     Examples
     --------
-    >>> from geoprior.backends.selector import select_backend_n 
+    >>> from geoprior.backends.selector import select_backend_n
     >>> select_backend_n('tf')
     'tensorflow'
-    
+
     >>> select_backend_n('PyTorch')
     'torch'
-    
+
     >>> select_backend_n('np')
     'numpy'
-    
+
     >>> select_backend_n(None)
     'numpy'
-    
+
     >>> select_backend_n('tf', return_module=True)
     <module 'tensorflow' from '...'>
-    
+
     >>> select_backend_n('torch', return_module=True)
     <module 'torch' from '...'>
-    
+
     >>> select_backend_n('numpy', return_module=True)
     <module 'numpy' from '...'>
-    
+
     >>> select_backend_n('tf', return_both=True)
     ('tensorflow', <module 'tensorflow' from '...'>)
-    
+
     >>> select_backend_n('torch', return_both=True)
     ('torch', <module 'torch' from '...'>)
-    
+
     >>> select_backend_n('numpy', return_both=True)
     ('numpy', <module 'numpy' from '...'>)
-    
+
     >>> select_backend_n('invalid_backend')
     Traceback (most recent call last):
         ...
@@ -632,24 +665,27 @@ def select_backend_n(
 
     See Also
     --------
-    TensorFlow : A powerful open-source machine learning library, often used 
+    TensorFlow : A powerful open-source machine learning library, often used
     for large-scale deep learning tasks.
-    
+
     PyTorch : A deep learning framework popular for research and production.
-    
-    NumPy : A library for numerical computing in Python, providing support 
+
+    NumPy : A library for numerical computing in Python, providing support
     for large multi-dimensional arrays and matrices.
     """
     backend_map = {
         None: "numpy",  # Default to numpy if backend is None
-        "numpy": "numpy", "np": "numpy",
-        "torch": "torch", "pytorch": "torch",
-        "tensorflow": "tensorflow", "tf": "tensorflow"
+        "numpy": "numpy",
+        "np": "numpy",
+        "torch": "torch",
+        "pytorch": "torch",
+        "tensorflow": "tensorflow",
+        "tf": "tensorflow",
     }
 
     normalized_backend = (
-        backend_map.get(backend.lower()) 
-        if isinstance(backend, str) 
+        backend_map.get(backend.lower())
+        if isinstance(backend, str)
         else backend_map.get(backend)
     )
 
@@ -658,17 +694,20 @@ def select_backend_n(
             f"Unsupported backend: {backend}. Supported backends are "
             "'numpy', 'tensorflow', and 'torch'."
         )
-    
+
     module = None
     if return_module or return_both:
         if normalized_backend == "numpy":
             import numpy as np
+
             module = np
         elif normalized_backend == "torch":
             import torch
+
             module = torch
         elif normalized_backend == "tensorflow":
             import tensorflow as tf
+
             module = tf
 
     if return_both:
@@ -678,17 +717,18 @@ def select_backend_n(
     else:
         return normalized_backend
 
+
 def safe_cast(backend, value, dtype, backend_name=None):
     """
     Helper function to cast values to a specified data type across multiple
     backends.
-    
+
     This function facilitates the conversion of data types for various computational
     backends, including NumPy, TensorFlow, and PyTorch. It allows users to specify
     the backend either by name or by passing the backend module directly. The
     function ensures type safety and compatibility by performing the casting
     operation in a manner specific to the selected backend.
-    
+
     Parameters
     ----------
     backend : str or module
@@ -704,29 +744,29 @@ def safe_cast(backend, value, dtype, backend_name=None):
     backend_name : str, optional
         Explicitly specify the backend name if ``backend`` is a module. Default
         is ``None``.
-    
+
     Returns
     -------
     casted_value : same type as `value`
         The value cast to the specified ``dtype``, compatible with the active
         backend.
-    
+
     Raises
     ------
     ValueError
         If the backend is unsupported or if the ``dtype`` is incompatible.
     TypeError
         If the input types are incorrect.
-    
+
     Formulation
     ------------
     .. math::
         y = \text{cast}(x, \text{dtype})
-    
+
     Examples
     --------
     Using NumPy backend:
-    
+
     >>> import numpy as np
     >>> from geoprior.backends.selector import safe_cast
     >>> value = [1, 2, 3]
@@ -734,9 +774,9 @@ def safe_cast(backend, value, dtype, backend_name=None):
     >>> casted_value = safe_cast('numpy', value, dtype)
     >>> print(casted_value)
     [1. 2. 3.]
-    
+
     Using TensorFlow backend:
-    
+
     >>> import tensorflow as tf
     >>> from geoprior.backends.selector import safe_cast
     >>> value = tf.constant([1, 2, 3], dtype=tf.int32)
@@ -744,9 +784,9 @@ def safe_cast(backend, value, dtype, backend_name=None):
     >>> casted_value = safe_cast('tf', value, dtype)
     >>> print(casted_value)
     tf.Tensor([1. 2. 3.], shape=(3,), dtype=float32)
-    
+
     Using PyTorch backend:
-    
+
     >>> import torch
     >>> from geoprior.backends.selector import safe_cast
     >>> value = torch.tensor([1, 2, 3], dtype=torch.int32)
@@ -754,20 +794,20 @@ def safe_cast(backend, value, dtype, backend_name=None):
     >>> casted_value = safe_cast('torch', value, dtype)
     >>> print(casted_value)
     tensor([1., 2., 3.])
-    
+
     Notes
     -----
     The ``safe_cast`` function dynamically imports the required backend module based on the
     specified backend name or module. If the backend is not installed, an ``ImportError``
     will be raised, prompting the user to install the necessary package.
-    
+
     :math:`y = \text{cast}(x, \text{dtype})` represents the casting operation, where
     :math:`x` is the input value and :math:`y` is the output value after casting.
-    
+
     See also
     --------
     ``numpy.asarray``, ``tensorflow.cast``, ``torch.Tensor.to``
-    
+
     References
     ----------
     .. [1] Waskom, M. (2021). *Seaborn: Statistical Data Visualization*. Journal of
@@ -778,16 +818,16 @@ def safe_cast(backend, value, dtype, backend_name=None):
 
     # Mapping of backend aliases to standardized names
     BACKEND_ALIASES = {
-        'numpy': ['numpy', 'np'],
-        'tensorflow': ['tensorflow', 'tf'],
-        'torch': ['torch', 'pytorch', 'pt']
+        "numpy": ["numpy", "np"],
+        "tensorflow": ["tensorflow", "tf"],
+        "torch": ["torch", "pytorch", "pt"],
     }
 
     # Mapping of standardized names to import names
     BACKEND_IMPORT_NAMES = {
-        'numpy': 'numpy',
-        'tensorflow': 'tensorflow',
-        'torch': 'torch'
+        "numpy": "numpy",
+        "tensorflow": "tensorflow",
+        "torch": "torch",
     }
 
     # Helper function to get standardized backend name
@@ -802,8 +842,13 @@ def safe_cast(backend, value, dtype, backend_name=None):
                 f"backends are: {list(BACKEND_ALIASES.keys())}."
             )
         elif isinstance(backend_input, types.ModuleType):
-            for std_name, import_name in BACKEND_IMPORT_NAMES.items():
-                if backend_input.__name__.startswith(std_name):
+            for (
+                std_name,
+                _import_name,
+            ) in BACKEND_IMPORT_NAMES.items():
+                if backend_input.__name__.startswith(
+                    std_name
+                ):
                     return std_name
             raise ValueError(
                 f"Unsupported backend module: '{backend_input.__name__}'. Supported "
@@ -833,14 +878,17 @@ def safe_cast(backend, value, dtype, backend_name=None):
 
     # Import the backend module dynamically
     try:
-        if backend_std_name == 'numpy':
+        if backend_std_name == "numpy":
             import numpy as np
+
             backend_module = np
-        elif backend_std_name == 'tensorflow':
+        elif backend_std_name == "tensorflow":
             import tensorflow as tf
+
             backend_module = tf
-        elif backend_std_name == 'torch':
+        elif backend_std_name == "torch":
             import torch
+
             backend_module = torch
         else:
             # This case should not occur due to earlier validations
@@ -856,15 +904,15 @@ def safe_cast(backend, value, dtype, backend_name=None):
 
     # Perform casting based on the backend
     try:
-        if backend_std_name == 'numpy':
+        if backend_std_name == "numpy":
             # NumPy: Use np.asarray with dtype
             return backend_module.asarray(value, dtype=dtype)
 
-        elif backend_std_name == 'tensorflow':
+        elif backend_std_name == "tensorflow":
             # TensorFlow: Use tf.cast
             return backend_module.cast(value, dtype=dtype)
 
-        elif backend_std_name == 'torch':
+        elif backend_std_name == "torch":
             # PyTorch:
             # If value is already a PyTorch tensor, use .to(dtype)
             # Otherwise, create a new tensor with the specified dtype
@@ -872,8 +920,7 @@ def safe_cast(backend, value, dtype, backend_name=None):
                 return value.to(dtype)
             else:
                 return backend_module.tensor(
-                    value, 
-                    dtype=dtype
+                    value, dtype=dtype
                 )
 
         else:
@@ -887,11 +934,14 @@ def safe_cast(backend, value, dtype, backend_name=None):
             f"Error casting value with backend '{backend_std_name}': {e}"
         )
 
+
 def check_processor(
     authorized: Literal["gpu", "cpu", "auto"] = "auto",
     error: Literal["raise", "warn"] = "raise",
     verbose: int = 0,
-    backend: Literal["auto", "pytorch", "tensorflow", "nvidia_smi"] = "auto"
+    backend: Literal[
+        "auto", "pytorch", "tensorflow", "nvidia_smi"
+    ] = "auto",
 ) -> bool:
     """
     Check availability of specified processor and handle errors accordingly.
@@ -935,11 +985,13 @@ def check_processor(
     """
     authorized = authorized.lower()
     error = error.lower()
-    
+
     if authorized not in ("gpu", "cpu", "auto"):
-        raise ValueError(f"Invalid authorized value: {authorized}. "
-                         "Choose from ['gpu', 'cpu', 'auto']")
-    
+        raise ValueError(
+            f"Invalid authorized value: {authorized}. "
+            "Choose from ['gpu', 'cpu', 'auto']"
+        )
+
     if authorized == "cpu":
         if verbose:
             print("CPU is always available")
@@ -949,6 +1001,7 @@ def check_processor(
     def _check_pytorch() -> bool:
         try:
             import torch
+
             if verbose:
                 print("Checking GPU via PyTorch...")
             return torch.cuda.is_available()
@@ -959,7 +1012,10 @@ def check_processor(
 
     def _check_tensorflow() -> bool:
         try:
-            from tensorflow.config import list_physical_devices
+            from tensorflow.config import (
+                list_physical_devices,
+            )
+
             if verbose:
                 print("Checking GPU via TensorFlow...")
             return len(list_physical_devices("GPU")) > 0
@@ -974,12 +1030,14 @@ def check_processor(
                 print("Checking GPU via nvidia-smi...")
             result = subprocess.run(
                 ["nvidia-smi"],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                check=True
+                capture_output=True,
+                check=True,
             )
             return result.returncode == 0
-        except (subprocess.CalledProcessError, FileNotFoundError):
+        except (
+            subprocess.CalledProcessError,
+            FileNotFoundError,
+        ):
             if verbose:
                 print("nvidia-smi check failed")
             return False
@@ -987,11 +1045,11 @@ def check_processor(
     backends = {
         "pytorch": _check_pytorch,
         "tensorflow": _check_tensorflow,
-        "nvidia_smi": _check_nvidia_smi
+        "nvidia_smi": _check_nvidia_smi,
     }
 
     gpu_available = False
-    
+
     if backend == "auto":
         for name, checker in backends.items():
             if checker():
@@ -1001,8 +1059,10 @@ def check_processor(
                 break
     else:
         if backend not in backends:
-            raise ValueError(f"Invalid backend: {backend}. "
-                             "Choose from ['auto', 'pytorch', 'tensorflow', 'nvidia_smi']")
+            raise ValueError(
+                f"Invalid backend: {backend}. "
+                "Choose from ['auto', 'pytorch', 'tensorflow', 'nvidia_smi']"
+            )
         gpu_available = backends[backend]()
 
     if authorized == "gpu" and not gpu_available:
@@ -1010,12 +1070,25 @@ def check_processor(
         if error == "raise":
             raise RuntimeError(msg)
         elif error == "warn":
-            warnings.warn(msg)
+            warnings.warn(msg, stacklevel=2)
             return False
         return False
 
     if verbose:
-        status = "available" if gpu_available else "unavailable"
-        print(f"GPU {status}" + ("" if authorized == "auto" else " and required"))
-    
-    return gpu_available if authorized in ("gpu", "auto") else True
+        status = (
+            "available" if gpu_available else "unavailable"
+        )
+        print(
+            f"GPU {status}"
+            + (
+                ""
+                if authorized == "auto"
+                else " and required"
+            )
+        )
+
+    return (
+        gpu_available
+        if authorized in ("gpu", "auto")
+        else True
+    )

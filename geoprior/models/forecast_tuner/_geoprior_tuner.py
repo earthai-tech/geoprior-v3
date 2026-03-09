@@ -1,24 +1,27 @@
-# -*- coding: utf-8 -*-
 # License: Apache-2.0
 # Copyright (c) 2026-present
 # Author: LKouadio <etanoyau@gmail.com>
 
 from __future__ import annotations
 
-from typing import (
-    Dict, Optional, Any, Union, Type, Tuple, List, Callable
-)
 import logging
+from collections.abc import Callable
+from typing import (
+    Any,
+)
+
 import numpy as np
 
-from ...logging import get_logger 
 from ...core.handlers import _get_valid_kwargs
+from ...logging import get_logger
 from ...utils.generic_utils import (
-    vlog, rename_dict_keys, cast_multiple_bool_params
+    cast_multiple_bool_params,
+    rename_dict_keys,
+    vlog,
 )
+from .. import KERAS_DEPS
 from ..subsidence.models import GeoPriorSubsNet
 from ..utils.pinn import check_required_input_keys
-from .. import KERAS_DEPS
 from . import KT_DEPS
 from ._base_tuner import PINNTunerBase
 
@@ -62,7 +65,9 @@ _DEFAULT_COMMON = {
     "architecture_config": {
         "encoder_type": "hybrid",
         "decoder_attention_stack": [
-            "cross", "hierarchical", "memory"
+            "cross",
+            "hierarchical",
+            "memory",
         ],
         "feature_processing": "vsn",
     },
@@ -91,20 +96,22 @@ _COMPILE_ONLY = {
     "lambda_prior",
     "lambda_smooth",
     "lambda_mv",
-    
     "lambda_bounds",
     "lambda_q",
     "lambda_offset",
     "scale_mv_with_offset",
     "scale_q_with_offset",
-
     "mv_lr_mult",
     "kappa_lr_mult",
 }
 
 _INT_FIELDS = (
-    "embed_dim", "hidden_units", "lstm_units",
-    "attention_units", "vsn_units", "num_heads",
+    "embed_dim",
+    "hidden_units",
+    "lstm_units",
+    "attention_units",
+    "vsn_units",
+    "num_heads",
 )
 
 _BOOL_CAST = [
@@ -138,7 +145,7 @@ class SubsNetTuner(PINNTunerBase):
         Non-tunable configuration passed to the model
         ``__init__``. Include data-shape keys and stable
         flags, for example:
-            
+
             - ``static_input_dim`` : int
             - ``dynamic_input_dim`` : int
             - ``future_input_dim`` : int
@@ -147,20 +154,20 @@ class SubsNetTuner(PINNTunerBase):
             - ``forecast_horizon`` : int
             - optional flags (e.g., ``use_batch_norm``)
             - physics toggles (e.g., ``pde_mode``)
-            
+
     search_space : dict, optional
         Hyperparameter definitions. Each entry is either a
         list of discrete choices or a dict with a typed
         range, e.g.:
-            
+
             - list: ``{"embed_dim": [32, 64, 96]}``
             - dict: ``{"dropout_rate": {"type": "float",
               "min_value": 0.1, "max_value": 0.4}}``
-            
+
         Supported types are ``int``, ``float``, ``choice``,
         and ``bool``. Items are routed to model ``__init__``
         or to ``compile`` (see Notes).
-        
+
     objective : str or keras_tuner.Objective, default "val_loss"
         Metric to optimize. If the string contains "loss",
         direction is inferred as "min".
@@ -217,7 +224,7 @@ class SubsNetTuner(PINNTunerBase):
 
     Compile-only hyperparameters. These search keys are not
     passed to ``__init__`` and are routed to ``compile``:
-        
+
         - ``learning_rate``
         - ``lambda_gw``, ``lambda_cons``, ``lambda_prior``,
           ``lambda_smooth``, ``lambda_mv``
@@ -230,7 +237,7 @@ class SubsNetTuner(PINNTunerBase):
 
     Physics objectives. GeoPrior adds residuals consistent
     with consolidation and groundwater flow:
-        
+
         - :math:`R_gw = Ss * d(h)/dt - div(K * grad(h)) - Q`
         - :math:`R_cons = d(s)/dt - (s_eq - s) / tau`
       with :math:`s_eq = m_v * gamma_w * (h_ref - h) * H`.
@@ -300,19 +307,19 @@ class SubsNetTuner(PINNTunerBase):
 
     def __init__(
         self,
-        fixed_params: Dict[str, Any],
-        search_space: Optional[Dict[str, Any]] = None,
-        objective: Union[str, "Objective"] = "val_loss",
+        fixed_params: dict[str, Any],
+        search_space: dict[str, Any] | None = None,
+        objective: str | Objective = "val_loss",
         max_trials: int = 10,
         project_name: str = "SubsNetrTuner_Project",
         directory: str = "subsnet_tuner_results",
         executions_per_trial: int = 1,
         tuner_type: str = "randomsearch",
-        seed: Optional[int] = None,
+        seed: int | None = None,
         overwrite: bool = True,
-        _logger: Optional[Union[
-            Callable[[str], None], "logging.Logger"
-        ]] = None,
+        _logger: Callable[[str], None]
+        | logging.Logger
+        | None = None,
         **kwargs,
     ):
         self._logger = _logger or print
@@ -330,17 +337,17 @@ class SubsNetTuner(PINNTunerBase):
         )
         self.fixed_params = dict(fixed_params or {})
         self.search_space = dict(search_space or {})
-        self.model_class: Type[Model] = GeoPriorSubsNet
+        self.model_class: type[Model] = GeoPriorSubsNet
 
     @classmethod
     def create(
         cls,
-        inputs_data: Dict[str, np.ndarray],
-        targets_data: Dict[str, np.ndarray],
-        search_space: Dict[str, Any],
-        fixed_params: Optional[Dict[str, Any]] = None,
+        inputs_data: dict[str, np.ndarray],
+        targets_data: dict[str, np.ndarray],
+        search_space: dict[str, Any],
+        fixed_params: dict[str, Any] | None = None,
         **tuner_kwargs,
-    ) -> "SubsNetTuner":
+    ) -> SubsNetTuner:
         t_std = rename_dict_keys(
             targets_data.copy(),
             param_to_rename={
@@ -360,13 +367,17 @@ class SubsNetTuner(PINNTunerBase):
         )
 
     def _create_hyperparameter(
-        self, hp: "HyperParameters", name: str, definition: Any
-    ) -> Union[int, float, str, bool]:
+        self, hp: HyperParameters, name: str, definition: Any
+    ) -> int | float | str | bool:
         if isinstance(definition, list):
             return hp.Choice(name, definition)
         if isinstance(definition, dict):
             hp_type = definition.get("type", "float")
-            kw = {k: v for k, v in definition.items() if k != "type"}
+            kw = {
+                k: v
+                for k, v in definition.items()
+                if k != "type"
+            }
             if hp_type == "int":
                 return hp.Int(name, **kw)
             if hp_type == "float":
@@ -382,9 +393,9 @@ class SubsNetTuner(PINNTunerBase):
     # ----------------------------
     # Build per-trial model
     # ----------------------------
-    def build(self, hp: "HyperParameters") -> "Model":
+    def build(self, hp: HyperParameters) -> Model:
         init_params = dict(self.fixed_params)
-        compile_hps: Dict[str, Any] = {}
+        compile_hps: dict[str, Any] = {}
         for name, spec in self.search_space.items():
             val = self._create_hyperparameter(hp, name, spec)
             if name in _COMPILE_ONLY:
@@ -415,19 +426,29 @@ class SubsNetTuner(PINNTunerBase):
                 "subs_pred": pinball,
                 "gwl_pred": pinball,
             }
-            metrics = {}   # avoid MAE on Q-dim tensors
+            metrics = {}  # avoid MAE on Q-dim tensors
         else:
             loss = {
-                "subs_pred": MeanSquaredError(name="subs_data_loss"),
-                "gwl_pred": MeanSquaredError(name="gwl_data_loss"),
+                "subs_pred": MeanSquaredError(
+                    name="subs_data_loss"
+                ),
+                "gwl_pred": MeanSquaredError(
+                    name="gwl_data_loss"
+                ),
             }
             metrics = {
-                "subs_pred": [MeanAbsoluteError(name="subs_mae")],
-                "gwl_pred": [MeanAbsoluteError(name="gwl_mae")],
+                "subs_pred": [
+                    MeanAbsoluteError(name="subs_mae")
+                ],
+                "gwl_pred": [
+                    MeanAbsoluteError(name="gwl_mae")
+                ],
             }
 
         lr = compile_hps.pop("learning_rate", 1e-3)
-        optimizer = Adam(learning_rate=lr, clipnorm=1.0, clipvalue=0.5)
+        optimizer = Adam(
+            learning_rate=lr, clipnorm=1.0, clipvalue=0.5
+        )
 
         valid_compile = _get_valid_kwargs(
             model.compile,
@@ -459,21 +480,22 @@ class SubsNetTuner(PINNTunerBase):
     # ----------------------------
     def run(
         self,
-        inputs: Dict[str, np.ndarray],
-        y: Dict[str, np.ndarray],
-        validation_data: Optional[
-            Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray]]
-        ] = None,
+        inputs: dict[str, np.ndarray],
+        y: dict[str, np.ndarray],
+        validation_data: tuple[
+            dict[str, np.ndarray], dict[str, np.ndarray]
+        ]
+        | None = None,
         epochs: int = 10,
         batch_size: int = 32,
-        callbacks: Optional[List["Callback"]] = None,
-        case_info: Optional[Dict[str, Any]] = None,
+        callbacks: list[Callback] | None = None,
+        case_info: dict[str, Any] | None = None,
         verbose: int = 1,
         **search_kwargs,
-    ) -> Tuple[
-        Optional["Model"],
-        Optional["HyperParameters"],
-        Optional["Tuner"],
+    ) -> tuple[
+        Model | None,
+        HyperParameters | None,
+        Tuner | None,
     ]:
         vlog(
             "SubsNetTuner: starting run...",
@@ -488,9 +510,12 @@ class SubsNetTuner(PINNTunerBase):
             _require_h_field(validation_data[0], "val_inputs")
 
         req = [
-            "static_input_dim", "dynamic_input_dim",
-            "future_input_dim", "output_subsidence_dim",
-            "output_gwl_dim", "forecast_horizon",
+            "static_input_dim",
+            "dynamic_input_dim",
+            "future_input_dim",
+            "output_subsidence_dim",
+            "output_gwl_dim",
+            "forecast_horizon",
         ]
         if not all(k in self.fixed_params for k in req):
             vlog(
@@ -528,7 +553,7 @@ class SubsNetTuner(PINNTunerBase):
             vx, vy = check_required_input_keys(
                 vx, vy, model_name="GeoPriorSubsNet"
             )
-            
+
             val_ds = (
                 Dataset.from_tensor_slices((vx, vy))
                 .batch(batch_size)
@@ -536,7 +561,8 @@ class SubsNetTuner(PINNTunerBase):
             )
 
         metric_kind = (
-            "Quantile" if self.fixed_params.get("quantiles")
+            "Quantile"
+            if self.fixed_params.get("quantiles")
             else "Point"
         )
         self._current_run_case_info = {
@@ -565,60 +591,62 @@ class SubsNetTuner(PINNTunerBase):
 
     @staticmethod
     def _infer_and_merge_params(
-        inputs_data: Dict[str, np.ndarray],
-        targets_data: Dict[str, np.ndarray],
-        user_fixed_params: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        inputs_data: dict[str, np.ndarray],
+        targets_data: dict[str, np.ndarray],
+        user_fixed_params: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         final = dict(_DEFAULT_GEOPRIOR)
 
         inputs_data, targets_data = check_required_input_keys(
-            inputs_data, targets_data,  
-            model_name="GeoPriorSubsNet"
+            inputs_data,
+            targets_data,
+            model_name="GeoPriorSubsNet",
         )
 
-        inferred: Dict[str, Any] = {}
+        inferred: dict[str, Any] = {}
         if "static_features" in inputs_data:
-            inferred["static_input_dim"] = (
-                inputs_data["static_features"].shape[-1]
-            )
+            inferred["static_input_dim"] = inputs_data[
+                "static_features"
+            ].shape[-1]
         else:
             inferred["static_input_dim"] = 0
 
-        inferred["dynamic_input_dim"] = (
-            inputs_data["dynamic_features"].shape[-1]
-        )
+        inferred["dynamic_input_dim"] = inputs_data[
+            "dynamic_features"
+        ].shape[-1]
 
         if "future_features" in inputs_data:
-            inferred["future_input_dim"] = (
-                inputs_data["future_features"].shape[-1]
-            )
+            inferred["future_input_dim"] = inputs_data[
+                "future_features"
+            ].shape[-1]
         else:
             inferred["future_input_dim"] = 0
 
-        inferred["output_subsidence_dim"] = (
-            targets_data["subs_pred"].shape[-1]
-        )
-        inferred["output_gwl_dim"] = (
-            targets_data["gwl_pred"].shape[-1]
-        )
-        inferred["forecast_horizon"] = (
-            targets_data["subs_pred"].shape[1]
-        )
+        inferred["output_subsidence_dim"] = targets_data[
+            "subs_pred"
+        ].shape[-1]
+        inferred["output_gwl_dim"] = targets_data[
+            "gwl_pred"
+        ].shape[-1]
+        inferred["forecast_horizon"] = targets_data[
+            "subs_pred"
+        ].shape[1]
 
         final.update(inferred)
         if user_fixed_params:
             final.update(user_fixed_params)
-            
+
         return final
 
-def _require_h_field(d: Dict[str, Any], tag: str) -> None:
+
+def _require_h_field(d: dict[str, Any], tag: str) -> None:
     if ("H_field" not in d) and ("soil_thickness" not in d):
         raise ValueError(
             f"{tag} must contain 'H_field' or 'soil_thickness'."
         )
 
 
-def _pinball_factory(qs: List[float]):
+def _pinball_factory(qs: list[float]):
     q_base = tf_const(qs, dtype=tf_float32)  # shape (Q,)
 
     def loss(y_true, y_pred):
@@ -629,21 +657,27 @@ def _pinball_factory(qs: List[float]):
         # y_pred: either (B,H,Q) or (B,H,Q,1)
         if yp.shape.rank == 3:
             # want y_true as (B,H,1) so it broadcasts across Q
-            if yt.shape.rank == 2:               # (B,H) -> (B,H,1)
+            if yt.shape.rank == 2:  # (B,H) -> (B,H,1)
                 yt = tf_expand(yt, axis=-1)
             # if yt is already (B,H,1), leave it
-            q = q_base[None, None, :]            # (1,1,Q) -> matches (B,H,Q)
+            q = q_base[
+                None, None, :
+            ]  # (1,1,Q) -> matches (B,H,Q)
 
         elif yp.shape.rank == 4:
             # want y_true as (B,H,1,1) to match (B,H,Q,1)
-            if yt.shape.rank == 2:               # (B,H) -> (B,H,1)
+            if yt.shape.rank == 2:  # (B,H) -> (B,H,1)
                 yt = tf_expand(yt, axis=-1)
-            if yt.shape.rank == 3:               # (B,H,1) -> (B,H,1,1)
+            if yt.shape.rank == 3:  # (B,H,1) -> (B,H,1,1)
                 yt = tf_expand(yt, axis=2)
-            q = q_base[None, None, :, None]      # (1,1,Q,1) -> matches (B,H,Q,1)
+            q = q_base[
+                None, None, :, None
+            ]  # (1,1,Q,1) -> matches (B,H,Q,1)
 
         else:
-            raise ValueError("y_pred must be rank 3 (B,H,Q) or rank 4 (B,H,Q,1).")
+            raise ValueError(
+                "y_pred must be rank 3 (B,H,Q) or rank 4 (B,H,Q,1)."
+            )
 
         # --- Pinball loss ---
         err = yt - yp
@@ -651,4 +685,3 @@ def _pinball_factory(qs: List[float]):
         return tf_reduce_mean(pin)
 
     return loss
-

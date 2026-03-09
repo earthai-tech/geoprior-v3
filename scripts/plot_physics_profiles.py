@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -62,7 +61,6 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import List, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -70,7 +68,6 @@ import pandas as pd
 
 from scripts import config as cfg
 from scripts import utils
-
 
 # Metrics where "lower is better" (best point highlight).
 _LOWER_IS_BETTER = {
@@ -85,7 +82,7 @@ _LOWER_IS_BETTER = {
 # ---------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------
-def _parse_args(argv: List[str] | None) -> argparse.Namespace:
+def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         prog="plot-physics-profiles",
         description="Appendix A1: 1D physics profiles",
@@ -182,7 +179,7 @@ def _parse_args(argv: List[str] | None) -> argparse.Namespace:
 # I/O
 # ---------------------------------------------------------------------
 def _read_records(root: Path) -> pd.DataFrame:
-    rows: List[dict] = []
+    rows: list[dict] = []
 
     files = utils.find_all(
         root,
@@ -274,7 +271,7 @@ def _profile_over(
     city: str,
     metric: str,
     axis: str,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     if axis not in ("lambda_prior", "lambda_cons"):
         raise ValueError(f"bad axis: {axis!r}")
 
@@ -304,7 +301,7 @@ def _profile_over(
     return x[ok], y[ok]
 
 
-def _best_idx(y: np.ndarray, *, metric: str) -> Optional[int]:
+def _best_idx(y: np.ndarray, *, metric: str) -> int | None:
     if y.size == 0:
         return None
     if not np.isfinite(y).any():
@@ -397,7 +394,7 @@ def _plot_profile_panel(
 def _resolve_out(
     *,
     out: str,
-    out_dir: Optional[str],
+    out_dir: str | None,
 ) -> Path:
     if out_dir:
         base = Path(out_dir).expanduser()
@@ -409,7 +406,7 @@ def _resolve_out(
 # Main
 # ---------------------------------------------------------------------
 def figA1_phys_profiles_main(
-    argv: List[str] | None = None,
+    argv: list[str] | None = None,
 ) -> None:
     args = _parse_args(argv)
 
@@ -456,7 +453,8 @@ def figA1_phys_profiles_main(
     utils.ensure_dir(out.parent)
 
     tidy_csv = (
-        out.parent / "appendix_table_A1_phys_profiles_tidy.csv"
+        out.parent
+        / "appendix_table_A1_phys_profiles_tidy.csv"
     )
     df.to_csv(tidy_csv, index=False)
     print(f"[OK] table -> {tidy_csv}")
@@ -577,9 +575,7 @@ def figA1_phys_profiles_main(
     )
 
     if show_title:
-        default = (
-            "Appendix Fig. A1 • 1D physics sensitivity profiles"
-        )
+        default = "Appendix Fig. A1 • 1D physics sensitivity profiles"
         ttl = utils.resolve_title(
             default=default,
             title=args.title,
@@ -597,7 +593,7 @@ def figA1_phys_profiles_main(
     print(f"[OK] figs -> {png} | {pdf}")
 
 
-def main(argv: List[str] | None = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     figA1_phys_profiles_main(argv)
 
 

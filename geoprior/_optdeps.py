@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # https://lkouadio.com
@@ -15,9 +14,8 @@ repeating try/except import blocks.
 
 from __future__ import annotations
 
-from typing import Callable
-from typing import Any, Optional, Iterable, TypeVar
-
+from collections.abc import Callable, Iterable
+from typing import Any, TypeVar
 
 T = TypeVar("T")
 
@@ -25,7 +23,7 @@ T = TypeVar("T")
 # tqdm (progress bar)
 # ---------------------------------------------------------------------
 HAS_TQDM: bool
-TQDM: Optional[Any]
+TQDM: Any | None
 
 try:  # pragma: no cover - optional dependency
     from tqdm.auto import tqdm as _tqdm
@@ -83,12 +81,12 @@ class _TqdmLogStream:
 def with_progress(
     iterable: Iterable[T],
     *,
-    total: Optional[int] = None,
-    desc: Optional[str] = None,
+    total: int | None = None,
+    desc: str | None = None,
     ascii: bool = True,
     leave: bool = False,
-    disable: Optional[bool] = None,
-    log_fn: Optional[Callable[[str], None]] = None,
+    disable: bool | None = None,
+    log_fn: Callable[[str], None] | None = None,
     **tqdm_kwargs: Any,
 ) -> Iterable[T]:
     """
@@ -156,7 +154,6 @@ def with_progress(
     except Exception:
         # Any failure → graceful fallback to plain iterable
         return iterable
-
 
 
 __all__ = [

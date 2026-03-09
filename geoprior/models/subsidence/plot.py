@@ -1,25 +1,27 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3  https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
 from __future__ import annotations
-from typing import Dict, List, Optional, Union, Callable
-from typing import Tuple, Any
 
+import inspect
 import os
 import warnings
-import inspect
-import numpy as np
+from collections.abc import Callable
+from typing import (
+    Any,
+)
+
 import matplotlib.pyplot as plt
+import numpy as np
 
-from .. import KERAS_DEPS 
+from .. import KERAS_DEPS
 
-History = KERAS_DEPS.History 
+History = KERAS_DEPS.History
 
 
-def _as_history_dict(history: Any) -> Dict[str, List[float]]:
+def _as_history_dict(history: Any) -> dict[str, list[float]]:
     # Accept History or dict-like.
     if isinstance(history, History):
         return dict(history.history or {})
@@ -32,7 +34,8 @@ def _as_history_dict(history: Any) -> Dict[str, List[float]]:
         "history must be keras History or dict-like."
     )
 
-def _get_valid_kwargs(fn, kwargs: Dict) -> Dict:
+
+def _get_valid_kwargs(fn, kwargs: dict) -> dict:
     # Filter kwargs to avoid matplotlib signature errors.
     try:
         sig = inspect.signature(fn)
@@ -42,7 +45,7 @@ def _get_valid_kwargs(fn, kwargs: Dict) -> Dict:
     return {k: v for k, v in kwargs.items() if k in valid}
 
 
-def _has_pos_only(arrs: List[np.ndarray]) -> bool:
+def _has_pos_only(arrs: list[np.ndarray]) -> bool:
     # True if all finite and strictly positive.
     if not arrs:
         return False
@@ -57,8 +60,8 @@ def _has_pos_only(arrs: List[np.ndarray]) -> bool:
 
 def _pick_scale(
     scale: str,
-    arrs: List[np.ndarray],
-) -> Tuple[str, Dict]:
+    arrs: list[np.ndarray],
+) -> tuple[str, dict]:
     # For requested "log", fall back to symlog if needed.
     if scale != "log":
         return scale, {}
@@ -77,18 +80,18 @@ def _pick_scale(
 
 
 def plot_history_in(
-    history: Union[History, Dict],
-    metrics: Optional[Dict[str, List[str]]] = None,
+    history: History | dict,
+    metrics: dict[str, list[str]] | None = None,
     layout: str = "subplots",
     title: str = "Model Training History",
-    figsize: Optional[Tuple[float, float]] = None,
+    figsize: tuple[float, float] | None = None,
     style: str = "default",
-    savefig: Optional[str] = None,
-    max_cols: Union[int, str] = "auto",
+    savefig: str | None = None,
+    max_cols: int | str = "auto",
     show_grid: bool = True,
-    grid_props: Optional[Dict] = None,
-    yscale_settings: Optional[Dict[str, str]] = None,
-    log_fn: Optional[Callable[..., None]] = None,
+    grid_props: dict | None = None,
+    yscale_settings: dict[str, str] | None = None,
+    log_fn: Callable[..., None] | None = None,
     **plot_kwargs,
 ) -> None:
     """
@@ -98,7 +101,9 @@ def plot_history_in(
     hist = _as_history_dict(history)
 
     if not hist:
-        warnings.warn("Empty history: nothing to plot.")
+        warnings.warn(
+            "Empty history: nothing to plot.", stacklevel=2
+        )
         return
 
     # Style (never crash)
@@ -118,7 +123,7 @@ def plot_history_in(
             metrics.setdefault(g, []).append(k)
 
     if not metrics:
-        warnings.warn("No metrics to plot.")
+        warnings.warn("No metrics to plot.", stacklevel=2)
         return
 
     if yscale_settings is None:
@@ -137,7 +142,10 @@ def plot_history_in(
         n_cols = max(1, min(cols, n_plots))
         n_rows = (n_plots + n_cols - 1) // n_cols
         if figsize is None:
-            figsize = (float(n_cols) * 6.0, float(n_rows) * 5.0)
+            figsize = (
+                float(n_cols) * 6.0,
+                float(n_rows) * 5.0,
+            )
 
     fig, axes = plt.subplots(
         n_rows,
@@ -148,7 +156,9 @@ def plot_history_in(
     axflat = axes.flatten()
     fig.suptitle(title, fontsize=14, weight="bold")
 
-    def _plot_one_axis(ax, keys: List[str], subttl: str) -> None:
+    def _plot_one_axis(
+        ax, keys: list[str], subttl: str
+    ) -> None:
         # Collect arrays for scale decision.
         arrs = []
         for k in keys:
@@ -180,7 +190,7 @@ def plot_history_in(
             base = k[4:] if is_val else k
 
             pk = _get_valid_kwargs(ax.plot, plot_kwargs)
-            lab = ("Val " if is_val else "Train ")
+            lab = "Val " if is_val else "Train "
             lab = lab + base.replace("_", " ").title()
 
             ax.plot(x, y, label=lab, **pk)
@@ -194,7 +204,10 @@ def plot_history_in(
                         x,
                         vy,
                         linestyle="--",
-                        label=("Val " + base.replace("_", " ").title()),
+                        label=(
+                            "Val "
+                            + base.replace("_", " ").title()
+                        ),
                         **pk,
                     )
 
@@ -229,15 +242,18 @@ def plot_history_in(
         root, ext = os.path.splitext(savefig)
         if not ext:
             savefig = root + ".png"
-        os.makedirs(os.path.dirname(savefig) or ".", exist_ok=True)
+        os.makedirs(
+            os.path.dirname(savefig) or ".", exist_ok=True
+        )
         try:
             plt.savefig(savefig, dpi=300)
             log(f"[OK] Saved figure -> {savefig}")
         except Exception as e:
-            warnings.warn(f"Save failed: {e}")
+            warnings.warn(f"Save failed: {e}", stacklevel=2)
         plt.close(fig)
     else:
         plt.show()
+
 
 def gather_coords_flat(
     dataset,
@@ -250,7 +266,6 @@ def gather_coords_flat(
     Collect flat (t, x, y) arrays from a tf.data dataset.
     """
 
-
     log = log_fn if log_fn is not None else (lambda *_: None)
 
     ts = []
@@ -260,7 +275,11 @@ def gather_coords_flat(
     n_seen = 0
     for batch in dataset:
         # dataset can yield inputs or (inputs, targets)
-        inputs = batch[0] if isinstance(batch, (tuple, list)) else batch
+        inputs = (
+            batch[0]
+            if isinstance(batch, tuple | list)
+            else batch
+        )
 
         # inputs can be dict, sequence, or coords tensor directly
         if isinstance(inputs, dict):
@@ -269,7 +288,7 @@ def gather_coords_flat(
                 raise KeyError(
                     f"Missing '{coord_key}' in inputs dict."
                 )
-        elif isinstance(inputs, (tuple, list)):
+        elif isinstance(inputs, tuple | list):
             coords = inputs[0]
         else:
             coords = inputs
@@ -336,7 +355,6 @@ def plot_physics_values_in(
     """
     Plot physics arrays (residuals/fields) from a payload dict.
     """
-
 
     log = log_fn if log_fn is not None else print
 
@@ -474,7 +492,10 @@ def plot_physics_values_in(
 
     klist = _pick_keys(d)
     if not klist:
-        warnings.warn("No plot-able keys found in payload.")
+        warnings.warn(
+            "No plot-able keys found in payload.",
+            stacklevel=2,
+        )
         return
 
     mode = str(mode).lower().strip()
@@ -586,7 +607,7 @@ def plot_physics_values_in(
             )
             log(f"Saved: {savefig}")
         except Exception as e:
-            warnings.warn(f"Save failed: {e}")
+            warnings.warn(f"Save failed: {e}", stacklevel=2)
         finally:
             plt.close(fig)
     else:
@@ -594,14 +615,19 @@ def plot_physics_values_in(
             plt.show()
         else:
             plt.close(fig)
-            
-def _keys_starting(hist: Dict[str, List[float]], p: str) -> List[str]:
+
+
+def _keys_starting(
+    hist: dict[str, list[float]], p: str
+) -> list[str]:
     ks = [k for k in hist.keys() if not k.startswith("val_")]
     ks = [k for k in ks if k.startswith(p)]
     return sorted(ks)
 
 
-def _existing(hist: Dict[str, List[float]], keys: List[str]) -> List[str]:
+def _existing(
+    hist: dict[str, list[float]], keys: list[str]
+) -> list[str]:
     out = []
     for k in keys:
         if k in hist and len(hist[k]):
@@ -610,12 +636,12 @@ def _existing(hist: Dict[str, List[float]], keys: List[str]) -> List[str]:
 
 
 def plot_epsilons_in(
-    history: Union[History, Dict],
+    history: History | dict,
     *,
     title: str = "Epsilons",
-    savefig: Optional[str] = None,
+    savefig: str | None = None,
     style: str = "default",
-    log_fn: Optional[Callable[..., None]] = None,
+    log_fn: Callable[..., None] | None = None,
 ) -> None:
     # Plot only epsilon_* (incl. *_raw) with safe symlog.
     hist = _as_history_dict(history)
@@ -641,12 +667,12 @@ def plot_epsilons_in(
 
 
 def plot_physics_losses_in(
-    history: Union[History, Dict],
+    history: History | dict,
     *,
     title: str = "Physics Loss Terms",
-    savefig: Optional[str] = None,
+    savefig: str | None = None,
     style: str = "default",
-    log_fn: Optional[Callable[..., None]] = None,
+    log_fn: Callable[..., None] | None = None,
 ) -> None:
     # Auto-plot key physics loss terms with log/symlog.
     hist = _as_history_dict(history)
@@ -688,12 +714,12 @@ def plot_physics_losses_in(
 
 
 def autoplot_geoprior_history(
-    history: Union[History, Dict],
+    history: History | dict,
     *,
     outdir: str,
     prefix: str = "geoprior",
     style: str = "default",
-    log_fn: Optional[Callable[..., None]] = None,
+    log_fn: Callable[..., None] | None = None,
 ) -> None:
     # Minimal, robust: epsilons + physics loss terms.
     os.makedirs(outdir, exist_ok=True)
@@ -701,7 +727,9 @@ def autoplot_geoprior_history(
     plot_epsilons_in(
         history,
         title=f"{prefix} | epsilons",
-        savefig=os.path.join(outdir, f"{prefix}_epsilons.png"),
+        savefig=os.path.join(
+            outdir, f"{prefix}_epsilons.png"
+        ),
         style=style,
         log_fn=log_fn,
     )
@@ -709,7 +737,9 @@ def autoplot_geoprior_history(
     plot_physics_losses_in(
         history,
         title=f"{prefix} | physics terms",
-        savefig=os.path.join(outdir, f"{prefix}_physics_terms.png"),
+        savefig=os.path.join(
+            outdir, f"{prefix}_physics_terms.png"
+        ),
         style=style,
         log_fn=log_fn,
     )

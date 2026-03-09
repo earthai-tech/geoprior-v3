@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -19,26 +18,24 @@ they use `tf.print` and TensorFlow assertions.
 
 from __future__ import annotations
 
-from typing import ( 
-    Any, Dict, Optional, Sequence, 
-    Callable, List, Tuple, 
-    Iterable
-)
-
 import hashlib
 import json
+from collections.abc import Callable, Iterable, Sequence
+from typing import (
+    Any,
+)
 
 import numpy as np
 
 from .maths import (
     KERAS_DEPS,
-    tf_print_nonfinite,
     _assert_grads_finite,
-    resolve_cons_units,
-    to_rms, _stats, 
-    seconds_per_time_unit,
+    _stats,
     dt_to_seconds,
-
+    resolve_cons_units,
+    seconds_per_time_unit,
+    tf_print_nonfinite,
+    to_rms,
 )
 
 Tensor = KERAS_DEPS.Tensor
@@ -61,11 +58,10 @@ tf_shape = KERAS_DEPS.shape
 tf_square = KERAS_DEPS.square
 tf_where = KERAS_DEPS.where
 tf_zeros_like = KERAS_DEPS.zeros_like
-tf_math =KERAS_DEPS.math 
-tf_sqrt = KERAS_DEPS.sqrt 
+tf_math = KERAS_DEPS.math
+tf_sqrt = KERAS_DEPS.sqrt
 tf_maximum = KERAS_DEPS.maximum
 tf_string = KERAS_DEPS.string
-
 
 
 def _to_numpy(x: Any) -> np.ndarray:
@@ -75,7 +71,7 @@ def _to_numpy(x: Any) -> np.ndarray:
     return np.asarray(x)
 
 
-def _get_one_batch(dataset: Iterable) -> Tuple[Any, Any]:
+def _get_one_batch(dataset: Iterable) -> tuple[Any, Any]:
     # Works for tf.data.Dataset or any iterator yielding (xb, yb)
     return next(iter(dataset))
 
@@ -89,10 +85,11 @@ def _extract_output(model: Any, out: Any, key: str):
         if key not in out:
             raise KeyError(
                 f"Output key {key!r} not found."
-                f" Got keys={list(out.keys())}")
+                f" Got keys={list(out.keys())}"
+            )
         return out[key]
 
-    if isinstance(out, (list, tuple)):
+    if isinstance(out, list | tuple):
         names = list(getattr(model, "output_names", []) or [])
         if names and key in names:
             return out[names.index(key)]
@@ -103,9 +100,12 @@ def _extract_output(model: Any, out: Any, key: str):
             return out[1]
         raise KeyError(
             f"Cannot map output key {key!r} from"
-            f" list outputs; output_names={names}")
+            f" list outputs; output_names={names}"
+        )
 
-    raise TypeError(f"Unexpected model output type: {type(out)}")
+    raise TypeError(
+        f"Unexpected model output type: {type(out)}"
+    )
 
 
 def _weight_key(
@@ -128,10 +128,10 @@ def _weight_key(
 
 def _index_weights(
     model: Any,
-) -> Tuple[
-    Dict[str, Any],
-    Dict[str, str],
-    List[str],
+) -> tuple[
+    dict[str, Any],
+    dict[str, str],
+    list[str],
 ]:
     """
     Index model weights.
@@ -142,10 +142,10 @@ def _index_weights(
       keys: keys in traversal order
     """
     weights = list(getattr(model, "weights", []) or [])
-    counts: Dict[str, int] = {}
-    wmap: Dict[str, Any] = {}
-    nmap: Dict[str, str] = {}
-    keys: List[str] = []
+    counts: dict[str, int] = {}
+    wmap: dict[str, Any] = {}
+    nmap: dict[str, str] = {}
+    keys: list[str] = []
 
     for w in weights:
         name = getattr(w, "name", "<noname>")
@@ -159,6 +159,7 @@ def _index_weights(
 
     return wmap, nmap, keys
 
+
 def weight_diff_report(
     m1: Any,
     m2: Any,
@@ -166,7 +167,7 @@ def weight_diff_report(
     top: int = 30,
     include_ok: bool = False,
     include_extra: bool = False,
-) -> List[Tuple[float, str, str, Any]]:
+) -> list[tuple[float, str, str, Any]]:
     """
     Compare weights between two models using stable keys.
 
@@ -185,7 +186,7 @@ def weight_diff_report(
     w1, n1, k1 = _index_weights(m1)
     w2, n2, k2 = _index_weights(m2)
 
-    rows: List[Tuple[float, str, str, Any]] = []
+    rows: list[tuple[float, str, str, Any]] = []
 
     # --- compare m1 -> m2
     for key in k1:
@@ -204,7 +205,9 @@ def weight_diff_report(
         b = _to_numpy(b_w)
 
         if a.shape != b.shape:
-            rows.append((np.inf, "SHAPE", wid, (a.shape, b.shape)))
+            rows.append(
+                (np.inf, "SHAPE", wid, (a.shape, b.shape))
+            )
             continue
 
         if a.size:
@@ -230,11 +233,14 @@ def weight_diff_report(
             rows.append((np.inf, "EXTRA", wid, shp))
 
     # Sort with inf first, then by diff desc
-    rows.sort(key=lambda x: (np.isfinite(x[0]), x[0]), reverse=True)
+    rows.sort(
+        key=lambda x: (np.isfinite(x[0]), x[0]), reverse=True
+    )
 
     if top is None or int(top) <= 0:
         return rows
     return rows[: int(top)]
+
 
 # def _weight_diff_report(
 #     m1: Any,
@@ -294,12 +300,12 @@ def debug_model_reload(
     dataset: Iterable,
     *,
     pred_key: str = "subs_pred",
-    also_check: Optional[List[str]] = None,
+    also_check: list[str] | None = None,
     top_weights: int = 30,
     atol: float = 1e-6,
     rtol: float = 1e-6,
-    log_fn: Optional[Callable[[str], None]] = None,
-) -> Dict[str, Any]:
+    log_fn: Callable[[str], None] | None = None,
+) -> dict[str, Any]:
     """
     Run a compact reload debug on one batch and return a dict report.
 
@@ -315,9 +321,9 @@ def debug_model_reload(
     xb, _ = _get_one_batch(dataset)
 
     out_mem = mem_model(xb, training=False)
-    out_ld  = load_model(xb, training=False)
+    out_ld = load_model(xb, training=False)
 
-    pred_report: Dict[str, Dict[str, float]] = {}
+    pred_report: dict[str, dict[str, float]] = {}
 
     for k in also:
         a = _to_numpy(_extract_output(mem_model, out_mem, k))
@@ -338,33 +344,41 @@ def debug_model_reload(
             "max_rel_diff": max_rel,
         }
 
-    mv_present = any("mv" in w.name.lower() for w in getattr(mem_model, "weights", []))
-    kappa_present = any("kappa" in w.name.lower() for w in getattr(mem_model, "weights", []))
+    mv_present = any(
+        "mv" in w.name.lower()
+        for w in getattr(mem_model, "weights", [])
+    )
+    kappa_present = any(
+        "kappa" in w.name.lower()
+        for w in getattr(mem_model, "weights", [])
+    )
 
     # w_rows = weight_diff_report(
-    #     mem_model, load_model, top=top_weights, 
-    #     include_ok=False, 
-    #     include_extra= True, 
+    #     mem_model, load_model, top=top_weights,
+    #     include_ok=False,
+    #     include_extra= True,
     # )
     # n_missing = sum(1 for _, tag, _, _ in w_rows if tag == "MISSING")
     # n_shape   = sum(1 for _, tag, _, _ in w_rows if tag == "SHAPE")
-    
+
     w_all = weight_diff_report(
         mem_model,
         load_model,
-        top=0,              # all
+        top=0,  # all
         include_ok=False,
         include_extra=True,
     )
     w_top = w_all[:top_weights]
-    n_missing = sum(1 for _, t, _, _ in w_all if t == "MISSING")
+    n_missing = sum(
+        1 for _, t, _, _ in w_all if t == "MISSING"
+    )
     n_shape = sum(1 for _, t, _, _ in w_all if t == "SHAPE")
 
     sk_mem = model_scaling_digest(mem_model)
-    sk_ld  = model_scaling_digest(load_model)
+    sk_ld = model_scaling_digest(load_model)
 
     tu_mem = getattr(mem_model, "time_units", None)
-    tu_ld  = getattr(load_model, "time_units", None)
+    tu_ld = getattr(load_model, "time_units", None)
 
     # Pretty logs
     log("=" * 72)
@@ -376,23 +390,31 @@ def debug_model_reload(
             f"max_rel={d['max_rel_diff']:.6g}"
         )
 
-    log("[GeoPrior][Reload Debug] Weight presence (mem model)")
+    log(
+        "[GeoPrior][Reload Debug] Weight presence (mem model)"
+    )
     log(f"  - mv in weights?    {mv_present}")
     log(f"  - kappa in weights? {kappa_present}")
 
-    log("[GeoPrior][Reload Debug] scaling_kwargs digest / time_units")
+    log(
+        "[GeoPrior][Reload Debug] scaling_kwargs digest / time_units"
+    )
     log(f"  - sk_digest mem : {sk_mem}")
     log(f"  - sk_digest load: {sk_ld}")
     log(f"  - time_units mem : {tu_mem}")
     log(f"  - time_units load: {tu_ld}")
 
     if w_top:
-        log("[GeoPrior][Reload Debug] Top weight issues (by name)")
+        log(
+            "[GeoPrior][Reload Debug] Top weight issues (by name)"
+        )
         for d, tag, name, shp in w_top:
             # d is inf for MISSING/SHAPE
             log(f"  {tag:7s} max_abs={d} | {name} | {shp}")
     else:
-        log("[GeoPrior][Reload Debug] No nonzero/shape/missing issues in top scan.")
+        log(
+            "[GeoPrior][Reload Debug] No nonzero/shape/missing issues in top scan."
+        )
 
     # Simple pass/fail (you can tweak thresholds)
     # - fail if shape/missing weights exist
@@ -409,7 +431,10 @@ def debug_model_reload(
         "ok": bool(ok),
         "pred": pred_report,
         "weights_top": w_top,
-        "n_missing_or_shape_in_top": {"missing": int(n_missing), "shape": int(n_shape)},
+        "n_missing_or_shape_in_top": {
+            "missing": int(n_missing),
+            "shape": int(n_shape),
+        },
         "mv_in_weights": bool(mv_present),
         "kappa_in_weights": bool(kappa_present),
         "sk_digest_mem": sk_mem,
@@ -423,11 +448,13 @@ def debug_model_reload(
 
     return report
 
+
 # ==============================================================
 # VERBOSE SHAPE DIAGNOSTICS (paste-only snippets)
 # - Uses tf_shape() (works in graph) + a small helper.
 # - Triggered when verbose > 3.
 # ==============================================================
+
 
 def _vshape(tag, x):
     """Print runtime shape + rank (graph-safe)."""
@@ -438,12 +465,14 @@ def _vshape(tag, x):
     xs = tf_shape(x)
     tf_print("[shape]", tag, "rank=", xr, "shape=", xs)
 
+
 def _vshapes(title, items):
     """Convenience: print a block of shapes."""
     tf_print("\n==========", title, "==========")
     for tag, x in items:
         _vshape(tag, x)
     tf_print("================================\n")
+
 
 # ---------------------------------------------------------------------
 # Small gates
@@ -477,6 +506,7 @@ def dbg_run_first_iter(
 
     tf_cond(tf_equal(it, 0), _do, lambda: z)
 
+
 # ---------------------------------------------------------------------
 # Basic stats helpers
 # ---------------------------------------------------------------------
@@ -497,8 +527,8 @@ def dbg_pde_divergence_maxabs(
     raw_dKdhx_dcoords: Tensor,
     raw_d_K_dh_dx_dx: Tensor,
     raw_d_K_dh_dy_dy: Tensor,
-    d_K_dh_dx_dx: Optional[Tensor] = None,
-    d_K_dh_dy_dy: Optional[Tensor] = None,
+    d_K_dh_dx_dx: Tensor | None = None,
+    d_K_dh_dy_dy: Tensor | None = None,
     level: int = 7,
     prefix: str = "pde/div",
 ) -> None:
@@ -605,13 +635,17 @@ def dbg_gw_units_and_sec_scale(
     )
 
     # Optional: if you want to catch NaNs early (cheap)
-    tf_print_nonfinite(f"{prefix}/gw_res_before", gw_res_before)
+    tf_print_nonfinite(
+        f"{prefix}/gw_res_before", gw_res_before
+    )
     tf_print_nonfinite(f"{prefix}/gw_res_after", gw_res_after)
 
 
 def dbg_mae(tag: str, y: Tensor, yhat: Tensor) -> None:
     """Print batch MAE for y vs yhat."""
-    tf_print(tag, "mae(batch)=", tf_reduce_mean(tf_abs(y - yhat)))
+    tf_print(
+        tag, "mae(batch)=", tf_reduce_mean(tf_abs(y - yhat))
+    )
 
 
 def dbg_chk_finite(tag: str, x: Tensor) -> Tensor:
@@ -620,7 +654,9 @@ def dbg_chk_finite(tag: str, x: Tensor) -> Tensor:
     return x
 
 
-def _median_index(quantiles: Optional[Sequence[float]]) -> Optional[int]:
+def _median_index(
+    quantiles: Sequence[float] | None,
+) -> int | None:
     if quantiles is None:
         return None
     qs = list(quantiles)
@@ -632,7 +668,7 @@ def _median_index(quantiles: Optional[Sequence[float]]) -> Optional[int]:
 
 def _pick_q50(
     y_pred: Tensor,
-    quantiles: Optional[Sequence[float]],
+    quantiles: Sequence[float] | None,
 ) -> Tensor:
     """Pick the median quantile if `y_pred` is quantile-aware.
 
@@ -662,15 +698,16 @@ def _pick_q50(
         return y_pred[:, :, q_idx : q_idx + 1]
     return y_pred
 
+
 # ---------------------------------------------------------------------
 # Step 0/1/2: input packaging
 # ---------------------------------------------------------------------
 def dbg_step0_inputs_targets(
     *,
     verbose: int,
-    inputs: Dict[str, Any],
+    inputs: dict[str, Any],
     targets: Any,
-    level: int = 12
+    level: int = 12,
 ) -> None:
     if not dbg_on(verbose, level):
         return
@@ -679,21 +716,34 @@ def dbg_step0_inputs_targets(
     tf_print("[train_step] --- step 0/1 inputs+targets ---")
     tf_print("[train_step] inputs keys:", list(inputs.keys()))
     if isinstance(targets, dict):
-        tf_print("[train_step] targets keys:", list(targets.keys()))
+        tf_print(
+            "[train_step] targets keys:", list(targets.keys())
+        )
 
     _vshapes(
         "STEP 0/1 (raw tensors)",
         [
-            ("inputs['H_field']", inputs.get("H_field", None)),
-            ("inputs['soil_thickness']",
-             inputs.get("soil_thickness", None)),
+            (
+                "inputs['H_field']",
+                inputs.get("H_field", None),
+            ),
+            (
+                "inputs['soil_thickness']",
+                inputs.get("soil_thickness", None),
+            ),
             ("inputs['coords']", inputs.get("coords", None)),
-            ("inputs['static_features']",
-             inputs.get("static_features", None)),
-            ("inputs['dynamic_features']",
-             inputs.get("dynamic_features", None)),
-            ("inputs['future_features']",
-             inputs.get("future_features", None)),
+            (
+                "inputs['static_features']",
+                inputs.get("static_features", None),
+            ),
+            (
+                "inputs['dynamic_features']",
+                inputs.get("dynamic_features", None),
+            ),
+            (
+                "inputs['future_features']",
+                inputs.get("future_features", None),
+            ),
         ],
     )
 
@@ -703,7 +753,7 @@ def dbg_step1_thickness(
     verbose: int,
     H_field: Tensor,
     H_si: Tensor,
-    level: int = 12
+    level: int = 12,
 ) -> None:
     if not dbg_on(verbose, level):
         return
@@ -722,8 +772,8 @@ def dbg_step2_coords_checks(
     *,
     verbose: int,
     coords: Tensor,
-    inputs: Dict[str, Any],
-    level: int= 12, 
+    inputs: dict[str, Any],
+    level: int = 12,
 ) -> None:
     if not dbg_on(verbose, level):
         return
@@ -763,11 +813,11 @@ def dbg_units_once(
     *,
     verbose: int,
     iterations: Tensor,
-    targets: Dict[str, Tensor],
+    targets: dict[str, Tensor],
     gwl_pred_final: Tensor,
     s_pred_final: Tensor,
-    quantiles: Optional[Sequence[float]],
-    level: int = 7, 
+    quantiles: Sequence[float] | None,
+    level: int = 7,
 ) -> None:
     if not dbg_on(verbose, level):
         return
@@ -778,40 +828,62 @@ def dbg_units_once(
         yt_g = tf_cast(targets["gwl_pred"], tf_float32)
         yt_s = tf_cast(targets["subs_pred"], tf_float32)
 
-        yp_g = _pick_q50(tf_cast(gwl_pred_final, tf_float32),
-                         quantiles)
-        yp_s = _pick_q50(tf_cast(s_pred_final, tf_float32),
-                         quantiles)
+        yp_g = _pick_q50(
+            tf_cast(gwl_pred_final, tf_float32), quantiles
+        )
+        yp_s = _pick_q50(
+            tf_cast(s_pred_final, tf_float32), quantiles
+        )
 
         tf_print("\n[train_step][units] iter=", it)
 
-        tf_print("[shapes] yt_g=", tf_shape(yt_g),
-                 "yp_g=", tf_shape(yp_g))
-        tf_print("[shapes] yt_s=", tf_shape(yt_s),
-                 "yp_s=", tf_shape(yp_s))
+        tf_print(
+            "[shapes] yt_g=",
+            tf_shape(yt_g),
+            "yp_g=",
+            tf_shape(yp_g),
+        )
+        tf_print(
+            "[shapes] yt_s=",
+            tf_shape(yt_s),
+            "yp_s=",
+            tf_shape(yp_s),
+        )
 
-        tf_print("[gwl] y_true min/max/mean =",
-                 tf_reduce_min(yt_g),
-                 tf_reduce_max(yt_g),
-                 tf_reduce_mean(yt_g))
-        tf_print("[gwl] y_pred(p50) min/max/mean =",
-                 tf_reduce_min(yp_g),
-                 tf_reduce_max(yp_g),
-                 tf_reduce_mean(yp_g))
+        tf_print(
+            "[gwl] y_true min/max/mean =",
+            tf_reduce_min(yt_g),
+            tf_reduce_max(yt_g),
+            tf_reduce_mean(yt_g),
+        )
+        tf_print(
+            "[gwl] y_pred(p50) min/max/mean =",
+            tf_reduce_min(yp_g),
+            tf_reduce_max(yp_g),
+            tf_reduce_mean(yp_g),
+        )
 
-        tf_print("[subs] y_true min/max/mean =",
-                 tf_reduce_min(yt_s),
-                 tf_reduce_max(yt_s),
-                 tf_reduce_mean(yt_s))
-        tf_print("[subs] y_pred(p50) min/max/mean =",
-                 tf_reduce_min(yp_s),
-                 tf_reduce_max(yp_s),
-                 tf_reduce_mean(yp_s))
+        tf_print(
+            "[subs] y_true min/max/mean =",
+            tf_reduce_min(yt_s),
+            tf_reduce_max(yt_s),
+            tf_reduce_mean(yt_s),
+        )
+        tf_print(
+            "[subs] y_pred(p50) min/max/mean =",
+            tf_reduce_min(yp_s),
+            tf_reduce_max(yp_s),
+            tf_reduce_mean(yp_s),
+        )
 
-        tf_print("[gwl] mean(|y_true|) =",
-                 tf_reduce_mean(tf_abs(yt_g)))
-        tf_print("[gwl] mae(batch,p50) =",
-                 tf_reduce_mean(tf_abs(yt_g - yp_g)))
+        tf_print(
+            "[gwl] mean(|y_true|) =",
+            tf_reduce_mean(tf_abs(yt_g)),
+        )
+        tf_print(
+            "[gwl] mae(batch,p50) =",
+            tf_reduce_mean(tf_abs(yt_g - yp_g)),
+        )
         return tf_constant(0, tf_int32)
 
     _ = tf_cond(
@@ -825,9 +897,9 @@ def dbg_assert_data_layout(
     *,
     verbose: int,
     data_final: Tensor,
-    data_mean_raw: Optional[Tensor],
-    quantiles: Optional[Sequence[float]],
-    level: int =12, 
+    data_mean_raw: Tensor | None,
+    quantiles: Sequence[float] | None,
+    level: int = 12,
 ) -> None:
     if not dbg_on(verbose, level):
         return
@@ -867,7 +939,7 @@ def dbg_step3_mean_head(
     gwl_mean_raw: Tensor,
     gwl_si: Tensor,
     h_si: Tensor,
-    level: int = 12, 
+    level: int = 12,
 ) -> None:
     if not dbg_on(verbose, level):
         return
@@ -889,9 +961,9 @@ def dbg_step31_forward_outputs(
     data_final: Tensor,
     s_pred_final: Tensor,
     gwl_pred_final: Tensor,
-    data_mean_raw: Optional[Tensor],
+    data_mean_raw: Tensor | None,
     phys_mean_raw: Tensor,
-    level: int =12
+    level: int = 12,
 ) -> None:
     if not dbg_on(verbose, level):
         return
@@ -914,11 +986,11 @@ def dbg_step33_physics_logits(
     K_logits: Tensor,
     Ss_logits: Tensor,
     dlogtau_logits: Tensor,
-    Q_logits: Optional[Tensor],
+    Q_logits: Tensor | None,
     K_base: Tensor,
     Ss_base: Tensor,
     dlogtau_base: Tensor,
-    level: int =12, 
+    level: int = 12,
 ) -> None:
     if not dbg_on(verbose, level):
         return
@@ -951,7 +1023,7 @@ def dbg_step33_physics_fields(
     logSs: Tensor,
     log_tau: Tensor,
     log_tau_phys: Tensor,
-    level: int =12, 
+    level: int = 12,
 ) -> None:
     if not dbg_on(verbose, level):
         return
@@ -996,12 +1068,14 @@ def dbg_step4_ad_raw(
     dK_dy_raw: Tensor,
     dSs_dx_raw: Tensor,
     dSs_dy_raw: Tensor,
-    level: int= 12, 
+    level: int = 12,
 ) -> None:
     if not dbg_on(verbose, level):
         return
 
-    tf_print("[train_step] --- step: AD derivatives (raw) ---")
+    tf_print(
+        "[train_step] --- step: AD derivatives (raw) ---"
+    )
     _vshapes(
         "STEP 4 (AD raw grads)",
         [
@@ -1035,12 +1109,14 @@ def dbg_step41_si_grads(
     dK_dy: Tensor,
     dSs_dx: Tensor,
     dSs_dy: Tensor,
-    level: int =12, 
+    level: int = 12,
 ) -> None:
     if not dbg_on(verbose, level):
         return
 
-    tf_print("[train_step] --- step: chain-rule corrected ---")
+    tf_print(
+        "[train_step] --- step: chain-rule corrected ---"
+    )
     _vshapes(
         "STEP 4.1 (SI grads)",
         [
@@ -1063,7 +1139,7 @@ def dbg_step5_q_source(
     verbose: int,
     Q_si: Tensor,
     dh_dt: Tensor,
-    level: int= 12, 
+    level: int = 12,
 ) -> None:
     if not dbg_on(verbose, level):
         return
@@ -1084,9 +1160,9 @@ def dbg_step5_q_source(
 def dbg_cons_units_rms(
     *,
     verbose: int,
-    sk: Dict[str, Any],
+    sk: dict[str, Any],
     cons_res: Tensor,
-    level: int = 7, 
+    level: int = 7,
 ) -> None:
     if not dbg_on(verbose, level):
         return
@@ -1114,9 +1190,15 @@ def dbg_step6_consolidation(
     if not dbg_on(verbose, 10):
         return
 
-    tf_print("[train_step] --- step: consolidation branch ---")
-    tf_print("[train_step] allow_resid=", allow_resid,
-             "| cons_active=", cons_active)
+    tf_print(
+        "[train_step] --- step: consolidation branch ---"
+    )
+    tf_print(
+        "[train_step] allow_resid=",
+        allow_resid,
+        "| cons_active=",
+        cons_active,
+    )
 
     _vshapes(
         "STEP 6 (consolidation state build)",
@@ -1147,7 +1229,7 @@ def dbg_step7_residuals(
     loss_mv: Tensor,
     bounds_res: Tensor,
     loss_bounds: Tensor,
-    level: int =12
+    level: int = 12,
 ) -> None:
     if not dbg_on(verbose, level):
         return
@@ -1176,7 +1258,7 @@ def dbg_step8_scaling(
     gw_res_raw: Tensor,
     cons_res: Tensor,
     gw_res: Tensor,
-    level: int =7, 
+    level: int = 7,
 ) -> None:
     if not dbg_on(verbose, level):
         return
@@ -1196,8 +1278,8 @@ def dbg_step8_scaling(
 def dbg_chk_scales(
     *,
     verbose: int,
-    scales: Dict[str, Tensor],
-    level: int = 2, 
+    scales: dict[str, Tensor],
+    level: int = 2,
 ) -> None:
     if not dbg_on(verbose, level):
         return
@@ -1215,13 +1297,12 @@ def dbg_chk_scales(
 def dbg_chk_core_finite(
     *,
     verbose: int,
-
     cons_res: Tensor,
     gw_res: Tensor,
     tau_field: Tensor,
     K_field: Tensor,
     Ss_field: Tensor,
-    level: int=2, 
+    level: int = 2,
 ) -> None:
     if not dbg_on(verbose, level):
         return
@@ -1254,14 +1335,14 @@ def dbg_chk_core_finite(
 def dbg_step9_losses(
     *,
     verbose: int,
-    data_loss: "Tensor | None" = None,
-    loss_cons: "Tensor | None" = None,
-    loss_gw: "Tensor | None" = None,
-    loss_prior: "Tensor | None" = None,
-    loss_smooth: "Tensor | None" = None,
-    physics_loss_raw: "Tensor | None" = None,
-    physics_loss_scaled: "Tensor | None" = None,
-    total_loss: "Tensor | None" = None,
+    data_loss: Tensor | None = None,
+    loss_cons: Tensor | None = None,
+    loss_gw: Tensor | None = None,
+    loss_prior: Tensor | None = None,
+    loss_smooth: Tensor | None = None,
+    physics_loss_raw: Tensor | None = None,
+    physics_loss_scaled: Tensor | None = None,
+    total_loss: Tensor | None = None,
     level: int = 7,
 ) -> None:
     """Debug-print loss scalars (only those provided)."""
@@ -1284,12 +1365,16 @@ def dbg_step9_losses(
     if physics_loss_raw is not None:
         pairs.append(("physics_loss_raw", physics_loss_raw))
     if physics_loss_scaled is not None:
-        pairs.append(("physics_loss_scaled", physics_loss_scaled))
+        pairs.append(
+            ("physics_loss_scaled", physics_loss_scaled)
+        )
     if total_loss is not None:
         pairs.append(("total_loss", total_loss))
 
     if not pairs:
-        tf_print("STEP 9 (loss scalars): <no losses provided>")
+        tf_print(
+            "STEP 9 (loss scalars): <no losses provided>"
+        )
         return
 
     _vshapes("STEP 9 (loss scalars)", pairs)
@@ -1299,25 +1384,38 @@ def dbg_step10_grads(
     *,
     verbose: int,
     trainable_vars: Sequence[Tensor],
-    grads: Sequence[Optional[Tensor]],
+    grads: Sequence[Tensor | None],
     level: int = 9,
 ) -> None:
     if not dbg_on(verbose, level):
         return
 
     tf_print("[train_step] --- step 10 gradients ---")
-    tf_print("[train_step] n_trainable_vars =",
-             tf_constant(len(trainable_vars), tf_int32))
+    tf_print(
+        "[train_step] n_trainable_vars =",
+        tf_constant(len(trainable_vars), tf_int32),
+    )
 
     n_show = min(12, len(trainable_vars))
-    for v, g in list(zip(trainable_vars, grads))[:n_show]:
+    for v, g in list(
+        zip(trainable_vars, grads, strict=False)
+    )[:n_show]:
         if g is None:
-            tf_print("[grad] NONE | var:", v.name,
-                     "| var_shape:", tf_shape(v))
+            tf_print(
+                "[grad] NONE | var:",
+                v.name,
+                "| var_shape:",
+                tf_shape(v),
+            )
         else:
-            tf_print("[grad]", v.name,
-                     "| var_shape:", tf_shape(v),
-                     "| grad_shape:", tf_shape(g))
+            tf_print(
+                "[grad]",
+                v.name,
+                "| var_shape:",
+                tf_shape(v),
+                "| grad_shape:",
+                tf_shape(g),
+            )
 
 
 def dbg_term_grads_finite(
@@ -1326,9 +1424,9 @@ def dbg_term_grads_finite(
     debug_grads: bool,
     trainable_vars: Sequence[Tensor],
     data_loss: Tensor,
-    terms_scaled: Dict[str, Tensor],
+    terms_scaled: dict[str, Tensor],
     tape: Any,
-    level: int =1
+    level: int = 1,
 ) -> None:
     if not debug_grads:
         return
@@ -1338,26 +1436,28 @@ def dbg_term_grads_finite(
         pass
 
     # Check each term independently.
-    for name, lt in {"data": data_loss, **terms_scaled}.items():
+    for _name, lt in {
+        "data": data_loss,
+        **terms_scaled,
+    }.items():
         g = tape.gradient(lt, trainable_vars)
         _assert_grads_finite(g, trainable_vars)
 
 
 def dbg_done_apply_gradients(
-    *,
-    debug_grads: bool =False, 
-    verbose: int=1
+    *, debug_grads: bool = False, verbose: int = 1
 ) -> None:
     if not debug_grads:
         return
-    
+
     if not dbg_on(verbose, 1):
         pass
     tf_print("[train_step] --- apply_gradients done ---\n")
 
+
 def dbg_select_q(
     y: Tensor,
-    quantiles: Optional[Sequence[float]],
+    quantiles: Sequence[float] | None,
     *,
     q: float = 0.5,
 ) -> Tensor:
@@ -1389,7 +1489,7 @@ def dbg_step5_q(
     verbose: int,
     Q_si: Tensor,
     dh_dt: Tensor,
-    level: int = 12, 
+    level: int = 12,
 ) -> None:
     """Print Q source term block."""
     if not dbg_on(verbose, level):
@@ -1403,7 +1503,6 @@ def dbg_step5_q(
             ("dh_dt", dh_dt),
         ],
     )
-
 
 
 def _dbg_stats_line(tag: str, x: Tensor) -> None:
@@ -1494,7 +1593,10 @@ def dbg_dt_debug(
     tf_print(
         "[dt debug] dt_sec / dt_units (mean) =",
         tf_reduce_mean(
-            dt_sec / tf_maximum(dt_units, tf_constant(1e-12, tf_float32))
+            dt_sec
+            / tf_maximum(
+                dt_units, tf_constant(1e-12, tf_float32)
+            )
         ),
     )
 
@@ -1523,7 +1625,9 @@ def dbg_call_nonfinite(
     if not dbg_on(verbose, level):
         return
 
-    tf_print_nonfinite("call/coords_for_decoder", coords_for_decoder)
+    tf_print_nonfinite(
+        "call/coords_for_decoder", coords_for_decoder
+    )
     tf_print_nonfinite("call/H_si", H_si)
     tf_print_nonfinite("call/K_base", K_base)
     tf_print_nonfinite("call/Ss_base", Ss_base)
@@ -1532,6 +1636,7 @@ def dbg_call_nonfinite(
         "call/tau_field(pre-integrator)",
         tau_field,
     )
+
 
 def dbg_step3_residual_scales(
     *,
@@ -1635,6 +1740,7 @@ def dbg_call_nonfinite_diag(
         "call/tau_field(pre-integrator)",
         tau_field,
     )
+
 
 def dbg_gw_grad_flux_rms(
     *,

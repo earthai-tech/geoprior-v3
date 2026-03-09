@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 from __future__ import annotations
 
@@ -8,14 +7,12 @@ import json
 import math
 import os
 from dataclasses import dataclass
-from typing import Dict, Optional, Tuple
 
 import joblib
 import numpy as np
 import pandas as pd
 
-
-ArrayDict = Dict[str, np.ndarray]
+ArrayDict = dict[str, np.ndarray]
 
 
 @dataclass
@@ -31,7 +28,7 @@ class MatchResult:
 
 
 def read_json(path: str) -> dict:
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -44,7 +41,7 @@ def ensure_dir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
 
 
-def pick_existing(*paths: Optional[str]) -> Optional[str]:
+def pick_existing(*paths: str | None) -> str | None:
     for path in paths:
         if isinstance(path, str) and os.path.exists(path):
             return path
@@ -54,14 +51,13 @@ def pick_existing(*paths: Optional[str]) -> Optional[str]:
 def resolve_inputs_npz(
     stage1_manifest: dict,
     split: str,
-    override: Optional[str],
+    override: str | None,
 ) -> str:
     if override and os.path.exists(override):
         return override
 
-    npz_art = (
-        (stage1_manifest.get("artifacts") or {})
-        .get("numpy", {})
+    npz_art = (stage1_manifest.get("artifacts") or {}).get(
+        "numpy", {}
     )
     path = npz_art.get(f"{split}_inputs_npz")
     if isinstance(path, str) and os.path.exists(path):
@@ -75,14 +71,13 @@ def resolve_inputs_npz(
 
 def resolve_coord_scaler(
     stage1_manifest: dict,
-    override: Optional[str],
+    override: str | None,
 ):
     if override and os.path.exists(override):
         return joblib.load(override)
 
-    enc = (
-        (stage1_manifest.get("artifacts") or {})
-        .get("encoders", {})
+    enc = (stage1_manifest.get("artifacts") or {}).get(
+        "encoders", {}
     )
     path = enc.get("coord_scaler")
     if isinstance(path, str) and os.path.exists(path):
@@ -91,8 +86,8 @@ def resolve_coord_scaler(
 
 
 def resolve_payload_path(
-    override: Optional[str],
-    stage2_manifest: Optional[dict],
+    override: str | None,
+    stage2_manifest: dict | None,
 ) -> str:
     if override and os.path.exists(override):
         return override
@@ -283,6 +278,7 @@ def nearest_match(
         pixel_idx=int(row["pixel_idx"]),
     )
 
+
 def spearman_rho(x: np.ndarray, y: np.ndarray) -> float:
     x = np.asarray(x, dtype=float)
     y = np.asarray(y, dtype=float)
@@ -307,6 +303,7 @@ def spearman_rho(x: np.ndarray, y: np.ndarray) -> float:
     if den <= 0.0:
         return float("nan")
     return float(np.sum(xs * ys) / den)
+
 
 # def spearman_rho(x: np.ndarray, y: np.ndarray) -> float:
 #     x = np.asarray(x, dtype=float)
@@ -344,16 +341,16 @@ def compute_metrics(
     stage1_manifest_path: str,
     outdir: str,
     split: str = "test",
-    inputs_npz: Optional[str] = None,
-    physics_payload: Optional[str] = None,
-    coord_scaler: Optional[str] = None,
-    stage2_manifest_path: Optional[str] = None,
+    inputs_npz: str | None = None,
+    physics_payload: str | None = None,
+    coord_scaler: str | None = None,
+    stage2_manifest_path: str | None = None,
     productivity_col: str = (
         "step3_specific_capacity_Lps_per_m"
     ),
     horizon_reducer: str = "mean",
     site_reducer: str = "median",
-) -> Tuple[pd.DataFrame, dict]:
+) -> tuple[pd.DataFrame, dict]:
     ensure_dir(outdir)
 
     stage1 = read_json(stage1_manifest_path)
@@ -415,7 +412,7 @@ def compute_metrics(
         rows.append(out)
 
     site_df = pd.DataFrame(rows)
-    
+
     def validate_site_matches(
         site_df: pd.DataFrame,
         max_distance_m: float = 5000.0,
@@ -423,13 +420,13 @@ def compute_metrics(
     ) -> None:
         n_unique = int(site_df["pixel_idx"].nunique())
         max_dist = float(site_df["match_distance_m"].max())
-    
+
         if n_unique < min_unique_pixels:
             raise RuntimeError(
                 "Too few unique matched pixels for site validation "
                 f"(unique={n_unique}). This usually means CRS/order mismatch."
             )
-    
+
         if max_dist > max_distance_m:
             raise RuntimeError(
                 "Site-to-pixel matching distance is too large "
@@ -438,7 +435,7 @@ def compute_metrics(
             )
 
     validate_site_matches(site_df)
-    
+
     obs_h = site_df[
         "approx_compressible_thickness_m"
     ].to_numpy(dtype=float)

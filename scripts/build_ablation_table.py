@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -30,14 +29,13 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
 from . import config as cfg
 from . import utils
-
 
 _LOWER_IS_BETTER = {
     "mae",
@@ -53,7 +51,9 @@ _LOWER_IS_BETTER = {
 # ---------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------
-def _parse_args(argv: Optional[List[str]]) -> argparse.Namespace:
+def _parse_args(
+    argv: list[str] | None,
+) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         prog="build-ablation-table",
         description=(
@@ -133,8 +133,7 @@ def _parse_args(argv: Optional[List[str]]) -> argparse.Namespace:
         type=str,
         default="csv,json",
         help=(
-            "Comma list: csv,json,tex,txt. "
-            "Default: csv,json"
+            "Comma list: csv,json,tex,txt. Default: csv,json"
         ),
     )
 
@@ -152,9 +151,7 @@ def _parse_args(argv: Optional[List[str]]) -> argparse.Namespace:
         "--keep-per-horizon",
         type=str,
         default="true",
-        help=(
-            "Include per-horizon metrics (true/false)."
-        ),
+        help=("Include per-horizon metrics (true/false)."),
     )
     p.add_argument(
         "--max-h",
@@ -279,10 +276,7 @@ def _parse_args(argv: Optional[List[str]]) -> argparse.Namespace:
         "--s6-tex-gray-level",
         type=str,
         default="gray!15",
-        help=(
-            "TeX color for missing cells "
-            "(e.g., gray!15)."
-        ),
+        help=("TeX color for missing cells (e.g., gray!15)."),
     )
     p.add_argument(
         "--s6-tex-one-file",
@@ -325,8 +319,8 @@ def _parse_args(argv: Optional[List[str]]) -> argparse.Namespace:
 # ---------------------------------------------------------------------
 # I/O
 # ---------------------------------------------------------------------
-def _read_jsonl(fp: Path) -> List[Dict[str, Any]]:
-    rows: List[Dict[str, Any]] = []
+def _read_jsonl(fp: Path) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
     with fp.open("r", encoding="utf-8") as f:
         for ln in f:
             s = ln.strip()
@@ -381,7 +375,7 @@ def _scan_records(root: Path) -> pd.DataFrame:
         root,
         cfg.PATTERNS.get("ablation_record_jsonl", ()),
     )
-    blocks: List[pd.DataFrame] = []
+    blocks: list[pd.DataFrame] = []
     for fp in files:
         df = _load_one(fp)
         if not df.empty:
@@ -393,7 +387,7 @@ def _scan_records(root: Path) -> pd.DataFrame:
 
 def _load_records(args: argparse.Namespace) -> pd.DataFrame:
     if args.input:
-        blocks: List[pd.DataFrame] = []
+        blocks: list[pd.DataFrame] = []
         for s in args.input:
             p = utils.as_path(s)
             if p.exists():
@@ -433,12 +427,14 @@ def _expand_dict_col(
     if col not in df.columns:
         return df
 
-    def _keys(d: Dict[str, Any]) -> List[str]:
-        out: List[str] = []
+    def _keys(d: dict[str, Any]) -> list[str]:
+        out: list[str] = []
         for k in d.keys():
             kk = str(k)
             if only_h:
-                if not (kk.startswith("H") and kk[1:].isdigit()):
+                if not (
+                    kk.startswith("H") and kk[1:].isdigit()
+                ):
                     continue
                 if int(kk[1:]) > int(max_h):
                     continue
@@ -449,7 +445,7 @@ def _expand_dict_col(
             out.sort()
         return out
 
-    keys: List[str] = []
+    keys: list[str] = []
     for v in df[col].to_list():
         if isinstance(v, dict):
             keys = _keys(v)
@@ -462,14 +458,18 @@ def _expand_dict_col(
     for k in keys:
         name = f"{prefix}{k}"
         df[name] = df[col].apply(
-            lambda d: d.get(k) if isinstance(d, dict) else np.nan
+            lambda d: (
+                d.get(k) if isinstance(d, dict) else np.nan
+            )
         )
         df[name] = pd.to_numeric(df[name], errors="coerce")
 
     return df
 
 
-def _canon_cols(df: pd.DataFrame, *, max_h: int) -> pd.DataFrame:
+def _canon_cols(
+    df: pd.DataFrame, *, max_h: int
+) -> pd.DataFrame:
     if df.empty:
         return df
 
@@ -486,7 +486,9 @@ def _canon_cols(df: pd.DataFrame, *, max_h: int) -> pd.DataFrame:
     utils.ensure_columns(df, aliases=aliases)
 
     if "city" in df.columns:
-        df["city"] = df["city"].astype(str).map(utils.canonical_city)
+        df["city"] = (
+            df["city"].astype(str).map(utils.canonical_city)
+        )
 
     if "pde_mode" in df.columns:
         df["pde_mode"] = df["pde_mode"].map(_canon_pde_mode)
@@ -582,8 +584,8 @@ def _scale_rows_to_mm(df: pd.DataFrame) -> pd.DataFrame:
     if not mask.any():
         return df
 
-    dist_cols: List[str] = []
-    mse_cols: List[str] = []
+    dist_cols: list[str] = []
+    mse_cols: list[str] = []
     for c in df.columns:
         s = str(c).lower()
         if s == "mse" or s.endswith(".mse"):
@@ -616,8 +618,8 @@ def _to_unit(df: pd.DataFrame, *, unit: str) -> pd.DataFrame:
 
     out = df.copy()
 
-    dist_cols: List[str] = []
-    mse_cols: List[str] = []
+    dist_cols: list[str] = []
+    mse_cols: list[str] = []
     for c in out.columns:
         s = str(c).lower()
         if s == "mse" or s.endswith(".mse"):
@@ -647,7 +649,9 @@ def _ensure_mse_rmse(df: pd.DataFrame) -> pd.DataFrame:
     rmse = out["rmse"] if "rmse" in out.columns else None
 
     if "rmse" not in out.columns and mse is not None:
-        out["rmse"] = np.sqrt(np.maximum(0.0, mse.to_numpy(float)))
+        out["rmse"] = np.sqrt(
+            np.maximum(0.0, mse.to_numpy(float))
+        )
 
     if "mse" not in out.columns and rmse is not None:
         out["mse"] = rmse.to_numpy(float) ** 2
@@ -697,7 +701,9 @@ def _dedupe_prefer_best(df: pd.DataFrame) -> pd.DataFrame:
     return x.drop(columns=["_score"], errors="ignore")
 
 
-def _filter_models(df: pd.DataFrame, models: str) -> pd.DataFrame:
+def _filter_models(
+    df: pd.DataFrame, models: str
+) -> pd.DataFrame:
     s = str(models or "").strip()
     if not s or "model" not in df.columns:
         return df
@@ -709,7 +715,9 @@ def _filter_models(df: pd.DataFrame, models: str) -> pd.DataFrame:
     return df.loc[df["model"].astype(str).isin(keep)].copy()
 
 
-def _filter_cities(df: pd.DataFrame, cities: str) -> pd.DataFrame:
+def _filter_cities(
+    df: pd.DataFrame, cities: str
+) -> pd.DataFrame:
     raw = str(cities or "").strip()
     if not raw or "city" not in df.columns:
         return df
@@ -748,7 +756,7 @@ def _sort_df(
 # ---------------------------------------------------------------------
 # Column selection
 # ---------------------------------------------------------------------
-def _default_metric_cols(df: pd.DataFrame) -> List[str]:
+def _default_metric_cols(df: pd.DataFrame) -> list[str]:
     base = [
         "mae",
         "rmse",
@@ -761,7 +769,7 @@ def _default_metric_cols(df: pd.DataFrame) -> List[str]:
         "epsilon_gw",
     ]
 
-    out: List[str] = [c for c in base if c in df.columns]
+    out: list[str] = [c for c in base if c in df.columns]
     for c in df.columns:
         if str(c).startswith("per_horizon_mae."):
             out.append(str(c))
@@ -770,7 +778,7 @@ def _default_metric_cols(df: pd.DataFrame) -> List[str]:
     return out
 
 
-def _pick_metrics(df: pd.DataFrame, spec: str) -> List[str]:
+def _pick_metrics(df: pd.DataFrame, spec: str) -> list[str]:
     raw = str(spec or "").strip()
     if not raw:
         return _default_metric_cols(df)
@@ -778,7 +786,7 @@ def _pick_metrics(df: pd.DataFrame, spec: str) -> List[str]:
     return [p for p in parts if p in df.columns]
 
 
-def _param_cols(df: pd.DataFrame) -> List[str]:
+def _param_cols(df: pd.DataFrame) -> list[str]:
     base = [
         "timestamp",
         "city",
@@ -803,7 +811,7 @@ def _paper_cols(
     *,
     err_metric: str,
     keep_r2: bool,
-) -> Tuple[List[str], List[str]]:
+) -> tuple[list[str], list[str]]:
     params = [
         "city",
         "pde_bucket",
@@ -820,7 +828,12 @@ def _paper_cols(
     ]
     params = [c for c in params if c in df.columns]
 
-    mets = ["mae", str(err_metric), "coverage80", "sharpness80"]
+    mets = [
+        "mae",
+        str(err_metric),
+        "coverage80",
+        "sharpness80",
+    ]
     if keep_r2:
         mets.append("r2")
     mets = [c for c in mets if c in df.columns]
@@ -935,9 +948,9 @@ def _tex_fmt_val(
             return "--"
 
     try:
-        if isinstance(v, (int, np.integer)):
+        if isinstance(v, int | np.integer):
             return str(int(v))
-        if isinstance(v, (float, np.floating)):
+        if isinstance(v, float | np.floating):
             return f"{float(v):.3g}"
     except Exception:
         pass
@@ -948,26 +961,24 @@ def _tex_fmt_val(
 def _to_tex_table(
     df: pd.DataFrame,
     *,
-    cols: List[str],
+    cols: list[str],
     unit: str,
     sideway: bool,
     caption: str,
     label: str,
 ) -> str:
     # Alignment: first 2 columns left, rest right.
-    aligns: List[str] = []
-    for i, c in enumerate(cols):
+    aligns: list[str] = []
+    for i, _c in enumerate(cols):
         if i < 2:
             aligns.append("l")
         else:
             aligns.append("r")
     spec = "".join(aligns)
 
-    head = " & ".join(
-        _tex_header(c, unit=unit) for c in cols
-    )
+    head = " & ".join(_tex_header(c, unit=unit) for c in cols)
 
-    lines: List[str] = []
+    lines: list[str] = []
     env = "sidewaystable" if sideway else "table"
     lines.append(rf"\\begin{{{env}}}[t]")
     lines.append(r"\\centering")
@@ -995,7 +1006,7 @@ def _to_tex_table(
     return "\n".join(lines)
 
 
-def _resolve_out(out: str, out_dir: Optional[str]) -> Path:
+def _resolve_out(out: str, out_dir: str | None) -> Path:
     p = Path(out).expanduser()
     if p.suffix:
         p = p.with_suffix("")
@@ -1022,7 +1033,7 @@ def _best_by_city(
 # ---------------------------------------------------------------------
 # Grouped outputs (S6 / S7)
 # ---------------------------------------------------------------------
-def _split_csv(raw: Any) -> List[str]:
+def _split_csv(raw: Any) -> list[str]:
     s = str(raw or "").strip()
     if not s:
         return []
@@ -1036,7 +1047,7 @@ def _agg_fn(name: str):
     return "mean"
 
 
-def _s6_metrics(args: argparse.Namespace) -> List[str]:
+def _s6_metrics(args: argparse.Namespace) -> list[str]:
     ms = _split_csv(args.s6_metrics)
     if ms:
         return ms
@@ -1044,7 +1055,9 @@ def _s6_metrics(args: argparse.Namespace) -> List[str]:
     return [s] if s else ["mae"]
 
 
-def _s7_group_cols(df: pd.DataFrame, args: argparse.Namespace) -> List[str]:
+def _s7_group_cols(
+    df: pd.DataFrame, args: argparse.Namespace
+) -> list[str]:
     cols = _split_csv(args.s7_cols)
     if cols:
         return [c for c in cols if c in df.columns]
@@ -1063,7 +1076,9 @@ def _s7_group_cols(df: pd.DataFrame, args: argparse.Namespace) -> List[str]:
     return [c for c in preset if c in df.columns]
 
 
-def _s7_metrics(df: pd.DataFrame, args: argparse.Namespace) -> List[str]:
+def _s7_metrics(
+    df: pd.DataFrame, args: argparse.Namespace
+) -> list[str]:
     ms = _split_csv(args.s7_metrics)
     if ms:
         return [m for m in ms if m in df.columns]
@@ -1118,14 +1133,20 @@ def _metric_lower_is_better(metric: str) -> bool:
     return True
 
 
-def _best_mask(piv: pd.DataFrame, *, metric: str) -> pd.DataFrame:
+def _best_mask(
+    piv: pd.DataFrame, *, metric: str
+) -> pd.DataFrame:
     if piv.empty:
-        return pd.DataFrame(False, index=piv.index, columns=piv.columns)
+        return pd.DataFrame(
+            False, index=piv.index, columns=piv.columns
+        )
 
     arr = piv.to_numpy(dtype=float, copy=True)
     ok = np.isfinite(arr)
     if not ok.any():
-        return pd.DataFrame(False, index=piv.index, columns=piv.columns)
+        return pd.DataFrame(
+            False, index=piv.index, columns=piv.columns
+        )
 
     if _metric_lower_is_better(metric):
         best = np.nanmin(arr)
@@ -1133,7 +1154,9 @@ def _best_mask(piv: pd.DataFrame, *, metric: str) -> pd.DataFrame:
         best = np.nanmax(arr)
 
     mask = ok & np.isclose(arr, best, rtol=1e-9, atol=1e-12)
-    return pd.DataFrame(mask, index=piv.index, columns=piv.columns)
+    return pd.DataFrame(
+        mask, index=piv.index, columns=piv.columns
+    )
 
 
 def _tex_pivot(
@@ -1152,9 +1175,13 @@ def _tex_pivot(
     for c in piv.columns:
         try:
             c2 = float(c)
-            cols.append(f"$\\lambda_{{\\mathrm{{prior}}}}={c2:g}$")
+            cols.append(
+                f"$\\lambda_{{\\mathrm{{prior}}}}={c2:g}$"
+            )
         except Exception:
-            cols.append(f"$\\lambda_{{\\mathrm{{prior}}}}={_tex_escape(c)}$")
+            cols.append(
+                f"$\\lambda_{{\\mathrm{{prior}}}}={_tex_escape(c)}$"
+            )
 
     spec = "l" + "r" * int(len(piv.columns))
     env = "sidewaystable" if sideway else "table"
@@ -1162,11 +1189,15 @@ def _tex_pivot(
     meta = cfg.PLOT_METRIC_META.get(metric, {})
     fmt = str(meta.get("fmt", "{:.3g}"))
 
-    best = _best_mask(piv, metric=metric) if bold_best else None
+    best = (
+        _best_mask(piv, metric=metric) if bold_best else None
+    )
 
-    lines: List[str] = []
+    lines: list[str] = []
     if gray_missing:
-        lines.append("% Requires: \\usepackage[table]{xcolor}")
+        lines.append(
+            "% Requires: \\usepackage[table]{xcolor}"
+        )
     lines.append("% Requires: \\usepackage{booktabs}")
 
     lines.append(rf"\\begin{{{env}}}[t]")
@@ -1182,7 +1213,7 @@ def _tex_pivot(
     gl = str(gray_level or "gray!15").strip() or "gray!15"
 
     for lc, row in piv.iterrows():
-        vals: List[str] = []
+        vals: list[str] = []
         try:
             vals.append(f"{float(lc):g}")
         except Exception:
@@ -1190,7 +1221,9 @@ def _tex_pivot(
 
         for c in piv.columns:
             v = row.get(c, np.nan)
-            if v is None or (isinstance(v, float) and not np.isfinite(v)):
+            if v is None or (
+                isinstance(v, float) and not np.isfinite(v)
+            ):
                 miss = "--"
                 if gray_missing:
                     miss = rf"\\cellcolor{{{gl}}}--"
@@ -1221,7 +1254,7 @@ def _write_table(
     df: pd.DataFrame,
     *,
     out: Path,
-    fmts: List[str],
+    fmts: list[str],
 ) -> None:
     if "csv" in fmts:
         p = out.with_suffix(".csv")
@@ -1231,18 +1264,24 @@ def _write_table(
     if "json" in fmts:
         p = out.with_suffix(".json")
         p.write_text(
-            json.dumps(df.to_dict(orient="records"), indent=2),
+            json.dumps(
+                df.to_dict(orient="records"), indent=2
+            ),
             encoding="utf-8",
         )
         print(f"[OK] json -> {p}")
 
     if "txt" in fmts:
         p = out.with_suffix(".txt")
-        p.write_text(df.to_string(index=False), encoding="utf-8")
+        p.write_text(
+            df.to_string(index=False), encoding="utf-8"
+        )
         print(f"[OK] txt -> {p}")
 
 
-def _write_tex(text: str, *, out: Path, fmts: List[str]) -> None:
+def _write_tex(
+    text: str, *, out: Path, fmts: list[str]
+) -> None:
     if "tex" not in fmts:
         return
     p = out.with_suffix(".tex")
@@ -1255,7 +1294,7 @@ def _build_table_s6(
     *,
     args: argparse.Namespace,
     out: Path,
-    fmts: List[str],
+    fmts: list[str],
 ) -> None:
     if "lambda_cons" not in df.columns:
         return
@@ -1265,7 +1304,9 @@ def _build_table_s6(
     agg = _agg_fn(args.s6_agg)
     unit = str(args.metric_unit)
 
-    metrics = [m for m in _s6_metrics(args) if m in df.columns]
+    metrics = [
+        m for m in _s6_metrics(args) if m in df.columns
+    ]
     if not metrics:
         return
 
@@ -1277,9 +1318,13 @@ def _build_table_s6(
         getattr(args, "s6_tex_gray_missing", "true"),
         default=True,
     )
-    gray_level = str(
-        getattr(args, "s6_tex_gray_level", "gray!15") or "gray!15"
-    ).strip() or "gray!15"
+    gray_level = (
+        str(
+            getattr(args, "s6_tex_gray_level", "gray!15")
+            or "gray!15"
+        ).strip()
+        or "gray!15"
+    )
     one_file = utils.str_to_bool(
         getattr(args, "s6_tex_one_file", "false"),
         default=False,
@@ -1299,14 +1344,22 @@ def _build_table_s6(
             if sub.empty:
                 continue
 
-            lc = pd.to_numeric(sub["lambda_cons"], errors="coerce")
-            lp = pd.to_numeric(sub["lambda_prior"], errors="coerce")
-            lc_vals = [float(x) for x in sorted(set(lc.dropna()))]
-            lp_vals = [float(x) for x in sorted(set(lp.dropna()))]
+            lc = pd.to_numeric(
+                sub["lambda_cons"], errors="coerce"
+            )
+            lp = pd.to_numeric(
+                sub["lambda_prior"], errors="coerce"
+            )
+            lc_vals = [
+                float(x) for x in sorted(set(lc.dropna()))
+            ]
+            lp_vals = [
+                float(x) for x in sorted(set(lp.dropna()))
+            ]
             if not lc_vals or not lp_vals:
                 continue
 
-            tex_blocks: List[str] = []
+            tex_blocks: list[str] = []
 
             for m in metrics:
                 piv = sub.pivot_table(
@@ -1316,7 +1369,9 @@ def _build_table_s6(
                     aggfunc=agg,
                 )
 
-                piv = piv.reindex(index=lc_vals, columns=lp_vals)
+                piv = piv.reindex(
+                    index=lc_vals, columns=lp_vals
+                )
 
                 p2 = out.with_name(
                     out.name + f"__S6__{m}__{city}__{pb}"
@@ -1353,7 +1408,9 @@ def _build_table_s6(
                         _write_tex(tex, out=p2, fmts=fmts)
 
             if one_file and tex_blocks and "tex" in fmts:
-                p3 = out.with_name(out.name + f"__S6__{city}__{pb}")
+                p3 = out.with_name(
+                    out.name + f"__S6__{city}__{pb}"
+                )
                 _write_tex(
                     "\n".join(tex_blocks),
                     out=p3,
@@ -1366,7 +1423,7 @@ def _build_table_s7(
     *,
     args: argparse.Namespace,
     out: Path,
-    fmts: List[str],
+    fmts: list[str],
 ) -> None:
     x = _add_toggle_flags(df)
 
@@ -1411,7 +1468,7 @@ def _build_table_s7(
 # Main
 # ---------------------------------------------------------------------
 def build_ablation_table_main(
-    argv: Optional[List[str]] = None,
+    argv: list[str] | None = None,
 ) -> None:
     args = _parse_args(argv)
     utils.ensure_script_dirs()
@@ -1432,9 +1489,15 @@ def build_ablation_table_main(
     df = _filter_models(df, args.models)
     df = _filter_cities(df, args.cities)
 
-    keep_ph = utils.str_to_bool(args.keep_per_horizon, default=True)
+    keep_ph = utils.str_to_bool(
+        args.keep_per_horizon, default=True
+    )
     if not keep_ph:
-        drop = [c for c in df.columns if str(c).startswith("per_horizon_")]
+        drop = [
+            c
+            for c in df.columns
+            if str(c).startswith("per_horizon_")
+        ]
         df = df.drop(columns=drop, errors="ignore")
 
     # Convert to requested unit after derived-metric completion.
@@ -1457,12 +1520,17 @@ def build_ablation_table_main(
         )
         cols = params + mets
     else:
-        cols = _param_cols(df) + _pick_metrics(df, args.metrics)
+        cols = _param_cols(df) + _pick_metrics(
+            df, args.metrics
+        )
         cols = [c for c in cols if c in df.columns]
 
     tab = df.loc[:, cols].copy()
 
-    fmts = [s.strip().lower() for s in str(args.formats).split(",")]
+    fmts = [
+        s.strip().lower()
+        for s in str(args.formats).split(",")
+    ]
     fmts = [f for f in fmts if f]
     if not fmts:
         fmts = ["csv", "json"]
@@ -1485,7 +1553,9 @@ def build_ablation_table_main(
 
     if "txt" in fmts:
         p = out.with_suffix(".txt")
-        p.write_text(tab.to_string(index=False), encoding="utf-8")
+        p.write_text(
+            tab.to_string(index=False), encoding="utf-8"
+        )
         print(f"[OK] txt -> {p}")
 
     if "tex" in fmts:
@@ -1512,9 +1582,9 @@ def build_ablation_table_main(
             metric=str(args.sort_by),
             ascending=str(args.ascending),
         )
-        p = out.with_name(out.name + "__best_per_city").with_suffix(
-            ".csv"
-        )
+        p = out.with_name(
+            out.name + "__best_per_city"
+        ).with_suffix(".csv")
         best.to_csv(p, index=False)
         print(f"[OK] best/city -> {p}")
 
@@ -1546,7 +1616,7 @@ def build_ablation_table_main(
         print("\n" + tab.to_string(index=False))
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     build_ablation_table_main(argv)
 
 

@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 # Copyright (c) 2007-2022 The scikit-learn developers.
 # All rights reserved.
 """Tools to support array_api."""
 
 import numpy
+
 
 class _ArrayAPIWrapper:
     """sklearn specific Array API compatibility wrapper
@@ -33,10 +33,14 @@ class _ArrayAPIWrapper:
         # We only support axis in (0, 1) and ndim in (1, 2) because that is all we need
         # in scikit-learn
         if axis not in {0, 1}:
-            raise ValueError(f"Only axis in (0, 1) is supported. Got {axis}")
+            raise ValueError(
+                f"Only axis in (0, 1) is supported. Got {axis}"
+            )
 
         if X.ndim not in {1, 2}:
-            raise ValueError(f"Only X.ndim in (1, 2) is supported. Got {X.ndim}")
+            raise ValueError(
+                f"Only X.ndim in (1, 2) is supported. Got {X.ndim}"
+            )
 
         if axis == 0:
             if X.ndim == 1:
@@ -59,11 +63,15 @@ class _NumPyApiWrapper:
     def __getattr__(self, name):
         return getattr(numpy, name)
 
-    def astype(self, x, dtype, *, copy=True, casting="unsafe"):
+    def astype(
+        self, x, dtype, *, copy=True, casting="unsafe"
+    ):
         # astype is not defined in the top level NumPy namespace
         return x.astype(dtype, copy=copy, casting=casting)
 
-    def asarray(self, x, *, dtype=None, device=None, copy=None):
+    def asarray(
+        self, x, *, dtype=None, device=None, copy=None
+    ):
         # Support copy in NumPy namespace
         if copy is True:
             return numpy.array(x, copy=True, dtype=dtype)
@@ -87,10 +95,15 @@ def _convert_to_numpy(array, xp):
     """Convert X into a NumPy ndarray.
     Only works on cupy.array_api and numpy.array_api and is used for testing.
     """
-    supported_array_api = ["numpy.array_api", "cupy.array_api"]
+    supported_array_api = [
+        "numpy.array_api",
+        "cupy.array_api",
+    ]
     if xp.__name__ not in supported_array_api:
         support_array_api_str = ", ".join(supported_array_api)
-        raise ValueError(f"Supported namespaces are: {support_array_api_str}")
+        raise ValueError(
+            f"Supported namespaces are: {support_array_api_str}"
+        )
 
     if xp.__name__ == "cupy.array_api":
         return array._array.get()
@@ -117,7 +130,7 @@ def get_namespace(*arrays, array_api_dispatch=False):
     compatibility wrapper is always returned irrespective of
     the fact that arrays implement the `__array_namespace__`
     protocol or not.
-    
+
     Parameters
     ----------
     *arrays : array objects
@@ -125,7 +138,7 @@ def get_namespace(*arrays, array_api_dispatch=False):
     array_api_dispatch: bool, False
         If `arrays` are regular numpy arrays, an instance of the
         `_NumPyApiWrapper` compatibility wrapper is returned instead.
-        
+
     Returns
     -------
     namespace : module
@@ -141,9 +154,11 @@ def get_namespace(*arrays, array_api_dispatch=False):
         return _NumPyApiWrapper(), False
 
     namespaces = {
-        x.__array_namespace__() if hasattr(x, "__array_namespace__") else None
+        x.__array_namespace__()
+        if hasattr(x, "__array_namespace__")
+        else None
         for x in arrays
-        if not isinstance(x, (bool, int, float, complex))
+        if not isinstance(x, bool | int | float | complex)
     }
 
     if not namespaces:
@@ -152,7 +167,9 @@ def get_namespace(*arrays, array_api_dispatch=False):
         raise ValueError("Unrecognized array input")
 
     if len(namespaces) != 1:
-        raise ValueError(f"Multiple namespaces for array inputs: {namespaces}")
+        raise ValueError(
+            f"Multiple namespaces for array inputs: {namespaces}"
+        )
 
     (xp,) = namespaces
     if xp is None:
@@ -161,7 +178,10 @@ def get_namespace(*arrays, array_api_dispatch=False):
 
     return _ArrayAPIWrapper(xp), True
 
-def _asarray_with_order(array, dtype=None, order=None, copy=None, xp=None):
+
+def _asarray_with_order(
+    array, dtype=None, order=None, copy=None, xp=None
+):
     """Helper to support the order kwarg only for NumPy-backed arrays
     Memory layout parameter `order` is not exposed in the Array API standard,
     however some input validation code in scikit-learn needs to work both

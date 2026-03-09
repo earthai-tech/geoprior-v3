@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3  https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -9,11 +8,11 @@ r"""GeoPrior scaling config helpers (Keras-serializable)."""
 
 from __future__ import annotations
 
-from typing import Any, Callable, Optional, Sequence
-from collections.abc import Mapping
-from dataclasses import dataclass, field
 import json
 import os
+from collections.abc import Callable, Mapping, Sequence
+from dataclasses import dataclass, field
+from typing import Any
 
 import numpy as np
 
@@ -36,42 +35,42 @@ logger = get_logger(__name__)
 def _jsonify(x):
     r"""
     Convert nested objects into JSON-serializable Python types.
-    
+
     This helper walks common container types and converts values
     into plain Python objects suitable for storage in a Keras
     configuration dictionary.
-    
+
     It is intended for defensive serialization, where values may
     include NumPy scalars, tuples, sets, or mapping-like objects.
-    
+
     Parameters
     ----------
     x : object
         Input object to convert. This may be a mapping, list,
         tuple, set, NumPy scalar, or any other Python object.
-    
+
     Returns
     -------
     out : object
         A JSON-serializable representation of ``x`` when possible.
         Containers are converted recursively. Objects that do not
         require conversion are returned unchanged.
-    
+
     Notes
     -----
     - Mapping keys are cast to ``str`` to avoid non-JSON keys.
     - Sets are converted to sorted lists to ensure stability.
     - NumPy scalar types are converted using ``.item()``.
-    
+
     Examples
     --------
     >>> _jsonify({"a": 1})
     {'a': 1}
-    
+
     >>> import numpy as np
     >>> _jsonify({"v": np.float32(2.0)})
     {'v': 2.0}
-    
+
     See Also
     --------
     GeoPriorScalingConfig.get_config :
@@ -82,7 +81,7 @@ def _jsonify(x):
         return {str(k): _jsonify(v) for k, v in x.items()}
 
     # List/tuple: keep ordering.
-    if isinstance(x, (list, tuple)):
+    if isinstance(x, list | tuple):
         return [_jsonify(v) for v in x]
 
     # Set: stable ordering for deterministic configs.
@@ -92,7 +91,7 @@ def _jsonify(x):
     # NumPy scalar: convert to Python scalar.
     if hasattr(x, "item") and isinstance(
         x,
-        (np.generic,),
+        np.generic,
     ):
         return x.item()
 
@@ -153,6 +152,7 @@ class GeoPriorScalingConfig:
     .. [2] Python Software Foundation. "dataclasses - Data
            Classes" (Python standard library documentation).
     """
+
     # Raw payload (may be incomplete or aliased).
     payload: dict = field(default_factory=dict)
 
@@ -166,22 +166,22 @@ class GeoPriorScalingConfig:
     def from_any(cls, obj, *, copy=True):
         r"""
         Serializable container for GeoPrior scaling configuration.
-        
+
         This dataclass stores a "payload" dictionary that holds all
         scaling and physics-control parameters required to reproduce
         the model behavior after saving and reloading with Keras.
-        
+
         The container supports flexible construction from:
         - ``None`` (empty config),
         - a mapping (dict-like),
         - a file path ``str`` (loaded via ``load_scaling_kwargs``),
         - an existing :class:`~GeoPriorScalingConfig` instance.
-        
+
         The canonical and validated configuration is produced by
         :meth:`resolve`, which applies the GeoPrior scaling pipeline:
         loading, canonicalization, alias consistency checks, and
         validation.
-        
+
         Parameters
         ----------
         payload : dict, optional
@@ -193,7 +193,7 @@ class GeoPriorScalingConfig:
         schema_version : str, optional
             Version label for the payload schema. This can be used
             to implement migrations when the scaling format evolves.
-        
+
         Attributes
         ----------
         payload : dict
@@ -202,7 +202,7 @@ class GeoPriorScalingConfig:
             The provenance hint, if provided.
         schema_version : str
             Schema version label.
-        
+
         Notes
         -----
         - The resolved scaling dictionary returned by :meth:`resolve`
@@ -210,30 +210,30 @@ class GeoPriorScalingConfig:
         - ``get_config`` returns JSON-safe objects only. This avoids
           subtle reconstruction drift caused by non-serializable
           values.
-        
+
         Examples
         --------
         Construct from a mapping:
-        
+
         >>> cfg = GeoPriorScalingConfig.from_any(
         ...     {"coords_normalized": True}
         ... )
         >>> sk = cfg.resolve()
         >>> isinstance(sk, dict)
         True
-        
+
         Construct from a file path:
-        
+
         >>> cfg = GeoPriorScalingConfig.from_any(
         ...     "path/to/scaling_kwargs.json"
         ... )
         >>> sk = cfg.resolve()
-        
+
         Use in a model constructor (pattern):
-        
+
         >>> cfg = GeoPriorScalingConfig.from_any(scaling_kwargs)
         >>> scaling_kwargs_resolved = cfg.resolve()
-        
+
         See Also
         --------
         GeoPriorScalingConfig.from_any :
@@ -242,13 +242,13 @@ class GeoPriorScalingConfig:
             Produce canonical and validated scaling dictionary.
         load_scaling_kwargs, canonicalize_scaling_kwargs :
             Scaling pipeline functions.
-        
+
         References
         ----------
         .. [1] Chollet, F. et al. "Keras: Deep Learning for Humans".
                Keras object serialization via get_config/from_config.
         """
-        
+
         r"""
         Create a scaling config from common input types.
         
@@ -347,8 +347,7 @@ class GeoPriorScalingConfig:
 
         # Unsupported type.
         msg = (
-            "Unsupported scaling_kwargs type: "
-            f"{type(obj)!r}"
+            f"Unsupported scaling_kwargs type: {type(obj)!r}"
         )
         logger.error(
             "GeoPriorScalingConfig.from_any: %s",
@@ -359,21 +358,21 @@ class GeoPriorScalingConfig:
     def resolve(self):
         r"""
         Resolve the payload into a canonical, validated scaling dict.
-        
+
         This method runs the GeoPrior scaling pipeline and returns a
         dictionary suitable for direct use inside model computations.
-        
+
         The pipeline is:
         1) Load payload (mapping or file-style behavior),
         2) Canonicalize keys and fill defaults,
         3) Enforce alias consistency,
         4) Validate values and required fields.
-        
+
         Returns
         -------
         scaling_kwargs : dict
             Canonical and validated scaling configuration.
-        
+
         Raises
         ------
         ValueError
@@ -382,14 +381,14 @@ class GeoPriorScalingConfig:
             If canonicalization expects keys that are absent.
         TypeError
             If the payload contains unsupported types.
-        
+
         Notes
         -----
         - The returned dict is intended to be stable under Keras
           serialization and safe to store in model state.
         - This method always loads with ``copy=True`` to avoid
           mutating the stored payload.
-        
+
         Examples
         --------
         >>> cfg = GeoPriorScalingConfig.from_any(
@@ -398,7 +397,7 @@ class GeoPriorScalingConfig:
         >>> sk = cfg.resolve()
         >>> sk["coords_normalized"]
         True
-        
+
         See Also
         --------
         canonicalize_scaling_kwargs :
@@ -527,11 +526,11 @@ class GeoPriorScalingConfig:
             Produces the configuration dictionary.
         """
         logger.debug(
-            "GeoPriorScalingConfig.from_config: "
-            "keys=%s",
+            "GeoPriorScalingConfig.from_config: keys=%s",
             sorted(list(config.keys())),
         )
         return cls(**config)
+
 
 def _deep_update(base: dict, over: dict) -> dict:
     """
@@ -553,7 +552,7 @@ def _deep_update(base: dict, over: dict) -> dict:
 
 def _resolve_json_path(
     path: str,
-    base_dir: Optional[str],
+    base_dir: str | None,
 ) -> str:
     """
     Resolve a JSON path.
@@ -570,147 +569,147 @@ def _resolve_json_path(
 
 def override_scaling_kwargs(
     sk: Mapping[str, Any],
-    cfg: Optional[Mapping[str, Any]],
+    cfg: Mapping[str, Any] | None,
     *,
-    finalize: Optional[Callable[[dict], dict]] = None,
-    dyn_names: Optional[Sequence[str]] = None,
-    gwl_dyn_index: Optional[int] = None,
-    base_dir: Optional[str] = None,
+    finalize: Callable[[dict], dict] | None = None,
+    dyn_names: Sequence[str] | None = None,
+    gwl_dyn_index: int | None = None,
+    base_dir: str | None = None,
     path_key: str = "SCALING_KWARGS_JSON_PATH",
     strict: bool = True,
     add_path: bool = True,
-    log_fn: Optional[Callable[[str], Any]] = None,
+    log_fn: Callable[[str], Any] | None = None,
 ) -> dict:
     r"""
     Override ``scaling_kwargs`` from a JSON file or dict.
-    
+
     This helper applies an optional, precedence-based override to
     an existing ``scaling_kwargs`` mapping. The override source is
     read from ``cfg[path_key]``. If the key is missing or empty, the
     input ``sk`` is returned (optionally finalized).
-    
+
     The override can be provided as:
-    
+
     - a file path to a JSON object (mapping), or
     - a Python dict-like mapping embedded in ``cfg``.
-    
+
     Overrides are applied via a deep-merge strategy:
-    
+
     - for nested dict values, keys are merged recursively,
     - for non-dict values, the override replaces the base value.
-    
+
     Optionally, the merged result is passed through ``finalize`` to
     recompute derived or canonical fields (for example, coordinate
     ranges, unit flags, or other normalization metadata).
-    
+
     Parameters
     ----------
     sk : Mapping[str, Any]
         Base scaling configuration (``scaling_kwargs``). This is
         typically computed by Stage-2 or loaded from Stage-1 output.
         The input is copied to a plain ``dict`` before modification.
-    
+
     cfg : Mapping[str, Any] or None
         Configuration mapping that may contain the override source
         under ``path_key``. If ``None``, no override is applied.
-    
+
     finalize : callable or None, optional
         Function applied to the scaling dict to enforce canonical
         structure or to compute derived fields. If provided, it is
         applied before and after the override merge:
-    
+
         - pre-merge: normalize the base dict,
         - post-merge: ensure the merged dict is consistent.
-    
+
         The callable must accept a dict and return a dict.
-    
+
     dyn_names : Sequence[str] or None, optional
         Expected dynamic feature names for safety validation. If
         provided and the override contains ``dynamic_feature_names``,
         the two sequences are compared. A mismatch raises an error
         when ``strict=True``.
-    
+
     gwl_dyn_index : int or None, optional
         Expected dynamic index for the groundwater-level feature.
         If provided and the override contains ``gwl_dyn_index``, the
         values are compared. A mismatch raises an error when
         ``strict=True``.
-    
+
     base_dir : str or None, optional
         Base directory used to resolve relative JSON paths. If
         ``None``, the current working directory is used.
-    
+
     path_key : str, default="SCALING_KWARGS_JSON_PATH"
         Name of the key in ``cfg`` that specifies the override. The
         value may be a dict-like mapping or a path to a JSON file.
-    
+
     strict : bool, default=True
         Controls behavior on safety-check mismatches. When ``True``,
         mismatches raise a ``ValueError``. When ``False``, mismatches
         can be logged via ``log_fn`` and the override still proceeds.
-    
+
     add_path : bool, default=True
         If ``True``, store the resolved override source in the output
         dict under ``scaling_kwargs_override_path``. When the override
         is provided as a mapping (not a file), the value is set to
         ``"<dict>"``.
-    
+
     log_fn : callable or None, optional
         Optional logger function. If provided, it is called with
         informative messages such as successful override application
         and (when ``strict=False``) mismatch warnings. Common choices
         are ``print`` or ``logger.info``.
-    
+
     Returns
     -------
     out : dict
         Final scaling dict after optional override and optional
         finalization. The returned dict is independent from the input
         mapping object ``sk`` (a copy is always created).
-    
+
     Raises
     ------
     FileNotFoundError
         If ``cfg[path_key]`` is a path and the file does not exist.
-    
+
     ValueError
         If a path is provided but the file does not contain valid
         JSON, or if a safety check fails while ``strict=True``.
-    
+
     TypeError
         If the loaded override is not a JSON object (dict-like).
-    
+
     Notes
     -----
     Path resolution
         When ``cfg[path_key]`` is a string path, it is resolved as:
-    
+
         1. Expand environment variables and ``~``.
         2. If relative, join with ``base_dir`` (or CWD).
-    
+
     Safety checks
         The checks are intentionally conservative. They prevent using
         an override file produced for a different dataset or feature
         layout. Recommended checks are:
-    
+
         - ``dynamic_feature_names`` equality when known.
         - ``gwl_dyn_index`` equality when known.
-    
+
         You can extend validation by checking additional keys such as
         ``coord_epsg_used``, ``coords_normalized``, or unit flags.
-    
+
     Finalization
         In GeoPrior pipelines, ``finalize`` is typically a helper that
         enforces defaults and recomputes derived entries. Applying it
         both before and after the override helps reduce edge cases
         where the override only supplies partial information.
-    
+
     Examples
     --------
     Stage-2: override computed scaling with a file
         In Stage-2, call this right after the auto-computed scaling
         is available, so the override takes precedence:
-    
+
         >>> sk = subsmodel_params["scaling_kwargs"]
         >>> sk = override_scaling_kwargs(
         ...     sk,
@@ -723,10 +722,10 @@ def override_scaling_kwargs(
         ...     log_fn=print,
         ... )
         >>> subsmodel_params["scaling_kwargs"] = sk
-    
+
     Stage-3: override Stage-1 scaling prior to enforcing bounds
         In Stage-3, apply the override before injecting Stage-3 bounds:
-    
+
         >>> sk_model = dict(cfg.get("scaling_kwargs", {}) or {})
         >>> sk_model = override_scaling_kwargs(
         ...     sk_model,
@@ -739,10 +738,10 @@ def override_scaling_kwargs(
         ...     **(sk_model.get("bounds", {}) or {}),
         ...     **bounds_for_scaling,
         ... }
-    
+
     Inline dict override (no JSON file)
         If the override is embedded in config, it is used directly:
-    
+
         >>> cfg = {
         ...     "SCALING_KWARGS_JSON_PATH": {
         ...         "coords_normalized": True,
@@ -750,14 +749,14 @@ def override_scaling_kwargs(
         ...     }
         ... }
         >>> out = override_scaling_kwargs({}, cfg)
-    
+
     See Also
     --------
     finalize_scaling_kwargs :
         Canonicalize and complete ``scaling_kwargs`` entries.
     compute_scaling_kwargs :
         Build a base scaling dict from data and pipeline settings.
-    
+
     References
     ----------
     .. [1] Hunter, J. D. (2007). Matplotlib: A 2D graphics
@@ -784,7 +783,7 @@ def override_scaling_kwargs(
                 f"{path_key} not found: {over_path}"
             )
         try:
-            with open(over_path, "r", encoding="utf-8") as f:
+            with open(over_path, encoding="utf-8") as f:
                 over = json.load(f)
         except Exception as e:
             raise ValueError(
@@ -824,11 +823,3 @@ def override_scaling_kwargs(
         log_fn(f"[INFO] scaling_kwargs override: {over_path}")
 
     return out
-
-
-
-
-
-
-
-

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # License: Apache-2.0
 # Copyright (c) 2026-present
 # Author: LKouadio <etanoyau@gmail.com>
@@ -24,8 +23,9 @@ from __future__ import annotations
 import json
 import os
 import shutil
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Sequence, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -52,11 +52,11 @@ __all__ = [
 @dataclass(frozen=True)
 class SplitCfg:
     seed: int = 42
-    ratios: Tuple[float, float, float] = (0.7, 0.15, 0.15)
+    ratios: tuple[float, float, float] = (0.7, 0.15, 0.15)
     decimals: int = 8
 
 
-def _check_ratios(r: Tuple[float, float, float]) -> None:
+def _check_ratios(r: tuple[float, float, float]) -> None:
     if len(r) != 3:
         raise ValueError("ratios must be (train,val,test).")
     s = float(r[0]) + float(r[1]) + float(r[2])
@@ -68,7 +68,7 @@ def split_group_keys(
     keys: np.ndarray,
     *,
     cfg: SplitCfg = SplitCfg(),
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     _check_ratios(cfg.ratios)
 
     keys = np.asarray(keys, dtype=object)
@@ -116,13 +116,13 @@ def write_splits_json(
     group_cols: Sequence[str],
     time_steps: int,
     horizon: int,
-    train_end: Optional[float],
+    train_end: float | None,
     cfg: SplitCfg,
-    splits: Dict[str, np.ndarray],
+    splits: dict[str, np.ndarray],
 ) -> str:
     os.makedirs(os.path.dirname(path), exist_ok=True)
 
-    payload: Dict[str, Any] = {
+    payload: dict[str, Any] = {
         "group_cols": list(group_cols),
         "decimals": int(cfg.decimals),
         "seed": int(cfg.seed),
@@ -132,7 +132,9 @@ def write_splits_json(
         "min_len": int(min_required_len(time_steps, horizon)),
         "train_end": train_end,
         "counts": {k: int(len(v)) for k, v in splits.items()},
-        "splits": {k: list(map(str, v)) for k, v in splits.items()},
+        "splits": {
+            k: list(map(str, v)) for k, v in splits.items()
+        },
     }
     with open(path, "w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2)
@@ -141,7 +143,7 @@ def write_splits_json(
 
 
 def _pick_target_key(
-    d: Dict[str, Any],
+    d: dict[str, Any],
     *names: str,
 ) -> str:
     for n in names:
@@ -151,10 +153,10 @@ def _pick_target_key(
 
 
 def pack_xy_npz(
-    x: Dict[str, Any],
-    y: Optional[Dict[str, Any]],
-) -> Dict[str, np.ndarray]:
-    out: Dict[str, np.ndarray] = {
+    x: dict[str, Any],
+    y: dict[str, Any] | None,
+) -> dict[str, np.ndarray]:
+    out: dict[str, np.ndarray] = {
         "coords": np.asarray(x["coords"], np.float32),
         "dynamic_features": np.asarray(
             x["dynamic_features"],
@@ -182,7 +184,9 @@ def pack_xy_npz(
     return out
 
 
-def _save_npz(path: str, arrays: Dict[str, np.ndarray]) -> str:
+def _save_npz(
+    path: str, arrays: dict[str, np.ndarray]
+) -> str:
     os.makedirs(os.path.dirname(path), exist_ok=True)
     np.savez_compressed(path, **arrays)
     return path
@@ -207,17 +211,19 @@ def build_group_holdout_npzs(
     horizon: int,
     mode: str,
     model_name: str,
-    train_end: Optional[float],
+    train_end: float | None,
     keys_ok: np.ndarray,
     cfg: SplitCfg = SplitCfg(),
     normalize_coords: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Build train/val/test windows using group holdout.
 
     Returns dict containing paths and coord_scaler.
     """
-    from geoprior.nn.pinn.utils import prepare_pinn_data_sequences
+    from geoprior.nn.pinn.utils import (
+        prepare_pinn_data_sequences,
+    )
 
     splits = split_group_keys(keys_ok, cfg=cfg)
 
@@ -233,9 +239,11 @@ def build_group_holdout_npzs(
     )
 
     coord_scaler = None
-    out: Dict[str, Any] = {"splits_groups_json": spath}
+    out: dict[str, Any] = {"splits_groups_json": spath}
 
-    def _one(which: str) -> Tuple[Dict[str, Any], Dict[str, Any], Any]:
+    def _one(
+        which: str,
+    ) -> tuple[dict[str, Any], dict[str, Any], Any]:
         dfi = subset_by_keys(
             df_train,
             group_cols=group_cols,
@@ -292,7 +300,7 @@ def build_future_inputs_npz(
     df_scaled: pd.DataFrame,
     artifacts_dir: str,
     time_col: str,
-    time_col_num: Optional[str],
+    time_col_num: str | None,
     lon_col: str,
     lat_col: str,
     subs_col: str,
@@ -311,8 +319,6 @@ def build_future_inputs_npz(
     normalize_coords: bool,
     coord_scaler: Any = None,
 ) -> str:
-
-
     prefix = f"future_T{time_steps}_H{horizon}"
     res = build_future_sequences_npz(
         df_scaled=df_scaled,
@@ -347,6 +353,7 @@ def build_future_inputs_npz(
     )
     shutil.move(src, dst)
     return dst
+
 
 # from geoprior.utils.panel_cache import (
 #     ensure_feasible_keys_cache,

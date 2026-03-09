@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Author: LKouadio <etanoyau@gmail.com>
 # Adapted from: earthai-tech/gofast — https://github.com/earthai-tech/gofast
@@ -12,43 +11,41 @@ partitioning data into batches, and applying noise‑validation routines.
 Adapted for FusionLab from the original fusionlab.core.handlers module.
 """
 
-from __future__ import print_function
-
-import re
-import uuid
-import string
+import datetime
+import inspect
 import numbers
 import random
-import inspect
-import datetime
+import re
+import string
+import uuid
 import warnings
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
-from ..logging import get_logger
 from ..compat.scipy import optimize_minimize
-from .checks import validate_noise, str2columns
+from ..logging import get_logger
+from .checks import str2columns, validate_noise
 
+__all__ = [
+    "TypeEnforcer",
+    "add_noises_to",
+    "adjust_to_samples",
+    "batch_generator",
+    "get_batch_size",
+    "safe_slicing",
+    "gen_batches",
+    "get_valid_kwargs",
+    "generate_id",
+    "make_ids",
+    "resolve_label",
+    "columns_manager",
+    "columns_getter",
+]
 
-__all__ = [ 
-    'TypeEnforcer', 
-    'add_noises_to',
-    'adjust_to_samples',
-    'batch_generator',
-    'get_batch_size',
-    'safe_slicing', 
-    'gen_batches' , 
-    'get_valid_kwargs',
-    'generate_id',
-    'make_ids',
-    'resolve_label', 
-    'columns_manager', 
-    'columns_getter'
-   ]
 
 class TypeEnforcer:
     """
@@ -70,23 +67,23 @@ class TypeEnforcer:
         each parameter's type will be applied to the corresponding return
         value in order. If ``rparams`` is also provided, ``rparams`` takes
         precedence over ``params``.
-        
+
     rparams : dict, optional
         A dictionary mapping return value indices (int) or names (str) to
         desired type names or callable conversion functions. This explicitly
         defines the types to enforce on specific return values, overriding
         any type specifications provided in ``params``. Supported type names
         include:
-        
+
         - ``'array-like'``: Converts to NumPy array.
         - ``'list'``: Converts to Python list.
         - ``'tuple'``: Converts to Python tuple.
         - ``'dataframe'`` or ``'pd.DataFrame'``: Converts to pandas DataFrame.
         - ``'series'`` or ``'pd.Series'``: Converts to pandas Series.
         - ``'boolean'``: Converts to boolean type.
-        
+
         Custom callable functions can also be provided for advanced conversions.
-        
+
     set_index : bool, default=False
         If ``True`` and the return type is a pandas DataFrame, the decorator
         attempts to set the index of the returned DataFrame to match the index
@@ -96,43 +93,43 @@ class TypeEnforcer:
     Examples
     --------
     >>> from fusionlab.core.handlers import TypeEnforcer
-    >>> 
+    >>>
     >>> @TypeEnforcer
     >>> def example_function1(a):
     ...     return e
-    >>> 
+    >>>
     >>> # The return value `e` will be converted to the type of parameter `a`
-    >>> 
+    >>>
     >>> @TypeEnforcer(params='c')
     >>> def example_function3(a, c, d=2):
     ...     return e
-    >>> 
+    >>>
     >>> # The return value `e` will be converted to the type of parameter `c`
-    >>> 
+    >>>
     >>> @TypeEnforcer(rparams={'0': 'array-like'})
     >>> def example_function4(a, c, d=2):
     ...     return e
-    >>> 
+    >>>
     >>> # The return value `e` will be converted to a NumPy array
-    >>> 
+    >>>
     >>> @TypeEnforcer(rparams={'0': 'array-like', '2': 'pd.DataFrame', '3': 'series'})
     >>> def example_function5(a, c, d=2):
     ...     return e, f, g, h
-    >>> 
+    >>>
     >>> # The return values will be converted as follows:
     >>> # e -> NumPy array, g -> pandas DataFrame, h -> pandas Series
-    >>> 
+    >>>
     >>> @TypeEnforcer(params=['c', 'd'], rparams=None)
     >>> def example_function6(a, c, d=2):
     ...     return e, f, g, h
-    >>> 
+    >>>
     >>> # The return values `e` and `f` will be converted to the types of
     >>> # parameters `c` and `d` respectively
-    >>> 
+    >>>
     >>> @TypeEnforcer(params=['a', 'd'], rparams={'0': 'array-like', '2': 'pd.DataFrame', '3': 'series'})
     >>> def example_function8(a, c, d=2):
     ...     return e, f, g, h
-    >>> 
+    >>>
     >>> # The return values will be converted as follows:
     >>> # e -> NumPy array (overrides type of 'a'),
     >>> # g -> pandas DataFrame,
@@ -164,42 +161,43 @@ class TypeEnforcer:
 
     See Also
     --------
-    [1] Brownlee, J. (2018). *Time Series Forecasting with Python: Create 
+    [1] Brownlee, J. (2018). *Time Series Forecasting with Python: Create
         accurate models in Python to forecast the future and gain insight
         from your time series data*. Machine Learning Mastery.
-    [2] Qin, Y., Song, D., Chen, H., Cheng, W., Jiang, G., & Cottrell, G. (2017). 
+    [2] Qin, Y., Song, D., Chen, H., Cheng, W., Jiang, G., & Cottrell, G. (2017).
         Temporal fusion transformers for interpretable multi-horizon time
         series forecasting. *arXiv preprint arXiv:1912.09363*.
 
     References
     ----------
-    .. [1] Brownlee, J. (2018). *Time Series Forecasting with Python: Create 
-           accurate models in Python to forecast the future and gain insight 
+    .. [1] Brownlee, J. (2018). *Time Series Forecasting with Python: Create
+           accurate models in Python to forecast the future and gain insight
            from your time series data*. Machine Learning Mastery.
-    .. [2] Qin, Y., Song, D., Chen, H., Cheng, W., Jiang, G., & Cottrell, 
-           G. (2017). Temporal fusion transformers for interpretable multi-horizon 
+    .. [2] Qin, Y., Song, D., Chen, H., Cheng, W., Jiang, G., & Cottrell,
+           G. (2017). Temporal fusion transformers for interpretable multi-horizon
            time series forecasting. *arXiv preprint arXiv:1912.09363*.
     """
-    
+
     def __init__(
         self,
-        params: Optional[Union[str, List[str]]] = None,
-        rparams: Optional[Dict[Union[str, int], Union[str, Callable]]] = None,
-        set_index: bool = False
+        params: str | list[str] | None = None,
+        rparams: dict[str | int, str | Callable]
+        | None = None,
+        set_index: bool = False,
     ):
         self.params = params
         self.rparams = rparams
         self.set_index = set_index
         self.logger = get_logger(__name__)
         self.type_mapping = {
-            'array-like': lambda x: np.array(x),
-            'list': lambda x: list(x),
-            'tuple': lambda x: tuple(x),
-            'dataframe': self.to_dataframe,
-            'pd.DataFrame': self.to_dataframe,
-            'series': self.to_series,
-            'pd.Series': self.to_series,
-            'boolean': lambda x: bool(x)
+            "array-like": lambda x: np.array(x),
+            "list": lambda x: list(x),
+            "tuple": lambda x: tuple(x),
+            "dataframe": self.to_dataframe,
+            "pd.DataFrame": self.to_dataframe,
+            "series": self.to_series,
+            "pd.Series": self.to_series,
+            "boolean": lambda x: bool(x),
         }
 
     def __call__(self, func: Callable) -> Callable:
@@ -216,6 +214,7 @@ class TypeEnforcer:
         Callable
             The wrapped function with enforced return types.
         """
+
         @wraps(func)
         def wrapper(*args, **kwargs):
             # Execute the original function
@@ -237,7 +236,7 @@ class TypeEnforcer:
                         if 0 <= key < len(return_values):
                             type_specs[key] = dtype
                     elif isinstance(key, str):
-                        # XXX TODO: 
+                        # XXX TODO:
                         # Named return values can be handled here
                         # Currently, only positional handling is implemented
                         pass  # Extend if named return values are used
@@ -257,7 +256,11 @@ class TypeEnforcer:
                         sig = inspect.signature(func)
                         bound_args = sig.bind(*args, **kwargs)
                         bound_args.apply_defaults()
-                        param_value = bound_args.arguments.get(param_name, None)
+                        param_value = (
+                            bound_args.arguments.get(
+                                param_name, None
+                            )
+                        )
                     if param_value is not None:
                         type_specs[idx] = type(param_value)
 
@@ -267,12 +270,16 @@ class TypeEnforcer:
                     desired_type = type_specs[idx]
                     # Handle string type specifications
                     if isinstance(desired_type, str):
-                        conversion_func = self.type_mapping.get(
-                            desired_type.lower()
+                        conversion_func = (
+                            self.type_mapping.get(
+                                desired_type.lower()
+                            )
                         )
                         if conversion_func:
                             try:
-                                return_values[idx] = conversion_func(value)
+                                return_values[idx] = (
+                                    conversion_func(value)
+                                )
                             except Exception as e:
                                 self.logger.debug(
                                     f"Conversion failed for return value at "
@@ -288,7 +295,9 @@ class TypeEnforcer:
                     elif isinstance(desired_type, type):
                         # Direct type conversion using constructor
                         try:
-                            return_values[idx] = desired_type(value)
+                            return_values[idx] = desired_type(
+                                value
+                            )
                         except Exception as e:
                             self.logger.debug(
                                 f"Conversion failed for return value at "
@@ -298,7 +307,9 @@ class TypeEnforcer:
                     elif callable(desired_type):
                         # Use the provided callable for conversion
                         try:
-                            return_values[idx] = desired_type(value)
+                            return_values[idx] = desired_type(
+                                value
+                            )
                         except Exception as e:
                             self.logger.debug(
                                 f"Callable conversion failed for return value "
@@ -338,13 +349,15 @@ class TypeEnforcer:
             if isinstance(value, pd.DataFrame):
                 return value
             df = pd.DataFrame(value)
-            if self.set_index and hasattr(df, 'index'):
+            if self.set_index and hasattr(df, "index"):
                 # Attempt to set index from the first parameter if available
                 # Currently, index setting logic is not implemented
                 pass  # Implement if access to input parameter's index is possible
             return df
         except Exception as e:
-            self.logger.debug(f"Failed to convert value to DataFrame: {e}")
+            self.logger.debug(
+                f"Failed to convert value to DataFrame: {e}"
+            )
             return value
 
     def to_series(self, value: Any) -> Any:
@@ -367,15 +380,18 @@ class TypeEnforcer:
             series = pd.Series(value)
             return series
         except Exception as e:
-            self.logger.debug(f"Failed to convert value to Series: {e}")
+            self.logger.debug(
+                f"Failed to convert value to Series: {e}"
+            )
             return value
+
 
 def delegate_on_error(
     transfer,
     delegate_params_mapping=None,
     additional_args=None,
     additional_kwargs=None,
-    condition=lambda exc: True
+    condition=lambda exc: True,
 ):
     """
     Decorator to delegate function/method execution to another upon encountering 
@@ -536,47 +552,62 @@ def delegate_on_error(
             except Exception as e:
                 # Check if delegation condition is met
                 if condition(e):
-                    if kwargs.get('verbose', 0) >= 2:
+                    if kwargs.get("verbose", 0) >= 2:
                         warnings.warn(
-                            f"Error in {func.__name__}: {e}. Delegating to {transfer.__name__}."
+                            f"Error in {func.__name__}: {e}. Delegating to {transfer.__name__}.",
+                            stacklevel=2,
                         )
                     # Prepare arguments for the transfer function
                     transfer_kwargs = {}
-                    
+
                     # Map parameters based on delegate_params_mapping
-                    for orig_param, transfer_param in delegate_params_mapping.items():
+                    for (
+                        orig_param,
+                        transfer_param,
+                    ) in delegate_params_mapping.items():
                         if orig_param in kwargs:
-                            transfer_kwargs[transfer_param] = kwargs.pop(orig_param)
-                    
+                            transfer_kwargs[
+                                transfer_param
+                            ] = kwargs.pop(orig_param)
+
                     # Automatically transfer parameters with the same name
                     common_params = set(kwargs.keys()) & set(
                         transfer.__code__.co_varnames
                     )
                     for param in common_params:
                         transfer_kwargs[param] = kwargs[param]
-                    
+
                     # Add any additional arguments
                     if additional_args:
-                        transfer_args = list(args) + additional_args
+                        transfer_args = (
+                            list(args) + additional_args
+                        )
                     else:
                         transfer_args = list(args)
-                    
+
                     if additional_kwargs:
-                        transfer_kwargs.update(additional_kwargs)
-                    
+                        transfer_kwargs.update(
+                            additional_kwargs
+                        )
+
                     # Execute the transfer function with mapped parameters
-                    return transfer(*transfer_args, **transfer_kwargs)
+                    return transfer(
+                        *transfer_args, **transfer_kwargs
+                    )
                 else:
                     # Re-raise the exception if condition is not met
                     raise e
+
         return wrapper
+
     return decorator
 
+
 def param_deprecated_message(
-    deprecated_params_mappings=None, 
+    deprecated_params_mappings=None,
     conditions_params_mappings=None,
-    warning_category=FutureWarning, 
-    extra_message=''
+    warning_category=FutureWarning,
+    extra_message="",
 ):
     """
     Decorator to handle deprecated or conditionally validated parameters 
@@ -714,12 +745,16 @@ def param_deprecated_message(
         deprecated_params_mappings = []
     if conditions_params_mappings is None:
         conditions_params_mappings = []
-    
+
     # Ensure these are lists for unified processing
     if isinstance(deprecated_params_mappings, dict):
-        deprecated_params_mappings = [deprecated_params_mappings]
+        deprecated_params_mappings = [
+            deprecated_params_mappings
+        ]
     if isinstance(conditions_params_mappings, dict):
-        conditions_params_mappings = [conditions_params_mappings]
+        conditions_params_mappings = [
+            conditions_params_mappings
+        ]
 
     def decorator(func):
         # Handle both classes (decorate __init__) and functions.
@@ -738,60 +773,78 @@ def param_deprecated_message(
 
             # Process deprecated params first
             for mapping in deprecated_params_mappings:
-                old_param = mapping.get('old')
-                new_param = mapping.get('new')
-                custom_message = mapping.get('message')
-                default_val = mapping.get('default', None)
-                
-                if ( 
-                        old_param in bound_args.arguments 
-                        and bound_args.arguments[old_param] is not None
-                    ):
+                old_param = mapping.get("old")
+                new_param = mapping.get("new")
+                custom_message = mapping.get("message")
+                default_val = mapping.get("default", None)
+
+                if (
+                    old_param in bound_args.arguments
+                    and bound_args.arguments[old_param]
+                    is not None
+                ):
                     # User specified the deprecated param
                     old_val = bound_args.arguments[old_param]
-                    # If new_param is provided, we move value there only if 
+                    # If new_param is provided, we move value there only if
                     # it's not already set
-                    # If user already set new_param as well, we might choose 
-                    # to let the new_param override or raise an error. 
+                    # If user already set new_param as well, we might choose
+                    # to let the new_param override or raise an error.
                     # For simplicity, if new_param is set by user, we trust the user.
                     if new_param:
-                        if (new_param not in bound_args.arguments) or (
-                                bound_args.arguments[new_param] is None):
-                            bound_args.arguments[new_param] = old_val
+                        if (
+                            new_param
+                            not in bound_args.arguments
+                        ) or (
+                            bound_args.arguments[new_param]
+                            is None
+                        ):
+                            bound_args.arguments[
+                                new_param
+                            ] = old_val
                         # else: new_param already set, just ignore old_val (or could warn)
                     else:
                         # If no new_param, we might just drop or use default if provided
                         if default_val is not None:
-                            bound_args.arguments[old_param] = default_val
+                            bound_args.arguments[
+                                old_param
+                            ] = default_val
 
                     # Build and show warning
                     msg = custom_message
                     if not msg:
-                        msg = ( 
+                        msg = (
                             f"Parameter '{old_param}' is deprecated and will"
                             " be removed in a future version."
-                            )
+                        )
                         if new_param:
                             msg += f" Please use '{new_param}' instead."
                         msg += extra_message
-                    warnings.warn(msg, category=warning_category, stacklevel=2)
+                    warnings.warn(
+                        msg,
+                        category=warning_category,
+                        stacklevel=2,
+                    )
 
                     # Remove the old param if it is purely deprecated (and replaced)
                     # If we strictly want to remove it from arguments:
-                    # This may not be necessary, as we can just let it there. 
+                    # This may not be necessary, as we can just let it there.
                     # But let's clean it for clarity if new_param is defined.
                     if new_param:
                         del bound_args.arguments[old_param]
 
             # Process conditions
             for cond_map in conditions_params_mappings:
-                param_name = cond_map.get('param')
-                condition = cond_map.get('condition', lambda v: False)
-                cond_message = cond_map.get('message')
-                cond_default = cond_map.get('default', None)
-                 
+                param_name = cond_map.get("param")
+                condition = cond_map.get(
+                    "condition", lambda v: False
+                )
+                cond_message = cond_map.get("message")
+                cond_default = cond_map.get("default", None)
+
                 if param_name in bound_args.arguments:
-                    param_val = bound_args.arguments[param_name]
+                    param_val = bound_args.arguments[
+                        param_name
+                    ]
                     if condition(param_val):
                         # Condition met, warn and set default if provided
                         msg = cond_message
@@ -799,21 +852,30 @@ def param_deprecated_message(
                             msg = (
                                 f"Parameter '{param_name}' does not support the given "
                                 f"value. Overriding to default. {extra_message}"
-                                )
-                        warnings.warn(msg, category=warning_category, stacklevel=2)
+                            )
+                        warnings.warn(
+                            msg,
+                            category=warning_category,
+                            stacklevel=2,
+                        )
                         # if cond_default is not None:
-                        bound_args.arguments[param_name] = cond_default
+                        bound_args.arguments[param_name] = (
+                            cond_default
+                        )
 
-            return init_func(*bound_args.args, **bound_args.kwargs)
+            return init_func(
+                *bound_args.args, **bound_args.kwargs
+            )
 
         if inspect.isclass(func):
             # If it's a class, rebuild the class with a new __init__
-            setattr(func, '__init__', wrapper)
+            func.__init__ = wrapper
             return func
         else:
             return wrapper
 
     return decorator
+
 
 def generate_id(
     length=12,
@@ -824,16 +886,16 @@ def generate_id(
     char_set=None,
     numeric_only=False,
     unique_ids=None,
-    retries=3
+    retries=3,
 ):
     """
-    Generate a customizable and unique ID with options for prefix, suffix, 
+    Generate a customizable and unique ID with options for prefix, suffix,
     timestamp, and character type.
 
     Parameters
     ----------
     length : int, optional
-        Length of the generated ID, excluding any specified prefix, suffix, 
+        Length of the generated ID, excluding any specified prefix, suffix,
         or timestamp. Default is 12. Ignored if `use_uuid` is set to ``True``.
 
     prefix : str, optional
@@ -853,17 +915,17 @@ def generate_id(
         `length`, `char_set`, and `numeric_only`. Defaults to ``False``.
 
     char_set : str or None, optional
-        A string specifying the set of characters to use in the ID. 
-        If ``None``, defaults to alphanumeric characters 
+        A string specifying the set of characters to use in the ID.
+        If ``None``, defaults to alphanumeric characters
         (uppercase and lowercase letters plus digits).
 
     numeric_only : bool, optional
-        If ``True``, limits the character set to numeric digits only. 
+        If ``True``, limits the character set to numeric digits only.
         Defaults to ``False``. Overridden by `char_set` if provided.
 
     unique_ids : set or None, optional
-        A set to store and check for unique IDs. If provided, generated IDs 
-        are compared against this set to ensure no duplicates. New unique IDs 
+        A set to store and check for unique IDs. If provided, generated IDs
+        are compared against this set to ensure no duplicates. New unique IDs
         are added to this set after generation.
 
     retries : int, optional
@@ -873,25 +935,25 @@ def generate_id(
     Returns
     -------
     str
-        A string representing the generated ID, potentially including the 
+        A string representing the generated ID, potentially including the
         specified prefix, suffix, timestamp, and custom length.
 
     Notes
     -----
-    The function allows for highly customizable ID generation, supporting 
-    different character sets, unique ID constraints, and options for 
-    timestamped or UUID-based IDs. When using `unique_ids`, the function 
-    performs multiple attempts to generate a unique ID, retrying as specified 
+    The function allows for highly customizable ID generation, supporting
+    different character sets, unique ID constraints, and options for
+    timestamped or UUID-based IDs. When using `unique_ids`, the function
+    performs multiple attempts to generate a unique ID, retrying as specified
     by the `retries` parameter.
 
     The generated ID can be represented as a combination of three components:
 
-    .. math:: 
+    .. math::
         \text{{ID}} = \text{{prefix}} + \text{{base ID}} + \text{{suffix}}
 
     Where:
         - `prefix` and `suffix` are optional components.
-        - `base ID` is a string of randomly selected characters from the 
+        - `base ID` is a string of randomly selected characters from the
           specified character set or a UUID-based string.
 
     Examples
@@ -899,32 +961,32 @@ def generate_id(
     >>> from fusionlab.core.handlers import generate_id
     >>> generate_id(length=8, prefix="PAT-", suffix="-ID", include_timestamp=True)
     'PAT-WJ8N6F-20231025123456-ID'
-    
+
     >>> generate_id(length=6, numeric_only=True)
     '483920'
 
     >>> unique_set = set()
     >>> generate_id(length=10, unique_ids=unique_set, retries=5)
     'Y8B5QD2L7H'
-    
+
     See Also
     --------
     uuid : Module to generate universally unique identifiers.
 
     References
     ----------
-    .. [1] Jane Doe et al. "Best Practices in Unique Identifier Generation." 
+    .. [1] Jane Doe et al. "Best Practices in Unique Identifier Generation."
            Data Science Journal, 2021, vol. 9, no. 4, pp. 210-222.
     .. [2] J. Smith. "Character-Based ID Generation for High-Volume Systems."
            Proceedings of the ID Conference, 2022.
     """
-    
+
     # Define the character set
     if use_uuid:
         # Use UUID for ID generation if specified
         new_id = str(uuid.uuid4()).replace("-", "")
         if include_timestamp:
-            new_id += datetime.now().strftime('%Y%m%d%H%M%S')
+            new_id += datetime.now().strftime("%Y%m%d%H%M%S")
         return f"{prefix}{new_id[:length]}{suffix}"
 
     if numeric_only:
@@ -934,18 +996,22 @@ def generate_id(
 
     def _generate_base_id():
         """Generates the base ID without prefix, suffix, or timestamp."""
-        return ''.join(random.choice(char_set) for _ in range(length))
+        return "".join(
+            random.choice(char_set) for _ in range(length)
+        )
 
     # Retry logic to ensure uniqueness if required
     for _ in range(retries):
         # Generate base ID and add optional elements
         new_id = _generate_base_id()
-        
+
         # Include timestamp if specified
         if include_timestamp:
-            timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+            timestamp = datetime.datetime.now().strftime(
+                "%Y%m%d%H%M%S"
+            )
             new_id += timestamp
-        
+
         # Add prefix and suffix
         new_id = f"{prefix}{new_id}{suffix}"
 
@@ -958,9 +1024,14 @@ def generate_id(
             return new_id
 
     # Raise error if unique ID generation failed after retries
-    raise ValueError("Failed to generate a unique ID after multiple retries.")
+    raise ValueError(
+        "Failed to generate a unique ID after multiple retries."
+    )
 
-def get_valid_kwargs(obj_or_func, raise_warning=False, **kwargs):
+
+def get_valid_kwargs(
+    obj_or_func, raise_warning=False, **kwargs
+):
     """
     Filters keyword arguments (`kwargs`) to retain only those that are valid
     for the initializer of a given object or function.
@@ -1000,7 +1071,7 @@ def get_valid_kwargs(obj_or_func, raise_warning=False, **kwargs):
 
     It issues a warning for any invalid keyword arguments if `raise_warning`
     is ``True`` but it does not raise an error.
-    
+
     Examples
     --------
     >>> from fusionlab.core.handlers import get_valid_kwargs
@@ -1029,9 +1100,16 @@ def get_valid_kwargs(obj_or_func, raise_warning=False, **kwargs):
     not_valid_keys = []
 
     # Determine whether obj_or_func is callable and get its valid arguments
-    obj = obj_or_func() if callable(obj_or_func) else obj_or_func
-    valid_args = obj.__init__.__code__.co_varnames if hasattr(
-        obj, '__init__') else obj.__code__.co_varnames
+    obj = (
+        obj_or_func()
+        if callable(obj_or_func)
+        else obj_or_func
+    )
+    valid_args = (
+        obj.__init__.__code__.co_varnames
+        if hasattr(obj, "__init__")
+        else obj.__code__.co_varnames
+    )
 
     # Filter kwargs to separate valid from invalid ones
     for key, value in kwargs.items():
@@ -1042,41 +1120,47 @@ def get_valid_kwargs(obj_or_func, raise_warning=False, **kwargs):
 
     # Raise a warning for invalid kwargs, if required
     if raise_warning and not_valid_keys:
-        warning_msg = (f"'{', '.join(not_valid_keys)}' "
-                       f"{'is' if len(not_valid_keys) == 1 else 'are'} "
-                       "not a valid keyword argument "
-                       f"for '{obj_or_func.__name__}'.")
-        warnings.warn(warning_msg)
+        warning_msg = (
+            f"'{', '.join(not_valid_keys)}' "
+            f"{'is' if len(not_valid_keys) == 1 else 'are'} "
+            "not a valid keyword argument "
+            f"for '{obj_or_func.__name__}'."
+        )
+        warnings.warn(warning_msg, stacklevel=2)
 
     return valid_kwargs
 
+
 def _get_valid_kwargs(
-        callable_obj: Any, kwargs: Dict[str, Any], 
-        error: str ='warn', 
-    ) -> Dict[str, Any]:
+    callable_obj: Any,
+    kwargs: dict[str, Any],
+    error: str = "warn",
+) -> dict[str, Any]:
     """
-    Filter and return only the valid keyword arguments for a given 
+    Filter and return only the valid keyword arguments for a given
     callable object, while warning about any invalid kwargs.
-    
+
     Parameters
     ----------
     callable_obj : callable
-        The callable object (function, lambda function, method, or class) 
+        The callable object (function, lambda function, method, or class)
         for which the keyword arguments need to be validated.
-    
+
     kwargs : dict
         Dictionary of keyword arguments to be validated against the callable object.
-    
+
     Returns
     -------
     valid_kwargs : dict
-        Dictionary containing only the valid keyword arguments 
+        Dictionary containing only the valid keyword arguments
         for the callable object.
     """
     # If the callable_obj is an instance, get its class
-    if not inspect.isclass(callable_obj) and not callable(callable_obj):
+    if not inspect.isclass(callable_obj) and not callable(
+        callable_obj
+    ):
         callable_obj = callable_obj.__class__
-    
+
     try:
         # Retrieve the signature of the callable object
         signature = inspect.signature(callable_obj)
@@ -1084,13 +1168,14 @@ def _get_valid_kwargs(
         # If signature cannot be obtained, return empty kwargs and warn
         warnings.warn(
             "Unable to retrieve signature of the callable object. "
-            "No keyword arguments will be passed."
+            "No keyword arguments will be passed.",
+            stacklevel=2,
         )
         return {}
-    
+
     # Extract parameter names from the function signature
     valid_params = set(signature.parameters.keys())
-    
+
     # Identify valid and invalid kwargs
     valid_kwargs = {}
     invalid_kwargs = {}
@@ -1099,25 +1184,25 @@ def _get_valid_kwargs(
             valid_kwargs[k] = v
         else:
             invalid_kwargs[k] = v
-    
+
     # Warn the user about invalid kwargs
     if invalid_kwargs:
-        invalid_keys = ', '.join(invalid_kwargs.keys())
-        msg = ("The following keyword arguments are invalid"
-               f" and will be ignored: {invalid_keys}"
+        invalid_keys = ", ".join(invalid_kwargs.keys())
+        msg = (
+            "The following keyword arguments are invalid"
+            f" and will be ignored: {invalid_keys}"
         )
-        if error =='warn': 
-            warnings.warn(msg)
-        elif error =='raise': 
-            raise ValueError(msg ) 
+        if error == "warn":
+            warnings.warn(msg, stacklevel=2)
+        elif error == "raise":
+            raise ValueError(msg)
         # ignore.
-    
+
     return valid_kwargs
 
+
 def get_batch_size(
-    *arrays,
-    default_size=None,
-    max_memory_usage_ratio=0.1
+    *arrays, default_size=None, max_memory_usage_ratio=0.1
 ):
     """
     Determine an optimal batch size based on available memory.
@@ -1193,6 +1278,7 @@ def get_batch_size(
     """
     try:
         import psutil
+
         psutil_available = True
     except ImportError:
         psutil_available = False
@@ -1201,7 +1287,8 @@ def get_batch_size(
         warnings.warn(
             "'psutil' is not installed. Cannot compute optimal batch size "
             "based on available memory. Using default batch_size="
-            f"{default_size}."
+            f"{default_size}.",
+            stacklevel=2,
         )
 
     arrays = [np.asarray(arr) for arr in arrays]
@@ -1220,12 +1307,14 @@ def get_batch_size(
                 warnings.warn(
                     f"Default batch_size {default_size} is greater than the "
                     f"number of samples ({n_samples}). Recomputing batch size "
-                    "based on available memory."
+                    "based on available memory.",
+                    stacklevel=2,
                 )
             else:
                 warnings.warn(
                     f"Default batch_size {default_size} is greater than the "
-                    f"number of samples ({n_samples}). Using batch_size={n_samples}."
+                    f"number of samples ({n_samples}). Using batch_size={n_samples}.",
+                    stacklevel=2,
                 )
                 default_size = n_samples
         return default_size
@@ -1233,10 +1322,10 @@ def get_batch_size(
     if psutil_available:
         available_memory = psutil.virtual_memory().available
         # Compute size of one sample across all arrays
-        sample_size = sum(
-            arr[0].nbytes for arr in arrays
+        sample_size = sum(arr[0].nbytes for arr in arrays)
+        max_memory_usage = (
+            available_memory * max_memory_usage_ratio
         )
-        max_memory_usage = available_memory * max_memory_usage_ratio
         batch_size = int(max_memory_usage // sample_size)
         batch_size = max(1, min(batch_size, n_samples))
 
@@ -1244,7 +1333,8 @@ def get_batch_size(
         if batch_size > n_samples:
             warnings.warn(
                 f"Computed batch_size {batch_size} is greater than the number "
-                f"of samples ({n_samples}). Using batch_size={n_samples}."
+                f"of samples ({n_samples}). Using batch_size={n_samples}.",
+                stacklevel=2,
             )
             batch_size = n_samples
 
@@ -1253,10 +1343,8 @@ def get_batch_size(
         # psutil is not available, default_size must have been set
         return default_size
 
-def batch_generator(
-        *arrays,
-        batch_size
-    ):
+
+def batch_generator(*arrays, batch_size):
     """
     Generate batches of arrays for efficient processing.
 
@@ -1327,38 +1415,38 @@ def batch_generator(
         end_idx = min(start_idx + batch_size, n_samples)
         yield tuple(arr[start_idx:end_idx] for arr in arrays)
 
-        
+
 def safe_slicing(slice_indexes, X):
     """
-    Removes slices from the list `slice_indexes` that result in zero samples 
-    when applied to the data `X`. The function checks each slice to ensure 
-    it selects at least one sample, and discards any slices with no samples 
+    Removes slices from the list `slice_indexes` that result in zero samples
+    when applied to the data `X`. The function checks each slice to ensure
+    it selects at least one sample, and discards any slices with no samples
     selected.
 
     Parameters
     ----------
     slice_indexes : list of slice objects
-        A list of slice objects, each representing a range of indices 
-        that can be used to index into a dataset, typically for batch 
+        A list of slice objects, each representing a range of indices
+        that can be used to index into a dataset, typically for batch
         processing.
 
     X : ndarray of shape (n_samples, n_features)
-        The data array (or any other array-like structure) that the slices 
-        will be applied to. The function assumes that each slice in 
+        The data array (or any other array-like structure) that the slices
+        will be applied to. The function assumes that each slice in
         `slice_indexes` corresponds to a subset of rows (samples) in `X`.
 
     Returns
     -------
     valid_slices : list of slice objects
-        A list of slice objects that correspond to valid (non-empty) 
-        subsets of `X`. Slices with zero elements (e.g., when the 
+        A list of slice objects that correspond to valid (non-empty)
+        subsets of `X`. Slices with zero elements (e.g., when the
         start index is equal to or greater than the end index) are removed.
 
     Examples
     --------
     # Example 1: Basic use case where the last slice is valid
     >>> X = np.random.rand(2000, 5)  # 2000 samples, 5 features
-    >>> slice_indexes = [slice(0, 512), slice(512, 1024), slice(1024, 1536), 
+    >>> slice_indexes = [slice(0, 512), slice(512, 1024), slice(1024, 1536),
                          slice(1536, 2000)]
     >>> safe_slicing(slice_indexes, X)
     [slice(0, 512, None), slice(512, 1024, None), slice(1024, 1536, None),
@@ -1377,35 +1465,36 @@ def safe_slicing(slice_indexes, X):
 
     Notes
     -----
-    - This function is useful when handling slices generated for batch 
-      processing in machine learning workflows, ensuring that only valid 
+    - This function is useful when handling slices generated for batch
+      processing in machine learning workflows, ensuring that only valid
       batches are processed.
-    - The function checks the start and stop indices of each slice and 
-      ensures that `end > start` before including the slice in the 
+    - The function checks the start and stop indices of each slice and
+      ensures that `end > start` before including the slice in the
       returned list.
     """
-    
+
     valid_slices = []
     for slice_obj in slice_indexes:
         # Extract the slice range
         start, end = slice_obj.start, slice_obj.stop
-        
+
         # Check if the slice has at least one sample
         if end > start:
             # Add to the valid_slices list only if there are samples
             valid_slices.append(slice_obj)
-    
+
     return valid_slices
 
+
 def gen_batches(n, batch_size, *, min_batch_size=0):
-    """Generator to create slices containing `batch_size` 
+    """Generator to create slices containing `batch_size`
     elements from 0 to `n`.
 
     The last slice may contain less than `batch_size` elements, when
     `batch_size` does not divide `n`.
-    
-    This is take on scikit-learn :func:`sklearn.utils.gen_batches` but modify 
-    to ensure that min_batch_size in not included. 
+
+    This is take on scikit-learn :func:`sklearn.utils.gen_batches` but modify
+    to ensure that min_batch_size in not included.
 
     Parameters
     ----------
@@ -1443,8 +1532,10 @@ def gen_batches(n, batch_size, *, min_batch_size=0):
             f"gen_batches got batch_size={batch_size}, must be an integer"
         )
     if batch_size <= 0:
-        raise ValueError(f"gen_batches got batch_size={batch_size}, must be positive")
-    
+        raise ValueError(
+            f"gen_batches got batch_size={batch_size}, must be positive"
+        )
+
     start = 0
     for _ in range(int(n // batch_size)):
         end = start + batch_size
@@ -1459,7 +1550,10 @@ def gen_batches(n, batch_size, *, min_batch_size=0):
     if start < n and (n - start) >= min_batch_size:
         yield slice(start, n)
 
-def adjust_to_samples(n_samples, *values, initial_guess=None, error='warn'):
+
+def adjust_to_samples(
+    n_samples, *values, initial_guess=None, error="warn"
+):
     """
     Adjusts the given values to match a total number of samples, aiming to distribute
     the samples evenly across the dimensions represented by the values. The function
@@ -1506,16 +1600,20 @@ def adjust_to_samples(n_samples, *values, initial_guess=None, error='warn'):
     """
     if len(values) == 0:
         message = "No values provided for adjustment."
-        if error == 'raise':
+        if error == "raise":
             raise ValueError(message)
-        elif error == 'warn':
-            warnings.warn(message)
+        elif error == "warn":
+            warnings.warn(message, stacklevel=2)
         return ()
 
     if len(values) == 1:
         # If only one value is given, adjust it based on initial guess and n_samples
         single_value = values[0]
-        adjusted_value = n_samples // single_value if initial_guess is None else initial_guess
+        adjusted_value = (
+            n_samples // single_value
+            if initial_guess is None
+            else initial_guess
+        )
         return (adjusted_value,)
 
     if initial_guess is None:
@@ -1527,60 +1625,69 @@ def adjust_to_samples(n_samples, *values, initial_guess=None, error='warn'):
         return abs(prod - n_samples)
 
     # Start with initial guesses for factors
-    factors_initial = [initial_guess / value for value in values]
-    result = optimize_minimize(objective, factors_initial, bounds=[(0, None) for _ in values])
+    factors_initial = [
+        initial_guess / value for value in values
+    ]
+    result = optimize_minimize(
+        objective,
+        factors_initial,
+        bounds=[(0, None) for _ in values],
+    )
 
     if result.success:
-        adjusted_values = ( 
-            tuple(max(1, int(round(value * factor))) 
-                  for value, factor in zip(values, result.x))
+        adjusted_values = tuple(
+            max(1, int(round(value * factor)))
+            for value, factor in zip(
+                values, result.x, strict=False
             )
+        )
     else:
         adjusted_values = values  # Fallback to original values if optimization fails
 
     return adjusted_values
 
+
 def add_noises_to(
-    data,  
-    noise=0.1, 
-    seed=None, 
+    data,
+    noise=0.1,
+    seed=None,
     gaussian_noise=False,
-    cat_missing_value=pd.NA, 
+    cat_missing_value=pd.NA,
     ex_columns=None,
-    ):
+):
     """
     Adds NaN or specified missing values to a pandas DataFrame.
 
     Parameters
     ----------
     data : pandas.DataFrame
-        The DataFrame to which NaN values or specified missing 
+        The DataFrame to which NaN values or specified missing
         values will be added.
 
     noise : float, default=0.1
-        The percentage of values to be replaced with NaN or the 
-        specified missing value in each column. This must be a 
+        The percentage of values to be replaced with NaN or the
+        specified missing value in each column. This must be a
         number between 0 and 1. Default is 0.1 (10%).
 
         .. math:: \text{noise} = \frac{\text{number of replaced values}}{\text{total values in column}}
 
     seed : int, array-like, BitGenerator, np.random.RandomState, np.random.Generator, optional
-        Seed for random number generator to ensure reproducibility. 
-        If `seed` is an int, array-like, or BitGenerator, it will be 
-        used to seed the random number generator. If `seed` is a 
-        np.random.RandomState or np.random.Generator, it will be used 
+        Seed for random number generator to ensure reproducibility.
+        If `seed` is an int, array-like, or BitGenerator, it will be
+        used to seed the random number generator. If `seed` is a
+        np.random.RandomState or np.random.Generator, it will be used
         as given.
 
     gaussian_noise : bool, default=False
-        If `True`, adds Gaussian noise to the data. Otherwise, replaces 
+        If `True`, adds Gaussian noise to the data. Otherwise, replaces
         values with NaN or the specified missing value.
 
     cat_missing_value : scalar, default=pd.NA
-        The value to use for missing data in categorical columns. By 
+        The value to use for missing data in categorical columns. By
         default, `pd.NA` is used.
-    ex_columns: optional , str or list of str, 
-       If provided, then noise is not applied to that/these column(s). 
-       
+    ex_columns: optional , str or list of str,
+       If provided, then noise is not applied to that/these column(s).
+
     Returns
     -------
     pandas.DataFrame
@@ -1588,15 +1695,15 @@ def add_noises_to(
 
     Notes
     -----
-    The function modifies the DataFrame by either adding Gaussian noise 
-    to numerical columns or replacing a percentage of values in each 
+    The function modifies the DataFrame by either adding Gaussian noise
+    to numerical columns or replacing a percentage of values in each
     column with NaN or a specified missing value.
 
     The Gaussian noise is added according to the formula:
 
     .. math:: \text{new_value} = \text{original_value} + \mathcal{N}(0, \text{noise})
 
-    where :math:`\mathcal{N}(0, \text{noise})` represents a normal 
+    where :math:`\mathcal{N}(0, \text{noise})` represents a normal
     distribution with mean 0 and standard deviation equal to `noise`.
 
     Examples
@@ -1621,41 +1728,46 @@ def add_noises_to(
 
     See Also
     --------
-    pandas.DataFrame : Two-dimensional, size-mutable, potentially 
+    pandas.DataFrame : Two-dimensional, size-mutable, potentially
         heterogeneous tabular data.
-    numpy.random.normal : Draw random samples from a normal 
+    numpy.random.normal : Draw random samples from a normal
         (Gaussian) distribution.
 
     References
     ----------
-    .. [1] Harris, C. R., Millman, K. J., van der Walt, S. J., et al. 
-           (2020). Array programming with NumPy. Nature, 585(7825), 
+    .. [1] Harris, C. R., Millman, K. J., van der Walt, S. J., et al.
+           (2020). Array programming with NumPy. Nature, 585(7825),
            357-362.
     """
-    
-    is_frame = isinstance (data, pd.DataFrame ) 
-    if not is_frame: 
-        data = pd.DataFrame(data ) 
-        
+
+    is_frame = isinstance(data, pd.DataFrame)
+    if not is_frame:
+        data = pd.DataFrame(data)
+
     np.random.seed(seed)
-    if noise is None: 
-        return data 
-    noise, gaussian_noise  = _parse_gaussian_noise (noise )
-    
+    if noise is None:
+        return data
+    noise, gaussian_noise = _parse_gaussian_noise(noise)
+
     ex_columns = columns_manager(ex_columns)
     if gaussian_noise:
         # Add Gaussian noise to numerical columns only
         def add_gaussian_noise(column):
             # Skip modification if the column is in the exclusion list.
-            if ex_columns is not None and column in ex_columns:
+            if (
+                ex_columns is not None
+                and column in ex_columns
+            ):
                 return column
             if pd.api.types.is_numeric_dtype(column):
-                return column + np.random.normal(0, noise, size=column.shape)
+                return column + np.random.normal(
+                    0, noise, size=column.shape
+                )
             return column
-        
+
         noise_data = data.apply(add_gaussian_noise)
-        
-        if not is_frame: 
+
+        if not is_frame:
             noise_data = np.asarray(noise_data)
         return noise_data
     else:
@@ -1664,18 +1776,28 @@ def add_noises_to(
         nan_count_per_column = int(noise * len(df_with_nan))
 
         for column in df_with_nan.columns:
-            if ex_columns is not None and column in ex_columns:
+            if (
+                ex_columns is not None
+                and column in ex_columns
+            ):
                 continue  # Skip columns that should not be modified.
-            nan_indices = random.sample(range(len(df_with_nan)), nan_count_per_column)
-            if pd.api.types.is_numeric_dtype(df_with_nan[column]):
+            nan_indices = random.sample(
+                range(len(df_with_nan)), nan_count_per_column
+            )
+            if pd.api.types.is_numeric_dtype(
+                df_with_nan[column]
+            ):
                 df_with_nan.loc[nan_indices, column] = np.nan
             else:
-                df_with_nan.loc[nan_indices, column] = cat_missing_value
-                
-        if not is_frame: 
-            df_with_nan = df_with_nan.values 
-            
+                df_with_nan.loc[nan_indices, column] = (
+                    cat_missing_value
+                )
+
+        if not is_frame:
+            df_with_nan = df_with_nan.values
+
         return df_with_nan
+
 
 def _parse_gaussian_noise(noise):
     """
@@ -1721,18 +1843,32 @@ def _parse_gaussian_noise(noise):
     default_noise = 0.1
 
     if isinstance(noise, str):
-        orig_noise = noise 
+        orig_noise = noise
         noise = noise.lower()
         gaussian_keywords = ["gaussian", "gauss"]
 
-        if any(keyword in noise for keyword in gaussian_keywords):
+        if any(
+            keyword in noise for keyword in gaussian_keywords
+        ):
             gaussian_noise = True
-            noise = re.sub(r'[^\d.%]', '', noise)  # Remove non-numeric and non-'%' characters
-            noise = re.sub(r'%', '', noise)  # Remove '%' if present
+            noise = re.sub(
+                r"[^\d.%]", "", noise
+            )  # Remove non-numeric and non-'%' characters
+            noise = re.sub(
+                r"%", "", noise
+            )  # Remove '%' if present
 
             try:
-                noise_level = float(noise) / 100 if '%' in orig_noise else float(noise)
-                noise = noise_level if noise_level else default_noise
+                noise_level = (
+                    float(noise) / 100
+                    if "%" in orig_noise
+                    else float(noise)
+                )
+                noise = (
+                    noise_level
+                    if noise_level
+                    else default_noise
+                )
             except ValueError:
                 noise = default_noise
 
@@ -1740,20 +1876,23 @@ def _parse_gaussian_noise(noise):
             try:
                 noise = float(noise)
             except ValueError:
-                raise ValueError(f"Invalid noise value: {noise}")
+                raise ValueError(
+                    f"Invalid noise value: {noise}"
+                )
     elif noise is None:
         noise = default_noise
-    
-    noise = validate_noise (noise ) 
-    
+
+    noise = validate_noise(noise)
+
     return noise, gaussian_noise
 
+
 def make_ids(
-    arr: Iterable, 
-    prefix: Optional[str] = None, 
-    how: str = 'py', 
-    skip: bool = False
- ) -> List[str]:
+    arr: Iterable,
+    prefix: str | None = None,
+    how: str = "py",
+    skip: bool = False,
+) -> list[str]:
     """
     Generate auto-generated IDs based on the number of items in the input
     iterable.
@@ -1761,22 +1900,22 @@ def make_ids(
     Parameters
     ----------
     arr : iterable
-        An iterable object (e.g., list, tuple, or array-like) to generate 
+        An iterable object (e.g., list, tuple, or array-like) to generate
         an ID for each item.
         For example, it can be a list of EDI objects, such as a collection of
         `fusionlab.edi.Edi` objects.
 
     prefix : str, optional, default: None
-        A string value to prepend to each generated ID. This can be used to 
+        A string value to prepend to each generated ID. This can be used to
         indicate the site or collection name. If None, no prefix is added.
 
     how : str, optional, default: 'py'
-        The indexing mode for the generated IDs. 
+        The indexing mode for the generated IDs.
         - 'py' (default) uses Python-style indexing (i.e., starts at 0).
         - Any other string will use 1-based indexing (i.e., starts at 1).
 
     skip : bool, optional, default: False
-        If True, the generated IDs will have a more compact format 
+        If True, the generated IDs will have a more compact format
         (i.e., without leading zeros).
 
     Returns
@@ -1788,7 +1927,7 @@ def make_ids(
     Raises
     ------
     ValueError
-        If the `how` parameter is not one of 'py' or another valid string 
+        If the `how` parameter is not one of 'py' or another valid string
         for 1-based indexing.
     TypeError
         If `arr` is not an iterable type.
@@ -1808,61 +1947,69 @@ def make_ids(
     >>> make_ids(data, prefix='line', how=None, skip=True)
     ['line1', 'line2', 'line3', ..., 'line20']
     """
-    
+
     # Check if the input is an iterable
-    if not isinstance(arr, (list, tuple, np.ndarray)):
+    if not isinstance(arr, list | tuple | np.ndarray):
         raise TypeError(
-            f"Expected an iterable object for 'arr', got {type(arr)}")
-    
+            f"Expected an iterable object for 'arr', got {type(arr)}"
+        )
+
     # Validate the 'how' parameter to ensure it's either 'py' or any other mode
-    if how not in ['py', None]:
+    if how not in ["py", None]:
         raise ValueError(
             "The 'how' parameter must be 'py' for Python"
-            " indexing or None for 1-based indexing.")
-    
+            " indexing or None for 1-based indexing."
+        )
+
     # Determine the formatting for IDs, based on whether
     # we want compact IDs or padded ones
-    fm = '{:0' + ('1' if skip else str(int(np.log10(len(arr))) + 1)) + '}'
-    
+    fm = (
+        "{:0"
+        + ("1" if skip else str(int(np.log10(len(arr))) + 1))
+        + "}"
+    )
+
     # Generate the IDs based on the provided parameters
     id_ = [
-        str(prefix) + fm.format(i if how == 'py' else i + 1) if prefix is not None
-        else fm.format(i if how == 'py' else i + 1)
+        str(prefix) + fm.format(i if how == "py" else i + 1)
+        if prefix is not None
+        else fm.format(i if how == "py" else i + 1)
         for i in range(len(arr))
     ]
-    
+
     return id_
+
 
 def get_params(obj: object) -> dict:
     """
-    Retrieve the parameters of an object, which can either be a callable 
-    or an instance of a class. The function inspects the object and 
+    Retrieve the parameters of an object, which can either be a callable
+    or an instance of a class. The function inspects the object and
     returns a dictionary of its parameters and their current values.
 
     This function works in two scenarios:
-    - If the object is callable (i.e., a function or method), it will 
-      return the parameters for the callable, including their default 
+    - If the object is callable (i.e., a function or method), it will
+      return the parameters for the callable, including their default
       values (if defined).
-    - If the object is a class instance, it will return the parameters 
-      (attributes) defined within the instance's `__dict__`, which contains 
+    - If the object is a class instance, it will return the parameters
+      (attributes) defined within the instance's `__dict__`, which contains
       its instance variables.
 
     Parameters
     ----------
     obj : object
-        The object whose parameters are to be retrieved. This can be either 
+        The object whose parameters are to be retrieved. This can be either
         a callable (such as a function or method) or an instance of a class.
 
     Returns
     -------
     dict
         A dictionary where the keys are the parameter names (or attribute names)
-        and the values are the corresponding parameter values or defaults. 
+        and the values are the corresponding parameter values or defaults.
 
     Examples
     --------
-    >>> from sklearn.svm import SVC 
-    >>> from fusionlab.core.handlers import get_params 
+    >>> from sklearn.svm import SVC
+    >>> from fusionlab.core.handlers import get_params
     >>> sigmoid = SVC(
     ...     **{
     ...         'C': 512.0,
@@ -1870,7 +2017,7 @@ def get_params(obj: object) -> dict:
     ...         'degree': 1,
     ...         'gamma': 0.001953125,
     ...         'kernel': 'sigmoid',
-    ...         'tol': 1.0 
+    ...         'tol': 1.0
     ...     }
     ... )
     >>> pvalues = get_params(sigmoid)
@@ -1893,80 +2040,88 @@ def get_params(obj: object) -> dict:
      'max_iter': -1,
      'random_state': None}
     """
-    if hasattr(obj, '__call__'): 
+    if callable(obj):
         # If the object is callable (e.g., a function or method)
         func_signature = inspect.signature(obj)
         PARAMS_VALUES = {
-            k: None if v.default is inspect.Parameter.empty  else v.default
+            k: None
+            if v.default is inspect.Parameter.empty
+            else v.default
             for k, v in func_signature.parameters.items()
         }
-    elif hasattr(obj, '__dict__'): 
+    elif hasattr(obj, "__dict__"):
         # If the object is an instance of a class
         PARAMS_VALUES = {
             k: v for k, v in obj.__dict__.items()
         }
     else:
-        raise TypeError(f"Unsupported object type: {type(obj)}")
+        raise TypeError(
+            f"Unsupported object type: {type(obj)}"
+        )
 
     return PARAMS_VALUES
 
-def parse_attrs (attr,  regex=None ): 
-    """ Parse attributes using the regular expression.
-    
-    Remove all string non-alphanumeric and some operator indicators,  and 
-    fetch attributes names. 
-    
-    Parameters 
+
+def parse_attrs(attr, regex=None):
+    """Parse attributes using the regular expression.
+
+    Remove all string non-alphanumeric and some operator indicators,  and
+    fetch attributes names.
+
+    Parameters
     -----------
-    
-    attr: str, text litteral containing the attributes 
-        names 
-        
-    regex: `re` object, default is 
-        Regular expresion object. the default is:: 
-            
-            >>> import re 
-            >>> re.compile (r'per|mod|times|add|sub|[_#&*@!_,;\s-]\s*', 
-                                flags=re.IGNORECASE) 
+
+    attr: str, text litteral containing the attributes
+        names
+
+    regex: `re` object, default is
+        Regular expresion object. the default is::
+
+            >>> import re
+            >>> re.compile (r'per|mod|times|add|sub|[_#&*@!_,;\s-]\s*',
+                                flags=re.IGNORECASE)
     Returns
     -------
-    attr: List of attributes 
-    
+    attr: List of attributes
+
     Example
     ---------
-    >>> from fusionlab.core.utils import parse_attrs 
+    >>> from fusionlab.core.utils import parse_attrs
     >>> parse_attrs('lwi_sub_ohmSmulmagnitude')
     ... ['lwi', 'ohmS', 'magnitude']
-    
-    
+
+
     """
-    regex = regex or re.compile (r'per|mod|times|add|sub|[_#&*@!_,;\s-]\s*', 
-                        flags=re.IGNORECASE) 
-    attr= list(filter (None, regex.split(attr)))
-    return attr 
+    regex = regex or re.compile(
+        r"per|mod|times|add|sub|[_#&*@!_,;\s-]\s*",
+        flags=re.IGNORECASE,
+    )
+    attr = list(filter(None, regex.split(attr)))
+    return attr
+
 
 def columns_getter(
-    *dfs, 
-     error = "warn",   
-     to_df = "series", 
-     columns = None,     
-     return_cols = "any"     
-    ):
+    *dfs,
+    error="warn",
+    to_df="series",
+    columns=None,
+    return_cols="any",
+):
     """
-    Fetch and return a list of column names from a collection of 
-    DataFrames based on set operations. Depending on the value of 
-    `return_cols`, the function returns either the union, intersection, 
+    Fetch and return a list of column names from a collection of
+    DataFrames based on set operations. Depending on the value of
+    `return_cols`, the function returns either the union, intersection,
     or missing columns relative to a provided list.
 
     Parameters
     ----------
     *dfs : array-like
-        One or more objects which should be pandas DataFrames or 
-        Series. If an item is not a DataFrame or Series, handling is 
+        One or more objects which should be pandas DataFrames or
+        Series. If an item is not a DataFrame or Series, handling is
         determined by `error`.
     error : ``str``, default ``"warn"``
         Controls error handling for invalid inputs:
-        - ``"raise"``: Throw an error if an input is not a 
+        - ``"raise"``: Throw an error if an input is not a
           DataFrame or Series.
         - ``"warn"``: Issue a warning and skip the invalid input.
         - ``"ignore"``: Silently ignore invalid inputs.
@@ -1975,20 +2130,20 @@ def columns_getter(
         - If set to ``"series"``, convert a Series into a DataFrame.
         - If set to ``"*"``, convert all inputs into DataFrames.
     columns : ``list``, optional
-        A list of column names to check. If provided, the output will 
+        A list of column names to check. If provided, the output will
         be restricted to these columns.
     return_cols : ``str``, default ``"any"``
         Specifies the type of column list to return:
-        
-        - ``"any"``: Return the union of all columns found across 
+
+        - ``"any"``: Return the union of all columns found across
           the DataFrames.
-        - ``"all"``: Return the intersection (columns present in 
+        - ``"all"``: Return the intersection (columns present in
           every DataFrame).
-        - ``"missing"``: If `columns` is provided, return the list of 
-          columns from `columns` that are missing in every DataFrame; 
-          if `columns` is not provided, return columns that are not 
+        - ``"missing"``: If `columns` is provided, return the list of
+          columns from `columns` that are missing in every DataFrame;
+          if `columns` is not provided, return columns that are not
           common to all DataFrames.
-    
+
     Returns
     -------
     list of str
@@ -2012,26 +2167,26 @@ def columns_getter(
 
     3) **Return missing columns from a given set:**
 
-       >>> columns_getter(df1, df2, columns=["A", "B", "D"], 
+       >>> columns_getter(df1, df2, columns=["A", "B", "D"],
        ...               return_cols="missing")
        ['D']
 
     Notes
     -----
-    The function iterates through each input in *dfs. If an input 
-    is a pandas Series and `to_df` is set to ``"series"`` or ``"*"``, 
-    it is converted to a DataFrame using `pd.DataFrame`. The valid 
-    DataFrames are then used to compute the union and intersection 
-    of their column names. If `columns` is provided, the computed 
-    sets are intersected with the specified columns. Finally, based on 
-    `return_cols`, the union, intersection, or missing columns are 
+    The function iterates through each input in *dfs. If an input
+    is a pandas Series and `to_df` is set to ``"series"`` or ``"*"``,
+    it is converted to a DataFrame using `pd.DataFrame`. The valid
+    DataFrames are then used to compute the union and intersection
+    of their column names. If `columns` is provided, the computed
+    sets are intersected with the specified columns. Finally, based on
+    `return_cols`, the union, intersection, or missing columns are
     returned [1]_.
 
 
     References
     ----------
-    .. [1] Smith, J., & Doe, A. "Set operations for data 
-           integration." *Journal of Data Science*, vol. 10, no. 2, 
+    .. [1] Smith, J., & Doe, A. "Set operations for data
+           integration." *Journal of Data Science*, vol. 10, no. 2,
            pp. 123-134, 2020.
     """
 
@@ -2047,13 +2202,13 @@ def columns_getter(
                 if error == "raise":
                     raise ValueError(msg)
                 elif error == "warn":
-                    warnings.warn(msg)
+                    warnings.warn(msg, stacklevel=2)
         else:
             msg = f"Item {idx} is not a DataFrame or Series and will be ignored."
             if error == "raise":
                 raise ValueError(msg)
             elif error == "warn":
-                warnings.warn(msg)
+                warnings.warn(msg, stacklevel=2)
 
     if not valid_dfs:
         return []
@@ -2068,7 +2223,9 @@ def columns_getter(
     if columns is not None:
         specified = set(columns)
         union_cols = union_cols.intersection(specified)
-        intersection_cols = intersection_cols.intersection(specified)
+        intersection_cols = intersection_cols.intersection(
+            specified
+        )
         missing = specified - union_cols
     else:
         missing = union_cols - intersection_cols
@@ -2084,53 +2241,54 @@ def columns_getter(
             "Invalid return_cols option. Choose among 'any', 'all', or 'missing'."
         )
 
+
 def columns_manager(
-    columns: Optional[Union[str, list, tuple]],  
-    default: Optional[list] = None, 
-    regex: Optional[re.Pattern] = None, 
-    pattern: Optional [str]= r'[@&,;#]', 
-    separator: Optional[str] = None, 
-    to_upper: bool = False, 
-    empty_as_none: bool = ...,  
-    to_string: bool = False,  
-    error: str = 'raise',  
+    columns: str | list | tuple | None,
+    default: list | None = None,
+    regex: re.Pattern | None = None,
+    pattern: str | None = r"[@&,;#]",
+    separator: str | None = None,
+    to_upper: bool = False,
+    empty_as_none: bool = ...,
+    to_string: bool = False,
+    error: str = "raise",
 ) -> list:
     """
-    A function to handle various types of column inputs, convert them 
-    into a list, and optionally process them based on additional parameters 
-    like converting to uppercase, handling empty values, or ensuring all items 
+    A function to handle various types of column inputs, convert them
+    into a list, and optionally process them based on additional parameters
+    like converting to uppercase, handling empty values, or ensuring all items
     are strings.
 
     Parameters
     ----------
     columns : str, list, tuple, or None
         The input column names, which can be:
-        - A string: treated as a list of column names split by a separator 
+        - A string: treated as a list of column names split by a separator
           or regex.
         - A list or tuple: directly converted to a list if not already.
-        - None: returns the default list or an empty list 
+        - None: returns the default list or an empty list
         (if `empty_as_none` is False).
-    
+
     default : list, optional
         Default list of columns to return if `columns` is None.
-    
+
     regex : re.Pattern, optional
-        A custom compiled regular expression to use for splitting string input. 
+        A custom compiled regular expression to use for splitting string input.
         If not provided, the `pattern` parameter will be used.
 
     pattern : str, optional, default=r'[@&,;#]'
-        The default regex pattern used to split the `columns` string if no `regex` 
+        The default regex pattern used to split the `columns` string if no `regex`
         is provided.
 
     separator : str, optional
-        If `columns` is a string, this defines the separator used to split the string 
+        If `columns` is a string, this defines the separator used to split the string
         into a list of column names.
 
     to_upper : bool, default=False
         If True, converts all column names to uppercase.
 
     empty_as_none : bool, default=True
-        If True, returns `None` when `columns` is empty or None. If False, an 
+        If True, returns `None` when `columns` is empty or None. If False, an
         empty list is returned.
 
     to_string : bool, default=False
@@ -2156,43 +2314,52 @@ def columns_manager(
     >>> columns_manager(['col1', 'col2', 'col3'], to_upper=True)
     ['COL1', 'COL2', 'COL3']
     """
-     # Handle None input
+    # Handle None input
     if columns is None:
-        return default if default is not None else (None if empty_as_none else [])
-    
+        return (
+            default
+            if default is not None
+            else (None if empty_as_none else [])
+        )
+
     # Handle case where a single numeric value is passed, convert it to list
-    if isinstance(columns, (int, float)):
+    if isinstance(columns, int | float):
         columns = [columns]
-        
-    elif callable(columns): 
-        columns=[columns] 
-        
+
+    elif callable(columns):
+        columns = [columns]
+
     ## Use inspect to determine if it is a class.
     # Alternatively, if the object is not iterable (has no __iter__ attribute),
     # we assume it's a single model instance.
-    if inspect.isclass(columns) or not hasattr(columns, '__iter__'):
+    if inspect.isclass(columns) or not hasattr(
+        columns, "__iter__"
+    ):
         columns = [columns]
-        
+
     # If columns is a string, split by separator or use regex
     elif isinstance(columns, str):
         if separator is not None:
             columns = columns.split(separator)
         else:
             columns = str2columns(
-                columns, 
-                regex=regex, 
-                pattern=pattern
-        )
-    
+                columns, regex=regex, pattern=pattern
+            )
+
     # If columns is any iterable object, convert it to a list
-    elif isinstance(columns, Iterable) : 
+    elif isinstance(columns, Iterable):
         try:
             columns = list(columns)
         except Exception as e:
-            if error == 'raise':
-                raise ValueError(f"Error converting columns to list: {e}")
-            elif error == 'warn':
-                warnings.warn(f"Could not convert columns to list: {e}")
+            if error == "raise":
+                raise ValueError(
+                    f"Error converting columns to list: {e}"
+                )
+            elif error == "warn":
+                warnings.warn(
+                    f"Could not convert columns to list: {e}",
+                    stacklevel=2,
+                )
             else:
                 pass  # Ignore errors silently
 
@@ -2202,40 +2369,44 @@ def columns_manager(
             # Check whether all items are strings before calling 'upper'
             if all(isinstance(col, str) for col in columns):
                 columns = [col.upper() for col in columns]
-            elif error == 'raise':
+            elif error == "raise":
                 raise TypeError(
-                    "All column names must be strings to convert to uppercase.")
-            elif error == 'warn':
+                    "All column names must be strings to convert to uppercase."
+                )
+            elif error == "warn":
                 warnings.warn(
                     "Warning: Not all column names are strings,"
-                    " skipping 'upper' conversion.")
-        
+                    " skipping 'upper' conversion.",
+                    stacklevel=2,
+                )
+
         # Convert all items to string if requested
         if to_string:
             columns = [str(col) for col in columns]
-    else: 
-        # If 'columns' is not a string, list, or tuple, 
-        # then it might be a single object 
+    else:
+        # If 'columns' is not a string, list, or tuple,
+        # then it might be a single object
         # (for example, an instance of RandomForestRegressor).
-        # In such a case, we attempt to check if it is iterable. 
+        # In such a case, we attempt to check if it is iterable.
         # Since an instance of RandomForestRegressor
-        # is neither callable nor a class, nor is it iterable 
+        # is neither callable nor a class, nor is it iterable
         # (i.e., it has no __iter__ # attribute), we wrap it into a list.
-        if not isinstance(columns, (str, list, tuple)):
+        if not isinstance(columns, str | list | tuple):
             try:
                 iter(columns)
             except:
                 columns = [columns]
-        
+
     return columns
+
 
 def resolve_label(
     obj,
-    default_name='',
+    default_name="",
     return_only_one=True,
-    ops='get',
-    new_name=None, 
-    none_as_default_name = ...
+    ops="get",
+    new_name=None,
+    none_as_default_name=...,
 ):
     """
     Resolves a human-readable label from multiple Python
@@ -2335,12 +2506,14 @@ def resolve_label(
     .. [2] Brown, K. "Labeling Conventions for
        Heterogeneous Datasets," Data Insights Press, 2022.
     """
-    if obj is None: 
-        return default_name if none_as_default_name else obj 
-    
+    if obj is None:
+        return default_name if none_as_default_name else obj
+
     mode = ops.lower()
-    if mode not in ['get', 'set']:
-        raise ValueError("`ops` must be either 'get' or 'set'.")
+    if mode not in ["get", "set"]:
+        raise ValueError(
+            "`ops` must be either 'get' or 'set'."
+        )
 
     names = []
 
@@ -2352,10 +2525,14 @@ def resolve_label(
     elif isinstance(obj, pd.Series):
         series_name = obj.name if obj.name else default_name
         names = [series_name]
-        if mode == 'set' and new_name is not None:
+        if mode == "set" and new_name is not None:
             # A single rename if new_name is a string
             # or simply rename the Series to `new_name`.
-            obj.name = new_name if isinstance(new_name, str) else default_name
+            obj.name = (
+                new_name
+                if isinstance(new_name, str)
+                else default_name
+            )
             names = [obj.name]
 
     # 3) If pd.DataFrame
@@ -2366,7 +2543,7 @@ def resolve_label(
         else:
             names = [cols[0]] if return_only_one else cols
 
-        if mode == 'set' and new_name is not None:
+        if mode == "set" and new_name is not None:
             # MAPPING LOGIC (DataFrame)
             if isinstance(new_name, dict):
                 # If new_name is a dict, interpret it as a mapping.
@@ -2374,17 +2551,24 @@ def resolve_label(
                 obj.rename(columns=new_name, inplace=True)
                 # Recompute the names list after renaming
                 updated_cols = list(obj.columns)
-                names = [updated_cols[0]] if return_only_one else updated_cols
+                names = (
+                    [updated_cols[0]]
+                    if return_only_one
+                    else updated_cols
+                )
 
             elif isinstance(new_name, list):
                 # If new_name is a list and matches the length of columns,
                 # rename each column accordingly
                 if len(new_name) == len(cols):
-                    mapping = dict(zip(cols, new_name))
+                    mapping = dict(
+                        zip(cols, new_name, strict=False)
+                    )
                     obj.rename(columns=mapping, inplace=True)
                     updated_cols = list(obj.columns)
                     names = (
-                        [updated_cols[0]] if return_only_one
+                        [updated_cols[0]]
+                        if return_only_one
                         else updated_cols
                     )
                 else:
@@ -2396,17 +2580,25 @@ def resolve_label(
                 # If we have a single string but multiple columns,
                 # we might rename only the first column or all columns.
                 if return_only_one and cols:
-                    obj.rename(columns={cols[0]: new_name}, inplace=True)
+                    obj.rename(
+                        columns={cols[0]: new_name},
+                        inplace=True,
+                    )
                     names = [new_name]
                 else:
                     # Example: rename all columns to new_name_0, new_name_1, ...
                     new_col_mapping = {}
                     for i, col in enumerate(cols):
-                        new_col_mapping[col] = f"{new_name}_{i}"
-                    obj.rename(columns=new_col_mapping, inplace=True)
+                        new_col_mapping[col] = (
+                            f"{new_name}_{i}"
+                        )
+                    obj.rename(
+                        columns=new_col_mapping, inplace=True
+                    )
                     updated_cols = list(obj.columns)
                     names = (
-                        [updated_cols[0]] if return_only_one
+                        [updated_cols[0]]
+                        if return_only_one
                         else updated_cols
                     )
     # 4) If dict
@@ -2417,7 +2609,7 @@ def resolve_label(
         else:
             names = [keys[0]] if return_only_one else keys
 
-        if mode == 'set' and new_name is not None:
+        if mode == "set" and new_name is not None:
             # MAPPING LOGIC (dict)
             if isinstance(new_name, dict):
                 # Interpret new_name as a {old_key: new_key} mapping
@@ -2434,7 +2626,8 @@ def resolve_label(
                 # Re-extract updated keys
                 updated_keys = list(obj.keys())
                 names = (
-                    [updated_keys[0]] if return_only_one
+                    [updated_keys[0]]
+                    if return_only_one
                     else updated_keys
                 )
 
@@ -2443,13 +2636,16 @@ def resolve_label(
                 # rename each key accordingly
                 if len(new_name) == len(keys):
                     temp = {}
-                    for old_k, new_k in zip(keys, new_name):
+                    for old_k, new_k in zip(
+                        keys, new_name, strict=False
+                    ):
                         temp[new_k] = obj[old_k]
                     obj.clear()
                     obj.update(temp)
                     updated_keys = list(obj.keys())
                     names = (
-                        [updated_keys[0]] if return_only_one
+                        [updated_keys[0]]
+                        if return_only_one
                         else updated_keys
                     )
                 else:
@@ -2474,7 +2670,8 @@ def resolve_label(
                     obj.update(temp)
                     updated_keys = list(obj.keys())
                     names = (
-                        [updated_keys[0]] if return_only_one
+                        [updated_keys[0]]
+                        if return_only_one
                         else updated_keys
                     )
 
@@ -2487,14 +2684,15 @@ def resolve_label(
         return names[0]
     else:
         return names
-  
+
+
 def extend_values(
     values,
     target,
     mode: str = "constant",
     increment: float = 0,
     extra_values=None,
-    verbose: int = 0
+    verbose: int = 0,
 ):
     """
     Extends or increments a list of values (or single value) to match a
@@ -2593,18 +2791,21 @@ def extend_values(
     ['hello', 'hello', 'hello', 'hello']
     """
     # Convert `values` to list if it's not already.
-    if hasattr(values, '__iter__') and not isinstance (values, str): 
-        values= list(values)
-        
+    if hasattr(values, "__iter__") and not isinstance(
+        values, str
+    ):
+        values = list(values)
+
     if not isinstance(values, list):
         values = [values]
 
     # Convert `extra_values` to list if it is provided but not a list.
     if extra_values is not None:
-        if hasattr(extra_values, '__iter__') and not isinstance (
-                extra_values, str): 
-            extra_values= list(extra_values)
-            
+        if hasattr(
+            extra_values, "__iter__"
+        ) and not isinstance(extra_values, str):
+            extra_values = list(extra_values)
+
         if not isinstance(extra_values, list):
             extra_values = [extra_values]
         values.extend(extra_values)
@@ -2626,13 +2827,17 @@ def extend_values(
     current_length = len(values)
 
     if verbose > 0:
-        print(f"[extend_values] Current length: {current_length}, "
-              f"Desired length: {desired_length}")
+        print(
+            f"[extend_values] Current length: {current_length}, "
+            f"Desired length: {desired_length}"
+        )
 
     # If we already meet or exceed the desired length, truncate.
     if current_length >= desired_length:
         if verbose > 1:
-            print("[extend_values] Already sufficient length, truncating.")
+            print(
+                "[extend_values] Already sufficient length, truncating."
+            )
         return values[:desired_length]
 
     # Otherwise, we need to extend the list.
@@ -2643,21 +2848,27 @@ def extend_values(
 
     # Prepare a helper to check numeric feasibility.
     def is_numeric(x):
-        return isinstance(x, (int, float))
+        return isinstance(x, int | float)
 
     # If incrementing/decrementing is requested, ensure last_val is numeric.
     # Otherwise, fall back to constant repetition.
-    if mode in ("increase", "decrease") and not is_numeric(last_val):
+    if mode in ("increase", "decrease") and not is_numeric(
+        last_val
+    ):
         if verbose > 0:
-            print("[extend_values] Warning: last value is not numeric. "
-                  "Falling back to constant mode.")
+            print(
+                "[extend_values] Warning: last value is not numeric. "
+                "Falling back to constant mode."
+            )
         mode = "constant"
 
     if mode == "constant":
         # Repeat the last value
         values.extend([last_val] * diff)
         if verbose > 1:
-            print("[extend_values] Extended by constant repetition.")
+            print(
+                "[extend_values] Extended by constant repetition."
+            )
 
     elif mode == "increase":
         # Add increment * 1, increment * 2, etc.
@@ -2677,8 +2888,10 @@ def extend_values(
     else:
         # If an unknown mode is passed, revert to constant.
         if verbose > 0:
-            print(f"[extend_values] Unrecognized mode: '{mode}'. "
-                  "Falling back to constant mode.")
+            print(
+                f"[extend_values] Unrecognized mode: '{mode}'. "
+                "Falling back to constant mode."
+            )
         values.extend([last_val] * diff)
 
     return values

@@ -1,27 +1,31 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
-# https://lkouadio.com
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
-# Author: LKouadio <etanoyau@gmail.com>
+# Author: LKouadio <https://lkouadio.com>
 
 
 """
-This internal module provides placeholder "dummy" objects for optional
+This internal module provides "dummy" objects for optional
 dependencies like TensorFlow, Keras, and KerasTuner.
 
 It dynamically generates these dummies based on the central configuration
 in `geoprior._configs`, ensuring it is always in sync with the real
 dependency loader.
 """
+
 from __future__ import annotations
+
 from typing import Any
 
 try:
-    from ._configs import TENSORFLOW_CONFIG, KERAS_TUNER_CONFIG
+    from ._configs import (
+        KERAS_TUNER_CONFIG,
+        TENSORFLOW_CONFIG,
+    )
 except ImportError:
     TENSORFLOW_CONFIG = {}
     KERAS_TUNER_CONFIG = {}
+
 
 class _DummyObject:
     """
@@ -29,6 +33,7 @@ class _DummyObject:
     ImportError when instantiated or called, guiding the user to install
     the missing package.
     """
+
     _dependency_name = "A required package"
     _is_callable = True
 
@@ -53,12 +58,14 @@ class _DummyObject:
             " Please install it to use this feature."
         )
 
+
 def _create_dummy(
-        name: str, dependency: str = "TensorFlow/Keras", 
-        is_callable=True
-    ):
+    name: str,
+    dependency: str = "TensorFlow/Keras",
+    is_callable=True,
+):
     """
-    Factory function to create specific dummy classes on the 
+    Factory function to create specific dummy classes on the
     fly with tailored error messages.
     """
     return type(
@@ -67,9 +74,10 @@ def _create_dummy(
         {
             "__doc__": f"Dummy placeholder for `{name}`. Requires {dependency}.",
             "_dependency_name": dependency,
-            "_is_callable": is_callable
-        }
+            "_is_callable": is_callable,
+        },
     )
+
 
 # --- Dummy Namespace for KerasTuner ---
 class DummyKT:
@@ -78,6 +86,7 @@ class DummyKT:
      It dynamically creates dummy objects for its attributes
      based on KERAS_TUNER_CONFIG.
     """
+
     def __getattr__(self, name: str) -> Any:
         if name in KERAS_TUNER_CONFIG:
             # Most KerasTuner objects are classes.
@@ -85,11 +94,12 @@ class DummyKT:
         # Allow access to generic objects for type checking if needed
         if name == "HyperModel":
             return object
-            
+
         raise AttributeError(
             f"'DummyKT' has no attribute '{name}'. Please add it to the "
             "KERAS_TUNER_CONFIG in `geoprior/_configs.py`."
         )
+
 
 # --- Dummy Namespace for TensorFlow/Keras ---
 class DummyKerasDeps:
@@ -100,6 +110,7 @@ class DummyKerasDeps:
     requested, based on the central TENSORFLOW_CONFIG. This ensures it
     is always in sync with the real dependency loader.
     """
+
     def __getattr__(self, name: str) -> Any:
         # Check if the requested name exists in the central config file.
         if name in TENSORFLOW_CONFIG:
@@ -108,16 +119,16 @@ class DummyKerasDeps:
             # For attributes that are just strings (like dtypes), return them directly.
             if isinstance(config_value, str):
                 return config_value
-            
+
             # For objects that can be instantiated or called, create a dummy.
             # We determine if it's a class/function primarily by capitalization.
             is_class_or_func = not name.islower()
-            return _create_dummy(name, is_callable=is_class_or_func)()
+            return _create_dummy(
+                name, is_callable=is_class_or_func
+            )()
 
         # Fallback for any unexpected attribute.
         raise AttributeError(
             f"'DummyKerasDeps' has no attribute '{name}'. Please add it to "
             "the TENSORFLOW_CONFIG in `geoprior/_configs.py`."
         )
-
-

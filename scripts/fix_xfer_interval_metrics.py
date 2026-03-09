@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
@@ -12,7 +11,6 @@ from pathlib import Path
 
 import pandas as pd
 
-from geoprior.utils.transfer import xfer_io
 from geoprior.utils.transfer import xfer_metrics
 
 
@@ -83,17 +81,28 @@ def fix_one_run(run_dir: Path) -> bool:
             changed = True
 
         # also patch the CSV row
-        m = df["strategy"].astype(str).str.lower().eq(
-            str(r.get("strategy", "")).lower()
+        m = (
+            df["strategy"]
+            .astype(str)
+            .str.lower()
+            .eq(str(r.get("strategy", "")).lower())
         )
-        m &= df["direction"].astype(str).eq(
-            str(r.get("direction", ""))
+        m &= (
+            df["direction"]
+            .astype(str)
+            .eq(str(r.get("direction", "")))
         )
-        m &= df["split"].astype(str).str.lower().eq(
-            str(r.get("split", "")).lower()
+        m &= (
+            df["split"]
+            .astype(str)
+            .str.lower()
+            .eq(str(r.get("split", "")).lower())
         )
-        m &= df["calibration"].astype(str).str.lower().eq(
-            str(r.get("calibration", "")).lower()
+        m &= (
+            df["calibration"]
+            .astype(str)
+            .str.lower()
+            .eq(str(r.get("calibration", "")).lower())
         )
 
         if m.any():
@@ -112,7 +121,9 @@ def fix_one_run(run_dir: Path) -> bool:
         return False
 
     csv_p.write_text(df.to_csv(index=False), encoding="utf-8")
-    js_p.write_text(json.dumps(rows, indent=2), encoding="utf-8")
+    js_p.write_text(
+        json.dumps(rows, indent=2), encoding="utf-8"
+    )
     return True
 
 

@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
@@ -9,7 +8,7 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -21,8 +20,7 @@ try:
     from sklearn.neighbors import NearestNeighbors
 except Exception as e:
     raise SystemExit(
-        "density exposure requires scikit-learn. "
-        f"Error: {e}"
+        f"density exposure requires scikit-learn. Error: {e}"
     )
 
 _CITY_A = cfg.CITY_CANON.get("ns", "Nansha")
@@ -32,16 +30,22 @@ _CITY_B = cfg.CITY_CANON.get("zh", "Zhongshan")
 def _pick_paths(
     art: utils.Artifacts,
     split: str,
-) -> Tuple[Optional[Path], Optional[Path]]:
+) -> tuple[Path | None, Path | None]:
     if split == "val":
         return art.forecast_val_csv, art.forecast_future_csv
     if split == "test":
-        return art.forecast_test_csv, art.forecast_test_future_csv
+        return (
+            art.forecast_test_csv,
+            art.forecast_test_future_csv,
+        )
     if (
         art.forecast_test_csv is not None
         and art.forecast_test_future_csv is not None
     ):
-        return art.forecast_test_csv, art.forecast_test_future_csv
+        return (
+            art.forecast_test_csv,
+            art.forecast_test_future_csv,
+        )
     return art.forecast_val_csv, art.forecast_future_csv
 
 
@@ -52,9 +56,15 @@ def _load_points(path: str) -> pd.DataFrame:
     for c in need:
         if c not in df.columns:
             raise KeyError(f"{path}: missing {c}")
-    df["sample_idx"] = pd.to_numeric(df["sample_idx"], errors="coerce")
-    df["coord_x"] = pd.to_numeric(df["coord_x"], errors="coerce")
-    df["coord_y"] = pd.to_numeric(df["coord_y"], errors="coerce")
+    df["sample_idx"] = pd.to_numeric(
+        df["sample_idx"], errors="coerce"
+    )
+    df["coord_x"] = pd.to_numeric(
+        df["coord_x"], errors="coerce"
+    )
+    df["coord_y"] = pd.to_numeric(
+        df["coord_y"], errors="coerce"
+    )
     df = df.dropna(subset=need).copy()
     df["sample_idx"] = df["sample_idx"].astype(int)
     return df[need].copy()
@@ -63,24 +73,28 @@ def _load_points(path: str) -> pd.DataFrame:
 def _resolve_city(
     *,
     city: str,
-    src: Optional[str],
-    eval_csv: Optional[str],
-    future_csv: Optional[str],
+    src: str | None,
+    eval_csv: str | None,
+    future_csv: str | None,
     split: str,
-) -> Dict[str, Any]:
-    out: Dict[str, Any] = {"name": city}
+) -> dict[str, Any]:
+    out: dict[str, Any] = {"name": city}
     if eval_csv and future_csv:
         out["eval_csv"] = str(utils.as_path(eval_csv))
         out["future_csv"] = str(utils.as_path(future_csv))
         return out
 
     if not src:
-        raise ValueError(f"{city}: provide --*-src or --*-eval/--*-future")
+        raise ValueError(
+            f"{city}: provide --*-src or --*-eval/--*-future"
+        )
 
     art = utils.detect_artifacts(src)
     ev, fu = _pick_paths(art, split)
     if ev is None or fu is None:
-        raise FileNotFoundError(f"{city}: missing eval/future under {src}")
+        raise FileNotFoundError(
+            f"{city}: missing eval/future under {src}"
+        )
 
     out["eval_csv"] = str(ev)
     out["future_csv"] = str(fu)
@@ -94,7 +108,7 @@ def _density_exposure(
     k: int,
 ) -> np.ndarray:
     # simple kNN density proxy using squared distance
- 
+
     pts = np.column_stack([x, y])
     nn = NearestNeighbors(n_neighbors=int(k) + 1)
     nn.fit(pts)
@@ -111,7 +125,9 @@ def _density_exposure(
     return z
 
 
-def make_exposure_main(argv: Optional[List[str]] = None) -> None:
+def make_exposure_main(
+    argv: list[str] | None = None,
+) -> None:
     ap = argparse.ArgumentParser(
         prog="make-exposure",
         description="Build exposure.csv from spatial points (proxy).",
@@ -156,7 +172,7 @@ def make_exposure_main(argv: Optional[List[str]] = None) -> None:
 
     cities0 = utils.resolve_cities(args) or [_CITY_A, _CITY_B]
 
-    jobs: List[Dict[str, Any]] = []
+    jobs: list[dict[str, Any]] = []
     if _CITY_A in cities0:
         jobs.append(
             _resolve_city(
@@ -178,7 +194,7 @@ def make_exposure_main(argv: Optional[List[str]] = None) -> None:
             )
         )
 
-    all_rows: List[pd.DataFrame] = []
+    all_rows: list[pd.DataFrame] = []
 
     for j in jobs:
         city = str(j["name"])
@@ -193,19 +209,23 @@ def make_exposure_main(argv: Optional[List[str]] = None) -> None:
         else:
             x = d["coord_x"].to_numpy(float)
             y = d["coord_y"].to_numpy(float)
-            d["exposure"] = _density_exposure(x, y, k=int(args.k))
+            d["exposure"] = _density_exposure(
+                x, y, k=int(args.k)
+            )
 
         d["city"] = city
         all_rows.append(d[["city", "sample_idx", "exposure"]])
 
     out = pd.concat(all_rows, ignore_index=True)
-    p = utils.resolve_out_out(str(args.out)).with_suffix(".csv")
+    p = utils.resolve_out_out(str(args.out)).with_suffix(
+        ".csv"
+    )
     p.parent.mkdir(parents=True, exist_ok=True)
     out.to_csv(p, index=False)
     print(f"[OK] wrote {p}")
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     make_exposure_main(argv)
 
 

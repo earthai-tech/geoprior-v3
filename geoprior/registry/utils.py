@@ -1,31 +1,33 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
-# https://lkouadio.com
-# Copyright (c) 2026-present Laurent Kouadio
-# Author: LKouadio <etanoyau@gmail.com>
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
+# Copyright (c) 2026-present
+# Author: LKouadio <https://lkouadio.com>
 
 from __future__ import annotations
 
-import os
-import json
-import glob
 import datetime as dt
+import glob
+import json
+import os
 import warnings
-from typing import Dict, List
-import numpy as np
-import joblib
-from typing import Callable, Optional, Sequence, Tuple, Union
+from collections.abc import Callable, Sequence
 
-__all__ = ["find_manifest", "_find_stage1_manifest", "reproject_dynamic_scale"]
+import joblib
+import numpy as np
+
+__all__ = [
+    "find_manifest",
+    "_find_stage1_manifest",
+    "reproject_dynamic_scale",
+]
 
 
 def reproject_dynamic_scale(
-    X_np: Dict[str, np.ndarray],
-    target_scaler_info: Dict,      # from *target* manifest["artifacts"]["encoders"]["scaler_info"]
-    source_scaler_path: str,       # from *source* manifest["artifacts"]["encoders"]["main_scaler"]
-    dynamic_feature_order: List[str],
-) -> Dict[str, np.ndarray]:
+    X_np: dict[str, np.ndarray],
+    target_scaler_info: dict,  # from *target* manifest["artifacts"]["encoders"]["scaler_info"]
+    source_scaler_path: str,  # from *source* manifest["artifacts"]["encoders"]["main_scaler"]
+    dynamic_feature_order: list[str],
+) -> dict[str, np.ndarray]:
     """
     Re-normalize the target city's dynamic features to the source city's
     scaling, without touching raw CSVs.
@@ -88,13 +90,17 @@ def reproject_dynamic_scale(
     ... )
     """
     if "dynamic_features" not in X_np:
-        raise KeyError("X_np must contain 'dynamic_features' (N, T, D).")
+        raise KeyError(
+            "X_np must contain 'dynamic_features' (N, T, D)."
+        )
     dyn = X_np["dynamic_features"]
     if dyn is None or dyn.size == 0:
         return dict(X_np)  # nothing to do
 
     if dyn.ndim != 3:
-        raise ValueError("X_np['dynamic_features'] must be 3D: (N, T, D).")
+        raise ValueError(
+            "X_np['dynamic_features'] must be 3D: (N, T, D)."
+        )
     N, T, D = dyn.shape
     if len(dynamic_feature_order) != D:
         raise ValueError(
@@ -103,16 +109,21 @@ def reproject_dynamic_scale(
         )
 
     # -------- extract target scaler + feature list --------
-    def _extract_block(si: Dict):
+    def _extract_block(si: dict):
         # Accept a top-level block, or the first nested block with keys present
-        if si and isinstance(si, dict) and ("all_features" in si) and (
-            "scaler" in si or "scaler_path" in si
+        if (
+            si
+            and isinstance(si, dict)
+            and ("all_features" in si)
+            and ("scaler" in si or "scaler_path" in si)
         ):
             return si
         if isinstance(si, dict):
             for v in si.values():
-                if isinstance(v, dict) and ("all_features" in v) and (
-                    "scaler" in v or "scaler_path" in v
+                if (
+                    isinstance(v, dict)
+                    and ("all_features" in v)
+                    and ("scaler" in v or "scaler_path" in v)
                 ):
                     return v
         return None
@@ -124,24 +135,33 @@ def reproject_dynamic_scale(
             "('all_features' and 'scaler' or 'scaler_path')."
         )
     t_all = blk_t.get("all_features", None)
-    if not t_all or not isinstance(t_all, (list, tuple)):
-        raise ValueError("target_scaler_info must provide 'all_features' list.")
+    if not t_all or not isinstance(t_all, list | tuple):
+        raise ValueError(
+            "target_scaler_info must provide 'all_features' list."
+        )
 
     t_scaler = blk_t.get("scaler", None)
     if t_scaler is None:
         t_path = blk_t.get("scaler_path", None)
         if not t_path:
-            raise ValueError("No 'scaler' or 'scaler_path' in target_scaler_info.")
+            raise ValueError(
+                "No 'scaler' or 'scaler_path' in target_scaler_info."
+            )
         t_scaler = joblib.load(t_path)
 
     # -------- load source scaler --------
     s_scaler = joblib.load(source_scaler_path)
 
     # Safety checks: scalers must expose min_/scale_
-    for name, sc in (("target", t_scaler), ("source", s_scaler)):
+    for name, sc in (
+        ("target", t_scaler),
+        ("source", s_scaler),
+    ):
         for attr in ("min_", "scale_"):
             if not hasattr(sc, attr):
-                raise AttributeError(f"{name} scaler missing attribute '{attr}'.")
+                raise AttributeError(
+                    f"{name} scaler missing attribute '{attr}'."
+                )
 
     # Build per-channel transform params by name
     # We map names -> index in target all_features; assume source uses the same
@@ -158,17 +178,19 @@ def reproject_dynamic_scale(
         if idx_t is None:
             warnings.warn(
                 f"[reproject_dynamic_scale] Feature '{fname}' not found in "
-                "target 'all_features'. Channel left unchanged."
+                "target 'all_features'. Channel left unchanged.",
+                stacklevel=2,
             )
             continue
 
         # target inverse: x = (x_t - min_t) / scale_t
         min_t = float(t_scaler.min_[idx_t])
-        sc_t  = float(t_scaler.scale_[idx_t])
+        sc_t = float(t_scaler.scale_[idx_t])
         if sc_t == 0.0:
             warnings.warn(
                 f"[reproject_dynamic_scale] target scale_==0 for '{fname}'. "
-                "Channel left unchanged."
+                "Channel left unchanged.",
+                stacklevel=2,
             )
             continue
 
@@ -176,25 +198,27 @@ def reproject_dynamic_scale(
         # We assume source feature order ~ target order.
         idx_s = idx_t
         min_s = float(s_scaler.min_[idx_s])
-        sc_s  = float(s_scaler.scale_[idx_s])
+        sc_s = float(s_scaler.scale_[idx_s])
         if sc_s == 0.0:
             warnings.warn(
                 f"[reproject_dynamic_scale] source scale_==0 for '{fname}'. "
-                "Channel left unchanged."
+                "Channel left unchanged.",
+                stacklevel=2,
             )
             continue
 
         # Do both steps on the (N, T) slice for this channel
         x_tilde = dyn_out[:, :, ch]
-        x_phys  = (x_tilde - min_t) / sc_t
-        x_src   = x_phys * sc_s + min_s
+        x_phys = (x_tilde - min_t) / sc_t
+        x_src = x_phys * sc_s + min_s
         dyn_out[:, :, ch] = x_src
 
     X_out = dict(X_np)
     X_out["dynamic_features"] = dyn_out
     return X_out
 
-def _parse_manifest_ts(value: str | None) -> Optional[float]:
+
+def _parse_manifest_ts(value: str | None) -> float | None:
     """Parse a manifest timestamp to POSIX seconds if possible."""
     if not value:
         return None
@@ -205,27 +229,31 @@ def _parse_manifest_ts(value: str | None) -> Optional[float]:
         "%Y/%m/%d %H:%M:%S",
     ):
         try:
-            return dt.datetime.strptime(value, fmt).timestamp()
+            return dt.datetime.strptime(
+                value, fmt
+            ).timestamp()
         except Exception:
             continue
     return None
 
 
 def find_manifest(
-    manual: Optional[str] = None,
+    manual: str | None = None,
     base_dir: str = "results",
-    city_hint: Optional[str] = None,
-    model_hint: Optional[str] = None,
-    stage_hint: Optional[str] = None,
-    manifest_filename: Union[str, Sequence[str]] = ("manifest.json",),
-    search_globs: Optional[Sequence[str]] = None,
+    city_hint: str | None = None,
+    model_hint: str | None = None,
+    stage_hint: str | None = None,
+    manifest_filename: str | Sequence[str] = (
+        "manifest.json",
+    ),
+    search_globs: Sequence[str] | None = None,
     recursive: bool = True,
     return_all: bool = False,
     prefer: str = "mtime",
-    filter_fn: Optional[Callable[[dict, str], bool]] = None,
+    filter_fn: Callable[[dict, str], bool] | None = None,
     required_keys: Sequence[str] = (),
     verbose: int = 1,
-) -> Union[str, list[str]]:
+) -> str | list[str]:
     """
     Locate a pipeline manifest JSON on disk with flexible discovery
     rules.
@@ -343,12 +371,16 @@ def find_manifest(
     """
     # 1) manual path
     if manual:
-        p = os.path.expanduser(os.path.expandvars(manual.strip()))
+        p = os.path.expanduser(
+            os.path.expandvars(manual.strip())
+        )
         if os.path.exists(p):
             if verbose:
                 print(f"[Manifest] Using explicit path: {p}")
             return [p] if return_all else p
-        raise FileNotFoundError(f"Manifest provided but not found: {p}")
+        raise FileNotFoundError(
+            f"Manifest provided but not found: {p}"
+        )
 
     # 2) deterministic guesses by hints
     #    Try common folder shapes like:
@@ -363,8 +395,13 @@ def find_manifest(
         names.append(stage_hint)
     if names:
         folder = "_".join(names)
-        for fn in (manifest_filename if isinstance(manifest_filename, (list, tuple, set))
-                   else (manifest_filename,)):
+        for fn in (
+            manifest_filename
+            if isinstance(
+                manifest_filename, list | tuple | set
+            )
+            else (manifest_filename,)
+        ):
             guess = os.path.join(base_dir, folder, fn)
             guesses.append(guess)
 
@@ -372,12 +409,17 @@ def find_manifest(
         g_exp = os.path.expanduser(os.path.expandvars(g))
         if os.path.exists(g_exp):
             if verbose:
-                print(f"[Manifest] Using guessed path: {g_exp}")
+                print(
+                    f"[Manifest] Using guessed path: {g_exp}"
+                )
             return [g_exp] if return_all else g_exp
 
     # 3) glob search
-    filenames = (manifest_filename if isinstance(manifest_filename, (list, tuple, set))
-                 else (manifest_filename,))
+    filenames = (
+        manifest_filename
+        if isinstance(manifest_filename, list | tuple | set)
+        else (manifest_filename,)
+    )
     if search_globs is None:
         # sensible defaults
         search_globs = []
@@ -385,39 +427,62 @@ def find_manifest(
             for fn in filenames:
                 search_globs.append(os.path.join("**", fn))
         for fn in filenames:
-            search_globs.extend([
-                os.path.join("*", "*", fn),
-                os.path.join("*_stage*", fn),
-            ])
+            search_globs.extend(
+                [
+                    os.path.join("*", "*", fn),
+                    os.path.join("*_stage*", fn),
+                ]
+            )
 
-    candidates: list[Tuple[float, str]] = []
+    candidates: list[tuple[float, str]] = []
 
     for pat in search_globs:
         abs_pat = os.path.join(base_dir, pat)
         for path in glob.glob(abs_pat, recursive=True):
             try:
-                with open(path, "r", encoding="utf-8") as f:
+                with open(path, encoding="utf-8") as f:
                     m = json.load(f)
             except Exception:
                 continue  # unreadable or not JSON
 
             def _norm(x):
-                return str(x).strip().lower() if x is not None else None
-            
-            m_city  = _norm(m.get("city"))
-            m_model = str(m.get("model")).strip() if m.get(
-                "model") is not None else None
+                return (
+                    str(x).strip().lower()
+                    if x is not None
+                    else None
+                )
+
+            m_city = _norm(m.get("city"))
+            m_model = (
+                str(m.get("model")).strip()
+                if m.get("model") is not None
+                else None
+            )
             m_stage = _norm(m.get("stage"))
-            
-            if model_hint and m_model and m_model != model_hint:
+
+            if (
+                model_hint
+                and m_model
+                and m_model != model_hint
+            ):
                 continue
-            if city_hint and m_city and m_city != _norm(city_hint):
+            if (
+                city_hint
+                and m_city
+                and m_city != _norm(city_hint)
+            ):
                 continue
-            if stage_hint and m_stage and m_stage != _norm(stage_hint):
+            if (
+                stage_hint
+                and m_stage
+                and m_stage != _norm(stage_hint)
+            ):
                 continue
 
             # Required keys check
-            if required_keys and not all(k in m for k in required_keys):
+            if required_keys and not all(
+                k in m for k in required_keys
+            ):
                 continue
 
             # Custom predicate
@@ -428,7 +493,11 @@ def find_manifest(
             score: float
             if prefer == "timestamp":
                 ts = _parse_manifest_ts(m.get("timestamp"))
-                score = ts if ts is not None else os.path.getmtime(path)
+                score = (
+                    ts
+                    if ts is not None
+                    else os.path.getmtime(path)
+                )
             else:
                 score = os.path.getmtime(path)
 
@@ -447,16 +516,18 @@ def find_manifest(
         top = ordered[0]
         print(f"[Manifest] Auto-selected newest: {top}")
         if return_all and len(ordered) > 1:
-            print(f"[Manifest] {len(ordered)} candidates found.")
+            print(
+                f"[Manifest] {len(ordered)} candidates found."
+            )
 
     return ordered if return_all else ordered[0]
 
 
 def _find_stage1_manifest(
-    manual: Optional[str] = None,
+    manual: str | None = None,
     base_dir: str = "results",
-    city_hint: Optional[str] = None,
-    model_hint: Optional[str] = "GeoPriorSubsNet",
+    city_hint: str | None = None,
+    model_hint: str | None = "GeoPriorSubsNet",
     **kwargs,
 ) -> str:
     """

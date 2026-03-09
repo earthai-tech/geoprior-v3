@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Author: LKouadio <etanoyau@gmail.com>
 # Adapted from: earthai-tech/fusionlab-learn — https://github.com/earthai-tech/gofast
@@ -10,29 +9,34 @@ Misc / utility layers & helpers
 
 from __future__ import annotations
 
-from typing import Callable, Union
+from collections.abc import Callable
 
-import numpy as np 
+import numpy as np
+
 from ...api.property import NNLearner
 from ...utils.deps_utils import ensure_pkg
 from ._config import (
-    Layer, Dense, Dropout,
-    Tensor, TensorShape,
-    Constant, 
+    DEP_MSG,
+    KERAS_BACKEND,
+    Constant,
+    Dense,
+    Dropout,
+    Layer,
+    Tensor,
+    TensorShape,
     activations,
-    tf_autograph, 
-    tf_cast, 
-    tf_float32, 
-    tf_range, 
-    tf_newaxis,
-    tf_sin, 
-    tf_cos,
-    tf_shape,
-    tf_concat, 
-    tf_pow, 
-    tf_floordiv,
     register_keras_serializable,
-    DEP_MSG, KERAS_BACKEND,
+    tf_autograph,
+    tf_cast,
+    tf_concat,
+    tf_cos,
+    tf_float32,
+    tf_floordiv,
+    tf_newaxis,
+    tf_pow,
+    tf_range,
+    tf_shape,
+    tf_sin,
 )
 
 __all__ = [
@@ -43,9 +47,10 @@ __all__ = [
     "MultiModalEmbedding",
 ]
 
+
 @register_keras_serializable(
-    'geoprior.nn.components', name="Activation"
-  )
+    "geoprior.nn.components", name="Activation"
+)
 class Activation(Layer, NNLearner):
     r"""
     Flexible activation layer that transparently delegates to any
@@ -124,9 +129,11 @@ class Activation(Layer, NNLearner):
     """
 
     @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
-    def __init__(self,
-                 activation: Union[str, Callable, None] = 'relu',
-                 **kwargs):
+    def __init__(
+        self,
+        activation: str | Callable | None = "relu",
+        **kwargs,
+    ):
         super().__init__(**kwargs)
 
         # Store original user input for debugging / introspection
@@ -134,14 +141,16 @@ class Activation(Layer, NNLearner):
 
         # Resolve activation into (callable, canonical string)
         if activation is None:
-            self.activation_fn  = activations.get(None)
-            self.activation_str = 'linear'
+            self.activation_fn = activations.get(None)
+            self.activation_str = "linear"
 
         elif isinstance(activation, str):
             # Try to get a standard name via serialize,
             # fallback to object name
             try:
-                self.activation_fn  = activations.get(activation)
+                self.activation_fn = activations.get(
+                    activation
+                )
                 self.activation_str = activation
             except ValueError as err:
                 raise ValueError(
@@ -150,19 +159,24 @@ class Activation(Layer, NNLearner):
 
         elif callable(activation):
             self.activation_fn = activation
-            try:                                       # Try serialising
+            try:  # Try serialising
                 ser = activations.serialize(activation)
                 # Fallback if serialize doesn't give simple string
                 self.activation_str = (
-                    ser if isinstance(ser, str)
-                    else getattr(activation, '__name__',
-                                  activation.__class__.__name__)
+                    ser
+                    if isinstance(ser, str)
+                    else getattr(
+                        activation,
+                        "__name__",
+                        activation.__class__.__name__,
+                    )
                 )
-            except ValueError: 
+            except ValueError:
                 # Fallback if serialize doesn't give simple string
                 self.activation_str = getattr(
-                    activation, '__name__',
-                    activation.__class__.__name__
+                    activation,
+                    "__name__",
+                    activation.__class__.__name__,
                 )
         else:
             raise TypeError(
@@ -196,10 +210,9 @@ class Activation(Layer, NNLearner):
             Tensor with identical shape to *inputs* but transformed
             element‑wise by the activation.
         """
-        # A single line keeps Autograph happy 
+        # A single line keeps Autograph happy
         # and maximises performance
         return self.activation_fn(inputs)
-
 
     def get_config(self) -> dict:
         """
@@ -213,24 +226,25 @@ class Activation(Layer, NNLearner):
         """
         config = super().get_config()
         # Save the CANONICAL STRING NAME for serialization
-        config.update({
-            'activation': self.activation_str
-        })
+        config.update({"activation": self.activation_str})
         return config
 
     # String representation
-    def __repr__(self) -> str:                         # noqa: D401
+    def __repr__(self) -> str:  # noqa: D401
         """
         Return *repr(self)*.
 
         The canonical activation string is included for clarity.
         """
-        return (f"{self.__class__.__name__}("
-                f"activation={self.activation_str!r})")
+        return (
+            f"{self.__class__.__name__}("
+            f"activation={self.activation_str!r})"
+        )
+
 
 @register_keras_serializable(
-    "geoprior.nn.components", 
-    name='PositionwiseFeedForward')
+    "geoprior.nn.components", name="PositionwiseFeedForward"
+)
 class PositionwiseFeedForward(Layer, NNLearner):
     """Implements the Position-wise Feed-Forward Network (FFN) layer.
 
@@ -273,7 +287,7 @@ class PositionwiseFeedForward(Layer, NNLearner):
     that task is handled by the preceding self-attention layer.
 
     The mathematical operation for a single position vector :math:`x` is:
-    
+
     .. math::
        \text{FFN}(x) = \text{Linear}_2(\text{activation}(\text{Linear}_1(x)))
 
@@ -308,13 +322,14 @@ class PositionwiseFeedForward(Layer, NNLearner):
     Input Shape: (32, 50, 128)
     Output Shape: (32, 50, 128)
     """
+
     def __init__(
         self,
         embed_dim: int,
         ffn_dim: int,
         activation: str = "relu",
         dropout_rate: float = 0.1,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
         # Store configuration for serialization
@@ -325,17 +340,17 @@ class PositionwiseFeedForward(Layer, NNLearner):
 
         # Define the internal layers once in the constructor
         self.dense_1 = Dense(
-            units=ffn_dim,
-            name="ffn_dense_1"
+            units=ffn_dim, name="ffn_dense_1"
         )
         self.activation = Activation(activation).activation_fn
         self.dense_2 = Dense(
-            units=embed_dim,
-            name="ffn_dense_2"
+            units=embed_dim, name="ffn_dense_2"
         )
         self.dropout = Dropout(rate=dropout_rate)
 
-    def call(self, x: Tensor, training: bool = False) -> Tensor:
+    def call(
+        self, x: Tensor, training: bool = False
+    ) -> Tensor:
         """Defines the forward pass for the FFN layer."""
         # Project to the intermediate dimension
         x = self.dense_1(x)
@@ -350,14 +365,17 @@ class PositionwiseFeedForward(Layer, NNLearner):
     def get_config(self):
         """Returns the configuration of the layer for serialization."""
         config = super().get_config()
-        config.update({
-            "embed_dim": self.embed_dim,
-            "ffn_dim": self.ffn_dim,
-            "activation": self.activation_str,
-            "dropout_rate": self.dropout_rate,
-        })
+        config.update(
+            {
+                "embed_dim": self.embed_dim,
+                "ffn_dim": self.ffn_dim,
+                "activation": self.activation_str,
+                "dropout_rate": self.dropout_rate,
+            }
+        )
         return config
-    
+
+
 @register_keras_serializable(
     "geoprior.nn.components",
     name="PositionalEncoding",
@@ -445,8 +463,10 @@ class PositionalEncoding(Layer, NNLearner):
             # that can be tied to a temporary FuncGraph during tracing.
             # The result is then stored as a TF Variable via add_weight.
             # ---------------------------------------------------------
-            pos = np.arange(self.max_length)[:, np.newaxis]  # (L, 1)
-            i = np.arange(d)[np.newaxis, :]                  # (1, D)
+            pos = np.arange(self.max_length)[
+                :, np.newaxis
+            ]  # (L, 1)
+            i = np.arange(d)[np.newaxis, :]  # (1, D)
 
             # rates[j] = 1 / 10000^(2*floor(j/2)/D)
             rates = 1.0 / np.power(
@@ -456,7 +476,9 @@ class PositionalEncoding(Layer, NNLearner):
             angles = pos * rates  # (L, D)
 
             # Interleave sin for even dims and cos for odd dims.
-            pe = np.zeros((self.max_length, d), dtype=np.float32)
+            pe = np.zeros(
+                (self.max_length, d), dtype=np.float32
+            )
             pe[:, 0::2] = np.sin(angles[:, 0::2])
             pe[:, 1::2] = np.cos(angles[:, 1::2])
 
@@ -527,7 +549,9 @@ class PositionalEncoding(Layer, NNLearner):
 
         # Slice to the required length and broadcast across batch:
         # (B, T, D) + (1, T, D) -> (B, T, D)
-        return inputs + self.positional_encoding[:, :seq_len, :]
+        return (
+            inputs + self.positional_encoding[:, :seq_len, :]
+        )
 
     def get_config(self) -> dict:
         """
@@ -539,8 +563,10 @@ class PositionalEncoding(Layer, NNLearner):
         config.update({"max_length": self.max_length})
         return config
 
+
 @register_keras_serializable(
-    'geoprior.nn.components', name='PositionalEncoding')
+    "geoprior.nn.components", name="PositionalEncoding"
+)
 class _PositionalEncoding(Layer, NNLearner):
     r"""Injects positional information into an input tensor.
 
@@ -568,9 +594,9 @@ class _PositionalEncoding(Layer, NNLearner):
     **kwargs
         Standard Keras Layer keyword arguments.
 
-    Examples 
+    Examples
     --------
-    >>> import tensorflow as tf 
+    >>> import tensorflow as tf
     >>> from geoprior.nn.components import PositionalEncoding
     >>> batch_size = 4
     >>> sequence_length = 50
@@ -600,12 +626,13 @@ class _PositionalEncoding(Layer, NNLearner):
     >>> plt.xlabel("Feature Dimension")
     >>> plt.ylabel("Position in Sequence")
     >>> plt.show()
-    
+
     References
     ----------
     .. [1] Vaswani, A., et al. (2017). "Attention is all you need."
            *Advances in Neural Information Processing Systems*, 30.
     """
+
     def __init__(self, max_length: int = 2048, **kwargs):
         super().__init__(**kwargs)
         self.max_length = max_length
@@ -615,7 +642,7 @@ class _PositionalEncoding(Layer, NNLearner):
     #     """Pre-calculates the positional encoding matrix."""
     #     # The input shape is (batch, sequence_length, feature_dim)
     #     _, _, feature_dim = input_shape
-        
+
     #     if self.positional_encoding is None:
     #         # The calculation is done once and stored.
     #         # Ensure feature_dim is a concrete value for matrix creation.
@@ -657,13 +684,13 @@ class _PositionalEncoding(Layer, NNLearner):
     #         self.positional_encoding = pe_interleaved[tf_newaxis, :, :]
 
     #     super().build(input_shape)
-            
+
     def build(self, input_shape: TensorShape):
         # `input_shape` is expected to be (B, T, D).
         # We only need the feature dimension D to
         # construct the sinusoidal table.
         _, _, feature_dim = input_shape
-    
+
         # D must be concrete at build time because we
         # allocate a fixed (1, max_length, D) tensor.
         # If D is None, we cannot create the table.
@@ -672,13 +699,13 @@ class _PositionalEncoding(Layer, NNLearner):
                 "The feature dimension of the input to "
                 "PositionalEncoding cannot be `None`."
             )
-    
+
         # Cache: build the encoding only once even if
         # `build()` is called multiple times.
         if self.positional_encoding is None:
             # Convert to a Python int for NumPy ops.
             d = int(feature_dim)
-    
+
             # XXX IMPORTANT:
             # Build in NumPy (not TF ops) to avoid creating
             # graph-tensors during `build()`.
@@ -689,7 +716,7 @@ class _PositionalEncoding(Layer, NNLearner):
             # and crash when reused.
             pos = np.arange(self.max_length)[:, np.newaxis]
             i = np.arange(d)[np.newaxis, :]
-    
+
             # Compute angle rates:
             # rate[j] = 1 / 10000^(2*floor(j/2)/d)
             # Use float32 to keep the table compact and to
@@ -699,7 +726,7 @@ class _PositionalEncoding(Layer, NNLearner):
                 (2 * (i // 2)) / np.float32(d),
             )
             angles = pos * rates
-    
+
             # Interleave sin/cos:
             # even dims -> sin, odd dims -> cos.
             pe = np.zeros(
@@ -708,12 +735,12 @@ class _PositionalEncoding(Layer, NNLearner):
             )
             pe[:, 0::2] = np.sin(angles[:, 0::2])
             pe[:, 1::2] = np.cos(angles[:, 1::2])
-    
+
             # Add a leading batch axis so call() can do:
             # inputs + pe[:, :seq_len, :]
             # and broadcast across the batch dimension.
             pe = pe[np.newaxis, :, :]  # (1, max_len, d)
-    
+
             # Store as a non-trainable weight:
             # - becomes a TF Variable (safe across graphs)
             # - serialized with the layer/model
@@ -725,17 +752,16 @@ class _PositionalEncoding(Layer, NNLearner):
                 initializer=Constant(pe),
                 trainable=False,
             )
-    
+
         # Mark the layer as built for Keras bookkeeping.
         super().build(input_shape)
 
-
-    def call(self, inputs: Tensor, training=False ) -> Tensor:
+    def call(self, inputs: Tensor, training=False) -> Tensor:
         r"""Adds positional encoding to the input tensor.
-        
+
         The 'training' argument is accepted but not used.
         This ensures API compatibility with Keras.
-        
+
         Parameters
         ----------
         inputs : tf.Tensor
@@ -748,37 +774,42 @@ class _PositionalEncoding(Layer, NNLearner):
         tf.Tensor
             The input tensor with positional encodings added.
             Shape: :math:`(B, T, D)`.
-        Notes 
+        Notes
         ------
-        The Positional encoding does not depends on training. 
-        The sinusoidal PositionalEncoding layer performs a deterministic 
-        mathematical operation. It calculates a fixed matrix of sine and 
-        cosine values based on position and feature dimension and simply 
-        adds it to the input. This calculation is the same whether you are 
-        training the model or running it for inference. Unlike layers such 
+        The Positional encoding does not depends on training.
+        The sinusoidal PositionalEncoding layer performs a deterministic
+        mathematical operation. It calculates a fixed matrix of sine and
+        cosine values based on position and feature dimension and simply
+        adds it to the input. This calculation is the same whether you are
+        training the model or running it for inference. Unlike layers such
         as Dropout or BatchNormalization, PositionalEncoding has no different
         behavior during training.
-        
+
         """
         # Get the sequence length of the current input batch.
         seq_len = tf_shape(inputs)[1]
-        
+
         # Slice the pre-calculated encoding matrix to match the input
         # sequence length and add it to the input tensor.
         # The broadcasting mechanism will handle the batch dimension.
-        return inputs + self.positional_encoding[:, :seq_len, :]
+        return (
+            inputs + self.positional_encoding[:, :seq_len, :]
+        )
 
     def get_config(self) -> dict:
         """Returns the configuration of the layer."""
         config = super().get_config()
-        config.update({
-            'max_length': self.max_length,
-        })
+        config.update(
+            {
+                "max_length": self.max_length,
+            }
+        )
         return config
 
-    
+
 @register_keras_serializable(
-    'geoprior.nn.components', name="TSPositionalEncoding")
+    "geoprior.nn.components", name="TSPositionalEncoding"
+)
 class TSPositionalEncoding(Layer, NNLearner):
     """
     Standard Transformer Positional Encoding using sine and cosine functions.
@@ -789,68 +820,80 @@ class TSPositionalEncoding(Layer, NNLearner):
         embed_dim (int): The dimensionality of the embeddings (and the
                          positional encoding).
     """
-    def __init__(self, max_position: int, embed_dim: int, **kwargs):
+
+    def __init__(
+        self, max_position: int, embed_dim: int, **kwargs
+    ):
         super().__init__(**kwargs)
         self.max_position = max_position
         self.embed_dim = embed_dim
         # self.pos_encoding is created once and stored.
         self.pos_encoding = self._build_positional_encoding(
-            max_position, embed_dim)
+            max_position, embed_dim
+        )
 
     def _build_positional_encoding(
-            self, position: int, d_model: int) -> Tensor:
-        """Builds the positional encoding matrix using NumPy 
+        self, position: int, d_model: int
+    ) -> Tensor:
+        """Builds the positional encoding matrix using NumPy
         then converts to Tensor."""
-    
+
         # 1. Calculate angles in NumPy
         # 'pos' is for positions (sequence length), 'i' is for dimension
         pos_np = np.arange(position)[:, np.newaxis]
         i_np = np.arange(d_model)[np.newaxis, :]
-        
+
         angle_rates_np = 1 / np.power(
             10000, (2 * (i_np // 2)) / np.float32(d_model)
         )
         angle_rads_np = pos_np * angle_rates_np
-    
+
         # 2. Apply sin to even indices in the array; 2i
-        angle_rads_np[:, 0::2] = np.sin(angle_rads_np[:, 0::2])
-    
+        angle_rads_np[:, 0::2] = np.sin(
+            angle_rads_np[:, 0::2]
+        )
+
         # 3. Apply cos to odd indices in the array; 2i+1
-        angle_rads_np[:, 1::2] = np.cos(angle_rads_np[:, 1::2])
-    
+        angle_rads_np[:, 1::2] = np.cos(
+            angle_rads_np[:, 1::2]
+        )
+
         # 4. Add a new axis for batch dimension and cast to TensorFlow tensor
         # The self.pos_encoding expects (1, max_position, embed_dim)
         pos_encoding_tensor = tf_cast(
             angle_rads_np[np.newaxis, ...], dtype=tf_float32
         )
-        
+
         return pos_encoding_tensor
 
-    def _tf_build_positional_encoding(self, position, d_model):
+    def _tf_build_positional_encoding(
+        self, position, d_model
+    ):
         """Builds the positional encoding matrix."""
         angle_rads = self._get_angles(
-            # Use np.arange for non-Tensor context 
+            # Use np.arange for non-Tensor context
             # if KERAS_DEPS.arange isn't suitable
             tf_range(position)[:, tf_newaxis],
             tf_range(d_model)[tf_newaxis, :],
-            d_model
-            )
+            d_model,
+        )
         # Apply sin to even indices in the array; 2i
         angle_rads[:, 0::2] = tf_sin(angle_rads[:, 0::2])
         # Apply cos to odd indices in the array; 2i+1
         angle_rads[:, 1::2] = tf_cos(angle_rads[:, 1::2])
 
         pos_encoding_np = angle_rads[tf_newaxis, ...]
-        
+
         return tf_cast(pos_encoding_np, dtype=tf_float32)
-        
+
     def _get_angles(self, pos, i, d_model):
         """Calculates the angle rates for positional encoding."""
         # Use np.power for non-Tensor context
-        angle_rates = 1 / np.power(10000, (
-            2 * (i // 2)) / np.float32(d_model))
+        angle_rates = 1 / np.power(
+            10000, (2 * (i // 2)) / np.float32(d_model)
+        )
         return pos * angle_rates
-    
+
     def _tf_get_angles(self, pos, i, d_model):
         """Calculates the angle rates for positional encoding."""
         # cast d_model to float32
@@ -882,16 +925,17 @@ class TSPositionalEncoding(Layer, NNLearner):
 
     def get_config(self):
         config = super().get_config()
-        config.update({
-            "max_position": self.max_position,
-            "embed_dim": self.embed_dim,
-        })
+        config.update(
+            {
+                "max_position": self.max_position,
+                "embed_dim": self.embed_dim,
+            }
+        )
         return config
 
 
-
 @register_keras_serializable(
-    'geoprior.nn.components', name="MultiModalEmbedding"
+    "geoprior.nn.components", name="MultiModalEmbedding"
 )
 class MultiModalEmbedding(Layer, NNLearner):
     r"""
@@ -984,15 +1028,10 @@ class MultiModalEmbedding(Layer, NNLearner):
         for modality_shape in input_shape:
             if modality_shape is not None:
                 self.dense_layers.append(
-                    Dense(
-                        self.embed_dim,
-                        activation='relu'
-                    )
+                    Dense(self.embed_dim, activation="relu")
                 )
             else:
-                raise ValueError(
-                    "Unsupported modality type."
-                )
+                raise ValueError("Unsupported modality type.")
         super().build(input_shape)
 
     @tf_autograph.experimental.do_not_convert
@@ -1020,15 +1059,11 @@ class MultiModalEmbedding(Layer, NNLearner):
         embeddings = []
         for idx, modality in enumerate(inputs):
             if isinstance(modality, Tensor):
-                modality_embed = (
-                    self.dense_layers[idx](
-                        modality
-                    )
+                modality_embed = self.dense_layers[idx](
+                    modality
                 )
             else:
-                raise ValueError(
-                    "Unsupported modality type."
-                )
+                raise ValueError("Unsupported modality type.")
             embeddings.append(modality_embed)
 
         return tf_concat(embeddings, axis=-1)
@@ -1044,9 +1079,7 @@ class MultiModalEmbedding(Layer, NNLearner):
             Configuration including `embed_dim`.
         """
         config = super().get_config().copy()
-        config.update({
-            'embed_dim': self.embed_dim
-        })
+        config.update({"embed_dim": self.embed_dim})
         return config
 
     @classmethod
