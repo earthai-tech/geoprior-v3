@@ -169,6 +169,12 @@ _CMD: Dict[str, _CmdSpec] = {
         "build_model_metrics_main",
         "Build unified metrics tables (CSV/JSON).",
     ),
+
+    "build-ablation-table": _CmdSpec(
+        "build_ablation_table",
+        "build_ablation_table_main",
+        "Build ablation table from ablation_record.jsonl.",
+    ),
     "make-boundary": _CmdSpec(
         "make_boundary",
         "make_boundary_main",
@@ -238,6 +244,7 @@ _GROUPS: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
             "compute-hotspots",
             "summarize-hotspots",
             "update-ablation-records", 
+            "build-ablation-table",
             "build-model-metrics", 
             "extend-forecast", 
             "make-boundary", 
