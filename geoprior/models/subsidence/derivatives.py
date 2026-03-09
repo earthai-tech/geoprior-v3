@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3  https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -30,16 +29,17 @@ time units used by the dataset, not seconds).
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Tuple
 from collections.abc import Mapping
+from typing import Any
 
 from .. import KERAS_DEPS
-from .utils import get_sk, coord_ranges, deg_to_m
 from .maths import rate_to_per_second
+from .utils import coord_ranges, deg_to_m, get_sk
 
 Tensor = KERAS_DEPS.Tensor
 tf_constant = KERAS_DEPS.constant
 tf_float32 = KERAS_DEPS.float32
+
 
 def compute_head_pde_derivatives_raw(
     tape,
@@ -50,40 +50,40 @@ def compute_head_pde_derivatives_raw(
 ):
     r"""
     Compute raw autodiff derivatives for the groundwater-flow PDE.
-    
+
     This helper computes first- and second-order derivatives needed by
     the GeoPrior groundwater-flow residual using automatic
     differentiation (AD). All derivatives returned by this function are
     in the "raw" coordinate units of the ``coords`` tensor supplied to
     the model, without chain-rule rescaling to SI units.
-    
+
     The returned tensors are intended to be passed to
     :func:`ensure_si_derivative_frame` to obtain SI-consistent forms
     (per-second time derivatives and per-meter spatial derivatives).
-    
+
     Parameters
     ----------
     tape : tf.GradientTape
         Gradient tape that recorded operations connecting ``h_si``,
         ``K_field``, and ``Ss_field`` to ``coords``.
-    
+
         Notes
         -----
         The tape must watch ``coords``. A common pattern is:
-    
+
         .. code-block:: python
-    
+
            with tf.GradientTape(persistent=True) as tape:
                tape.watch(coords)
                # compute h_si, K_field, Ss_field from model forward pass
-    
+
     coords : Tensor
         Coordinate tensor used as the differentiation variable.
-    
+
         Expected shape is ``(B, H, 3)`` where the last axis stores
         coordinates ordered as ``['t', 'x', 'y']``. The order must be
         consistent with how ``dh_dcoords[..., i]`` is interpreted.
-    
+
         Notes
         -----
         * ``coords`` may be normalized or unnormalized.
@@ -92,51 +92,51 @@ def compute_head_pde_derivatives_raw(
     h_si : Tensor
         Hydraulic head in SI-consistent units (or the internal head unit
         chosen by the pipeline).
-    
+
         Expected shape is ``(B, H, 1)``. The tensor must be connected to
         ``coords`` through the computation graph, otherwise AD gradients
         will be None.
     K_field : Tensor
         Hydraulic conductivity field :math:`K` evaluated on the same
         batch and horizon grid.
-    
+
         Expected shape is ``(B, H, 1)``. The tensor must be connected to
         ``coords`` for spatial gradients to be defined.
     Ss_field : Tensor
         Specific storage field :math:`S_s` evaluated on the same batch
         and horizon grid.
-    
+
         Expected shape is ``(B, H, 1)``. The tensor must be connected to
         ``coords`` for spatial gradients to be defined.
-    
+
     Returns
     -------
     grads : dict of str to Tensor
         Dictionary containing raw derivatives in the coordinate units
         of ``coords``. Keys include:
-    
+
         ``'dh_dt_raw'``
             Raw time derivative :math:`\partial h / \partial t_{raw}`.
-    
+
         ``'d_K_dh_dx_dx_raw'``
             Raw x-direction divergence term:
             :math:`\partial_x (K \partial_x h)` in raw coord units.
-    
+
         ``'d_K_dh_dy_dy_raw'``
             Raw y-direction divergence term:
             :math:`\partial_y (K \partial_y h)` in raw coord units.
-    
+
         ``'dK_dx_raw'``, ``'dK_dy_raw'``
             Raw spatial gradients of :math:`K` w.r.t. x and y.
-    
+
         ``'dSs_dx_raw'``, ``'dSs_dy_raw'``
             Raw spatial gradients of :math:`S_s` w.r.t. x and y.
-    
+
         Notes
         -----
         All tensors are expected to have shape ``(B, H, 1)``. No scaling
         by coordinate ranges is applied here.
-    
+
     Raises
     ------
     ValueError
@@ -146,49 +146,49 @@ def compute_head_pde_derivatives_raw(
     ValueError
         If any second-order gradients required for the divergence form
         are None.
-    
+
     Notes
     -----
     Groundwater-flow residual context
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     This function provides building blocks for the divergence form used
     in the groundwater-flow residual:
-    
+
     .. math::
-    
+
        R_{gw} = S_s \\, \partial_t h
                 - \nabla \cdot (K \\, \nabla h) - Q
-    
+
     The divergence term in 2D can be expressed as:
-    
+
     .. math::
-    
+
        \nabla \cdot (K \nabla h)
        = \partial_x (K \partial_x h)
          + \partial_y (K \partial_y h)
-    
+
     This helper returns the two directional components separately so
     that downstream code can apply unit conversions and scaling
     consistently.
-    
+
     Implementation details
     ~~~~~~~~~~~~~~~~~~~~~~
     * First-order gradients are computed as:
-    
+
       .. math::
-    
+
          \nabla_{coords} h = \frac{\partial h}{\partial coords}
-    
+
       and then split by coordinate axis index.
     * Second-order divergence terms are computed by differentiating the
       products ``K_field * dh_dx_raw`` and ``K_field * dh_dy_raw`` with
       respect to ``coords`` and extracting the x and y components.
-    
+
     Examples
     --------
     Compute raw derivatives and then convert to SI:
-    
-    >>> from geoprior.nn.pinn.geoprior.derivatives import ( 
+
+    >>> from geoprior.nn.pinn.geoprior.derivatives import (
     ...     compute_head_pde_derivatives_raw
     ...     )
     >>> with tf.GradientTape(persistent=True) as tape:
@@ -212,20 +212,20 @@ def compute_head_pde_derivatives_raw(
     ...     scaling_kwargs=scaling_kwargs,
     ...     time_units=time_units,
     ... )
-    
+
     See Also
     --------
     ensure_si_derivative_frame
         Convert raw derivatives to SI-consistent derivatives.
-    
+
     geoprior.nn.pinn.geoprior.losses
         Physics losses that consume SI-consistent PDE derivatives.
-    
+
     References
     ----------
     .. [1] Bear, J. Dynamics of Fluids in Porous Media. Dover
        Publications, 1988.
-    
+
     .. [2] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
        Physics-informed neural networks: A deep learning framework
        for solving forward and inverse problems involving nonlinear
@@ -277,6 +277,7 @@ def compute_head_pde_derivatives_raw(
         "dSs_dy_raw": dSs_dy_raw,
     }
 
+
 def ensure_si_derivative_frame(
     *,
     dh_dt_raw: Tensor,
@@ -286,23 +287,23 @@ def ensure_si_derivative_frame(
     dK_dy_raw: Tensor,
     dSs_dx_raw: Tensor,
     dSs_dy_raw: Tensor,
-    scaling_kwargs: Optional[Dict[str, Any]],
-    time_units: Optional[str],
-    coords_normalized: Optional[bool] = None,
-    coords_in_degrees: Optional[bool] = None,
+    scaling_kwargs: dict[str, Any] | None,
+    time_units: str | None,
+    coords_normalized: bool | None = None,
+    coords_in_degrees: bool | None = None,
     eps: float = 1e-12,
-) -> Tuple[Dict[str, Tensor], Dict[str, Any]]:
+) -> tuple[dict[str, Tensor], dict[str, Any]]:
     r"""
     Convert autodiff derivative tensors into SI-consistent derivatives.
-    
+
     This helper is the canonical "chain-rule bridge" between raw
     autodiff gradients taken with respect to the model input
     ``coords`` tensor and the SI-consistent derivatives required by
     GeoPrior physics losses.
-    
+
     It is designed to keep ``train_step()`` and
     ``_evaluate_physics_on_batch()`` consistent and DRY:
-    
+
     * Raw derivatives are w.r.t. the coords tensor passed to ``call()``.
     * If coords are normalized, derivatives are rescaled by coordinate
       spans (and spans squared for second derivatives).
@@ -310,59 +311,59 @@ def ensure_si_derivative_frame(
       to per-meter forms using a degrees-to-meters factor.
     * Time derivatives are converted to per-second using ``time_units``
       unless SI time spans are already supplied.
-    
+
     Parameters
     ----------
     dh_dt_raw : Tensor
         Raw autodiff time derivative of head w.r.t. the first coord
         axis, i.e. :math:`\partial h / \partial t_{raw}`.
-    
+
         Expected shape is ``(B, H, 1)``. The tensor is assumed to be
         computed w.r.t. the coords tensor fed to ``call()``.
     d_K_dh_dx_dx_raw : Tensor
         Raw second-order x-direction PDE term computed as the x
         component of :math:`\nabla \cdot (K \nabla h)` in raw coord
         units. Conceptually:
-    
+
         .. math::
-    
+
            \partial_x (K \partial_x h)
-    
+
         Expected shape is ``(B, H, 1)``.
     d_K_dh_dy_dy_raw : Tensor
         Raw second-order y-direction PDE term in raw coord units:
-    
+
         .. math::
-    
+
            \partial_y (K \partial_y h)
-    
+
         Expected shape is ``(B, H, 1)``.
     dK_dx_raw : Tensor
         Raw spatial gradient of :math:`K` in the x direction in raw
         coord units.
-    
+
         Expected shape is ``(B, H, 1)``.
     dK_dy_raw : Tensor
         Raw spatial gradient of :math:`K` in the y direction in raw
         coord units.
-    
+
         Expected shape is ``(B, H, 1)``.
     dSs_dx_raw : Tensor
         Raw spatial gradient of :math:`S_s` in the x direction in raw
         coord units.
-    
+
         Expected shape is ``(B, H, 1)``.
     dSs_dy_raw : Tensor
         Raw spatial gradient of :math:`S_s` in the y direction in raw
         coord units.
-    
+
         Expected shape is ``(B, H, 1)``.
     scaling_kwargs : dict or None
         Scaling and convention payload (resolved config) that
         describes coordinate normalization and units.
-    
+
         This function primarily consults the following keys:
-    
+
         * ``coords_normalized`` : bool
             If True, apply span-based chain-rule scaling.
         * ``coord_ranges`` : dict with keys {'t','x','y'}
@@ -374,7 +375,7 @@ def ensure_si_derivative_frame(
         * ``coords_in_degrees`` : bool
             If True, spatial axes are in degrees and must be converted
             to meters if SI spans were not already provided.
-    
+
         Notes
         -----
         The payload is treated as an audit-friendly source-of-truth.
@@ -384,7 +385,7 @@ def ensure_si_derivative_frame(
         Dataset time unit name for the t axis, used to convert the time
         derivative to per-second when SI time spans are not already
         provided.
-    
+
         Typical values include ``'year'``, ``'day'``, or ``'second'``.
     coords_normalized : bool, optional
         Optional override for ``scaling_kwargs['coords_normalized']``.
@@ -395,24 +396,24 @@ def ensure_si_derivative_frame(
     eps : float, default 1e-12
         Numerical stabilizer added to denominators to avoid division by
         zero when spans are extremely small or missing.
-    
+
     Returns
     -------
     deriv : dict of str to Tensor
         Dictionary of SI-consistent derivative tensors. Keys include:
-    
+
         ``'dh_dt'``
             Time derivative converted to per-second:
             :math:`\partial h / \partial t` in SI time.
-    
+
         ``'d_K_dh_dx_dx'`` and ``'d_K_dh_dy_dy'``
             Spatial second-derivative PDE terms converted to per-meter
             squared scaling (via span squared), consistent with the
             divergence form.
-    
+
         ``'dK_dx'``, ``'dK_dy'``, ``'dSs_dx'``, ``'dSs_dy'``
             Spatial gradients converted to per-meter scaling.
-    
+
         Notes
         -----
         The exact physical units of the returned tensors depend on the
@@ -421,7 +422,7 @@ def ensure_si_derivative_frame(
         scaling (per-second, per-meter, per-meter squared).
     meta : dict of str to Any
         Metadata describing which conversion path was used:
-    
+
         ``'used_coord_ranges_si'`` : bool
             True if SI spans were taken from ``coord_ranges_si``.
         ``'time_already_si'`` : bool
@@ -434,47 +435,47 @@ def ensure_si_derivative_frame(
             This is returned for downstream Q scaling logic, where some
             conversions are defined in dataset time units rather than
             SI seconds.
-    
+
     Notes
     -----
     Chain-rule scaling for normalized coordinates
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     If normalized coordinates are defined as:
-    
+
     .. math::
-    
+
        u' = (u - u_0) / \Delta u
-    
+
     then derivatives transform as:
-    
+
     .. math::
-    
+
        \frac{\partial}{\partial u}
        = \frac{1}{\Delta u} \frac{\partial}{\partial u'}
-    
+
     and second derivatives as:
-    
+
     .. math::
-    
+
        \frac{\partial^2}{\partial u^2}
        = \frac{1}{(\Delta u)^2} \frac{\partial^2}{\partial (u')^2}
-    
+
     This function applies these rules using either ``coord_ranges_si``
     (preferred) or ``coord_ranges`` plus unit conversion.
-    
+
     Degrees to meters conversion
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     If spatial coords are degrees (longitude/latitude), the function
     converts spatial derivative scaling using a degrees-to-meters factor
     derived from the scaling payload. This is only applied when SI spans
     were not already provided.
-    
+
     Examples
     --------
     Convert derivatives for normalized coords with SI spans:
-    
-    >>> from geoprior.nn.pinn.geoprior.derivatives import ( 
-    ...    ensure_si_derivative_frame 
+
+    >>> from geoprior.nn.pinn.geoprior.derivatives import (
+    ...    ensure_si_derivative_frame
     ...    )
     >>> deriv, meta = ensure_si_derivative_frame(
     ...     dh_dt_raw=dh_dt_raw,
@@ -495,9 +496,9 @@ def ensure_si_derivative_frame(
     ... )
     >>> bool(meta["used_coord_ranges_si"])
     True
-    
+
     Fallback when SI spans are absent (time converted using time_units):
-    
+
     >>> deriv, meta = ensure_si_derivative_frame(
     ...     dh_dt_raw=dh_dt_raw,
     ...     d_K_dh_dx_dx_raw=dKdhx_dx_raw,
@@ -514,21 +515,21 @@ def ensure_si_derivative_frame(
     ... )
     >>> bool(meta["time_already_si"])
     False
-    
+
     See Also
     --------
     compute_head_pde_derivatives_raw
         Compute raw autodiff derivatives w.r.t. input coords.
-    
+
     geoprior.nn.pinn.geoprior.maths.rate_to_per_second
         Convert a time rate from dataset units to per-second.
-    
+
     geoprior.nn.pinn.geoprior.utils.coord_ranges
         Extract coordinate spans from a scaling payload.
-    
+
     geoprior.nn.pinn.geoprior.utils.deg_to_m
         Convert degrees to meters scaling for spatial axes.
-    
+
     References
     ----------
     .. [1] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
@@ -572,12 +573,16 @@ def ensure_si_derivative_frame(
         # Always compute the original unit spans (for Q scaling).
         tR_u, xR_u, yR_u = coord_ranges(sk)
         if tR_u is None or xR_u is None or yR_u is None:
-            raise ValueError("coords_normalized=True but coord_ranges missing.")
+            raise ValueError(
+                "coords_normalized=True but coord_ranges missing."
+            )
         t_range_units_tf = tf_constant(float(tR_u), dtype)
 
         # Prefer precomputed SI spans (t seconds; x/y meters).
         cr_si = get_sk(sk, "coord_ranges_si", default=None)
-        if isinstance(cr_si, Mapping) and all(k in cr_si for k in ("t", "x", "y")):
+        if isinstance(cr_si, Mapping) and all(
+            k in cr_si for k in ("t", "x", "y")
+        ):
             used_coord_ranges_si = True
             time_already_si = True
             deg_already_applied = True  # x/y already meters if coord_ranges_si exists
@@ -619,8 +624,12 @@ def ensure_si_derivative_frame(
         deg2m_x = deg_to_m("x", sk)  # m/deg
         deg2m_y = deg_to_m("y", sk)
 
-        d_K_dh_dx_dx = d_K_dh_dx_dx / (deg2m_x * deg2m_x + eps_tf)
-        d_K_dh_dy_dy = d_K_dh_dy_dy / (deg2m_y * deg2m_y + eps_tf)
+        d_K_dh_dx_dx = d_K_dh_dx_dx / (
+            deg2m_x * deg2m_x + eps_tf
+        )
+        d_K_dh_dy_dy = d_K_dh_dy_dy / (
+            deg2m_y * deg2m_y + eps_tf
+        )
 
         dK_dx = dK_dx / (deg2m_x + eps_tf)
         dK_dy = dK_dy / (deg2m_y + eps_tf)
@@ -629,7 +638,9 @@ def ensure_si_derivative_frame(
 
     # Time derivative must be per-second for SI PDE.
     if not time_already_si:
-        dh_dt = rate_to_per_second(dh_dt, time_units=time_units)
+        dh_dt = rate_to_per_second(
+            dh_dt, time_units=time_units
+        )
 
     deriv = {
         "dh_dt": dh_dt,
@@ -647,4 +658,3 @@ def ensure_si_derivative_frame(
         "t_range_units_tf": t_range_units_tf,
     }
     return deriv, meta
-

@@ -1,21 +1,19 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
-# Author: LKouadio <etanoyau@gmail.com>
-# website:https://lkouadio.com
+# Author: LKouadio <https://lkouadio.com>
 
 from __future__ import annotations
 
+import numpy as np
+
 from . import KERAS_DEPS, dependency_message
 from ._shapes import (
-    _as_BHO, _as_BHQO, 
+    _as_BHO,
     _as_BHO_like_pred,
+    _as_BHQO,
     _weighted_sum_and_count,
 )
-
-import numpy as np 
-
 
 Layer = KERAS_DEPS.Layer
 Loss = KERAS_DEPS.Loss
@@ -36,17 +34,19 @@ tf_expand_dims = KERAS_DEPS.expand_dims
 tf_broadcast_to = KERAS_DEPS.broadcast_to
 tf_shape = KERAS_DEPS.shape
 tf_convert_to_tensor = KERAS_DEPS.convert_to_tensor
-tf_math = KERAS_DEPS.math 
+tf_math = KERAS_DEPS.math
 tf_broadcast_to = KERAS_DEPS.broadcast_to
-tf_abs = KERAS_DEPS.abs 
-tf_debugging = KERAS_DEPS.debugging 
-tf_rank = KERAS_DEPS.rank 
-tf_print = KERAS_DEPS.print 
-tf_logical_and= KERAS_DEPS.logical_and
-tf_minimum = KERAS_DEPS.minimum 
-tf_maximum = KERAS_DEPS.maximum 
+tf_abs = KERAS_DEPS.abs
+tf_debugging = KERAS_DEPS.debugging
+tf_rank = KERAS_DEPS.rank
+tf_print = KERAS_DEPS.print
+tf_logical_and = KERAS_DEPS.logical_and
+tf_minimum = KERAS_DEPS.minimum
+tf_maximum = KERAS_DEPS.maximum
 
-register_keras_serializable=KERAS_DEPS.register_keras_serializable
+register_keras_serializable = (
+    KERAS_DEPS.register_keras_serializable
+)
 
 
 DEP_MSG = dependency_message("nn.keras_metrics")
@@ -56,8 +56,8 @@ __all__ = [
     "MSEQ50",
     "Coverage80",
     "Sharpness80",
-    "coverage80_fn", 
-    "sharpness80_fn", 
+    "coverage80_fn",
+    "sharpness80_fn",
 ]
 
 
@@ -74,13 +74,15 @@ __all__ = [
 # They also tolerate accidental y_true tiling (B,H,Q,O).
 # ---------------------------------------------------------------------
 
+
 def _ensure_pred_tensor(y_pred):
-    if isinstance(y_pred, (list, tuple)):
+    if isinstance(y_pred, list | tuple):
         raise TypeError(
             "This metric expects a single output tensor, but got a "
             "list/tuple (multi-output bundle). Pass y_pred per-output."
         )
     return tf_convert_to_tensor(y_pred)
+
 
 # def _infer_quantile_axis(t, n_q=3):
 #     shape = getattr(t, "shape", None)
@@ -124,6 +126,7 @@ def _infer_quantile_axis(t, n_q: int = 3):
         return 2 if shape[2] == n_q else None
 
     return None
+
 
 def _extract_q50(
     y_pred,
@@ -228,21 +231,23 @@ class MAEQ50(_BaseScalarMetric):
         self.q_axis = int(q_axis)
         self.n_q = int(n_q)
 
-    def update_state(self, y_true, y_pred, sample_weight=None):
-        if isinstance(y_pred, (list, tuple, dict)):
+    def update_state(
+        self, y_true, y_pred, sample_weight=None
+    ):
+        if isinstance(y_pred, list | tuple | dict):
             raise TypeError(
                 "Quantile metrics expect a single output tensor (B,H,Q,O), "
                 "but received a multi-output container. "
                 "Update metrics per-output (do not pass [subs_pred, gwl_pred])."
             )
-            
+
         yp = _ensure_pred_tensor(y_pred)
         tf_debugging.assert_less_equal(
             tf_rank(yp),
             4,
             message="MAEQ50 received rank>4 prediction. "
-                    "This usually means outputs were stacked"
-                    " (e.g. list passed to update_state)."
+            "This usually means outputs were stacked"
+            " (e.g. list passed to update_state).",
         )
         y = _as_BHO(y_true, y_pred=y_pred)
 
@@ -252,7 +257,7 @@ class MAEQ50(_BaseScalarMetric):
             q_axis_default=self.q_axis,
         )
         yp50 = tf_broadcast_to(yp50, tf_shape(y))
- 
+
         vals = tf_abs(y - yp50)
 
         s, c = _weighted_sum_and_count(
@@ -288,8 +293,10 @@ class MSEQ50(_BaseScalarMetric):
         self.q_axis = int(q_axis)
         self.n_q = int(n_q)
 
-    def update_state(self, y_true, y_pred, sample_weight=None):
-        if isinstance(y_pred, (list, tuple, dict)):
+    def update_state(
+        self, y_true, y_pred, sample_weight=None
+    ):
+        if isinstance(y_pred, list | tuple | dict):
             raise TypeError(
                 "Quantile metrics expect a single output tensor (B,H,Q,O), "
                 "but received a multi-output container. "
@@ -301,8 +308,8 @@ class MSEQ50(_BaseScalarMetric):
             tf_rank(yp),
             4,
             message="MSEQ50 received rank>4 prediction. "
-                    "This usually means outputs were stacked"
-                    " (e.g. list passed to update_state)."
+            "This usually means outputs were stacked"
+            " (e.g. list passed to update_state).",
         )
         y = _as_BHO(y_true, y_pred=y_pred)
 
@@ -311,7 +318,7 @@ class MSEQ50(_BaseScalarMetric):
             n_q=self.n_q,
             q_axis_default=self.q_axis,
         )
-        
+
         yp50 = tf_broadcast_to(yp50, tf_shape(y))
 
         d = y - yp50
@@ -350,14 +357,16 @@ class Coverage80(_BaseScalarMetric):
         self.q_axis = int(q_axis)
         self.n_q = int(n_q)
 
-    def update_state(self, y_true, y_pred, sample_weight=None):
-        if isinstance(y_pred, (list, tuple, dict)):
+    def update_state(
+        self, y_true, y_pred, sample_weight=None
+    ):
+        if isinstance(y_pred, list | tuple | dict):
             raise TypeError(
                 "Quantile metrics expect a single output tensor (B,H,Q,O), "
                 "but received a multi-output container. "
                 "Update metrics per-output (do not pass [subs_pred, gwl_pred])."
             )
-            
+
         y = _as_BHO(y_true, y_pred=y_pred)
 
         lo, hi = _extract_lo_hi(
@@ -404,14 +413,16 @@ class Sharpness80(_BaseScalarMetric):
         self.q_axis = int(q_axis)
         self.n_q = int(n_q)
 
-    def update_state(self, y_true, y_pred, sample_weight=None):
-        if isinstance(y_pred, (list, tuple, dict)):
+    def update_state(
+        self, y_true, y_pred, sample_weight=None
+    ):
+        if isinstance(y_pred, list | tuple | dict):
             raise TypeError(
                 "Quantile metrics expect a single output tensor (B,H,Q,O), "
                 "but received a multi-output container. "
                 "Update metrics per-output (do not pass [subs_pred, gwl_pred])."
             )
-            
+
         # Dev note: y_true only used for target shape.
         y = _as_BHO(y_true, y_pred=y_pred)
 
@@ -443,16 +454,22 @@ class Sharpness80(_BaseScalarMetric):
         )
         return cfg
 
+
 def _normalize_index(idx, dim):
     # idx can be python int; dim can be python int or a scalar tensor
     if isinstance(idx, int) and idx >= 0:
         return idx
     if isinstance(dim, int):
-        return dim + idx if isinstance(idx, int) and idx < 0 else idx
+        return (
+            dim + idx
+            if isinstance(idx, int) and idx < 0
+            else idx
+        )
     # dim is dynamic tensor → return a tensor index
     if isinstance(idx, int) and idx < 0:
         return dim + idx
     return idx
+
 
 def _q_gather(y_pred, idx, q_axis):
     """
@@ -465,8 +482,10 @@ def _q_gather(y_pred, idx, q_axis):
     return out
 
 
-def _split_interval(y_pred_interval, *, q_axis=None, lo_index=0, hi_index=-1):
-    if isinstance(y_pred_interval, (list, tuple)):
+def _split_interval(
+    y_pred_interval, *, q_axis=None, lo_index=0, hi_index=-1
+):
+    if isinstance(y_pred_interval, list | tuple):
         lo, hi = y_pred_interval[0], y_pred_interval[1]
         return lo, hi
 
@@ -474,7 +493,11 @@ def _split_interval(y_pred_interval, *, q_axis=None, lo_index=0, hi_index=-1):
 
     if q_axis is not None:
         qdim_static = t.shape[q_axis]
-        qdim = qdim_static if qdim_static is not None else tf_shape(t)[q_axis]
+        qdim = (
+            qdim_static
+            if qdim_static is not None
+            else tf_shape(t)[q_axis]
+        )
         lo_idx = _normalize_index(lo_index, qdim)
         hi_idx = _normalize_index(hi_index, qdim)
         lo = tf_gather(t, lo_idx, axis=q_axis)
@@ -491,10 +514,12 @@ def _split_interval(y_pred_interval, *, q_axis=None, lo_index=0, hi_index=-1):
         if t.shape[-1] is None:
             # runtime assert for dynamic last dim
             KERAS_DEPS.debugging.assert_equal(
-                tf_shape(t)[-1], 2,
-                message="Packed interval requires last dim == 2."
+                tf_shape(t)[-1],
+                2,
+                message="Packed interval requires last dim == 2.",
             )
     return t[..., 0], t[..., 1]
+
 
 class CentralCoverage(Metric):
     r"""
@@ -537,7 +562,12 @@ class CentralCoverage(Metric):
     >>> float(cov.result().numpy())  # coverage in [0, 1]
     """
 
-    def __init__(self, name: str = "coverage", dtype=tf_float32, **kwargs):
+    def __init__(
+        self,
+        name: str = "coverage",
+        dtype=tf_float32,
+        **kwargs,
+    ):
         super().__init__(name=name, dtype=dtype, **kwargs)
         self.total = self.add_weight(
             "total", initializer="zeros", dtype=self.dtype
@@ -546,7 +576,9 @@ class CentralCoverage(Metric):
             "hits", initializer="zeros", dtype=self.dtype
         )
 
-    def update_state(self, y_true, y_pred_interval, sample_weight=None):
+    def update_state(
+        self, y_true, y_pred_interval, sample_weight=None
+    ):
         r"""
         Update internal counts for the current batch.
 
@@ -561,20 +593,24 @@ class CentralCoverage(Metric):
         """
         y = tf_cast(y_true, self.dtype)
         lo, hi = _split_interval(y_pred_interval)
-        
+
         # Make ranks compatible: if y has one extra trailing dim (e.g., y.shape=(N,1))
-        if ( 
-                y.shape.rank is not None and 
-                lo.shape.rank is not None 
-                and y.shape.rank == lo.shape.rank + 1
-            ):
+        if (
+            y.shape.rank is not None
+            and lo.shape.rank is not None
+            and y.shape.rank == lo.shape.rank + 1
+        ):
             lo = tf_expand_dims(lo, axis=-1)
             hi = tf_expand_dims(hi, axis=-1)
-        
+
         # Broadcast lo/hi to y's shape to avoid (N,1) vs (N,) → (N,N) blowup
-        lo = tf_broadcast_to(tf_cast(lo, self.dtype), tf_shape(y))
-        hi = tf_broadcast_to(tf_cast(hi, self.dtype), tf_shape(y))
-        
+        lo = tf_broadcast_to(
+            tf_cast(lo, self.dtype), tf_shape(y)
+        )
+        hi = tf_broadcast_to(
+            tf_cast(hi, self.dtype), tf_shape(y)
+        )
+
         hit = tf_cast((y >= lo) & (y <= hi), self.dtype)
 
         if sample_weight is not None:
@@ -583,7 +619,9 @@ class CentralCoverage(Metric):
             self.total.assign_add(tf_reduce_sum(w))
         else:
             self.hits.assign_add(tf_reduce_sum(hit))
-            self.total.assign_add(tf_cast(tf_size(y), self.dtype))
+            self.total.assign_add(
+                tf_cast(tf_size(y), self.dtype)
+            )
 
     def result(self):
         """Return the coverage fraction in [0, 1]."""
@@ -637,7 +675,12 @@ class IntervalSharpness(Metric):
     >>> float(shp.result().numpy())  # average width (units of y)
     """
 
-    def __init__(self, name: str = "sharpness", dtype=tf_float32, **kwargs):
+    def __init__(
+        self,
+        name: str = "sharpness",
+        dtype=tf_float32,
+        **kwargs,
+    ):
         super().__init__(name=name, dtype=dtype, **kwargs)
         self.sumw = self.add_weight(
             "sumw", initializer="zeros", dtype=self.dtype
@@ -646,7 +689,9 @@ class IntervalSharpness(Metric):
             "count", initializer="zeros", dtype=self.dtype
         )
 
-    def update_state(self, y_true, y_pred_interval, sample_weight=None):
+    def update_state(
+        self, y_true, y_pred_interval, sample_weight=None
+    ):
         r"""
         Update internal sums for the current batch.
 
@@ -660,22 +705,26 @@ class IntervalSharpness(Metric):
             Optional non-negative weights broadcastable to the width.
         """
         lo, hi = _split_interval(y_pred_interval)
-        
+
         # Align shapes as above
         y = y_true  # unused, but we align against y's shape if helpful
         if y is not None:
-            if ( 
-                    y.shape.rank is not None and 
-                    lo.shape.rank is not None and 
-                    y.shape.rank == lo.shape.rank + 1
-                ):
+            if (
+                y.shape.rank is not None
+                and lo.shape.rank is not None
+                and y.shape.rank == lo.shape.rank + 1
+            ):
                 lo = tf_expand_dims(lo, axis=-1)
                 hi = tf_expand_dims(hi, axis=-1)
             # For width aggregation, broadcasting to common shape is also fine:
             # but if you want 1:1 with targets, do:
-            lo = tf_broadcast_to(tf_cast(lo, self.dtype), tf_shape(y))
-            hi = tf_broadcast_to(tf_cast(hi, self.dtype), tf_shape(y))
-        
+            lo = tf_broadcast_to(
+                tf_cast(lo, self.dtype), tf_shape(y)
+            )
+            hi = tf_broadcast_to(
+                tf_cast(hi, self.dtype), tf_shape(y)
+            )
+
         width = tf_abs(hi - lo)
 
         if sample_weight is not None:
@@ -684,7 +733,9 @@ class IntervalSharpness(Metric):
             self.count.assign_add(tf_reduce_sum(w))
         else:
             self.sumw.assign_add(tf_reduce_sum(width))
-            self.count.assign_add(tf_cast(tf_size(width), self.dtype))
+            self.count.assign_add(
+                tf_cast(tf_size(width), self.dtype)
+            )
 
     def result(self):
         """Return the (weighted) average interval width."""
@@ -699,11 +750,12 @@ class IntervalSharpness(Metric):
         cfg = super().get_config()
         return cfg
 
+
 def _to_py(x):
     """Best-effort cast to JSON-safe Python scalars."""
     if hasattr(x, "numpy"):
         x = x.numpy()
-    if isinstance(x, (np.generic,)):
+    if isinstance(x, np.generic):
         return x.item()
     try:
         return float(x)
@@ -712,7 +764,8 @@ def _to_py(x):
             return x.tolist()
         except Exception:
             return str(x)
-    
+
+
 def infer_quantile_axis(t, n_q=3):
     r = getattr(t.shape, "rank", None)
     if r == 4:
@@ -729,7 +782,7 @@ def infer_quantile_axis(t, n_q=3):
 
 
 @register_keras_serializable(
-    "geoprior.nn.keras_metrics",name="coverage80_fn"
+    "geoprior.nn.keras_metrics", name="coverage80_fn"
 )
 def coverage80_fn(y_true, y_pred):
     """
@@ -791,15 +844,24 @@ def coverage80_fn(y_true, y_pred):
     qax = _infer_quantile_axis(y_pred, n_q=3)
     if qax is None:
         # assume last-dim packed (lo, hi)
-        lo, hi = _split_interval(y_pred_interval=y_pred, q_axis=None)
+        lo, hi = _split_interval(
+            y_pred_interval=y_pred, q_axis=None
+        )
     else:
-        lo, hi = _split_interval(y_pred_interval=y_pred, q_axis=qax,
-                                 lo_index=0, hi_index=-1)
+        lo, hi = _split_interval(
+            y_pred_interval=y_pred,
+            q_axis=qax,
+            lo_index=0,
+            hi_index=-1,
+        )
 
     # Align shapes to y_true
     y = tf_cast(y_true, tf_float32)
-    if (y.shape.rank is not None and lo.shape.rank is not None
-            and y.shape.rank == lo.shape.rank + 1):
+    if (
+        y.shape.rank is not None
+        and lo.shape.rank is not None
+        and y.shape.rank == lo.shape.rank + 1
+    ):
         # common (N,1) vs (N,) mismatch
         lo = tf_expand_dims(lo, axis=-1)
         hi = tf_expand_dims(hi, axis=-1)
@@ -811,10 +873,12 @@ def coverage80_fn(y_true, y_pred):
     den = tf_cast(tf_size(hit), tf_float32)
     return tf_divide_no_nan(num, den)
 
+
 coverage80_fn.__name__ = "coverage80"
 
+
 @register_keras_serializable(
-    "geoprior.nn.keras_metrics",name="sharpness80_fn"
+    "geoprior.nn.keras_metrics", name="sharpness80_fn"
 )
 def sharpness80_fn(y_true, y_pred):
     """
@@ -866,22 +930,36 @@ def sharpness80_fn(y_true, y_pred):
     """
     qax = _infer_quantile_axis(y_pred, n_q=3)
     if qax is None:
-        lo, hi = _split_interval(y_pred_interval=y_pred, q_axis=None)
+        lo, hi = _split_interval(
+            y_pred_interval=y_pred, q_axis=None
+        )
     else:
-        lo, hi = _split_interval(y_pred_interval=y_pred, q_axis=qax,
-                                 lo_index=0, hi_index=-1)
+        lo, hi = _split_interval(
+            y_pred_interval=y_pred,
+            q_axis=qax,
+            lo_index=0,
+            hi_index=-1,
+        )
 
     y = y_true  # only for aligning shapes; not used in width math
     if y is not None:
-        if (y.shape.rank is not None and lo.shape.rank is not None
-                and y.shape.rank == lo.shape.rank + 1):
+        if (
+            y.shape.rank is not None
+            and lo.shape.rank is not None
+            and y.shape.rank == lo.shape.rank + 1
+        ):
             lo = tf_expand_dims(lo, axis=-1)
             hi = tf_expand_dims(hi, axis=-1)
-        lo = tf_broadcast_to(tf_cast(lo, tf_float32), tf_shape(y))
-        hi = tf_broadcast_to(tf_cast(hi, tf_float32), tf_shape(y))
+        lo = tf_broadcast_to(
+            tf_cast(lo, tf_float32), tf_shape(y)
+        )
+        hi = tf_broadcast_to(
+            tf_cast(hi, tf_float32), tf_shape(y)
+        )
 
     width = tf_abs(hi - lo)
     return tf_reduce_mean(width)
+
 
 sharpness80_fn.__name__ = "sharpness80"
 
@@ -931,20 +1009,37 @@ def make_coverage80(q_axis):
     coverage80_fn : Axis-agnostic coverage metric.
     sharpness80_fn : Mean width for the 80% interval.
     """
+
     def fn(y_true, y_pred):
-        lo, hi = _split_interval(y_pred_interval=y_pred, q_axis=q_axis,
-                                 lo_index=0, hi_index=-1)
+        lo, hi = _split_interval(
+            y_pred_interval=y_pred,
+            q_axis=q_axis,
+            lo_index=0,
+            hi_index=-1,
+        )
         y = tf_cast(y_true, tf_float32)
-        if (y.shape.rank is not None and lo.shape.rank is not None
-                and y.shape.rank == lo.shape.rank + 1):
-            lo = tf_expand_dims(lo, axis=-1); hi = tf_expand_dims(hi, axis=-1)
-        lo = tf_broadcast_to(tf_cast(lo, tf_float32), tf_shape(y))
-        hi = tf_broadcast_to(tf_cast(hi, tf_float32), tf_shape(y))
+        if (
+            y.shape.rank is not None
+            and lo.shape.rank is not None
+            and y.shape.rank == lo.shape.rank + 1
+        ):
+            lo = tf_expand_dims(lo, axis=-1)
+            hi = tf_expand_dims(hi, axis=-1)
+        lo = tf_broadcast_to(
+            tf_cast(lo, tf_float32), tf_shape(y)
+        )
+        hi = tf_broadcast_to(
+            tf_cast(hi, tf_float32), tf_shape(y)
+        )
         hit = tf_cast((y >= lo) & (y <= hi), tf_float32)
-        return tf_divide_no_nan(tf_reduce_sum(hit),
-                                tf_cast(tf_size(hit), tf_float32))
+        return tf_divide_no_nan(
+            tf_reduce_sum(hit),
+            tf_cast(tf_size(hit), tf_float32),
+        )
+
     fn.__name__ = f"coverage80_qax{q_axis}"
     return fn
+
 
 @register_keras_serializable(
     "geoprior.nn.keras_metrics",
@@ -1162,6 +1257,7 @@ def mse_q50_fn(y_true, y_pred):
 
 mse_q50_fn.__name__ = "mse_q50"
 
+
 def make_mae_for_quantile(q, quantiles, q_axis=None):
     qs = list(map(float, quantiles))
     if q not in qs:
@@ -1174,22 +1270,33 @@ def make_mae_for_quantile(q, quantiles, q_axis=None):
             ax = _infer_quantile_axis(y_pred, n_q=len(qs))
         if ax is None:
             # packed interval fallback if (...,2)
-            if y_pred.shape.rank is not None and y_pred.shape[-1] == 2 and q == 0.5:
+            if (
+                y_pred.shape.rank is not None
+                and y_pred.shape[-1] == 2
+                and q == 0.5
+            ):
                 yp = 0.5 * (y_pred[..., 0] + y_pred[..., 1])
             else:
-                raise ValueError("Cannot locate quantile axis for MAE.")
+                raise ValueError(
+                    "Cannot locate quantile axis for MAE."
+                )
         else:
             yp = tf_gather(y_pred, q_idx, axis=ax)
 
         y = tf_cast(y_true, tf_float32)
         yp = tf_cast(yp, tf_float32)
-        if y.shape.rank is not None and yp.shape.rank is not None and y.shape.rank == yp.shape.rank + 1:
+        if (
+            y.shape.rank is not None
+            and yp.shape.rank is not None
+            and y.shape.rank == yp.shape.rank + 1
+        ):
             yp = tf_expand_dims(yp, -1)
         yp = tf_broadcast_to(yp, tf_shape(y))
         return tf_reduce_mean(tf_abs(y - yp))
 
     fn.__name__ = f"mae_q{q:g}"
     return fn
+
 
 class Sharpness80Safe(Metric):
     """
@@ -1207,7 +1314,9 @@ class Sharpness80Safe(Metric):
             name="n_sum", initializer="zeros"
         )
 
-    def update_state(self, y_true, y_pred, sample_weight=None):
+    def update_state(
+        self, y_true, y_pred, sample_weight=None
+    ):
         yp = _as_BHQO(y_pred)
 
         q10 = yp[:, :, 0, :]
@@ -1232,6 +1341,7 @@ class Sharpness80Safe(Metric):
         self._sum.assign(0.0)
         self._n.assign(0.0)
 
+
 class Coverage80Safe(Metric):
     """
     Coverage of the 80% interval, robust to crossing.
@@ -1252,7 +1362,9 @@ class Coverage80Safe(Metric):
             name="n_sum", initializer="zeros"
         )
 
-    def update_state(self, y_true, y_pred, sample_weight=None):
+    def update_state(
+        self, y_true, y_pred, sample_weight=None
+    ):
         yt = _as_BHO(y_true)
         yp = _as_BHQO(y_pred)
 
@@ -1270,7 +1382,9 @@ class Coverage80Safe(Metric):
             inside = inside * w
 
         self._cov.assign_add(tf_reduce_sum(inside))
-        self._n.assign_add(tf_cast(tf_size(inside), tf_float32))
+        self._n.assign_add(
+            tf_cast(tf_size(inside), tf_float32)
+        )
 
     def result(self):
         return tf_math.divide_no_nan(self._cov, self._n)
@@ -1294,7 +1408,9 @@ class QuantileCrossRate80(Metric):
             name="n_sum", initializer="zeros"
         )
 
-    def update_state(self, y_true, y_pred, sample_weight=None):
+    def update_state(
+        self, y_true, y_pred, sample_weight=None
+    ):
         yp = _as_BHQO(y_pred)
         q10 = yp[:, :, 0, :]
         q90 = yp[:, :, 2, :]

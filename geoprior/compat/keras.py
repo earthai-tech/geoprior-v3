@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # License: BSD-3-Clause
 # Author : LKouadio <etanoyau@gmail.com>
 
@@ -16,18 +15,14 @@ Small Keras compatibility helpers:
 
 from __future__ import annotations
 
+import inspect
 import json
 import os
-import inspect
+from collections.abc import Callable, Mapping, Sequence
 from typing import (
     Any,
-    Callable,
-    Dict,
-    Mapping,
     Optional,
-    Sequence,
 )
-
 
 __all__ = [
     "keras_major",
@@ -38,12 +33,12 @@ __all__ = [
     "load_bundle_for_inference",
     "save_model",
     "load_model_from_tf",
-    "load_model", 
-    "compute_loss"
+    "load_model",
+    "compute_loss",
 ]
 
-CustomObjects = Optional[Dict[str, Any]]
-Builder = Optional[Callable[[Dict[str, Any]], Any]]
+CustomObjects = Optional[dict[str, Any]]
+Builder = Optional[Callable[[dict[str, Any]], Any]]
 LogFn = Optional[Callable[[str], None]]
 
 
@@ -72,13 +67,13 @@ def _keras_version_str(keras_mod) -> str:
 
 def keras_major() -> int:
     """Return major Keras version as an int.
-    
+
     Best-effort major version detection.
 
     - Keras 3: keras.__version__ starts with "3"
     - Keras 2: keras.__version__ starts with "2"
     """
-    
+
     keras = _import_keras()
     v = _keras_version_str(keras)
     try:
@@ -111,6 +106,7 @@ def _keras_major() -> int:
     except Exception:
         return 0
 
+
 def _get_input_layer_cls():
     """
     Import InputLayer from the active Keras stack.
@@ -119,7 +115,10 @@ def _get_input_layer_cls():
     fallback to `tensorflow.keras.layers` (older TF stacks).
     """
     try:
-        from keras.layers import InputLayer as _InputLayer  # type: ignore
+        from keras.layers import (
+            InputLayer as _InputLayer,  # type: ignore
+        )
+
         return _InputLayer
     except Exception:
         from tensorflow.keras.layers import (  # type: ignore
@@ -128,12 +127,13 @@ def _get_input_layer_cls():
 
         return _InputLayer
 
+
 def CompatInputLayer(
     *args: Any,
-    input_shape: Optional[Sequence[int | None]] = None,
-    shape: Optional[Sequence[int | None]] = None,
-    batch_input_shape: Optional[Sequence[int | None]] = None,
-    batch_shape: Optional[Sequence[int | None]] = None,
+    input_shape: Sequence[int | None] | None = None,
+    shape: Sequence[int | None] | None = None,
+    batch_input_shape: Sequence[int | None] | None = None,
+    batch_shape: Sequence[int | None] | None = None,
     **kwargs: Any,
 ):
     """
@@ -168,7 +168,9 @@ def CompatInputLayer(
             "Provide only one of `input_shape` or `shape`."
         )
 
-    if (batch_input_shape is not None) and (batch_shape is not None):
+    if (batch_input_shape is not None) and (
+        batch_shape is not None
+    ):
         raise TypeError(
             "Provide only one of `batch_input_shape` or "
             "`batch_shape`."
@@ -223,6 +225,7 @@ def CompatInputLayer(
 
     return layer_cls(**call_kwargs)
 
+
 # ---------------------------------------------------------------------
 # Small IO helpers
 # ---------------------------------------------------------------------
@@ -245,11 +248,13 @@ def _json_dump(obj: Any, path: str) -> None:
 
 
 def _json_load(path: str) -> Any:
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
-def _custom_object_scope(keras_mod, custom_objects: CustomObjects):
+def _custom_object_scope(
+    keras_mod, custom_objects: CustomObjects
+):
     """
     Keras 3 uses: keras.saving.custom_object_scope
     Keras 2 uses: keras.utils.custom_object_scope
@@ -283,7 +288,7 @@ def _extract_x(build_inputs: Any) -> Any:
     """
     Best-effort extractor for x from (x, y[, w]) batches.
     """
-    if isinstance(build_inputs, (tuple, list)):
+    if isinstance(build_inputs, tuple | list):
         if not build_inputs:
             return build_inputs
         return build_inputs[0]
@@ -292,6 +297,7 @@ def _extract_x(build_inputs: Any) -> Any:
 
 def _log_default(_: str) -> None:
     return None
+
 
 def _to_savedmodel_dir(path: str) -> str:
     """
@@ -322,15 +328,16 @@ def _clear_path(path: str, overwrite: bool) -> None:
         except OSError:
             return
 
+
 # ---------------------------------------------------------------------
 # Manifest helpers
 # ---------------------------------------------------------------------
-def save_manifest(path: str, payload: Dict[str, Any]) -> None:
+def save_manifest(path: str, payload: dict[str, Any]) -> None:
     """Save JSON manifest (pretty + sorted keys)."""
     _json_dump(payload, path)
 
 
-def load_manifest(path: str) -> Dict[str, Any]:
+def load_manifest(path: str) -> dict[str, Any]:
     """Load JSON manifest from disk."""
     obj = _json_load(path)
     return obj if isinstance(obj, dict) else {}
@@ -342,10 +349,10 @@ def load_manifest(path: str) -> Dict[str, Any]:
 def save_bundle(
     *,
     model: Any,
-    keras_path: Optional[str] = None,
-    weights_path: Optional[str] = None,
-    manifest_path: Optional[str] = None,
-    manifest: Optional[Dict[str, Any]] = None,
+    keras_path: str | None = None,
+    weights_path: str | None = None,
+    manifest_path: str | None = None,
+    manifest: dict[str, Any] | None = None,
     overwrite: bool = True,
 ) -> None:
     """
@@ -374,12 +381,13 @@ def save_bundle(
     if manifest_path and manifest is not None:
         save_manifest(manifest_path, manifest)
 
+
 def save_model(
     model: Any,
-    keras_path: Optional[str] = None,
-    weights_path: Optional[str] = None,
-    manifest_path: Optional[str] = None,
-    manifest: Optional[Dict[str, Any]] = None,
+    keras_path: str | None = None,
+    weights_path: str | None = None,
+    manifest_path: str | None = None,
+    manifest: dict[str, Any] | None = None,
     overwrite: bool = True,
     use_tf_format: bool = False,
 ) -> None:
@@ -430,10 +438,7 @@ def save_model(
     # --- Keras 3: export() writes a SavedModel directory.
     if is_keras3() and hasattr(model, "export"):
         model.export(tf_dir)
-        print(
-            "[INFO] Exported TF SavedModel -> "
-            f"{tf_dir}"
-        )
+        print(f"[INFO] Exported TF SavedModel -> {tf_dir}")
         return
 
     # --- Keras 2 / tf.keras: save(..., save_format="tf")
@@ -443,24 +448,19 @@ def save_model(
             overwrite=overwrite,
             save_format="tf",
         )
-        print(
-            "[INFO] Saved TF SavedModel -> "
-            f"{tf_dir}"
-        )
+        print(f"[INFO] Saved TF SavedModel -> {tf_dir}")
         return
     except TypeError:
         # Some builds infer from directory path.
         model.save(tf_dir, overwrite=overwrite)
-        print(
-            "[INFO] Saved TF SavedModel -> "
-            f"{tf_dir}"
-        )
+        print(f"[INFO] Saved TF SavedModel -> {tf_dir}")
         return
+
 
 def load_model_from_tfv2(
     saved_model_dir: str,
     endpoint: str = "serve",
-    custom_objects: Optional[Dict[str, Any]] = None,
+    custom_objects: dict[str, Any] | None = None,
 ) -> Any:
     """
     Minimal TF SavedModel loader that supports dict inputs/outputs.
@@ -480,7 +480,9 @@ def load_model_from_tfv2(
     # --- Keras 2 / tf.keras can load SavedModel directly
     if not is_keras3():
         with _custom_object_scope(keras, custom_objects):
-            return keras.models.load_model(saved_model_dir, compile=False)
+            return keras.models.load_model(
+                saved_model_dir, compile=False
+            )
 
     # --- Keras 3: TFSMLayer + build dict Inputs from signature
     import tensorflow as tf
@@ -490,7 +492,11 @@ def load_model_from_tfv2(
 
     # pick signature: requested endpoint -> fallback to serving_default -> any
     fn = sigs.get(endpoint) or sigs.get("serving_default")
-    used_ep = endpoint if sigs.get(endpoint) is not None else "serving_default"
+    used_ep = (
+        endpoint
+        if sigs.get(endpoint) is not None
+        else "serving_default"
+    )
     if fn is None and sigs:
         used_ep, fn = next(iter(sigs.items()))
 
@@ -506,7 +512,7 @@ def load_model_from_tfv2(
     if isinstance(kwargs, dict) and kwargs:
         # keyword-input SavedModel
         specs = kwargs
-    elif isinstance(args, (tuple, list)) and args:
+    elif isinstance(args, tuple | list) and args:
         # positional-input SavedModel: args[0] may be dict of TensorSpecs
         if isinstance(args[0], dict) and args[0]:
             specs = args[0]
@@ -538,11 +544,14 @@ def load_model_from_tfv2(
         )
 
     outputs = layer(inputs)  # dict -> dict
-    return keras.Model(inputs=inputs, outputs=outputs, name="tfsm_inference")
+    return keras.Model(
+        inputs=inputs, outputs=outputs, name="tfsm_inference"
+    )
+
 
 def load_model_from_tf(
     saved_model_path: str,
-    custom_objects: Optional[Dict[str, Any]] = None,
+    custom_objects: dict[str, Any] | None = None,
 ) -> Any:
     """
     Load a TF SavedModel directory for inference.
@@ -627,6 +636,7 @@ def load_model_from_tf(
     out = layer(inp)
     return keras.Model(inp, out, name="tfsm_inference")
 
+
 def load_inference_model(
     *,
     keras_path=None,
@@ -661,15 +671,16 @@ def load_inference_model(
         log_fn=log_fn,
     )
 
+
 def load_bundle_for_inference(
     *,
-    keras_path: Optional[str] = None,
-    weights_path: Optional[str] = None,
-    manifest_path: Optional[str] = None,
+    keras_path: str | None = None,
+    weights_path: str | None = None,
+    manifest_path: str | None = None,
     custom_objects: CustomObjects = None,
     compile: bool = False,
     builder: Builder = None,
-    build_inputs: Optional[Any] = None,
+    build_inputs: Any | None = None,
     prefer_full_model: bool = True,
     allow_partial=False,
     log_fn: LogFn = None,
@@ -699,11 +710,11 @@ def load_bundle_for_inference(
     if prefer_full_model and keras_path:
         try:
             with _custom_object_scope(keras, custom_objects):
-               model = keras.models.load_model(
-                     keras_path,
-                     compile=compile,
-                 )
-            
+                model = keras.models.load_model(
+                    keras_path,
+                    compile=compile,
+                )
+
             # Safety: ensure vars exist before load_weights().
             if weights_path:
                 if build_inputs is not None:
@@ -731,10 +742,7 @@ def load_bundle_for_inference(
 
             return model
         except Exception as e:
-            log(
-                "[compat.keras] load_model failed: "
-                f"{e!r}"
-            )
+            log(f"[compat.keras] load_model failed: {e!r}")
 
         # --------------------------------------------------------
         # (3) Keras 3: TF SavedModel dir -> TFSMLayer wrapper
@@ -746,10 +754,7 @@ def load_bundle_for_inference(
                     custom_objects=custom_objects,
                 )
             except Exception as e:
-                log(
-                    "[compat.keras] TFSMLayer failed: "
-                    f"{e!r}"
-                )
+                log(f"[compat.keras] TFSMLayer failed: {e!r}")
 
     # ------------------------------------------------------------
     # (2) Rebuild + weights (most robust for subclassed models)
@@ -760,7 +765,9 @@ def load_bundle_for_inference(
             "fails or is disabled."
         )
 
-    manifest = load_manifest(manifest_path) if manifest_path else {}
+    manifest = (
+        load_manifest(manifest_path) if manifest_path else {}
+    )
     model = builder(manifest)
 
     # Build variables before load_weights (critical for subclassed)
@@ -770,28 +777,30 @@ def load_bundle_for_inference(
 
     if not weights_path:
         raise ValueError(
-            "weights_path is required for weights "
-            "fallback."
+            "weights_path is required for weights fallback."
         )
-    
+
     # TF may return a status object with these methods
     status = model.load_weights(weights_path)
 
     if not allow_partial:
         if hasattr(status, "assert_consumed"):
             status.assert_consumed()
-        elif hasattr(status, "assert_existing_objects_matched"):
+        elif hasattr(
+            status, "assert_existing_objects_matched"
+        ):
             status.assert_existing_objects_matched()
     else:
         if hasattr(status, "expect_partial"):
             status.expect_partial()
-            
+
     return model
+
 
 def load_model(
     path: str,
     *,
-    custom_objects: Optional[Dict[str, Any]] = None,
+    custom_objects: dict[str, Any] | None = None,
     compile: bool = False,
 ) -> Any:
     """
@@ -805,9 +814,11 @@ def load_model(
             compile=compile,
         )
 
+
 # -----------------------------------------------------------
 # Loss compat (Keras 2/3)
 # -----------------------------------------------------------
+
 
 def zero_loss(y_true, y_pred):
     """Scalar zero loss (no grads, safe placeholder)."""
@@ -820,11 +831,12 @@ def zero_loss(y_true, y_pred):
 
     return tf.reduce_sum(y_pred * 0.0)
 
+
 def ensure_loss_dict(
     loss,
     *,
     output_names: Sequence[str],
-    fill: Optional[Callable] = None,
+    fill: Callable | None = None,
 ):
     """
     Ensure dict loss covers all outputs.
@@ -843,11 +855,13 @@ def ensure_loss_dict(
             out[k] = fill
     return out
 
+
 def _sig_params(fn):
     try:
         return set(inspect.signature(fn).parameters)
     except Exception:
         return set()
+
 
 def _as_list_by_outputs(obj, *, output_names: Sequence[str]):
     if isinstance(obj, Mapping):

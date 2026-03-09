@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -52,23 +51,23 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Tuple
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.gridspec import GridSpec
 
 from . import config as cfg
 from . import utils
 
-
 # ------------------------------------------------------------
 # Payload loading
 # ------------------------------------------------------------
 
-def _load_payload(path: str) -> Tuple[dict, dict]:
+
+def _load_payload(path: str) -> tuple[dict, dict]:
     """Load (payload, meta) using v3.2 conventions."""
     try:
         from geoprior.nn.pinn.io import (  # type: ignore
@@ -160,6 +159,7 @@ def _to_1d(x) -> np.ndarray:
 # Coordinates
 # ------------------------------------------------------------
 
+
 def _infer_city_from_path(p: Path) -> str:
     s = str(p).lower()
     for k, v in cfg.CITY_CANON.items():
@@ -170,8 +170,8 @@ def _infer_city_from_path(p: Path) -> str:
 
 def _resolve_payload_path(
     *,
-    src: Optional[str],
-    payload: Optional[str],
+    src: str | None,
+    payload: str | None,
 ) -> Path:
     if payload:
         return Path(payload).expanduser()
@@ -195,9 +195,9 @@ def _resolve_payload_path(
 
 def _resolve_coords_npz(
     *,
-    src: Optional[str],
-    coords_npz: Optional[str],
-) -> Optional[Path]:
+    src: str | None,
+    coords_npz: str | None,
+) -> Path | None:
     if coords_npz:
         return Path(coords_npz).expanduser()
     if not src:
@@ -205,9 +205,10 @@ def _resolve_coords_npz(
     arts = utils.detect_artifacts(src)
     return arts.coords_npz
 
+
 def _format_cbar_text(
     name: str,
-    unit: Optional[str],
+    unit: str | None,
     *,
     mode: str,
 ) -> str:
@@ -234,14 +235,15 @@ def _apply_cbar_label(
         return
 
     cb.set_label(text, labelpad=labelpad)
-    
+
+
 def _extract_xy(
     payload: dict,
     *,
-    coords: Optional[dict],
-    x_key: Optional[str],
-    y_key: Optional[str],
-) -> Tuple[np.ndarray, np.ndarray, str]:
+    coords: dict | None,
+    x_key: str | None,
+    y_key: str | None,
+) -> tuple[np.ndarray, np.ndarray, str]:
     candidates = [
         ("x", "y", "xy"),
         ("lon", "lat", "lonlat"),
@@ -255,9 +257,7 @@ def _extract_xy(
             return x, y, kind
 
     if coords is None:
-        raise KeyError(
-            "No coords in payload or coords-npz."
-        )
+        raise KeyError("No coords in payload or coords-npz.")
 
     if "coords" in coords:
         arr = np.asarray(coords["coords"])
@@ -298,7 +298,7 @@ def _maybe_trim(
     a: np.ndarray,
     b: np.ndarray,
     *rest: np.ndarray,
-) -> Tuple[np.ndarray, np.ndarray, Tuple[np.ndarray, ...]]:
+) -> tuple[np.ndarray, np.ndarray, tuple[np.ndarray, ...]]:
     n = min([a.size, b.size] + [r.size for r in rest])
     if a.size != n:
         a = a[:n]
@@ -314,6 +314,7 @@ def _maybe_trim(
 # Gridding
 # ------------------------------------------------------------
 
+
 def _bin_grid(
     x: np.ndarray,
     y: np.ndarray,
@@ -322,7 +323,7 @@ def _bin_grid(
     nx: int,
     ny: int,
     agg: str,
-) -> Tuple[np.ndarray, Tuple[float, float, float, float]]:
+) -> tuple[np.ndarray, tuple[float, float, float, float]]:
     x = _to_1d(x)
     y = _to_1d(y)
     v = _to_1d(v)
@@ -388,7 +389,7 @@ def _range_q(
     z: np.ndarray,
     qlo: float,
     qhi: float,
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     v = np.asarray(z, float)
     v = v[np.isfinite(v)]
     if v.size == 0:
@@ -403,7 +404,7 @@ def _range_q(
 def _sym_range_q(
     z: np.ndarray,
     q: float,
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     v = np.asarray(z, float)
     v = v[np.isfinite(v)]
     if v.size == 0:
@@ -417,7 +418,8 @@ def _sym_range_q(
 # Labels / units
 # ------------------------------------------------------------
 
-def _meta_unit(meta: dict, key: str) -> Optional[str]:
+
+def _meta_unit(meta: dict, key: str) -> str | None:
     u = (meta or {}).get("units", {}) or {}
     out = u.get(key)
     return str(out) if out else None
@@ -432,7 +434,7 @@ def _tau_prior_symbol(meta: dict) -> str:
 
 def _cbar_label(
     name: str,
-    unit: Optional[str],
+    unit: str | None,
     *,
     show: bool,
 ) -> str:
@@ -457,13 +459,14 @@ _HUMAN = {
 # Optional overlay: boundary/coastline shapefile
 # ------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class _BoundaryStyle:
     lw: float
     alpha: float
 
 
-def _boundary_patterns() -> Tuple[str, ...]:
+def _boundary_patterns() -> tuple[str, ...]:
     pats = cfg.PATTERNS.get("boundary_shp")
     if pats:
         return tuple(pats)
@@ -478,10 +481,10 @@ def _boundary_patterns() -> Tuple[str, ...]:
 
 def _find_boundary_shp(
     *,
-    src: Optional[str],
+    src: str | None,
     payload_p: Path,
     city: str,
-) -> Optional[Path]:
+) -> Path | None:
     root = payload_p.parent
     if src:
         s = utils.as_path(src)
@@ -503,11 +506,11 @@ def _find_boundary_shp(
 def _load_boundary_segments(
     shp: Path,
     *,
-    extent: Tuple[float, float, float, float],
+    extent: tuple[float, float, float, float],
     coord_kind: str,
-    to_crs: Optional[str],
+    to_crs: str | None,
     clip: bool,
-) -> List[Tuple[np.ndarray, np.ndarray]]:
+) -> list[tuple[np.ndarray, np.ndarray]]:
     try:
         import geopandas as gpd
     except Exception:
@@ -543,7 +546,7 @@ def _load_boundary_segments(
     if gdf.empty:
         return []
 
-    segs: List[Tuple[np.ndarray, np.ndarray]] = []
+    segs: list[tuple[np.ndarray, np.ndarray]] = []
     for geom in gdf.geometry:
         if geom is None:
             continue
@@ -562,7 +565,7 @@ def _load_boundary_segments(
 
 def _geom_segments(
     geom,
-) -> Iterable[Tuple[np.ndarray, np.ndarray]]:
+) -> Iterable[tuple[np.ndarray, np.ndarray]]:
     """Yield (x,y) arrays for LineString-like geometries."""
     gtype = getattr(geom, "geom_type", "")
 
@@ -588,7 +591,7 @@ def _geom_segments(
 
 def _plot_boundary(
     ax: plt.Axes,
-    segs: List[Tuple[np.ndarray, np.ndarray]],
+    segs: list[tuple[np.ndarray, np.ndarray]],
     *,
     style: _BoundaryStyle,
 ) -> None:
@@ -607,6 +610,7 @@ def _plot_boundary(
 # ------------------------------------------------------------
 # Optional: scale bar + north arrow (panel c)
 # ------------------------------------------------------------
+
 
 def _nice_125(x: float) -> float:
     if x <= 0:
@@ -630,9 +634,9 @@ def _km_per_deg_lon(lat_deg: float) -> float:
 def _add_scalebar(
     ax: plt.Axes,
     *,
-    extent: Tuple[float, float, float, float],
+    extent: tuple[float, float, float, float],
     coord_kind: str,
-    km: Optional[float],
+    km: float | None,
 ) -> None:
     xmin, xmax, ymin, ymax = extent
     w = xmax - xmin
@@ -669,7 +673,7 @@ def _add_scalebar(
                 use_km = 0.0
 
         if use_km and use_km > 0:
-            dx = (use_km * 1000.0)
+            dx = use_km * 1000.0
             label = f"{use_km:g} km"
         else:
             use_m = _nice_125(0.25 * w_m)
@@ -712,7 +716,7 @@ def _add_scalebar(
 def _add_north_arrow(
     ax: plt.Axes,
     *,
-    extent: Tuple[float, float, float, float],
+    extent: tuple[float, float, float, float],
 ) -> None:
     xmin, xmax, ymin, ymax = extent
     w = xmax - xmin
@@ -742,6 +746,7 @@ def _add_north_arrow(
 # Plotting
 # ------------------------------------------------------------
 
+
 def _axes_cleanup(ax: plt.Axes) -> None:
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -763,7 +768,7 @@ def _overlay_censored(
     ax: plt.Axes,
     mask: np.ndarray,
     *,
-    extent: Tuple[float, float, float, float],
+    extent: tuple[float, float, float, float],
 ) -> None:
     m = np.asarray(mask) > 0.5
     if not np.any(m):
@@ -797,16 +802,16 @@ def plot_physics_fields(
     out: str,
     agg: str,
     grid: int,
-    clip_q: Tuple[float, float],
+    clip_q: tuple[float, float],
     delta_q: float,
     cmap: str,
     cmap_div: str,
     coord_kind: str,
     dpi: int,
     font: int,
-    render :str, 
-    hex_gridsize:int, 
-    hex_mincnt:int,
+    render: str,
+    hex_gridsize: int,
+    hex_mincnt: int,
     cbar_label_mode: str,
     cbar_labelpad: float,
     cbar_tickpad: float,
@@ -817,19 +822,17 @@ def plot_physics_fields(
     show_panel_titles: bool,
     show_panel_labels: bool,
     hatch_censored: bool,
-    title: Optional[str],
-    out_json: Optional[str],
+    title: str | None,
+    out_json: str | None,
     export_pdf: bool,
-    boundary_segs: Optional[
-        List[Tuple[np.ndarray, np.ndarray]]
-    ],
+    boundary_segs: list[tuple[np.ndarray, np.ndarray]] | None,
     boundary_style: _BoundaryStyle,
     scalebar: bool,
     north_arrow: bool,
-    scalebar_km: Optional[float],
-) -> List[str]:
+    scalebar_km: float | None,
+) -> list[str]:
     """Render and save the physics fields panel."""
-    
+
     utils.ensure_script_dirs()
     utils.set_paper_style(dpi=dpi, fontsize=font)
 
@@ -982,7 +985,7 @@ def plot_physics_fields(
 
     fig = plt.figure(figsize=(7.0, 4.6))
     # gs = GridSpec(2, 3, figure=fig, wspace=0.34, hspace=0.28)
-    # more breathing room 
+    # more breathing room
     gs = GridSpec(2, 3, figure=fig, wspace=0.42, hspace=0.28)
 
     axes = [
@@ -995,7 +998,7 @@ def plot_physics_fields(
     ]
 
     letters = ["a", "b", "c", "d", "e", "f"]
-    out_paths: List[str] = []
+    out_paths: list[str] = []
 
     items = top + bot
     ims = []
@@ -1039,7 +1042,7 @@ def plot_physics_fields(
                 interpolation="nearest",
                 aspect=aspect,
             )
-    
+
         ims.append(im)
 
         if hatch_censored and zC is not None:
@@ -1117,10 +1120,10 @@ def plot_physics_fields(
                 unit,
                 mode=cbar_label_mode,
             )
-            
+
             if not show_labels:
                 lab = ""
-            
+
             _apply_cbar_label(
                 cb,
                 lab,
@@ -1129,7 +1132,7 @@ def plot_physics_fields(
                 tickpad=cbar_tickpad,
                 ticksize=max(6, font - 1),
             )
-            
+
     base = utils.resolve_fig_out(out)
     if base.suffix:
         base = base.with_suffix("")
@@ -1161,7 +1164,7 @@ def plot_physics_fields(
         if jout.suffix != ".json":
             jout = jout.with_suffix(".json")
 
-        rec: Dict[str, object] = {
+        rec: dict[str, object] = {
             "city": city_name,
             "payload_keys": sorted(list(payload.keys())),
             "units": (meta or {}).get("units", {}),
@@ -1182,13 +1185,14 @@ def plot_physics_fields(
 
     return out_paths
 
+
 def _plot_hexbin(
     ax: plt.Axes,
     x: np.ndarray,
     y: np.ndarray,
     v: np.ndarray,
     *,
-    extent: Tuple[float, float, float, float],
+    extent: tuple[float, float, float, float],
     cmap: str,
     vmin: float,
     vmax: float,
@@ -1216,12 +1220,14 @@ def _plot_hexbin(
         ax.set_aspect("equal", adjustable="box")
     return hb
 
+
 # ------------------------------------------------------------
 # CLI
 # ------------------------------------------------------------
 
+
 def plot_physics_fields_main(
-    argv: Optional[List[str]] = None,
+    argv: list[str] | None = None,
 ) -> None:
     ap = argparse.ArgumentParser(
         prog="plot-physics-fields",
@@ -1468,12 +1474,10 @@ def plot_physics_fields_main(
     coord_kind = str(args.coord_kind or kind)
 
     # Preload boundary segments (optional)
-    boundary_segs: Optional[
-        List[Tuple[np.ndarray, np.ndarray]]
-    ]
+    boundary_segs: list[tuple[np.ndarray, np.ndarray]] | None
     boundary_segs = None
 
-    boundary_p: Optional[Path] = None
+    boundary_p: Path | None = None
     if args.boundary:
         boundary_p = Path(args.boundary).expanduser()
         if boundary_p.is_dir():
@@ -1547,9 +1551,9 @@ def plot_physics_fields_main(
         cbar_label_mode=str(args.cbar_label_mode),
         cbar_labelpad=float(args.cbar_labelpad),
         cbar_tickpad=float(args.cbar_tickpad),
-        render = str(args.render), 
-        hex_gridsize=int(args.hex_gridsize), 
-        hex_mincnt= int (args.hex_mincnt),
+        render=str(args.render),
+        hex_gridsize=int(args.hex_gridsize),
+        hex_mincnt=int(args.hex_mincnt),
         show_legend=show_legend,
         show_labels=show_labels,
         show_ticklabels=show_ticks,
@@ -1584,7 +1588,7 @@ def plot_physics_fields_main(
         print(f"[OK] wrote {p}")
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     plot_physics_fields_main(argv)
 
 

@@ -1,5 +1,5 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 # -------------------------------------------------
 # paths
@@ -21,12 +21,16 @@ bh = pd.read_csv(borehole_path)
 nxy = nansha[["x_m", "y_m"]].dropna().to_numpy(dtype=float)
 zxy = zhongshan[["x_m", "y_m"]].dropna().to_numpy(dtype=float)
 
+
 # -------------------------------------------------
 # helper: nearest distance from one point to a city cloud
 # -------------------------------------------------
-def nearest_distance(point_xy: np.ndarray, city_xy: np.ndarray) -> float:
+def nearest_distance(
+    point_xy: np.ndarray, city_xy: np.ndarray
+) -> float:
     d2 = np.sum((city_xy - point_xy) ** 2, axis=1)
     return float(np.sqrt(d2.min()))
+
 
 # -------------------------------------------------
 # classify each borehole
@@ -70,8 +74,12 @@ print(
 # -------------------------------------------------
 # split into two files
 # -------------------------------------------------
-nansha_bh = classified[classified["assigned_city"] == "nansha"].copy()
-zhongshan_bh = classified[classified["assigned_city"] == "zhongshan"].copy()
+nansha_bh = classified[
+    classified["assigned_city"] == "nansha"
+].copy()
+zhongshan_bh = classified[
+    classified["assigned_city"] == "zhongshan"
+].copy()
 
 out_dir = r"D:\projects\geoprior-v3\nat.com"
 

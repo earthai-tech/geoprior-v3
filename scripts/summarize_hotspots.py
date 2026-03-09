@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
@@ -53,8 +52,9 @@ Explicit output (relative -> scripts/out/):
 from __future__ import annotations
 
 import argparse
+
 # from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -66,7 +66,7 @@ from . import utils
 # ---------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------
-def _parse_args(argv: List[str] | None) -> argparse.Namespace:
+def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         prog="summarize-hotspots",
         description="Summarise hotspot clouds (stats by city/year/kind).",
@@ -104,13 +104,17 @@ def _parse_args(argv: List[str] | None) -> argparse.Namespace:
 # ---------------------------------------------------------------------
 # Core logic
 # ---------------------------------------------------------------------
-def _require_columns(df: pd.DataFrame, req: List[str]) -> None:
+def _require_columns(
+    df: pd.DataFrame, req: list[str]
+) -> None:
     missing = [c for c in req if c not in df.columns]
     if missing:
         raise KeyError(f"Missing required columns: {missing}")
 
 
-def _to_numeric_inplace(df: pd.DataFrame, cols: List[str]) -> None:
+def _to_numeric_inplace(
+    df: pd.DataFrame, cols: list[str]
+) -> None:
     for c in cols:
         if c in df.columns:
             df[c] = pd.to_numeric(df[c], errors="coerce")
@@ -120,16 +124,24 @@ def _summary_per_group(g: pd.DataFrame) -> pd.Series:
     """
     Compute summary stats for one (city, year, kind) group.
     """
-    out: Dict[str, Any] = {
+    out: dict[str, Any] = {
         "n_hotspots": int(len(g)),
         # Hotspot subsidence (mm/yr)
         "value_min": float(np.nanmin(g["value"].to_numpy())),
         "value_max": float(np.nanmax(g["value"].to_numpy())),
-        "value_mean": float(np.nanmean(g["value"].to_numpy())),
+        "value_mean": float(
+            np.nanmean(g["value"].to_numpy())
+        ),
         # Hotspot anomaly metric (mm/yr)
-        "metric_min": float(np.nanmin(g["metric_value"].to_numpy())),
-        "metric_max": float(np.nanmax(g["metric_value"].to_numpy())),
-        "metric_mean": float(np.nanmean(g["metric_value"].to_numpy())),
+        "metric_min": float(
+            np.nanmin(g["metric_value"].to_numpy())
+        ),
+        "metric_max": float(
+            np.nanmax(g["metric_value"].to_numpy())
+        ),
+        "metric_mean": float(
+            np.nanmean(g["metric_value"].to_numpy())
+        ),
     }
 
     if "baseline_value" in g.columns:
@@ -148,8 +160,12 @@ def _summary_per_group(g: pd.DataFrame) -> pd.Series:
         t = pd.to_numeric(g["threshold"], errors="coerce")
         out.update(
             {
-                "threshold_min": float(np.nanmin(t.to_numpy())),
-                "threshold_max": float(np.nanmax(t.to_numpy())),
+                "threshold_min": float(
+                    np.nanmin(t.to_numpy())
+                ),
+                "threshold_max": float(
+                    np.nanmax(t.to_numpy())
+                ),
             }
         )
 
@@ -173,7 +189,9 @@ def summarize_hotspots(df: pd.DataFrame) -> pd.DataFrame:
 
     # Normalize city names to canonical form.
     df = df.copy()
-    df["city"] = df["city"].astype(str).map(utils.canonical_city)
+    df["city"] = (
+        df["city"].astype(str).map(utils.canonical_city)
+    )
 
     # Types
     df["year"] = pd.to_numeric(df["year"], errors="coerce")
@@ -182,10 +200,17 @@ def summarize_hotspots(df: pd.DataFrame) -> pd.DataFrame:
 
     _to_numeric_inplace(
         df,
-        ["value", "metric_value", "baseline_value", "threshold"],
+        [
+            "value",
+            "metric_value",
+            "baseline_value",
+            "threshold",
+        ],
     )
 
-    grouped = df.groupby(["city", "year", "kind"], dropna=False)
+    grouped = df.groupby(
+        ["city", "year", "kind"], dropna=False
+    )
     out = grouped.apply(_summary_per_group).reset_index()
 
     # Stable column ordering.
@@ -209,7 +234,9 @@ def summarize_hotspots(df: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------
-def summarize_hotspots_main(argv: List[str] | None = None) -> None:
+def summarize_hotspots_main(
+    argv: list[str] | None = None,
+) -> None:
     args = _parse_args(argv)
 
     src = utils.as_path(args.hotspot_csv)
@@ -233,7 +260,7 @@ def summarize_hotspots_main(argv: List[str] | None = None) -> None:
         print(f"\n[OK] summary -> {out_path}")
 
 
-def main(argv: List[str] | None = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     summarize_hotspots_main(argv)
 
 

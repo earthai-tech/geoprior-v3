@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Author: LKouadio <etanoyau@gmail.com>
 # Adapted from: earthai-tech/fusionlab-learn — https://github.com/earthai-tech/gofast
@@ -11,37 +10,38 @@ and a combinator loss wrapper that aggregates per-head losses.
 
 from __future__ import annotations
 
-from typing import Optional, List, Union,  Dict, Tuple, Mapping
+from collections.abc import Mapping
 
 from ...api.property import NNLearner
 from ...utils.deps_utils import ensure_pkg
-from ._config import KERAS_BACKEND, DEP_MSG
 from ._config import (
-    Layer, 
+    DEP_MSG,
+    KERAS_BACKEND,
     Dense,
-    Loss, 
+    Layer,
+    Loss,
     Softmax,
-    Tensor, 
-    register_keras_serializable,
+    Tensor,
     get_loss,
+    register_keras_serializable,
     tf_add_n,
-    tf_float32,  
+    tf_autograph,
+    tf_cast,
+    tf_concat,
+    tf_constant,
     tf_expand_dims,
-    tf_stack,
-    tf_reduce_mean,
-    tf_reshape,
-    tf_autograph, 
-    tf_shape, 
-    tf_cast, 
-    tf_square, 
-    tf_log, 
-    tf_constant, 
-    tf_softplus, 
-    tf_reduce_logsumexp, 
-    tf_tile, 
+    tf_float32,
+    tf_log,
     tf_newaxis,
-    tf_concat, 
-    tf_reduce_sum
+    tf_reduce_logsumexp,
+    tf_reduce_mean,
+    tf_reduce_sum,
+    tf_reshape,
+    tf_shape,
+    tf_softplus,
+    tf_square,
+    tf_stack,
+    tf_tile,
 )
 
 __all__ = [
@@ -53,7 +53,8 @@ __all__ = [
     "QuantileDistributionModeling",
 ]
 
-_PI =3.141592653589793
+_PI = 3.141592653589793
+
 
 @register_keras_serializable(
     "geoprior.nn.components", name="GaussianHead"
@@ -77,43 +78,47 @@ class GaussianHead(Layer, NNLearner):
     """
 
     @ensure_pkg(
-        KERAS_BACKEND or "keras", 
-        extra="GaussianHead needs Keras backend."
+        KERAS_BACKEND or "keras",
+        extra="GaussianHead needs Keras backend.",
     )
     def __init__(
-        self, output_dim: int, 
-        min_scale: float = 1e-4, 
-        **kwargs
-        ):
+        self,
+        output_dim: int,
+        min_scale: float = 1e-4,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
         self.output_dim = output_dim
         self.min_scale = float(min_scale)
         # Predict 2 * O parameters (μ and raw σ)
         self.proj = Dense(
             2 * output_dim, name="gaussian_head_dense"
-            )
+        )
 
-    def call(self, features: Tensor, training: bool = False
-             ) -> Dict[str, Tensor]:
-        
-        params = self.proj(features)                           # (B,[H], 2*O)
+    def call(
+        self, features: Tensor, training: bool = False
+    ) -> dict[str, Tensor]:
+        params = self.proj(features)  # (B,[H], 2*O)
         shp = tf_shape(params)
         # new_shape = tf_stack(shp[:-1] + [2, self.output_dim])  # (..., 2, O)
-        tail = tf_constant([2, self.output_dim], dtype=shp.dtype)
+        tail = tf_constant(
+            [2, self.output_dim], dtype=shp.dtype
+        )
         new_shape = tf_concat([shp[:-1], tail], axis=0)
-        
+
         params = tf_reshape(params, new_shape)
 
-        mean  = params[..., 0, :]                              # (..., O)
-        raw_s = params[..., 1, :]                              # (..., O)
+        mean = params[..., 0, :]  # (..., O)
+        raw_s = params[..., 1, :]  # (..., O)
         # Softplus for strict positivity
         scale = tf_softplus(raw_s) + self.min_scale
 
         return {"mean": mean, "scale": scale}
 
     @tf_autograph.experimental.do_not_convert
-    def nll(self, y_true: Tensor, mean: Tensor, scale: Tensor
-            ) -> Tensor:
+    def nll(
+        self, y_true: Tensor, mean: Tensor, scale: Tensor
+    ) -> Tensor:
         """
         Computes −log p(y | μ, σ) for a factorised Normal.
 
@@ -138,7 +143,11 @@ class GaussianHead(Layer, NNLearner):
     def get_config(self):
         cfg = super().get_config()
         cfg.update(
-            {"output_dim": self.output_dim, "min_scale": self.min_scale})
+            {
+                "output_dim": self.output_dim,
+                "min_scale": self.min_scale,
+            }
+        )
         return cfg
 
     @classmethod
@@ -173,14 +182,16 @@ class MixtureDensityHead(Layer, NNLearner):
         Numerical floor added to σ.
     """
 
-    @ensure_pkg(KERAS_BACKEND or "keras", 
-                extra="MixtureDensityHead needs Keras backend.")
+    @ensure_pkg(
+        KERAS_BACKEND or "keras",
+        extra="MixtureDensityHead needs Keras backend.",
+    )
     def __init__(
         self,
         output_dim: int,
         num_components: int,
         min_scale: float = 1e-4,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
         if num_components < 1:
@@ -193,52 +204,70 @@ class MixtureDensityHead(Layer, NNLearner):
         # but weights have to be separate because of softmax over K.
         # We'll predict everything in a single Dense and split.
         self.param_proj = Dense(
-            num_components * (2 * output_dim) + num_components,  # w + μ,σ
-            name="mdn_dense"
+            num_components * (2 * output_dim)
+            + num_components,  # w + μ,σ
+            name="mdn_dense",
         )
         self.softmax = Softmax(axis=-2)  # softmax across K
 
-    def call(self, features: Tensor, training: bool = False
-             ) -> Dict[str, Tensor]:
-        raw = self.param_proj(features)  # (B,[H], K*(2*O) + K)
+    def call(
+        self, features: Tensor, training: bool = False
+    ) -> dict[str, Tensor]:
+        raw = self.param_proj(
+            features
+        )  # (B,[H], K*(2*O) + K)
         shp = tf_shape(raw)
         # last = shp[-1] # noqa
 
         # Split: first K for weights, remaining 2*K*O for μ/σ
         k = self.num_components
         o = self.output_dim
-        
+
         w_end = k
-        w_raw = raw[..., :w_end]          # (B,[H], K)
-        rest  = raw[..., w_end:]          # (B,[H], 2*K*O)
-        
+        w_raw = raw[..., :w_end]  # (B,[H], K)
+        rest = raw[..., w_end:]  # (B,[H], 2*K*O)
+
         # Reshape rest → (..., K, 2, O)
         # rest_shape = tf_stack(shp[:-1] + [k, 2, o])
         tail = tf_constant([k, 2, o], dtype=shp.dtype)
         rest_shape = tf_concat([shp[:-1], tail], axis=0)
-       
+
         rest = tf_reshape(rest, rest_shape)
-        means  = rest[..., 0, :]                       # (..., K, O)
-        raw_s  = rest[..., 1, :]                       # (..., K, O)
+        means = rest[..., 0, :]  # (..., K, O)
+        raw_s = rest[..., 1, :]  # (..., K, O)
         scales = tf_softplus(raw_s) + self.min_scale
-        
+
         # weights: if K==1, skip softmax and set weights=1
         if k == 1:
             one = tf_constant(1.0, dtype=w_raw.dtype)
-            w = tf_expand_dims(w_raw * 0.0 + one, axis=-1)   # (B,[H], 1, 1)
+            w = tf_expand_dims(
+                w_raw * 0.0 + one, axis=-1
+            )  # (B,[H], 1, 1)
         else:
-            w = self.softmax(tf_expand_dims(w_raw, axis=-1)) # (B,[H], K, 1)
-        
-        if o > 1:
-            w = tf_tile(w, [1] * (len(w.shape) - 1) + [o])   # (B,[H], K, O)
+            w = self.softmax(
+                tf_expand_dims(w_raw, axis=-1)
+            )  # (B,[H], K, 1)
 
-        return {"weights": w, "means": means, "scales": scales}
+        if o > 1:
+            w = tf_tile(
+                w, [1] * (len(w.shape) - 1) + [o]
+            )  # (B,[H], K, O)
+
+        return {
+            "weights": w,
+            "means": means,
+            "scales": scales,
+        }
 
     # Negative log-likelihood for mixtures
     @tf_autograph.experimental.do_not_convert
     def nll(
-            self, y_true: Tensor, weights: Tensor, means: Tensor,
-            scales: Tensor) -> Tensor:
+        self,
+        y_true: Tensor,
+        weights: Tensor,
+        means: Tensor,
+        scales: Tensor,
+    ) -> Tensor:
         """
         Compute −log Σ_k π_k N(y|μ_k, σ_k) assuming factorised over O.
 
@@ -257,9 +286,10 @@ class MixtureDensityHead(Layer, NNLearner):
         var = tf_square(scales)
 
         # log N = -0.5 * [log(2πσ^2) + (y-μ)^2/σ^2]
-        log_norm = (
-            -0.5 * (tf_log(two_pi * var) + tf_square(
-                y_true[..., tf_newaxis, :] - means) / var)
+        log_norm = -0.5 * (
+            tf_log(two_pi * var)
+            + tf_square(y_true[..., tf_newaxis, :] - means)
+            / var
         )  # (B,[H], K, O)
 
         # log Σ_k π_k exp(log_norm)  (log-sum-exp per O)
@@ -268,25 +298,30 @@ class MixtureDensityHead(Layer, NNLearner):
         eps = tf_constant(1e-8, dtype=weights.dtype)
         log_w = tf_log(weights + eps)
 
-        log_mix = tf_reduce_logsumexp(log_w + log_norm, axis=-2)  # sum over K
+        log_mix = tf_reduce_logsumexp(
+            log_w + log_norm, axis=-2
+        )  # sum over K
 
         # Sum across O, then mean over batch/time
         # If you consider independence across O: sum log p(o)
-        nll = - tf_reduce_mean(tf_reduce_sum(log_mix, axis=-1))
+        nll = -tf_reduce_mean(tf_reduce_sum(log_mix, axis=-1))
         return nll
 
     def get_config(self):
         cfg = super().get_config()
-        cfg.update({
-            "output_dim": self.output_dim,
-            "num_components": self.num_components,
-            "min_scale": self.min_scale,
-        })
+        cfg.update(
+            {
+                "output_dim": self.output_dim,
+                "num_components": self.num_components,
+                "min_scale": self.min_scale,
+            }
+        )
         return cfg
 
     @classmethod
     def from_config(cls, config):
         return cls(**config)
+
 
 @register_keras_serializable(
     "geoprior.nn.components", name="PointForecastHead"
@@ -304,17 +339,19 @@ class PointForecastHead(Layer, NNLearner):
         Number of target features per horizon (O).
     """
 
-    @ensure_pkg(KERAS_BACKEND or "keras",
-                extra="PointForecastHead needs Keras backend.")
+    @ensure_pkg(
+        KERAS_BACKEND or "keras",
+        extra="PointForecastHead needs Keras backend.",
+    )
     def __init__(self, output_dim: int, **kwargs):
         super().__init__(**kwargs)
         self.output_dim = output_dim
         # Single projection to the final target dimension
         self.proj = Dense(output_dim, name="point_head_dense")
 
-    def call(self,
-             features: Tensor,
-             training: bool = False) -> Tensor:
+    def call(
+        self, features: Tensor, training: bool = False
+    ) -> Tensor:
         """Forward pass: simple linear projection."""
         return self.proj(features)
 
@@ -347,26 +384,33 @@ class QuantileHead(Layer, NNLearner):
         Target dimension per horizon (O).
     """
 
-    @ensure_pkg(KERAS_BACKEND or "keras",
-                extra="QuantileHead needs Keras backend.")
-    def __init__(self,
-                 quantiles: List[float],
-                 output_dim: int,
-                 **kwargs):
+    @ensure_pkg(
+        KERAS_BACKEND or "keras",
+        extra="QuantileHead needs Keras backend.",
+    )
+    def __init__(
+        self,
+        quantiles: list[float],
+        output_dim: int,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
         if not quantiles:
-            raise ValueError("Quantiles list must be non‑empty.")
-        self.quantiles   = quantiles
-        self.output_dim  = output_dim
-        self.q           = len(quantiles)
+            raise ValueError(
+                "Quantiles list must be non‑empty."
+            )
+        self.quantiles = quantiles
+        self.output_dim = output_dim
+        self.q = len(quantiles)
 
         # Project to Q * O, then reshape to (..., Q, O)
-        self.proj = Dense(self.q * output_dim,
-                          name="quantile_head_dense")
+        self.proj = Dense(
+            self.q * output_dim, name="quantile_head_dense"
+        )
 
-    def call(self,
-             features: Tensor,
-             training: bool = False) -> Tensor:
+    def call(
+        self, features: Tensor, training: bool = False
+    ) -> Tensor:
         """
         Forward pass.
 
@@ -374,23 +418,27 @@ class QuantileHead(Layer, NNLearner):
         (..., Q, O), preserving any leading batch / horizon dims.
         """
         # Supports (B, F) or (B,H,F). Output should insert Q dimension before O.
-        out = self.proj(features)                 # (B,[H], Q*O)
-        shp = tf_shape(out)                       # dynamic shape
+        out = self.proj(features)  # (B,[H], Q*O)
+        shp = tf_shape(out)  # dynamic shape
         # new_shape = tf_stack(                     # (B,[H], Q, O)
         #     shp[:-1] + [self.q, self.output_dim]
         # )
-        tail = tf_constant([self.q, self.output_dim], dtype=shp.dtype)
+        tail = tf_constant(
+            [self.q, self.output_dim], dtype=shp.dtype
+        )
         new_shape = tf_concat([shp[:-1], tail], axis=0)
-        
+
         out = tf_reshape(out, new_shape)
         return out
 
     def get_config(self) -> dict:
         cfg = super().get_config()
-        cfg.update({
-            "quantiles": self.quantiles,
-            "output_dim": self.output_dim
-        })
+        cfg.update(
+            {
+                "quantiles": self.quantiles,
+                "output_dim": self.output_dim,
+            }
+        )
         return cfg
 
     @classmethod
@@ -426,21 +474,25 @@ class CombinedHeadLoss(Loss, NNLearner):
     >>> # Inside model compile, y_pred/y_true are dicts with those keys.
     """
 
-    @ensure_pkg("keras", extra="CombinedHeadLoss needs Keras backend.")
+    @ensure_pkg(
+        "keras", extra="CombinedHeadLoss needs Keras backend."
+    )
     def __init__(
         self,
-        heads_losses: Mapping[str, Tuple[Loss, float]],
+        heads_losses: Mapping[str, tuple[Loss, float]],
         reduction: str = "sum",
         name: str = "CombinedHeadLoss",
     ):
-        super().__init__(name=name, reduction="sum")  # we manage reduction manually
+        super().__init__(
+            name=name, reduction="sum"
+        )  # we manage reduction manually
         if not heads_losses:
             raise ValueError("heads_losses cannot be empty.")
 
         # Normalize to {str: (Loss, weight)}
-        norm: Dict[str, Tuple[Loss, float]] = {}
+        norm: dict[str, tuple[Loss, float]] = {}
         for k, v in heads_losses.items():
-            if isinstance(v, (list, tuple)):
+            if isinstance(v, list | tuple):
                 if len(v) == 1:
                     norm[k] = (v[0], 1.0)
                 else:
@@ -472,7 +524,9 @@ class CombinedHeadLoss(Loss, NNLearner):
         elif self._reduction_mode == "mean":
             return tf_reduce_mean(tf_stack(total_terms))
         else:
-            raise ValueError(f"Unknown reduction '{self._reduction_mode}'.")
+            raise ValueError(
+                f"Unknown reduction '{self._reduction_mode}'."
+            )
 
     def get_config(self):
         cfg = super().get_config()
@@ -481,13 +535,17 @@ class CombinedHeadLoss(Loss, NNLearner):
         for k, (loss_fn, w) in self.heads_losses.items():
             sub_cfg[k] = {
                 "loss_class": loss_fn.__class__.__name__,
-                "config": getattr(loss_fn, "get_config", lambda: {})(),
+                "config": getattr(
+                    loss_fn, "get_config", lambda: {}
+                )(),
                 "weight": w,
             }
-        cfg.update({
-            "heads_losses": sub_cfg,
-            "reduction_mode": self._reduction_mode,
-        })
+        cfg.update(
+            {
+                "heads_losses": sub_cfg,
+                "reduction_mode": self._reduction_mode,
+            }
+        )
         return cfg
 
     @classmethod
@@ -495,7 +553,7 @@ class CombinedHeadLoss(Loss, NNLearner):
         # We need to rebuild each loss. We only know class name string; user may
         # prefer to pass already-built object (deserialization logic can be customized).
         sub_cfg = config.pop("heads_losses")
-        rebuilt: Dict[str, Tuple[Loss, float]] = {}
+        rebuilt: dict[str, tuple[Loss, float]] = {}
 
         for k, info in sub_cfg.items():
             # Try generic keras get(); if fails, user must patch here
@@ -507,8 +565,8 @@ class CombinedHeadLoss(Loss, NNLearner):
 
 
 @register_keras_serializable(
-    'geoprior.nn.components', 
-    name="QuantileDistributionModeling"
+    "geoprior.nn.components",
+    name="QuantileDistributionModeling",
 )
 class QuantileDistributionModeling(Layer, NNLearner):
     r"""
@@ -583,8 +641,8 @@ class QuantileDistributionModeling(Layer, NNLearner):
     @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
     def __init__(
         self,
-        quantiles: Optional[Union[str, List[float]]],
-        output_dim: int, 
+        quantiles: str | list[float] | None,
+        output_dim: int,
         **kwargs,
     ):
         r"""
@@ -601,7 +659,7 @@ class QuantileDistributionModeling(Layer, NNLearner):
             the deterministic case.
         """
         super().__init__(**kwargs)
-        if quantiles == 'auto':
+        if quantiles == "auto":
             quantiles = [0.1, 0.5, 0.9]
         self.quantiles = quantiles
         self.output_dim = output_dim
@@ -638,13 +696,14 @@ class QuantileDistributionModeling(Layer, NNLearner):
         # ensure last dim is statically known (Keras2 reload safety)
         try:
             # TF tensors support set_shape
-            if ( 
-                    inputs.shape.rank is not None 
-                    and inputs.shape[-1] is None
-                ):
+            if (
+                inputs.shape.rank is not None
+                and inputs.shape[-1] is None
+            ):
                 inputs.set_shape(
                     inputs.shape[:-1].concatenate(
-                        [self.output_dim])
+                        [self.output_dim]
+                    )
                 )
         except:
             pass
@@ -671,10 +730,12 @@ class QuantileDistributionModeling(Layer, NNLearner):
             Contains 'quantiles' and 'output_dim'.
         """
         config = super().get_config().copy()
-        config.update({
-            'quantiles': self.quantiles,
-            'output_dim': self.output_dim
-        })
+        config.update(
+            {
+                "quantiles": self.quantiles,
+                "output_dim": self.output_dim,
+            }
+        )
         return config
 
     @classmethod

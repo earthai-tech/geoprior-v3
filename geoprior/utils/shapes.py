@@ -1,18 +1,17 @@
-# -*- coding: utf-8 -*-
 # License: Apache-2.0
 # Copyright (c) 2026-present
 # Author: LKouadio <etanoyau@gmail.com>
 
 from __future__ import annotations
 
-from typing import Any, Callable, Optional, Sequence, Tuple
+from collections.abc import Callable, Sequence
+from typing import Any
 
-
-import numpy as np 
+import numpy as np
 
 __all__ = [
     "canonicalize_BHQO",
-    "canonicalize_BHQO_quantiles_np" 
+    "canonicalize_BHQO_quantiles_np",
 ]
 
 
@@ -70,7 +69,7 @@ def canonicalize_BHQO(
     arr or (arr, layout)
         Canonical (B, H, Q, O) and optionally the layout.
     """
-    
+
     # Accept explicit "auto" to mean "infer".
     if layout is not None:
         lay = str(layout).strip().lower()
@@ -112,6 +111,7 @@ def canonicalize_BHQO(
 # ---------------------------------------------------------------------
 # NumPy backend
 # ---------------------------------------------------------------------
+
 
 def _canonicalize_np(
     y_pred: Any,
@@ -292,8 +292,7 @@ def _ensure_rank4_np(
     if y.ndim != 4:
         if verbose:
             log_fn(
-                "canonicalize_BHQO: "
-                f"rank={y.ndim}, skipping."
+                f"canonicalize_BHQO: rank={y.ndim}, skipping."
             )
     return y
 
@@ -316,8 +315,7 @@ def _apply_layout_np(
     if lay == "BHOQ":
         return np.transpose(y, (0, 1, 3, 2))
     raise ValueError(
-        "layout must be one of: "
-        "BHQO, BQHO, BHOQ."
+        "layout must be one of: BHQO, BQHO, BHOQ."
     )
 
 
@@ -376,8 +374,7 @@ def _canonicalize_tf(
     if not opts:
         if verbose:
             log_fn(
-                "canonicalize_BHQO: "
-                "no options; unchanged."
+                "canonicalize_BHQO: no options; unchanged."
             )
         return y, "UNCHANGED"
 
@@ -541,8 +538,7 @@ def _apply_layout_tf(
     if lay == "BHOQ":
         return tf.transpose(y, [0, 1, 3, 2])
     raise ValueError(
-        "layout must be one of: "
-        "BHQO, BQHO, BHOQ."
+        "layout must be one of: BHQO, BQHO, BHOQ."
     )
 
 
@@ -563,6 +559,7 @@ def _prefer_bhqo(
         if name == "BHQO":
             return name, arr
     return opts[0]
+
 
 def canonicalize_to_BHQO_using_contract(
     s_pred,
@@ -621,8 +618,7 @@ def canonicalize_to_BHQO_using_contract(
         if s.ndim != 4:
             _log(
                 1,
-                "canon_BHQO[np]: "
-                f"rank={s.ndim}, unchanged.",
+                f"canon_BHQO[np]: rank={s.ndim}, unchanged.",
             )
             return s
 
@@ -660,7 +656,6 @@ def canonicalize_to_BHQO_using_contract(
 
         _log(1, f"canon_BHQO[np]: out={out.shape}")
         return out
-
 
     # TensorFlow backend (safe conversion + verbose)
 
@@ -718,6 +713,7 @@ def canonicalize_to_BHQO_using_contract(
         _log(2, "canon_BHQO[tf]: sorted axis=2.")
 
     return out
+
 
 def ensure_subs_bhq(
     s_pred_b,
@@ -828,8 +824,7 @@ def ensure_subs_bhq(
         if n_q <= 0:
             _log(
                 1,
-                "ensure_subs_bhq[np]: "
-                "n_q<=0, unchanged.",
+                "ensure_subs_bhq[np]: n_q<=0, unchanged.",
             )
             return s
 
@@ -837,8 +832,7 @@ def ensure_subs_bhq(
         d2 = int(s.shape[2])
         _log(
             2,
-            "ensure_subs_bhq[np]: "
-            f"d1={d1} d2={d2} n_q={n_q}",
+            f"ensure_subs_bhq[np]: d1={d1} d2={d2} n_q={n_q}",
         )
 
         if (d2 == n_q) and (d1 != n_q):
@@ -890,10 +884,14 @@ def ensure_subs_bhq(
             if np.isfinite(mae_keep) or np.isfinite(mae_swap):
                 if mae_swap < mae_keep:
                     out = swap
-                    _log(1, "ensure_subs_bhq[np]: swap (mae).")
+                    _log(
+                        1, "ensure_subs_bhq[np]: swap (mae)."
+                    )
                 else:
                     out = keep
-                    _log(1, "ensure_subs_bhq[np]: keep (mae).")
+                    _log(
+                        1, "ensure_subs_bhq[np]: keep (mae)."
+                    )
             else:
                 # Fallback: use quantile crossing score.
                 cs_keep = _cross_score_np(keep)
@@ -921,8 +919,7 @@ def ensure_subs_bhq(
             out = np.sort(out, axis=2)
             _log(
                 2,
-                "ensure_subs_bhq[np]: "
-                "sorted along axis=2.",
+                "ensure_subs_bhq[np]: sorted along axis=2.",
             )
 
         _log(1, f"ensure_subs_bhq[np]: out={out.shape}")
@@ -994,6 +991,7 @@ def ensure_subs_bhq(
 
     return out
 
+
 # ---------------------------------------------------------------------
 # Small helpers
 # ---------------------------------------------------------------------
@@ -1021,6 +1019,7 @@ def _fmt(v: Any) -> str:
         return f"{float(v):.6f}"
     except Exception:
         return str(v)
+
 
 def canonicalize_BHQO_quantiles_np(
     y: Any,
@@ -1117,8 +1116,8 @@ def canonicalize_BHQO_quantiles_np(
 
     # Multiple candidates (e.g., H==Q==3):
     # pick best by minimal quantile crossing score.
-    best_name: Optional[str] = None
-    best_arr: Optional[np.ndarray] = None
+    best_name: str | None = None
+    best_arr: np.ndarray | None = None
     best_score = float("inf")
 
     for name, arr in options:
@@ -1179,6 +1178,6 @@ def _mean_crossing_score(
 
 def _safe_transpose(
     y: np.ndarray,
-    axes: Tuple[int, int, int, int],
+    axes: tuple[int, int, int, int],
 ) -> np.ndarray:
     return np.transpose(y, axes)

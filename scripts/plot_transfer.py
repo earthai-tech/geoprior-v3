@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -33,20 +32,20 @@ python -m scripts.plot_transfer \
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable, List, Optional, Tuple
+from typing import Any
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
 from . import config as cfg
 from . import utils as u
-
 
 _DIR_CANON = {
     "a_to_b": "A_to_B",
@@ -70,12 +69,12 @@ class TextFlags:
     show_ticklabels: bool
     show_title: bool
     show_panel_titles: bool
-    title: Optional[str]
+    title: str | None
 
 
 def _canon_dir(x: Any) -> str:
     s = str(x).strip()
-    k = s#.lower()
+    k = s  # .lower()
     return _DIR_CANON.get(k, s)
 
 
@@ -128,7 +127,7 @@ def _canon_cols(df: pd.DataFrame) -> pd.DataFrame:
 def _find_xfer_csv(src: Any) -> Path:
     pats = None
     if hasattr(cfg, "PATTERNS"):
-        pats = (cfg.PATTERNS.get("xfer_results_csv") or None)
+        pats = cfg.PATTERNS.get("xfer_results_csv") or None
     pats = pats or ("xfer_results.csv", "*xfer_results*.csv")
 
     p = u.find_latest(src, pats, must_exist=True)
@@ -144,7 +143,7 @@ def _subset(
     strategy: str,
     split: str,
     calib: str,
-    rescale_mode: Optional[str],
+    rescale_mode: str | None,
     baseline_rescale: str,
 ) -> pd.DataFrame:
     d = _canon_dir(direction)
@@ -206,7 +205,7 @@ def _pick(
     strategy: str,
     split: str,
     calib: str,
-    rescale_mode: Optional[str],
+    rescale_mode: str | None,
     baseline_rescale: str,
     col: str,
     reduce: str,
@@ -260,10 +259,10 @@ def _plot_bars(
     *,
     metric_key: str,
     split: str,
-    directions: List[str],
-    strategies: List[str],
-    calib_modes: List[str],
-    rescale_mode: Optional[str],
+    directions: list[str],
+    strategies: list[str],
+    calib_modes: list[str],
+    rescale_mode: str | None,
     baseline_rescale: str,
     reduce: str,
     cov_target: float,
@@ -315,7 +314,9 @@ def _plot_bars(
                     color=face,
                     alpha=0.86,
                     hatch=cfg._STRAT_HATCH.get(s, ""),
-                    edgecolor=cfg._STRAT_EDGE.get(s, "#111111"),
+                    edgecolor=cfg._STRAT_EDGE.get(
+                        s, "#111111"
+                    ),
                     linewidth=0.6,
                 )
 
@@ -346,20 +347,20 @@ def _plot_cov_sharp(
     *,
     direction: str,
     split: str,
-    strategies: List[str],
-    calib_modes: List[str],
-    rescale_mode: Optional[str],
+    strategies: list[str],
+    calib_modes: list[str],
+    rescale_mode: str | None,
     baseline_rescale: str,
     reduce: str,
     cov_target: float,
     text: TextFlags,
-) -> Tuple[List[float], List[float]]:
+) -> tuple[list[float], list[float]]:
     tgt = _dir_target_city(df, direction)
     tgt = u.canonical_city(tgt).lower()
     face = cfg.CITY_COLORS.get(tgt, "#777777")
 
-    all_cov: List[float] = []
-    all_shp: List[float] = []
+    all_cov: list[float] = []
+    all_shp: list[float] = []
 
     for s in strategies:
         for cm in calib_modes:
@@ -408,7 +409,9 @@ def _plot_cov_sharp(
             all_cov.append(float(y))
             all_shp.append(float(x))
 
-    ax.axhline(float(cov_target), linestyle="--", linewidth=0.7)
+    ax.axhline(
+        float(cov_target), linestyle="--", linewidth=0.7
+    )
 
     if text.show_labels:
         ax.set_xlabel("Sharpness80 (mm)")
@@ -431,11 +434,11 @@ def _add_legends(
     ax: Any,
     df: pd.DataFrame,
     *,
-    directions: List[str],
-    strategies: List[str],
-    calib_modes: List[str],
+    directions: list[str],
+    strategies: list[str],
+    calib_modes: list[str],
 ) -> None:
-    dir_handles: List[Any] = []
+    dir_handles: list[Any] = []
     for d in directions:
         lab = _dir_label(df, d)
         tgt = _dir_target_city(df, d)
@@ -451,7 +454,7 @@ def _add_legends(
             )
         )
 
-    strat_handles: List[Any] = []
+    strat_handles: list[Any] = []
     for s in strategies:
         strat_handles.append(
             Patch(
@@ -463,7 +466,7 @@ def _add_legends(
             )
         )
 
-    cal_handles: List[Any] = []
+    cal_handles: list[Any] = []
     for c in calib_modes:
         cal_handles.append(
             Line2D(
@@ -506,9 +509,9 @@ def render(
     df: pd.DataFrame,
     *,
     split: str,
-    strategies: List[str],
-    calib_modes: List[str],
-    rescale_mode: Optional[str],
+    strategies: list[str],
+    calib_modes: list[str],
+    rescale_mode: str | None,
     baseline_rescale: str,
     reduce: str,
     cov_target: float,
@@ -516,7 +519,7 @@ def render(
     text: TextFlags,
     metric_top: str = "mae",
     metric_bottom: str = "rmse",
-) -> Tuple[Path, Path]:
+) -> tuple[Path, Path]:
     u.set_paper_style()
 
     directions = ["A_to_B", "B_to_A"]
@@ -594,19 +597,22 @@ def render(
         cov_target=cov_target,
         text=text,
     )
-    top_title = str(metric_top).upper() 
-    bottom_title = ( 
-        "$R^2$" if str(metric_bottom).lower() =="r2" 
-        else str(metric_bottom).upper() 
+    top_title = str(metric_top).upper()
+    bottom_title = (
+        "$R^2$"
+        if str(metric_bottom).lower() == "r2"
+        else str(metric_bottom).upper()
     )
     if text.show_panel_titles:
         ax_mae.set_title(f"(a) {top_title} vs calibration")
         ax_r2.set_title(f"(a) {bottom_title} vs calibration")
         ax_ab.set_title(
-            "(b) Coverage–sharpness: " + _dir_label(df, "A_to_B")
+            "(b) Coverage–sharpness: "
+            + _dir_label(df, "A_to_B")
         )
         ax_ba.set_title(
-            "(c) Coverage–sharpness: " + _dir_label(df, "B_to_A")
+            "(c) Coverage–sharpness: "
+            + _dir_label(df, "B_to_A")
         )
 
     all_cov = np.asarray(cov_ab + cov_ba, dtype=float)
@@ -639,9 +645,7 @@ def render(
         )
 
     if text.show_title:
-        t0 = (
-            "Supplementary Figure Sx — Cross-city transferability"
-        )
+        t0 = "Supplementary Figure Sx — Cross-city transferability"
         t = u.resolve_title(default=t0, title=text.title)
         fig.suptitle(t, x=0.02, y=0.99, ha="left")
 
@@ -658,7 +662,7 @@ def render(
     return png, svg
 
 
-def parse_args(argv: List[str] | None = None) -> Any:
+def parse_args(argv: list[str] | None = None) -> Any:
     ap = u.argparse.ArgumentParser(  # type: ignore[attr-defined]
         prog="plot-transfer",
         description=(
@@ -751,13 +755,19 @@ def parse_args(argv: List[str] | None = None) -> Any:
 
 def _text_flags(args: Any) -> TextFlags:
     return TextFlags(
-        show_legend=u.str_to_bool(args.show_legend, default=True),
-        show_labels=u.str_to_bool(args.show_labels, default=True),
+        show_legend=u.str_to_bool(
+            args.show_legend, default=True
+        ),
+        show_labels=u.str_to_bool(
+            args.show_labels, default=True
+        ),
         show_ticklabels=u.str_to_bool(
             args.show_ticklabels,
             default=True,
         ),
-        show_title=u.str_to_bool(args.show_title, default=True),
+        show_title=u.str_to_bool(
+            args.show_title, default=True
+        ),
         show_panel_titles=u.str_to_bool(
             args.show_panel_titles,
             default=True,
@@ -767,7 +777,7 @@ def _text_flags(args: Any) -> TextFlags:
 
 
 def figSx_xfer_transferability_main(
-    argv: List[str] | None = None,
+    argv: list[str] | None = None,
 ) -> None:
     u.ensure_script_dirs()
 
@@ -815,7 +825,7 @@ def figSx_xfer_transferability_main(
     print(f"[OK] Wrote {svg}")
 
 
-def main(argv: List[str] | None = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     figSx_xfer_transferability_main(argv)
 
 

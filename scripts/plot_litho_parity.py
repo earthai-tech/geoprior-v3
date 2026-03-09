@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -22,16 +21,14 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import List, Tuple
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 
 from . import config as cfg
 from . import utils
-
 
 CITY_COLORS = cfg.CITY_COLORS
 
@@ -57,7 +54,7 @@ def _phi(z: float) -> float:
 
 def chisq_cramers_v(
     counts_2xk: np.ndarray,
-) -> Tuple[float, float, int, float]:
+) -> tuple[float, float, int, float]:
     rs = counts_2xk.sum(axis=1, keepdims=True)
     cs = counts_2xk.sum(axis=0, keepdims=True)
     tot = float(counts_2xk.sum())
@@ -68,7 +65,9 @@ def chisq_cramers_v(
     with np.errstate(divide="ignore", invalid="ignore"):
         chi2 = np.nansum(((counts_2xk - exp) ** 2) / exp)
 
-    dof = int((counts_2xk.shape[0] - 1) * (counts_2xk.shape[1] - 1))
+    dof = int(
+        (counts_2xk.shape[0] - 1) * (counts_2xk.shape[1] - 1)
+    )
     pval = np.nan
     if dof > 0 and np.isfinite(chi2):
         k = float(dof)
@@ -122,13 +121,20 @@ def compute_proportions(
     col: str,
     top_n: int,
     group_others: bool,
-) -> Tuple[pd.DataFrame, List[str], np.ndarray]:
+) -> tuple[pd.DataFrame, list[str], np.ndarray]:
     c_ns = ns[col].value_counts(dropna=False)
     c_zh = zh[col].value_counts(dropna=False)
 
-    classes = list(set(c_ns.index.tolist()) | set(c_zh.index.tolist()))
-    tot = {k: int(c_ns.get(k, 0)) + int(c_zh.get(k, 0)) for k in classes}
-    classes = sorted(classes, key=lambda k: tot[k], reverse=True)
+    classes = list(
+        set(c_ns.index.tolist()) | set(c_zh.index.tolist())
+    )
+    tot = {
+        k: int(c_ns.get(k, 0)) + int(c_zh.get(k, 0))
+        for k in classes
+    }
+    classes = sorted(
+        classes, key=lambda k: tot[k], reverse=True
+    )
 
     core = classes[: int(top_n)]
     rest = classes[int(top_n) :]
@@ -142,10 +148,14 @@ def compute_proportions(
     p_ns = _props(c_ns)
     p_zh = _props(c_zh)
 
-    data: List[tuple] = []
+    data: list[tuple] = []
     for cls in core:
-        data.append((cls, "Nansha", float(p_ns.get(cls, 0.0))))
-        data.append((cls, "Zhongshan", float(p_zh.get(cls, 0.0))))
+        data.append(
+            (cls, "Nansha", float(p_ns.get(cls, 0.0)))
+        )
+        data.append(
+            (cls, "Zhongshan", float(p_zh.get(cls, 0.0)))
+        )
 
     if group_others and len(rest) > 0:
         ns_o = float(p_ns.loc[rest].sum())
@@ -170,15 +180,25 @@ def compute_proportions(
         categories=order,
         ordered=True,
     )
-    dfp = dfp.sort_values(["class", "city"]).reset_index(drop=True)
+    dfp = dfp.sort_values(["class", "city"]).reset_index(
+        drop=True
+    )
 
     k = len(core)
     mat = np.zeros((2, k), dtype=float)
 
     for j, cls in enumerate(core):
         if cls == "Others":
-            ns_c = float(c_ns.loc[rest].sum()) if len(rest) else 0.0
-            zh_c = float(c_zh.loc[rest].sum()) if len(rest) else 0.0
+            ns_c = (
+                float(c_ns.loc[rest].sum())
+                if len(rest)
+                else 0.0
+            )
+            zh_c = (
+                float(c_zh.loc[rest].sum())
+                if len(rest)
+                else 0.0
+            )
         else:
             ns_c = float(c_ns.get(cls, 0.0))
             zh_c = float(c_zh.get(cls, 0.0))
@@ -190,16 +210,28 @@ def compute_proportions(
 
 def _extract_props(
     dfp: pd.DataFrame,
-    classes_order: List[str],
-) -> Tuple[List[float], List[float]]:
-    ns_props: List[float] = []
-    zh_props: List[float] = []
+    classes_order: list[str],
+) -> tuple[list[float], list[float]]:
+    ns_props: list[float] = []
+    zh_props: list[float] = []
 
     for cls in classes_order:
-        m_ns = (dfp["class"] == cls) & (dfp["city"] == "Nansha")
-        m_zh = (dfp["class"] == cls) & (dfp["city"] == "Zhongshan")
-        ns_props.append(float(dfp.loc[m_ns, "proportion"].iloc[0]) if m_ns.any() else 0.0)
-        zh_props.append(float(dfp.loc[m_zh, "proportion"].iloc[0]) if m_zh.any() else 0.0)
+        m_ns = (dfp["class"] == cls) & (
+            dfp["city"] == "Nansha"
+        )
+        m_zh = (dfp["class"] == cls) & (
+            dfp["city"] == "Zhongshan"
+        )
+        ns_props.append(
+            float(dfp.loc[m_ns, "proportion"].iloc[0])
+            if m_ns.any()
+            else 0.0
+        )
+        zh_props.append(
+            float(dfp.loc[m_zh, "proportion"].iloc[0])
+            if m_zh.any()
+            else 0.0
+        )
 
     return ns_props, zh_props
 
@@ -256,7 +288,9 @@ def draw_lithology_parity(
     col_lbl = utils.label(col, with_unit=False)
     axA.set_title(f"{col_lbl} — composition")
 
-    axB = fig.add_subplot(gs[0, 1], sharey=axA if sharey else None)
+    axB = fig.add_subplot(
+        gs[0, 1], sharey=axA if sharey else None
+    )
 
     diff = np.asarray(zh_props) - np.asarray(ns_props)
     axB.axvline(0.0, color="#444444", lw=0.8)
@@ -272,8 +306,7 @@ def draw_lithology_parity(
     axB.set_title("Parity difference")
 
     stat = (
-        f"χ²={chi2:.2f}, dof={dof}, "
-        f"p≈{pval:.3f}, V={cv:.3f}"
+        f"χ²={chi2:.2f}, dof={dof}, p≈{pval:.3f}, V={cv:.3f}"
     )
     fig.suptitle(
         f"Lithology parity across cities • {stat}",
@@ -302,10 +335,7 @@ def _build_argparser() -> argparse.ArgumentParser:
         "--src",
         type=str,
         default=str(
-            Path(
-                r"F:\repositories\geoprior-learn"
-                r"\data"
-            )
+            Path(r"F:\repositories\geoprior-learn" r"\data")
         ),
         help="Final dataset directory.",
     )
@@ -369,8 +399,9 @@ def _build_argparser() -> argparse.ArgumentParser:
     return ap
 
 
-def figS1_lithology_parity_main(argv: List[str] | None = None) -> None:
-
+def figS1_lithology_parity_main(
+    argv: list[str] | None = None,
+) -> None:
     ap = _build_argparser()
     args = ap.parse_args(argv)
 
@@ -389,18 +420,25 @@ def figS1_lithology_parity_main(argv: List[str] | None = None) -> None:
         src,
         args.ns_file,
         year=args.year,
-        sample_frac=None if args.sample_n else args.sample_frac,
+        sample_frac=(
+            None if args.sample_n else args.sample_frac
+        ),
         sample_n=args.sample_n,
     )
     zh = load_city_df(
         src,
         args.zh_file,
         year=args.year,
-        sample_frac=None if args.sample_n else args.sample_frac,
+        sample_frac=(
+            None if args.sample_n else args.sample_frac
+        ),
         sample_n=args.sample_n,
     )
 
-    if args.col not in ns.columns or args.col not in zh.columns:
+    if (
+        args.col not in ns.columns
+        or args.col not in zh.columns
+    ):
         raise KeyError(
             f"Column '{args.col}' must exist in both CSVs."
         )
@@ -422,14 +460,14 @@ def figS1_lithology_parity_main(argv: List[str] | None = None) -> None:
     )
 
 
-def main(argv: List[str] | None = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     figS1_lithology_parity_main(argv)
 
 
 if __name__ == "__main__":
     main()
 
-    
+
 # python -m scripts.scripts \
 #   --src "F:\...\final_dataset" \
 #   -ns -zh \

@@ -1,15 +1,13 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
-# https://lkouadio.com
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
-# Author: LKouadio <etanoyau@gmail.com>
+# Author: LKouadio <https://lkouadio.com>
 
 from __future__ import annotations
 
 import os
 import subprocess
-from typing import Dict, List, Optional
+
 
 def resolve_n_jobs(n_jobs: int) -> int:
     try:
@@ -39,12 +37,12 @@ def threads_per_job(
 
 
 def apply_thread_env(
-    env: Dict[str, str],
+    env: dict[str, str],
     *,
     n_jobs: int,
     threads: int = 0,
     reserve: int = 1,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     out = dict(env)
     t = threads_per_job(
         n_jobs=n_jobs,
@@ -76,13 +74,13 @@ def apply_tf_threading(
     tf.config.threading.set_inter_op_parallelism_threads(
         int(inter)
     )
-    
 
-def _split_ids(s: str) -> List[str]:
+
+def _split_ids(s: str) -> list[str]:
     s = str(s).strip()
     if not s:
         return []
-    out: List[str] = []
+    out: list[str] = []
     for part in s.split(","):
         p = part.strip()
         if p:
@@ -92,8 +90,8 @@ def _split_ids(s: str) -> List[str]:
 
 def detect_gpu_ids(
     *,
-    env: Optional[Dict[str, str]] = None,
-) -> List[str]:
+    env: dict[str, str] | None = None,
+) -> list[str]:
     e = env or os.environ
 
     # Respect an existing restriction first
@@ -129,7 +127,7 @@ def detect_gpu_ids(
 def resolve_device(
     device: str,
     *,
-    env: Optional[Dict[str, str]] = None,
+    env: dict[str, str] | None = None,
 ) -> str:
     d = str(device).strip().lower()
     if d in {"cpu"}:
@@ -141,30 +139,32 @@ def resolve_device(
 
 
 def resolve_gpu_ids(
-    gpu_ids: Optional[List[str]],
+    gpu_ids: list[str] | None,
     *,
-    env: Optional[Dict[str, str]] = None,
-) -> List[str]:
+    env: dict[str, str] | None = None,
+) -> list[str]:
     if gpu_ids:
-        return [str(x).strip() for x in gpu_ids if str(x).strip()]
+        return [
+            str(x).strip() for x in gpu_ids if str(x).strip()
+        ]
     return detect_gpu_ids(env=env)
 
 
 def pick_gpu_id(
     idx: int,
-    gpu_ids: List[str],
-) -> Optional[str]:
+    gpu_ids: list[str],
+) -> str | None:
     if not gpu_ids:
         return None
     return gpu_ids[int(idx) % len(gpu_ids)]
 
 
 def apply_gpu_env(
-    env: Dict[str, str],
+    env: dict[str, str],
     *,
-    gpu_id: Optional[str],
+    gpu_id: str | None,
     allow_growth: bool = True,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     out = dict(env)
     if gpu_id is None:
         out["CUDA_VISIBLE_DEVICES"] = ""

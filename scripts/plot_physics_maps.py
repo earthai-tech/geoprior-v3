@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -46,10 +45,9 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.gridspec import GridSpec
 
 from . import config as cfg
@@ -59,7 +57,7 @@ from . import utils
 # ------------------------------------------------------------
 # Payload loading
 # ------------------------------------------------------------
-def _load_payload(path: str) -> Tuple[dict, dict]:
+def _load_payload(path: str) -> tuple[dict, dict]:
     """Load (payload, meta) using v3.2 conventions."""
     try:
         from geoprior.nn.pinn.io import (  # type: ignore
@@ -160,8 +158,8 @@ def _infer_city_from_path(p: Path) -> str:
 
 def _resolve_payload_path(
     *,
-    src: Optional[str],
-    payload: Optional[str],
+    src: str | None,
+    payload: str | None,
 ) -> Path:
     if payload:
         return Path(payload).expanduser()
@@ -185,9 +183,9 @@ def _resolve_payload_path(
 
 def _resolve_coords_npz(
     *,
-    src: Optional[str],
-    coords_npz: Optional[str],
-) -> Optional[Path]:
+    src: str | None,
+    coords_npz: str | None,
+) -> Path | None:
     if coords_npz:
         return Path(coords_npz).expanduser()
     if not src:
@@ -199,10 +197,10 @@ def _resolve_coords_npz(
 def _extract_xy(
     payload: dict,
     *,
-    coords: Optional[dict],
-    x_key: Optional[str],
-    y_key: Optional[str],
-) -> Tuple[np.ndarray, np.ndarray, str]:
+    coords: dict | None,
+    x_key: str | None,
+    y_key: str | None,
+) -> tuple[np.ndarray, np.ndarray, str]:
     candidates = [
         ("x", "y", "xy"),
         ("lon", "lat", "lonlat"),
@@ -216,9 +214,7 @@ def _extract_xy(
             return x, y, kind
 
     if coords is None:
-        raise KeyError(
-            "No coords in payload or coords-npz."
-        )
+        raise KeyError("No coords in payload or coords-npz.")
 
     if "coords" in coords:
         arr = np.asarray(coords["coords"])
@@ -259,7 +255,7 @@ def _maybe_trim(
     a: np.ndarray,
     b: np.ndarray,
     *rest: np.ndarray,
-) -> Tuple[np.ndarray, np.ndarray, Tuple[np.ndarray, ...]]:
+) -> tuple[np.ndarray, np.ndarray, tuple[np.ndarray, ...]]:
     n = min([a.size, b.size] + [r.size for r in rest])
     if a.size != n:
         a = a[:n]
@@ -282,7 +278,7 @@ def _bin_grid(
     nx: int,
     ny: int,
     agg: str,
-) -> Tuple[np.ndarray, Tuple[float, float, float, float]]:
+) -> tuple[np.ndarray, tuple[float, float, float, float]]:
     x = _to_1d(x)
     y = _to_1d(y)
     v = _to_1d(v)
@@ -348,7 +344,7 @@ def _range_q(
     z: np.ndarray,
     qlo: float,
     qhi: float,
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     v = np.asarray(z, float)
     v = v[np.isfinite(v)]
     if v.size == 0:
@@ -363,7 +359,7 @@ def _range_q(
 def _sym_range_q(
     z: np.ndarray,
     q: float,
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     v = np.asarray(z, float)
     v = v[np.isfinite(v)]
     if v.size == 0:
@@ -376,7 +372,7 @@ def _sym_range_q(
 # ------------------------------------------------------------
 # Labels / units
 # ------------------------------------------------------------
-def _meta_unit(meta: dict, key: str) -> Optional[str]:
+def _meta_unit(meta: dict, key: str) -> str | None:
     u = (meta or {}).get("units", {}) or {}
     out = u.get(key)
     return str(out) if out else None
@@ -391,7 +387,7 @@ def _tau_prior_symbol(meta: dict) -> str:
 
 def _cbar_label(
     name: str,
-    unit: Optional[str],
+    unit: str | None,
     *,
     show: bool,
 ) -> str:
@@ -436,7 +432,7 @@ def _overlay_censored(
     ax: plt.Axes,
     mask: np.ndarray,
     *,
-    extent: Tuple[float, float, float, float],
+    extent: tuple[float, float, float, float],
 ) -> None:
     m = np.asarray(mask) > 0.5
     if not np.any(m):
@@ -470,7 +466,7 @@ def plot_physics_maps(
     out: str,
     agg: str,
     grid: int,
-    clip_q: Tuple[float, float],
+    clip_q: tuple[float, float],
     delta_q: float,
     cmap: str,
     cmap_div: str,
@@ -484,9 +480,9 @@ def plot_physics_maps(
     show_panel_titles: bool,
     show_panel_labels: bool,
     hatch_censored: bool,
-    title: Optional[str],
-    out_json: Optional[str],
-) -> List[str]:
+    title: str | None,
+    out_json: str | None,
+) -> list[str]:
     """Render and save the physics maps panel."""
     utils.ensure_script_dirs()
     utils.set_paper_style(dpi=dpi, fontsize=font)
@@ -642,7 +638,7 @@ def plot_physics_maps(
     ]
 
     letters = ["a", "b", "c", "d", "e", "f"]
-    out_paths: List[str] = []
+    out_paths: list[str] = []
 
     items = top + bot
     ims = []
@@ -739,7 +735,7 @@ def plot_physics_maps(
 
     if out_json:
         jout = utils.resolve_out_out(out_json)
-        rec: Dict[str, object] = {
+        rec: dict[str, object] = {
             "city": city_name,
             "payload_keys": sorted(list(payload.keys())),
             "units": (meta or {}).get("units", {}),
@@ -765,7 +761,7 @@ def plot_physics_maps(
 # CLI
 # ------------------------------------------------------------
 def plot_physics_maps_main(
-    argv: Optional[List[str]] = None,
+    argv: list[str] | None = None,
 ) -> None:
     ap = argparse.ArgumentParser(
         prog="plot-physics-maps",
@@ -935,7 +931,7 @@ def plot_physics_maps_main(
         print(f"[OK] wrote {p}")
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     plot_physics_maps_main(argv)
 
 

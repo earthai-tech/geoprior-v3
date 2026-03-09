@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3  https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -11,13 +10,14 @@ Short docs only; full docs later.
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Tuple
-from collections.abc import Mapping
-from  warnings import warn
 import json
+from collections.abc import Mapping
 from pathlib import Path
+from typing import Any
+from warnings import warn
 
 import numpy as np
+
 from .. import KERAS_DEPS
 
 Tensor = KERAS_DEPS.Tensor
@@ -36,19 +36,18 @@ tf_rank = KERAS_DEPS.rank
 tf_cond = KERAS_DEPS.cond
 tf_shape = KERAS_DEPS.shape
 tf_zeros_like = KERAS_DEPS.zeros_like
-tf_ones = KERAS_DEPS.ones 
-tf_greater = KERAS_DEPS.greater 
-tf_cond = KERAS_DEPS.cond 
-tf_concat = KERAS_DEPS.concat 
-tf_convert_to_tensor = KERAS_DEPS.convert_to_tensor 
-tf_ones_like = KERAS_DEPS.ones_like 
-tf_less_equal =KERAS_DEPS.less_equal 
-tf_abs = KERAS_DEPS.abs 
-tf_print = KERAS_DEPS.print 
-tf_reduce_mean = KERAS_DEPS.reduce_mean 
-tf_expand_dims = KERAS_DEPS.expand_dims 
-tf_tile = KERAS_DEPS.tile 
-
+tf_ones = KERAS_DEPS.ones
+tf_greater = KERAS_DEPS.greater
+tf_cond = KERAS_DEPS.cond
+tf_concat = KERAS_DEPS.concat
+tf_convert_to_tensor = KERAS_DEPS.convert_to_tensor
+tf_ones_like = KERAS_DEPS.ones_like
+tf_less_equal = KERAS_DEPS.less_equal
+tf_abs = KERAS_DEPS.abs
+tf_print = KERAS_DEPS.print
+tf_reduce_mean = KERAS_DEPS.reduce_mean
+tf_expand_dims = KERAS_DEPS.expand_dims
+tf_tile = KERAS_DEPS.tile
 
 
 _EPSILON = 1e-12
@@ -57,19 +56,13 @@ _EPSILON = 1e-12
 # ---------------------------------------------------------------------
 _SK_ALIASES = {
     # common naming drift
-    "time_units": (
-        "time_unit",
-    ),
-    "cons_residual_units": (
-        "cons_residual_unit",
-    ),
-
+    "time_units": ("time_unit",),
+    "cons_residual_units": ("cons_residual_unit",),
     # policy drift
     "scaling_error_policy": (
         "error_policy",
         "scaling_policy",
     ),
-
     # coord drift
     "coords_normalized": (
         "coord_normalized",
@@ -79,13 +72,8 @@ _SK_ALIASES = {
         "coord_in_degrees",
         "coords_deg",
     ),
-    "coord_order": (
-        "coords_order",
-    ),
-    "coord_ranges": (
-        "coord_range",
-    ),
-
+    "coord_order": ("coords_order",),
+    "coord_ranges": ("coord_range",),
     # feature-name list drift
     "dynamic_feature_names": (
         "dynamic_features_names",
@@ -99,7 +87,6 @@ _SK_ALIASES = {
         "static_features_names",
         "stat_feature_names",
     ),
-
     # feature-channel naming drift
     "gwl_col": (
         "gwl_dyn_name",
@@ -111,7 +98,6 @@ _SK_ALIASES = {
         "subs_dyn_col",
         "subsidence_dyn_name",
     ),
-
     # feature-channel index drift
     "gwl_dyn_index": (
         "gwl_index",
@@ -123,7 +109,6 @@ _SK_ALIASES = {
         "subs_feature_index",
         "subs_channel_index",
     ),
-
     # z_surf drift
     "z_surf_col": (
         "z_surf_key",
@@ -158,78 +143,79 @@ _SK_ALIASES = {
         "tau_max_time_units",
         "tau_max_in_time_units",
     ),
-    "Q_length_in_si": ( 
-        "Q_in_m_per_s", 
-        )
-
+    "Q_length_in_si": ("Q_in_m_per_s",),
 }
 
-_SK_ALIASES.update({
-    "cons_drawdown_mode": (
-        "drawdown_mode",
-        "cons_delta_mode",
-    ),
-    "cons_drawdown_rule": (
-        "drawdown_rule",
-        "cons_delta_rule",
-    ),
-    "cons_stop_grad_ref": (
-        "stop_grad_ref",
-        "cons_stopgrad_ref",
-    ),
-    "cons_drawdown_zero_at_origin": (
-        "drawdown_zero_at_origin",
-        "cons_zero_at_origin",
-    ),
-    "cons_drawdown_clip_max": (
-        "drawdown_clip_max",
-        "cons_clip_max",
-    ),
-    "cons_relu_beta": (
-        "relu_beta",
-        "cons_beta",
-    ),
-})
+_SK_ALIASES.update(
+    {
+        "cons_drawdown_mode": (
+            "drawdown_mode",
+            "cons_delta_mode",
+        ),
+        "cons_drawdown_rule": (
+            "drawdown_rule",
+            "cons_delta_rule",
+        ),
+        "cons_stop_grad_ref": (
+            "stop_grad_ref",
+            "cons_stopgrad_ref",
+        ),
+        "cons_drawdown_zero_at_origin": (
+            "drawdown_zero_at_origin",
+            "cons_zero_at_origin",
+        ),
+        "cons_drawdown_clip_max": (
+            "drawdown_clip_max",
+            "cons_clip_max",
+        ),
+        "cons_relu_beta": (
+            "relu_beta",
+            "cons_beta",
+        ),
+    }
+)
 
 
 # MV prior drift (mode/weight/warmup + loss knobs)
-_SK_ALIASES.update({
-    "mv_prior_mode": (
-        "mv_mode",
-        "mvprior_mode",
-        "mv_prior_kind",
-    ),
-    "mv_weight": (
-        "mv_prior_weight",
-        "mvprior_weight",
-        "mv_w",
-    ),
-    "mv_warmup_steps": (
-        "mv_prior_warmup_steps",
-        "mv_warmup_steps",
-        "mv_warmup_iters",
-        "mv_warmup_iterations",
-    ),
-    "mv_alpha_disp": (
-        "mv_prior_alpha_disp",
-        "mv_disp_alpha",
-        "mv_alpha",
-    ),
-    "mv_huber_delta": (
-        "mv_prior_huber_delta",
-        "mv_delta",
-        "mv_huber",
-    ),
-    "mv_prior_units": (
-        "mv_units",
-        "mv_gamma_units",
-        "mv_gw_units",
-    ),
-})
+_SK_ALIASES.update(
+    {
+        "mv_prior_mode": (
+            "mv_mode",
+            "mvprior_mode",
+            "mv_prior_kind",
+        ),
+        "mv_weight": (
+            "mv_prior_weight",
+            "mvprior_weight",
+            "mv_w",
+        ),
+        "mv_warmup_steps": (
+            "mv_prior_warmup_steps",
+            "mv_warmup_steps",
+            "mv_warmup_iters",
+            "mv_warmup_iterations",
+        ),
+        "mv_alpha_disp": (
+            "mv_prior_alpha_disp",
+            "mv_disp_alpha",
+            "mv_alpha",
+        ),
+        "mv_huber_delta": (
+            "mv_prior_huber_delta",
+            "mv_delta",
+            "mv_huber",
+        ),
+        "mv_prior_units": (
+            "mv_units",
+            "mv_gamma_units",
+            "mv_gw_units",
+        ),
+    }
+)
 
 
 def enforce_scaling_alias_consistency(
-    scaling_kwargs: Optional[Dict[str, Any]],
+    scaling_kwargs: dict[str, Any] | None,
     *,
     where: str = "validate",
 ) -> None:
@@ -268,11 +254,12 @@ def enforce_scaling_alias_consistency(
                     where=where,
                 )
 
+
 def canonicalize_scaling_kwargs(
-    scaling_kwargs: Optional[Dict[str, Any]],
+    scaling_kwargs: dict[str, Any] | None,
     *,
     copy: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Return a canonicalized scaling dict.
 
@@ -294,11 +281,12 @@ def canonicalize_scaling_kwargs(
 
     return sk
 
+
 def load_scaling_kwargs(
-    scaling_kwargs: Optional[Any],
+    scaling_kwargs: Any | None,
     *,
     copy: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Load scaling kwargs from a dict-like object or JSON.
 
@@ -340,7 +328,9 @@ def load_scaling_kwargs(
         return {}
 
     if isinstance(scaling_kwargs, Mapping):
-        return dict(scaling_kwargs) if copy else scaling_kwargs
+        return (
+            dict(scaling_kwargs) if copy else scaling_kwargs
+        )
 
     if isinstance(scaling_kwargs, Path):
         path = scaling_kwargs
@@ -371,7 +361,7 @@ def load_scaling_kwargs(
                     "Scaling JSON must decode to an object/dict, "
                     f"got {type(obj).__name__}."
                 )
-                
+
             return obj
 
         # 2) Treat as file path to JSON.
@@ -403,6 +393,7 @@ def load_scaling_kwargs(
         ) from e
 
     return obj
+
 
 def get_sk(
     scaling_kwargs,
@@ -440,11 +431,15 @@ def get_sk(
                 try:
                     v = cast(v)
                 except Exception as e:
-                    raise ValueError(f"Invalid scaling_kwargs[{k!r}]={v!r}.") from e
+                    raise ValueError(
+                        f"Invalid scaling_kwargs[{k!r}]={v!r}."
+                    ) from e
             return v
 
     if required:
-        alias_txt = ", ".join(repr(x) for x in cand[1:]) or "none"
+        alias_txt = (
+            ", ".join(repr(x) for x in cand[1:]) or "none"
+        )
         raise ValueError(
             f"Missing required scaling key {key!r} (aliases: {alias_txt})."
         )
@@ -456,7 +451,7 @@ def get_sk(
     return default
 
 
-def _norm_policy(policy: Optional[str]) -> str:
+def _norm_policy(policy: str | None) -> str:
     """
     Normalize scaling error policy.
 
@@ -472,7 +467,7 @@ def _norm_policy(policy: Optional[str]) -> str:
 
 
 def _handle_scaling_issue(
-    scaling_kwargs: Optional[Dict[str, Any]],
+    scaling_kwargs: dict[str, Any] | None,
     message: str,
     *,
     where: str = "validate",
@@ -509,10 +504,17 @@ def _handle_scaling_issue(
         return
     # validate + raise
     raise ValueError(message)
-    
+
+
 def _is_deg_mode(mode: str) -> bool:
     m = (mode or "").strip().lower()
-    return m in {"deg", "degree", "degrees", "lonlat", "latlon"}
+    return m in {
+        "deg",
+        "degree",
+        "degrees",
+        "lonlat",
+        "latlon",
+    }
 
 
 def _validate_scaling_kwargs(scaling_kwargs):
@@ -543,8 +545,9 @@ def _validate_scaling_kwargs(scaling_kwargs):
         )
         _handle_scaling_issue(sk, msg, where="validate")
 
+
 def validate_scaling_kwargs(
-    scaling_kwargs: Optional[Dict[str, Any]],
+    scaling_kwargs: dict[str, Any] | None,
 ) -> None:
     """
     Basic scaling sanity checks.
@@ -579,7 +582,9 @@ def validate_scaling_kwargs(
     # --------------------------------------------------
     # Normalized coords require coord_ranges.
     # --------------------------------------------------
-    if bool(sk.get("coords_normalized", False)) and not sk.get(
+    if bool(
+        sk.get("coords_normalized", False)
+    ) and not sk.get(
         "coord_ranges",
         None,
     ):
@@ -591,7 +596,9 @@ def validate_scaling_kwargs(
     # Require time units (alias-safe).
     # --------------------------------------------------
     if get_sk(sk, "time_units", default=None) is None:
-        raise ValueError("time_units missing in scaling_kwargs.")
+        raise ValueError(
+            "time_units missing in scaling_kwargs."
+        )
 
     # --------------------------------------------------
     # Heuristic checks (policy-controlled).
@@ -612,7 +619,11 @@ def validate_scaling_kwargs(
     cols = meta.get("cols", {}) or {}
     subs_meta = cols.get("subs_model", None)
 
-    if has_subs_cum and subs_idx is None and subs_name is None:
+    if (
+        has_subs_cum
+        and subs_idx is None
+        and subs_name is None
+    ):
         if subs_meta is None:
             msg = (
                 "dynamic_feature_names contains a cumulative "
@@ -669,13 +680,13 @@ def validate_scaling_kwargs(
 
 
 def affine_from_cfg(
-    scaling_kwargs: Optional[Dict[str, Any]],
+    scaling_kwargs: dict[str, Any] | None,
     *,
     scale_key: str,
     bias_key: str,
-    meta_keys: Tuple[str, ...] = (),
-    unit_key: Optional[str] = None,
-) -> Tuple[Tensor, Tensor]:
+    meta_keys: tuple[str, ...] = (),
+    unit_key: str | None = None,
+) -> tuple[Tensor, Tensor]:
     """Return (a,b) for y_si = y_model*a + b."""
     cfg = scaling_kwargs or {}
 
@@ -685,7 +696,9 @@ def affine_from_cfg(
     if a is not None or b is not None:
         a = 1.0 if a is None else float(a)
         b = 0.0 if b is None else float(b)
-        return tf_constant(a, tf_float32), tf_constant(b, tf_float32)
+        return tf_constant(a, tf_float32), tf_constant(
+            b, tf_float32
+        )
 
     for mk in meta_keys:
         meta = cfg.get(mk, None)
@@ -700,14 +713,18 @@ def affine_from_cfg(
 
     if unit_key is not None:
         u = float(cfg.get(unit_key, 1.0))
-        return tf_constant(u, tf_float32), tf_constant(0.0, tf_float32)
+        return tf_constant(u, tf_float32), tf_constant(
+            0.0, tf_float32
+        )
 
-    return tf_constant(1.0, tf_float32), tf_constant(0.0, tf_float32)
+    return tf_constant(1.0, tf_float32), tf_constant(
+        0.0, tf_float32
+    )
 
 
 def to_si_thickness(
     H_model: Tensor,
-    scaling_kwargs: Optional[Dict[str, Any]],
+    scaling_kwargs: dict[str, Any] | None,
 ) -> Tensor:
     """Convert thickness to SI."""
     a, b = affine_from_cfg(
@@ -722,7 +739,7 @@ def to_si_thickness(
 
 def to_si_head(
     h_model: Tensor,
-    scaling_kwargs: Optional[Dict[str, Any]],
+    scaling_kwargs: dict[str, Any] | None,
 ) -> Tensor:
     """Convert head/depth to SI meters."""
     a, b = affine_from_cfg(
@@ -737,7 +754,7 @@ def to_si_head(
 
 def to_si_subsidence(
     s_model: Tensor,
-    scaling_kwargs: Optional[Dict[str, Any]],
+    scaling_kwargs: dict[str, Any] | None,
 ) -> Tensor:
     """Convert subsidence to SI meters."""
     a, b = affine_from_cfg(
@@ -749,9 +766,10 @@ def to_si_subsidence(
     )
     return tf_cast(s_model, tf_float32) * a + b
 
+
 def from_si_subsidence(
     s_si: Tensor,
-    scaling_kwargs: Optional[Dict[str, Any]],
+    scaling_kwargs: dict[str, Any] | None,
 ) -> Tensor:
     """Inverse of to_si_subsidence: s_model = (s_si - b) / a."""
     a, b = affine_from_cfg(
@@ -764,9 +782,10 @@ def from_si_subsidence(
     eps = tf_constant(_EPSILON, tf_float32)
     return (tf_cast(s_si, tf_float32) - b) / (a + eps)
 
+
 def deg_to_m(
     axis: str,
-    scaling_kwargs: Optional[Dict[str, Any]],
+    scaling_kwargs: dict[str, Any] | None,
 ) -> Tensor:
     """
     Meters per degree factor for lon/lat coords.
@@ -799,7 +818,7 @@ def deg_to_m(
         else:
             v = 110574.0
         return tf_constant(v, tf_float32)
-    
+
     try:
         v = float(val)
     except (TypeError, ValueError) as e:
@@ -807,12 +826,13 @@ def deg_to_m(
 
     if not np.isfinite(v) or v <= 0.0:
         raise ValueError(f"Invalid {key!r}={v}.")
-        
+
     return tf_constant(v, tf_float32)
 
+
 def coord_ranges(
-    scaling_kwargs: Optional[Dict[str, Any]],
-) -> Tuple[Optional[float], Optional[float], Optional[float]]:
+    scaling_kwargs: dict[str, Any] | None,
+) -> tuple[float | None, float | None, float | None]:
     """Return (tR,xR,yR) if coords_normalized."""
     cfg = scaling_kwargs or {}
     if not bool(cfg.get("coords_normalized", False)):
@@ -820,7 +840,7 @@ def coord_ranges(
 
     r = cfg.get("coord_ranges", {}) or {}
 
-    def get(name: str, *alts: str) -> Optional[float]:
+    def get(name: str, *alts: str) -> float | None:
         v = r.get(name, None)
         if v is None:
             for a in alts:
@@ -834,8 +854,9 @@ def coord_ranges(
     yR = get("y", "y_range", "coord_range_y")
     return tR, xR, yR
 
+
 def resolve_gwl_dyn_index(
-    scaling_kwargs: Optional[Dict[str, Any]],
+    scaling_kwargs: dict[str, Any] | None,
 ) -> int:
     """Resolve GWL channel index for dynamic_features."""
     sk = scaling_kwargs or {}
@@ -862,13 +883,16 @@ def get_gwl_dyn_index_cached(model) -> int:
     """Cache gwl_dyn_index on model after first resolve."""
     idx = getattr(model, "gwl_dyn_index", None)
     if idx is None:
-        idx = resolve_gwl_dyn_index(getattr(
-            model,
-            "scaling_kwargs",
-            None,
-        ))
-        setattr(model, "gwl_dyn_index", int(idx))
+        idx = resolve_gwl_dyn_index(
+            getattr(
+                model,
+                "scaling_kwargs",
+                None,
+            )
+        )
+        model.gwl_dyn_index = int(idx)
     return int(idx)
+
 
 def resolve_subs_dyn_index(scaling_kwargs):
     """Resolve subsidence channel index for dynamic_features.
@@ -908,8 +932,10 @@ def get_subs_dyn_index_cached(model) -> int:
     """Cache subs_dyn_index on model after first resolve."""
     idx = getattr(model, "subs_dyn_index", None)
     if idx is None:
-        idx = resolve_subs_dyn_index(getattr(model, "scaling_kwargs", None))
-        setattr(model, "subs_dyn_index", int(idx))
+        idx = resolve_subs_dyn_index(
+            getattr(model, "scaling_kwargs", None)
+        )
+        model.subs_dyn_index = int(idx)
     return int(idx)
 
 
@@ -922,12 +948,12 @@ def slice_dynamic_channel(Xh: Tensor, idx: int) -> Tensor:
         F,
         message="gwl_dyn_index out of range.",
     )
-    return Xh[:, :, idx_t:idx_t + 1]
+    return Xh[:, :, idx_t : idx_t + 1]
 
 
 def assert_dynamic_names_match_tensor(
     Xh: Tensor,
-    scaling_kwargs: Optional[Dict[str, Any]],
+    scaling_kwargs: dict[str, Any] | None,
 ) -> None:
     """Check dynamic_feature_names length matches Xh."""
     sk = scaling_kwargs or {}
@@ -944,9 +970,9 @@ def assert_dynamic_names_match_tensor(
 
 def gwl_to_head_m(
     v_m: Tensor,
-    scaling_kwargs: Optional[Dict[str, Any]],
+    scaling_kwargs: dict[str, Any] | None,
     *,
-    inputs: Optional[Dict[str, Tensor]] = None,
+    inputs: dict[str, Tensor] | None = None,
 ) -> Tensor:
     """
     Convert depth-bgs to head if possible.
@@ -1059,22 +1085,25 @@ def gwl_to_head_m(
 
                 r = getattr(sf.shape, "rank", None)
                 if r == 2:
-                    z_surf = sf[:, idx_i:idx_i + 1]
+                    z_surf = sf[:, idx_i : idx_i + 1]
                 elif r == 3:
-                    z_surf = sf[:, :, idx_i:idx_i + 1]
+                    z_surf = sf[:, :, idx_i : idx_i + 1]
                 else:
                     rr = tf_rank(sf)
                     z_surf = tf_cond(
                         tf_equal(rr, 2),
-                        lambda: sf[:, idx_i:idx_i + 1],
-                        lambda: sf[:, :, idx_i:idx_i + 1],
+                        lambda: sf[:, idx_i : idx_i + 1],
+                        lambda: sf[:, :, idx_i : idx_i + 1],
                     )
-                    
+
     if z_surf is None:
         # if bool(sk.get("debug_units", False)):
-        tf_print("[gwl_to_head_m] z_surf missing ->",
-                 "use_head_proxy=", bool(sk.get("use_head_proxy", False)),
-                 "returning depth-like quantity (NOT true head)")
+        tf_print(
+            "[gwl_to_head_m] z_surf missing ->",
+            "use_head_proxy=",
+            bool(sk.get("use_head_proxy", False)),
+            "returning depth-like quantity (NOT true head)",
+        )
 
     # --------------------------------------------------
     # 7) If we have z_surf: head = z_surf - depth.
@@ -1100,6 +1129,7 @@ def gwl_to_head_m(
     # --------------------------------------------------
     return -depth_m if proxy else depth_m
 
+
 def _reshape_to_b11(v: Tensor) -> Tensor:
     """Coerce a tensor to (B,1,1) if possible."""
     v = tf_cast(v, tf_float32)
@@ -1117,7 +1147,7 @@ def _reshape_to_b11(v: Tensor) -> Tensor:
 
 def get_h_hist_si(
     model,
-    inputs: Dict[str, Tensor],
+    inputs: dict[str, Tensor],
     *,
     want_head: bool = True,
 ) -> Tensor:
@@ -1165,12 +1195,16 @@ def get_h_hist_si(
     gwl = slice_dynamic_channel(Xh, gwl_idx)
     gwl_si = to_si_head(gwl, sk)
 
-    return gwl_to_head_m(gwl_si, sk, inputs=inputs) if want_head else gwl_si
+    return (
+        gwl_to_head_m(gwl_si, sk, inputs=inputs)
+        if want_head
+        else gwl_si
+    )
 
 
 def get_s_init_si(
     model,
-    inputs: Optional[Dict[str, Tensor]],
+    inputs: dict[str, Tensor] | None,
     like: Tensor,
 ) -> Tensor:
     """Return initial settlement (cumulative subsidence) in SI meters.
@@ -1184,11 +1218,18 @@ def get_s_init_si(
 
     if inputs is not None:
         for k in (
-            "s_init_si", "subs_init_si", "subs_hist_last_si",
-            "s_ref_si", "subs_ref_si", "s_init", "subs_init",
+            "s_init_si",
+            "subs_init_si",
+            "subs_hist_last_si",
+            "s_ref_si",
+            "subs_ref_si",
+            "s_init",
+            "subs_init",
         ):
             if k in inputs and inputs[k] is not None:
-                return _reshape_to_b11(inputs[k]) + tf_zeros_like(like)
+                return _reshape_to_b11(
+                    inputs[k]
+                ) + tf_zeros_like(like)
 
         Xh = inputs.get("dynamic_features", None)
         if Xh is not None:
@@ -1202,11 +1243,13 @@ def get_s_init_si(
                     where="runtime",
                 )
                 subs_idx = None
-                
+
             if subs_idx is not None:
                 Xh = tf_cast(Xh, tf_float32)
                 assert_dynamic_names_match_tensor(Xh, sk)
-                s_hist = slice_dynamic_channel(Xh, int(subs_idx))
+                s_hist = slice_dynamic_channel(
+                    Xh, int(subs_idx)
+                )
                 s_last = s_hist[:, -1:, :]
                 s_last_si = to_si_subsidence(s_last, sk)
                 return s_last_si + tf_zeros_like(like)
@@ -1216,17 +1259,28 @@ def get_s_init_si(
 
 def get_h_ref_si(
     model,
-    inputs: Optional[Dict[str, Tensor]],
+    inputs: dict[str, Tensor] | None,
     like: Tensor,
 ) -> Tensor:
     """Return h_ref in SI meters, broadcast to like."""
     # sk = getattr(model, "scaling_kwargs", None)
 
-    mode = getattr(getattr(model, "h_ref_config", None), "mode", "auto")
-    mode = "fixed" if str(mode).lower().strip() == "fixed" else "auto"
+    mode = getattr(
+        getattr(model, "h_ref_config", None), "mode", "auto"
+    )
+    mode = (
+        "fixed"
+        if str(mode).lower().strip() == "fixed"
+        else "auto"
+    )
 
     if inputs is not None:
-        for k in ("h_ref_si", "head_ref_si", "h_ref", "head_ref"):
+        for k in (
+            "h_ref_si",
+            "head_ref_si",
+            "h_ref",
+            "head_ref",
+        ):
             if (k in inputs) and (inputs[k] is not None):
                 h_ref = tf_cast(inputs[k], tf_float32)
                 r = tf_rank(h_ref)
@@ -1257,7 +1311,7 @@ def get_h_ref_si(
 
 def infer_dt_units_from_t(
     t_BH1: Tensor,
-    scaling_kwargs: Optional[Dict[str, Any]],
+    scaling_kwargs: dict[str, Any] | None,
     *,
     eps: float = 1e-12,
 ) -> Tensor:
@@ -1276,7 +1330,7 @@ def infer_dt_units_from_t(
       time range tR (from coord_ranges()).
     - Output is clipped to >= eps.
     """
-    
+
     sk = scaling_kwargs or {}
     t = tf_convert_to_tensor(t_BH1, dtype=tf_float32)
 
@@ -1285,30 +1339,34 @@ def infer_dt_units_from_t(
     dt_default = tf_ones_like(t)  # (B,H,1), safe in-graph
 
     def _multi_step():
-        diffs = t[:, 1:, :] - t[:, :-1, :]         # (B,H-1,1)
-        dt_first = diffs[:, :1, :]                 # (B,1,1)
+        diffs = t[:, 1:, :] - t[:, :-1, :]  # (B,H-1,1)
+        dt_first = diffs[:, :1, :]  # (B,1,1)
         dt = tf_concat([dt_first, diffs], axis=1)  # (B,H,1)
-        
+
         # If coords were normalized, dt is still normalized -> scale back
         if bool(sk.get("coords_normalized", False)):
             tR, _, _ = coord_ranges(sk)
             if tR is None:
-                raise ValueError("coords_normalized=True but coord_ranges missing.")
+                raise ValueError(
+                    "coords_normalized=True but coord_ranges missing."
+                )
             dt = dt * tf_constant(float(tR), dtype=tf_float32)
         return dt
 
     # if H <= 1: ones; else: diffs
-    dt = tf_cond(tf_less_equal(H, 1), lambda: dt_default, _multi_step)
+    dt = tf_cond(
+        tf_less_equal(H, 1), lambda: dt_default, _multi_step
+    )
     dt = tf_abs(dt)
     dt_pos = tf_greater(dt, tf_constant(0.0, tf_float32))
     dt_pos_f = tf_cast(dt_pos, tf_float32)
     dt = dt * dt_pos_f + dt_default * (1.0 - dt_pos_f)
-    
+
     dt_eps = float(get_sk(sk, "dt_min_units", default=1e-6))
     dt = tf_maximum(dt, tf_constant(dt_eps, tf_float32))
 
-
     return dt
+
 
 # -------------------------------------------------
 # Training strategy gates (Q and subsidence residual)
@@ -1357,7 +1415,12 @@ def policy_gate(
     step_i = tf_cast(step, tf_int32)
 
     if r <= 0:
-        return tf_cast(tf_greater_equal(step_i, tf_constant(w, tf_int32)), dtype)
+        return tf_cast(
+            tf_greater_equal(
+                step_i, tf_constant(w, tf_int32)
+            ),
+            dtype,
+        )
 
     step_f = tf_cast(step_i, dtype)
     w_f = tf_constant(float(w), dtype)
@@ -1367,10 +1430,13 @@ def policy_gate(
     frac = tf_minimum(tf_constant(1.0, dtype), frac)
     return frac
 
+
 # ---------------------------------------------------------------------
 # Derived SI conversion helpers (optional, but recommended)
 # ---------------------------------------------------------------------
-def finalize_scaling_kwargs(sk: Dict[str, Any]) -> Dict[str, Any]:
+def finalize_scaling_kwargs(
+    sk: dict[str, Any],
+) -> dict[str, Any]:
     """Add derived SI conversion constants to ``scaling_kwargs``.
 
     Adds (when possible):
@@ -1390,29 +1456,52 @@ def finalize_scaling_kwargs(sk: Dict[str, Any]) -> Dict[str, Any]:
 
     sk = dict(sk)
 
-    tu = str(get_sk(sk, "time_units", default="second")).strip().lower()
+    tu = (
+        str(get_sk(sk, "time_units", default="second"))
+        .strip()
+        .lower()
+    )
     time_unit_to_seconds = {
-        "second": 1.0, "sec": 1.0, "s": 1.0,
-        "minute": 60.0, "min": 60.0, "m": 60.0,
-        "hour": 3600.0, "h": 3600.0,
-        "day": 86400.0, "d": 86400.0,
+        "second": 1.0,
+        "sec": 1.0,
+        "s": 1.0,
+        "minute": 60.0,
+        "min": 60.0,
+        "m": 60.0,
+        "hour": 3600.0,
+        "h": 3600.0,
+        "day": 86400.0,
+        "d": 86400.0,
         # Julian year (365.2425 days) to match prior_maths.py
-        "year": 31556952.0, "yr": 31556952.0, "y": 31556952.0,
+        "year": 31556952.0,
+        "yr": 31556952.0,
+        "y": 31556952.0,
     }
     sec_u = float(time_unit_to_seconds.get(tu, 1.0))
     sk.setdefault("seconds_per_time_unit", sec_u)
 
     cr = get_sk(sk, "coord_ranges", default=None)
-    if isinstance(cr, Mapping) and all(k in cr for k in ("t", "x", "y")):
+    if isinstance(cr, Mapping) and all(
+        k in cr for k in ("t", "x", "y")
+    ):
         tR = float(cr.get("t", 1.0))
         xR = float(cr.get("x", 1.0))
         yR = float(cr.get("y", 1.0))
 
         # If coordinates are degrees, convert spans to meters.
-        if bool(get_sk(sk, "coords_in_degrees", default=False)):
-            deg_to_m_lon = get_sk(sk, "deg_to_m_lon", default=None)
-            deg_to_m_lat = get_sk(sk, "deg_to_m_lat", default=None)
-            if deg_to_m_lon is not None and deg_to_m_lat is not None:
+        if bool(
+            get_sk(sk, "coords_in_degrees", default=False)
+        ):
+            deg_to_m_lon = get_sk(
+                sk, "deg_to_m_lon", default=None
+            )
+            deg_to_m_lat = get_sk(
+                sk, "deg_to_m_lat", default=None
+            )
+            if (
+                deg_to_m_lon is not None
+                and deg_to_m_lat is not None
+            ):
                 xR *= float(deg_to_m_lon)
                 yR *= float(deg_to_m_lat)
 
@@ -1431,8 +1520,8 @@ def finalize_scaling_kwargs(sk: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def coord_ranges_si(
-        sk: Dict[str, Any]
-    ) -> Tuple[Optional[float], Optional[float], Optional[float]]:
+    sk: dict[str, Any],
+) -> tuple[float | None, float | None, float | None]:
     """Return coordinate spans in SI (t in seconds; x/y in meters).
 
     If ``coord_ranges_si`` is present in ``sk``, it is used directly.
@@ -1440,12 +1529,24 @@ def coord_ranges_si(
     (and degree-to-meter factors when applicable).
     """
     cr_si = get_sk(sk, "coord_ranges_si", default=None)
-    if isinstance(cr_si, Mapping) and all(k in cr_si for k in ("t", "x", "y")):
-        return float(cr_si["t"]), float(cr_si["x"]), float(cr_si["y"])
+    if isinstance(cr_si, Mapping) and all(
+        k in cr_si for k in ("t", "x", "y")
+    ):
+        return (
+            float(cr_si["t"]),
+            float(cr_si["x"]),
+            float(cr_si["y"]),
+        )
 
     sk2 = finalize_scaling_kwargs(sk)
     cr_si = get_sk(sk2, "coord_ranges_si", default=None)
-    if isinstance(cr_si, Mapping) and all(k in cr_si for k in ("t", "x", "y")):
-        return float(cr_si["t"]), float(cr_si["x"]), float(cr_si["y"])
+    if isinstance(cr_si, Mapping) and all(
+        k in cr_si for k in ("t", "x", "y")
+    ):
+        return (
+            float(cr_si["t"]),
+            float(cr_si["x"]),
+            float(cr_si["y"]),
+        )
 
     return None, None, None

@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
@@ -9,16 +8,16 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
 from . import config as cfg
 from . import utils
+
 try:
     import geopandas as gpd
-    from shapely.geometry import mapping
 except Exception as e:
     raise SystemExit(
         "Need geopandas + shapely installed for boundary export. "
@@ -33,16 +32,22 @@ _CITY_B = cfg.CITY_CANON.get("zh", "Zhongshan")
 def _pick_paths(
     art: utils.Artifacts,
     split: str,
-) -> Tuple[Optional[Path], Optional[Path]]:
+) -> tuple[Path | None, Path | None]:
     if split == "val":
         return art.forecast_val_csv, art.forecast_future_csv
     if split == "test":
-        return art.forecast_test_csv, art.forecast_test_future_csv
+        return (
+            art.forecast_test_csv,
+            art.forecast_test_future_csv,
+        )
     if (
         art.forecast_test_csv is not None
         and art.forecast_test_future_csv is not None
     ):
-        return art.forecast_test_csv, art.forecast_test_future_csv
+        return (
+            art.forecast_test_csv,
+            art.forecast_test_future_csv,
+        )
     return art.forecast_val_csv, art.forecast_future_csv
 
 
@@ -52,8 +57,12 @@ def _load_xy(path: str) -> np.ndarray:
     for c in ("coord_x", "coord_y"):
         if c not in df.columns:
             raise KeyError(f"{path}: missing {c}")
-    x = pd.to_numeric(df["coord_x"], errors="coerce").to_numpy(float)
-    y = pd.to_numeric(df["coord_y"], errors="coerce").to_numpy(float)
+    x = pd.to_numeric(
+        df["coord_x"], errors="coerce"
+    ).to_numpy(float)
+    y = pd.to_numeric(
+        df["coord_y"], errors="coerce"
+    ).to_numpy(float)
     m = np.isfinite(x) & np.isfinite(y)
     return np.column_stack([x[m], y[m]])
 
@@ -61,24 +70,28 @@ def _load_xy(path: str) -> np.ndarray:
 def _resolve_city(
     *,
     city: str,
-    src: Optional[str],
-    eval_csv: Optional[str],
-    future_csv: Optional[str],
+    src: str | None,
+    eval_csv: str | None,
+    future_csv: str | None,
     split: str,
-) -> Dict[str, Any]:
-    out: Dict[str, Any] = {"name": city}
+) -> dict[str, Any]:
+    out: dict[str, Any] = {"name": city}
     if eval_csv and future_csv:
         out["eval_csv"] = str(utils.as_path(eval_csv))
         out["future_csv"] = str(utils.as_path(future_csv))
         return out
 
     if not src:
-        raise ValueError(f"{city}: provide --*-src or --*-eval/--*-future")
+        raise ValueError(
+            f"{city}: provide --*-src or --*-eval/--*-future"
+        )
 
     art = utils.detect_artifacts(src)
     ev, fu = _pick_paths(art, split)
     if ev is None or fu is None:
-        raise FileNotFoundError(f"{city}: missing eval/future under {src}")
+        raise FileNotFoundError(
+            f"{city}: missing eval/future under {src}"
+        )
 
     out["eval_csv"] = str(ev)
     out["future_csv"] = str(fu)
@@ -105,7 +118,9 @@ def _poly_from_points(
         return pts.convex_hull
 
 
-def make_boundary_main(argv: Optional[List[str]] = None) -> None:
+def make_boundary_main(
+    argv: list[str] | None = None,
+) -> None:
     ap = argparse.ArgumentParser(
         prog="make-boundary",
         description="Create a boundary polygon from forecast points.",
@@ -155,7 +170,7 @@ def make_boundary_main(argv: Optional[List[str]] = None) -> None:
 
     cities0 = utils.resolve_cities(args) or [_CITY_A, _CITY_B]
 
-    jobs: List[Dict[str, Any]] = []
+    jobs: list[dict[str, Any]] = []
     if _CITY_A in cities0:
         jobs.append(
             _resolve_city(
@@ -176,8 +191,6 @@ def make_boundary_main(argv: Optional[List[str]] = None) -> None:
                 split=args.split,
             )
         )
-
-
 
     for j in jobs:
         city = str(j["name"])
@@ -213,7 +226,7 @@ def make_boundary_main(argv: Optional[List[str]] = None) -> None:
             print(f"[OK] wrote {p}")
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     make_boundary_main(argv)
 
 

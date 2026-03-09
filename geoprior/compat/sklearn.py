@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # https://lkouadio.com
@@ -9,7 +8,7 @@
 Provides compatibility utilities for different versions of
 scikit-learn (sklearn). It includes functions and feature flags that
 ensure smooth operation across various sklearn versions, handling
-breaking changes and deprecated features. The module includes 
+breaking changes and deprecated features. The module includes
 resampling utilities, scorer functions, and compatibility checks.
 
 Key functionalities include:
@@ -18,7 +17,7 @@ Key functionalities include:
 - Scorer retrieval with `get_scorer`
 - Feature and compatibility flags for sklearn versions
 
-The module ensures compatibility with sklearn versions less than 
+The module ensures compatibility with sklearn versions less than
 0.22.0, 0.23.0, and 0.24.0.
 
 Attributes
@@ -41,24 +40,36 @@ get_scorer
 check_is_fitted
     Perform is_fitted validation for sklearn models.
 """
-import warnings
-from packaging.version import Version, parse
-from typing import Optional, Union 
+
 import inspect
+import warnings
+
 import numpy as np
 import sklearn
-from sklearn.preprocessing import OneHotEncoder as SklearnOneHotEncoder
-from sklearn.utils._param_validation import validate_params as sklearn_validate_params
-from sklearn.utils._param_validation import Interval as sklearn_Interval 
-from sklearn.utils._param_validation import StrOptions, HasMethods, Hidden
-from sklearn.utils._param_validation import InvalidParameterError 
+from packaging.version import Version, parse
+from sklearn.metrics import get_scorer
+from sklearn.preprocessing import (
+    OneHotEncoder as SklearnOneHotEncoder,
+)
 from sklearn.utils import resample
-from sklearn.utils.validation import check_is_fitted as sklearn_check_is_fitted
+from sklearn.utils._param_validation import (
+    HasMethods,
+    Hidden,
+    InvalidParameterError,
+    StrOptions,
+)
+from sklearn.utils._param_validation import (
+    Interval as sklearn_Interval,
+)
+from sklearn.utils._param_validation import (
+    validate_params as sklearn_validate_params,
+)
 from sklearn.utils.validation import (
     check_array as sklearn_check_array,
 )
-from sklearn.metrics import get_scorer
-
+from sklearn.utils.validation import (
+    check_is_fitted as sklearn_check_is_fitted,
+)
 
 # Determine the installed scikit-learn version
 SKLEARN_VERSION = parse(sklearn.__version__)
@@ -70,32 +81,32 @@ SKLEARN_LT_0_24 = SKLEARN_VERSION < Version("0.24.0")
 SKLEARN_LT_1_3 = SKLEARN_VERSION < parse("1.3.0")
 
 __all__ = [
-    "Interval", 
+    "Interval",
     "resample",
     "train_test_split",
     "get_scorer",
-    "type_of_target", 
+    "type_of_target",
     "get_feature_names",
-    "get_feature_names_out", 
+    "get_feature_names_out",
     "get_transformers_from_column_transformer",
     "check_is_fitted",
     "check_array",
-    "adjusted_mutual_info_score", 
-    "get_sgd_loss_param", 
-    "validate_params", 
-    "InvalidParameterError", 
-    "StrOptions", 
-    "HasMethods", 
-    "Hidden", 
-    "OneHotEncoder", 
-    "SKLEARN_LT_0_22", 
-    "SKLEARN_LT_0_23", 
-    "SKLEARN_LT_0_24"
+    "adjusted_mutual_info_score",
+    "get_sgd_loss_param",
+    "validate_params",
+    "InvalidParameterError",
+    "StrOptions",
+    "HasMethods",
+    "Hidden",
+    "OneHotEncoder",
+    "SKLEARN_LT_0_22",
+    "SKLEARN_LT_0_23",
+    "SKLEARN_LT_0_24",
 ]
 
-_CHECK_ARRAY_PARAMS = (
-    inspect.signature(sklearn_check_array).parameters
-)
+_CHECK_ARRAY_PARAMS = inspect.signature(
+    sklearn_check_array
+).parameters
 _CHECK_ARRAY_HAS_FORCE = (
     "force_all_finite" in _CHECK_ARRAY_PARAMS
 )
@@ -104,20 +115,31 @@ _CHECK_ARRAY_HAS_ENSURE = (
 )
 
 
-try : 
-    from sklearn.utils._param_validation import _Constraint, _type_name 
-except: 
+try:
+    from sklearn.utils._param_validation import (
+        _Constraint,
+        _type_name,
+    )
+except:
     # Or define minimal versions if to fallback:
     class _Constraint:
         """Base class for constraints."""
+
         def is_satisfied_by(self, val):
-            raise NotImplementedError("Concrete constraint must implement 'is_satisfied_by'")
+            raise NotImplementedError(
+                "Concrete constraint must implement 'is_satisfied_by'"
+            )
+
         def __str__(self):
-            raise NotImplementedError("Concrete constraint must implement '__str__'")
+            raise NotImplementedError(
+                "Concrete constraint must implement '__str__'"
+            )
+
         def __or__(self, other):
-            from sklearn.utils._param_validation import Union 
+            from sklearn.utils._param_validation import Union
+
             return Union(self, other)
-    
+
     def _type_name(type_):
         """Helper to get the name of a type."""
         module = getattr(type_, "__module__", None)
@@ -125,18 +147,28 @@ except:
             return getattr(type_, "__qualname__", repr(type_))
         return f"{module}.{getattr(type_, '__qualname__', repr(type_))}"
 
+
 try:
     # public API (older versions)
     from sklearn.metrics import SCORERS as _sk_scorers
 except ImportError:
     try:
         # private module (if still present)
-        from sklearn.metrics._scorer import SCORERS as _sk_scorers  # type: ignore
+        from sklearn.metrics._scorer import (
+            SCORERS as _sk_scorers,  # type: ignore
+        )
     except (ImportError, AttributeError):
         # --- metrics compatibility ---
-        from sklearn.metrics import get_scorer as _sk_get_scorer, get_scorer_names
+        from sklearn.metrics import (
+            get_scorer as _sk_get_scorer,
+        )
+        from sklearn.metrics import get_scorer_names
+
         # build fallback mapping dynamically
-        _sk_scorers = {name: _sk_get_scorer(name) for name in get_scorer_names()}
+        _sk_scorers = {
+            name: _sk_get_scorer(name)
+            for name in get_scorer_names()
+        }
 
 
 def check_array(*args, **kwargs):
@@ -163,15 +195,15 @@ def check_array(*args, **kwargs):
 
     if _CHECK_ARRAY_HAS_ENSURE:
         if has_force and not has_ensure:
-            kwargs["ensure_all_finite"] = (
-                kwargs.pop("force_all_finite")
+            kwargs["ensure_all_finite"] = kwargs.pop(
+                "force_all_finite"
             )
         elif has_force and has_ensure:
             kwargs.pop("force_all_finite", None)
     elif _CHECK_ARRAY_HAS_FORCE:
         if has_ensure and not has_force:
-            kwargs["force_all_finite"] = (
-                kwargs.pop("ensure_all_finite")
+            kwargs["force_all_finite"] = kwargs.pop(
+                "ensure_all_finite"
             )
         elif has_force and has_ensure:
             kwargs.pop("ensure_all_finite", None)
@@ -182,6 +214,7 @@ def check_array(*args, **kwargs):
 
     return sklearn_check_array(*args, **kwargs)
 
+
 def _get_scorer(name):
     """
     Wrapper around sklearn.metrics.get_scorer, maintained for compatibility.
@@ -190,12 +223,15 @@ def _get_scorer(name):
         return _sk_get_scorer(name)
     except Exception:
         warnings.warn(
-            f"Scorer '{name}' not found via get_scorer; falling back to SCORERS mapping."
+            f"Scorer '{name}' not found via get_scorer; falling back to SCORERS mapping.",
+            stacklevel=2,
         )
         return _sk_scorers.get(name)
 
+
 # Expose a SCORERS mapping for compatibility
 SCORERS = _sk_scorers
+
 
 class ListOptions(_Constraint):
     """Constraint representing a list/tuple where each element
@@ -214,17 +250,20 @@ class ListOptions(_Constraint):
         Maximum allowed length of the list/tuple. If None, no maximum
         length check.
     """
+
     def __init__(
         self,
-        element_constraint: Union[_Constraint, type],
+        element_constraint: _Constraint | type,
         *,
-        min_len: Optional[int] = None,
-        max_len: Optional[int] = None
+        min_len: int | None = None,
+        max_len: int | None = None,
     ):
         super().__init__()
 
         # Check if element_constraint is a type or a _Constraint instance
-        if not isinstance(element_constraint, (_Constraint, type)):
+        if not isinstance(
+            element_constraint, _Constraint | type
+        ):
             raise TypeError(
                 "'element_constraint' must be a type (e.g., int, str) "
                 "or an instance of _Constraint (e.g., Interval(...))."
@@ -232,19 +271,25 @@ class ListOptions(_Constraint):
 
         # Validate length constraints
         if min_len is not None and (
-            not isinstance(min_len, int) or min_len < 0):
+            not isinstance(min_len, int) or min_len < 0
+        ):
             raise ValueError(
                 "'min_len' must be a non-negative integer or None."
-                )
+            )
         if max_len is not None and (
-            not isinstance(max_len, int) or max_len < 0):
+            not isinstance(max_len, int) or max_len < 0
+        ):
             raise ValueError(
                 "'max_len' must be a non-negative integer or None."
-                )
-        if min_len is not None and max_len is not None and min_len > max_len:
+            )
+        if (
+            min_len is not None
+            and max_len is not None
+            and min_len > max_len
+        ):
             raise ValueError(
                 "'min_len' cannot be greater than 'max_len'."
-                )
+            )
 
         self.element_constraint = element_constraint
         self.min_len = min_len
@@ -252,16 +297,18 @@ class ListOptions(_Constraint):
 
         # Store how to check elements based on constraint type
         if isinstance(self.element_constraint, _Constraint):
-            self._check_element = self.element_constraint.is_satisfied_by
-        else: # Assume it's a type
+            self._check_element = (
+                self.element_constraint.is_satisfied_by
+            )
+        else:  # Assume it's a type
             self._check_element = lambda val: isinstance(
                 val, self.element_constraint
-                )
+            )
 
     def is_satisfied_by(self, val: object) -> bool:
         """Check if `val` is a list/tuple satisfying the constraints."""
         # 1. Check if it's a sequence type (list or tuple)
-        if not isinstance(val, (list, tuple)):
+        if not isinstance(val, list | tuple):
             return False
 
         # 2. Check length constraints
@@ -285,7 +332,7 @@ class ListOptions(_Constraint):
         # Get string representation of the element constraint
         if isinstance(self.element_constraint, _Constraint):
             element_str = str(self.element_constraint)
-        else: # It's a type
+        else:  # It's a type
             element_str = f"an instance of {_type_name(self.element_constraint)}"
 
         s = f"a list or tuple where each element is {element_str}"
@@ -293,14 +340,19 @@ class ListOptions(_Constraint):
         # Add length constraints to the description
         len_constraints = []
         if self.min_len is not None:
-            len_constraints.append(f"min length {self.min_len}")
+            len_constraints.append(
+                f"min length {self.min_len}"
+            )
         if self.max_len is not None:
-            len_constraints.append(f"max length {self.max_len}")
+            len_constraints.append(
+                f"max length {self.max_len}"
+            )
 
         if len_constraints:
             s += f" (with {', '.join(len_constraints)})"
 
         return s
+
 
 class OneHotEncoder(SklearnOneHotEncoder):
     """
@@ -337,14 +389,14 @@ class OneHotEncoder(SklearnOneHotEncoder):
 
     def __init__(
         self,
-        categories = "auto",
-        drop = None,
-        sparse = "deprecated",
-        sparse_output = None,
-        dtype = np.float64,
-        handle_unknown = "error",
-        min_frequency = None,
-        max_categories = None
+        categories="auto",
+        drop=None,
+        sparse="deprecated",
+        sparse_output=None,
+        dtype=np.float64,
+        handle_unknown="error",
+        min_frequency=None,
+        max_categories=None,
         # we can add other parameters introduced in scikit-learn
         # for future or past versions if needed.
     ):
@@ -356,161 +408,177 @@ class OneHotEncoder(SklearnOneHotEncoder):
         if sk_version < parse("1.2"):
             if sparse == "deprecated":
                 sparse = sparse_output
-            if sparse_output is not None and sparse != "deprecated":
+            if (
+                sparse_output is not None
+                and sparse != "deprecated"
+            ):
                 warnings.warn(
                     "Both 'sparse' and 'sparse_output' are set. "
                     "Using 'sparse_output' as the final value for older "
-                    "scikit-learn versions (<1.2)."
+                    "scikit-learn versions (<1.2).",
+                    stacklevel=2,
                 )
                 sparse = sparse_output
             if sparse == "deprecated":
                 sparse = True
 
             super().__init__(
-                categories = categories,
-                drop = drop,
-                sparse = sparse,
-                dtype = dtype,
-                handle_unknown = handle_unknown,
-                min_frequency = min_frequency,
-                max_categories = max_categories
+                categories=categories,
+                drop=drop,
+                sparse=sparse,
+                dtype=dtype,
+                handle_unknown=handle_unknown,
+                min_frequency=min_frequency,
+                max_categories=max_categories,
             )
 
         # If scikit-learn >= 1.2: rename 'sparse' -> 'sparse_output'
         # if user provided it. If both are set, prioritize 'sparse_output'.
         else:
-            if sparse_output is None and sparse != "deprecated":
+            if (
+                sparse_output is None
+                and sparse != "deprecated"
+            ):
                 sparse_output = sparse
-            if sparse_output is None and sparse == "deprecated":
+            if (
+                sparse_output is None
+                and sparse == "deprecated"
+            ):
                 sparse_output = True
-            elif sparse_output is not None and sparse != "deprecated":
+            elif (
+                sparse_output is not None
+                and sparse != "deprecated"
+            ):
                 warnings.warn(
                     "Both 'sparse' and 'sparse_output' are set. "
                     "Using 'sparse_output' as the final value for newer "
-                    "scikit-learn versions (>=1.2)."
+                    "scikit-learn versions (>=1.2).",
+                    stacklevel=2,
                 )
 
             super().__init__(
-                categories = categories,
-                drop = drop,
-                sparse_output = sparse_output,
-                dtype = dtype,
-                handle_unknown = handle_unknown,
-                min_frequency = min_frequency,
-                max_categories = max_categories
+                categories=categories,
+                drop=drop,
+                sparse_output=sparse_output,
+                dtype=dtype,
+                handle_unknown=handle_unknown,
+                min_frequency=min_frequency,
+                max_categories=max_categories,
             )
 
 
 class Interval:
     """
-    Compatibility wrapper for scikit-learn's `Interval` class to handle 
+    Compatibility wrapper for scikit-learn's `Interval` class to handle
     versions that do not include the `inclusive` argument.
-    
+
     Parameters
     ----------
     *args : tuple
-        Positional arguments passed to the `Interval` class, typically 
-        the expected data types and the range boundaries for the validation 
+        Positional arguments passed to the `Interval` class, typically
+        the expected data types and the range boundaries for the validation
         interval.
-    
+
     inclusive : bool, optional
-        Specifies whether the interval includes its bounds. Only supported 
-        in scikit-learn versions that accept the `inclusive` parameter. If 
-        `True`, the interval includes the bounds. Default is `None` for 
+        Specifies whether the interval includes its bounds. Only supported
+        in scikit-learn versions that accept the `inclusive` parameter. If
+        `True`, the interval includes the bounds. Default is `None` for
         older versions where this argument is not available.
-    
+
     closed : str, optional
-        Defines how the interval is closed. Can be "left", "right", "both", 
-        or "neither". This argument is accepted by both older and newer 
-        scikit-learn versions. Default is "left" (includes the left bound, 
+        Defines how the interval is closed. Can be "left", "right", "both",
+        or "neither". This argument is accepted by both older and newer
+        scikit-learn versions. Default is "left" (includes the left bound,
         but excludes the right bound).
-    
+
     kwargs : dict
-        Additional keyword arguments passed to the `Interval` class for 
-        compatibility, including any additional arguments required by the 
+        Additional keyword arguments passed to the `Interval` class for
+        compatibility, including any additional arguments required by the
         current scikit-learn version.
 
     Returns
     -------
     Interval
-        A compatible `Interval` object based on the scikit-learn version, 
+        A compatible `Interval` object based on the scikit-learn version,
         with or without the `inclusive` argument.
-    
+
     Raises
     ------
     ValueError
-        If an unsupported version of scikit-learn is used or the parameters 
+        If an unsupported version of scikit-learn is used or the parameters
         are not valid for the given version.
-    
+
     Notes
     -----
-    This class provides a compatibility layer for creating `Interval` 
-    objects in different versions of scikit-learn. The `inclusive` argument 
-    was introduced in newer versions, so this class removes it if not 
-    supported in older versions. 
-    
-    If you are using scikit-learn versions that support the `inclusive` 
-    argument (e.g., version 1.2 or later), it will be included in the call 
+    This class provides a compatibility layer for creating `Interval`
+    objects in different versions of scikit-learn. The `inclusive` argument
+    was introduced in newer versions, so this class removes it if not
+    supported in older versions.
+
+    If you are using scikit-learn versions that support the `inclusive`
+    argument (e.g., version 1.2 or later), it will be included in the call
     to `Interval`. Otherwise, the argument will be excluded.
-    
+
     Examples
     --------
-    In newer scikit-learn versions (e.g., >=1.2), you can include the 
+    In newer scikit-learn versions (e.g., >=1.2), you can include the
     `inclusive` parameter:
-    
+
     >>> from numbers import Integral
     >>> from geoprior.compat.sklearn import Interval
     >>> interval = Interval(Integral, 1, 10, closed="left", inclusive=True)
     >>> interval
-    
-    In older versions of scikit-learn that don't support `inclusive`, it 
+
+    In older versions of scikit-learn that don't support `inclusive`, it
     will automatically be removed:
-    
+
     >>> interval = Interval(Integral, 1, 10, closed="left")
     >>> interval
-    
+
     See Also
     --------
-    sklearn.utils._param_validation.Interval : Original scikit-learn `Interval` 
+    sklearn.utils._param_validation.Interval : Original scikit-learn `Interval`
         class used for parameter validation.
-    
+
     References
     ----------
-    .. [1] Pedregosa, F. et al. (2011). "Scikit-learn: Machine Learning in 
+    .. [1] Pedregosa, F. et al. (2011). "Scikit-learn: Machine Learning in
        Python." *Journal of Machine Learning Research*, 12, 2825-2830.
-    
-    .. [2] Buitinck, L., Louppe, G., Blondel, M., et al. (2013). "API design 
-       for machine learning software: experiences from the scikit-learn 
+
+    .. [2] Buitinck, L., Louppe, G., Blondel, M., et al. (2013). "API design
+       for machine learning software: experiences from the scikit-learn
        project." *arXiv preprint arXiv:1309.0238*.
     """
-    
+
     def __new__(cls, *args, **kwargs):
         """
-        Creates a compatible `Interval` object based on the scikit-learn 
+        Creates a compatible `Interval` object based on the scikit-learn
         version.
-        
+
         Parameters
         ----------
         *args : tuple
             Positional arguments for the `Interval` class.
         kwargs : dict
-            Keyword arguments, including `inclusive` if supported by the 
+            Keyword arguments, including `inclusive` if supported by the
             scikit-learn version.
-        
+
         Returns
         -------
         sklearn.utils._param_validation.Interval
             A compatible `Interval` object.
         """
-        # Check if 'inclusive' is a parameter in the __init__ method of 
+        # Check if 'inclusive' is a parameter in the __init__ method of
         # sklearn_Interval
-        signature = inspect.signature(sklearn_Interval.__init__)
-        if 'inclusive' in signature.parameters:
+        signature = inspect.signature(
+            sklearn_Interval.__init__
+        )
+        if "inclusive" in signature.parameters:
             # 'inclusive' is supported, use kwargs as is
             return sklearn_Interval(*args, **kwargs)
         else:
             # 'inclusive' not supported, remove it from kwargs if present
-            kwargs.pop('inclusive', None)
+            kwargs.pop("inclusive", None)
             return sklearn_Interval(*args, **kwargs)
 
 
@@ -640,12 +708,18 @@ def type_of_target(y):
     """
     # Attempt to import type_of_target from scikit-learn
     try:
-        from sklearn.utils.multiclass import type_of_target as skl_type_of_target
+        from sklearn.utils.multiclass import (
+            type_of_target as skl_type_of_target,
+        )
+
         return skl_type_of_target(y)
     except ImportError:
         # Fallback to gofast's type_of_target if scikit-learn is not available
         try:
-            from geoprior.core.utils import type_of_target as gofast_type_of_target
+            from geoprior.core.utils import (
+                type_of_target as gofast_type_of_target,
+            )
+
             return gofast_type_of_target(y)
         except ImportError:
             # If both imports fail, raise an ImportError
@@ -657,13 +731,13 @@ def type_of_target(y):
 
 
 def get_sgd_loss_param():
-    """Get the correct argument of loss parameter for SGDClassifier 
+    """Get the correct argument of loss parameter for SGDClassifier
     based on scikit-learn version.
 
-    This function determines which loss parameter to use for 
-    the SGDClassifier depending on the installed version of 
-    scikit-learn. In versions 0.24 and newer, the loss parameter 
-    should be set to 'log_loss'. In older versions, it should 
+    This function determines which loss parameter to use for
+    the SGDClassifier depending on the installed version of
+    scikit-learn. In versions 0.24 and newer, the loss parameter
+    should be set to 'log_loss'. In older versions, it should
     be set to 'log'.
 
     Returns
@@ -680,20 +754,25 @@ def get_sgd_loss_param():
     >>> # Example usage with SGDClassifier
     >>> from sklearn.linear_model import SGDClassifier
     >>> clf = SGDClassifier(loss=get_sgd_loss_param(), max_iter=1000)
-    
+
     Notes
     -----
-    This function is useful for maintaining compatibility 
-    with different versions of scikit-learn, ensuring that 
-    the model behaves as expected regardless of the library 
+    This function is useful for maintaining compatibility
+    with different versions of scikit-learn, ensuring that
+    the model behaves as expected regardless of the library
     version being used.
     """
-    
+
     # Use 'log' for older versions if SKLEARN_LT_1_3
-    return 'log' if SKLEARN_LT_1_3 else 'log_loss'
+    return "log" if SKLEARN_LT_1_3 else "log_loss"
 
 
-def validate_params(params, *args, prefer_skip_nested_validation=True, **kwargs):
+def validate_params(
+    params,
+    *args,
+    prefer_skip_nested_validation=True,
+    **kwargs,
+):
     """
     Compatibility wrapper for scikit-learn's `validate_params` function
     to handle versions that require the `prefer_skip_nested_validation` argument,
@@ -813,24 +892,28 @@ def validate_params(params, *args, prefer_skip_nested_validation=True, **kwargs)
     """
     # Check if `prefer_skip_nested_validation` is required by inspecting the signature
     sig = inspect.signature(sklearn_validate_params)
-    if 'prefer_skip_nested_validation' in sig.parameters:
+    if "prefer_skip_nested_validation" in sig.parameters:
         # Pass the user's choice or default for `prefer_skip_nested_validation`
-        kwargs['prefer_skip_nested_validation'] = prefer_skip_nested_validation
-    
+        kwargs["prefer_skip_nested_validation"] = (
+            prefer_skip_nested_validation
+        )
+
     # Call the actual validate_params with appropriate arguments
     return sklearn_validate_params(params, *args, **kwargs)
 
 
-def get_column_transformer_feature_names(column_transformer, input_features=None):
+def get_column_transformer_feature_names(
+    column_transformer, input_features=None
+):
     """
     Get feature names from a ColumnTransformer.
-    
+
     Parameters:
     - column_transformer : ColumnTransformer
         The ColumnTransformer object.
     - input_features : list of str, optional
         List of input feature names.
-    
+
     Returns:
     - feature_names : list of str
         List of feature names generated by the transformers in the ColumnTransformer.
@@ -839,80 +922,128 @@ def get_column_transformer_feature_names(column_transformer, input_features=None
 
     # Ensure input_features is a list; if not provided, assume numerical column indices
     if input_features is None:
-        input_features = list(range(column_transformer._n_features))
-    
-    for transformer_name, transformer, column in column_transformer.transformers_:
-        if transformer == 'drop' or (
-                hasattr(transformer, 'remainder') and transformer.remainder == 'drop'):
+        input_features = list(
+            range(column_transformer._n_features)
+        )
+
+    for (
+        transformer_name,
+        transformer,
+        column,
+    ) in column_transformer.transformers_:
+        if transformer == "drop" or (
+            hasattr(transformer, "remainder")
+            and transformer.remainder == "drop"
+        ):
             continue
 
         # Resolve actual column names/indices
-        actual_columns = [input_features[c] for c in column] if isinstance(
-            column, (list, slice)) else [input_features[column]]
+        actual_columns = (
+            [input_features[c] for c in column]
+            if isinstance(column, list | slice)
+            else [input_features[column]]
+        )
 
-        if hasattr(transformer, 'get_feature_names_out'):
+        if hasattr(transformer, "get_feature_names_out"):
             # For transformers that support get_feature_names_out
-            if hasattr(transformer, 'feature_names_in_'):
+            if hasattr(transformer, "feature_names_in_"):
                 transformer.feature_names_in_ = actual_columns
-            transformer_features = transformer.get_feature_names_out()
-        elif hasattr(transformer, 'get_feature_names'):
+            transformer_features = (
+                transformer.get_feature_names_out()
+            )
+        elif hasattr(transformer, "get_feature_names"):
             # For transformers that support get_feature_names
-            transformer_features = transformer.get_feature_names()
+            transformer_features = (
+                transformer.get_feature_names()
+            )
         else:
             # Default behavior for transformers without get_feature_names methods
-            transformer_features = [f"{transformer_name}__{i}" for i in range(
-                transformer.transform(column).shape[1])]
-        
+            transformer_features = [
+                f"{transformer_name}__{i}"
+                for i in range(
+                    transformer.transform(column).shape[1]
+                )
+            ]
+
         output_features.extend(transformer_features)
 
     return output_features
 
-def get_column_transformer_feature_names2(column_transformer, input_features=None):
+
+def get_column_transformer_feature_names2(
+    column_transformer, input_features=None
+):
     """
     Get feature names from a ColumnTransformer.
-    
+
     Parameters:
     - column_transformer : ColumnTransformer
         The ColumnTransformer object.
     - input_features : list of str, optional
         List of input feature names.
-    
+
     Returns:
     - feature_names : list of str
         List of feature names generated by the transformers in the ColumnTransformer.
     """
     output_features = []
 
-    for transformer_name, transformer, column in column_transformer.transformers_:
-        if transformer == 'drop' or (
-                hasattr(transformer, 'remainder') and transformer.remainder == 'drop'):
+    for (
+        transformer_name,
+        transformer,
+        column,
+    ) in column_transformer.transformers_:
+        if transformer == "drop" or (
+            hasattr(transformer, "remainder")
+            and transformer.remainder == "drop"
+        ):
             continue
 
-        if hasattr(transformer, 'get_feature_names_out'):
+        if hasattr(transformer, "get_feature_names_out"):
             # For transformers that support get_feature_names_out
-            if input_features is not None and hasattr(transformer, 'feature_names_in_'):
+            if input_features is not None and hasattr(
+                transformer, "feature_names_in_"
+            ):
                 # Adjust for the case where column is a list of column names or indices
-                transformer_feature_names_in = [input_features[col] if isinstance(
-                    column, list) else input_features[column] for col in column] if isinstance(
-                        column, list) else [input_features[column]]
-                transformer.feature_names_in_ = transformer_feature_names_in
-            transformer_features = transformer.get_feature_names_out()
-        elif hasattr(transformer, 'get_feature_names'):
+                transformer_feature_names_in = (
+                    [
+                        input_features[col]
+                        if isinstance(column, list)
+                        else input_features[column]
+                        for col in column
+                    ]
+                    if isinstance(column, list)
+                    else [input_features[column]]
+                )
+                transformer.feature_names_in_ = (
+                    transformer_feature_names_in
+                )
+            transformer_features = (
+                transformer.get_feature_names_out()
+            )
+        elif hasattr(transformer, "get_feature_names"):
             # For transformers that support get_feature_names
-            transformer_features = transformer.get_feature_names()
+            transformer_features = (
+                transformer.get_feature_names()
+            )
         else:
             # Default behavior for transformers without get_feature_names methods
-            transformer_features = [f"{transformer_name}__{i}" for i in range(
-                transformer.transform(column).shape[1])]
-        
+            transformer_features = [
+                f"{transformer_name}__{i}"
+                for i in range(
+                    transformer.transform(column).shape[1]
+                )
+            ]
+
         output_features.extend(transformer_features)
 
     return output_features
 
+
 def get_feature_names(estimator, *args, **kwargs):
     """
     Compatibility function for fetching feature names from an estimator.
-    
+
     Parameters:
     - estimator : estimator object
         Scikit-learn estimator from which to get feature names.
@@ -923,21 +1054,25 @@ def get_feature_names(estimator, *args, **kwargs):
     - feature_names : list
         List of feature names.
     """
-    if hasattr(estimator, 'get_feature_names_out'):
+    if hasattr(estimator, "get_feature_names_out"):
         # For versions of scikit-learn that support get_feature_names_out
-        return estimator.get_feature_names_out(*args, **kwargs)
-    elif hasattr(estimator, 'get_feature_names'):
+        return estimator.get_feature_names_out(
+            *args, **kwargs
+        )
+    elif hasattr(estimator, "get_feature_names"):
         # For older versions of scikit-learn
         return estimator.get_feature_names(*args, **kwargs)
     else:
         raise AttributeError(
-            "The estimator does not have a method to get feature names.")
+            "The estimator does not have a method to get feature names."
+        )
+
 
 def get_feature_names_out(estimator, *args, **kwargs):
     """
     Compatibility function for fetching feature names from an estimator, using
     get_feature_names_out for scikit-learn versions that support it.
-    
+
     Parameters:
     - estimator : estimator object
         Scikit-learn estimator from which to get feature names.
@@ -950,10 +1085,11 @@ def get_feature_names_out(estimator, *args, **kwargs):
     """
     return get_feature_names(estimator, *args, **kwargs)
 
+
 def get_transformers_from_column_transformer(ct):
     """
     Compatibility function to get transformers from a ColumnTransformer object.
-    
+
     Parameters:
     - ct : ColumnTransformer
         A fitted ColumnTransformer instance.
@@ -962,16 +1098,20 @@ def get_transformers_from_column_transformer(ct):
     - transformers : list of tuples
         List of (name, transformer, column(s)) tuples.
     """
-    if hasattr(ct, 'transformers_'):
+    if hasattr(ct, "transformers_"):
         return ct.transformers_
     else:
         raise AttributeError(
-            "The ColumnTransformer instance does not have a 'transformers_' attribute.")
+            "The ColumnTransformer instance does not have a 'transformers_' attribute."
+        )
 
-def check_is_fitted(estimator, attributes=None, msg=None, all_or_any=all):
+
+def check_is_fitted(
+    estimator, attributes=None, msg=None, all_or_any=all
+):
     """
     Compatibility wrapper for scikit-learn's check_is_fitted function.
-    
+
     Parameters:
     - estimator : estimator instance
         The estimator to check.
@@ -985,12 +1125,16 @@ def check_is_fitted(estimator, attributes=None, msg=None, all_or_any=all):
     Returns:
     - None
     """
-    return sklearn_check_is_fitted(estimator, attributes, msg, all_or_any)
+    return sklearn_check_is_fitted(
+        estimator, attributes, msg, all_or_any
+    )
+
 
 def adjusted_mutual_info_score(
-        labels_true, labels_pred, average_method='arithmetic'):
+    labels_true, labels_pred, average_method="arithmetic"
+):
     """
-    Compatibility function for adjusted_mutual_info_score with the 
+    Compatibility function for adjusted_mutual_info_score with the
     average_method parameter.
 
     Parameters:
@@ -1007,18 +1151,26 @@ def adjusted_mutual_info_score(
     - ami : float
        Adjusted Mutual Information Score.
     """
-    from sklearn.metrics import adjusted_mutual_info_score as ami_score
+    from sklearn.metrics import (
+        adjusted_mutual_info_score as ami_score,
+    )
+
     if SKLEARN_LT_0_22:
         return ami_score(labels_true, labels_pred)
     else:
-        return ami_score(labels_true, labels_pred, average_method=average_method)
-    
+        return ami_score(
+            labels_true,
+            labels_pred,
+            average_method=average_method,
+        )
+
+
 def fetch_openml(*args, **kwargs):
     """
     Compatibility function for fetch_openml to ensure consistent return type.
 
     Parameters:
-    - args, kwargs: Arguments and keyword arguments for 
+    - args, kwargs: Arguments and keyword arguments for
     sklearn.datasets.fetch_openml.
 
     Returns:
@@ -1026,11 +1178,15 @@ def fetch_openml(*args, **kwargs):
         Dictionary-like object with all the data and metadata.
     """
     from sklearn.datasets import fetch_openml
-    if 'as_frame' not in kwargs and not SKLEARN_LT_0_24:
-        kwargs['as_frame'] = True
+
+    if "as_frame" not in kwargs and not SKLEARN_LT_0_24:
+        kwargs["as_frame"] = True
     return fetch_openml(*args, **kwargs)
 
-def plot_confusion_matrix(estimator, X, y_true, *args, **kwargs):
+
+def plot_confusion_matrix(
+    estimator, X, y_true, *args, **kwargs
+):
     """
     Compatibility function for plot_confusion_matrix across scikit-learn versions.
 
@@ -1052,24 +1208,31 @@ def plot_confusion_matrix(estimator, X, y_true, *args, **kwargs):
         # Assume older version without plot_confusion_matrix
         # Implement fallback or raise informative error
         raise NotImplementedError(
-            "plot_confusion_matrix not available in your sklearn version.")
-    return plot_confusion_matrix(estimator, X, y_true, *args, **kwargs)
+            "plot_confusion_matrix not available in your sklearn version."
+        )
+    return plot_confusion_matrix(
+        estimator, X, y_true, *args, **kwargs
+    )
+
 
 def train_test_split(*args, **kwargs):
     """
     Compatibility wrapper for train_test_split to ensure consistent behavior.
 
     Parameters:
-    - args, kwargs: Arguments and keyword arguments for 
+    - args, kwargs: Arguments and keyword arguments for
     sklearn.model_selection.train_test_split.
     """
     from sklearn.model_selection import train_test_split
-    if 'shuffle' not in kwargs:
-        kwargs['shuffle'] = True
+
+    if "shuffle" not in kwargs:
+        kwargs["shuffle"] = True
     return train_test_split(*args, **kwargs)
 
 
-def get_transformer_feature_names(transformer, input_features=None):
+def get_transformer_feature_names(
+    transformer, input_features=None
+):
     """
     Compatibility function to get feature names from transformers like OneHotEncoder
     in scikit-learn, taking into account changes in method names across versions.
@@ -1085,19 +1248,25 @@ def get_transformer_feature_names(transformer, input_features=None):
     - feature_names : list of str
         List of feature names generated by the transformer.
     """
-    if hasattr(transformer, 'get_feature_names_out'):
+    if hasattr(transformer, "get_feature_names_out"):
         # Use get_feature_names_out if available (preferable in newer versions)
-        return transformer.get_feature_names_out(input_features)
-    elif hasattr(transformer, 'get_feature_names'):
+        return transformer.get_feature_names_out(
+            input_features
+        )
+    elif hasattr(transformer, "get_feature_names"):
         # Fallback to get_feature_names for compatibility with older versions
         if input_features is not None:
-            return transformer.get_feature_names(input_features)
+            return transformer.get_feature_names(
+                input_features
+            )
         else:
             return transformer.get_feature_names()
     else:
         # Raise error if neither method is available
         raise AttributeError(
-            f"{transformer.__class__.__name__} does not support feature name extraction.")
+            f"{transformer.__class__.__name__} does not support feature name extraction."
+        )
+
 
 def get_pipeline_feature_names(pipeline, input_features=None):
     """
@@ -1117,38 +1286,48 @@ def get_pipeline_feature_names(pipeline, input_features=None):
     - feature_names : list of str
         List of feature names generated by the pipeline.
     """
-    import numpy as np 
+    import numpy as np
+
     if input_features is None:
         input_features = []
 
     # Initialize with input features
     current_features = np.array(input_features)
-    
+
     # Iterate through transformers in the pipeline
-    for name, transformer in pipeline.steps:
-        if hasattr(transformer, 'get_feature_names_out'):
+    for _name, transformer in pipeline.steps:
+        if hasattr(transformer, "get_feature_names_out"):
             # Transformer supports get_feature_names_out
-            current_features = transformer.get_feature_names_out(current_features)
-        elif hasattr(transformer, 'get_feature_names'):
+            current_features = (
+                transformer.get_feature_names_out(
+                    current_features
+                )
+            )
+        elif hasattr(transformer, "get_feature_names"):
             # Transformer supports get_feature_names and requires current feature names
-            current_features = transformer.get_feature_names(current_features)
-        elif hasattr(transformer, 'categories_'):
+            current_features = transformer.get_feature_names(
+                current_features
+            )
+        elif hasattr(transformer, "categories_"):
             # Handle OneHotEncoder separately
-            current_features = np.concatenate(transformer.categories_)
+            current_features = np.concatenate(
+                transformer.categories_
+            )
         else:
-            # For transformers that do not modify feature names 
+            # For transformers that do not modify feature names
             # or do not provide a method to get feature names
             continue
-    
+
     # Ensure output is a list of strings
     feature_names = list(map(str, current_features))
     return feature_names
 
 
-__all__.extend([
-    "fetch_openml",
-    "plot_confusion_matrix",
-    "get_transformer_feature_names", 
-    "get_pipeline_feature_names"
-])
-
+__all__.extend(
+    [
+        "fetch_openml",
+        "plot_confusion_matrix",
+        "get_transformer_feature_names",
+        "get_pipeline_feature_names",
+    ]
+)

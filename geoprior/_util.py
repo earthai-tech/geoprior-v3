@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2026-present Laurent Kouadio
 
@@ -7,12 +6,11 @@ from __future__ import annotations
 import logging
 import os
 import warnings
-from typing import Optional
 
 from ._geopriorlog import geopriorlog
 
 
-def _default_config_path() -> Optional[str]:
+def _default_config_path() -> str | None:
     """
     Return the packaged YAML logging config path if available.
 
@@ -29,7 +27,7 @@ def _default_config_path() -> Optional[str]:
 
 
 def initialize_logging(
-    config_path: Optional[str] = None,
+    config_path: str | None = None,
     use_default_logger: bool = True,
     verbose: bool = False,
 ) -> None:

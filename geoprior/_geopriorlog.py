@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Adapted from: earthai-tech/fusionlab-learn (BSD-3-Clause)
@@ -27,10 +26,9 @@ import logging
 import logging.config
 import os
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import yaml
-
 
 __all__ = [
     "geopriorlog",
@@ -43,7 +41,7 @@ __all__ = [
 class geopriorlog:
     @staticmethod
     def load_configuration(
-        config_path: Optional[str] = None,
+        config_path: str | None = None,
         use_default_logger: bool = True,
         verbose: bool = False,
     ) -> None:
@@ -82,7 +80,7 @@ class geopriorlog:
     ) -> logging.Logger:
         """GeoPrior logger accessor (preferred name)."""
         return geopriorlog.get_logger(name)
-    
+
     @staticmethod
     def _configure_from_yaml(
         config_path: str,
@@ -145,7 +143,9 @@ class geopriorlog:
         logger.addHandler(handler)
 
         # Deduplicate handlers
-        logger.handlers = list({id(h): h for h in logger.handlers}.values())
+        logger.handlers = list(
+            {id(h): h for h in logger.handlers}.values()
+        )
 
 
 class OncePerMessageFilter(logging.Filter):
@@ -180,7 +180,9 @@ def setup_logging(config_path: str) -> None:
 
 
 def _resolve_log_path(config: dict[str, Any]) -> str:
-    env = os.getenv("GEOPRIOR_LOG_PATH") or os.getenv("LOG_PATH")
+    env = os.getenv("GEOPRIOR_LOG_PATH") or os.getenv(
+        "LOG_PATH"
+    )
     if env:
         return str(Path(env).expanduser())
     yaml_default = config.get("default_log_path")
@@ -189,7 +191,9 @@ def _resolve_log_path(config: dict[str, Any]) -> str:
     return "~/.geoprior/logs"
 
 
-def _apply_log_path_substitution(config: dict[str, Any]) -> None:
+def _apply_log_path_substitution(
+    config: dict[str, Any],
+) -> None:
     log_path = _resolve_log_path(config)
     handlers = config.get("handlers", {})
 
@@ -224,6 +228,7 @@ def get_logger(name: str = "") -> logging.Logger:
     >>> log = get_logger(__name__)
     """
     return geopriorlog.get_logger(name)
+
 
 if __name__ == "__main__":
     print(Path(__file__).resolve())

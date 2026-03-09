@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Author: LKouadio <etanoyau@gmail.com>
 # Adapted from: earthai-tech/gofast — https://github.com/earthai-tech/gofast
@@ -7,59 +6,89 @@
 """
 Times-series utilities (ts_utils).
 """
-from __future__ import annotations 
+
+from __future__ import annotations
 
 import warnings
-from numbers import Real, Integral
-from typing import Union, List, Optional, Dict
-import pandas as pd
+from numbers import Integral, Real
+from typing import Union
+
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from scipy.fft import fft
 from scipy.stats import pearsonr, zscore
-import matplotlib.pyplot as plt
-
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
-from sklearn.model_selection import TimeSeriesSplit
 from sklearn.decomposition import PCA
+from sklearn.model_selection import TimeSeriesSplit
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
-from .._deps import check_backends 
+from .._deps import check_backends
 from ..api.summary import ResultSummary
-from ..compat.sklearn import Interval, StrOptions, validate_params
+from ..compat.sklearn import (
+    Interval,
+    StrOptions,
+    validate_params,
+)
 from ..core.array_manager import smart_ts_detector
-from ..core.checks import exist_features, validate_ratio
-from ..core.checks import is_in_if, check_params
+from ..core.checks import (
+    check_params,
+    exist_features,
+    is_in_if,
+    validate_ratio,
+)
 from ..core.handlers import _get_valid_kwargs, columns_manager
 from ..core.io import to_frame_if
-from ..utils.base_utils import validate_target_in, select_features
+from ..utils.base_utils import (
+    select_features,
+    validate_target_in,
+)
 from ..utils.deps_utils import ensure_pkg
-from ..utils.validator import is_time_series, is_frame
+from ..utils.validator import is_frame, is_time_series
 
-HAS_STATS = check_backends('statsmodels').get('statsmodels')
+HAS_STATS = check_backends("statsmodels").get("statsmodels")
 
-if HAS_STATS: 
+if HAS_STATS:
     import statsmodels.api as sm
+    from statsmodels.graphics.tsaplots import (
+        plot_acf,
+        plot_pacf,
+    )
+    from statsmodels.tsa.seasonal import (
+        STL,
+        seasonal_decompose,
+    )
     from statsmodels.tsa.stattools import adfuller, kpss
-    from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
-    from statsmodels.tsa.seasonal import STL, seasonal_decompose
 
-__all__= [ 
-    'decompose_ts','infer_decomposition_method',
-    'prepare_ts_df','trend_analysis','trend_ops',
-    'ts_engineering','ts_validator','visual_inspection', 
-    'ts_corr_analysis', 'transform_stationarity','ts_split', 
-    'ts_outlier_detector', 'create_lag_features', 
-    'select_and_reduce_features', 'get_decomposition_method', 
-    'filter_by_period', 'to_dt', 'compute_group_window_counts', 
-    'resolve_time_steps'
- ]
+__all__ = [
+    "decompose_ts",
+    "infer_decomposition_method",
+    "prepare_ts_df",
+    "trend_analysis",
+    "trend_ops",
+    "ts_engineering",
+    "ts_validator",
+    "visual_inspection",
+    "ts_corr_analysis",
+    "transform_stationarity",
+    "ts_split",
+    "ts_outlier_detector",
+    "create_lag_features",
+    "select_and_reduce_features",
+    "get_decomposition_method",
+    "filter_by_period",
+    "to_dt",
+    "compute_group_window_counts",
+    "resolve_time_steps",
+]
+
 
 def resolve_time_steps(
     df: pd.DataFrame,
     time_col: str,
-    group_id_cols: List[str],
-    time_steps: Optional[int] = None,
+    group_id_cols: list[str],
+    time_steps: int | None = None,
     forecast_horizon: int = 1,
-    mode: str = 'warn'
+    mode: str = "warn",
 ) -> int:
     """Validates or determines a reasonable look-back window (`time_steps`).
 
@@ -149,32 +178,38 @@ def resolve_time_steps(
     <stdin>:1: UserWarning: The chosen `time_steps` (12) is too large...
     12
     """
-    
-    is_frame(df, df_only =True, objname="Data 'df'")
-    
+
+    is_frame(df, df_only=True, objname="Data 'df'")
+
     df = ts_validator(
         df,
         dt_col=time_col,
-        to_datetime='auto',
+        to_datetime="auto",
         as_index=False,
         error="raise",
         return_dt_col=False,
-        verbose=0
+        verbose=0,
     )
-    
-    if not all(col in df.columns for col in group_id_cols + [time_col]):
+
+    if not all(
+        col in df.columns
+        for col in group_id_cols + [time_col]
+    ):
         raise ValueError(
             "One or more specified columns not found in DataFrame."
         )
 
     # --- Robust Time Column Handling ---
     df_temp = df.copy()
-    datetime_series = pd.to_datetime(df_temp[time_col], errors='coerce')
+    datetime_series = pd.to_datetime(
+        df_temp[time_col], errors="coerce"
+    )
 
     if datetime_series.isnull().any():
         warnings.warn(
             f"Could not parse all values in time column '{time_col}' as "
-            "dates. Rows with invalid formats will be ignored for this check."
+            "dates. Rows with invalid formats will be ignored for this check.",
+            stacklevel=2,
         )
         df_temp = df_temp[datetime_series.notna()]
 
@@ -183,10 +218,15 @@ def resolve_time_steps(
     series_lengths = grouped.size()
 
     if series_lengths.empty:
-        warnings.warn("Dataset is empty or contains no valid groups.")
-        return time_steps or 1 # Return 1 if no user value
+        warnings.warn(
+            "Dataset is empty or contains no valid groups.",
+            stacklevel=2,
+        )
+        return time_steps or 1  # Return 1 if no user value
 
-    max_possible_for_all = (series_lengths - forecast_horizon).min()
+    max_possible_for_all = (
+        series_lengths - forecast_horizon
+    ).min()
 
     if max_possible_for_all < 1:
         message = (
@@ -194,9 +234,9 @@ def resolve_time_steps(
             f"with a forecast horizon of {forecast_horizon}. The "
             f"shortest series has {series_lengths.min()} points."
         )
-        if mode == 'strict':
+        if mode == "strict":
             raise ValueError(message)
-        warnings.warn(message, UserWarning)
+        warnings.warn(message, UserWarning, stacklevel=2)
         return 1  # Fallback to a minimum of 1
 
     # --- Handle Auto-Detection or Validation ---
@@ -217,22 +257,28 @@ def resolve_time_steps(
             f"maximum of {max_possible_for_all} look-back steps for a "
             f"forecast horizon of {forecast_horizon}."
         )
-        if mode == 'strict':
+        if mode == "strict":
             raise ValueError(message)
-        elif mode == 'warn':
+        elif mode == "warn":
             warnings.warn(
                 f"{message} Proceeding with the original value, but this"
                 " will likely result in zero training samples.",
-                UserWarning
+                UserWarning,
+                stacklevel=2,
             )
             return time_steps
-        elif mode == 'auto':
-            print(f"Info: Correcting `time_steps` from {time_steps} to "
-                  f"the maximum possible value of {max_possible_for_all}.")
+        elif mode == "auto":
+            print(
+                f"Info: Correcting `time_steps` from {time_steps} to "
+                f"the maximum possible value of {max_possible_for_all}."
+            )
             return int(max_possible_for_all)
 
-    print(f"Provided `time_steps` ({time_steps}) is valid for this dataset.")
+    print(
+        f"Provided `time_steps` ({time_steps}) is valid for this dataset."
+    )
     return time_steps
+
 
 def _to_datetime_series(series: pd.Series) -> pd.Series:
     """
@@ -241,7 +287,7 @@ def _to_datetime_series(series: pd.Series) -> pd.Series:
     This helper handles various formats, including integer years,
     string years, or standard datetime strings.
 
-    Parameters 
+    Parameters
     ----------
         series (pd.Series): The input series to convert.
 
@@ -257,22 +303,27 @@ def _to_datetime_series(series: pd.Series) -> pd.Series:
     if pd.api.types.is_numeric_dtype(series):
         # Heuristic: check if values look like years
         if series.between(1900, 2100).all():
-            return pd.to_datetime(series, format='%Y', errors='coerce')
+            return pd.to_datetime(
+                series, format="%Y", errors="coerce"
+            )
 
     # For object/string types, try standard parsing first.
     # If that fails, it might be a string year '2022'.
     try:
-        return pd.to_datetime(series, errors='coerce')
+        return pd.to_datetime(series, errors="coerce")
     except (ValueError, TypeError):
         # Fallback for string years or other formats
-        return pd.to_datetime(series, format='%Y', errors='coerce')
-    
+        return pd.to_datetime(
+            series, format="%Y", errors="coerce"
+        )
+
+
 def compute_group_window_counts(
-    group_lengths: Dict[str, int],
+    group_lengths: dict[str, int],
     time_steps: int,
     forecast_horizon: int,
-    min_windows_per_group: Optional[int] = None
-) -> Dict[str, int]:
+    min_windows_per_group: int | None = None,
+) -> dict[str, int]:
     r"""
     Compute the number of sliding‐window samples for each group given its
     time‐series length, input window size, and forecast horizon.
@@ -383,18 +434,24 @@ def compute_group_window_counts(
         raise ValueError(
             f"`time_steps` must be a positive int, got {time_steps}"
         )
-    if not isinstance(forecast_horizon, int) or forecast_horizon <= 0:
+    if (
+        not isinstance(forecast_horizon, int)
+        or forecast_horizon <= 0
+    ):
         raise ValueError(
             f"`forecast_horizon` must be a positive int, got {forecast_horizon}"
         )
     if min_windows_per_group is not None:
-        if not isinstance(min_windows_per_group, int) or min_windows_per_group < 0:
+        if (
+            not isinstance(min_windows_per_group, int)
+            or min_windows_per_group < 0
+        ):
             raise ValueError(
                 f"`min_windows_per_group` must be a non-negative int, got "
                 f"{min_windows_per_group}"
             )
 
-    result: Dict[str, int] = {}
+    result: dict[str, int] = {}
     for group_key, T_g in group_lengths.items():
         if not isinstance(group_key, str):
             raise TypeError(
@@ -418,38 +475,40 @@ def compute_group_window_counts(
         ):
             warnings.warn(
                 f'Group "{group_key}" has only {N_g} windows, '
-                f'below the minimum of {min_windows_per_group}.'
+                f"below the minimum of {min_windows_per_group}.",
+                stacklevel=2,
             )
 
     return result
 
 
 def filter_by_period(
-    df, eval_periods, 
-    dt_col =None, 
-    ):
+    df,
+    eval_periods,
+    dt_col=None,
+):
     """
     Filter a DataFrame based on the provided evaluation periods.
 
     The function filters the rows of the DataFrame where the values in the
-    :param:`dt_col` match the provided :param:`eval_periods`. The function 
-    supports filtering by various time granularities, such as year, month, 
+    :param:`dt_col` match the provided :param:`eval_periods`. The function
+    supports filtering by various time granularities, such as year, month,
     day, week, hour, minute, and second, based on the provided periods.
 
     The function performs the following operation:
-    
+
     .. math::
         filtered\_df = df[dt_{col}.isin(eval_{periods})]
 
-    It checks whether the values in the :math:`dt_{col}` match any of the 
+    It checks whether the values in the :math:`dt_{col}` match any of the
     values in the :math:`eval_{periods}` and filters the DataFrame accordingly.
 
     Parameters
     ------------
     df : pandas.DataFrame
-        The DataFrame to be filtered. It must contain a column with 
+        The DataFrame to be filtered. It must contain a column with
         date/time information specified in :param:`dt_col`.
-  
+
     eval_periods : list of str or str
         A list or single string containing the periods to filter
         the DataFrame. The periods can be of varying granularity:
@@ -461,16 +520,16 @@ def filter_by_period(
         - Minute (`'YYYY-MM-DD HH:MM'`)
         - Second (`'YYYY-MM-DD HH:MM:SS'`)
     dt_col : str, optional
-        The name of the column containing date or time information. 
-        The values in this column are used to match the periods in 
+        The name of the column containing date or time information.
+        The values in this column are used to match the periods in
         :param:`eval_periods`. This column should be of type `datetime`.
-        If ``None`` index is infered as `dt_col`. If not datetime, an 
-        error is raised. 
-        
+        If ``None`` index is infered as `dt_col`. If not datetime, an
+        error is raised.
+
     Returns
     -------
     pandas.DataFrame
-        The filtered DataFrame containing only the rows that match the 
+        The filtered DataFrame containing only the rows that match the
         evaluation periods specified in :param:`eval_periods`.
 
     Examples
@@ -511,17 +570,17 @@ def filter_by_period(
 
     Notes
     -----
-    - This function is flexible and can handle a wide range of 
+    - This function is flexible and can handle a wide range of
       datetime formats.
     - The function uses the pandas `.isin()` method to perform
       the filtering based on the provided :param:`eval_periods`.
-    - The :param:`eval_periods` parameter can contain periods 
+    - The :param:`eval_periods` parameter can contain periods
       of various granularities (e.g., year, month, exact date),
-      and the function will handle these correctly 
-      by comparing the appropriate level of detail 
+      and the function will handle these correctly
+      by comparing the appropriate level of detail
       (e.g., only the year, month, or exact date).
     - The :param:`dt_col` in the DataFrame must be of type
-      `datetime`. If it's not, it will be converted to 
+      `datetime`. If it's not, it will be converted to
       `datetime` internally.
     - If :param:`eval_periods` is a single string, it is
       automatically converted into a list.
@@ -530,107 +589,130 @@ def filter_by_period(
     --------
     pandas.DataFrame: The pandas DataFrame object that provides
     methods such as `isin` to filter data.
-    
+
     References
     ----------
-    .. [1] Kouadio L. et al., "Time Series Filtering in DataFrames", 
+    .. [1] Kouadio L. et al., "Time Series Filtering in DataFrames",
        Journal of Data Processing, 2025. (In review)
     """
     # Validate the datetime column and
     # ensure it is in the correct format
-    df, dt_col =ts_validator(
-        df.copy(), dt_col=dt_col, 
-        to_datetime="auto", 
-        as_index=False, 
-        error="raise", 
-        verbose=1, 
-        return_dt_col=True, 
+    df, dt_col = ts_validator(
+        df.copy(),
+        dt_col=dt_col,
+        to_datetime="auto",
+        as_index=False,
+        error="raise",
+        verbose=1,
+        return_dt_col=True,
     )
- 
+
     # Ensure dt_col is of datetime type
     if pd.api.types.is_numeric_dtype(df[dt_col]):
         # Check if all values end in ".0" (are whole numbers)
         if (df[dt_col] % 1 == 0).all():
             # if dt_col.lower() != "year":  # Avoid modifying "year" column
             df[dt_col] = df[dt_col].astype(int)
-            # 
+            #
     if pd.api.types.is_integer_dtype(df[dt_col]):
-       # Convert the integer values to strings, then to datetime using the '%Y' format.
-       df[dt_col] = pd.to_datetime(df[dt_col].astype(str), format='%Y')
+        # Convert the integer values to strings, then to datetime using the '%Y' format.
+        df[dt_col] = pd.to_datetime(
+            df[dt_col].astype(str), format="%Y"
+        )
     else:
         df[dt_col] = pd.to_datetime(df[dt_col])
 
-    # If eval_periods is a single 
+    # If eval_periods is a single
     # string, convert it to a list
-    eval_periods= columns_manager(
-        eval_periods, to_string=True)
+    eval_periods = columns_manager(
+        eval_periods, to_string=True
+    )
     # Prepare the filtered DataFrame
     filtered_df = df.copy()
-    
+
     # Filter by year (e.g., '2023')
-        # Year
-    if all(len(period) == 4 for period in eval_periods):  
-        filtered_df = filtered_df[filtered_df[dt_col].dt.year.isin(
-            [int(period) for period in eval_periods])]
-    
+    # Year
+    if all(len(period) == 4 for period in eval_periods):
+        filtered_df = filtered_df[
+            filtered_df[dt_col].dt.year.isin(
+                [int(period) for period in eval_periods]
+            )
+        ]
+
     # Filter by month (e.g., '2023-01')
-        # Year-Month
-    elif all(len(period) == 7 for period in eval_periods):  
+    # Year-Month
+    elif all(len(period) == 7 for period in eval_periods):
         filtered_df = filtered_df[
-            filtered_df[dt_col].dt.strftime(
-                '%Y-%m').isin(eval_periods)]
-    
+            filtered_df[dt_col]
+            .dt.strftime("%Y-%m")
+            .isin(eval_periods)
+        ]
+
     # Filter by exact date (e.g., '2023-01-01')
-        # Exact Date
-    elif all(len(period) == 10 for period in eval_periods):  
+    # Exact Date
+    elif all(len(period) == 10 for period in eval_periods):
         filtered_df = filtered_df[
-            filtered_df[dt_col].dt.strftime(
-                '%Y-%m-%d').isin(eval_periods)]
-    
+            filtered_df[dt_col]
+            .dt.strftime("%Y-%m-%d")
+            .isin(eval_periods)
+        ]
+
     # Filter by week (e.g., '2023-W01')
-    elif all(len(period) == 7 and period[4] == 'W' 
-             for period in eval_periods):  # Year-Wk
+    elif all(
+        len(period) == 7 and period[4] == "W"
+        for period in eval_periods
+    ):  # Year-Wk
         filtered_df = filtered_df[
-            filtered_df[dt_col].dt.strftime(
-                '%Y-W%U').isin(eval_periods)]
-    
+            filtered_df[dt_col]
+            .dt.strftime("%Y-W%U")
+            .isin(eval_periods)
+        ]
+
     # Filter by hour (e.g., '2023-01-01 10')
-        # Year-Month-Day Hour
-    elif all(len(period) == 13 for period in eval_periods):  
+    # Year-Month-Day Hour
+    elif all(len(period) == 13 for period in eval_periods):
         filtered_df = filtered_df[
-            filtered_df[dt_col].dt.strftime(
-                '%Y-%m-%d %H').isin(eval_periods)]
-    
+            filtered_df[dt_col]
+            .dt.strftime("%Y-%m-%d %H")
+            .isin(eval_periods)
+        ]
+
     # Filter by minute (e.g., '2023-01-01 10:30')
-        # Year-Month-Day Hour:Min
-    elif all(len(period) == 16 for period in eval_periods):  
+    # Year-Month-Day Hour:Min
+    elif all(len(period) == 16 for period in eval_periods):
         filtered_df = filtered_df[
-            filtered_df[dt_col].dt.strftime(
-                '%Y-%m-%d %H:%M').isin(eval_periods)]
-    
+            filtered_df[dt_col]
+            .dt.strftime("%Y-%m-%d %H:%M")
+            .isin(eval_periods)
+        ]
+
     # Filter by second (e.g., '2023-01-01 10:30:00')
-        # Year-Month-Day Hour:Min:Sec
-    elif all(len(period) == 19 for period in eval_periods):  
+    # Year-Month-Day Hour:Min:Sec
+    elif all(len(period) == 19 for period in eval_periods):
         filtered_df = filtered_df
-        [filtered_df[dt_col].dt.strftime(
-            '%Y-%m-%d %H:%M:%S').isin(eval_periods)]
-    
+        [
+            filtered_df[dt_col]
+            .dt.strftime("%Y-%m-%d %H:%M:%S")
+            .isin(eval_periods)
+        ]
+
     else:
         raise ValueError(
             "eval_periods should contain valid year, month, day, "
             "week, hour, minute, or second format."
         )
-    
+
     return filtered_df
-    
+
+
 def to_dt(
     df,
     dt_col=None,
     return_dt_col=False,
     format=None,
-    error='raise',
+    error="raise",
     verbose=0,
-    **kwargs
+    **kwargs,
 ):
     r"""
     Converts a given DataFrame's column or index to datetime
@@ -712,7 +794,7 @@ def to_dt(
     datetime. This can be useful when timestamps are stored
     as integer values representing YYYYMMDD or similar
     formats.
-    
+
     .. math::
         \text{Let } X \in \{\text{column, index}\}, \quad
         X_{\text{dt}} = pd.to\_datetime(X, \ldots)
@@ -733,11 +815,11 @@ def to_dt(
        Wrangling with Pandas, NumPy, and IPython.* O'Reilly
        Media, 2nd Edition, 2017.
     """
-    is_frame(df, df_only= True, objname="Data 'df'")
-    
+    is_frame(df, df_only=True, objname="Data 'df'")
+
     # Create a copy of the original DataFrame to avoid
     # side effects on the user's data.
-    df_copy  = df.copy()
+    df_copy = df.copy()
     processed_dt_col = None
 
     try:
@@ -753,21 +835,23 @@ def to_dt(
                     df_copy.index
                 ):
                     if verbose >= 2:
-                        print("Index is integer. Converting "
-                              "to string first.")
+                        print(
+                            "Index is integer. Converting "
+                            "to string first."
+                        )
                     index_str = df_copy.index.astype(str)
                     new_index = pd.to_datetime(
                         index_str,
                         format=format,
-                        errors='raise',
-                        **kwargs
+                        errors="raise",
+                        **kwargs,
                     )
                 else:
                     new_index = pd.to_datetime(
                         df_copy.index,
                         format=format,
-                        errors='raise',
-                        **kwargs
+                        errors="raise",
+                        **kwargs,
                     )
                 df_copy.index = new_index
                 processed_dt_col = None
@@ -775,8 +859,10 @@ def to_dt(
                     print("Index converted to datetime.")
             else:
                 if verbose >= 2:
-                    print("Index is already datetime. "
-                          "No conversion needed.")
+                    print(
+                        "Index is already datetime. "
+                        "No conversion needed."
+                    )
         else:
             # Process the specified column.
             if dt_col not in df_copy.columns:
@@ -788,54 +874,56 @@ def to_dt(
             # Convert integer column to string first.
             if pd.api.types.is_integer_dtype(col):
                 if verbose >= 1:
-                    print(f"Converting integer column "
-                          f"'{dt_col}' to datetime with "
-                          f"format {format}.")
+                    print(
+                        f"Converting integer column "
+                        f"'{dt_col}' to datetime with "
+                        f"format {format}."
+                    )
                 col_str = col.astype(str)
                 converted_col = pd.to_datetime(
                     col_str,
                     format=format,
-                    errors='raise',
-                    **kwargs
+                    errors="raise",
+                    **kwargs,
                 )
             else:
                 if verbose >= 1:
-                    print(f"Converting column '{dt_col}' "
-                          f"to datetime.")
+                    print(
+                        f"Converting column '{dt_col}' "
+                        f"to datetime."
+                    )
                 converted_col = pd.to_datetime(
                     col,
                     format=format,
-                    errors='raise',
-                    **kwargs
+                    errors="raise",
+                    **kwargs,
                 )
             df_copy[dt_col] = converted_col
             processed_dt_col = dt_col
             if verbose >= 1:
-                print(f"Column '{dt_col}' "
-                      f"converted to datetime.")
+                print(
+                    f"Column '{dt_col}' "
+                    f"converted to datetime."
+                )
 
     except Exception as e:
-        if error == 'raise':
+        if error == "raise":
             raise
-        elif error == 'warn':
+        elif error == "warn":
             warnings.warn(
-                f"DateTime conversion failed: {e}"
+                f"DateTime conversion failed: {e}",
+                stacklevel=2,
             )
             # Return original DataFrame if error
             # occurs in 'warn' mode.
-            return (
-                (df, None) if return_dt_col else df
-            )
-        elif error == 'ignore':
+            return (df, None) if return_dt_col else df
+        elif error == "ignore":
             # Return original DataFrame if error
             # occurs in 'ignore' mode.
-            return (
-                (df, None) if return_dt_col else df
-            )
+            return (df, None) if return_dt_col else df
         else:
             raise ValueError(
-                "error must be 'raise', 'warn', "
-                "or 'ignore'."
+                "error must be 'raise', 'warn', or 'ignore'."
             )
 
     if return_dt_col:
@@ -843,12 +931,13 @@ def to_dt(
     else:
         return df_copy
 
+
 def ts_validator(
     df,
     dt_col=None,
     to_datetime=None,
     as_index="auto",
-    error='raise',
+    error="raise",
     return_dt_col=False,
     ensure_order=False,
     verbose=0,
@@ -884,7 +973,7 @@ def ts_validator(
     to_datetime : {None, 'auto', 'Y', 'M', 'W', 'D', 'H', 'min', 's'}, optional
         Controls how to convert the detected time column if it is
         not already in a datetime format. Examples:
-        
+
         * ``None``: No forced conversion; only format detection.
         * ``'auto'``: Automatic inference of the date/time format.
         * ``'D'``: Convert using daily periods, etc.
@@ -1011,8 +1100,8 @@ def ts_validator(
                 try:
                     df.index = pd.to_datetime(
                         df.index,
-                        errors='coerce',
-                        format=to_datetime
+                        errors="coerce",
+                        format=to_datetime,
                     )
                     # Check if any null results from conversion
                     if df.index.isnull().any():
@@ -1026,40 +1115,48 @@ def ts_validator(
                             f"{to_datetime}"
                         )
                 except Exception as e:
-                    if error == 'raise':
+                    if error == "raise":
                         raise ValueError(
                             "Failed to convert index to datetime "
                             f"({e})."
                         )
-                    elif error == 'warn':
+                    elif error == "warn":
                         warnings.warn(
                             "Failed to convert index to datetime. "
-                            f"{e}"
+                            f"{e}",
+                            stacklevel=2,
                         )
                 dt_col = df.index.name
                 # Return as needed
-                return df if not return_dt_col else (df, dt_col)
+                return (
+                    df if not return_dt_col else (df, dt_col)
+                )
             else:
                 # No dt_col, no forced conversion
-                if error == 'raise':
+                if error == "raise":
                     raise ValueError(
                         "Index is not datetime and no dt_col "
                         "or to_datetime was provided."
                     )
-                elif error == 'warn':
+                elif error == "warn":
                     warnings.warn(
                         "Index is not datetime and no to_datetime "
-                        "was provided."
+                        "was provided.",
+                        stacklevel=2,
                     )
                 # Return if ignoring the problem
-                return df if not return_dt_col else (df, dt_col)
+                return (
+                    df if not return_dt_col else (df, dt_col)
+                )
     else:
         # dt_col is specified
         if dt_col in df.index:
             # Move dt_col from index back to columns
             df.reset_index(inplace=True, drop=False)
         # Validate that dt_col is in columns
-        exist_features(df, features=dt_col, name="Datetime column")
+        exist_features(
+            df, features=dt_col, name="Datetime column"
+        )
         # Use the built-in time series detector
         df = smart_ts_detector(
             df=df,
@@ -1084,13 +1181,18 @@ def ts_validator(
 
     return df if not return_dt_col else (df, dt_col)
 
-@validate_params({ 
-    "trend_type": [StrOptions({'both', 'upward', 'downward'})], 
-    "strategy": [StrOptions({'adf', 'kpss'})]
-    })
+
+@validate_params(
+    {
+        "trend_type": [
+            StrOptions({"both", "upward", "downward"})
+        ],
+        "strategy": [StrOptions({"adf", "kpss"})],
+    }
+)
 @ensure_pkg(
-    "statsmodels", 
-    extra="'stasmodels' is required for 'trend_analysis' to proceed."
+    "statsmodels",
+    extra="'stasmodels' is required for 'trend_analysis' to proceed.",
 )
 def trend_analysis(
     df,
@@ -1098,16 +1200,16 @@ def trend_analysis(
     dt_col=None,
     view=False,
     check_stationarity=True,
-    trend_type='both',
-    strategy="adf", 
-    stationnay_color='green',
-    linestyle='--',
+    trend_type="both",
+    strategy="adf",
+    stationnay_color="green",
+    linestyle="--",
     fig_size=(10, 6),
-    trend_color='red',
+    trend_color="red",
     show_grid=True,
-    error='raise',
+    error="raise",
     verbose=0,
-    **kw
+    **kw,
 ):
     r"""
     Perform trend analysis on a given time series, combining a
@@ -1244,24 +1346,21 @@ def trend_analysis(
     df, dt_col = ts_validator(
         df,
         dt_col=dt_col,
-        to_datetime='auto',
+        to_datetime="auto",
         as_index=False,
         error=error,
         return_dt_col=True,
-        verbose=verbose
+        verbose=verbose,
     )
 
     # Validate presence of target column or series
     target, _ = validate_target_in(
-        df,
-        value_col,
-        error=error,
-        verbose=verbose
+        df, value_col, error=error, verbose=verbose
     )
 
     # Initialize p_value and trend
     p_value = None
-    trend = 'non-stationary'
+    trend = "non-stationary"
 
     # Step 1: Check stationarity (optional)
     if check_stationarity:
@@ -1270,23 +1369,22 @@ def trend_analysis(
             result = adfuller(df[target.name].dropna())
             p_value = result[1]
             if p_value < 0.05:
-                trend = 'stationary'
+                trend = "stationary"
             else:
-                trend = 'non-stationary'
+                trend = "non-stationary"
         elif strategy == "kpss":
             # KPSS test (level stationarity)
             result = kpss(
-                df[target.name].dropna(),
-                regression='c'
+                df[target.name].dropna(), regression="c"
             )
             p_value = result[1]
             if p_value < 0.05:
-                trend = 'non-stationary'
+                trend = "non-stationary"
             else:
-                trend = 'stationary'
+                trend = "stationary"
 
     # Step 2: Apply trend detection if non-stationary or forced
-    if trend == 'non-stationary' or trend_type == 'both':
+    if trend == "non-stationary" or trend_type == "both":
         # Fit a linear regression to detect slope
         X = np.arange(len(df)).reshape(-1, 1)
         y = target.values
@@ -1295,14 +1393,17 @@ def trend_analysis(
 
         # Classify slope direction
         if slope > 0:
-            detected_trend = 'upward'
+            detected_trend = "upward"
         elif slope < 0:
-            detected_trend = 'downward'
+            detected_trend = "downward"
         else:
-            detected_trend = 'stationary'
+            detected_trend = "stationary"
 
         # Update if it contradicts earlier stationarity
-        if trend == 'stationary' and detected_trend != 'stationary':
+        if (
+            trend == "stationary"
+            and detected_trend != "stationary"
+        ):
             trend = detected_trend
         else:
             trend = detected_trend
@@ -1315,25 +1416,25 @@ def trend_analysis(
         plt.plot(
             df[dt_col],
             df[target.name],
-            label='Original Data',
-            color='blue',
-            **kw
+            label="Original Data",
+            color="blue",
+            **kw,
         )
         plt.title(
             f"Trend Analysis for {dt_col}",
             fontsize=14,
-            fontweight='bold'
+            fontweight="bold",
         )
-        plt.xlabel('Time', fontsize=12)
+        plt.xlabel("Time", fontsize=12)
         plt.ylabel(target.name, fontsize=12)
 
         # For stationary, draw mean line
-        if trend == 'stationary':
+        if trend == "stationary":
             plt.axhline(
                 y=target.mean(),
                 color=stationnay_color,
                 linestyle=linestyle,
-                label='Mean Line'
+                label="Mean Line",
             )
         else:
             # Plot fitted OLS trend line
@@ -1341,15 +1442,15 @@ def trend_analysis(
                 df[dt_col],
                 ols_model.fittedvalues,
                 color=trend_color,
-                label='Fitted Trend',
-                linewidth=2
+                label="Fitted Trend",
+                linewidth=2,
             )
 
         # Toggle grid lines
         if not show_grid:
             plt.grid(False)
         else:
-            plt.grid(True, linestyle=':', alpha=0.7)
+            plt.grid(True, linestyle=":", alpha=0.7)
 
         # Annotate the detected trend
         plt.text(
@@ -1359,9 +1460,9 @@ def trend_analysis(
             transform=plt.gca().transAxes,
             fontsize=12,
             color=trend_color,
-            fontweight='bold',
-            ha='left',
-            va='top'
+            fontweight="bold",
+            ha="left",
+            va="top",
         )
 
         # Annotate stationarity test results
@@ -1376,10 +1477,10 @@ def trend_analysis(
                 ),
                 transform=plt.gca().transAxes,
                 fontsize=10,
-                color='black',
-                fontweight='normal',
-                ha='left',
-                va='top'
+                color="black",
+                fontweight="normal",
+                ha="left",
+                va="top",
             )
 
         plt.legend()
@@ -1388,15 +1489,30 @@ def trend_analysis(
 
     return trend, p_value
 
-@validate_params({ 
-    "trend_type": [StrOptions({'both', 'upward', 'downward'})], 
-    "strategy": [StrOptions({'adf', 'kpss'})], 
-    "ops": [StrOptions({'remove_upward', 'remove_downward', 'remove_both',
-           'detrend', 'none'}), None], 
-    })
+
+@validate_params(
+    {
+        "trend_type": [
+            StrOptions({"both", "upward", "downward"})
+        ],
+        "strategy": [StrOptions({"adf", "kpss"})],
+        "ops": [
+            StrOptions(
+                {
+                    "remove_upward",
+                    "remove_downward",
+                    "remove_both",
+                    "detrend",
+                    "none",
+                }
+            ),
+            None,
+        ],
+    }
+)
 @ensure_pkg(
-    "statsmodels", 
-    extra="'stasmodels' is required for 'trend_ops' to proceed."
+    "statsmodels",
+    extra="'stasmodels' is required for 'trend_ops' to proceed.",
 )
 def trend_ops(
     df,
@@ -1404,14 +1520,14 @@ def trend_ops(
     value_col,
     ops=None,
     check_stationarity=True,
-    trend_type='both',
-    error='raise',
-    strategy="adf",  
+    trend_type="both",
+    error="raise",
+    strategy="adf",
     verbose=0,
     view=False,
     fig_size=(10, 4),
     show_grid=False,
-    **kw
+    **kw,
 ):
     r"""
     Perform transformations on a time series (e.g., removing
@@ -1560,13 +1676,11 @@ def trend_ops(
         df,
         df_only=True,
         raise_exception=True,
-        objname="Dataframe 'df'"
+        objname="Dataframe 'df'",
     )
     # Validate it is a time series but skip checking intervals
     is_time_series(
-        df,
-        time_col=dt_col,
-        check_time_interval=False
+        df, time_col=dt_col, check_time_interval=False
     )
 
     # Step 1: Perform trend analysis (stationarity + slope detection)
@@ -1578,15 +1692,12 @@ def trend_ops(
         trend_type=trend_type,
         view=False,  # no immediate plot
         strategy=strategy,
-        **kw
+        **kw,
     )
 
     # Step 2: Validate that target column exists
     target, _ = validate_target_in(
-        df,
-        value_col,
-        error=error,
-        verbose=verbose
+        df, value_col, error=error, verbose=verbose
     )
     tname = target.name
 
@@ -1600,14 +1711,12 @@ def trend_ops(
     if verbose >= 1:
         print(f"Detected Trend: {trend}")
         if check_stationarity:
-            print(
-                f"Stationarity Test p-value: {p_value:.4f}"
-            )
+            print(f"Stationarity Test p-value: {p_value:.4f}")
 
     # Step 3: Conditional transformations based on 'ops'
-    if ops == 'remove_upward':
+    if ops == "remove_upward":
         # Remove upward trend only if detected
-        if trend != 'upward':
+        if trend != "upward":
             if verbose >= 1:
                 print(
                     "No upward trend detected. "
@@ -1621,9 +1730,9 @@ def trend_ops(
             if verbose >= 1:
                 print("Upward trend removed.")
 
-    elif ops == 'remove_downward':
+    elif ops == "remove_downward":
         # Remove downward trend only if detected
-        if trend != 'downward':
+        if trend != "downward":
             if verbose >= 1:
                 print(
                     "No downward trend detected. "
@@ -1637,9 +1746,9 @@ def trend_ops(
             if verbose >= 1:
                 print("Downward trend removed.")
 
-    elif ops == 'remove_both':
+    elif ops == "remove_both":
         # Remove linear trend whether upward or downward
-        if trend == 'stationary' and verbose >= 1:
+        if trend == "stationary" and verbose >= 1:
             print(
                 "Data is already stationary. "
                 "Skipping trend removal."
@@ -1650,11 +1759,13 @@ def trend_ops(
             model = sm.OLS(y, sm.add_constant(X)).fit()
             detrended_data = df[tname] - model.fittedvalues
             if verbose >= 1:
-                print("Both upward and downward trends removed.")
+                print(
+                    "Both upward and downward trends removed."
+                )
 
-    elif ops == 'detrend':
+    elif ops == "detrend":
         # Differencing if series is non-stationary
-        if trend == 'stationary':
+        if trend == "stationary":
             if verbose >= 1:
                 print(
                     "Data is already stationary. "
@@ -1666,20 +1777,21 @@ def trend_ops(
             if verbose >= 1:
                 print("Data detrended using differencing.")
 
-    elif ops == 'none':
+    elif ops == "none":
         # Do nothing
         if verbose >= 1:
             print("No transformation applied.")
 
     # Handle potential errors if the transformation yields all NaNs
     if ops is not None and df[tname].isnull().all():
-        if error == 'raise':
+        if error == "raise":
             raise ValueError(
                 f"After {ops}, the data became entirely null."
             )
-        elif error == 'warn':
+        elif error == "warn":
             warnings.warn(
-                f"After {ops}, the data became entirely null."
+                f"After {ops}, the data became entirely null.",
+                stacklevel=2,
             )
 
     # Step 4: Visualization if requested
@@ -1697,7 +1809,7 @@ def trend_ops(
                 df.index,
                 df[tname],
                 label="Original Data",
-                color='blue'
+                color="blue",
             )
             axes[0].set_title("Original Data with Trend")
             axes[0].set_xlabel("Time")
@@ -1709,9 +1821,11 @@ def trend_ops(
                 df.index,
                 detrended_data,
                 label="Transformed Data",
-                color='green'
+                color="green",
             )
-            axes[1].set_title(f"Transformed Data (After {ops})")
+            axes[1].set_title(
+                f"Transformed Data (After {ops})"
+            )
             axes[1].set_xlabel("Time")
             axes[1].set_ylabel(tname)
             axes[1].grid(show_grid)
@@ -1727,14 +1841,21 @@ def trend_ops(
     df[tname] = detrended_data
     return df
 
-@validate_params ({
-    "window": [Interval(Integral, 0, None, closed="neither")], 
-    "max_col":  [Interval(Integral, 1, None, closed="left")], 
-    "lags": [Interval(Integral, 1, None, closed="left")], 
-    })
+
+@validate_params(
+    {
+        "window": [
+            Interval(Integral, 0, None, closed="neither")
+        ],
+        "max_col": [
+            Interval(Integral, 1, None, closed="left")
+        ],
+        "lags": [Interval(Integral, 1, None, closed="left")],
+    }
+)
 @ensure_pkg(
-    "statsmodels", 
-    extra="'statsmodels' is required for 'visual_inspection' to proceed."
+    "statsmodels",
+    extra="'statsmodels' is required for 'visual_inspection' to proceed.",
 )
 def visual_inspection(
     df,
@@ -1747,13 +1868,13 @@ def visual_inspection(
     show_trend=True,
     show_seasonal=True,
     show_residual=True,
-    lags=2, 
+    lags=2,
     figsize=(14, 8),
     show_grid=True,
     max_cols=3,
     decompose_on_sep=False,
     title=None,
-    **kwargs
+    **kwargs,
 ):
     r"""
     Perform visual inspection of a time series by plotting its
@@ -1878,21 +1999,18 @@ def visual_inspection(
            (2015). *Time Series Analysis: Forecasting and Control*.
            John Wiley & Sons.
     """
-    title = title or "Time Series Visual Inspection" 
+    title = title or "Time Series Visual Inspection"
     # Validate the input DataFrame
     is_frame(
         df,
         df_only=True,
         raise_exception=True,
-        objname="Dataframe 'df'"
+        objname="Dataframe 'df'",
     )
 
     # Extract and validate the target column
     ts, _ = validate_target_in(
-        df,
-        value_col,
-        error='raise',
-        verbose=0
+        df, value_col, error="raise", verbose=0
     )
     tname = ts.name
 
@@ -1906,24 +2024,29 @@ def visual_inspection(
         num_plots += 1
     # Decomposition can add up to 4 subplots (Observed, Trend,
     # Seasonal, Residual) in the same figure
-    if seasonal_period and show_decomposition and not decompose_on_sep:
+    if (
+        seasonal_period
+        and show_decomposition
+        and not decompose_on_sep
+    ):
         num_plots += 4
     # If decomposition is separate but user wants residual
     # explicitly in the same figure, it adds 1 more subplot
-    if seasonal_period and show_decomposition and show_residual:
+    if (
+        seasonal_period
+        and show_decomposition
+        and show_residual
+    ):
         num_plots += 1
 
     # Determine rows and columns for subplots
-    num_rows = (
-        num_plots // max_cols
-        + (num_plots % max_cols > 0)
+    num_rows = num_plots // max_cols + (
+        num_plots % max_cols > 0
     )
     num_cols = min(max_cols, num_plots)
 
     fig, axes = plt.subplots(
-        num_rows,
-        num_cols,
-        figsize=figsize
+        num_rows, num_cols, figsize=figsize
     )
 
     # Flatten the axes for consistent indexing
@@ -1945,16 +2068,14 @@ def visual_inspection(
         df.index,
         ts,
         label="Original Data",
-        color='blue',
-        **kwargs
+        color="blue",
+        **kwargs,
     )
-    axes[plot_idx].set_title(
-        f"{title}: Original Time Series"
-    )
+    axes[plot_idx].set_title(f"{title}: Original Time Series")
     axes[plot_idx].set_xlabel(x_label)
     axes[plot_idx].set_ylabel(tname)
     if show_grid:
-        axes[plot_idx].grid(True, linestyle=':', alpha=0.7)
+        axes[plot_idx].grid(True, linestyle=":", alpha=0.7)
     else:
         axes[plot_idx].grid(False)
     plot_idx += 1
@@ -1966,14 +2087,14 @@ def visual_inspection(
             df.index,
             ts,
             label="Original Data",
-            color='blue',
-            alpha=0.5
+            color="blue",
+            alpha=0.5,
         )
         axes[plot_idx].plot(
             df.index,
             rolling_mean,
             label="Rolling Mean (Trend)",
-            color='red'
+            color="red",
         )
         axes[plot_idx].set_title(
             f"Rolling Mean (Trend) - Window={window}"
@@ -1981,7 +2102,9 @@ def visual_inspection(
         axes[plot_idx].set_xlabel(x_label)
         axes[plot_idx].set_ylabel(tname)
         if show_grid:
-            axes[plot_idx].grid(True, linestyle=':', alpha=0.7)
+            axes[plot_idx].grid(
+                True, linestyle=":", alpha=0.7
+            )
         else:
             axes[plot_idx].grid(False)
         plot_idx += 1
@@ -1993,7 +2116,7 @@ def visual_inspection(
             df.index,
             rolling_std,
             label="Rolling Std (Seasonality)",
-            color='green'
+            color="green",
         )
         axes[plot_idx].set_title(
             f"Rolling Standard Deviation - Window={window}"
@@ -2001,7 +2124,9 @@ def visual_inspection(
         axes[plot_idx].set_xlabel(x_label)
         axes[plot_idx].set_ylabel("Rolling Std")
         if show_grid:
-            axes[plot_idx].grid(True, linestyle=':', alpha=0.7)
+            axes[plot_idx].grid(
+                True, linestyle=":", alpha=0.7
+            )
         else:
             axes[plot_idx].grid(False)
         plot_idx += 1
@@ -2021,41 +2146,32 @@ def visual_inspection(
     # Seasonal Decomposition if a seasonal_period is provided
     if seasonal_period and show_decomposition:
         decomposition = seasonal_decompose(
-            ts,
-            model='additive',
-            period=seasonal_period
+            ts, model="additive", period=seasonal_period
         )
 
         # Plot decomposition in a separate figure, if requested
         if decompose_on_sep:
             # Create new figure
             fig_decomp, axes_decomp = plt.subplots(
-                4,
-                1,
-                figsize=(
-                    figsize[0],
-                    figsize[0]
-                )
+                4, 1, figsize=(figsize[0], figsize[0])
             )
             decomposition.observed.plot(
                 ax=axes_decomp[0],
-                label='Observed',
-                color='blue'
+                label="Observed",
+                color="blue",
             )
             decomposition.trend.plot(
-                ax=axes_decomp[1],
-                label='Trend',
-                color='red'
+                ax=axes_decomp[1], label="Trend", color="red"
             )
             decomposition.seasonal.plot(
                 ax=axes_decomp[2],
-                label='Seasonal',
-                color='green'
+                label="Seasonal",
+                color="green",
             )
             decomposition.resid.plot(
                 ax=axes_decomp[3],
-                label='Residuals',
-                color='purple'
+                label="Residuals",
+                color="purple",
             )
             # Subplot settings
             axes_decomp[0].set_title("Observed")
@@ -2066,10 +2182,12 @@ def visual_inspection(
                 ax.set_xlabel(x_label)
                 ax.set_ylabel(tname)
                 if show_grid:
-                    ax.grid(True, linestyle=':', alpha=0.7)
+                    ax.grid(True, linestyle=":", alpha=0.7)
                 else:
                     ax.grid(False)
-            plt.suptitle("Seasonal Decomposition", fontsize=16)
+            plt.suptitle(
+                "Seasonal Decomposition", fontsize=16
+            )
             plt.tight_layout()
             plt.subplots_adjust(top=0.92)
             plt.show()
@@ -2077,23 +2195,23 @@ def visual_inspection(
             # Plot decomposition in the existing figure layout
             decomposition.observed.plot(
                 ax=axes[plot_idx],
-                label='Observed',
-                color='blue'
+                label="Observed",
+                color="blue",
             )
             decomposition.trend.plot(
                 ax=axes[plot_idx + 1],
-                label='Trend',
-                color='red'
+                label="Trend",
+                color="red",
             )
             decomposition.seasonal.plot(
                 ax=axes[plot_idx + 2],
-                label='Seasonal',
-                color='green'
+                label="Seasonal",
+                color="green",
             )
             decomposition.resid.plot(
                 ax=axes[plot_idx + 3],
-                label='Residuals',
-                color='purple'
+                label="Residuals",
+                color="purple",
             )
             # Subplot titles
             axes[plot_idx].set_title("Observed")
@@ -2101,11 +2219,11 @@ def visual_inspection(
             axes[plot_idx + 2].set_title("Seasonal")
             axes[plot_idx + 3].set_title("Residuals")
 
-            for ax in axes[plot_idx:plot_idx + 4]:
+            for ax in axes[plot_idx : plot_idx + 4]:
                 ax.set_xlabel("Time")
                 ax.set_ylabel(x_label)
                 if show_grid:
-                    ax.grid(True, linestyle=':', alpha=0.7)
+                    ax.grid(True, linestyle=":", alpha=0.7)
                 else:
                     ax.grid(False)
             plot_idx += 4
@@ -2114,10 +2232,10 @@ def visual_inspection(
         if show_residual and not decompose_on_sep:
             residual = decomposition.resid.dropna()
             axes[plot_idx].plot(
-                df.index[:len(residual)],
+                df.index[: len(residual)],
                 residual,
                 label="Residuals",
-                color='purple'
+                color="purple",
             )
             axes[plot_idx].set_title(
                 "Residuals (After Trend and Seasonality)"
@@ -2125,31 +2243,38 @@ def visual_inspection(
             axes[plot_idx].set_xlabel("Time")
             axes[plot_idx].set_ylabel("Residuals")
             if show_grid:
-                axes[plot_idx].grid(True, linestyle=':', alpha=0.7)
+                axes[plot_idx].grid(
+                    True, linestyle=":", alpha=0.7
+                )
             else:
                 axes[plot_idx].grid(False)
             plot_idx += 1
 
     # Hide any remaining subplots if they exist
     for idx in range(plot_idx, len(axes)):
-        axes[idx].axis('off')
+        axes[idx].axis("off")
 
     # Final layout adjustments and show
     plt.tight_layout()
     plt.subplots_adjust(top=0.95)
     plt.show()
 
-@validate_params({
-    "method":[StrOptions({'auto','additive','multiplicative'})]
-    })
+
+@validate_params(
+    {
+        "method": [
+            StrOptions({"auto", "additive", "multiplicative"})
+        ]
+    }
+)
 def get_decomposition_method(
     df,
     value_col,
     dt_col=None,
     max_period=24,
-    method='auto',
+    method="auto",
     min_period=2,
-    verbose=0
+    verbose=0,
 ):
     r"""
     Infer the suitable decomposition method for a given time
@@ -2271,15 +2396,15 @@ def get_decomposition_method(
     y = df[value_col]
 
     # If method is 'additive' or 'multiplicative', no inference needed
-    if method.lower() in ['additive','multiplicative']:
+    if method.lower() in ["additive", "multiplicative"]:
         best_method = method.lower()
     else:
         # Attempt 'auto' detection
         # If all positive values, prefer multiplicative
         if (y > 0).all():
-            best_method = 'multiplicative'
+            best_method = "multiplicative"
         else:
-            best_method = 'additive'
+            best_method = "additive"
 
     # Dummy approach for best seasonal period
     # Real logic may involve spectral analysis or autocorrelation.
@@ -2296,12 +2421,17 @@ def get_decomposition_method(
 
     return best_method, best_period
 
-@validate_params({
-    "method":[StrOptions({'heuristic','variance_comparison'})]
-    })
+
+@validate_params(
+    {
+        "method": [
+            StrOptions({"heuristic", "variance_comparison"})
+        ]
+    }
+)
 @ensure_pkg(
-    "statsmodels", 
-    extra="'statsmodels' is required for 'infer_decomposition_method' to proceed."
+    "statsmodels",
+    extra="'statsmodels' is required for 'infer_decomposition_method' to proceed.",
 )
 def infer_decomposition_method(
     df,
@@ -2310,8 +2440,8 @@ def infer_decomposition_method(
     return_components=False,
     view=False,
     figsize=(10, 8),
-    method='heuristic',
-    verbose=0
+    method="heuristic",
+    verbose=0,
 ):
     r"""
     Determine the best decomposition approach for a time series,
@@ -2437,12 +2567,10 @@ def infer_decomposition_method(
         df,
         df_only=True,
         raise_exception=True,
-        objname="Dataframe 'df'"
+        objname="Dataframe 'df'",
     )
     is_time_series(
-        df,
-        time_col=dt_col,
-        check_time_interval=False
+        df, time_col=dt_col, check_time_interval=False
     )
 
     # Convert dt_col to datetime if needed, then set as index.
@@ -2475,28 +2603,30 @@ def infer_decomposition_method(
     # If the user selected 'heuristic' method, simply check
     #    positivity of the data. If all positive, we use
     #    'multiplicative'; otherwise 'additive'.
-    
-    if method == 'heuristic':
+
+    if method == "heuristic":
         if verbose >= 1:
             print(
                 "Using 'heuristic' approach to pick between "
                 "additive and multiplicative decomposition..."
             )
         if verbose >= 2:
-            print("Checking positivity for heuristic method...")
+            print(
+                "Checking positivity for heuristic method..."
+            )
 
         if (series > 0).all():
             if verbose >= 2:
                 print(
                     "All values are > 0. Using 'multiplicative' model."
                 )
-            best_method = 'multiplicative'
+            best_method = "multiplicative"
         else:
             if verbose >= 2:
                 print(
                     "Some values are <= 0. Using 'additive' model."
                 )
-            best_method = 'additive'
+            best_method = "additive"
 
         # If return_components=False, user only needs method.
         if not return_components:
@@ -2510,18 +2640,16 @@ def infer_decomposition_method(
                 f"Decomposing series with {best_method} model, period={period}."
             )
         best_decomp = seasonal_decompose(
-            series,
-            model=best_method,
-            period=period
+            series, model=best_method, period=period
         )
 
         if verbose >= 1:
             print(f"Chosen method: {best_method}")
 
         return best_method, {
-            'trend': best_decomp.trend,
-            'seasonal': best_decomp.seasonal,
-            'residual': best_decomp.resid
+            "trend": best_decomp.trend,
+            "seasonal": best_decomp.seasonal,
+            "residual": best_decomp.resid,
         }
 
     # Variance comparison method: do both, pick the best by residual variance.
@@ -2529,7 +2657,7 @@ def infer_decomposition_method(
     #    'additive' and 'multiplicative', then compare residual
     #    variances. The model with the lower residual variance
     #    is chosen.
-    elif method == 'variance_comparison':
+    elif method == "variance_comparison":
         if verbose >= 1:
             print(
                 "Using 'variance_comparison' approach: "
@@ -2538,17 +2666,13 @@ def infer_decomposition_method(
         if verbose >= 2:
             print("Decomposing additively...")
         additive_decomp = seasonal_decompose(
-            series,
-            model='additive',
-            period=period
+            series, model="additive", period=period
         )
 
         if verbose >= 2:
             print("Decomposing multiplicatively...")
         multiplicative_decomp = seasonal_decompose(
-            series,
-            model='multiplicative',
-            period=period
+            series, model="multiplicative", period=period
         )
 
         resid_add = additive_decomp.resid.dropna()
@@ -2566,10 +2690,10 @@ def infer_decomposition_method(
             )
 
         if var_add < var_mul:
-            best_method = 'additive'
+            best_method = "additive"
             best_decomp = additive_decomp
         else:
-            best_method = 'multiplicative'
+            best_method = "multiplicative"
             best_decomp = multiplicative_decomp
 
         if verbose >= 1:
@@ -2588,9 +2712,9 @@ def infer_decomposition_method(
             fig, axes = plt.subplots(2, 1, figsize=figsize)
             axes[0].hist(
                 resid_add,
-                bins='auto',
-                color='blue',
-                alpha=0.7
+                bins="auto",
+                color="blue",
+                alpha=0.7,
             )
             axes[0].set_title(
                 "Residuals (Additive Decomposition)"
@@ -2598,9 +2722,9 @@ def infer_decomposition_method(
 
             axes[1].hist(
                 resid_mul,
-                bins='auto',
-                color='green',
-                alpha=0.7
+                bins="auto",
+                color="green",
+                alpha=0.7,
             )
             axes[1].set_title(
                 "Residuals (Multiplicative Decomposition)"
@@ -2611,9 +2735,9 @@ def infer_decomposition_method(
         # Return either just the best method or also the components.
         if return_components:
             return best_method, {
-                'trend': best_decomp.trend,
-                'seasonal': best_decomp.seasonal,
-                'residual': best_decomp.resid
+                "trend": best_decomp.trend,
+                "seasonal": best_decomp.seasonal,
+                "residual": best_decomp.resid,
             }
         else:
             return best_method
@@ -2628,22 +2752,29 @@ def infer_decomposition_method(
             print(err_msg)
         raise ValueError(err_msg)
 
-@validate_params ({ 
-    "method": [StrOptions({'additive', 'multiplicative'})], 
-    "strategy": [StrOptions({'STL', 'SDT', 'stl', 'sdt'})]
-    })
+
+@validate_params(
+    {
+        "method": [
+            StrOptions({"additive", "multiplicative"})
+        ],
+        "strategy": [
+            StrOptions({"STL", "SDT", "stl", "sdt"})
+        ],
+    }
+)
 @ensure_pkg(
-    "statsmodels", 
-    extra="'statsmodels' is required for 'decompose_ts' to proceed."
+    "statsmodels",
+    extra="'statsmodels' is required for 'decompose_ts' to proceed.",
 )
 def decompose_ts(
     df,
     value_col,
     dt_col=None,
-    method='additive',
-    strategy='STL',
+    method="additive",
+    strategy="STL",
     seasonal_period=12,
-    robust=True
+    robust=True,
 ):
     r"""
     Decompose a time series into *trend*, *seasonal*, and *residual*
@@ -2777,10 +2908,7 @@ def decompose_ts(
     # Validate and extract the target time series
     # from the user-specified column <value_col>.
     ts, _ = validate_target_in(
-        df,
-        value_col,
-        error='raise',
-        verbose=0
+        df, value_col, error="raise", verbose=0
     )
     tname = ts.name
 
@@ -2798,7 +2926,7 @@ def decompose_ts(
     strategy = str(strategy).lower()
 
     # Perform the decomposition according to the chosen strategy.
-    if strategy == 'stl':
+    if strategy == "stl":
         # STL decomposition:
         # This algorithm uses LOESS to separately model seasonality
         # and trend. It is more robust to outliers when 'robust=True'.
@@ -2806,28 +2934,30 @@ def decompose_ts(
             ts,
             seasonal=seasonal_period,
             trend=seasonal_period,
-            robust=robust
+            robust=robust,
         )
         result = stl.fit()
-        decomposed_df = pd.DataFrame({
-            'trend': result.trend,
-            'seasonal': result.seasonal,
-            'residual': result.resid
-        })
-    elif strategy == 'sdt':
+        decomposed_df = pd.DataFrame(
+            {
+                "trend": result.trend,
+                "seasonal": result.seasonal,
+                "residual": result.resid,
+            }
+        )
+    elif strategy == "sdt":
         # "SDT" stands for the classical Seasonal Decomposition
         # of Time series using either an 'additive' or
         # 'multiplicative' model.
         result = seasonal_decompose(
-            ts,
-            model=method,
-            period=seasonal_period
+            ts, model=method, period=seasonal_period
         )
-        decomposed_df = pd.DataFrame({
-            'trend': result.trend,
-            'seasonal': result.seasonal,
-            'residual': result.resid
-        })
+        decomposed_df = pd.DataFrame(
+            {
+                "trend": result.trend,
+                "seasonal": result.seasonal,
+                "residual": result.resid,
+            }
+        )
     else:
         # If strategy is invalid, raise an error.
         raise ValueError(
@@ -2849,12 +2979,17 @@ def decompose_ts(
 
     return decomposed_df
 
-@validate_params ({
-    "window": [Interval(Integral, 0, None, closed="neither")], 
-    "scaler":  [StrOptions({'z-norm', 'minmax'}), None], 
-    "lags": [Interval(Integral, 1, None, closed="left")], 
-    "holiday_df": ['array-like', None]
-    })
+
+@validate_params(
+    {
+        "window": [
+            Interval(Integral, 0, None, closed="neither")
+        ],
+        "scaler": [StrOptions({"z-norm", "minmax"}), None],
+        "lags": [Interval(Integral, 1, None, closed="left")],
+        "holiday_df": ["array-like", None],
+    }
+)
 def ts_engineering(
     df,
     value_col,
@@ -2866,8 +3001,8 @@ def ts_engineering(
     apply_fourier=False,
     holiday_df=None,
     robust_diff=True,
-    scaler='z-norm',
-    **kwargs
+    scaler="z-norm",
+    **kwargs,
 ):
     r"""
     Perform feature engineering on a time series to create
@@ -3007,7 +3142,7 @@ def ts_engineering(
     df, dt_col = ts_validator(
         df,
         dt_col=dt_col,
-        to_datetime='auto',
+        to_datetime="auto",
         as_index=True,
         error="raise",
         return_dt_col=True,
@@ -3015,57 +3150,69 @@ def ts_engineering(
     # 2) Validate and extract the target time series using
     #    the helper. This ensures <value_col> exists.
     ts, _ = validate_target_in(
-        df,
-        value_col,
-        error='raise',
-        verbose=0
+        df, value_col, error="raise", verbose=0
     )
     tname = ts.name
 
     # 3) Create time-based features from the index for
     #    daily or other frequencies. This helps many ML
     #    models to capture cyclical patterns:
-    df['year'] = df.index.year
-    df['month'] = df.index.month
-    df['day'] = df.index.day
-    df['day_of_week'] = df.index.dayofweek  # 0=Monday,...,6=Sunday
-    df['is_weekend'] = (df['day_of_week'] >= 5).astype(int)
-    df['quarter'] = df.index.quarter
+    df["year"] = df.index.year
+    df["month"] = df.index.month
+    df["day"] = df.index.day
+    df["day_of_week"] = (
+        df.index.dayofweek
+    )  # 0=Monday,...,6=Sunday
+    df["is_weekend"] = (df["day_of_week"] >= 5).astype(int)
+    df["quarter"] = df.index.quarter
     # For hourly data only if index.freq='H'. If not, default=0.
-    df['hour'] = df.index.hour if hasattr(df.index, 'freq') and \
-        str(df.index.freq) == 'H' else 0
+    df["hour"] = (
+        df.index.hour
+        if hasattr(df.index, "freq")
+        and str(df.index.freq) == "H"
+        else 0
+    )
 
     # 4) Create holiday indicator if holiday_df is provided.
-    df['is_holiday'] = 0
+    df["is_holiday"] = 0
     if holiday_df is not None:
-        is_frame(holiday_df,
-                 df_only=True,
-                 raise_exception=True, 
-                 objname="Holiday df"
-                )
+        is_frame(
+            holiday_df,
+            df_only=True,
+            raise_exception=True,
+            objname="Holiday df",
+        )
         # Check if user-supplied holiday_df has a 'date' column.
         # Mark row as holiday if index in holiday_df['date'].
-        df['is_holiday'] = df.index.isin(holiday_df['date']).astype(int)
+        df["is_holiday"] = df.index.isin(
+            holiday_df["date"]
+        ).astype(int)
 
     # 5) Generate lag features up to <lags>.
     for lag in range(1, lags + 1):
-        df[f'lag_{lag}'] = ts.shift(lag)
+        df[f"lag_{lag}"] = ts.shift(lag)
 
     # 6) Compute rolling statistics over a specified window.
     #    e.g. rolling mean and rolling std for capturing
     #    local trend and volatility.
-    df[f'rolling_mean_{window}'] = ts.rolling(window=window).mean()
-    df[f'rolling_std_{window}'] = ts.rolling(window=window).std()
+    df[f"rolling_mean_{window}"] = ts.rolling(
+        window=window
+    ).mean()
+    df[f"rolling_std_{window}"] = ts.rolling(
+        window=window
+    ).std()
 
     # 7) Differencing: Remove certain non-stationary behavior.
     #    diff_order=1 does X[t] - X[t-1].
     if diff_order > 0:
-        df[f'{tname}_diff'] = ts.diff(diff_order)
+        df[f"{tname}_diff"] = ts.diff(diff_order)
 
     # 8) Seasonal differencing: If a known seasonal period is
     #    provided, create a differenced series over that lag.
     if seasonal_period and seasonal_period > 0:
-        df[f'{tname}_seasonal_diff'] = ts.diff(seasonal_period)
+        df[f"{tname}_seasonal_diff"] = ts.diff(
+            seasonal_period
+        )
 
     # 9) Optional Fourier transform to capture periodicities
     #    that differ from the simpler approach. We apply FFT
@@ -3077,26 +3224,33 @@ def ts_engineering(
         half_len = len(ts) // 2
         fft_features = np.abs(fft_values[:half_len])
         # Create columns named fft_1, fft_2, ...
-        fft_columns = [f'fft_{i}' for i in range(1, half_len + 1)]
+        fft_columns = [
+            f"fft_{i}" for i in range(1, half_len + 1)
+        ]
         df[fft_columns] = pd.DataFrame(fft_features).T
 
     # 10) Handle missing values. By default, we do a forward
     #     fill, then drop any leftover rows if needed.
-    df.fillna(method='ffill', inplace=True)
+    df.fillna(method="ffill", inplace=True)
     df.dropna(inplace=True)
 
     # 11) Apply optional scaling to numeric columns.
     #     By default 'z-norm' uses StandardScaler,
     #     'minmax' uses MinMaxScaler, or None means no scaling.
     if scaler is not None:
-        scaler = (StandardScaler() if scaler == 'z-norm'
-                  else MinMaxScaler())
-        numeric_cols = df.select_dtypes(include=[np.number]).columns
+        scaler = (
+            StandardScaler()
+            if scaler == "z-norm"
+            else MinMaxScaler()
+        )
+        numeric_cols = df.select_dtypes(
+            include=[np.number]
+        ).columns
         # Fit and transform only numeric columns
         df_scaled = pd.DataFrame(
             scaler.fit_transform(df[numeric_cols]),
             columns=numeric_cols,
-            index=df.index
+            index=df.index,
         )
         df[numeric_cols] = df_scaled
 
@@ -3107,9 +3261,9 @@ def prepare_ts_df(
     df,
     dt_col=None,
     set_index=True,
-    error='raise',
+    error="raise",
     use_smart_ts_formatter=False,
-    verbose=0
+    verbose=0,
 ):
     r"""
     Prepare a DataFrame for time series operations by ensuring it
@@ -3225,11 +3379,11 @@ def prepare_ts_df(
         df = ts_validator(
             df=df,
             dt_col=dt_col,
-            to_datetime='auto',
+            to_datetime="auto",
             as_index=set_index,
             error=error,
             return_dt_col=False,
-            verbose=verbose
+            verbose=verbose,
         )
         return df
 
@@ -3242,7 +3396,9 @@ def prepare_ts_df(
                 f"Column '{dt_col}' not found in DataFrame."
             )
         # Convert to datetime if needed
-        df[dt_col] = pd.to_datetime(df[dt_col], errors='coerce')
+        df[dt_col] = pd.to_datetime(
+            df[dt_col], errors="coerce"
+        )
         if df[dt_col].isnull().any():
             raise ValueError(
                 f"Column '{dt_col}' contains invalid date "
@@ -3259,18 +3415,19 @@ def prepare_ts_df(
         return df
 
     # 4) If no dt_col is specified, decide action based on 'error'.
-    if error == 'raise':
+    if error == "raise":
         raise ValueError(
             "Index is not a datetime object, and no 'dt_col' "
             "was specified."
         )
-    elif error == 'warn':
+    elif error == "warn":
         warnings.warn(
             "Index is not a datetime object, and no 'dt_col' "
-            "was specified. Returning DataFrame unchanged."
+            "was specified. Returning DataFrame unchanged.",
+            stacklevel=2,
         )
         return df
-    elif error == 'ignore':
+    elif error == "ignore":
         # No action taken, just return as is.
         return df
 
@@ -3282,9 +3439,10 @@ def prepare_ts_df(
         )
     return df
 
+
 @ensure_pkg(
-    "statsmodels", 
-    extra="'stasmodels' is required for 'ts_corr_analysis' to proceed."
+    "statsmodels",
+    extra="'stasmodels' is required for 'ts_corr_analysis' to proceed.",
 )
 def ts_corr_analysis(
     df,
@@ -3422,25 +3580,23 @@ def ts_corr_analysis(
         df,
         df_only=True,
         raise_exception=True,
-        objname="DataFrame 'df'"
+        objname="DataFrame 'df'",
     )
 
     # Step 2: Validate target column and extract it.
     target, df = validate_target_in(
-        df,
-        value_col,
-        verbose=verbose
+        df, value_col, verbose=verbose
     )
 
     # Step 3: Ensure <dt_col> is valid and possibly set as index.
     df, dt_col = ts_validator(
         df=df,
         dt_col=dt_col,
-        to_datetime='auto',
+        to_datetime="auto",
         as_index=False,
         error="raise",
         return_dt_col=True,
-        verbose=verbose
+        verbose=verbose,
     )
 
     # If verbose=1 or higher, let the user know.
@@ -3454,11 +3610,12 @@ def ts_corr_analysis(
         exist_features(
             df,
             features=features,
-            name="Features for cross-correlation"
+            name="Features for cross-correlation",
         )
     else:
         features = [
-            col for col in df.columns
+            col
+            for col in df.columns
             if col not in [value_col, dt_col]
         ]
 
@@ -3471,7 +3628,7 @@ def ts_corr_analysis(
     # ACF/PACF placeholders
     acf_values = None
     pacf_values = None
-    ax_cross_corr =None
+    ax_cross_corr = None
 
     # Step 5: Plot ACF/PACF if requested.
     if view_acf_pacf:
@@ -3481,52 +3638,29 @@ def ts_corr_analysis(
                 figsize=(fig_size[0], fig_size[1] * 1.5)
             )
             gs = fig.add_gridspec(
-                2,
-                2,
-                height_ratios=[1, 0.7]
+                2, 2, height_ratios=[1, 0.7]
             )
             ax_acf = fig.add_subplot(gs[0, 0])
             ax_pacf = fig.add_subplot(gs[0, 1])
             ax_cross_corr = fig.add_subplot(gs[1, :])
         else:
-            fig, axes = plt.subplots(
-                1,
-                2,
-                figsize=fig_size
-            )
+            fig, axes = plt.subplots(1, 2, figsize=fig_size)
             ax_acf, ax_pacf = axes
             ax_cross_corr = None
 
         # ACF plot
-        plot_acf(
-            target,
-            lags=lags,
-            ax=ax_acf
-        )
+        plot_acf(target, lags=lags, ax=ax_acf)
         ax_acf.set_title("Autocorrelation Function (ACF)")
         ax_acf.set_xlabel("Lags")
         ax_acf.set_ylabel("ACF")
-        ax_acf.grid(
-            show_grid,
-            linestyle=":",
-            alpha=0.7
-        )
+        ax_acf.grid(show_grid, linestyle=":", alpha=0.7)
 
         # PACF plot
-        plot_pacf(
-            target,
-            lags=lags,
-            ax=ax_pacf,
-            method='ywm'
-        )
+        plot_pacf(target, lags=lags, ax=ax_pacf, method="ywm")
         ax_pacf.set_title("Partial Autocorrelation (PACF)")
         ax_pacf.set_xlabel("Lags")
         ax_pacf.set_ylabel("PACF")
-        ax_pacf.grid(
-            show_grid,
-            linestyle=":",
-            alpha=0.7
-        )
+        ax_pacf.grid(show_grid, linestyle=":", alpha=0.7)
 
         # Dummy placeholders for ACF/PACF values. You can
         # refine by computing them numerically, but
@@ -3543,12 +3677,10 @@ def ts_corr_analysis(
         # For each feature, compute Pearson correlation with
         # the target. This is a zero-lag cross-correlation.
         for feat in features:
-            correlation, p_value = pearsonr(
-                target, df[feat]
-            )
+            correlation, p_value = pearsonr(target, df[feat])
             cross_corr_results[feat] = {
-                'correlation': correlation,
-                'p_value': p_value
+                "correlation": correlation,
+                "p_value": p_value,
             }
             if verbose >= 2:
                 print(
@@ -3566,20 +3698,20 @@ def ts_corr_analysis(
                 ax_cc_sep.bar(
                     features,
                     [
-                        cross_corr_results[f]['correlation']
+                        cross_corr_results[f]["correlation"]
                         for f in features
                     ],
-                    color='skyblue'
+                    color="skyblue",
                 )
                 ax_cc_sep.set_title(
                     "Cross-Correlation with External Features"
                 )
                 ax_cc_sep.set_xlabel("Features")
-                ax_cc_sep.set_ylabel("Correlation Coefficient")
+                ax_cc_sep.set_ylabel(
+                    "Correlation Coefficient"
+                )
                 ax_cc_sep.grid(
-                    show_grid,
-                    linestyle=":",
-                    alpha=0.7
+                    show_grid, linestyle=":", alpha=0.7
                 )
                 plt.xticks(rotation=45)
             elif ax_cross_corr is not None:
@@ -3588,20 +3720,20 @@ def ts_corr_analysis(
                 ax_cross_corr.bar(
                     features,
                     [
-                        cross_corr_results[f]['correlation']
+                        cross_corr_results[f]["correlation"]
                         for f in features
                     ],
-                    color='skyblue'
+                    color="skyblue",
                 )
                 ax_cross_corr.set_title(
                     "Cross-Correlation with External Features"
                 )
                 ax_cross_corr.set_xlabel("Features")
-                ax_cross_corr.set_ylabel("Correlation Coefficient")
+                ax_cross_corr.set_ylabel(
+                    "Correlation Coefficient"
+                )
                 ax_cross_corr.grid(
-                    show_grid,
-                    linestyle=":",
-                    alpha=0.7
+                    show_grid, linestyle=":", alpha=0.7
                 )
                 plt.xticks(rotation=45)
 
@@ -3612,29 +3744,29 @@ def ts_corr_analysis(
 
     # Step 7: Compile and display results.
     results = {
-        'acf_values': acf_values,
-        'pacf_values': pacf_values,
-        'cross_corr': cross_corr_results
+        "acf_values": acf_values,
+        "pacf_values": pacf_values,
+        "cross_corr": cross_corr_results,
     }
     summary = ResultSummary(
-        "CrossCorrResults",
-        flatten_nested_dicts=False
+        "CrossCorrResults", flatten_nested_dicts=False
     )
-    summary.add_results(results['cross_corr'])
+    summary.add_results(results["cross_corr"])
 
     if verbose >= 1:
         print(summary)
 
     return results
 
+
 @ensure_pkg(
-    "statsmodels", 
-    extra="'statsmodels' is required for 'infer_decomposition_method' to proceed.", 
-    partial_check=True, 
-    condition=lambda *args, **kws: ( 
-        kws.get("method")=='detrending' 
-        and kws.get("method")=='stl'
-        )
+    "statsmodels",
+    extra="'statsmodels' is required for 'infer_decomposition_method' to proceed.",
+    partial_check=True,
+    condition=lambda *args, **kws: (
+        kws.get("method") == "detrending"
+        and kws.get("method") == "stl"
+    ),
 )
 def transform_stationarity(
     df,
@@ -3649,7 +3781,7 @@ def transform_stationarity(
     show_grid=True,
     drop_original=True,
     reset_index=False,
-    verbose=0
+    verbose=0,
 ):
     r"""
     Perform stationarity transformations on a time series
@@ -3791,7 +3923,7 @@ def transform_stationarity(
         df,
         df_only=True,
         raise_exception=True,
-        objname="DataFrame 'df'"
+        objname="DataFrame 'df'",
     )
 
     # 2) Validate and extract the target column.
@@ -3803,11 +3935,11 @@ def transform_stationarity(
     df, dt_col = ts_validator(
         df=df,
         dt_col=dt_col,
-        to_datetime='auto',
+        to_datetime="auto",
         as_index=True,
         error="raise",
         return_dt_col=True,
-        verbose=verbose
+        verbose=verbose,
     )
     # Align the extracted target with the updated index
     target.index = df.index
@@ -3827,7 +3959,9 @@ def transform_stationarity(
                     f"Applying seasonal differencing "
                     f"with period={seasonal_period}."
                 )
-            transformed_data = target.diff(seasonal_period).dropna()
+            transformed_data = target.diff(
+                seasonal_period
+            ).dropna()
         else:
             if verbose >= 1:
                 print(
@@ -3863,25 +3997,17 @@ def transform_stationarity(
             time_index = np.arange(len(target)).reshape(-1, 1)
             # Fit a linear polynomial to the data
             trend = np.polyfit(
-                time_index.flatten(),
-                target.values,
-                deg=1
+                time_index.flatten(), target.values, deg=1
             )
             # Evaluate the polynomial
-            trend_line = np.polyval(
-                trend,
-                time_index
-            )
+            trend_line = np.polyval(trend, time_index)
             transformed_data = target - trend_line.flatten()
         elif detrend_method == "stl":
             if verbose >= 1:
                 print("Applying STL detrending.")
             # If user doesn't specify a seasonal_period, assume 7
             # (weekly) or some fallback
-            stl = STL(
-                target,
-                period=seasonal_period or 7
-            )
+            stl = STL(target, period=seasonal_period or 7)
             result = stl.fit()
             transformed_data = result.resid
         else:
@@ -3897,18 +4023,12 @@ def transform_stationarity(
 
         # Original data
         plt.subplot(2, 1, 1)
-        plt.plot(
-            target,
-            label="Original Data",
-            color="blue"
-        )
+        plt.plot(target, label="Original Data", color="blue")
         plt.title("Original Time Series")
         plt.xlabel("Time")
         plt.ylabel(tname)
         plt.grid(
-            show_grid,
-            linestyle=":",
-            alpha=0.7
+            show_grid, linestyle=":", alpha=0.7
         ) if show_grid else plt.grid(False)
 
         # Transformed data
@@ -3916,15 +4036,13 @@ def transform_stationarity(
         plt.plot(
             transformed_data,
             label=f"Transformed ({method})",
-            color="green"
+            color="green",
         )
         plt.title(f"Transformed Series ({method})")
         plt.xlabel("Time")
         plt.ylabel(f"{tname} (Transformed)")
         plt.grid(
-            show_grid,
-            linestyle=":",
-            alpha=0.7
+            show_grid, linestyle=":", alpha=0.7
         ) if show_grid else plt.grid(False)
 
         plt.tight_layout()
@@ -3945,12 +4063,19 @@ def transform_stationarity(
 
     return transformed_df
 
-@validate_params ({
-    "split_type": [StrOptions({"simple", "base", "cv"})], 
-    "test_ratio": [str, Interval(Real, 0, 1, closed='both'), None], 
-    "n_splits": [Integral], 
-    "gap": [Interval(Integral, 0, None, closed="left")]
-    })
+
+@validate_params(
+    {
+        "split_type": [StrOptions({"simple", "base", "cv"})],
+        "test_ratio": [
+            str,
+            Interval(Real, 0, 1, closed="both"),
+            None,
+        ],
+        "n_splits": [Integral],
+        "gap": [Interval(Integral, 0, None, closed="left")],
+    }
+)
 def ts_split(
     df,
     dt_col=None,
@@ -3961,7 +4086,7 @@ def ts_split(
     gap=0,
     train_start=None,
     train_end=None,
-    verbose=0
+    verbose=0,
 ):
     r"""
     Perform a time-based split on a time series dataset
@@ -4109,7 +4234,7 @@ def ts_split(
         df,
         df_only=True,
         raise_exception=True,
-        objname="DataFrame 'df'"
+        objname="DataFrame 'df'",
     )
 
     # 2) Validate and/or parse the datetime column using
@@ -4117,11 +4242,11 @@ def ts_split(
     df, dt_col = ts_validator(
         df=df,
         dt_col=dt_col,
-        to_datetime='auto',
+        to_datetime="auto",
         as_index=False,
         error="raise",
         return_dt_col=True,
-        verbose=verbose
+        verbose=verbose,
     )
 
     # 3) Depending on split_type, perform the desired split logic.
@@ -4139,19 +4264,22 @@ def ts_split(
             # Filter train set
             if train_start and train_end:
                 train_mask = (
-                    (df[dt_col] >= pd.to_datetime(train_start))
-                    & (df[dt_col] <= pd.to_datetime(train_end))
-                )
+                    df[dt_col] >= pd.to_datetime(train_start)
+                ) & (df[dt_col] <= pd.to_datetime(train_end))
                 train_df = df.loc[train_mask]
                 test_df = df.loc[~train_mask]
             elif train_end:
-                train_mask = df[dt_col] <= pd.to_datetime(train_end)
+                train_mask = df[dt_col] <= pd.to_datetime(
+                    train_end
+                )
                 train_df = df.loc[train_mask]
                 test_df = df.loc[~train_mask]
             else:
                 # If only train_start is provided, up to user logic
                 # Not fully specified, but we can handle similarly
-                train_mask = df[dt_col] >= pd.to_datetime(train_start)
+                train_mask = df[dt_col] >= pd.to_datetime(
+                    train_start
+                )
                 train_df = df.loc[train_mask]
                 test_df = df.loc[~train_mask]
 
@@ -4162,7 +4290,7 @@ def ts_split(
                 test_ratio,
                 bounds=(0, 1),
                 param_name="Test Ratio",
-                exclude=0
+                exclude=0,
             )
             n_test = int(len(df) * test_ratio)
             split_idx = len(df) - n_test
@@ -4191,10 +4319,7 @@ def ts_split(
                 f"Performing cross-validation split with "
                 f"n_splits={n_splits}, gap={gap}."
             )
-        tscv = TimeSeriesSplit(
-            n_splits=n_splits,
-            gap=gap
-        )
+        tscv = TimeSeriesSplit(n_splits=n_splits, gap=gap)
         splits = tscv.split(df)
         if verbose >= 2:
             # Show the actual indices for each split
@@ -4214,9 +4339,8 @@ def ts_split(
             "Choose 'simple' or 'cv'."
         )
 
-@validate_params ({
-    "method": [StrOptions({'zscore', 'iqr'})]
-    })
+
+@validate_params({"method": [StrOptions({"zscore", "iqr"})]})
 def ts_outlier_detector(
     df,
     dt_col=None,
@@ -4227,7 +4351,7 @@ def ts_outlier_detector(
     fig_size=(10, 5),
     show_grid=True,
     drop=False,
-    verbose=0
+    verbose=0,
 ):
     r"""
     Detect outliers in a time series using either Z-Score
@@ -4354,18 +4478,18 @@ def ts_outlier_detector(
         df,
         df_only=True,
         raise_exception=True,
-        objname="DataFrame 'df'"
+        objname="DataFrame 'df'",
     )
 
     # 2) Parse/validate the datetime column if provided.
     df, dt_col = ts_validator(
         df=df,
         dt_col=dt_col,
-        to_datetime='auto',
+        to_datetime="auto",
         as_index=False,
         error="raise",
         return_dt_col=True,
-        verbose=verbose
+        verbose=verbose,
     )
 
     # 3) Validate and extract the target series.
@@ -4394,7 +4518,9 @@ def ts_outlier_detector(
         iqr = q3 - q1
         lower_bound = q1 - (threshold * iqr)
         upper_bound = q3 + (threshold * iqr)
-        outliers = (target < lower_bound) | (target > upper_bound)
+        outliers = (target < lower_bound) | (
+            target > upper_bound
+        )
     else:
         raise ValueError(
             f"Invalid method: {method}. "
@@ -4402,7 +4528,7 @@ def ts_outlier_detector(
         )
 
     # Flag the outliers in the DataFrame
-    df['is_outlier'] = outliers
+    df["is_outlier"] = outliers
 
     # Provide info on outlier counts
     if verbose >= 1:
@@ -4418,7 +4544,7 @@ def ts_outlier_detector(
             target,
             label="Original Data",
             color="blue",
-            alpha=0.8
+            alpha=0.8,
         )
         # Mark outliers in red
         plt.scatter(
@@ -4426,7 +4552,7 @@ def ts_outlier_detector(
             target[outliers],
             color="red",
             label="Outliers",
-            zorder=5
+            zorder=5,
         )
         plt.title(
             f"Outlier Detection ({method.capitalize()} Method)"
@@ -4434,11 +4560,7 @@ def ts_outlier_detector(
         plt.xlabel("Time")
         plt.ylabel(tname)
         if show_grid:
-            plt.grid(
-                True,
-                linestyle=":",
-                alpha=0.7
-            )
+            plt.grid(True, linestyle=":", alpha=0.7)
         else:
             plt.grid(False)
         plt.legend()
@@ -4447,7 +4569,9 @@ def ts_outlier_detector(
 
     # 6) If `drop=True`, remove outliers from the DataFrame
     if drop:
-        df = df[~df['is_outlier']].drop(columns=['is_outlier'])
+        df = df[~df["is_outlier"]].drop(
+            columns=["is_outlier"]
+        )
         if verbose >= 1:
             print(
                 f"Outliers dropped. "
@@ -4459,19 +4583,18 @@ def ts_outlier_detector(
 
     return df
 
-@check_params ({ 
-    "lags": Union[int, List[int]]
-    })
+
+@check_params({"lags": Union[int, list[int]]})
 def create_lag_features(
     df,
     value_col,
     dt_col=None,
     lag_features=None,
-    lags=[1, 2], 
+    lags=None,
     dropna=True,
     include_original=True,
     reset_index=True,
-    verbose=0
+    verbose=0,
 ):
     r"""
     Generate lag features for a time series to capture temporal
@@ -4584,11 +4707,13 @@ def create_lag_features(
     """
 
     # 1) Validate that df is a DataFrame.
+    if lags is None:
+        lags = [1, 2]
     is_frame(
         df,
         df_only=True,
         raise_exception=True,
-        objname="DataFrame 'df'"
+        objname="DataFrame 'df'",
     )
 
     # 2) Convert or validate datetime usage via ts_validator.
@@ -4597,11 +4722,11 @@ def create_lag_features(
     df, dt_col = ts_validator(
         df=df,
         dt_col=dt_col,
-        to_datetime='auto',
+        to_datetime="auto",
         as_index=True,
         error="raise",
         return_dt_col=True,
-        verbose=verbose
+        verbose=verbose,
     )
 
     # 3) Ensure the target column is present.
@@ -4617,16 +4742,13 @@ def create_lag_features(
     # 4) Determine which columns we create lag features for.
     #    If not specified, default to the target alone.
     lag_features = columns_manager(
-        lag_features,
-        empty_as_none=False
+        lag_features, empty_as_none=False
     )
     if value_col not in lag_features:
         lag_features.append(value_col)
 
     exist_features(
-        df,
-        features=lag_features,
-        name="Lag features"
+        df, features=lag_features, name="Lag features"
     )
 
     # 5) Build an empty DataFrame (indexed by the same index
@@ -4643,17 +4765,18 @@ def create_lag_features(
         if verbose >= 1:
             print(f"Creating lag features for: {feature}")
         for lag_k in lags:
-            lagged_df[f"{feature}_lag_{lag_k}"] = df[feature].shift(lag_k)
+            lagged_df[f"{feature}_lag_{lag_k}"] = df[
+                feature
+            ].shift(lag_k)
 
     # 6) Optionally concatenate the original columns with the
     #    newly created lags.
     if include_original:
-        lagged_df = pd.concat(
-            [lagged_df, df],
-            axis=1
-        )
+        lagged_df = pd.concat([lagged_df, df], axis=1)
         # Avoid duplicating columns
-        lagged_df = lagged_df.loc[:, ~lagged_df.columns.duplicated()]
+        lagged_df = lagged_df.loc[
+            :, ~lagged_df.columns.duplicated()
+        ]
 
     # 7) If dropna=True, remove rows lacking required lags.
     if dropna:
@@ -4674,10 +4797,17 @@ def create_lag_features(
 
     return lagged_df
 
-@validate_params({
-    "method": [StrOptions( {'corr', 'correlation', 'pca'})], 
-    "corr_threshold": [Interval(Real, 0, 1, closed="both")]
-    })
+
+@validate_params(
+    {
+        "method": [
+            StrOptions({"corr", "correlation", "pca"})
+        ],
+        "corr_threshold": [
+            Interval(Real, 0, 1, closed="both")
+        ],
+    }
+)
 def select_and_reduce_features(
     df,
     target_col=None,
@@ -4687,7 +4817,7 @@ def select_and_reduce_features(
     n_components=None,
     scale_data=True,
     return_pca=False,
-    verbose=0
+    verbose=0,
 ):
     r"""
     Perform feature selection or dimensionality reduction
@@ -4830,19 +4960,15 @@ def select_and_reduce_features(
 
     # Convert target_col and exclude_cols to list-like
     target_col = columns_manager(
-        target_col,
-        empty_as_none=False
+        target_col, empty_as_none=False
     )
     exclude_cols = columns_manager(
-        exclude_cols,
-        empty_as_none=False
+        exclude_cols, empty_as_none=False
     )
 
     # Filter out excluded columns from the DataFrame
     valid_cols = is_in_if(
-        df.columns,
-        items=exclude_cols,
-        return_diff=True
+        df.columns, items=exclude_cols, return_diff=True
     )
     # Now select from df only the "valid_cols"
     features = select_features(df, features=valid_cols)
@@ -4852,8 +4978,7 @@ def select_and_reduce_features(
     if target_col is not None:
         # This also removes the target from 'features'
         target, features = validate_target_in(
-            features,
-            target_col
+            features, target_col
         )
 
     pca_model = None
@@ -4867,16 +4992,21 @@ def select_and_reduce_features(
     # Step 2: Check the method for correlation-based selection
     if method in ["correlation", "corr"]:
         if verbose >= 1:
-            print("Performing correlation-based feature selection...")
+            print(
+                "Performing correlation-based feature selection..."
+            )
 
         # Build correlation matrix
         corr_matrix = features.corr().abs()
         upper_triangle = corr_matrix.where(
-            np.triu(np.ones(corr_matrix.shape), k=1).astype(bool)
+            np.triu(np.ones(corr_matrix.shape), k=1).astype(
+                bool
+            )
         )
         # Identify columns exceeding threshold
         to_drop = [
-            col for col in upper_triangle.columns
+            col
+            for col in upper_triangle.columns
             if any(upper_triangle[col] > corr_threshold)
         ]
         if verbose >= 2:
@@ -4887,15 +5017,13 @@ def select_and_reduce_features(
             )
         # Drop those correlated columns
         reduced_features = features.drop(
-            columns=to_drop,
-            errors='ignore'
+            columns=to_drop, errors="ignore"
         )
 
         # Reattach target if needed
         if target_col:
             transformed_df = pd.concat(
-                [reduced_features, target],
-                axis=1
+                [reduced_features, target], axis=1
             )
         else:
             transformed_df = reduced_features
@@ -4904,14 +5032,17 @@ def select_and_reduce_features(
             # Warn if user requested PCA but method is correlation
             warnings.warn(
                 "PCA is not selected as the method for dimensionality"
-                " reduction. Returning correlation-based result only."
+                " reduction. Returning correlation-based result only.",
+                stacklevel=2,
             )
         return transformed_df
 
     # Step 3: If method='pca', apply Principal Component Analysis
     elif method == "pca":
         if verbose >= 1:
-            print("Performing Principal Component Analysis (PCA)...")
+            print(
+                "Performing Principal Component Analysis (PCA)..."
+            )
             if scale_data:
                 print("Standardizing data before PCA.")
 
@@ -4924,25 +5055,26 @@ def select_and_reduce_features(
 
         # Instantiate PCA
         pca_model = PCA(n_components=n_components)
-        principal_components = pca_model.fit_transform(scaled_features)
+        principal_components = pca_model.fit_transform(
+            scaled_features
+        )
 
         # Name the principal components
         if isinstance(n_components, int):
             pca_columns = [
-                f"PC{i+1}"
-                for i in range(n_components)
+                f"PC{i + 1}" for i in range(n_components)
             ]
         else:
             # If user set n_components as float => proportion of variance
             pca_columns = [
-                f"PC{i+1}"
+                f"PC{i + 1}"
                 for i in range(pca_model.n_components_)
             ]
 
         pca_df = pd.DataFrame(
             principal_components,
             columns=pca_columns,
-            index=features.index
+            index=features.index,
         )
 
         if verbose >= 1:
@@ -4956,8 +5088,7 @@ def select_and_reduce_features(
         # Attach target if present
         if target_col:
             transformed_df = pd.concat(
-                [pca_df, target],
-                axis=1
+                [pca_df, target], axis=1
             )
         else:
             transformed_df = pca_df
@@ -4974,4 +5105,3 @@ def select_and_reduce_features(
             f"Invalid method: {method}. "
             "Choose 'corr' (or 'correlation') or 'pca'."
         )
-        

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -8,11 +7,11 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 
 from . import config as cfg
@@ -20,17 +19,17 @@ from . import utils
 
 
 def _pick_rmse(
-    phys: Dict[str, Any],
-    diag: Dict[str, Any],
+    phys: dict[str, Any],
+    diag: dict[str, Any],
     mse: float,
 ) -> float:
     rmse = float("nan")
 
-    pm = (phys.get("point_metrics") or {})
+    pm = phys.get("point_metrics") or {}
     if "rmse" in pm:
         rmse = utils.to_float(pm.get("rmse"))
 
-    me = (phys.get("metrics_evaluate") or {})
+    me = phys.get("metrics_evaluate") or {}
     if np.isnan(rmse):
         rmse = utils.to_float(me.get("subs_pred_rmse"))
 
@@ -49,8 +48,7 @@ def _collect_one(
     city: str,
     variant: str,
     src: Path,
-) -> Dict[str, Any]:
-    
+) -> dict[str, Any]:
     phys_p = utils.find_phys_json(src)
     diag_p = utils.find_eval_diag_json(src)
 
@@ -80,13 +78,13 @@ def _collect_one(
 
 def collect_fig3_metrics(
     *,
-    cities: List[str],
-    ns_with: Optional[str],
-    ns_no: Optional[str],
-    zh_with: Optional[str],
-    zh_no: Optional[str],
+    cities: list[str],
+    ns_with: str | None,
+    ns_no: str | None,
+    zh_with: str | None,
+    zh_no: str | None,
 ) -> pd.DataFrame:
-    rows: List[Dict[str, Any]] = []
+    rows: list[dict[str, Any]] = []
 
     for c in cities:
         if c == "Nansha":
@@ -168,9 +166,10 @@ def _bar_values(
                 fontsize=8,
             )
 
+
 def _metric_meta(
     key: str,
-) -> Tuple[str, str, str]:
+) -> tuple[str, str, str]:
     md = cfg.PLOT_METRIC_META.get(str(key))
     if not md:
         raise KeyError(str(key))
@@ -188,13 +187,13 @@ def _metric_meta(
 def plot_fig3_core_ablation(
     df: pd.DataFrame,
     *,
-    cities: List[str],
+    cities: list[str],
     core_metric: str,
     err_metric: str,
     out: str,
     out_csv: str,
-    out_tex: Optional[str],
-    out_xlsx: Optional[str],
+    out_tex: str | None,
+    out_xlsx: str | None,
     dpi: int,
     show_legend: bool,
     show_labels: bool,
@@ -203,7 +202,7 @@ def plot_fig3_core_ablation(
     show_panel_titles: bool,
     show_values: bool,
     show_panel_labels: bool,
-    title: Optional[str],
+    title: str | None,
 ) -> None:
     utils.ensure_script_dirs()
     utils.set_paper_style()
@@ -218,9 +217,7 @@ def plot_fig3_core_ablation(
 
     cm = str(core_metric or "mae").strip().lower()
     if cm not in {"mae", "r2"}:
-        raise ValueError(
-            "core_metric must be mae or r2"
-        )
+        raise ValueError("core_metric must be mae or r2")
 
     if cm == "mae":
         big_key = "mae"
@@ -232,9 +229,11 @@ def plot_fig3_core_ablation(
         ab_key = "r2"
 
     def _vals(metric: str, variant: str) -> np.ndarray:
-        outv: List[float] = []
+        outv: list[float] = []
         for c in cities:
-            sub = df[(df["city"] == c) & (df["variant"] == variant)]
+            sub = df[
+                (df["city"] == c) & (df["variant"] == variant)
+            ]
             if sub.empty:
                 outv.append(float("nan"))
             else:
@@ -242,7 +241,9 @@ def plot_fig3_core_ablation(
         return np.asarray(outv, dtype=float)
 
     x = np.arange(len(cities))
-    colors = [cfg.CITY_COLORS.get(c, "#777777") for c in cities]
+    colors = [
+        cfg.CITY_COLORS.get(c, "#777777") for c in cities
+    ]
 
     fig = plt.figure(figsize=(10.0, 4.5))
     gs = GridSpec(
@@ -329,7 +330,6 @@ def plot_fig3_core_ablation(
         ax_c.set_xticks([])
         ax_c.tick_params(labelleft=False)
 
-
     width = 0.36
 
     def _grouped(
@@ -337,7 +337,7 @@ def plot_fig3_core_ablation(
         metric: str,
         fmt: str,
         title_txt: str,
-    ) -> Tuple[Any, Any]:
+    ) -> tuple[Any, Any]:
         with_v = _vals(metric, "with-phys")
         no_v = _vals(metric, "no-phys")
 
@@ -359,7 +359,7 @@ def plot_fig3_core_ablation(
             hatch="///",
             label="no physics",
         )
-        
+
         if metric == "r2":
             ax.axhline(
                 0.0,
@@ -431,7 +431,9 @@ def plot_fig3_core_ablation(
     if fig_p.suffix:
         fig_p = fig_p.with_suffix("")
 
-    fig.savefig(str(fig_p) + ".png", dpi=dpi, bbox_inches="tight")
+    fig.savefig(
+        str(fig_p) + ".png", dpi=dpi, bbox_inches="tight"
+    )
     fig.savefig(str(fig_p) + ".svg", bbox_inches="tight")
     plt.close(fig)
 
@@ -464,10 +466,7 @@ def _add_plot_fig3_args(ap: argparse.ArgumentParser) -> None:
         type=str,
         choices=["mae", "r2"],
         default="mae",
-        help=(
-            "Big core metric. "
-            "mae=new default, r2=legacy."
-        ),
+        help=("Big core metric. mae=new default, r2=legacy."),
     )
 
     ap.add_argument(
@@ -476,7 +475,7 @@ def _add_plot_fig3_args(ap: argparse.ArgumentParser) -> None:
         choices=["rmse", "mse"],
         default="mse",
     )
-    
+
     ap.add_argument("--dpi", type=int, default=cfg.PAPER_DPI)
 
     ap.add_argument(
@@ -518,7 +517,7 @@ def _add_plot_fig3_args(ap: argparse.ArgumentParser) -> None:
 
 
 def plot_fig3_core_ablation_main(
-    argv: Optional[List[str]] = None,
+    argv: list[str] | None = None,
 ) -> None:
     ap = argparse.ArgumentParser(
         prog="plot-core-ablation",
@@ -539,18 +538,26 @@ def plot_fig3_core_ablation_main(
         zh_no=args.zh_no,
     )
 
-    show_legend = utils.str_to_bool(args.show_legend, default=True)
-    show_labels = utils.str_to_bool(args.show_labels, default=True)
+    show_legend = utils.str_to_bool(
+        args.show_legend, default=True
+    )
+    show_labels = utils.str_to_bool(
+        args.show_labels, default=True
+    )
     show_ticks = utils.str_to_bool(
         args.show_ticklabels,
         default=True,
     )
-    show_title = utils.str_to_bool(args.show_title, default=True)
+    show_title = utils.str_to_bool(
+        args.show_title, default=True
+    )
     show_pt = utils.str_to_bool(
         args.show_panel_titles,
         default=True,
     )
-    show_vals = utils.str_to_bool(args.show_values, default=True)
+    show_vals = utils.str_to_bool(
+        args.show_values, default=True
+    )
     show_pl = utils.str_to_bool(
         args.show_panel_labels,
         default=True,
@@ -580,8 +587,8 @@ def plot_fig3_core_ablation_main(
         title=args.title,
     )
 
-    
-def main(argv: Optional[List[str]] = None) -> None:
+
+def main(argv: list[str] | None = None) -> None:
     plot_fig3_core_ablation_main(argv)
 
 

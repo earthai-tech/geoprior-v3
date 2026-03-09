@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from tests._helpers import DummyModel, import_module_group, to_scalar
+from tests._helpers import (
+    DummyModel,
+    import_module_group,
+    to_scalar,
+)
 
 mod = import_module_group("losses")
 
@@ -49,7 +53,10 @@ def test_assemble_physics_loss_respects_default_scaling_policy():
 
     assert to_scalar(mult) == 10.0
     assert to_scalar(raw) == (2 + 3 + 5 + 7 + 11 + 13 + 17)
-    assert to_scalar(scaled) == 10 * (2 + 3 + 5 + 7 + 11) + 13 + 10 * 17
+    assert (
+        to_scalar(scaled)
+        == 10 * (2 + 3 + 5 + 7 + 11) + 13 + 10 * 17
+    )
     assert to_scalar(terms["mv"]) == 13.0
     assert to_scalar(terms["q"]) == 170.0
 

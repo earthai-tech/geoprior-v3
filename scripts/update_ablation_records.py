@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
-#
+
 """Update ablation_record.jsonl using post-hoc calibrated metrics.
 
 Why this script
@@ -35,13 +34,12 @@ import json
 import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import pandas as pd
 
 from . import config as cfg
 from . import utils
-
 
 _PHYS_PREFIX = "geoprior_eval_phys_"
 _PHYS_EXT = ".json"
@@ -58,7 +56,7 @@ class PatchInfo:
 
 
 def _parse_args(
-    argv: Optional[List[str]],
+    argv: list[str] | None,
 ) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         prog="update-ablation-records",
@@ -164,8 +162,8 @@ def _out_updated_path(src: Path) -> Path:
     return src.with_name(stem + ".updated" + src.suffix)
 
 
-def _read_jsonl(path: Path) -> List[Dict[str, Any]]:
-    rows: List[Dict[str, Any]] = []
+def _read_jsonl(path: Path) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
     for ln in path.read_text(encoding="utf-8").splitlines():
         s = ln.strip()
         if not s:
@@ -179,12 +177,14 @@ def _read_jsonl(path: Path) -> List[Dict[str, Any]]:
     return rows
 
 
-def _write_jsonl(path: Path, rows: List[Dict[str, Any]]) -> None:
+def _write_jsonl(
+    path: Path, rows: list[dict[str, Any]]
+) -> None:
     out = [json.dumps(r, ensure_ascii=False) for r in rows]
     path.write_text("\n".join(out) + "\n", encoding="utf-8")
 
 
-def _safe_float(x: Any) -> Optional[float]:
+def _safe_float(x: Any) -> float | None:
     if x is None:
         return None
     try:
@@ -196,8 +196,11 @@ def _safe_float(x: Any) -> Optional[float]:
     return v
 
 
-def _parse_ts_from_phys_json(name: str) -> Optional[str]:
-    if not (name.startswith(_PHYS_PREFIX) and name.endswith(_PHYS_EXT)):
+def _parse_ts_from_phys_json(name: str) -> str | None:
+    if not (
+        name.startswith(_PHYS_PREFIX)
+        and name.endswith(_PHYS_EXT)
+    ):
         return None
 
     core = name[len(_PHYS_PREFIX) : -len(_PHYS_EXT)]
@@ -207,9 +210,9 @@ def _parse_ts_from_phys_json(name: str) -> Optional[str]:
     return core or None
 
 
-def _build_ts_index(root: Path) -> Dict[str, Path]:
+def _build_ts_index(root: Path) -> dict[str, Path]:
     """Map <timestamp> -> run_dir by scanning phys JSONs."""
-    idx: Dict[str, Tuple[int, float, Path]] = {}
+    idx: dict[str, tuple[int, float, Path]] = {}
 
     for fp in root.rglob(f"{_PHYS_PREFIX}*{_PHYS_EXT}"):
         ts = _parse_ts_from_phys_json(fp.name)
@@ -233,7 +236,7 @@ def _build_ts_index(root: Path) -> Dict[str, Path]:
 def _find_phys_json_for_ts(
     run_dir: Path,
     ts: str,
-) -> Optional[Path]:
+) -> Path | None:
     p1 = run_dir / f"{_PHYS_PREFIX}{ts}_interpretable.json"
     if p1.exists():
         return p1
@@ -249,7 +252,7 @@ def _find_phys_json_for_ts(
 def _infer_run_dir_from_ablation(
     ab_path: Path,
     ts: str,
-) -> Optional[Path]:
+) -> Path | None:
     base = ab_path.parent
     if base.name == "ablation_records":
         base = base.parent
@@ -278,16 +281,16 @@ def _infer_run_dir_from_ablation(
     return None
 
 
-def _pick_diag_path(run_dir: Path) -> Optional[Path]:
+def _pick_diag_path(run_dir: Path) -> Path | None:
     return utils.find_eval_diag_json(run_dir)
 
 
 def _patch_record(
-    rec: Dict[str, Any],
+    rec: dict[str, Any],
     *,
     ab_path: Path,
-    ts_index: Dict[str, Path],
-) -> Tuple[Dict[str, Any], PatchInfo]:
+    ts_index: dict[str, Path],
+) -> tuple[dict[str, Any], PatchInfo]:
     ts = str(rec.get("timestamp") or "").strip()
     if not ts:
         return rec, PatchInfo(ok=False, reason="no_timestamp")
@@ -328,7 +331,7 @@ def _patch_record(
         rmse = math.sqrt(float(mse))
 
     # preserve old headline metrics
-    legacy: Dict[str, Any] = {}
+    legacy: dict[str, Any] = {}
     for k in [
         "r2",
         "mse",
@@ -366,7 +369,11 @@ def _patch_record(
 
     # optional: bring PSS from diagnostics when present
     pss = None
-    blk = diag.get("__overall__") if isinstance(diag, dict) else None
+    blk = (
+        diag.get("__overall__")
+        if isinstance(diag, dict)
+        else None
+    )
     if isinstance(blk, dict):
         pss = blk.get("pss")
     if pss is not None:
@@ -408,9 +415,9 @@ def _patch_record(
 def _discover_ablation_files(
     *,
     root: Path,
-    ablation: Optional[str],
+    ablation: str | None,
     include_updated: bool,
-) -> List[Path]:
+) -> list[Path]:
     if ablation:
         p = Path(ablation).expanduser().resolve()
         if not p.exists():
@@ -431,16 +438,19 @@ def _discover_ablation_files(
     return files
 
 
-def _simple_row(rec: Dict[str, Any]) -> Dict[str, Any]:
-    row: Dict[str, Any] = {}
+def _simple_row(rec: dict[str, Any]) -> dict[str, Any]:
+    row: dict[str, Any] = {}
     for k, v in rec.items():
-        if isinstance(v, (str, int, float, bool)) or v is None:
+        if (
+            isinstance(v, str | int | float | bool)
+            or v is None
+        ):
             row[k] = v
     return row
 
 
 def update_ablation_records_main(
-    argv: Optional[List[str]] = None,
+    argv: list[str] | None = None,
 ) -> None:
     args = _parse_args(argv)
 
@@ -474,7 +484,7 @@ def update_ablation_records_main(
             f"No ablation_record*.jsonl found under {root}"
         )
 
-    all_rows: List[Dict[str, Any]] = []
+    all_rows: list[dict[str, Any]] = []
 
     for ab_path in ab_files:
         ab_path = ab_path.expanduser().resolve()
@@ -484,8 +494,8 @@ def update_ablation_records_main(
                 print(f"[Skip] empty: {ab_path}")
             continue
 
-        patched: List[Dict[str, Any]] = []
-        infos: List[PatchInfo] = []
+        patched: list[dict[str, Any]] = []
+        infos: list[PatchInfo] = []
 
         for rec in rows:
             rec2, info = _patch_record(
@@ -504,9 +514,7 @@ def update_ablation_records_main(
                 f"[File] {ab_path.name}: patched {ok_n}/{len(infos)}"
             )
             for i in bad[:8]:
-                print(
-                    f"  - ts={i.ts} reason={i.reason}"
-                )
+                print(f"  - ts={i.ts} reason={i.reason}")
             if len(bad) > 8:
                 print(f"  ... +{len(bad) - 8} more")
 
@@ -537,7 +545,9 @@ def update_ablation_records_main(
         for r in patched:
             row = _simple_row(r)
             row["_src"] = str(ab_path)
-            srcs = (r.get("metrics") or {}).get("sources") or {}
+            srcs = (r.get("metrics") or {}).get(
+                "sources"
+            ) or {}
             if isinstance(srcs, dict):
                 row["_run_dir"] = srcs.get("run_dir")
             all_rows.append(row)
@@ -573,8 +583,10 @@ def update_ablation_records_main(
         print(f"[OK] table: {out_csv}")
         print(f"[OK] table: {out_js}")
 
-def main(argv: List[str] | None = None) -> None:
+
+def main(argv: list[str] | None = None) -> None:
     update_ablation_records_main(argv)
-    
+
+
 if __name__ == "__main__":
     main()

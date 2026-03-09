@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # https://lkouadio.com
@@ -32,13 +31,13 @@ a scaler path, or manual min/max / mean/std parameters.
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from typing import Any, Optional, Tuple
+from typing import Any
 
-import numpy as np
 import joblib
+import numpy as np
 
-from .nat_utils import extract_preds 
-from .shapes import canonicalize_BHQO_quantiles_np 
+from .nat_utils import extract_preds
+from .shapes import canonicalize_BHQO_quantiles_np
 
 ArrayLike = Any
 
@@ -57,8 +56,8 @@ def _pick_point_pred(
     y: Any,
     *,
     n_q: int = 3,
-    quantiles: Optional[Sequence[float]] = None,
-    q: Optional[float | int] = None,
+    quantiles: Sequence[float] | None = None,
+    q: float | int | None = None,
     prefer_median: bool = True,
 ) -> np.ndarray:
     """
@@ -69,7 +68,7 @@ def _pick_point_pred(
       - (B, H, Q, 1)  (after canonicalization)
       - (B, H)        (will be expanded to (B, H, 1))
     """
-    
+
     arr = _as_np(y)
 
     if arr.ndim == 4:
@@ -85,7 +84,7 @@ def _pick_point_pred(
             else:
                 q = q_dim // 2
 
-        if isinstance(q, (int, np.integer)):
+        if isinstance(q, int | np.integer):
             idx = int(q)
         else:
             if quantiles is not None and q is not None:
@@ -116,8 +115,8 @@ def evaluate_point_forecast(
     *,
     y_true_gwl: Any | None = None,
     n_q: int = 3,
-    quantiles: Optional[Sequence[float]] = None,
-    q: Optional[float | int] = None,
+    quantiles: Sequence[float] | None = None,
+    q: float | int | None = None,
     use_physical: bool = False,
     return_physical: bool | None = None,
     scaler_info: Mapping[str, Any] | None = None,
@@ -293,7 +292,7 @@ def auto_noise_std_from_increments(
     noise_frac: float = 0.10,
     percentile: float = 95.0,
     min_std: float = 0.0,
-    max_std: Optional[float] = None,
+    max_std: float | None = None,
     eps: float = 1e-12,
 ) -> float:
     """
@@ -379,11 +378,11 @@ def auto_noise_std_from_increments(
 def resolve_noise_std(
     y_inc: np.ndarray,
     *,
-    noise_std: Optional[float] = None,
+    noise_std: float | None = None,
     noise_frac: float = 0.10,
     percentile: float = 95.0,
     min_std: float = 0.0,
-    max_std: Optional[float] = None,
+    max_std: float | None = None,
 ) -> float:
     """
     Prefer explicit `noise_std` when provided,
@@ -401,6 +400,7 @@ def resolve_noise_std(
         max_std=max_std,
     )
 
+
 def _to_np(x: ArrayLike) -> np.ndarray:
     """Convert Tensor / list-like to a NumPy array."""
     if hasattr(x, "numpy"):
@@ -412,7 +412,7 @@ def _resolve_stage1_entry(
     scaler_info: Mapping[str, Any] | None,
     target_name: str | None,
     scaler_entry: Mapping[str, Any] | None,
-) -> Tuple[Optional[Any], Optional[int], Optional[int]]:
+) -> tuple[Any | None, int | None, int | None]:
     """
     Resolve (scaler, feature_index, n_features) from Stage-1 metadata.
 
@@ -442,19 +442,26 @@ def _resolve_stage1_entry(
 
     # 1) If scaler_info itself looks like a single entry, use it.
     elif isinstance(scaler_info, Mapping) and (
-        "idx" in scaler_info or "scaler_path" in scaler_info or "scaler" in scaler_info
+        "idx" in scaler_info
+        or "scaler_path" in scaler_info
+        or "scaler" in scaler_info
     ):
         entry = scaler_info  # already an entry
 
-
     # 2) Otherwise, scaler_info is expected to be name -> entry mapping.
-    elif isinstance(scaler_info, Mapping) and isinstance(target_name, str):
+    elif isinstance(scaler_info, Mapping) and isinstance(
+        target_name, str
+    ):
         # direct hit
         if target_name in scaler_info:
             entry = scaler_info[target_name]
         else:
             # case-insensitive + aliases
-            keymap = {k.lower(): k for k in scaler_info.keys() if isinstance(k, str)}
+            keymap = {
+                k.lower(): k
+                for k in scaler_info.keys()
+                if isinstance(k, str)
+            }
             lname = target_name.lower()
 
             aliases: list[str] = []
@@ -463,20 +470,30 @@ def _resolve_stage1_entry(
 
             if "subs" in lname:
                 aliases += [
-                    "subsidence", "subs", "subs_pred",
-                    "subsidence_cum", "subsidence_cum__si"
+                    "subsidence",
+                    "subs",
+                    "subs_pred",
+                    "subsidence_cum",
+                    "subsidence_cum__si",
                 ]
             if "gwl" in lname or "head" in lname:
                 aliases += [
-                    "gwl", "gwl_pred", 
-                    "gwl_depth_bgs", "gwl_depth_bgs__si", 
-                    "head_m", "head_m__si",
-                    ]
-                
+                    "gwl",
+                    "gwl_pred",
+                    "gwl_depth_bgs",
+                    "gwl_depth_bgs__si",
+                    "head_m",
+                    "head_m__si",
+                ]
+
             # de-dup preserve order
             seen = set()
-            aliases = [a for a in aliases if not (a in seen or seen.add(a))]
-            
+            aliases = [
+                a
+                for a in aliases
+                if not (a in seen or seen.add(a))
+            ]
+
             # try aliases (case-insensitive)
             for a in aliases:
                 real = keymap.get(a.lower())
@@ -489,7 +506,9 @@ def _resolve_stage1_entry(
 
     # 3) Load scaler if needed
     scaler = entry.get("scaler")
-    if scaler is None and isinstance(entry.get("scaler_path"), str):
+    if scaler is None and isinstance(
+        entry.get("scaler_path"), str
+    ):
         try:
             scaler = joblib.load(entry["scaler_path"])
         except Exception:
@@ -499,12 +518,12 @@ def _resolve_stage1_entry(
     n_features = None
 
     all_feats = entry.get("all_features")
-    if isinstance(all_feats, (list, tuple)):
+    if isinstance(all_feats, list | tuple):
         n_features = len(all_feats)
 
     if hasattr(scaler, "n_features_in_"):
         try:
-            n_features = int(getattr(scaler, "n_features_in_"))
+            n_features = int(scaler.n_features_in_)
         except Exception:
             pass
 
@@ -512,6 +531,7 @@ def _resolve_stage1_entry(
         n_features = int(idx) + 1
 
     return scaler, idx, n_features
+
 
 def scale_target(
     y_phys: ArrayLike,
@@ -581,9 +601,11 @@ def scale_target(
     if scaler is None or not hasattr(scaler, "transform"):
         return y
 
-    if n_features is None and hasattr(scaler, "n_features_in_"):
+    if n_features is None and hasattr(
+        scaler, "n_features_in_"
+    ):
         try:
-            n_features = int(getattr(scaler, "n_features_in_"))
+            n_features = int(scaler.n_features_in_)
         except Exception:
             n_features = None
 
@@ -604,6 +626,7 @@ def scale_target(
         return ys.reshape(shp)
     except Exception:
         return y
+
 
 def inverse_scale_target(
     y_scaled: ArrayLike,
@@ -662,7 +685,9 @@ def inverse_scale_target(
         if {"min", "max"} <= keys:
             _min = float(params["min"])
             _max = float(params["max"])
-            span = (_max - _min) if (_max - _min) != 0.0 else 1.0
+            span = (
+                (_max - _min) if (_max - _min) != 0.0 else 1.0
+            )
             y_phys = y_flat * span + _min
             return y_phys.reshape(original_shape)
 
@@ -692,8 +717,14 @@ def inverse_scale_target(
 
     if stg_scaler is not None:
         scaler = stg_scaler
-        feature_index = stg_idx if feature_index is None else feature_index
-        n_features = stg_nfeat if stg_nfeat is not None else n_features
+        feature_index = (
+            stg_idx
+            if feature_index is None
+            else feature_index
+        )
+        n_features = (
+            stg_nfeat if stg_nfeat is not None else n_features
+        )
 
     # ---- 3) Bare scaler or path ------------------------------------------
     if isinstance(scaler, str):
@@ -702,10 +733,14 @@ def inverse_scale_target(
         except Exception:
             scaler = None
 
-    if scaler is not None and hasattr(scaler, "inverse_transform"):
-        if n_features is None and hasattr(scaler, "n_features_in_"):
+    if scaler is not None and hasattr(
+        scaler, "inverse_transform"
+    ):
+        if n_features is None and hasattr(
+            scaler, "n_features_in_"
+        ):
             try:
-                n_features = int(getattr(scaler, "n_features_in_"))
+                n_features = int(scaler.n_features_in_)
             except Exception:
                 n_features = None
 
@@ -714,7 +749,9 @@ def inverse_scale_target(
         if feature_index is None:
             feature_index = 0
 
-        X = np.zeros((y_flat.shape[0], int(n_features)), dtype=float)
+        X = np.zeros(
+            (y_flat.shape[0], int(n_features)), dtype=float
+        )
         fi = int(feature_index)
         X[:, fi : fi + 1] = y_flat
 
@@ -792,7 +829,7 @@ def point_metrics(
     diff = yt_f - yp_f
 
     mae = float(np.nanmean(np.abs(diff)))
-    mse = float(np.nanmean(diff ** 2))
+    mse = float(np.nanmean(diff**2))
     var = float(np.nanvar(yt_f))
     if var > 0.0 and np.isfinite(var):
         r2 = float(1.0 - mse / (var + 1e-12))
@@ -869,17 +906,21 @@ def per_horizon_metrics(
         pp = P[:, h]
         mask = np.isfinite(yy) & np.isfinite(pp)
         if mask.sum() == 0:
-            mae_dict[f"H{h+1}"] = None
-            r2_dict[f"H{h+1}"] = None
+            mae_dict[f"H{h + 1}"] = None
+            r2_dict[f"H{h + 1}"] = None
             continue
 
         d = yy[mask] - pp[mask]
         mae = float(np.mean(np.abs(d)))
-        mse = float(np.mean(d ** 2))
+        mse = float(np.mean(d**2))
         var = float(np.var(yy[mask]))
-        r2 = float(1.0 - mse / (var + 1e-12)) if var > 0 else float("nan")
+        r2 = (
+            float(1.0 - mse / (var + 1e-12))
+            if var > 0
+            else float("nan")
+        )
 
-        mae_dict[f"H{h+1}"] = mae
-        r2_dict[f"H{h+1}"] = r2
+        mae_dict[f"H{h + 1}"] = mae
+        r2_dict[f"H{h + 1}"] = r2
 
     return mae_dict, r2_dict

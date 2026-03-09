@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -7,19 +6,20 @@
 
 import numpy as np
 
-from .._optdeps import with_progress 
-from ..utils.validator import check_is_fitted 
+from .._optdeps import with_progress
 from ..utils.shapes import (
     canonicalize_BHQO,
 )
+from ..utils.validator import check_is_fitted
 from . import KERAS_DEPS
 
-tf_concat=KERAS_DEPS.concat 
-tf_stack = KERAS_DEPS.stack 
-tf_expand_dims = KERAS_DEPS.expand_dims 
+tf_concat = KERAS_DEPS.concat
+tf_stack = KERAS_DEPS.stack
+tf_expand_dims = KERAS_DEPS.expand_dims
 tf_convert = KERAS_DEPS.convert_to_tensor
-tf_minimum =KERAS_DEPS.minimum 
-tf_maximum =KERAS_DEPS.maximum 
+tf_minimum = KERAS_DEPS.minimum
+tf_maximum = KERAS_DEPS.maximum
+
 
 class IntervalCalibrator:
     r"""
@@ -79,7 +79,6 @@ class IntervalCalibrator:
         self.target = float(target)
         self.max_iter = int(max_iter)
         self.tol = float(tol)
-        
 
     @staticmethod
     def _coverage(y, lo, hi):
@@ -87,7 +86,7 @@ class IntervalCalibrator:
 
     def _fit_one(self, y, qlo, qmed, qhi):
         # Flatten batch dims; keep scalar factor per horizon
-        y  = y.reshape(-1)
+        y = y.reshape(-1)
         lo = qlo.reshape(-1)
         md = qmed.reshape(-1)
         hi = qhi.reshape(-1)
@@ -140,15 +139,15 @@ class IntervalCalibrator:
         """
         # self.factors_ = None  # shape: (H,)
         y_true = np.array(y_true)
-        q_lo   = np.array(q_lo)
-        q_med  = np.array(q_med)
-        q_hi   = np.array(q_hi)
+        q_lo = np.array(q_lo)
+        q_med = np.array(q_med)
+        q_hi = np.array(q_hi)
 
         if y_true.ndim == 3 and y_true.shape[-1] == 1:
             y_true = y_true[..., 0]
-            q_lo   = q_lo[..., 0]
-            q_med  = q_med[..., 0]
-            q_hi   = q_hi[..., 0]
+            q_lo = q_lo[..., 0]
+            q_med = q_med[..., 0]
+            q_hi = q_hi[..., 0]
 
         H = q_med.shape[1]
 
@@ -206,21 +205,27 @@ class IntervalCalibrator:
         * The output keeps the input dimensionality (``(N, H)`` or
           ``(N, H, 1)``).
         """
-        check_is_fitted (self, attributes =['factors_'])
- 
-        q_lo = np.array(q_lo); q_med = np.array(q_med); q_hi = np.array(q_hi)
+        check_is_fitted(self, attributes=["factors_"])
+
+        q_lo = np.array(q_lo)
+        q_med = np.array(q_med)
+        q_hi = np.array(q_hi)
         squeeze = False
         if q_med.ndim == 3 and q_med.shape[-1] == 1:
             squeeze = True
-            q_lo  = q_lo[..., 0]; q_med = q_med[..., 0]; q_hi = q_hi[..., 0]
+            q_lo = q_lo[..., 0]
+            q_med = q_med[..., 0]
+            q_hi = q_hi[..., 0]
 
         fs = self.factors_[None, :]  # (1,H)
         lo_c = q_med - fs * (q_med - q_lo)
-        hi_c = q_med + fs * (q_hi  - q_med)
+        hi_c = q_med + fs * (q_hi - q_med)
 
         if squeeze:
-            lo_c = lo_c[..., None]; hi_c = hi_c[..., None]
+            lo_c = lo_c[..., None]
+            hi_c = hi_c[..., None]
         return lo_c, hi_c
+
 
 def _extract_subs_pred(model, out):
     r"""
@@ -290,6 +295,7 @@ def _extract_subs_pred(model, out):
         f"Got keys={list(out.keys())!r}."
     )
 
+
 def _stack_subs_quantiles(s_pred_q):
     r"""
     Extract (lo, med, hi) from subsidence quantiles.
@@ -330,7 +336,9 @@ def _stack_subs_quantiles(s_pred_q):
             axis=-1,
         )
 
-    rank = getattr(getattr(s_pred_q, "shape", None), "rank", None)
+    rank = getattr(
+        getattr(s_pred_q, "shape", None), "rank", None
+    )
     if rank is not None and rank != 4:
         raise ValueError(
             "Expected rank-4 quantile tensor. "
@@ -349,19 +357,20 @@ def _stack_subs_quantiles(s_pred_q):
     lo = s_pred_q[:, :, 0, :]
     med = s_pred_q[:, :, 1, :]
     hi = s_pred_q[:, :, 2, :]
-    
+
     lo2 = tf_minimum(lo, hi)
     hi2 = tf_maximum(lo, hi)
     lo, hi = lo2, hi2
-    
+
     return lo, med, hi
+
 
 def fit_interval_calibrator_on_val(
     model,
     ds_val,
     target=0.80,
     log_fn=None,
-    q_values =None, 
+    q_values=None,
     **tqdm_kws,
 ):
     r"""
@@ -447,7 +456,9 @@ def fit_interval_calibrator_on_val(
                 log_fn=log_fn or (lambda *_: None),
             )
 
-        rank = getattr(getattr(s_pred, "shape", None), "rank", None)
+        rank = getattr(
+            getattr(s_pred, "shape", None), "rank", None
+        )
         if rank is not None and rank != 4:
             raise ValueError(
                 "Interval calibration requires quantiles. "
@@ -504,7 +515,11 @@ def apply_calibrator_to_subs(cal, s_pred_q):
     >>> s_q_cal = apply_calibrator_to_subs(cal, s_q_test)
     """
 
-    lo, med, hi = _stack_subs_quantiles(s_pred_q)      # (B,H,1) each
-    lo_c, hi_c  = cal.transform(lo, med, hi)           # (B,H,1) each
-    s_cal = tf_stack([lo_c[...,0], med[...,0], hi_c[...,0]], axis=2)[..., None]
+    lo, med, hi = _stack_subs_quantiles(
+        s_pred_q
+    )  # (B,H,1) each
+    lo_c, hi_c = cal.transform(lo, med, hi)  # (B,H,1) each
+    s_cal = tf_stack(
+        [lo_c[..., 0], med[..., 0], hi_c[..., 0]], axis=2
+    )[..., None]
     return s_cal

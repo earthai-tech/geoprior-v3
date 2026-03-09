@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
+
 """
 Debug output ordering between:
   (A) in-memory model (same process)
@@ -28,7 +28,7 @@ import argparse
 import json
 import os
 from dataclasses import dataclass
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 import numpy as np
 import tensorflow as tf
@@ -65,7 +65,7 @@ def _try_make_windows_batch(
     step: int,
     n_years: int,
     n_static: int,
-) -> Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray]]:
+) -> tuple[dict[str, np.ndarray], dict[str, np.ndarray]]:
     """
     Try to use your sm3_synthetic_identifiability.make_windows().
     If not available, raise to fallback generator.
@@ -80,28 +80,31 @@ def _try_make_windows_batch(
     # Simple identifiability-like driver:
     # dh = drawdown (positive)
     t = np.linspace(0.0, 1.0, n_years).astype(np.float32)
-    dh = (0.6 * t + 0.15 * np.sin(2 * np.pi * t)).astype(np.float32)
+    dh = (0.6 * t + 0.15 * np.sin(2 * np.pi * t)).astype(
+        np.float32
+    )
 
     # settlement cumulative proxy
     s_cum = np.cumsum(dh).astype(np.float32)
 
-    static_vec = np.linspace(0.1, 1.0, n_static).astype(np.float32)
+    static_vec = np.linspace(0.1, 1.0, n_static).astype(
+        np.float32
+    )
 
-    
     X, y, t_rng = make_windows(
         years,
         dh,
         s_cum,
         static_vec,
-        time_steps=lookback,              # was lookback=
-        forecast_horizon=horizon,         # was horizon=
-        H_field_value=1.0,                # any float is fine for this test
-        z_surf_static_index=0,            # REQUIRED kw-only arg
+        time_steps=lookback,  # was lookback=
+        forecast_horizon=horizon,  # was horizon=
+        H_field_value=1.0,  # any float is fine for this test
+        z_surf_static_index=0,  # REQUIRED kw-only arg
     )
 
     # Force target keys to the model contract if needed.
     # (Some generators use y_subs/y_gwl; we normalize below.)
-    y_out: Dict[str, np.ndarray] = {}
+    y_out: dict[str, np.ndarray] = {}
 
     if isinstance(y, dict):
         if "subs_pred" in y:
@@ -136,18 +139,26 @@ def _fallback_batch(
     horizon: int,
     n_static: int,
     n_samples: int,
-) -> Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray]]:
+) -> tuple[dict[str, np.ndarray], dict[str, np.ndarray]]:
     """
     Minimal synthetic batch if make_windows isn't importable.
     """
     rng = np.random.default_rng(0)
 
-    x_dyn = rng.normal(size=(n_samples, lookback, 2)).astype(np.float32)
-    x_static = rng.normal(size=(n_samples, n_static)).astype(np.float32)
+    x_dyn = rng.normal(size=(n_samples, lookback, 2)).astype(
+        np.float32
+    )
+    x_static = rng.normal(size=(n_samples, n_static)).astype(
+        np.float32
+    )
 
     # Targets: (B, H) (we'll broadcast to quantiles in loss)
-    y_subs = rng.normal(size=(n_samples, horizon)).astype(np.float32)
-    y_gwl = rng.normal(size=(n_samples, horizon)).astype(np.float32)
+    y_subs = rng.normal(size=(n_samples, horizon)).astype(
+        np.float32
+    )
+    y_gwl = rng.normal(size=(n_samples, horizon)).astype(
+        np.float32
+    )
 
     X = {"x_dyn": x_dyn, "x_static": x_static}
     y = {"subs_pred": y_subs, "gwl_pred": y_gwl}
@@ -161,7 +172,9 @@ def _fallback_batch(
 # -----------------------------
 @tf.keras.utils.register_keras_serializable()
 class ToyDictModel(tf.keras.Model):
-    def __init__(self, *, horizon: int, quantiles: List[float]):
+    def __init__(
+        self, *, horizon: int, quantiles: list[float]
+    ):
         super().__init__()
         self.h = int(horizon)
         self.qs = list(quantiles)
@@ -170,10 +183,16 @@ class ToyDictModel(tf.keras.Model):
         self.d1 = tf.keras.layers.Dense(64, activation="relu")
         self.d2 = tf.keras.layers.Dense(64, activation="relu")
 
-        self.subs_head = tf.keras.layers.Dense(self.h * self.q)
+        self.subs_head = tf.keras.layers.Dense(
+            self.h * self.q
+        )
         self.gwl_head = tf.keras.layers.Dense(self.h * self.q)
 
-    def call(self, inputs: Dict[str, tf.Tensor], training: bool = False):
+    def call(
+        self,
+        inputs: dict[str, tf.Tensor],
+        training: bool = False,
+    ):
         flat = []
         for k in sorted(inputs.keys()):
             v = tf.cast(inputs[k], tf.float32)
@@ -191,7 +210,7 @@ class ToyDictModel(tf.keras.Model):
 
         # IMPORTANT: dict output (your real model does this too)
         return {"subs_pred": s, "gwl_pred": g}
-    
+
     def get_config(self):
         cfg = super().get_config()
         cfg.update(
@@ -208,6 +227,7 @@ class ToyDictModel(tf.keras.Model):
             horizon=config["horizon"],
             quantiles=config["quantiles"],
         )
+
 
 def _as_rank4(y: tf.Tensor) -> tf.Tensor:
     y = tf.cast(y, tf.float32)
@@ -246,7 +266,9 @@ def _shape_str(x: Any) -> str:
         return str(x)
 
 
-def _quantile_monotonicity(arr: np.ndarray, q_axis: int = 2) -> float:
+def _quantile_monotonicity(
+    arr: np.ndarray, q_axis: int = 2
+) -> float:
     a = _np(arr)
     if a.ndim <= q_axis:
         return 0.0
@@ -254,23 +276,25 @@ def _quantile_monotonicity(arr: np.ndarray, q_axis: int = 2) -> float:
     if q < 2:
         return 1.0
 
-    ok = np.ones(a.shape[:q_axis] + a.shape[q_axis+1:], dtype=bool)
+    ok = np.ones(
+        a.shape[:q_axis] + a.shape[q_axis + 1 :], dtype=bool
+    )
     for i in range(q - 1):
         qi = np.take(a, i, axis=q_axis)
         qj = np.take(a, i + 1, axis=q_axis)
-        ok &= (qi <= qj)
+        ok &= qi <= qj
     return float(np.mean(ok))
 
 
 def _infer_list_mapping(
-    call_out: Dict[str, np.ndarray],
-    pred_list: List[np.ndarray],
-) -> Dict[int, str]:
+    call_out: dict[str, np.ndarray],
+    pred_list: list[np.ndarray],
+) -> dict[int, str]:
     """
     Find which pred_list[i] matches which call_out[key]
     by smallest RMS difference.
     """
-    mapping: Dict[int, str] = {}
+    mapping: dict[int, str] = {}
     keys = list(call_out.keys())
 
     for i, a in enumerate(pred_list):
@@ -291,7 +315,7 @@ def _infer_list_mapping(
 def _stage2_like_pred_dict(
     model: tf.keras.Model,
     pred_out: Any,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """
     Mimic the stage2 logic you currently use:
     - if dict: keep it
@@ -301,10 +325,18 @@ def _stage2_like_pred_dict(
     if isinstance(pred_out, dict):
         return {k: _np(v) for k, v in pred_out.items()}
 
-    if isinstance(pred_out, (list, tuple)):
+    if isinstance(pred_out, list | tuple):
         out_names = getattr(model, "output_names", []) or []
-        if len(out_names) == len(pred_out) and len(out_names) > 0:
-            return {k: _np(v) for k, v in zip(out_names, pred_out)}
+        if (
+            len(out_names) == len(pred_out)
+            and len(out_names) > 0
+        ):
+            return {
+                k: _np(v)
+                for k, v in zip(
+                    out_names, pred_out, strict=False
+                )
+            }
 
         if len(pred_out) >= 2:
             return {
@@ -312,14 +344,16 @@ def _stage2_like_pred_dict(
                 "gwl_pred": _np(pred_out[1]),
             }
 
-    raise TypeError(f"Unsupported predict() type: {type(pred_out)}")
+    raise TypeError(
+        f"Unsupported predict() type: {type(pred_out)}"
+    )
 
 
 def _run_one(
     *,
     tag: str,
     model: tf.keras.Model,
-    x_batch: Dict[str, tf.Tensor],
+    x_batch: dict[str, tf.Tensor],
 ):
     print("\n" + "=" * 72)
     print(f"[{tag}] call() outputs")
@@ -353,8 +387,10 @@ def _run_one(
     print(f"  predict type: {type(pred_out)}")
     if isinstance(pred_out, dict):
         for k in sorted(pred_out.keys()):
-            print(f"  - {k:10s} shape={_shape_str(pred_out[k])}")
-    elif isinstance(pred_out, (list, tuple)):
+            print(
+                f"  - {k:10s} shape={_shape_str(pred_out[k])}"
+            )
+    elif isinstance(pred_out, list | tuple):
         print(f"  predict list len={len(pred_out)}")
         for i, a in enumerate(pred_out):
             print(f"  - [{i}] shape={_shape_str(a)}")
@@ -362,7 +398,7 @@ def _run_one(
         print(f"  predict value={pred_out}")
 
     # Infer mapping if list/tuple
-    if isinstance(pred_out, (list, tuple)):
+    if isinstance(pred_out, list | tuple):
         mapping = _infer_list_mapping(call_np, list(pred_out))
         print("\n  inferred mapping (predict idx -> key):")
         for i in range(len(pred_out)):
@@ -386,7 +422,9 @@ def _run_one(
         a = pred_dict[k]
         b = call_np[k]
         if a.shape != b.shape:
-            print(f"  - {k:10s} SHAPE MISMATCH {a.shape} {b.shape}")
+            print(
+                f"  - {k:10s} SHAPE MISMATCH {a.shape} {b.shape}"
+            )
             continue
         rms = float(np.sqrt(np.mean((a - b) ** 2)))
         print(f"  - {k:10s} rms_diff={rms:.6e}")
@@ -395,15 +433,19 @@ def _run_one(
 # -----------------------------
 # Bundle save/load helpers
 # -----------------------------
-def _write_min_manifest(path: str, payload: Dict[str, Any]) -> None:
+def _write_min_manifest(
+    path: str, payload: dict[str, Any]
+) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2, sort_keys=True)
+
 
 def _toy_builder(manifest: dict) -> tf.keras.Model:
     horizon = int(manifest.get("horizon", 3))
     quantiles = manifest.get("quantiles", [0.1, 0.5, 0.9])
     return ToyDictModel(horizon=horizon, quantiles=quantiles)
+
 
 # -----------------------------
 # Main
@@ -436,7 +478,7 @@ def main() -> None:
     p.add_argument("--n-years", type=int, default=18)
     p.add_argument("--n-static", type=int, default=8)
     ns = p.parse_args()
-    
+
     args = Args(
         outdir=str(ns.outdir),
         epochs=int(ns.epochs),
@@ -526,10 +568,12 @@ def main() -> None:
     # If not, we save a SavedModel + weights.
     # --- save weights-only bundle (robust for subclassed models)
     compat = _import_compat_loader()
-    
-    saved_ok =False 
+
+    saved_ok = False
     keras_path = None
-    weights_path = os.path.join(args.outdir, "model.weights.h5")
+    weights_path = os.path.join(
+        args.outdir, "model.weights.h5"
+    )
     manifest_path = os.path.join(args.outdir, "manifest.json")
 
     if hasattr(compat, "save_bundle"):
@@ -553,7 +597,9 @@ def main() -> None:
 
     if not saved_ok:
         # fallback: save weights + SavedModel
-        wpath = os.path.join(args.outdir, "weights.weights.h5")
+        wpath = os.path.join(
+            args.outdir, "weights.weights.h5"
+        )
         spath = os.path.join(args.outdir, "saved_model")
         model_mem.save_weights(wpath)
         tf.saved_model.save(model_mem, spath)
@@ -572,10 +618,13 @@ def main() -> None:
                 build_inputs=x_batch,
                 prefer_full_model=False,
             )
-            print("\n[load] loaded via compat.load_bundle_for_inference()")
+            print(
+                "\n[load] loaded via compat.load_bundle_for_inference()"
+            )
         except Exception as e:
             raise RuntimeError(
-                "compat.load_bundle_for_inference failed: " + str(e)
+                "compat.load_bundle_for_inference failed: "
+                + str(e)
             )
     else:
         raise RuntimeError(
@@ -586,7 +635,9 @@ def main() -> None:
     _ = model_load(x_batch, training=False)
 
     # --------- run diagnostics
-    _run_one(tag="IN_MEMORY", model=model_mem, x_batch=x_batch)
+    _run_one(
+        tag="IN_MEMORY", model=model_mem, x_batch=x_batch
+    )
     _run_one(tag="LOADED", model=model_load, x_batch=x_batch)
 
     print("\nDONE.")

@@ -12,32 +12,53 @@ import pytest
 
 # --- Attempt to import tuner functions and dependencies ---
 try:
-    from fusionlab.nn.forecast_tuner._tft_tuner import XTFTTuner, TFTTuner
     # from fusionlab.core.io import _get_valid_kwargs # Not used in this test file
     import keras_tuner as kt
+    from fusionlab.nn.forecast_tuner._tft_tuner import (
+        TFTTuner,
+        XTFTTuner,
+    )
+
     FUSIONLAB_INSTALLED = True
     HAS_KT = True
 except ImportError as e:
-    print(f"Skipping forecast_tuner tests due to import error: {e}")
+    print(
+        f"Skipping forecast_tuner tests due to import error: {e}"
+    )
     FUSIONLAB_INSTALLED = False
     HAS_KT = False
-    class XTFT: pass
-    class SuperXTFT: pass
-    class TFTFlexible: pass # Use alias
-    class TFTStricter: pass # Use alias
-    def xtft_tuner(*args, **kwargs): raise ImportError("xtft_tuner not found")
-    def tft_tuner(*args, **kwargs): raise ImportError("tft_tuner not found")
+
+    class XTFT:
+        pass
+
+    class SuperXTFT:
+        pass
+
+    class TFTFlexible:
+        pass  # Use alias
+
+    class TFTStricter:
+        pass  # Use alias
+
+    def xtft_tuner(*args, **kwargs):
+        raise ImportError("xtft_tuner not found")
+
+    def tft_tuner(*args, **kwargs):
+        raise ImportError("tft_tuner not found")
+
     class kt:
-        class Tuner: pass
-    
+        class Tuner:
+            pass
+
 # --- End Imports ---
-# XXX TO OPTIMIZE later : SKIP for Now; 
-# HAS_KT =False 
+# XXX TO OPTIMIZE later : SKIP for Now;
+# HAS_KT =False
 
 pytestmark = pytest.mark.skipif(
     not (FUSIONLAB_INSTALLED and HAS_KT),
-    reason="Keras Tuner or fusionlab components not found"
+    reason="Keras Tuner or fusionlab components not found",
 )
+
 
 # ------------------------------------------------------------------
 # Fixtures
@@ -63,9 +84,9 @@ def _run_quick_tune(tuner_cls, model_name, inputs, y, fh):
     tuner = tuner_cls(
         model_name=model_name,
         max_trials=1,
-        epochs=1,               # refit epochs
+        epochs=1,  # refit epochs
         batch_sizes=[2],
-        search_epochs=1,        # speed‑up search phase
+        search_epochs=1,  # speed‑up search phase
         validation_split=0.25,
         verbose=3,
     )
@@ -93,7 +114,11 @@ def _run_quick_tune(tuner_cls, model_name, inputs, y, fh):
         (XTFTTuner, "xtft", True),
         (XTFTTuner, "super_xtft", True),
         (TFTTuner, "tft", True),
-        (TFTTuner, "tft_flex", False),  # flexible variant works w/o static/future
+        (
+            TFTTuner,
+            "tft_flex",
+            False,
+        ),  # flexible variant works w/o static/future
     ],
 )
 def test_tuner_smoke(
@@ -112,5 +137,5 @@ def test_tuner_smoke(
     _run_quick_tune(tuner_cls, model_name, inputs, y, fh)
 
 
-if __name__=='__main__': 
+if __name__ == "__main__":
     pytest.main([__file__])

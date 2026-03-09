@@ -1,4 +1,3 @@
+from ._geoprior_tuner import SubsNetTuner
 
-from ._geoprior_tuner import SubsNetTuner 
-
-__all__= [ 'SubsNetTuner']
+__all__ = ["SubsNetTuner"]

@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
@@ -42,11 +41,11 @@ Examples
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import json
+from collections.abc import Mapping
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional
-
+from typing import Any
 
 __all__ = [
     "find_stage1_run_dir",
@@ -73,7 +72,7 @@ def _as_path(p: Any) -> Path:
     return Path(str(p))
 
 
-def load_json(path: Any) -> Dict[str, Any]:
+def load_json(path: Any) -> dict[str, Any]:
     p = _as_path(path)
     with p.open("r", encoding="utf-8") as f:
         return json.load(f)
@@ -96,7 +95,9 @@ def find_stage1_run_dir(
     """
     root = _as_path(results_root)
     if not root.exists():
-        raise FileNotFoundError(f"results_root not found: {root}")
+        raise FileNotFoundError(
+            f"results_root not found: {root}"
+        )
 
     city_s = str(city).strip()
     model_s = str(model).strip()
@@ -121,7 +122,7 @@ def find_stage1_run_dir(
     )
 
 
-def load_stage1_manifest(run_dir: Any) -> Dict[str, Any]:
+def load_stage1_manifest(run_dir: Any) -> dict[str, Any]:
     """
     Load manifest.json from Stage-1 run directory.
 
@@ -147,7 +148,7 @@ def load_stage1_manifest(run_dir: Any) -> Dict[str, Any]:
 def load_stage1_scaling_audit(
     run_dir: Any,
     allow_missing: bool = False,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """
     Load stage1_scaling_audit.json from Stage-1 run directory.
 
@@ -176,7 +177,7 @@ def load_stage1_scaling_audit(
 def resolve_artifact_path(
     run_dir: Any,
     stored_path: Any,
-    artifacts_dir: Optional[Any] = None,
+    artifacts_dir: Any | None = None,
     strict: bool = True,
 ) -> Path:
     """
@@ -226,8 +227,8 @@ def resolve_artifact_path(
 
 def infer_target_cols(
     manifest: Mapping[str, Any],
-    scaling_audit: Optional[Mapping[str, Any]] = None,
-) -> Dict[str, str]:
+    scaling_audit: Mapping[str, Any] | None = None,
+) -> dict[str, str]:
     """Infer target column names from Stage-1.
 
     (subsidence + groundwater target: depth/head).
@@ -242,7 +243,9 @@ def infer_target_cols(
 
     subs = cols.get("subs_model") or cols.get("subs_raw")
     if not subs:
-        raise KeyError("subs cols missing in manifest.config.cols")
+        raise KeyError(
+            "subs cols missing in manifest.config.cols"
+        )
 
     # Prefer explicit target-kind from conventions; fall back to audit.
     conv = cfg.get("conventions", {})
@@ -252,7 +255,9 @@ def infer_target_cols(
     aud_has_head = False
     if scaling_audit:
         ts = scaling_audit.get("targets_stats", {})
-        aud_has_head = any("gwl(head" in str(k) for k in ts.keys())
+        aud_has_head = any(
+            "gwl(head" in str(k) for k in ts.keys()
+        )
 
     use_head = False
     if str(tgt_kind).lower().strip() == "head":
@@ -266,15 +271,17 @@ def infer_target_cols(
         gwl = cols.get("depth_model") or cols.get("depth_raw")
 
     if not gwl:
-        raise KeyError("gwl target cols missing in manifest.config.cols")
+        raise KeyError(
+            "gwl target cols missing in manifest.config.cols"
+        )
 
     return {"subs": str(subs), "gwl": str(gwl)}
 
 
 def get_stage1_scaler_info(
     manifest: Mapping[str, Any],
-    scaling_audit: Optional[Mapping[str, Any]] = None,
-) -> Dict[str, Any]:
+    scaling_audit: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     Extract Stage-1 scaler_info mapping.
 
@@ -298,8 +305,8 @@ def get_stage1_scaler_info(
 
 def get_scaled_ml_numeric_cols(
     manifest: Mapping[str, Any],
-    scaling_audit: Optional[Mapping[str, Any]] = None,
-) -> List[str]:
+    scaling_audit: Mapping[str, Any] | None = None,
+) -> list[str]:
     """Return ML numeric columns scaled by Stage-1."""
     art = manifest.get("artifacts", {})
     enc = art.get("encoders", {})
@@ -321,7 +328,7 @@ def load_stage1_csv_path(
     run_dir: Any,
     kind: str = "scaled",
     strict: bool = True,
-) -> Optional[Path]:
+) -> Path | None:
     """Return a Stage-1 CSV artifact path.
 
     kind: 'raw', 'clean', or 'scaled'.
@@ -342,7 +349,7 @@ def load_stage1_csv_path(
 def scale_ml_numeric_frame(
     df: Any,
     main_scaler: Any,
-    cols: List[str],
+    cols: list[str],
     copy: bool = True,
 ) -> Any:
     """
@@ -436,7 +443,7 @@ def load_ohe_encoders(
     manifest: Mapping[str, Any],
     run_dir: Any,
     strict: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Load OHE encoders from manifest if present.
 
@@ -448,7 +455,7 @@ def load_ohe_encoders(
     if not isinstance(ohe, dict) or not ohe:
         return {}
 
-    out: Dict[str, Any] = {}
+    out: dict[str, Any] = {}
     for k, p in ohe.items():
         if not p:
             continue
@@ -470,11 +477,11 @@ def load_stage1_scalers(
     manifest: Mapping[str, Any],
     run_dir: Any,
     strict: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Load Stage-1 scalers/encoders referenced by the manifest.
     """
-    out: Dict[str, Any] = {}
+    out: dict[str, Any] = {}
     out["main_scaler"] = load_main_scaler(
         manifest,
         run_dir,
@@ -500,13 +507,13 @@ class Stage1Bundle:
     model: str
     run_dir: Path
 
-    manifest: Dict[str, Any]
-    scaling_audit: Optional[Dict[str, Any]] = None
+    manifest: dict[str, Any]
+    scaling_audit: dict[str, Any] | None = None
 
-    target_cols: Dict[str, str] = field(default_factory=dict)
-    scalers: Dict[str, Any] = field(default_factory=dict)
-    scaler_info: Dict[str, Any] = field(default_factory=dict)
-    scaled_ml_numeric_cols: Optional[List[str]] = None
+    target_cols: dict[str, str] = field(default_factory=dict)
+    scalers: dict[str, Any] = field(default_factory=dict)
+    scaler_info: dict[str, Any] = field(default_factory=dict)
+    scaled_ml_numeric_cols: list[str] | None = None
 
 
 def load_stage1_bundle(
@@ -528,7 +535,9 @@ def load_stage1_bundle(
     )
     manifest = load_stage1_manifest(run_dir)
 
-    aud = load_stage1_scaling_audit(run_dir, allow_missing=True)
+    aud = load_stage1_scaling_audit(
+        run_dir, allow_missing=True
+    )
 
     targets = infer_target_cols(
         manifest=manifest,
@@ -543,7 +552,7 @@ def load_stage1_bundle(
         scaling_audit=aud,
     )
 
-    scalers: Dict[str, Any] = {}
+    scalers: dict[str, Any] = {}
     if load_scalers_flag:
         scalers = load_stage1_scalers(
             manifest=manifest,
@@ -563,4 +572,3 @@ def load_stage1_bundle(
         scaler_info=scaler_info,
         scaled_ml_numeric_cols=cols,
     )
-

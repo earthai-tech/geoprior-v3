@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -55,8 +54,8 @@ from __future__ import annotations
 import argparse
 import json
 import warnings
+from collections.abc import Callable, Iterable
 from pathlib import Path
-from typing import Callable, Iterable, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -85,7 +84,7 @@ def _require_cols(
 def _mask_pair(
     x: np.ndarray,
     y: np.ndarray,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     x = np.asarray(x, float)
     y = np.asarray(y, float)
     m = np.isfinite(x) & np.isfinite(y)
@@ -111,7 +110,7 @@ def _spearman(x: np.ndarray, y: np.ndarray) -> float:
 def _linfit_stats(
     x: np.ndarray,
     y: np.ndarray,
-) -> Tuple[float, float, float]:
+) -> tuple[float, float, float]:
     x = np.asarray(x, float)
     y = np.asarray(y, float)
 
@@ -145,7 +144,9 @@ def _linfit_stats(
     yhat = inter + slope * xx
     ss_res = float(np.nansum((yy - yhat) ** 2))
     ss_tot = float(np.nansum((yy - np.nanmean(yy)) ** 2))
-    r2 = float("nan") if ss_tot <= 0 else 1.0 - ss_res / ss_tot
+    r2 = (
+        float("nan") if ss_tot <= 0 else 1.0 - ss_res / ss_tot
+    )
 
     return (float(slope), float(inter), float(r2))
 
@@ -178,7 +179,7 @@ def _boot_ci(
     a: np.ndarray,
     *,
     ci: float,
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     a = np.asarray(a, float)
     a = a[np.isfinite(a)]
     if a.size == 0:
@@ -210,7 +211,9 @@ def _fmt_ci(
 # -------------------------------------------------------------------
 # CLI
 # -------------------------------------------------------------------
-def _parse_args(argv: Optional[List[str]]) -> argparse.Namespace:
+def _parse_args(
+    argv: list[str] | None,
+) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         prog="plot-sm3-identifiability",
         description="SM3: Synthetic identifiability figure.",
@@ -366,7 +369,7 @@ def plot_sm3_identifiability(
     show_ticklabels: bool,
     show_panel_titles: bool,
     show_title: bool,
-    title: Optional[str],
+    title: str | None,
     show_stats: bool,
     show_ci: bool,
     n_boot: int,
@@ -446,8 +449,8 @@ def plot_sm3_identifiability(
         *,
         nd: int,
         seed_off: int,
-        est: Optional[float] = None,
-    ) -> Tuple[dict, str]:
+        est: float | None = None,
+    ) -> tuple[dict, str]:
         est_v = float(fn(x, y)) if est is None else float(est)
 
         lo = float("nan")
@@ -497,9 +500,15 @@ def plot_sm3_identifiability(
     y_tau = np.log10(t_est.to_numpy(float))
 
     kappa = np.clip(df["kappa_b"].to_numpy(float), eps, None)
-    K_est = np.clip(df["K_est_med_mps"].to_numpy(float), eps, None)
-    Ss_est = np.clip(df["Ss_est_med"].to_numpy(float), eps, None)
-    Hd_est = np.clip(df["Hd_est_med"].to_numpy(float), eps, None)
+    K_est = np.clip(
+        df["K_est_med_mps"].to_numpy(float), eps, None
+    )
+    Ss_est = np.clip(
+        df["Ss_est_med"].to_numpy(float), eps, None
+    )
+    Hd_est = np.clip(
+        df["Hd_est_med"].to_numpy(float), eps, None
+    )
 
     tau_cl = (Hd_est**2) * Ss_est / (np.pi**2 * kappa * K_est)
     tau_cl = np.clip(tau_cl, eps, None)
@@ -543,7 +552,9 @@ def plot_sm3_identifiability(
     # -------------------------
     # Panel (b): K recovery
     # -------------------------
-    K_true = np.clip(df["K_true_mps"].to_numpy(float), eps, None)
+    K_true = np.clip(
+        df["K_true_mps"].to_numpy(float), eps, None
+    )
     x_K = np.log10(K_true * sec_per_year)
 
     if k_from_tau:
@@ -555,19 +566,35 @@ def plot_sm3_identifiability(
 
         src = str(k_cl_source).strip().lower()
         if src == "true":
-            Ss_use = np.clip(df["Ss_true"].to_numpy(float), eps, None)
-            Hd_use = np.clip(df["Hd_true"].to_numpy(float), eps, None)
+            Ss_use = np.clip(
+                df["Ss_true"].to_numpy(float), eps, None
+            )
+            Hd_use = np.clip(
+                df["Hd_true"].to_numpy(float), eps, None
+            )
         elif src == "est":
-            Ss_use = np.clip(df["Ss_est_med"].to_numpy(float), eps, None)
-            Hd_use = np.clip(df["Hd_est_med"].to_numpy(float), eps, None)
+            Ss_use = np.clip(
+                df["Ss_est_med"].to_numpy(float), eps, None
+            )
+            Hd_use = np.clip(
+                df["Hd_est_med"].to_numpy(float), eps, None
+            )
         else:
-            Ss_use = np.clip(df["Ss_prior"].to_numpy(float), eps, None)
-            Hd_use = np.clip(df["Hd_prior"].to_numpy(float), eps, None)
+            Ss_use = np.clip(
+                df["Ss_prior"].to_numpy(float), eps, None
+            )
+            Hd_use = np.clip(
+                df["Hd_prior"].to_numpy(float), eps, None
+            )
 
-        K_cl_mps = (Hd_use**2) * Ss_use / (
-            np.pi**2 * kappa * tau_est_sec
+        K_cl_mps = (
+            (Hd_use**2)
+            * Ss_use
+            / (np.pi**2 * kappa * tau_est_sec)
         )
-        y_K = np.log10(np.clip(K_cl_mps * sec_per_year, eps, None))
+        y_K = np.log10(
+            np.clip(K_cl_mps * sec_per_year, eps, None)
+        )
 
         title_b = "Permeability from closure"
         ylab_b = r"$\log_{10}\,K_{cl}(\hat{\tau})$ (m/yr)"
@@ -669,10 +696,15 @@ def plot_sm3_identifiability(
     # -------------------------
     # Summary outputs (out/)
     # -------------------------
-    stats_rows: List[dict] = [
-        s_mae, s_r2, s_sl,
-        s_maeK, s_r2K, s_slK,
-        s_rhoR, s_rhoI,
+    stats_rows: list[dict] = [
+        s_mae,
+        s_r2,
+        s_sl,
+        s_maeK,
+        s_r2K,
+        s_slK,
+        s_rhoR,
+        s_rhoI,
     ]
 
     meta = {
@@ -705,7 +737,12 @@ def plot_sm3_identifiability(
     # Plot styling + plotting
     # -------------------------
     lith = df["lith_idx"].to_numpy(int)
-    lith_names = {0: "Fine", 1: "Mixed", 2: "Coarse", 3: "Rock"}
+    lith_names = {
+        0: "Fine",
+        1: "Mixed",
+        2: "Coarse",
+        3: "Rock",
+    }
     markers = {0: "o", 1: "s", 2: "^", 3: "D"}
 
     def _beautify(ax: plt.Axes) -> None:
@@ -955,7 +992,9 @@ def plot_sm3_identifiability(
         )
 
     if show_panel_titles:
-        axD.set_title("Error vs identifiability metric", pad=2)
+        axD.set_title(
+            "Error vs identifiability metric", pad=2
+        )
 
     if show_labels:
         axD.set_xlabel(r"$|\Delta\log_{10}\tau|$")
@@ -980,7 +1019,7 @@ def plot_sm3_identifiability(
 
     # shared legend
     if show_legend:
-        handles: List[Line2D] = []
+        handles: list[Line2D] = []
         for i in sorted(np.unique(lith)):
             handles.append(
                 Line2D(
@@ -1043,7 +1082,7 @@ def plot_sm3_identifiability(
     #             bbox_inches="tight")
     # fig.savefig(str(fig_p) + ".svg", bbox_inches="tight")
     # plt.close(fig)
-    utils.save_figure(fig, out, dpi= int(dpi))
+    utils.save_figure(fig, out, dpi=int(dpi))
 
     # print(f"[OK] figs -> {fig_p}.png/.svg")
     # print(f"[OK] table -> {out_csv_p}")
@@ -1054,7 +1093,7 @@ def plot_sm3_identifiability(
 # Main
 # -------------------------------------------------------------------
 def plot_sm3_identifiability_main(
-    argv: Optional[List[str]] = None,
+    argv: list[str] | None = None,
 ) -> None:
     args = _parse_args(argv)
 
@@ -1072,7 +1111,9 @@ def plot_sm3_identifiability_main(
                 "--only-identify set but missing identify column."
             )
         want = str(args.only_identify).strip().lower()
-        got = df["identify"].astype(str).str.strip().str.lower()
+        got = (
+            df["identify"].astype(str).str.strip().str.lower()
+        )
         df = df.loc[got == want].copy()
 
     if args.nx_min is not None:
@@ -1101,22 +1142,34 @@ def plot_sm3_identifiability_main(
     else:
         k_from_tau = utils.str_to_bool(args.k_from_tau)
 
-    show_legend = utils.str_to_bool(args.show_legend, default=True)
-    show_labels = utils.str_to_bool(args.show_labels, default=True)
+    show_legend = utils.str_to_bool(
+        args.show_legend, default=True
+    )
+    show_labels = utils.str_to_bool(
+        args.show_labels, default=True
+    )
     show_ticks = utils.str_to_bool(
         args.show_ticklabels,
         default=True,
     )
-    show_title = utils.str_to_bool(args.show_title, default=True)
+    show_title = utils.str_to_bool(
+        args.show_title, default=True
+    )
     show_pan_t = utils.str_to_bool(
         args.show_panel_titles,
         default=True,
     )
 
     show_ci = utils.str_to_bool(args.show_ci, default=True)
-    show_stats = utils.str_to_bool(args.show_stats, default=True)
-    show_prior = utils.str_to_bool(args.show_prior, default=True)
-    show_tau_cl = utils.str_to_bool(args.show_tau_cl, default=True)
+    show_stats = utils.str_to_bool(
+        args.show_stats, default=True
+    )
+    show_prior = utils.str_to_bool(
+        args.show_prior, default=True
+    )
+    show_tau_cl = utils.str_to_bool(
+        args.show_tau_cl, default=True
+    )
 
     plot_sm3_identifiability(
         df,
@@ -1144,7 +1197,7 @@ def plot_sm3_identifiability_main(
     )
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     plot_sm3_identifiability_main(argv)
 
 

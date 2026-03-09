@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3  https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -53,33 +52,34 @@ import json
 import math
 import os
 from dataclasses import dataclass
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 
+from geoprior.models import (
+    MAEQ50,
+    MSEQ50,
+    Coverage80,
+    FrozenValQuantileLogger,
+    FrozenValQuantileMonitor,
+    GeoPriorSubsNet,
+    Sharpness80,
+    derive_K_from_tau_np,
+    ident_audit_dict,
+    identifiability_diagnostics_from_payload,
+    load_physics_payload,
+    make_weighted_pinball,
+    summarise_effective_params,
+)
+from geoprior.models._shapes import _as_BHQO
 from geoprior.params import (
     FixedGammaW,
     FixedHRef,
     LearnableKappa,
     LearnableMV,
 )
-from geoprior.models import (
-    GeoPriorSubsNet,
-    Coverage80,
-    MAEQ50,
-    MSEQ50,
-    Sharpness80,
-    make_weighted_pinball, 
-    FrozenValQuantileMonitor, 
-    FrozenValQuantileLogger, 
-    identifiability_diagnostics_from_payload,
-    load_physics_payload,
-    summarise_effective_params,
-    derive_K_from_tau_np, ident_audit_dict,
-)
-from geoprior.models._shapes import _as_BHQO
 from geoprior.utils.scale_metrics import resolve_noise_std
 
 SEC_PER_YEAR = 365.25 * 24.0 * 3600.0
@@ -94,7 +94,7 @@ class LithoPrior:
     Hmax: float
 
 
-def litho_priors() -> List[LithoPrior]:
+def litho_priors() -> list[LithoPrior]:
     return [
         LithoPrior(
             "Fine",
@@ -147,9 +147,7 @@ def build_load(
         return dh
 
     if kind != "ramp":
-        raise ValueError(
-            f"Unknown load type: {kind!r}"
-        )
+        raise ValueError(f"Unknown load type: {kind!r}")
 
     for i in range(len(years)):
         if i < step_year:
@@ -166,14 +164,15 @@ def build_load(
 
     return dh
 
+
 def apply_ident_scenario_to_payload(
-    payload: Dict[str, np.ndarray],
+    payload: dict[str, np.ndarray],
     *,
     scenario: str,
     Ss_prior: float,
     Hd_prior: float,
     kappa_b: float,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     sc = str(scenario).strip().lower()
 
     if sc in ("base", "none", ""):
@@ -181,9 +180,7 @@ def apply_ident_scenario_to_payload(
 
     ok = sc in ("tau_only_derive_k", "tau_only")
     if not ok:
-        raise ValueError(
-            f"Unknown scenario: {scenario!r}"
-        )
+        raise ValueError(f"Unknown scenario: {scenario!r}")
 
     out = dict(payload)
 
@@ -206,6 +203,7 @@ def apply_ident_scenario_to_payload(
     out["K"] = K
 
     return out
+
 
 def settlement_from_tau(
     years: np.ndarray,
@@ -234,6 +232,7 @@ def settlement_from_tau(
             acc += dp[k] * U
         s[t] = alpha * acc
     return s
+
 
 def solve_head_1d_fd(
     years: np.ndarray,
@@ -298,10 +297,8 @@ def solve_head_1d_fd(
             ht[-1] = float(h_right)
 
             hn = ht.copy()
-            hn[1:-1] = (
-                ht[1:-1]
-                + r_sub
-                * (ht[2:] - 2.0 * ht[1:-1] + ht[:-2])
+            hn[1:-1] = ht[1:-1] + r_sub * (
+                ht[2:] - 2.0 * ht[1:-1] + ht[:-2]
             )
             ht = hn
 
@@ -311,19 +308,22 @@ def solve_head_1d_fd(
 
     return x_m, h
 
+
 def make_windows_1d_domain(
     *,
     years: np.ndarray,
-    head_xt: np.ndarray,   # (nx,nT) head (m, up+)
-    subs_xt: np.ndarray,   # (nx,nT) cumulative subs (m)
-    x_m: np.ndarray,       # (nx,)
+    head_xt: np.ndarray,  # (nx,nT) head (m, up+)
+    subs_xt: np.ndarray,  # (nx,nT) cumulative subs (m)
+    x_m: np.ndarray,  # (nx,)
     Lx_m: float,
     static_vec: np.ndarray,
     time_steps: int,
     forecast_horizon: int,
     H_field_value: float,
     z_surf_static_index: int,
-) -> tuple[dict[str, np.ndarray], dict[str, np.ndarray], float, int]:
+) -> tuple[
+    dict[str, np.ndarray], dict[str, np.ndarray], float, int
+]:
     years = np.asarray(years, float)
     head_xt = np.asarray(head_xt, float)
     subs_xt = np.asarray(subs_xt, float)
@@ -351,7 +351,9 @@ def make_windows_1d_domain(
     st = np.asarray(static_vec, np.float32)
     z_surf = float(st[int(z_surf_static_index)])
 
-    x_norm = (x_m / max(float(Lx_m), 1e-12)).astype(np.float32)
+    x_norm = (x_m / max(float(Lx_m), 1e-12)).astype(
+        np.float32
+    )
 
     N = int(B * nx)
 
@@ -360,7 +362,9 @@ def make_windows_1d_domain(
     X["dynamic_features"] = np.zeros((N, T, 2), np.float32)
     X["future_features"] = np.zeros((N, H, 1), np.float32)
     X["coords"] = np.zeros((N, H, 3), np.float32)
-    X["H_field"] = np.full((N, H, 1), float(H_field_value), np.float32)
+    X["H_field"] = np.full(
+        (N, H, 1), float(H_field_value), np.float32
+    )
 
     y = {
         "subs_pred": np.zeros((N, H, 1), np.float32),
@@ -375,8 +379,12 @@ def make_windows_1d_domain(
         for p in range(nx):
             sidx = i * nx + p
 
-            X["dynamic_features"][sidx, :, 0] = depth_xt[p, i:j]
-            X["dynamic_features"][sidx, :, 1] = subs_xt[p, i:j]
+            X["dynamic_features"][sidx, :, 0] = depth_xt[
+                p, i:j
+            ]
+            X["dynamic_features"][sidx, :, 1] = subs_xt[
+                p, i:j
+            ]
 
             for h in range(H):
                 k = j + h
@@ -384,16 +392,23 @@ def make_windows_1d_domain(
                 y["subs_pred"][sidx, h, 0] = subs_xt[p, k]
 
                 # head target (up+): z_surf - depth
-                y["gwl_pred"][sidx, h, 0] = z_surf - depth_xt[p, k]
+                y["gwl_pred"][sidx, h, 0] = (
+                    z_surf - depth_xt[p, k]
+                )
 
                 # future-known: depth at target time
-                X["future_features"][sidx, h, 0] = depth_xt[p, k]
+                X["future_features"][sidx, h, 0] = depth_xt[
+                    p, k
+                ]
 
-                X["coords"][sidx, h, 0] = (years[k] - t0) / t_rng
+                X["coords"][sidx, h, 0] = (
+                    years[k] - t0
+                ) / t_rng
                 X["coords"][sidx, h, 1] = x_norm[p]
                 X["coords"][sidx, h, 2] = 0.0
 
     return X, y, t_rng, nx
+
 
 def make_windows(
     years: np.ndarray,
@@ -421,8 +436,8 @@ def make_windows(
     if B <= 0:
         raise ValueError("Not enough samples for horizon.")
 
-    depth = (-dh).astype(np.float32)   # down+
-    subs = s_cum.astype(np.float32)    # cum subs
+    depth = (-dh).astype(np.float32)  # down+
+    subs = s_cum.astype(np.float32)  # cum subs
 
     t0 = float(years[0])
     t_rng = float(years[-1] - t0)
@@ -437,15 +452,9 @@ def make_windows(
         st[None, :], B, axis=0
     ).astype(np.float32)
 
-    X["dynamic_features"] = np.zeros(
-        (B, T, 2), np.float32
-    )
-    X["future_features"] = np.zeros(
-        (B, H, 1), np.float32
-    )
-    X["coords"] = np.zeros(
-        (B, H, 3), np.float32
-    )
+    X["dynamic_features"] = np.zeros((B, T, 2), np.float32)
+    X["future_features"] = np.zeros((B, H, 1), np.float32)
+    X["coords"] = np.zeros((B, H, 3), np.float32)
     X["H_field"] = np.full(
         (B, H, 1),
         float(H_field_value),
@@ -480,6 +489,7 @@ def make_windows(
             X["coords"][i, h, 2] = 0.0
 
     return X, y, t_rng
+
 
 def make_one_step_windows(
     years: np.ndarray,
@@ -525,9 +535,7 @@ def make_one_step_windows(
     B = int(len(years) - T)
 
     if B <= 0:
-        raise ValueError(
-            "Not enough samples for time_steps."
-        )
+        raise ValueError("Not enough samples for time_steps.")
 
     # Depth below ground surface, positive downward.
     # Here dh is drawdown proxy (often negative),
@@ -601,8 +609,8 @@ def make_one_step_windows(
 
 
 def tf_dataset(
-    X: Dict[str, np.ndarray],
-    y: Dict[str, np.ndarray],
+    X: dict[str, np.ndarray],
+    y: dict[str, np.ndarray],
     *,
     batch: int,
     shuffle: bool,
@@ -624,20 +632,18 @@ def tf_dataset(
 
 
 def split_tail(
-    X: Dict[str, np.ndarray],
-    y: Dict[str, np.ndarray],
+    X: dict[str, np.ndarray],
+    y: dict[str, np.ndarray],
     val_tail: int,
-) -> Tuple[
-    Dict[str, np.ndarray],
-    Dict[str, np.ndarray],
-    Dict[str, np.ndarray],
-    Dict[str, np.ndarray],
+) -> tuple[
+    dict[str, np.ndarray],
+    dict[str, np.ndarray],
+    dict[str, np.ndarray],
+    dict[str, np.ndarray],
 ]:
     B = len(next(iter(X.values())))
     if not (0 < val_tail < B):
-        raise ValueError(
-            "val_tail must be in (0, B)."
-        )
+        raise ValueError("val_tail must be in (0, B).")
 
     cut = B - int(val_tail)
 
@@ -654,7 +660,7 @@ def _rms(x: np.ndarray) -> float:
     return float(np.sqrt(np.mean(a * a)))
 
 
-def _infer_payload_time_units(meta: Dict[str, Any]) -> str:
+def _infer_payload_time_units(meta: dict[str, Any]) -> str:
     units = meta.get("units") or {}
     tau_u = str(units.get("tau", "")).strip().lower()
 
@@ -675,13 +681,14 @@ def _infer_payload_time_units(meta: Dict[str, Any]) -> str:
 
     return "sec"
 
+
 def convert_payload_time_units(
-    payload: Dict[str, np.ndarray],
+    payload: dict[str, np.ndarray],
     *,
     from_units: str,
     to_units: str,
     sec_per_year: float = SEC_PER_YEAR,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     fu = str(from_units).strip().lower()
     tu = str(to_units).strip().lower()
 
@@ -721,14 +728,19 @@ def convert_payload_time_units(
 
     return out
 
+
 def split_tail_timeblocks(
-    X: Dict[str, np.ndarray],
-    y: Dict[str, np.ndarray],
+    X: dict[str, np.ndarray],
+    y: dict[str, np.ndarray],
     *,
     val_tail: int,
     nx: int,
-) -> Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray],
-           Dict[str, np.ndarray], Dict[str, np.ndarray]]:
+) -> tuple[
+    dict[str, np.ndarray],
+    dict[str, np.ndarray],
+    dict[str, np.ndarray],
+    dict[str, np.ndarray],
+]:
     N = int(len(next(iter(X.values()))))
     nx = int(nx)
 
@@ -742,6 +754,7 @@ def split_tail_timeblocks(
     Xva = {k: v[cut:] for k, v in X.items()}
     yva = {k: v[cut:] for k, v in y.items()}
     return Xtr, ytr, Xva, yva
+
 
 def _make_scaling_kwargs(
     *,
@@ -899,7 +912,9 @@ def _make_scaling_kwargs(
         bounds_mode=str(bounds_mode).strip().lower(),
         # How physics core combines: barrier vs residual vs both.
         # Read in physics core via get_sk(..., "bounds_loss_kind", ...).
-        bounds_loss_kind=str(bounds_loss_kind).strip().lower(),
+        bounds_loss_kind=str(bounds_loss_kind)
+        .strip()
+        .lower(),
         # Barrier sharpness (soft mode).
         bounds_beta=float(bounds_beta),
         # Numeric guard band for log->field mapping.
@@ -909,8 +924,9 @@ def _make_scaling_kwargs(
         bounds_include_tau=bool(bounds_include_tau),
         bounds_tau_w=float(bounds_tau_w),
     )
-        
+
     return sk
+
 
 def make_pinball_with_crossing(
     quantiles: list[float],
@@ -934,17 +950,19 @@ def make_pinball_with_crossing(
 
     return loss
 
+
 def _as_ident_regime(s: str) -> str | None:
     v = str(s).strip().lower()
     if v in ("none", "off", ""):
         return None
     return v
 
+
 def train_one_pixel(
-    Xtr: Dict[str, np.ndarray],
-    ytr: Dict[str, np.ndarray],
-    Xva: Dict[str, np.ndarray],
-    yva: Dict[str, np.ndarray],
+    Xtr: dict[str, np.ndarray],
+    ytr: dict[str, np.ndarray],
+    Xva: dict[str, np.ndarray],
+    yva: dict[str, np.ndarray],
     *,
     outdir: str,
     seed: int,
@@ -955,10 +973,10 @@ def train_one_pixel(
     gamma_w: float,
     hd_factor: float,
     t_range_years: float,
-    forecast_horizon: int, 
+    forecast_horizon: int,
     n_lith: int,
-    z_surf_static_index: int, 
-    Lx_m: float =1.0, 
+    z_surf_static_index: int,
+    Lx_m: float = 1.0,
     ident_regime: str | None,
     # These bounds should match your synthetic generator.
     K_min: float = 1e-15,
@@ -973,9 +991,7 @@ def train_one_pixel(
     identify: str = "tau",
     patience: int = 10,
     disable_freeze: bool = False,
-) -> Tuple[GeoPriorSubsNet, tf.data.Dataset]:
-
-
+) -> tuple[GeoPriorSubsNet, tf.data.Dataset]:
     tf.keras.utils.set_random_seed(int(seed))
 
     s_dim = int(Xtr["static_features"].shape[-1])
@@ -998,7 +1014,7 @@ def train_one_pixel(
         tau_max_year=tau_max_year,
         allow_subs_residual=True,
     )
-        
+
     if ident_regime is not None:
         for k in (
             "allow_subs_residual",
@@ -1018,14 +1034,14 @@ def train_one_pixel(
                 sk[k] = None
 
     H = int(forecast_horizon)
-    
+
     mode = str(identify).strip().lower()
-    
+
     coords = Xtr["coords"]
     sx = float(np.nanstd(coords[..., 1]))
     sy = float(np.nanstd(coords[..., 2]))
     has_spatial = (sx > 1e-6) or (sy > 1e-6)
-    
+
     pde_mode = "consolidation"
     if mode == "both" and has_spatial:
         pde_mode = "both"
@@ -1044,9 +1060,7 @@ def train_one_pixel(
         attention_units=32,
         num_heads=2,
         dropout_rate=0.10,
-        max_window_size=int(
-            Xtr["dynamic_features"].shape[1]
-        ),
+        max_window_size=int(Xtr["dynamic_features"].shape[1]),
         attention_levels=["cross"],
         mv=LearnableMV(initial_value=1e-7),
         kappa=LearnableKappa(
@@ -1058,12 +1072,10 @@ def train_one_pixel(
         kappa_mode="kb",
         use_effective_h=True,
         hd_factor=float(hd_factor),
-
         # keep False for "raw eps" clarity.
         # you can turn True later once you
         # export cons_res_scaled in payloads.
         scale_pde_residuals=False,
-
         pde_mode=pde_mode,
         offset_mode="log10",
         identifiability_regime=ident_regime,
@@ -1072,7 +1084,6 @@ def train_one_pixel(
     )
     # print("K bounds used:", 10**b["logK_min"], 10**b["logK_max"])
     # print("tau bounds used:", 10**b["logTau_min"], 10**b["logTau_max"])
-
 
     ds_tr = tf_dataset(
         Xtr,
@@ -1091,7 +1102,7 @@ def train_one_pixel(
 
     for xb, _ in ds_tr.take(1):
         _ = model(xb)
-        
+
     def _set_trainable(block, flag: bool) -> None:
         if block is None:
             return
@@ -1100,22 +1111,22 @@ def train_one_pixel(
             l.trainable = bool(flag)
 
     mode = str(identify).strip().lower()
-    
+
     if mode == "tau":
         _set_trainable(model.K_head, False)
         _set_trainable(model.Ss_head, False)
         _set_trainable(model.tau_head, True)
-    
+
     elif mode == "k":
         _set_trainable(model.tau_head, False)
         _set_trainable(model.Ss_head, False)
         _set_trainable(model.K_head, True)
-    
+
     elif mode == "both":
         _set_trainable(model.K_head, True)
         _set_trainable(model.Ss_head, True)
         _set_trainable(model.tau_head, True)
-    
+
         if not has_spatial:
             print(
                 "[warn] identify=both but no spatial "
@@ -1159,19 +1170,19 @@ def train_one_pixel(
     lam_cons = 50.0
     lam_gw = 0.0
     lam_prior = 3.0
-    
+
     if mode == "tau":
         lam_prior = 0.0
         lam_gw = 0.0
-    
+
     elif mode == "k":
         lam_prior = 50.0
         lam_gw = 0.0
-    
+
     elif mode == "both":
         lam_prior = 5.0
         lam_gw = 50.0 if has_spatial else 0.0
-    
+
     physics_loss_weights = dict(
         lambda_cons=lam_cons,
         lambda_gw=lam_gw,
@@ -1184,7 +1195,7 @@ def train_one_pixel(
         lambda_offset=float(lambda_offset),
         lambda_q=1.0,
     )
-    
+
     if ident_regime is not None:
         physics_loss_weights = dict(
             lambda_cons=None,
@@ -1201,12 +1212,13 @@ def train_one_pixel(
 
     loss_weights_dict = {"subs_pred": 1.0, "gwl_pred": 0.2}
 
-    out_names = (
-        list(getattr(model, "output_names", []))
-        or ["subs_pred", "gwl_pred"]
-    )
+    out_names = list(getattr(model, "output_names", [])) or [
+        "subs_pred",
+        "gwl_pred",
+    ]
 
     import keras
+
     IS_KERAS2 = keras.__version__.startswith("2.")
 
     if IS_KERAS2:
@@ -1221,15 +1233,15 @@ def train_one_pixel(
         loss_arg = loss_dict
         lossw_arg = loss_weights_dict
         metrics_compile = metrics_arg
-    
+
     tau_vars = []
     for v in model.trainable_variables:
         nm = getattr(v, "path", v.name)
         if "tau" in str(nm).lower():
             tau_vars.append(str(nm))
-    
+
     # print("Trainable tau vars:", tau_vars)
-    
+
     model.compile(
         optimizer=tf.keras.optimizers.Adam(
             learning_rate=float(lr),
@@ -1244,7 +1256,7 @@ def train_one_pixel(
     os.makedirs(outdir, exist_ok=True)
     ckpt = os.path.join(outdir, "best.keras")
 
-    cbs= [
+    cbs = [
         tf.keras.callbacks.EarlyStopping(
             "val_loss",
             patience=int(patience),
@@ -1257,13 +1269,13 @@ def train_one_pixel(
             save_best_only=True,
             verbose=1,
         ),
-    #     FrozenValQuantileMonitor(
-    #         ds_va,
-    #         outputs=("subs_pred",),
-    #         quantiles=(0.1, 0.5, 0.9),
-    #         alpha=0.8,
-    #         prefix="[sm3-freeze]",
-    #     ),
+        #     FrozenValQuantileMonitor(
+        #         ds_va,
+        #         outputs=("subs_pred",),
+        #         quantiles=(0.1, 0.5, 0.9),
+        #         alpha=0.8,
+        #         prefix="[sm3-freeze]",
+        #     ),
     ]
     # diag_cb = FrozenValQuantileLogger(
     #     val_data=ds_va,
@@ -1289,7 +1301,7 @@ def train_one_pixel(
                 also_print=True,
             )
         )
- 
+
     model.fit(
         ds_tr,
         validation_data=ds_va,
@@ -1302,7 +1314,7 @@ def train_one_pixel(
     apath = os.path.join(outdir, "ident_audit.json")
     with open(apath, "w", encoding="utf-8") as f:
         json.dump(audit, f, indent=2)
-    
+
     # -------------------------
     # Post-fit diagnostic (one fixed val batch)
     # -------------------------
@@ -1323,10 +1335,20 @@ def train_one_pixel(
 
         print("postfit y_true:", y_true.shape)
         print("postfit y_pred:", y_pred.shape)
-        print("coverage80(metric):", float(m_cov.result().numpy()))
-        print("MAE(q50)(metric):", float(m_mae.result().numpy()))
-        print("MSE(q50)(metric):", float(m_mse.result().numpy()))
-        print("sharpness80(metric):", float(m_shp.result().numpy()))
+        print(
+            "coverage80(metric):",
+            float(m_cov.result().numpy()),
+        )
+        print(
+            "MAE(q50)(metric):", float(m_mae.result().numpy())
+        )
+        print(
+            "MSE(q50)(metric):", float(m_mse.result().numpy())
+        )
+        print(
+            "sharpness80(metric):",
+            float(m_shp.result().numpy()),
+        )
 
         # Extra: quantile crossing + raw coverage diagnostics
         try:
@@ -1349,12 +1371,23 @@ def train_one_pixel(
                 tf.cast((yt >= lo) & (yt <= hi), tf.float32)
             )
 
-            print("crossing_rate(q10>q90):", float(crossing.numpy()))
-            print("coverage80(raw q10/q90):", float(cov_raw.numpy()))
-            print("coverage80(min/max):", float(cov_mm.numpy()))
-            print("MAE(q50) raw:", float(tf.reduce_mean(
-                tf.abs(yt - q50)
-            ).numpy()))
+            print(
+                "crossing_rate(q10>q90):",
+                float(crossing.numpy()),
+            )
+            print(
+                "coverage80(raw q10/q90):",
+                float(cov_raw.numpy()),
+            )
+            print(
+                "coverage80(min/max):", float(cov_mm.numpy())
+            )
+            print(
+                "MAE(q50) raw:",
+                float(
+                    tf.reduce_mean(tf.abs(yt - q50)).numpy()
+                ),
+            )
         except Exception as e:
             print("[postfit diag] _as_BHQO failed:", repr(e))
 
@@ -1363,8 +1396,8 @@ def train_one_pixel(
     return model, ds_va
 
 
-def flatten_diag(diag: Dict[str, Any]) -> Dict[str, float]:
-    row: Dict[str, float] = {}
+def flatten_diag(diag: dict[str, Any]) -> dict[str, float]:
+    row: dict[str, float] = {}
 
     tau_rel = diag.get("tau_rel_error", {})
     row["tau_rel_q50"] = float(tau_rel.get("q50", np.nan))
@@ -1391,14 +1424,15 @@ def flatten_diag(diag: Dict[str, Any]) -> Dict[str, float]:
 
     return row
 
+
 def run_one_realisation(
     *,
     r: int,
     args: argparse.Namespace,
-    priors: List[LithoPrior],
+    priors: list[LithoPrior],
     years: np.ndarray,
     outdir: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Run a single synthetic realisation.
 
@@ -1436,16 +1470,13 @@ def run_one_realisation(
 
     mode = str(args.identify).strip().lower()
 
-    dlogSs = float(
-        rng.normal(0.0, float(args.Ss_spread_dex))
-    )
+    dlogSs = float(rng.normal(0.0, float(args.Ss_spread_dex)))
     if mode in ("tau", "k"):
         dlogSs = 0.0
-    Ss_true = float(Ss_prior * (10.0 ** dlogSs))
+    Ss_true = float(Ss_prior * (10.0**dlogSs))
 
     logtau_t = float(
-        logtau_p
-        + rng.normal(0.0, float(args.tau_spread_dex))
+        logtau_p + rng.normal(0.0, float(args.tau_spread_dex))
     )
     tau_true_year = float(10.0**logtau_t)
     tau_true_year = float(
@@ -1456,19 +1487,13 @@ def run_one_realisation(
     Hd_true = float(Hd_prior)
 
     if mode == "both":
-        K_spread = float(
-            getattr(args, "K_spread_dex", 0.6)
-        )
+        K_spread = float(getattr(args, "K_spread_dex", 0.6))
         dlogK = float(rng.normal(0.0, K_spread))
-        K_true_mps = float(
-            K_prior_mps * (10.0 ** dlogK)
-        )
+        K_true_mps = float(K_prior_mps * (10.0**dlogK))
     else:
         numer_t = (Hd_true**2) * Ss_true
         denom_t = (
-            (np.pi**2)
-            * float(args.kappa_b)
-            * tau_true_sec
+            (np.pi**2) * float(args.kappa_b) * tau_true_sec
         )
         K_true_mps = float(numer_t / denom_t)
 
@@ -1546,9 +1571,7 @@ def run_one_realisation(
             ns = resolve_noise_std(
                 y_inc,
                 noise_std=args.noise_std,
-                noise_frac=getattr(
-                    args, "noise_frac", 0.10
-                ),
+                noise_frac=getattr(args, "noise_frac", 0.10),
                 percentile=95.0,
                 min_std=0.0,
             )
@@ -1653,7 +1676,9 @@ def run_one_realisation(
         lambda_offset=float(args.lambda_offset),
         identify=str(args.identify),
         patience=int(getattr(args, "patience", 10)),
-        disable_freeze=bool(getattr(args, "disable_freeze", False)),
+        disable_freeze=bool(
+            getattr(args, "disable_freeze", False)
+        ),
         ident_regime=ident_regime,
     )
 
@@ -1708,7 +1733,7 @@ def run_one_realisation(
     )
 
     payload, meta = load_physics_payload(npz_path)
-    
+
     payload = apply_ident_scenario_to_payload(
         payload,
         scenario=str(args.scenario),
@@ -1760,7 +1785,7 @@ def run_one_realisation(
         - np.log10(max(meta["tau_true_sec"], 1e-12))
     )
 
-    row: Dict[str, Any] = {
+    row: dict[str, Any] = {
         "realisation": int(r),
         "lith_idx": int(lith_idx),
         "tau_true_sec": float(meta["tau_true_sec"]),
@@ -1831,15 +1856,14 @@ def run_one_realisation(
     row["dlogSs_q50"] = float(dS)
     row["dlogHd_q50"] = float(dH)
 
-    row["ridge_resid_q50"] = float(
-        abs(dK - (dS + 2.0 * dH))
-    )
+    row["ridge_resid_q50"] = float(abs(dK - (dS + 2.0 * dH)))
 
     done_path = os.path.join(run_dir, "DONE.json")
     with open(done_path, "w", encoding="utf-8") as f:
         json.dump({"realisation": int(r), "done": True}, f)
 
     return row
+
 
 def run_experiment(args: argparse.Namespace) -> pd.DataFrame:
     """
@@ -1873,7 +1897,7 @@ def run_experiment(args: argparse.Namespace) -> pd.DataFrame:
     # Load existing progress (if any)
     # -----------------------------
     done: set[int] = set()
-    rows: List[Dict[str, Any]] = []
+    rows: list[dict[str, Any]] = []
 
     if os.path.exists(runs_csv):
         try:
@@ -1883,10 +1907,16 @@ def run_experiment(args: argparse.Namespace) -> pd.DataFrame:
 
         if df_prev is not None and not df_prev.empty:
             if "realisation" in df_prev.columns:
-                done = set(df_prev["realisation"].astype(int).tolist())
+                done = set(
+                    df_prev["realisation"]
+                    .astype(int)
+                    .tolist()
+                )
             rows = df_prev.to_dict("records")
 
-    def _append_row_csv(path: str, row: Dict[str, Any]) -> None:
+    def _append_row_csv(
+        path: str, row: dict[str, Any]
+    ) -> None:
         df1 = pd.DataFrame([row])
         header = not os.path.exists(path)
         df1.to_csv(path, mode="a", header=header, index=False)
@@ -1895,10 +1925,15 @@ def run_experiment(args: argparse.Namespace) -> pd.DataFrame:
     # Determine start index (1-based arg)
     # -----------------------------
     start_idx = 0
-    if hasattr(args, "start_realisation") and args.start_realisation is not None:
+    if (
+        hasattr(args, "start_realisation")
+        and args.start_realisation is not None
+    ):
         sr = int(args.start_realisation)
         if sr < 1:
-            raise ValueError("--start-realisation must be >= 1.")
+            raise ValueError(
+                "--start-realisation must be >= 1."
+            )
         start_idx = sr - 1
 
     nR = int(args.n_realizations)
@@ -1912,11 +1947,13 @@ def run_experiment(args: argparse.Namespace) -> pd.DataFrame:
 
         # Skip if completed (marker OR row already in CSV)
         if os.path.exists(done_marker) or (r in done):
-            print(f"[resume] skip realisation {r+1:03d}/{nR:03d}")
+            print(
+                f"[resume] skip realisation {r + 1:03d}/{nR:03d}"
+            )
             continue
 
         print("=" * 62)
-        print(f"Realisation {r+1:03d}/{nR:03d}")
+        print(f"Realisation {r + 1:03d}/{nR:03d}")
         print("=" * 62)
 
         row = run_one_realisation(
@@ -1976,7 +2013,7 @@ def run_experiment(args: argparse.Namespace) -> pd.DataFrame:
             continue
         metrics.append(c)
 
-    summ_rows: List[Dict[str, Any]] = []
+    summ_rows: list[dict[str, Any]] = []
     for c in metrics:
         arr = df[c].to_numpy(dtype=float)
         arr = arr[np.isfinite(arr)]
@@ -2005,7 +2042,9 @@ def run_experiment(args: argparse.Namespace) -> pd.DataFrame:
         )
 
     df_sum = pd.DataFrame(summ_rows)
-    sum_csv = os.path.join(args.outdir, "sm3_synth_summary.csv")
+    sum_csv = os.path.join(
+        args.outdir, "sm3_synth_summary.csv"
+    )
     df_sum.to_csv(sum_csv, index=False)
 
     print("[OK] wrote:", runs_csv)
@@ -2022,14 +2061,16 @@ def main() -> None:
     ap.add_argument("--n-realizations", type=int, default=30)
     ap.add_argument("--n-years", type=int, default=20)
     ap.add_argument("--time-steps", type=int, default=5)
-    
+
     ap.add_argument(
         "--forecast-horizon",
         type=int,
         default=3,
     )
-    
-    ap.add_argument("--lambda-offset", type=float, default=0.0)
+
+    ap.add_argument(
+        "--lambda-offset", type=float, default=0.0
+    )
 
     ap.add_argument("--val-tail", type=int, default=5)
     ap.add_argument("--seed", type=int, default=123)
@@ -2047,7 +2088,6 @@ def main() -> None:
             "Disable FrozenValQuantile callbacks (faster sweeps)."
         ),
     )
-
 
     ap.add_argument("--noise-std", type=float, default=None)
     ap.add_argument("--noise-frac", type=float, default=0.10)
@@ -2124,7 +2164,7 @@ def main() -> None:
         default=0.6,
         help="Extra K spread when identify=both.",
     )
-    
+
     ap.add_argument(
         "--scenario",
         choices=("base", "tau_only_derive_k"),
@@ -2157,10 +2197,8 @@ def main() -> None:
 
     ok = args.tau_min > 0.0 and args.tau_max > args.tau_min
     if not ok:
-        raise ValueError(
-            "--tau-min must be >0 and <tau-max."
-        )
-    
+        raise ValueError("--tau-min must be >0 and <tau-max.")
+
     B = (
         int(args.n_years)
         - int(args.time_steps)
@@ -2169,17 +2207,19 @@ def main() -> None:
     )
     if not (0 < int(args.val_tail) < B):
         raise ValueError("--val-tail must be in (0, B).")
-        
+
     if str(args.identify).lower() == "both":
         if int(args.nx) < 3:
-            raise ValueError("--identify both needs --nx >= 3.")
+            raise ValueError(
+                "--identify both needs --nx >= 3."
+            )
 
     _ = run_experiment(args)
 
 
 if __name__ == "__main__":
     main()
-    
+
 # python sm3_synth_identifiability_v32.py \
 #   --outdir results/sm3_synth \
 #   --n-realizations 10 \

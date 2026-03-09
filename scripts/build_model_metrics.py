@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 #
@@ -41,7 +40,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -49,12 +48,14 @@ import pandas as pd
 from . import config as cfg
 from . import utils
 
-
 # ---------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------
 
-def _parse_args(argv: Optional[List[str]]) -> argparse.Namespace:
+
+def _parse_args(
+    argv: list[str] | None,
+) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         prog="build-model-metrics",
         description="Build a unified model metrics table.",
@@ -131,8 +132,9 @@ def _parse_args(argv: Optional[List[str]]) -> argparse.Namespace:
 # IO
 # ---------------------------------------------------------------------
 
-def _read_jsonl(fp: Path) -> List[Dict[str, Any]]:
-    rows: List[Dict[str, Any]] = []
+
+def _read_jsonl(fp: Path) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
     with fp.open("r", encoding="utf-8") as f:
         for ln in f:
             s = ln.strip()
@@ -147,7 +149,7 @@ def _read_jsonl(fp: Path) -> List[Dict[str, Any]]:
     return rows
 
 
-def _preferred_ablation_patterns() -> Tuple[str, ...]:
+def _preferred_ablation_patterns() -> tuple[str, ...]:
     """Enforce updated-first precedence, even if cfg differs."""
     base = list(cfg.PATTERNS.get("ablation_record_jsonl", ()))
     prefer = [
@@ -156,17 +158,17 @@ def _preferred_ablation_patterns() -> Tuple[str, ...]:
         "ablation_record.updated*.jsonl",
         "ablation_record*.jsonl",
     ]
-    out: List[str] = []
+    out: list[str] = []
     for pat in prefer + base:
         if pat and pat not in out:
             out.append(pat)
     return tuple(out)
 
 
-def _scan_ablation_jsonl(src: Path) -> List[Dict[str, Any]]:
+def _scan_ablation_jsonl(src: Path) -> list[dict[str, Any]]:
     pats = _preferred_ablation_patterns()
     files = utils.find_all(src, pats, must_exist=False)
-    rows: List[Dict[str, Any]] = []
+    rows: list[dict[str, Any]] = []
 
     for fp in files:
         try:
@@ -190,10 +192,11 @@ def _scan_ablation_jsonl(src: Path) -> List[Dict[str, Any]]:
 # Canon / scaling
 # ---------------------------------------------------------------------
 
-def _hkeys_to_Hn(d: Any) -> Dict[str, Any]:
+
+def _hkeys_to_Hn(d: Any) -> dict[str, Any]:
     if not isinstance(d, dict):
         return {}
-    out: Dict[str, Any] = {}
+    out: dict[str, Any] = {}
     for k, v in d.items():
         ks = str(k)
         if ks.startswith("H"):
@@ -203,7 +206,7 @@ def _hkeys_to_Hn(d: Any) -> Dict[str, Any]:
     return out
 
 
-def _get_nested(d: Any, path: Tuple[str, ...]) -> Any:
+def _get_nested(d: Any, path: tuple[str, ...]) -> Any:
     cur: Any = d
     for k in path:
         if not isinstance(cur, dict):
@@ -220,7 +223,7 @@ def _to_float(x: Any) -> float:
     return v
 
 
-def _needs_si_to_mm(rec: Dict[str, Any]) -> bool:
+def _needs_si_to_mm(rec: dict[str, Any]) -> bool:
     """Heuristic for legacy SI ablation records."""
     u = rec.get("units", None)
     if isinstance(u, dict):
@@ -245,7 +248,9 @@ def _needs_si_to_mm(rec: Dict[str, Any]) -> bool:
     return bool(ok)
 
 
-def _scale_legacy_to_mm(rec: Dict[str, Any]) -> Dict[str, Any]:
+def _scale_legacy_to_mm(
+    rec: dict[str, Any],
+) -> dict[str, Any]:
     if not _needs_si_to_mm(rec):
         return rec
 
@@ -253,21 +258,21 @@ def _scale_legacy_to_mm(rec: Dict[str, Any]) -> Dict[str, Any]:
 
     for k in ["mae", "rmse", "sharpness80"]:
         v = out.get(k, None)
-        if isinstance(v, (int, float)) and np.isfinite(v):
+        if isinstance(v, int | float) and np.isfinite(v):
             out[k] = float(v) * 1000.0
 
     v = out.get("mse", None)
-    if isinstance(v, (int, float)) and np.isfinite(v):
+    if isinstance(v, int | float) and np.isfinite(v):
         out["mse"] = float(v) * 1e6
 
-    u = dict((out.get("units") or {}))
+    u = dict(out.get("units") or {})
     u.setdefault("subs_metrics_unit", "mm")
     u.setdefault("subs_factor_si_to_real", 1000.0)
     out["units"] = u
     return out
 
 
-def _record_score(rec: Dict[str, Any]) -> int:
+def _record_score(rec: dict[str, Any]) -> int:
     s = 0
     src = str(rec.get("_src", "")).lower()
     if "updated" in src:
@@ -286,11 +291,13 @@ def _record_score(rec: Dict[str, Any]) -> int:
     return int(s)
 
 
-def _dedupe_records(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def _dedupe_records(
+    rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
     if not rows:
         return rows
 
-    key_map: Dict[Tuple[str, str, str], Dict[str, Any]] = {}
+    key_map: dict[tuple[str, str, str], dict[str, Any]] = {}
     for r0 in rows:
         r = _scale_legacy_to_mm(r0)
         ts = str(r.get("timestamp") or "")
@@ -315,16 +322,21 @@ def _dedupe_records(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 # Flatten to table
 # ---------------------------------------------------------------------
 
-def _extract_interval_cols(rec: Dict[str, Any]) -> Dict[str, Any]:
+
+def _extract_interval_cols(
+    rec: dict[str, Any],
+) -> dict[str, Any]:
     """Pull calibrated/uncalibrated interval metrics when present."""
-    out: Dict[str, Any] = {}
+    out: dict[str, Any] = {}
 
     ival = _get_nested(
         rec,
         ("metrics", "posthoc", "interval_calibration"),
     )
     if not isinstance(ival, dict):
-        ival = _get_nested(rec, ("metrics", "posthoc", "interval"))
+        ival = _get_nested(
+            rec, ("metrics", "posthoc", "interval")
+        )
     if not isinstance(ival, dict):
         ival = rec.get("interval_calibration", None)
 
@@ -342,7 +354,9 @@ def _extract_interval_cols(rec: Dict[str, Any]) -> Dict[str, Any]:
     # scaled
     out["coverage80_uncal"] = _pick("coverage80_uncalibrated")
     out["coverage80_cal"] = _pick("coverage80_calibrated")
-    out["sharpness80_uncal"] = _pick("sharpness80_uncalibrated")
+    out["sharpness80_uncal"] = _pick(
+        "sharpness80_uncalibrated"
+    )
     out["sharpness80_cal"] = _pick("sharpness80_calibrated")
 
     # physical
@@ -376,22 +390,34 @@ def _extract_interval_cols(rec: Dict[str, Any]) -> Dict[str, Any]:
         for hk, hv in (phb or {}).items():
             if not isinstance(hv, dict):
                 continue
-            H = f"H{hk}" if not str(hk).startswith("H") else str(hk)
+            H = (
+                f"H{hk}"
+                if not str(hk).startswith("H")
+                else str(hk)
+            )
             out[f"coverage80_uncal_{H}"] = hv.get("coverage")
-            out[f"sharpness80_uncal_{H}"] = hv.get("sharpness")
+            out[f"sharpness80_uncal_{H}"] = hv.get(
+                "sharpness"
+            )
 
         for hk, hv in (pha or {}).items():
             if not isinstance(hv, dict):
                 continue
-            H = f"H{hk}" if not str(hk).startswith("H") else str(hk)
+            H = (
+                f"H{hk}"
+                if not str(hk).startswith("H")
+                else str(hk)
+            )
             out[f"coverage80_cal_{H}"] = hv.get("coverage")
             out[f"sharpness80_cal_{H}"] = hv.get("sharpness")
 
     return out
 
 
-def _extract_per_horizon_cols(rec: Dict[str, Any]) -> Dict[str, Any]:
-    out: Dict[str, Any] = {}
+def _extract_per_horizon_cols(
+    rec: dict[str, Any],
+) -> dict[str, Any]:
+    out: dict[str, Any] = {}
 
     pr2 = rec.get("per_horizon_r2", None)
     pmae = rec.get("per_horizon_mae", None)
@@ -412,9 +438,9 @@ def _extract_per_horizon_cols(rec: Dict[str, Any]) -> Dict[str, Any]:
     return out
 
 
-def _record_to_row(rec0: Dict[str, Any]) -> Dict[str, Any]:
+def _record_to_row(rec0: dict[str, Any]) -> dict[str, Any]:
     rec = _scale_legacy_to_mm(rec0)
-    out: Dict[str, Any] = {}
+    out: dict[str, Any] = {}
 
     # id + config
     for k in [
@@ -434,7 +460,9 @@ def _record_to_row(rec0: Dict[str, Any]) -> Dict[str, Any]:
         if k in rec:
             out[k] = rec.get(k)
 
-    out["city"] = utils.canonical_city(str(out.get("city") or ""))
+    out["city"] = utils.canonical_city(
+        str(out.get("city") or "")
+    )
 
     # headline metrics
     for k in [
@@ -455,9 +483,8 @@ def _record_to_row(rec0: Dict[str, Any]) -> Dict[str, Any]:
             out[k] = rec.get(k)
 
     # rmse fallback
-    if (
-        ("rmse" not in out or out.get("rmse") is None)
-        and ("mse" in out)
+    if ("rmse" not in out or out.get("rmse") is None) and (
+        "mse" in out
     ):
         try:
             out["rmse"] = float(out["mse"]) ** 0.5
@@ -481,7 +508,7 @@ def _record_to_row(rec0: Dict[str, Any]) -> Dict[str, Any]:
     return out
 
 
-def _rows_to_df(rows: List[Dict[str, Any]]) -> pd.DataFrame:
+def _rows_to_df(rows: list[dict[str, Any]]) -> pd.DataFrame:
     if not rows:
         return pd.DataFrame([])
     df = pd.DataFrame(rows)
@@ -549,7 +576,7 @@ def _to_long(df: pd.DataFrame) -> pd.DataFrame:
     base_cols = [c for c in base_cols if c in df.columns]
 
     # discover horizons
-    hs: List[str] = []
+    hs: list[str] = []
     for c in df.columns:
         if c.startswith("r2_H"):
             hs.append(c.replace("r2_", ""))
@@ -560,11 +587,11 @@ def _to_long(df: pd.DataFrame) -> pd.DataFrame:
     if not hs:
         return pd.DataFrame([])
 
-    rows: List[Dict[str, Any]] = []
+    rows: list[dict[str, Any]] = []
     for _, r in df.iterrows():
         base = {k: r.get(k) for k in base_cols}
         for H in hs:
-            rec: Dict[str, Any] = dict(base)
+            rec: dict[str, Any] = dict(base)
             rec["horizon"] = H
             rec["r2"] = r.get(f"r2_{H}", np.nan)
             rec["mae"] = r.get(f"mae_{H}", np.nan)
@@ -584,7 +611,12 @@ def _to_long(df: pd.DataFrame) -> pd.DataFrame:
             rows.append(rec)
 
     out = pd.DataFrame(rows)
-    for c in ["r2", "mae", "coverage80_uncal", "coverage80_cal"]:
+    for c in [
+        "r2",
+        "mae",
+        "coverage80_uncal",
+        "coverage80_cal",
+    ]:
         if c in out.columns:
             out[c] = pd.to_numeric(out[c], errors="coerce")
     for c in ["sharpness80_uncal", "sharpness80_cal"]:
@@ -598,10 +630,11 @@ def _to_long(df: pd.DataFrame) -> pd.DataFrame:
 # Filters + output
 # ---------------------------------------------------------------------
 
+
 def _filter_rows(
-    rows: List[Dict[str, Any]],
+    rows: list[dict[str, Any]],
     args: argparse.Namespace,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     if not rows:
         return rows
 
@@ -617,14 +650,14 @@ def _filter_rows(
     keep_cities = [c for c in keep_cities if c]
     keep_cities = sorted(set(keep_cities))
 
-    keep_models: List[str] = []
+    keep_models: list[str] = []
     raw_m = str(args.models or "").strip()
     if raw_m:
         keep_models = [
             m.strip() for m in raw_m.split(",") if m.strip()
         ]
 
-    out: List[Dict[str, Any]] = []
+    out: list[dict[str, Any]] = []
     for r in rows:
         city = utils.canonical_city(str(r.get("city") or ""))
         model = str(r.get("model") or "")
@@ -639,7 +672,7 @@ def _filter_rows(
     return out
 
 
-def _resolve_out(*, out: str, out_dir: Optional[str]) -> Path:
+def _resolve_out(*, out: str, out_dir: str | None) -> Path:
     """Like resolve_fig_out(), but targets scripts/out/ by default."""
     p = Path(out).expanduser().with_suffix("")
     if out_dir:
@@ -654,7 +687,10 @@ def _resolve_out(*, out: str, out_dir: Optional[str]) -> Path:
 # Main
 # ---------------------------------------------------------------------
 
-def build_model_metrics_main(argv: Optional[List[str]] = None) -> None:
+
+def build_model_metrics_main(
+    argv: list[str] | None = None,
+) -> None:
     args = _parse_args(argv)
     utils.ensure_script_dirs()
 
@@ -668,12 +704,16 @@ def build_model_metrics_main(argv: Optional[List[str]] = None) -> None:
         rows = [_scale_legacy_to_mm(r) for r in rows]
 
     if not rows:
-        raise SystemExit(f"No ablation records found under: {src}")
+        raise SystemExit(
+            f"No ablation records found under: {src}"
+        )
 
     flat = [_record_to_row(r) for r in rows]
     df = _rows_to_df(flat)
 
-    out_stem = _resolve_out(out=args.out, out_dir=args.out_dir)
+    out_stem = _resolve_out(
+        out=args.out, out_dir=args.out_dir
+    )
 
     csv_p = out_stem.with_suffix(".csv")
     json_p = out_stem.with_suffix(".json")
@@ -695,10 +735,14 @@ def build_model_metrics_main(argv: Optional[List[str]] = None) -> None:
     if utils.str_to_bool(args.include_long, default=True):
         df_long = _to_long(df)
         if not df_long.empty:
-            csv_l = out_stem.with_name(out_stem.name + "_long")
+            csv_l = out_stem.with_name(
+                out_stem.name + "_long"
+            )
             csv_l = csv_l.with_suffix(".csv")
 
-            json_l = out_stem.with_name(out_stem.name + "_long")
+            json_l = out_stem.with_name(
+                out_stem.name + "_long"
+            )
             json_l = json_l.with_suffix(".json")
 
             df_long.to_csv(csv_l, index=False)
@@ -716,7 +760,7 @@ def build_model_metrics_main(argv: Optional[List[str]] = None) -> None:
             print(f"[OK] wrote: {json_l}")
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     build_model_metrics_main(argv)
 
 

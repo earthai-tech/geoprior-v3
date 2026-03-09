@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
@@ -28,7 +27,7 @@ results_root/
   run_folder_B/
     ...
 
-Note that ablations_records/ folder is under each run_folder. 
+Note that ablations_records/ folder is under each run_folder.
 ablation_records/
   ablation_record.jsonl
 """
@@ -39,18 +38,17 @@ import argparse
 import json
 import math
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
-
+from typing import Any
 
 _INTERP_PREFIX = "geoprior_eval_phys_"
 _INTERP_SUFFIX = "_interpretable.json"
 
 
-def _read_json(path: Path) -> Dict[str, Any]:
+def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _safe_float(x: Any) -> Optional[float]:
+def _safe_float(x: Any) -> float | None:
     if x is None:
         return None
     try:
@@ -66,16 +64,18 @@ def _pick_first(*vals: Any) -> Any:
     return None
 
 
-def _build_ts_index(runs_root: Path) -> Dict[str, Path]:
+def _build_ts_index(runs_root: Path) -> dict[str, Path]:
     """
     Map timestamp -> run_dir by scanning interpretable phys JSONs.
     """
-    idx: Dict[str, Path] = {}
+    idx: dict[str, Path] = {}
     pat = f"{_INTERP_PREFIX}*{_INTERP_SUFFIX}"
     for p in runs_root.rglob(pat):
         name = p.name
-        if not (name.startswith(_INTERP_PREFIX) and
-                name.endswith(_INTERP_SUFFIX)):
+        if not (
+            name.startswith(_INTERP_PREFIX)
+            and name.endswith(_INTERP_SUFFIX)
+        ):
             continue
         ts = name[len(_INTERP_PREFIX) : -len(_INTERP_SUFFIX)]
         idx[ts] = p.parent
@@ -84,8 +84,8 @@ def _build_ts_index(runs_root: Path) -> Dict[str, Path]:
 
 def _find_diag_calibrated(
     run_dir: Path,
-    city: Optional[str],
-) -> Optional[Path]:
+    city: str | None,
+) -> Path | None:
     """
     Prefer <city>_*eval_diagnostics*_calibrated.json.
     Fallback to any *eval_diagnostics*_calibrated.json.
@@ -99,18 +99,20 @@ def _find_diag_calibrated(
         if cands:
             return cands[0]
 
-    cands = list(run_dir.rglob("*eval_diagnostics*_calibrated.json"))
+    cands = list(
+        run_dir.rglob("*eval_diagnostics*_calibrated.json")
+    )
     if cands:
         return cands[0]
     return None
 
 
-def _hkeys_to_Hn(d: Dict[str, Any]) -> Dict[str, Any]:
+def _hkeys_to_Hn(d: dict[str, Any]) -> dict[str, Any]:
     """
     Convert {"1": v, "2": v} -> {"H1": v, "H2": v}.
     Leaves keys that already look like "H1" unchanged.
     """
-    out: Dict[str, Any] = {}
+    out: dict[str, Any] = {}
     for k, v in (d or {}).items():
         ks = str(k)
         if ks.startswith("H"):
@@ -121,13 +123,15 @@ def _hkeys_to_Hn(d: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _update_one_record(
-    rec: Dict[str, Any],
+    rec: dict[str, Any],
     run_dir: Path,
-) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+) -> tuple[dict[str, Any], dict[str, Any]]:
     ts = str(rec.get("timestamp") or "")
     city = rec.get("city")
 
-    interp_path = run_dir / f"{_INTERP_PREFIX}{ts}{_INTERP_SUFFIX}"
+    interp_path = (
+        run_dir / f"{_INTERP_PREFIX}{ts}{_INTERP_SUFFIX}"
+    )
     if not interp_path.exists():
         return rec, {
             "ok": False,
@@ -138,12 +142,21 @@ def _update_one_record(
     interp = _read_json(interp_path)
 
     diag_cal_path = _find_diag_calibrated(run_dir, city)
-    diag_cal = _read_json(diag_cal_path) if diag_cal_path else {}
+    diag_cal = (
+        _read_json(diag_cal_path) if diag_cal_path else {}
+    )
     overall = (diag_cal or {}).get("__overall__", {})
 
     # --- Preserve old (wrong) headline metrics ---
-    legacy: Dict[str, Any] = {}
-    for k in ["r2", "mse", "mae", "rmse", "coverage80", "sharpness80"]:
+    legacy: dict[str, Any] = {}
+    for k in [
+        "r2",
+        "mse",
+        "mae",
+        "rmse",
+        "coverage80",
+        "sharpness80",
+    ]:
         if k in rec:
             legacy[k] = rec.get(k)
     rec.setdefault("legacy", {})
@@ -155,10 +168,18 @@ def _update_one_record(
 
     # --- Post-hoc point metrics (prefer diagnostics overall, then interp) ---
     p_point = interp.get("point_metrics", {}) or {}
-    r2 = _pick_first(overall.get("overall_r2"), p_point.get("r2"))
-    mse = _pick_first(overall.get("overall_mse"), p_point.get("mse"))
-    mae = _pick_first(overall.get("overall_mae"), p_point.get("mae"))
-    rmse = _pick_first(overall.get("overall_rmse"), p_point.get("rmse"))
+    r2 = _pick_first(
+        overall.get("overall_r2"), p_point.get("r2")
+    )
+    mse = _pick_first(
+        overall.get("overall_mse"), p_point.get("mse")
+    )
+    mae = _pick_first(
+        overall.get("overall_mae"), p_point.get("mae")
+    )
+    rmse = _pick_first(
+        overall.get("overall_rmse"), p_point.get("rmse")
+    )
     if rmse is None and mse is not None:
         try:
             rmse = math.sqrt(float(mse))
@@ -195,15 +216,15 @@ def _update_one_record(
         rec["per_horizon_mae"] = _hkeys_to_Hn(ph_mae)
     else:
         rec["per_horizon_mae"] = (
-            (interp.get("per_horizon", {}) or {}).get("mae")
-        )
+            interp.get("per_horizon", {}) or {}
+        ).get("mae")
 
     if ph_r2:
         rec["per_horizon_r2"] = _hkeys_to_Hn(ph_r2)
     else:
         rec["per_horizon_r2"] = (
-            (interp.get("per_horizon", {}) or {}).get("r2")
-        )
+            interp.get("per_horizon", {}) or {}
+        ).get("r2")
 
     # --- Physics diagnostics (interpretable JSON) ---
     phys = interp.get("physics_diagnostics", {}) or {}
@@ -231,15 +252,25 @@ def _update_one_record(
             "interval": {
                 "target": ival.get("target"),
                 "coverage80_calibrated": _safe_float(cov_cal),
-                "sharpness80_calibrated": _safe_float(shp_cal),
-                "coverage80_uncalibrated": _safe_float(cov_uncal),
-                "sharpness80_uncalibrated": _safe_float(shp_uncal),
-                "factors_per_horizon": ival.get("factors_per_horizon"),
+                "sharpness80_calibrated": _safe_float(
+                    shp_cal
+                ),
+                "coverage80_uncalibrated": _safe_float(
+                    cov_uncal
+                ),
+                "sharpness80_uncalibrated": _safe_float(
+                    shp_uncal
+                ),
+                "factors_per_horizon": ival.get(
+                    "factors_per_horizon"
+                ),
             },
             "per_horizon": interp.get("per_horizon", {}),
         },
         "raw": {
-            "metrics_evaluate": interp.get("metrics_evaluate", {}),
+            "metrics_evaluate": interp.get(
+                "metrics_evaluate", {}
+            ),
         },
         "sources": {
             "interpretable": str(interp_path),
@@ -296,8 +327,8 @@ def main() -> int:
         )
 
     lines = ab_path.read_text(encoding="utf-8").splitlines()
-    recs: list[Dict[str, Any]] = []
-    infos: list[Dict[str, Any]] = []
+    recs: list[dict[str, Any]] = []
+    infos: list[dict[str, Any]] = []
 
     for ln in lines:
         if not ln.strip():
@@ -307,7 +338,11 @@ def main() -> int:
         run_dir = idx.get(ts)
         if run_dir is None:
             infos.append(
-                {"ok": False, "ts": ts, "reason": "ts_not_found"}
+                {
+                    "ok": False,
+                    "ts": ts,
+                    "reason": "ts_not_found",
+                }
             )
             recs.append(rec)
             continue
@@ -329,14 +364,17 @@ def main() -> int:
 
     if args.backup:
         bak = ab_path.with_suffix(ab_path.suffix + ".bak")
-        bak.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        bak.write_text(
+            "\n".join(lines) + "\n", encoding="utf-8"
+        )
         print(f"Backup: {bak}")
 
     out_lines = [
-        json.dumps(r, ensure_ascii=False)
-        for r in recs
+        json.dumps(r, ensure_ascii=False) for r in recs
     ]
-    ab_path.write_text("\n".join(out_lines) + "\n", encoding="utf-8")
+    ab_path.write_text(
+        "\n".join(out_lines) + "\n", encoding="utf-8"
+    )
     print(f"Wrote: {ab_path}")
     return 0
 

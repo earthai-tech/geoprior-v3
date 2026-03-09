@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # https://lkouadio.com
@@ -8,42 +7,38 @@
 """
 Forecast utilities.
 """
+
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
-from pathlib import Path
 import json
 import logging
-
-from typing import ( 
-    Dict, 
-    Union, 
-    Any, 
-    Optional,
-    Tuple , 
-    Literal, 
+from collections.abc import Mapping, Sequence
+from pathlib import Path
+from typing import (
+    Any,
+    Literal,
 )
-import numpy as np 
-import pandas as pd 
 
+import numpy as np
+import pandas as pd
 from sklearn.isotonic import IsotonicRegression
 from sklearn.linear_model import LogisticRegression
 
-from ..core.checks import check_empty 
+from ..core.checks import check_empty
 from ..core.io import SaveFile
-from ..decorators import isdf 
-from .generic_utils import vlog, normalize_model_inputs
+from ..decorators import isdf
+from .generic_utils import normalize_model_inputs, vlog
 
 
 def _infer_quantile_map(
     df: pd.DataFrame,
     *,
     target_name: str,
-    column_map: Optional[Mapping[str, Any]] = None,
-) -> Dict[float, str]:
+    column_map: Mapping[str, Any] | None = None,
+) -> dict[float, str]:
     column_map = dict(column_map or {})
     q_spec = column_map.get("quantiles", None)
-    q_map: Dict[float, str] = {}
+    q_map: dict[float, str] = {}
 
     if q_spec is not None:
         if isinstance(q_spec, Mapping):
@@ -57,7 +52,9 @@ def _infer_quantile_map(
         else:
             for col in q_spec:
                 if col not in df.columns:
-                    raise KeyError(f"Quantile col '{col}' missing.")
+                    raise KeyError(
+                        f"Quantile col '{col}' missing."
+                    )
                 # user provided list => infer q from suffix _qXX
                 import re
 
@@ -88,8 +85,8 @@ def _infer_actual_col(
     df: pd.DataFrame,
     *,
     target_name: str,
-    column_map: Optional[Mapping[str, Any]] = None,
-) -> Optional[str]:
+    column_map: Mapping[str, Any] | None = None,
+) -> str | None:
     column_map = dict(column_map or {})
     spec = column_map.get("actual", f"{target_name}_actual")
     if spec is None:
@@ -115,8 +112,8 @@ def _pick_median_q(
 def _pick_interval_qs(
     q_map: Mapping[float, str],
     *,
-    interval: Tuple[float, float],
-) -> Tuple[float, float]:
+    interval: tuple[float, float],
+) -> tuple[float, float]:
     lo_t, hi_t = interval
     qs = sorted(q_map.keys())
     q_lo = min(qs, key=lambda q: abs(q - lo_t))
@@ -132,8 +129,12 @@ def _coverage_and_width(
     y_true: np.ndarray,
     y_lo: np.ndarray,
     y_hi: np.ndarray,
-) -> Tuple[float, float]:
-    m = np.isfinite(y_true) & np.isfinite(y_lo) & np.isfinite(y_hi)
+) -> tuple[float, float]:
+    m = (
+        np.isfinite(y_true)
+        & np.isfinite(y_lo)
+        & np.isfinite(y_hi)
+    )
     if not np.any(m):
         return float("nan"), float("nan")
     yt = y_true[m]
@@ -196,22 +197,26 @@ def fit_interval_factors_df(
     df_eval: pd.DataFrame,
     *,
     target_name: str = "subsidence",
-    column_map: Optional[Mapping[str, Any]] = None,
+    column_map: Mapping[str, Any] | None = None,
     step_col: str = "forecast_step",
-    interval: Tuple[float, float] = (0.1, 0.9),
+    interval: tuple[float, float] = (0.1, 0.9),
     target_coverage: float = 0.8,
     median_q: float = 0.5,
     tol: float = 1e-3,
     f_max: float = 5.0,
     max_iter: int = 32,
     verbose: int = 1,
-    logger: Optional[logging.Logger] = None,
-) -> Dict[int, float]:
+    logger: logging.Logger | None = None,
+) -> dict[int, float]:
     q_map = _infer_quantile_map(
-        df_eval, target_name=target_name, column_map=column_map
+        df_eval,
+        target_name=target_name,
+        column_map=column_map,
     )
     act_col = _infer_actual_col(
-        df_eval, target_name=target_name, column_map=column_map
+        df_eval,
+        target_name=target_name,
+        column_map=column_map,
     )
     if act_col is None:
         raise ValueError(
@@ -226,7 +231,7 @@ def fit_interval_factors_df(
     else:
         groups = df_eval.groupby(step_col)
 
-    factors: Dict[int, float] = {}
+    factors: dict[int, float] = {}
     for h, g in groups:
         h_int = int(h)
         yt = g[act_col].to_numpy()
@@ -278,7 +283,7 @@ def apply_interval_factors_df(
     factors: Mapping[int, float] | float,
     *,
     target_name: str = "subsidence",
-    column_map: Optional[Mapping[str, Any]] = None,
+    column_map: Mapping[str, Any] | None = None,
     step_col: str = "forecast_step",
     median_q: float = 0.5,
     keep_original: bool = False,
@@ -286,7 +291,7 @@ def apply_interval_factors_df(
     calibrated_col: str = "is_calibrated",
     enforce_monotonic: str = "cummax",
     verbose: int = 1,
-    logger: Optional[logging.Logger] = None,
+    logger: logging.Logger | None = None,
 ) -> pd.DataFrame:
     df2 = df.copy()
     q_map = _infer_quantile_map(
@@ -304,7 +309,7 @@ def apply_interval_factors_df(
             df2[f"{c}_raw"] = df2[c]
 
     # Resolve factors
-    if isinstance(factors, (int, float)):
+    if isinstance(factors, int | float):
         f_map = None
         f_scalar = float(factors)
     else:
@@ -332,9 +337,13 @@ def apply_interval_factors_df(
         # scale each quantile around median
         for j, q in enumerate(qs):
             if q < q_md:
-                q_vals[:, j] = med - f_h * (med - q_vals[:, j])
+                q_vals[:, j] = med - f_h * (
+                    med - q_vals[:, j]
+                )
             elif q > q_md:
-                q_vals[:, j] = med + f_h * (q_vals[:, j] - med)
+                q_vals[:, j] = med + f_h * (
+                    q_vals[:, j] - med
+                )
             else:
                 q_vals[:, j] = med
 
@@ -353,14 +362,14 @@ def _looks_calibrated(
     df_eval: pd.DataFrame,
     *,
     target_name: str,
-    column_map: Optional[Mapping[str, Any]],
+    column_map: Mapping[str, Any] | None,
     step_col: str,
-    interval: Tuple[float, float],
+    interval: tuple[float, float],
     target: float,
     tol: float,
     calibrated_col: str,
     verbose: int,
-    logger: Optional[logging.Logger],
+    logger: logging.Logger | None,
 ) -> bool:
     if calibrated_col in df_eval.columns:
         v = df_eval[calibrated_col]
@@ -374,13 +383,17 @@ def _looks_calibrated(
             return True
 
     act = _infer_actual_col(
-        df_eval, target_name=target_name, column_map=column_map
+        df_eval,
+        target_name=target_name,
+        column_map=column_map,
     )
     if act is None:
         return False
 
     q_map = _infer_quantile_map(
-        df_eval, target_name=target_name, column_map=column_map
+        df_eval,
+        target_name=target_name,
+        column_map=column_map,
     )
     if not q_map:
         return False
@@ -407,25 +420,27 @@ def _looks_calibrated(
     )
     return bool(ok)
 
+
 def _normalize_factors(
-    factors: Union[float, Mapping[Any, Any]]
-) -> Union[float, Dict[int, float]]:
-    if isinstance(factors, (int, float)):
+    factors: float | Mapping[Any, Any],
+) -> float | dict[int, float]:
+    if isinstance(factors, int | float):
         return float(factors)
 
-    out: Dict[int, float] = {}
+    out: dict[int, float] = {}
     for k, v in dict(factors).items():
         out[int(k)] = float(v)
     return out
 
+
 def calibrate_quantile_forecasts(
     *,
-    df_eval: Optional[pd.DataFrame] = None,
-    df_future: Optional[pd.DataFrame] = None,
+    df_eval: pd.DataFrame | None = None,
+    df_future: pd.DataFrame | None = None,
     target_name: str = "subsidence",
-    column_map: Optional[Mapping[str, Any]] = None,
+    column_map: Mapping[str, Any] | None = None,
     step_col: str = "forecast_step",
-    interval: Tuple[float, float] = (0.1, 0.9),
+    interval: tuple[float, float] = (0.1, 0.9),
     target_coverage: float = 0.8,
     median_q: float = 0.5,
     use: str | bool = "auto",
@@ -434,34 +449,35 @@ def calibrate_quantile_forecasts(
     max_iter: int = 32,
     keep_original: bool = False,
     enforce_monotonic: str = "cummax",
-    overall_key: Optional[str] = "__overall__",
+    overall_key: str | None = "__overall__",
     calibrated_col: str = "is_calibrated",
     factor_col: str = "calibration_factor",
-    factors: Optional[
-        Union[float, Mapping[int, float], Mapping[str, float]]
-    ] = None,
-    save_eval: Optional[str | Path] = None,
-    save_future: Optional[str | Path] = None,
-    save_stats: Optional[str | Path] = None,
+    factors: float
+    | Mapping[int, float]
+    | Mapping[str, float]
+    | None = None,
+    save_eval: str | Path | None = None,
+    save_future: str | Path | None = None,
+    save_stats: str | Path | None = None,
     verbose: int = 1,
-    logger: Optional[logging.Logger] = None,
-) -> Tuple[
-    Optional[pd.DataFrame],
-    Optional[pd.DataFrame],
-    Dict[str, Any],
+    logger: logging.Logger | None = None,
+) -> tuple[
+    pd.DataFrame | None,
+    pd.DataFrame | None,
+    dict[str, Any],
 ]:
     use_s: Any = use
     if isinstance(use, str):
         use_s = use.strip().lower()
 
-    def _save_df(dfX: Optional[pd.DataFrame], p: Any) -> None:
+    def _save_df(dfX: pd.DataFrame | None, p: Any) -> None:
         if not p or dfX is None:
             return
         pp = Path(p)
         pp.parent.mkdir(parents=True, exist_ok=True)
         dfX.to_csv(pp, index=False)
 
-    def _save_stats(statsX: Dict[str, Any]) -> None:
+    def _save_stats(statsX: dict[str, Any]) -> None:
         if not save_stats:
             return
         pp = Path(save_stats)
@@ -470,11 +486,13 @@ def calibrate_quantile_forecasts(
             json.dump(statsX, f, indent=2)
 
     def _jsonable_factors(fx: Any) -> Any:
-        if isinstance(fx, (int, float)):
+        if isinstance(fx, int | float):
             return float(fx)
-        return {str(int(k)): float(v) for k, v in dict(fx).items()}
+        return {
+            str(int(k)): float(v) for k, v in dict(fx).items()
+        }
 
-    stats: Dict[str, Any] = {
+    stats: dict[str, Any] = {
         "target": float(target_coverage),
         "interval": [float(interval[0]), float(interval[1])],
         "f_max": float(f_max),
@@ -607,18 +625,24 @@ def calibrate_quantile_forecasts(
     # Optional: compute before/after stats (eval only)
     if df_eval is not None:
         act = _infer_actual_col(
-            df_eval, target_name=target_name, column_map=column_map
+            df_eval,
+            target_name=target_name,
+            column_map=column_map,
         )
         q_map = _infer_quantile_map(
-            df_eval, target_name=target_name, column_map=column_map
+            df_eval,
+            target_name=target_name,
+            column_map=column_map,
         )
         if act is not None and q_map:
-            q_lo, q_hi = _pick_interval_qs(q_map, interval=interval)
+            q_lo, q_hi = _pick_interval_qs(
+                q_map, interval=interval
+            )
             lo_col = q_map[q_lo]
             hi_col = q_map[q_hi]
 
-            def _summ(dfX: pd.DataFrame) -> Dict[str, Any]:
-                out: Dict[str, Any] = {}
+            def _summ(dfX: pd.DataFrame) -> dict[str, Any]:
+                out: dict[str, Any] = {}
                 yt = dfX[act].to_numpy(float)
                 lo = dfX[lo_col].to_numpy(float)
                 hi = dfX[hi_col].to_numpy(float)
@@ -627,12 +651,14 @@ def calibrate_quantile_forecasts(
                 out["sharpness"] = wid
 
                 if step_col in dfX.columns:
-                    per: Dict[str, Any] = {}
+                    per: dict[str, Any] = {}
                     for h, g in dfX.groupby(step_col):
                         yt_h = g[act].to_numpy(float)
                         lo_h = g[lo_col].to_numpy(float)
                         hi_h = g[hi_col].to_numpy(float)
-                        c_h, w_h = _coverage_and_width(yt_h, lo_h, hi_h)
+                        c_h, w_h = _coverage_and_width(
+                            yt_h, lo_h, hi_h
+                        )
                         per[str(int(h))] = {
                             "coverage": c_h,
                             "sharpness": w_h,
@@ -642,7 +668,7 @@ def calibrate_quantile_forecasts(
 
             stats["eval_before"] = _summ(df_eval)
             stats["eval_after"] = _summ(df_eval_cal)
-            
+
     # Save outputs
     _save_df(df_eval_cal, save_eval)
     _save_df(df_future_cal, save_future)
@@ -651,26 +677,32 @@ def calibrate_quantile_forecasts(
     return df_eval_cal, df_future_cal, stats
 
 
-@check_empty(['y_val', 'forecast_val'])
+@check_empty(["y_val", "forecast_val"])
 def calibrate_forecasts(
     y_val: pd.Series,
     forecasts_val: pd.DataFrame,
-    *forecasts_to_calibrate: Union[
-        pd.DataFrame,
-        Mapping[str, pd.DataFrame]
-    ],
-    quantiles: Tuple[int, ...] = (
-        10, 20, 30, 40, 50, 60, 70, 80, 90
+    *forecasts_to_calibrate: pd.DataFrame
+    | Mapping[str, pd.DataFrame],
+    quantiles: tuple[int, ...] = (
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        70,
+        80,
+        90,
     ),
-    prefix: str = 'subsidence',
-    verbose: Optional[int] = None,
-    _logger=None
+    prefix: str = "subsidence",
+    verbose: int | None = None,
+    _logger=None,
 ):
     vlog(
         "Starting forecast calibration...",
         verbose,
         level=3,
-        logger=_logger
+        logger=_logger,
     )
     calibrators = {}
     # Train a calibration model for each quantile
@@ -681,31 +713,22 @@ def calibrate_forecasts(
                 f"Skip quantile {q}: '{col}' missing",  # noqa
                 verbose,
                 level=2,
-                logger=_logger
+                logger=_logger,
             )
             continue
-        y_bin = (
-            y_val < forecasts_val[col]
-        ).astype(int)
+        y_bin = (y_val < forecasts_val[col]).astype(int)
         iso = IsotonicRegression(
-            y_min=0,
-            y_max=1,
-            out_of_bounds="clip"
+            y_min=0, y_max=1, out_of_bounds="clip"
         )
-        calibrators[col] = iso.fit(
-            forecasts_val[col],
-            y_bin
-        )
+        calibrators[col] = iso.fit(forecasts_val[col], y_bin)
     # Normalize input forecasts into dict format
-    inputs = normalize_model_inputs(
-        *forecasts_to_calibrate
-    )
+    inputs = normalize_model_inputs(*forecasts_to_calibrate)
     results = {}
     vlog(
         f"Applying calibration to {len(inputs)} model(s)...",
         verbose,
         level=3,
-        logger=_logger
+        logger=_logger,
     )
     # Apply calibrators to each DataFrame
     for name, df in inputs.items():
@@ -714,13 +737,12 @@ def calibrate_forecasts(
             col = f"{prefix}_q{q}"
             if col in calibrators:
                 out_col = f"{col}_cal_prob"
-                df_cal[out_col] = (
-                    calibrators[col].predict(
-                        df[col]
-                    )
+                df_cal[out_col] = calibrators[col].predict(
+                    df[col]
                 )
         results[name] = df_cal
     return results, calibrators
+
 
 calibrate_forecasts.__doc__ = r"""
 Train and apply isotonic calibration models on forecast data.
@@ -793,6 +815,7 @@ Examples
 >>> models['subsidence_q90'].threshold_
 """
 
+
 @SaveFile
 @check_empty(["df"])
 @isdf
@@ -800,10 +823,10 @@ def calibrate_probability_forecast(
     df: pd.DataFrame,
     prob_col: str,
     actual_col: str,
-    method: str = 'isotonic',
-    out_col: Optional[str] = None,
+    method: str = "isotonic",
+    out_col: str | None = None,
     clip: bool = True,
-    savefile: Optional[str]=None, 
+    savefile: str | None = None,
 ) -> pd.DataFrame:
     """
     Calibrate a probability forecast using either isotonic regression
@@ -838,12 +861,12 @@ def calibrate_probability_forecast(
     y_pred = df[prob_col].values
     y_true = df[actual_col].values
 
-    if method == 'isotonic':
-        iso = IsotonicRegression(out_of_bounds='clip')
+    if method == "isotonic":
+        iso = IsotonicRegression(out_of_bounds="clip")
         iso.fit(y_pred, y_true)
         y_cal = iso.transform(y_pred)
-    elif method == 'logistic':
-        lr = LogisticRegression(solver='lbfgs')
+    elif method == "logistic":
+        lr = LogisticRegression(solver="lbfgs")
         lr.fit(y_pred.reshape(-1, 1), y_true)
         y_cal = lr.predict_proba(y_pred.reshape(-1, 1))[:, 1]
     else:
@@ -855,7 +878,8 @@ def calibrate_probability_forecast(
     df[out_col] = y_cal
     return df
 
-@SaveFile 
+
+@SaveFile
 @check_empty(["df"])
 @isdf
 def calibrate_forecasts(
@@ -867,9 +891,10 @@ def calibrate_forecasts(
     out_prefix: str = "calib",
     grid_mode: Literal["unit", "range"] = "unit",
     grid_size: int = 1001,
-    group_by: Optional[str] = None, 
-    savefile:Optional[str] =None, # will handle by decorator so once the function 
-    # return dataframe, decorator take it and explort to csv format instead . 
+    group_by: str | None = None,
+    savefile: str
+    | None = None,  # will handle by decorator so once the function
+    # return dataframe, decorator take it and explort to csv format instead .
 ) -> pd.DataFrame:
     """
     Calibrate quantile forecasts by fitting a monotonic classifier
@@ -910,7 +935,7 @@ def calibrate_forecasts(
     def _calibrate_block(block: pd.DataFrame) -> pd.DataFrame:
         out = block.copy()
         for q in quantiles:
-            raw_col = f"{q_prefix}_q{int(q*100)}"
+            raw_col = f"{q_prefix}_q{int(q * 100)}"
             cal_col = f"{out_prefix}_{raw_col}"
 
             # Build grid
@@ -918,10 +943,16 @@ def calibrate_forecasts(
                 grid = np.linspace(0.0, 1.0, grid_size)
             else:  # 'range'
                 vals = out[raw_col].to_numpy()
-                grid = np.linspace(vals.min(), vals.max(), grid_size)
+                grid = np.linspace(
+                    vals.min(), vals.max(), grid_size
+                )
 
             # Binary target: actual ≤ raw_pred
-            y_thr = (out[actual_col] <= out[raw_col]).astype(int).values
+            y_thr = (
+                (out[actual_col] <= out[raw_col])
+                .astype(int)
+                .values
+            )
             x_thr = out[raw_col].values
 
             # Fit calibrator
@@ -932,7 +963,9 @@ def calibrate_forecasts(
             else:  # 'logistic'
                 lr = LogisticRegression(solver="lbfgs")
                 lr.fit(x_thr.reshape(-1, 1), y_thr)
-                cdf_vals = lr.predict_proba(grid.reshape(-1, 1))[:, 1]
+                cdf_vals = lr.predict_proba(
+                    grid.reshape(-1, 1)
+                )[:, 1]
 
             # Invert at q
             idx = np.searchsorted(cdf_vals, q, side="left")

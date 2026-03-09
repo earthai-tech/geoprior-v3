@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -9,23 +8,34 @@
 """
 Component helper utilities.
 """
+
 from __future__ import annotations
-from typing import Union, Dict, List, Optional, Tuple, Any
-from ..params import LearnableC, FixedC, DisabledC
-from ..params import LearnableK, LearnableSs, LearnableQ 
+
+from typing import Any
+
+from ..params import (
+    DisabledC,
+    FixedC,
+    LearnableC,
+    LearnableK,
+    LearnableQ,
+    LearnableSs,
+)
 from . import KERAS_DEPS
 
 Tensor = KERAS_DEPS.Tensor
 tf_rank = KERAS_DEPS.rank
 
 
-_GW_NUMERIC_FALLBACK = dict(K=1e-4, Ss=1e-5, Q=0.0)       
+_GW_NUMERIC_FALLBACK = dict(K=1e-4, Ss=1e-5, Q=0.0)
+
 
 def _wrap_learnable(cls, numeric, name):
     """Turn *numeric* into Learnable*, or forward an existing wrapper."""
-    if isinstance(numeric, cls):           # already wrapped
+    if isinstance(numeric, cls):  # already wrapped
         return numeric
     return cls(initial_value=float(numeric), name=name)
+
 
 def _unwrap_if_fixed(value):
     """Return float for Learnable*, otherwise forward value"
@@ -33,6 +43,7 @@ def _unwrap_if_fixed(value):
     if hasattr(value, "initial_value"):
         return float(value.initial_value)
     return value
+
 
 def _directive_to_numeric(label, fallback_numeric):
     r"""
@@ -44,23 +55,24 @@ def _directive_to_numeric(label, fallback_numeric):
         fallback_numeric = _GW_NUMERIC_FALLBACK[label]
     return float(fallback_numeric)
 
+
 def resolve_gw_coeffs(
-    gw_flow_coeffs: Optional[Dict[str, Any]] = None,
-    K: Union[float, str, "LearnableK"] = 1e-4,
-    Ss: Union[float, str, "LearnableSs"] = 1e-5,
-    Q: Union[float, str, "LearnableQ"] = 0.0,
-    param_status: Optional[str] = None  
-) -> Tuple[Any, Any, Any]:
+    gw_flow_coeffs: dict[str, Any] | None = None,
+    K: float | str | LearnableK = 1e-4,
+    Ss: float | str | LearnableSs = 1e-5,
+    Q: float | str | LearnableQ = 0.0,
+    param_status: str | None = None,
+) -> tuple[Any, Any, Any]:
     r"""
     Resolve (K, Ss, Q) into either floats or learnable objects.
-    
-    Resolves hydraulic conductivity (K), specific storage (Ss), and 
+
+    Resolves hydraulic conductivity (K), specific storage (Ss), and
     source/sink term (Q) from a dictionary, with fallbacks to default values.
 
-    This function checks for the presence of keys `'K'`, `'Ss'`, and `'Q'` 
-    in the `gw_flow_coeffs` dictionary. If a key is present, its value is 
-    used. Otherwise, the corresponding default value is applied. The function 
-    also resolves whether the parameters are learnable or fixed, depending 
+    This function checks for the presence of keys `'K'`, `'Ss'`, and `'Q'`
+    in the `gw_flow_coeffs` dictionary. If a key is present, its value is
+    used. Otherwise, the corresponding default value is applied. The function
+    also resolves whether the parameters are learnable or fixed, depending
     on the `param_status`.
 
     *gw_flow_coeffs* overrides the individual defaults.  Behaviour of
@@ -79,25 +91,42 @@ def resolve_gw_coeffs(
     """
 
     # --- 1.  keep kwargs intact; overlay dict if present --------------
-    kwargs_vals = dict(K=K or 1e-4, Ss=Ss or 1e-5, Q=Q or 0.)      # numeric seeds from call-site
-    raw_vals    = dict(kwargs_vals)          # copy
+    kwargs_vals = dict(
+        K=K or 1e-4, Ss=Ss or 1e-5, Q=Q or 0.0
+    )  # numeric seeds from call-site
+    raw_vals = dict(kwargs_vals)  # copy
     if isinstance(gw_flow_coeffs, dict):
-        raw_vals.update({k: gw_flow_coeffs[k]
-                         for k in ("K", "Ss", "Q") if k in gw_flow_coeffs})
+        raw_vals.update(
+            {
+                k: gw_flow_coeffs[k]
+                for k in ("K", "Ss", "Q")
+                if k in gw_flow_coeffs
+            }
+        )
 
     # --- 2.  per-parameter resolution  -------------------------------
     resolved = {}
     for label, value in raw_vals.items():
-        seed_numeric = kwargs_vals[label]    #  numeric (or str) given via kwarg
-        if isinstance(seed_numeric, str):    # kwarg itself might be directive
+        seed_numeric = kwargs_vals[
+            label
+        ]  #  numeric (or str) given via kwarg
+        if isinstance(
+            seed_numeric, str
+        ):  # kwarg itself might be directive
             seed_numeric = _GW_NUMERIC_FALLBACK[label]
 
-        # handle directives BEFORE global param_status 
+        # handle directives BEFORE global param_status
         if isinstance(value, str):
             low = value.lower()
             if low == "learnable":
-                cls = {"K": LearnableK, "Ss": LearnableSs, "Q": LearnableQ}[label]
-                value = _wrap_learnable(cls, seed_numeric, f"param_{label}")
+                cls = {
+                    "K": LearnableK,
+                    "Ss": LearnableSs,
+                    "Q": LearnableQ,
+                }[label]
+                value = _wrap_learnable(
+                    cls, seed_numeric, f"param_{label}"
+                )
             elif low == "fixed":
                 value = float(seed_numeric)
             else:  # numeric-literal string
@@ -106,16 +135,21 @@ def resolve_gw_coeffs(
                 except ValueError as e:
                     raise ValueError(
                         f"{label}={value!r} cannot be parsed."
-                        ) from e
+                    ) from e
 
         resolved[label] = value
 
     # --- 3.  enforce global *param_status* ---------------------------
     if param_status == "learnable":
         for lbl, val in resolved.items():
-            cls = {"K": LearnableK, "Ss": LearnableSs, "Q": LearnableQ}[lbl]
+            cls = {
+                "K": LearnableK,
+                "Ss": LearnableSs,
+                "Q": LearnableQ,
+            }[lbl]
             resolved[lbl] = _wrap_learnable(
-                cls, _unwrap_if_fixed(val), f"param_{lbl}")
+                cls, _unwrap_if_fixed(val), f"param_{lbl}"
+            )
 
     elif param_status == "fixed":
         for lbl in resolved:
@@ -129,7 +163,8 @@ def resolve_gw_coeffs(
 
     return resolved["K"], resolved["Ss"], resolved["Q"]
 
-resolve_gw_coeffs.__doc__ +="""\n
+
+resolve_gw_coeffs.__doc__ += """\n
 Parameters
 ----------
 gw_flow_coeffs : dict, optional
@@ -212,13 +247,14 @@ References
 - Bahdanau, D., Cho, K., & Bengio, Y. (2015). Neural Machine 
   Translation by Jointly Learning to Align and Translate. *ICLR 2015*.
 """
-    
+
+
 def split_decoder_outputs(
     predictions_combined: Tensor,
     decoded_outputs_for_mean: Tensor,
-    output_dims: Dict[str, int],
-    quantiles: Optional[List[float]] = None
-) -> Tuple[Dict[str, Tensor], Dict[str, Tensor]]:
+    output_dims: dict[str, int],
+    quantiles: list[float] | None = None,
+) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
     """Splits a combined output tensor into individual target streams.
 
     This utility takes the stacked output from a multi-target model
@@ -266,9 +302,9 @@ def split_decoder_outputs(
     # First, split the mean predictions (always 3D)
     for target_name, dim in output_dims.items():
         end_idx = start_idx + dim
-        mean_preds_dict[target_name] = decoded_outputs_for_mean[
-            ..., start_idx:end_idx
-        ]
+        mean_preds_dict[target_name] = (
+            decoded_outputs_for_mean[..., start_idx:end_idx]
+        )
         start_idx = end_idx
 
     # Reset start index for the final predictions
@@ -276,35 +312,35 @@ def split_decoder_outputs(
     # Determine the axis where features are concatenated
     # For quantiles (B, H, Q, O), it's axis -1
     # For point (B, H, O), it's also axis -1
-    feature_axis = -1 # noqa
-    
+    feature_axis = -1  # noqa
+
     # Keras sometimes returns a different rank in graph vs eager.
     # A robust check on rank is necessary.
     is_quantile_mode = quantiles is not None
-    
+
     if is_quantile_mode:
         # Expected rank is 4: (B, H, Q, O_combined)
         # We need to handle slicing on the last dimension
         for target_name, dim in output_dims.items():
             end_idx = start_idx + dim
-            final_preds_dict[target_name] = predictions_combined[
-                ..., start_idx:end_idx
-            ]
+            final_preds_dict[target_name] = (
+                predictions_combined[..., start_idx:end_idx]
+            )
             start_idx = end_idx
     else:
         # Expected rank is 3: (B, H, O_combined)
         for target_name, dim in output_dims.items():
             end_idx = start_idx + dim
-            final_preds_dict[target_name] = predictions_combined[
-                ..., start_idx:end_idx
-            ]
+            final_preds_dict[target_name] = (
+                predictions_combined[..., start_idx:end_idx]
+            )
             start_idx = end_idx
-            
+
     return final_preds_dict, mean_preds_dict
 
 
 def normalize_C_descriptor(
-    raw: Union[LearnableC, FixedC, DisabledC, str, float, None]
+    raw: LearnableC | FixedC | DisabledC | str | float | None,
 ):
     """
     Internal helper: turn the user‐passed `raw` into exactly one of
@@ -318,11 +354,11 @@ def normalize_C_descriptor(
         If `raw` is not one of the expected types.
     """
     # 1) Already one of our classes?
-    if isinstance(raw, (LearnableC, FixedC, DisabledC)):
+    if isinstance(raw, LearnableC | FixedC | DisabledC):
         return raw
 
     # 2) If user passed a bare float or int: treat as FixedC(value=raw)
-    if isinstance(raw, (float, int)):
+    if isinstance(raw, float | int):
         if raw < 0:
             raise ValueError(
                 "Numeric pinn_coefficient_C must"
@@ -358,84 +394,87 @@ def normalize_C_descriptor(
         f"pinn_coefficient_C must be LearnableC, FixedC, DisabledC, "
         f"str, float, or None; got {type(raw).__name__}."
     )
-    
+
+
 def resolve_attention_levels(
-    att_levels: Union[str, List[str], int, None]
-) -> List[str]:
+    att_levels: str | list[str] | int | None,
+) -> list[str]:
     r"""
-    Resolves the attention levels based on the input parameter 
-    `att_levels`. This function checks and returns the appropriate 
+    Resolves the attention levels based on the input parameter
+    `att_levels`. This function checks and returns the appropriate
     attention mechanisms to be used in the model.
 
     Parameters
     ----------
     att_levels : str, list of str, int, or None
-        - If None or 'use_all' or '*', it will use all attention 
+        - If None or 'use_all' or '*', it will use all attention
           mechanisms: ['cross', 'hierarchical', 'memory'].
-        - If 'hier_att' or 'hierarchical_attention', only hierarchical 
+        - If 'hier_att' or 'hierarchical_attention', only hierarchical
           attention is used.
-        - If 'memo_aug_att' or 'memory_augmented_attention', only memory- 
+        - If 'memo_aug_att' or 'memory_augmented_attention', only memory-
           augmented attention is used.
-        - If a list of strings, it will use those specific attention 
+        - If a list of strings, it will use those specific attention
           types in the provided order.
-        - If an integer (1, 2, 3), maps it to cross attention (1), 
+        - If an integer (1, 2, 3), maps it to cross attention (1),
           hierarchical attention (2), or memory-augmented attention (3).
-    
+
     Returns
     -------
     List[str]
-        A list of attention mechanisms to be applied in the specified 
+        A list of attention mechanisms to be applied in the specified
         order.
-    
+
     Notes
     -----
-    - The function handles various types of inputs, including strings, 
-      lists, integers, and `None`. The order of the list is important 
+    - The function handles various types of inputs, including strings,
+      lists, integers, and `None`. The order of the list is important
       since the attention mechanisms will be applied accordingly.
-    - If an invalid type or attention level is provided, an error will 
+    - If an invalid type or attention level is provided, an error will
       be raised.
-    
+
     References
     ----------
-    - Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., 
-      Gomez, A., Kaiser, Ł., Polosukhin, I. (2017). Attention is all 
+    - Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L.,
+      Gomez, A., Kaiser, Ł., Polosukhin, I. (2017). Attention is all
       you need. *NeurIPS 2017*, 30, 6000-6010.
     """
-    
+
     # Define the mapping for attention types
     attention_map = {
-        'cross': 'cross',
-        'cross_att': 'cross',
-        'cross_attention': 'cross',
-        'hier': 'hierarchical',
-        'hierarchical': 'hierarchical', 
-        'hier_att': 'hierarchical',
-        'hierarchical_attention': 'hierarchical',
-        'memory': 'memory',
-        'memo_aug': 'memory',
-        'memo_aug_att': 'memory',
-        'memory_augmented_attention': 'memory',
+        "cross": "cross",
+        "cross_att": "cross",
+        "cross_attention": "cross",
+        "hier": "hierarchical",
+        "hierarchical": "hierarchical",
+        "hier_att": "hierarchical",
+        "hierarchical_attention": "hierarchical",
+        "memory": "memory",
+        "memo_aug": "memory",
+        "memo_aug_att": "memory",
+        "memory_augmented_attention": "memory",
     }
-    
+
     # If att_levels is None or 'use_all' or '*', use all attentions
-    if att_levels is None or att_levels in ['use_all', '*']:
-        return ['cross', 'hierarchical', 'memory']
-    
+    if att_levels is None or att_levels in ["use_all", "*"]:
+        return ["cross", "hierarchical", "memory"]
+
     # If att_levels is a single string, check for valid attention types
     elif isinstance(att_levels, str):
         # If it's a valid attention type, return it in a list
         if att_levels in attention_map:
             return [attention_map[att_levels]]
         # Handle the case where it's a number as a string (e.g., '1' or '2')
-        elif att_levels == '1':
-            return ['cross']
-        elif att_levels == '2':
-            return ['hierarchical']
-        elif att_levels == '3':
-            return ['memory']
+        elif att_levels == "1":
+            return ["cross"]
+        elif att_levels == "2":
+            return ["hierarchical"]
+        elif att_levels == "3":
+            return ["memory"]
         else:
-            raise ValueError(f"Invalid attention type: {att_levels}")
-    
+            raise ValueError(
+                f"Invalid attention type: {att_levels}"
+            )
+
     # If att_levels is a list of strings, process each one
     elif isinstance(att_levels, list):
         # Validate that all entries are valid attention types
@@ -443,32 +482,35 @@ def resolve_attention_levels(
         for level in att_levels:
             if level in attention_map:
                 valid_attentions.append(attention_map[level])
-            elif level == '1':
-                valid_attentions.append('cross')
-            elif level == '2':
-                valid_attentions.append('hierarchical')
-            elif level == '3':
-                valid_attentions.append('memory')
+            elif level == "1":
+                valid_attentions.append("cross")
+            elif level == "2":
+                valid_attentions.append("hierarchical")
+            elif level == "3":
+                valid_attentions.append("memory")
             else:
                 raise ValueError(
                     f"Invalid attention type: {level}"
-                    )
+                )
         return valid_attentions
-    
-    # If att_levels is an integer (1, 2, 3), map it to the corresponding 
+
+    # If att_levels is an integer (1, 2, 3), map it to the corresponding
     # attention mechanism
     elif isinstance(att_levels, int):
         if att_levels == 1:
-            return ['cross']
+            return ["cross"]
         elif att_levels == 2:
-            return ['hierarchical']
+            return ["hierarchical"]
         elif att_levels == 3:
-            return ['memory']
+            return ["memory"]
         else:
-            raise ValueError("Invalid integer for attention type. Use 1, 2, or 3.")
-    
+            raise ValueError(
+                "Invalid integer for attention type. Use 1, 2, or 3."
+            )
+
     # If none of the above cases match, raise an error
     else:
-        raise TypeError(f"Invalid type for att_levels: {type(att_levels)}. "
-                          "Expected str, list, int, or None.")
-
+        raise TypeError(
+            f"Invalid type for att_levels: {type(att_levels)}. "
+            "Expected str, list, int, or None."
+        )

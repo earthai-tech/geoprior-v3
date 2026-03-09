@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Author: LKouadio <etanoyau@gmail.com>
 # Adapted from: earthai-tech/fusionlab-learn — https://github.com/earthai-tech/gofast
@@ -10,37 +9,35 @@ geoprior/nn/components/layer_utils.py
 Small generic helpers + micro‑layers (residual, gating, etc.).
 
 """
+
 from __future__ import annotations
 
-from typing import Optional, Tuple
-
-from ...utils.deps_utils import ensure_pkg
 from ...api.property import NNLearner
-
+from ...utils.deps_utils import ensure_pkg
 from ._config import (
-    Layer, 
-    Tensor, 
-    Dense, 
-    register_keras_serializable,
-    tf_shape, 
-    tf_rank, 
-    tf_bool, 
-    tf_stack, 
-    tf_expand_dims, 
-    tf_cast,
-    tf_float32, 
-    tf_add, 
-    tf_multiply,
-    tf_where, 
-    tf_tile,
-    tf_reduce_mean, 
+    DEP_MSG,
     KERAS_BACKEND,
-    KERAS_DEPS, 
-    DEP_MSG, 
-    tf_autograph
+    KERAS_DEPS,
+    Dense,
+    Layer,
+    Tensor,
+    register_keras_serializable,
+    tf_add,
+    tf_autograph,
+    tf_bool,
+    tf_cast,
+    tf_expand_dims,
+    tf_float32,
+    tf_multiply,
+    tf_rank,
+    tf_reduce_mean,
+    tf_shape,
+    tf_stack,
+    tf_tile,
+    tf_where,
 )
 
-K =KERAS_DEPS 
+K = KERAS_DEPS
 
 __all__ = [
     "ResidualAdd",
@@ -58,16 +55,20 @@ __all__ = [
 
 @register_keras_serializable(
     "geoprior.nn.components", name="ResidualAdd"
-    )
+)
 class ResidualAdd(Layer, NNLearner):
     """Y = X + F(X). Assumes shapes match."""
 
-    def call(self, inputs: Tuple[Tensor, Tensor], training=False) -> Tensor:
+    def call(
+        self, inputs: tuple[Tensor, Tensor], training=False
+    ) -> Tensor:
         x, f = inputs
         return tf_add(x, f)
 
-@register_keras_serializable("geoprior.nn.components",
-                             name="LayerScale")
+
+@register_keras_serializable(
+    "geoprior.nn.components", name="LayerScale"
+)
 class LayerScale(Layer, NNLearner):
     """
     Per-channel trainable scale vector (like ConvNeXt).
@@ -88,7 +89,8 @@ class LayerScale(Layer, NNLearner):
         self.gamma = self.add_weight(
             "gamma",
             shape=gamma_shape,
-            initializer=lambda s, d=None: tf_float32.as_numpy_dtype(
+            initializer=lambda s,
+            d=None: tf_float32.as_numpy_dtype(
                 self.init_value
             ),
             trainable=True,
@@ -104,8 +106,9 @@ class LayerScale(Layer, NNLearner):
         return cfg
 
 
-@register_keras_serializable("geoprior.nn.components",
-                             name="StochasticDepth")
+@register_keras_serializable(
+    "geoprior.nn.components", name="StochasticDepth"
+)
 class StochasticDepth(Layer, NNLearner):
     """
     Wrap a branch with DropPath (stochastic depth).
@@ -130,8 +133,9 @@ class StochasticDepth(Layer, NNLearner):
         return cfg
 
 
-@register_keras_serializable("geoprior.nn.components",
-                             name="SqueezeExcite1D")
+@register_keras_serializable(
+    "geoprior.nn.components", name="SqueezeExcite1D"
+)
 class SqueezeExcite1D(Layer, NNLearner):
     """
     Simple SE block for (B,T,C) or (B,C).
@@ -150,20 +154,24 @@ class SqueezeExcite1D(Layer, NNLearner):
     def build(self, input_shape):
         c = input_shape[-1]
         mid = max(c // self.ratio, 1)
-        self.fc1 = Dense(mid, activation="relu", name="se_fc1")
-        self.fc2 = Dense(c, activation="sigmoid", name="se_fc2")
+        self.fc1 = Dense(
+            mid, activation="relu", name="se_fc1"
+        )
+        self.fc2 = Dense(
+            c, activation="sigmoid", name="se_fc2"
+        )
         super().build(input_shape)
 
     def call(self, x: Tensor, training=False) -> Tensor:
         # Global squeeze
-        if tf_rank(x) == 3:              # (B,T,C) -> (B,C)
+        if tf_rank(x) == 3:  # (B,T,C) -> (B,C)
             z = tf_reduce_mean(x, axis=1)
-        else:                             # (B,C)
+        else:  # (B,C)
             z = x
 
-        s = self.fc2(self.fc1(z))         # (B,C)
+        s = self.fc2(self.fc1(z))  # (B,C)
         if tf_rank(x) == 3:
-            s = tf_expand_dims(s, 1)      # (B,1,C)
+            s = tf_expand_dims(s, 1)  # (B,1,C)
         return x * s
 
     def get_config(self):
@@ -172,7 +180,9 @@ class SqueezeExcite1D(Layer, NNLearner):
         return cfg
 
 
-@register_keras_serializable("geoprior.nn.components", name="Gate")
+@register_keras_serializable(
+    "geoprior.nn.components", name="Gate"
+)
 class Gate(Layer, NNLearner):
     """
     Generic gating layer: y = x * σ(Wx + b).
@@ -185,17 +195,28 @@ class Gate(Layer, NNLearner):
     """
 
     @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
-    def __init__(self, units: Optional[int] = None,
-                 use_bias: bool = True, **kw):
+    def __init__(
+        self,
+        units: int | None = None,
+        use_bias: bool = True,
+        **kw,
+    ):
         super().__init__(**kw)
         self.units = units
         self.use_bias = use_bias
 
     def build(self, input_shape):
-        feat = input_shape[-1] if self.units is None else self.units
-        self.proj = Dense(feat, activation="sigmoid",
-                          use_bias=self.use_bias,
-                          name="gate_proj")
+        feat = (
+            input_shape[-1]
+            if self.units is None
+            else self.units
+        )
+        self.proj = Dense(
+            feat,
+            activation="sigmoid",
+            use_bias=self.use_bias,
+            name="gate_proj",
+        )
         super().build(input_shape)
 
     def call(self, x: Tensor, training=False) -> Tensor:
@@ -204,13 +225,18 @@ class Gate(Layer, NNLearner):
 
     def get_config(self):
         cfg = super().get_config()
-        cfg.update({"units": self.units, "use_bias": self.use_bias})
+        cfg.update(
+            {"units": self.units, "use_bias": self.use_bias}
+        )
         return cfg
 
 
 # ------------------------- Helper functions -----------------------
 
-def maybe_expand_time(x: Tensor, ref: Tensor, axis: int = 1) -> Tensor:
+
+def maybe_expand_time(
+    x: Tensor, ref: Tensor, axis: int = 1
+) -> Tensor:
     """
     If `x` lacks a time dim but `ref` has one, expand `x` on that axis.
 
@@ -230,6 +256,7 @@ def maybe_expand_time(x: Tensor, ref: Tensor, axis: int = 1) -> Tensor:
     if rr >= 3 and xr == rr - 1:
         return tf_expand_dims(x, axis=axis)
     return x
+
 
 def broadcast_like(x: Tensor, target: Tensor) -> Tensor:
     """
@@ -264,6 +291,7 @@ def broadcast_like(x: Tensor, target: Tensor) -> Tensor:
 
     return tf_tile(x, reps)
 
+
 def _broadcast_like(x: Tensor, target: Tensor) -> Tensor:
     """
     Broadcast `x` so it matches `target` along leading dims.
@@ -289,17 +317,21 @@ def _broadcast_like(x: Tensor, target: Tensor) -> Tensor:
     reps = []
     for i in range(tf_rank(target)):
         reps_i = tf_where(
-            t_shape[i] == x_shape[i],
-            1,
-            t_shape[i]
+            t_shape[i] == x_shape[i], 1, t_shape[i]
         )
         reps.append(reps_i)
-    reps = tf_cast(reps, tf_int32 := tf_shape(# noqa
-        tf_shape(x)).dtype) 
+    reps = tf_cast(
+        reps,
+        tf_int32 := tf_shape(  # noqa
+            tf_shape(x)
+        ).dtype,
+    )
     return tf_tile(x, reps)
 
-def ensure_rank_at_least(x: Tensor, min_rank: int,
-                         axis_to_expand: int = -1) -> Tensor:
+
+def ensure_rank_at_least(
+    x: Tensor, min_rank: int, axis_to_expand: int = -1
+) -> Tensor:
     """
     Pad dimensions (=1) until rank >= min_rank.
 
@@ -329,7 +361,9 @@ def apply_residual(x: Tensor, y: Tensor) -> Tensor:
 
 
 @tf_autograph.experimental.do_not_convert
-def drop_path(x: Tensor, drop_prob: float, training: bool) -> Tensor:
+def drop_path(
+    x: Tensor, drop_prob: float, training: bool
+) -> Tensor:
     """
     Stochastic depth on residual branches. If training, randomly
     zero the entire sample (per-batch item) path with prob p.
@@ -356,6 +390,7 @@ def drop_path(x: Tensor, drop_prob: float, training: bool) -> Tensor:
         rnd = K.random.uniform(shape)
     else:  # fallback
         from tensorflow.random import uniform as tf_uniform
+
         rnd = tf_uniform(shape, dtype=tf_float32)
 
     mask = tf_cast(rnd < keep_prob, tf_float32)

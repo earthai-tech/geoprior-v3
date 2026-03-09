@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Author: LKouadio Laurent (@Daniel) <etanoyau@gmail.com>
 # Adapted from: earthai-tech/gofast — https://github.com/earthai-tech/gofast
@@ -16,104 +15,96 @@ from __future__ import annotations
 import os
 import textwrap
 import warnings
-import joblib
 from pathlib import Path
+from typing import Any
 
-import pandas as pd
+import joblib
 import numpy as np
-
-from typing import (
-    Optional,
-    Union,
-    Tuple,
-    List,
-    Dict,
-    Any
-)
-
+import pandas as pd
 from sklearn.preprocessing import (
     MinMaxScaler,
+    OneHotEncoder,
     StandardScaler,
-    OneHotEncoder
 )
 
-from ..logging import get_logger
 from ..api.bunch import XBunch
+from ..logging import get_logger
+from ._config import CITY_CONFIGS
 from ._property import (
-    get_data,
-    download_file_if,
-    RemoteMetadata,
     GEOPRIOR_DMODULE,
-    GEOPRIOR_REMOTE_DATA_URL
+    GEOPRIOR_REMOTE_DATA_URL,
+    RemoteMetadata,
+    download_file_if,
+    get_data,
 )
-from ._config import CITY_CONFIGS 
 
 logger = get_logger(__name__)
 
 # --- Metadata Definition ---
 _ZHONGSHAN_METADATA = RemoteMetadata(
-    file='zhongshan_2000.csv', 
+    file="zhongshan_2000.csv",
     url=GEOPRIOR_REMOTE_DATA_URL,
     checksum=None,  # TODO: Add checksum
     descr_module=None,
-    data_module=GEOPRIOR_DMODULE
+    data_module=GEOPRIOR_DMODULE,
 )
 
 _NANSHA_METADATA = RemoteMetadata(
-    file='nansha_2000.csv',
+    file="nansha_2000.csv",
     url=GEOPRIOR_REMOTE_DATA_URL,
     checksum=None,  # TODO: Add checksum
     descr_module=None,
-    data_module=GEOPRIOR_DMODULE
+    data_module=GEOPRIOR_DMODULE,
 )
 
-CITY_CONFIGS["zhongshan"]['metadata'] = _ZHONGSHAN_METADATA
-CITY_CONFIGS["nansha"]['metadata'] = _NANSHA_METADATA
+CITY_CONFIGS["zhongshan"]["metadata"] = _ZHONGSHAN_METADATA
+CITY_CONFIGS["nansha"]["metadata"] = _NANSHA_METADATA
 
 __all__ = [
     "fetch_zhongshan_data",
     "fetch_nansha_data",
     "load_processed_subsidence_data",
-    "load_subsidence_pinn_data"
+    "load_subsidence_pinn_data",
 ]
 
 
 def load_subsidence_pinn_data(
-    data_name: str = 'zhongshan',
+    data_name: str = "zhongshan",
     strategy: str = "load",
-    n_samples: Optional[int] = None,
+    n_samples: int | None = None,
     include_coords: bool = True,
     include_target: bool = True,
     encode_categoricals: bool = True,
     scale_numericals: bool = True,
     scaler_type: str = "minmax",
     as_frame: bool = False,
-    data_home: Optional[str] = None,
+    data_home: str | None = None,
     use_cache: bool = True,
     save_cache: bool = False,
     cache_suffix: str = "",
     augment_data: bool = False,
-    augment_mode: str = 'both',
-    group_by_cols: Optional[List[str]] = None,
-    time_col: Optional[str] = None,
-    value_cols_interpolate: Optional[List[str]] = None,
-    feature_cols_augment: Optional[List[str]] = None,
-    interpolation_config: Optional[Dict[str, Any]] = None,
-    feature_config: Optional[Dict[str, Any]] = None,
-    target_name: Optional[str] = None,  
+    augment_mode: str = "both",
+    group_by_cols: list[str] | None = None,
+    time_col: str | None = None,
+    value_cols_interpolate: list[str] | None = None,
+    feature_cols_augment: list[str] | None = None,
+    interpolation_config: dict[str, Any] | None = None,
+    feature_config: dict[str, Any] | None = None,
+    target_name: str | None = None,
     interpolate_target: bool = False,
-    coordinate_precision: Optional[int] = 4, 
-    year_range: Union [Tuple [float, float] ,  None] = None,
-    coords_range: Union [
-        Tuple[Tuple[float, float], Tuple[float, float]],
-        None] = None,
-
-    vars_range = None,
-    verbose: int = 1, 
-) -> Union[pd.DataFrame, XBunch]:
-    
-    from ..utils.geo_utils import augment_city_spatiotemporal_data
-    from ..utils.geo_utils import generate_dummy_pinn_data
+    coordinate_precision: int | None = 4,
+    year_range: tuple[float, float] | None = None,
+    coords_range: tuple[
+        tuple[float, float], tuple[float, float]
+    ]
+    | None = None,
+    vars_range=None,
+    verbose: int = 1,
+) -> pd.DataFrame | XBunch:
+    from ..utils.geo_utils import (
+        augment_city_spatiotemporal_data,
+        generate_dummy_pinn_data,
+    )
 
     if data_name.lower() not in CITY_CONFIGS:
         raise ValueError(
@@ -123,23 +114,27 @@ def load_subsidence_pinn_data(
 
     cfg = CITY_CONFIGS[data_name.lower()]
     metadata = cfg["metadata"]
-    
+
     # --- Step 0 - Validate user-provided data_home path ---
-    data_path_resolved, metadata =_resolve_data_path (
-        data_home, metadata=metadata, data_name=data_name, 
-        strategy=strategy, verbose =verbose, 
+    data_path_resolved, metadata = _resolve_data_path(
+        data_home,
+        metadata=metadata,
+        data_name=data_name,
+        strategy=strategy,
+        verbose=verbose,
     )
     # --- Caching Logic ---
     cache_dir = get_data(data_home)
     # Include data_name in cache filename for uniqueness
-    base_name = f"{data_name}_{os.path.splitext(metadata.file)[0]}"
+    base_name = (
+        f"{data_name}_{os.path.splitext(metadata.file)[0]}"
+    )
     proc_fname = f"{base_name}_processed{cache_suffix}.joblib"
     proc_fpath = os.path.join(cache_dir, proc_fname)
 
-
     df = None
-    encoder_info: Dict[str, Any] = {}
-    scaler_info: Dict[str, Any] = {}
+    encoder_info: dict[str, Any] = {}
+    scaler_info: dict[str, Any] = {}
 
     if use_cache:
         try:
@@ -149,7 +144,9 @@ def load_subsidence_pinn_data(
                 encoder_info = cached.get("encoder_info", {})
                 scaler_info = cached.get("scaler_info", {})
                 if verbose >= 1:
-                    logger.info(f"Loaded cached data from: {proc_fpath}")
+                    logger.info(
+                        f"Loaded cached data from: {proc_fpath}"
+                    )
             else:  # Cache file is invalid
                 if verbose >= 1:
                     logger.info(
@@ -158,10 +155,13 @@ def load_subsidence_pinn_data(
                 df = None  # Force reload/generation
         except FileNotFoundError:
             if verbose >= 1:
-                logger.info(f"No cache file found at: {proc_fpath}")
+                logger.info(
+                    f"No cache file found at: {proc_fpath}"
+                )
         except Exception as e:
             warnings.warn(
-                f"Error loading cache ({proc_fpath}: {e}); will reprocess."
+                f"Error loading cache ({proc_fpath}: {e}); will reprocess.",
+                stacklevel=2,
             )
             df = None  # Force reload/generation
 
@@ -222,23 +222,32 @@ def load_subsidence_pinn_data(
             for cat_col in cfg["categorical_cols"]:
                 # Simplified dummy categories
                 dummy_data_dict[cat_col] = np.random.choice(
-                    [f"{cat_col}_A", f"{cat_col}_B", f"{cat_col}_C"],
-                    size=n_samples
+                    [
+                        f"{cat_col}_A",
+                        f"{cat_col}_B",
+                        f"{cat_col}_C",
+                    ],
+                    size=n_samples,
                 )
             for num_col in cfg["numerical_main"]:
                 if num_col not in dummy_data_dict:
-                    dummy_data_dict[num_col] = np.random.rand(n_samples)
-            if data_name == 'nansha' and 'soil_thickness' in cfg[
-                "numerical_main"
-            ]:
-                dummy_data_dict['soil_thickness'] = np.random.uniform(
-                    1, 10, n_samples
+                    dummy_data_dict[num_col] = np.random.rand(
+                        n_samples
+                    )
+            if (
+                data_name == "nansha"
+                and "soil_thickness" in cfg["numerical_main"]
+            ):
+                dummy_data_dict["soil_thickness"] = (
+                    np.random.uniform(1, 10, n_samples)
                 )
 
             df = pd.DataFrame(dummy_data_dict)
 
         if verbose >= 1:
-            logger.info(f"Data loaded/generated. Initial shape: {df.shape}")
+            logger.info(
+                f"Data loaded/generated. Initial shape: {df.shape}"
+            )
 
         # --- Preprocessing ---
         # Ensure essential columns exist
@@ -247,10 +256,12 @@ def load_subsidence_pinn_data(
             cfg["lon_col"],
             cfg["lat_col"],
             cfg["subsidence_col"],
-            cfg["gwl_col"]
+            cfg["gwl_col"],
         ]
         missing_essentials = [
-            c for c in essential_for_core_processing if c not in df.columns
+            c
+            for c in essential_for_core_processing
+            if c not in df.columns
         ]
         if missing_essentials:
             raise ValueError(
@@ -258,15 +269,20 @@ def load_subsidence_pinn_data(
                 f"{missing_essentials}"
             )
 
-        df = df.dropna(subset=essential_for_core_processing).copy()
+        df = df.dropna(
+            subset=essential_for_core_processing
+        ).copy()
 
         # Datetime conversion
         try:
             time_column_to_convert = cfg["time_col"]
-            if pd.api.types.is_numeric_dtype(df[time_column_to_convert]) and \
-               all(df[time_column_to_convert].apply(
-                   lambda x: 1900 < x < 2100
-               )):  # Heuristic for year int
+            if pd.api.types.is_numeric_dtype(
+                df[time_column_to_convert]
+            ) and all(
+                df[time_column_to_convert].apply(
+                    lambda x: 1900 < x < 2100
+                )
+            ):  # Heuristic for year int
                 df[cfg["dt_col_name"]] = pd.to_datetime(
                     df[time_column_to_convert], format="%Y"
                 )
@@ -286,57 +302,82 @@ def load_subsidence_pinn_data(
 
         # One-Hot Encode
         current_encoder_info = {
-            "columns": {}, "names": {}, "encoder_instance": None
+            "columns": {},
+            "names": {},
+            "encoder_instance": None,
         }
         if encode_categoricals:
             cats_to_encode = [
-                c for c in cfg["categorical_cols"] if c in df.columns
+                c
+                for c in cfg["categorical_cols"]
+                if c in df.columns
             ]
             if cats_to_encode:
                 if verbose >= 1:
-                    logger.info(f"One-Hot encoding: {cats_to_encode}")
+                    logger.info(
+                        f"One-Hot encoding: {cats_to_encode}"
+                    )
                 encoder = OneHotEncoder(
                     sparse_output=False,
-                    handle_unknown='ignore',
-                    dtype=np.float32
+                    handle_unknown="ignore",
+                    dtype=np.float32,
                 )
-                enc_data = encoder.fit_transform(df[cats_to_encode])
-                ohe_cols = encoder.get_feature_names_out(cats_to_encode)
+                enc_data = encoder.fit_transform(
+                    df[cats_to_encode]
+                )
+                ohe_cols = encoder.get_feature_names_out(
+                    cats_to_encode
+                )
                 enc_df = pd.DataFrame(
-                    enc_data,
-                    columns=ohe_cols,
-                    index=df.index
+                    enc_data, columns=ohe_cols, index=df.index
                 )
                 df = df.drop(columns=cats_to_encode)
                 df = pd.concat([df, enc_df], axis=1)
                 for i, col_cat in enumerate(cats_to_encode):
-                    current_encoder_info["columns"][col_cat] = [
-                        name for name in ohe_cols
+                    current_encoder_info["columns"][
+                        col_cat
+                    ] = [
+                        name
+                        for name in ohe_cols
                         if name.startswith(col_cat + "_")
                     ]
-                    current_encoder_info["names"][col_cat] = list(
-                        encoder.categories_[i]
+                    current_encoder_info["names"][col_cat] = (
+                        list(encoder.categories_[i])
                     )
-                current_encoder_info["encoder_instance"] = encoder
+                current_encoder_info["encoder_instance"] = (
+                    encoder
+                )
                 encoder_info = current_encoder_info
             elif verbose >= 2:
-                logger.debug("No categorical columns found for encoding.")
+                logger.debug(
+                    "No categorical columns found for encoding."
+                )
         elif verbose >= 1:
             logger.info("Skipping categorical encoding.")
 
         # Numerical Time Coordinate (must be done AFTER all rows are fixed)
-        df[cfg["time_col"] + "_numeric"] = (
-            df[cfg["dt_col_name"]].dt.year
-            + (df[cfg["dt_col_name"]].dt.dayofyear - 1)
-            / (365 + df[cfg["dt_col_name"]].dt.is_leap_year.astype(int))
+        df[cfg["time_col"] + "_numeric"] = df[
+            cfg["dt_col_name"]
+        ].dt.year + (
+            df[cfg["dt_col_name"]].dt.dayofyear - 1
+        ) / (
+            365
+            + df[cfg["dt_col_name"]].dt.is_leap_year.astype(
+                int
+            )
         )
 
         # Scale Numerical Features
-        current_scaler_info = {"columns": [], "scaler_instance": None}
+        current_scaler_info = {
+            "columns": [],
+            "scaler_instance": None,
+        }
         if scale_numericals:
             # Scale only the main numerical features, not coords, time, or targets.
             cols_to_scale = [
-                c for c in cfg["numerical_main"] if c in df.columns
+                c
+                for c in cfg["numerical_main"]
+                if c in df.columns
             ]
             if cols_to_scale:
                 if verbose >= 1:
@@ -349,11 +390,17 @@ def load_subsidence_pinn_data(
                 elif scaler_type == "standard":
                     scaler = StandardScaler()
                 else:
-                    raise ValueError(f"Unknown scaler_type: {scaler_type}")
+                    raise ValueError(
+                        f"Unknown scaler_type: {scaler_type}"
+                    )
 
-                df[cols_to_scale] = scaler.fit_transform(df[cols_to_scale])
+                df[cols_to_scale] = scaler.fit_transform(
+                    df[cols_to_scale]
+                )
                 current_scaler_info["columns"] = cols_to_scale
-                current_scaler_info["scaler_instance"] = scaler
+                current_scaler_info["scaler_instance"] = (
+                    scaler
+                )
                 scaler_info = current_scaler_info
             elif verbose >= 2:
                 logger.debug(
@@ -368,7 +415,7 @@ def load_subsidence_pinn_data(
             save_obj = {
                 "data": df,
                 "encoder_info": encoder_info,
-                "scaler_info": scaler_info
+                "scaler_info": scaler_info,
             }
             try:
                 joblib.dump(save_obj, proc_fpath)
@@ -378,7 +425,8 @@ def load_subsidence_pinn_data(
                     )
             except Exception as e:
                 warnings.warn(
-                    f"Failed to save cache to {proc_fpath}: {e}"
+                    f"Failed to save cache to {proc_fpath}: {e}",
+                    stacklevel=2,
                 )
 
     # --- Data Augmentation Step ---
@@ -390,33 +438,48 @@ def load_subsidence_pinn_data(
 
         # Set defaults for augmentation parameters if not provided by user
         aug_group_cols = group_by_cols or [
-            cfg["lon_col"], cfg["lat_col"]
+            cfg["lon_col"],
+            cfg["lat_col"],
         ]
-        aug_time_col = time_col or cfg["time_col"]  # Original time col
+        aug_time_col = (
+            time_col or cfg["time_col"]
+        )  # Original time col
 
         aug_val_cols_interp = value_cols_interpolate
         if aug_val_cols_interp is None:
-            aug_val_cols_interp = cfg["default_value_cols_interpolate"]
+            aug_val_cols_interp = cfg[
+                "default_value_cols_interpolate"
+            ]
         # Conditionally add target to interpolation
-        _aug_target_name = target_name or cfg["subsidence_col"]
-        if interpolate_target and _aug_target_name not in aug_val_cols_interp:
+        _aug_target_name = (
+            target_name or cfg["subsidence_col"]
+        )
+        if (
+            interpolate_target
+            and _aug_target_name not in aug_val_cols_interp
+        ):
             aug_val_cols_interp.append(_aug_target_name)
 
         aug_feat_cols_noise = feature_cols_augment
         if aug_feat_cols_noise is None:
-            aug_feat_cols_noise = cfg["default_feature_cols_augment"]
+            aug_feat_cols_noise = cfg[
+                "default_feature_cols_augment"
+            ]
             # Ensure target is not in noise augmentation list by default
             if _aug_target_name in aug_feat_cols_noise:
                 aug_feat_cols_noise = [
-                    c for c in aug_feat_cols_noise
+                    c
+                    for c in aug_feat_cols_noise
                     if c != _aug_target_name
                 ]
 
         interp_conf = interpolation_config or {
-            'freq': 'AS', 'method': 'linear'
+            "freq": "AS",
+            "method": "linear",
         }
         aug_conf = feature_config or {
-            'noise_level': 0.01, 'noise_type': 'gaussian'
+            "noise_level": 0.01,
+            "noise_type": "gaussian",
         }
 
         df = augment_city_spatiotemporal_data(  # Call the geo_utils function
@@ -431,37 +494,48 @@ def load_subsidence_pinn_data(
             augmentation_config=aug_conf,
             target_name=_aug_target_name,
             interpolate_target=interpolate_target,
-            verbose=verbose > 1,  # Pass down a boolean verbose
+            verbose=verbose
+            > 1,  # Pass down a boolean verbose
             coordinate_precision=coordinate_precision,
             # savefile parameter is not used here, augmentation in-memory
         )
         if verbose >= 1:
-            logger.info(f"Data augmentation complete. New shape: {df.shape}")
+            logger.info(
+                f"Data augmentation complete. New shape: {df.shape}"
+            )
 
     if as_frame:
         return df.copy()
 
     # --- Build XBunch for output ---
     feature_cols = [
-        c for c in df.columns
-        if c not in [
+        c
+        for c in df.columns
+        if c
+        not in [
             cfg["dt_col_name"],
             cfg["subsidence_col"],
-            cfg["gwl_col"]
+            cfg["gwl_col"],
         ]
     ]
     if not include_coords:
         feature_cols = [
-            c for c in feature_cols
+            c
+            for c in feature_cols
             if c not in [cfg["lon_col"], cfg["lat_col"]]
         ]
 
     target_cols_bunch: list[str] = []
     if include_target:
-        target_cols_bunch = [cfg["subsidence_col"], cfg["gwl_col"]]
+        target_cols_bunch = [
+            cfg["subsidence_col"],
+            cfg["gwl_col"],
+        ]
         # Ensure target columns exist before trying to access them
         missing_targets = [
-            tc for tc in target_cols_bunch if tc not in df.columns
+            tc
+            for tc in target_cols_bunch
+            if tc not in df.columns
         ]
         if missing_targets:
             logger.warning(
@@ -470,7 +544,8 @@ def load_subsidence_pinn_data(
             )
             target_array = None
             target_cols_bunch = [
-                tc for tc in target_cols_bunch
+                tc
+                for tc in target_cols_bunch
                 if tc in df.columns
             ]
         else:
@@ -500,7 +575,7 @@ def load_subsidence_pinn_data(
         f"Time Column (numeric): {cfg['time_col'] + '_numeric'}."
     )
 
-    bunch_dict: Dict[str, Any] = {
+    bunch_dict: dict[str, Any] = {
         "frame": df.copy(),  # Return a copy
         "data": data_array,
         "feature_names": feature_cols,
@@ -508,17 +583,20 @@ def load_subsidence_pinn_data(
         "target": target_array,
         "DESCR": descr,
         "encoder_info": encoder_info,  # From cache or fresh processing
-        "scaler_info": scaler_info     # From cache or fresh processing
+        "scaler_info": scaler_info,  # From cache or fresh processing
     }
     if include_coords:
         if cfg["lon_col"] in df.columns:
-            bunch_dict["longitude"] = df[cfg["lon_col"]].values
+            bunch_dict["longitude"] = df[
+                cfg["lon_col"]
+            ].values
         if cfg["lat_col"] in df.columns:
             bunch_dict["latitude"] = df[cfg["lat_col"]].values
 
     return XBunch(**bunch_dict)
 
-load_subsidence_pinn_data.__doc__=r"""
+
+load_subsidence_pinn_data.__doc__ = r"""
 Load and preprocess subsidence‐focused PINN data for Zhongshan or Nansha.
 
 This function handles data retrieval (from local CSV or remote),
@@ -753,18 +831,19 @@ apply augmentation with yearly interpolation and Gaussian noise:**
 
 """
 
+
 def fetch_zhongshan_data(
     *,
-    n_samples: Optional[Union[int, str]] = None, 
+    n_samples: int | str | None = None,
     as_frame: bool = False,
     include_coords: bool = True,
     include_target: bool = True,
-    data_home: Optional[str] = None,
+    data_home: str | None = None,
     download_if_missing: bool = True,
     force_download: bool = False,
-    random_state: Optional[int] = None, 
-    verbose: bool = True
-) -> Union[XBunch, pd.DataFrame]:
+    random_state: int | None = None,
+    verbose: bool = True,
+) -> XBunch | pd.DataFrame:
     r"""Fetch the Zhongshan land subsidence dataset (sampled 2000 points).
 
     Loads the `zhongshan_2000.csv` file, which contains features
@@ -841,103 +920,144 @@ def fetch_zhongshan_data(
     """
 
     from ..utils.spatial_utils import spatial_sampling
-    
+
     # --- Step 1: Obtain filepath using helper ---
     filepath_to_load = download_file_if(
-        metadata=_ZHONGSHAN_METADATA, data_home=data_home,
+        metadata=_ZHONGSHAN_METADATA,
+        data_home=data_home,
         download_if_missing=download_if_missing,
-        force_download=force_download, error='raise', 
-        verbose=verbose
+        force_download=force_download,
+        error="raise",
+        verbose=verbose,
     )
 
     # --- Step 2: Load data ---
     try:
         df = pd.read_csv(filepath_to_load)
         if verbose:
-            print(f"Successfully loaded full data ({len(df)} rows)"
-                  f" from: {filepath_to_load}")
+            print(
+                f"Successfully loaded full data ({len(df)} rows)"
+                f" from: {filepath_to_load}"
+            )
     except Exception as e:
         raise OSError(
             f"Error reading dataset file at {filepath_to_load}: {e}"
-            ) from e
+        ) from e
 
     # --- Step 3: Optional Sub-sampling ---
-    if n_samples is not None and n_samples != '*':
+    if n_samples is not None and n_samples != "*":
         if not isinstance(n_samples, int) or n_samples <= 0:
-            raise ValueError(f"`n_samples` must be a positive integer"
-                             f" or '*' or None. Got {n_samples}.")
+            raise ValueError(
+                f"`n_samples` must be a positive integer"
+                f" or '*' or None. Got {n_samples}."
+            )
 
         total_rows = len(df)
         if n_samples > total_rows:
-             warnings.warn(
-                 f"Requested n_samples ({n_samples}) is larger than "
-                 f"available rows ({total_rows}). Returning full dataset."
-             )
-        elif 'longitude' not in df.columns or 'latitude' not in df.columns:
-             warnings.warn(
-                 "Coordinate columns ('longitude', 'latitude') not found. "
-                 "Using simple random sampling instead of spatial sampling."
-             )
-             df = df.sample(n=n_samples, random_state=random_state)
-             if verbose:
-                  print(f"Performed simple random sampling: {len(df)} rows.")
+            warnings.warn(
+                f"Requested n_samples ({n_samples}) is larger than "
+                f"available rows ({total_rows}). Returning full dataset.",
+                stacklevel=2,
+            )
+        elif (
+            "longitude" not in df.columns
+            or "latitude" not in df.columns
+        ):
+            warnings.warn(
+                "Coordinate columns ('longitude', 'latitude') not found. "
+                "Using simple random sampling instead of spatial sampling.",
+                stacklevel=2,
+            )
+            df = df.sample(
+                n=n_samples, random_state=random_state
+            )
+            if verbose:
+                print(
+                    f"Performed simple random sampling: {len(df)} rows."
+                )
         else:
             # Use spatial sampling
             if verbose:
-                print(f"Performing spatial sampling for {n_samples} rows...")
+                print(
+                    f"Performing spatial sampling for {n_samples} rows..."
+                )
             # Use verbose level 1 for spatial_sampling basic info
             sample_verbose = 1 if verbose else 0
             df = spatial_sampling(
                 df,
                 sample_size=n_samples,
-                spatial_cols=('longitude','latitude'), 
+                spatial_cols=("longitude", "latitude"),
                 random_state=random_state,
-                verbose=sample_verbose
+                verbose=sample_verbose,
             )
             if verbose:
-                print(f"Spatial sampling complete: {len(df)} rows selected.")
+                print(
+                    f"Spatial sampling complete: {len(df)} rows selected."
+                )
     elif verbose:
-        print("Loading full dataset (n_samples is None or '*').")
+        print(
+            "Loading full dataset (n_samples is None or '*')."
+        )
 
     # --- Step 4: Column Selection ---
-    coord_cols = ['longitude', 'latitude']
-    target_col = 'subsidence'
+    coord_cols = ["longitude", "latitude"]
+    target_col = "subsidence"
     feature_cols = [
-        col for col in df.columns
+        col
+        for col in df.columns
         if col not in coord_cols + [target_col]
-        ]
+    ]
     cols_to_keep = []
     if include_coords:
-        cols_to_keep.extend([c for c in coord_cols if c in df.columns])
+        cols_to_keep.extend(
+            [c for c in coord_cols if c in df.columns]
+        )
     cols_to_keep.extend(feature_cols)
     if include_target:
         if target_col in df.columns:
             cols_to_keep.append(target_col)
-        else: warnings.warn(f"Target column '{target_col}' not found.")
+        else:
+            warnings.warn(
+                f"Target column '{target_col}' not found.",
+                stacklevel=2,
+            )
 
     final_cols = [c for c in cols_to_keep if c in df.columns]
     df_subset = df[final_cols].copy()
 
     # --- Step 5: Return DataFrame or Bunch ---
     if as_frame:
-        df_subset.sort_values('year', inplace =True)
+        df_subset.sort_values("year", inplace=True)
         return df_subset
     else:
         # Assemble Bunch object (descriptions need updating)
-        target_names = ([target_col] if include_target and
-                        target_col in df_subset else [])
-        target_array = df_subset[target_names].values.ravel(
-            ) if target_names else None
+        target_names = (
+            [target_col]
+            if include_target and target_col in df_subset
+            else []
+        )
+        target_array = (
+            df_subset[target_names].values.ravel()
+            if target_names
+            else None
+        )
         bunch_feature_names = [
-            c for c in df_subset.columns
+            c
+            for c in df_subset.columns
             if c not in coord_cols + target_names
-            ]
+        ]
         try:
-             data_array = df_subset[bunch_feature_names].select_dtypes(
-                 include=np.number).values
+            data_array = (
+                df_subset[bunch_feature_names]
+                .select_dtypes(include=np.number)
+                .values
+            )
         except Exception:
-             data_array = None
-             warnings.warn("Could not extract numerical data for Bunch.data")
+            data_array = None
+            warnings.warn(
+                "Could not extract numerical data for Bunch.data",
+                stacklevel=2,
+            )
 
         # Update description based on actual loaded/sampled size
         descr = textwrap.dedent(f"""\
@@ -953,38 +1073,44 @@ def fetch_zhongshan_data(
         - Samples: {len(df_subset)}
         - Total Columns Loaded: {len(df_subset.columns)}
         - Feature Columns (in Bunch): {len(bunch_feature_names)}
-        - Target Column ('subsidence'): {'Present' if target_names else 'Not Loaded'}
+        - Target Column ('subsidence'): {"Present" if target_names else "Not Loaded"}
 
-        **Available Columns in Frame:** {', '.join(df_subset.columns)}
-        """) # Removed full Bunch contents for brevity
+        **Available Columns in Frame:** {", ".join(df_subset.columns)}
+        """)  # Removed full Bunch contents for brevity
 
         bunch_dict = {
-            "frame": df_subset, "data": data_array,
+            "frame": df_subset,
+            "data": data_array,
             "feature_names": bunch_feature_names,
-            "target_names": target_names, "target": target_array,
+            "target_names": target_names,
+            "target": target_array,
             "DESCR": descr,
         }
         if include_coords:
-            if 'longitude' in df_subset:
-                bunch_dict['longitude'] = df_subset['longitude'].values
-            if 'latitude' in df_subset:
-                bunch_dict['latitude'] = df_subset['latitude'].values
+            if "longitude" in df_subset:
+                bunch_dict["longitude"] = df_subset[
+                    "longitude"
+                ].values
+            if "latitude" in df_subset:
+                bunch_dict["latitude"] = df_subset[
+                    "latitude"
+                ].values
 
         return XBunch(**bunch_dict)
 
 
 def fetch_nansha_data(
     *,
-    n_samples: Optional[Union[int, str]] = None,
+    n_samples: int | str | None = None,
     as_frame: bool = False,
     include_coords: bool = True,
     include_target: bool = True,
-    data_home: Optional[str] = None,
+    data_home: str | None = None,
     download_if_missing: bool = True,
     force_download: bool = False,
-    random_state: Optional[int] = None, 
-    verbose: bool = True
-) -> Union[XBunch, pd.DataFrame]:
+    random_state: int | None = None,
+    verbose: bool = True,
+) -> XBunch | pd.DataFrame:
     r"""Fetch the sampled Nansha land subsidence dataset (2000 points).
 
     Loads the `nansha_2000.csv` file, which contains features related
@@ -1056,83 +1182,108 @@ def fetch_nansha_data(
         If there is an error reading the dataset file.
     """
     from ..utils.spatial_utils import spatial_sampling
-    
+
     # --- Step 1: Obtain filepath using helper ---
     filepath_to_load = download_file_if(
-        metadata=_NANSHA_METADATA, # Use Nansha metadata
+        metadata=_NANSHA_METADATA,  # Use Nansha metadata
         data_home=data_home,
         download_if_missing=download_if_missing,
         force_download=force_download,
-        error='raise', # Raise error if not found/downloaded
-        verbose=verbose
+        error="raise",  # Raise error if not found/downloaded
+        verbose=verbose,
     )
 
     # --- Step 2: Load data ---
     try:
         df = pd.read_csv(filepath_to_load)
         if verbose:
-            print(f"Successfully loaded full data ({len(df)} rows)"
-                  f" from: {filepath_to_load}")
+            print(
+                f"Successfully loaded full data ({len(df)} rows)"
+                f" from: {filepath_to_load}"
+            )
     except Exception as e:
         raise OSError(
             f"Error reading dataset file at {filepath_to_load}: {e}"
-            ) from e
+        ) from e
 
     # --- Step 3: Optional Sub-sampling ---
-    if n_samples is not None and n_samples != '*':
+    if n_samples is not None and n_samples != "*":
         if not isinstance(n_samples, int) or n_samples <= 0:
-            raise ValueError(f"`n_samples` must be a positive integer"
-                             f" or '*' or None. Got {n_samples}.")
+            raise ValueError(
+                f"`n_samples` must be a positive integer"
+                f" or '*' or None. Got {n_samples}."
+            )
 
         total_rows = len(df)
         if n_samples > total_rows:
-             warnings.warn(
-                 f"Requested n_samples ({n_samples}) is larger than "
-                 f"available rows ({total_rows}). Returning full dataset."
-             )
-        elif 'longitude' not in df.columns or 'latitude' not in df.columns:
-             warnings.warn(
-                 "Coordinate columns ('longitude', 'latitude') not found. "
-                 "Using simple random sampling."
-             )
-             df = df.sample(n=n_samples, random_state=random_state)
-             if verbose:
-                  print(f"Performed simple random sampling: {len(df)} rows.")
+            warnings.warn(
+                f"Requested n_samples ({n_samples}) is larger than "
+                f"available rows ({total_rows}). Returning full dataset.",
+                stacklevel=2,
+            )
+        elif (
+            "longitude" not in df.columns
+            or "latitude" not in df.columns
+        ):
+            warnings.warn(
+                "Coordinate columns ('longitude', 'latitude') not found. "
+                "Using simple random sampling.",
+                stacklevel=2,
+            )
+            df = df.sample(
+                n=n_samples, random_state=random_state
+            )
+            if verbose:
+                print(
+                    f"Performed simple random sampling: {len(df)} rows."
+                )
         else:
             # Use spatial sampling
             if verbose:
-                print(f"Performing spatial sampling for {n_samples} rows...")
+                print(
+                    f"Performing spatial sampling for {n_samples} rows..."
+                )
             sample_verbose = 1 if verbose else 0
             df = spatial_sampling(
                 df,
                 sample_size=n_samples,
-                spatial_cols=('longitude','latitude'),
+                spatial_cols=("longitude", "latitude"),
                 random_state=random_state,
-                verbose=sample_verbose
+                verbose=sample_verbose,
             )
             if verbose:
-                print(f"Spatial sampling complete: {len(df)} rows selected.")
+                print(
+                    f"Spatial sampling complete: {len(df)} rows selected."
+                )
     elif verbose:
-        print("Loading full dataset (n_samples is None or '*').")
-
+        print(
+            "Loading full dataset (n_samples is None or '*')."
+        )
 
     # --- Step 4: Column Selection ---
-    coord_cols = ['longitude', 'latitude']
-    target_col = 'subsidence' # Assuming same target name
+    coord_cols = ["longitude", "latitude"]
+    target_col = "subsidence"  # Assuming same target name
     # Identify feature columns for Nansha data
     feature_cols = [
-        col for col in df.columns
+        col
+        for col in df.columns
         if col not in coord_cols + [target_col]
-        ]
+    ]
 
     cols_to_keep = []
     if include_coords:
-        cols_to_keep.extend([c for c in coord_cols if c in df.columns])
+        cols_to_keep.extend(
+            [c for c in coord_cols if c in df.columns]
+        )
     cols_to_keep.extend(feature_cols)
     if include_target:
         if target_col in df.columns:
             cols_to_keep.append(target_col)
-        else: warnings.warn(f"Target column '{target_col}' not found.")
+        else:
+            warnings.warn(
+                f"Target column '{target_col}' not found.",
+                stacklevel=2,
+            )
 
     final_cols = [c for c in cols_to_keep if c in df.columns]
     df_subset = df[final_cols].copy()
@@ -1142,20 +1293,33 @@ def fetch_nansha_data(
         return df_subset
     else:
         # Assemble Bunch object
-        target_names = ([target_col] if include_target and
-                        target_col in df_subset else [])
-        target_array = df_subset[target_names].values.ravel(
-            ) if target_names else None
+        target_names = (
+            [target_col]
+            if include_target and target_col in df_subset
+            else []
+        )
+        target_array = (
+            df_subset[target_names].values.ravel()
+            if target_names
+            else None
+        )
         bunch_feature_names = [
-            c for c in df_subset.columns
+            c
+            for c in df_subset.columns
             if c not in coord_cols + target_names
-            ]
+        ]
         try:
-             data_array = df_subset[bunch_feature_names].select_dtypes(
-                 include=np.number).values
+            data_array = (
+                df_subset[bunch_feature_names]
+                .select_dtypes(include=np.number)
+                .values
+            )
         except Exception:
-             data_array = None
-             warnings.warn("Could not extract numerical data for Bunch.data")
+            data_array = None
+            warnings.warn(
+                "Could not extract numerical data for Bunch.data",
+                stacklevel=2,
+            )
 
         # Create description for Nansha
         descr = textwrap.dedent(f"""\
@@ -1171,55 +1335,62 @@ def fetch_nansha_data(
         - Samples: {len(df_subset)}
         - Total Columns Loaded: {len(df_subset.columns)}
         - Feature Columns (in Bunch): {len(bunch_feature_names)}
-        - Target Column ('subsidence'): {'Present' if target_names else 'Not Loaded'}
+        - Target Column ('subsidence'): {"Present" if target_names else "Not Loaded"}
 
-        **Available Columns in Frame:** {', '.join(df_subset.columns)}
-        """) # Simplified Bunch contents description
+        **Available Columns in Frame:** {", ".join(df_subset.columns)}
+        """)  # Simplified Bunch contents description
 
         bunch_dict = {
-            "frame": df_subset, "data": data_array,
+            "frame": df_subset,
+            "data": data_array,
             "feature_names": bunch_feature_names,
-            "target_names": target_names, "target": target_array,
+            "target_names": target_names,
+            "target": target_array,
             "DESCR": descr,
         }
         if include_coords:
-            if 'longitude' in df_subset:
-                bunch_dict['longitude'] = df_subset['longitude'].values
-            if 'latitude' in df_subset:
-                bunch_dict['latitude'] = df_subset['latitude'].values
+            if "longitude" in df_subset:
+                bunch_dict["longitude"] = df_subset[
+                    "longitude"
+                ].values
+            if "latitude" in df_subset:
+                bunch_dict["latitude"] = df_subset[
+                    "latitude"
+                ].values
 
         return XBunch(**bunch_dict)
 
+
 def load_processed_subsidence_data(
-    dataset_name: str = 'zhongshan',
+    dataset_name: str = "zhongshan",
     *,
-    n_samples: Optional[Union[int, str]] = None,
+    n_samples: int | str | None = None,
     as_frame: bool = False,
-    include_coords: bool = True, 
+    include_coords: bool = True,
     include_target: bool = True,
-    data_home: Optional[str] = None,
+    data_home: str | None = None,
     download_if_missing: bool = True,
     force_download_raw: bool = False,
-    random_state: Optional[int] = None,
+    random_state: int | None = None,
     apply_feature_select: bool = True,
     apply_nan_ops: bool = True,
     encode_categoricals: bool = True,
     scale_numericals: bool = True,
-    scaler_type: str = 'minmax',
+    scaler_type: str = "minmax",
     return_sequences: bool = False,
     time_steps: int = 4,
     forecast_horizon: int = 4,
-    target_col: str = 'subsidence',
-    scale_target: bool=False, 
-    group_by_cols: bool =True, 
+    target_col: str = "subsidence",
+    scale_target: bool = False,
+    group_by_cols: bool = True,
     use_processed_cache: bool = True,
     use_sequence_cache: bool = True,
     save_processed_frame: bool = False,
     save_sequences: bool = False,
     cache_suffix: str = "",
-    nan_handling_method: Optional[str] = 'fill',
-    verbose: bool = True
-) -> Union[XBunch, pd.DataFrame, Tuple[np.ndarray, ...]]:
+    nan_handling_method: str | None = "fill",
+    verbose: bool = True,
+) -> XBunch | pd.DataFrame | tuple[np.ndarray, ...]:
     r"""Loads, preprocesses, and optionally sequences landslide datasets.
 
     This function provides a complete pipeline to prepare the Zhongshan
@@ -1315,11 +1486,11 @@ def load_processed_subsidence_data(
         generation. Only used if ``return_sequences=True``.
     target_col : str, default='subsidence'
         Name of the target variable column used for sequence generation.
-    scale_target: bool, default=False 
-        Whether to scale the target or not. 
+    scale_target: bool, default=False
+        Whether to scale the target or not.
     group_by_cols : bool or list of str, default True
         Controls how the data is partitioned before sequence generation.
-        
+
         - False (default): do not group by any columns; the entire dataset
           is treated as a single continuous time series.
         - list of str: names of one or more DataFrame columns (e.g.
@@ -1423,237 +1594,360 @@ def load_processed_subsidence_data(
     >>> print(f"Loaded and processed sample shape: {df_proc_sample.shape}")
 
     """
-    from ..utils.io_utils import fetch_joblib_data
     from ..nn.utils import reshape_xtft_data
     from ..utils.data_utils import nan_ops
-    
+    from ..utils.io_utils import fetch_joblib_data
+
     # --- Configuration based on dataset name ---
-    if dataset_name == 'zhongshan':
+    if dataset_name == "zhongshan":
         fetch_func = fetch_zhongshan_data
-        default_features = [ # Features used in paper example
-            'longitude', 'latitude', 'year', 'GWL', 'rainfall_mm',
-            'geology', 'normalized_density', 'density_tier',
-            'normalized_seismic_risk_score', 'subsidence'
-            ]
-        categorical_cols = ['geology', 'density_tier']
+        default_features = [  # Features used in paper example
+            "longitude",
+            "latitude",
+            "year",
+            "GWL",
+            "rainfall_mm",
+            "geology",
+            "normalized_density",
+            "density_tier",
+            "normalized_seismic_risk_score",
+            "subsidence",
+        ]
+        categorical_cols = ["geology", "density_tier"]
         # Numerical cols excluding coords, year, target, categoricals
         numerical_cols = [
-            'GWL', 'rainfall_mm', 'normalized_density',
-            'normalized_seismic_risk_score'
-            ]
-        spatial_cols = ['longitude', 'latitude']
-        dt_col = 'year' # Time column for reshaping
-    elif dataset_name == 'nansha':
+            "GWL",
+            "rainfall_mm",
+            "normalized_density",
+            "normalized_seismic_risk_score",
+        ]
+        spatial_cols = ["longitude", "latitude"]
+        dt_col = "year"  # Time column for reshaping
+    elif dataset_name == "nansha":
         fetch_func = fetch_nansha_data
-        default_features = [ # Features listed for Nansha
-             'longitude', 'latitude', 'year', 'building_concentration',
-             'geology', 'GWL', 'rainfall_mm',
-             'normalized_seismic_risk_score', 'soil_thickness', 'subsidence'
-             ]
-        categorical_cols = ['geology', 'building_concentration'] # Example, adjust as needed
+        default_features = [  # Features listed for Nansha
+            "longitude",
+            "latitude",
+            "year",
+            "building_concentration",
+            "geology",
+            "GWL",
+            "rainfall_mm",
+            "normalized_seismic_risk_score",
+            "soil_thickness",
+            "subsidence",
+        ]
+        categorical_cols = [
+            "geology",
+            "building_concentration",
+        ]  # Example, adjust as needed
         numerical_cols = [
-             'GWL', 'rainfall_mm',
-             'normalized_seismic_risk_score', 'soil_thickness'
-             ]
-        spatial_cols = ['longitude', 'latitude']
-        dt_col = 'year'
+            "GWL",
+            "rainfall_mm",
+            "normalized_seismic_risk_score",
+            "soil_thickness",
+        ]
+        spatial_cols = ["longitude", "latitude"]
+        dt_col = "year"
     else:
-        raise ValueError(f"Unknown dataset_name: '{dataset_name}'."
-                         " Choose 'zhongshan' or 'nansha'.")
+        raise ValueError(
+            f"Unknown dataset_name: '{dataset_name}'."
+            " Choose 'zhongshan' or 'nansha'."
+        )
     # --- Define Cache Filenames ---
     # ... (Keep cache filename logic) ...
     data_dir = get_data(data_home)
-    processed_fname = f"{dataset_name}_processed{cache_suffix}.joblib"
+    processed_fname = (
+        f"{dataset_name}_processed{cache_suffix}.joblib"
+    )
     processed_fpath = os.path.join(data_dir, processed_fname)
-    seq_fname = (f"{dataset_name}_sequences_T{time_steps}_H{forecast_horizon}"
-                 f"{cache_suffix}.joblib")
+    seq_fname = (
+        f"{dataset_name}_sequences_T{time_steps}_H{forecast_horizon}"
+        f"{cache_suffix}.joblib"
+    )
     seq_fpath = os.path.join(data_dir, seq_fname)
 
     # --- Try Loading Cached Sequences ---
     if return_sequences and use_sequence_cache:
         try:
             sequences_data = fetch_joblib_data(
-                seq_fpath, 'static_data', 'dynamic_data',
-                'future_data', 'target_data', verbose=verbose > 1,
-                error_mode='raise'
+                seq_fpath,
+                "static_data",
+                "dynamic_data",
+                "future_data",
+                "target_data",
+                verbose=verbose > 1,
+                error_mode="raise",
             )
-            if verbose: print(f"Loaded cached sequences from: {seq_fpath}")
+            if verbose:
+                print(
+                    f"Loaded cached sequences from: {seq_fpath}"
+                )
             return sequences_data
-        
+
         except FileNotFoundError:
-             if verbose > 0: 
-                 print(f"Sequence cache not found: {seq_fpath}")
+            if verbose > 0:
+                print(
+                    f"Sequence cache not found: {seq_fpath}"
+                )
         except Exception as e:
-             warnings.warn(
-                 f"Error loading cached sequences: {e}. Reprocessing.")
+            warnings.warn(
+                f"Error loading cached sequences: {e}. Reprocessing.",
+                stacklevel=2,
+            )
 
     # --- Try Loading Cached Processed DataFrame ---
     df_processed = None
     # Initialize scaler/encoder info to be loaded from cache or created
-    scaler_info = {'columns': [], 'scaler': None}
-    encoder_info = {'columns': {}, 'names': {}}
+    scaler_info = {"columns": [], "scaler": None}
+    encoder_info = {"columns": {}, "names": {}}
     if use_processed_cache:
         try:
             cached_proc = fetch_joblib_data(
-                processed_fpath, 'data', 'scaler_info', 'encoder_info',
-                 verbose=verbose > 1, error_mode='ignore'
+                processed_fpath,
+                "data",
+                "scaler_info",
+                "encoder_info",
+                verbose=verbose > 1,
+                error_mode="ignore",
             )
             if cached_proc and isinstance(cached_proc, dict):
-                 df_processed = cached_proc.get('data')
-                 scaler_info = cached_proc.get('scaler_info', scaler_info)
-                 encoder_info = cached_proc.get('encoder_info', encoder_info)
-                 if df_processed is not None and verbose:
-                      print(
-                          f"Loaded cached processed DataFrame: {processed_fpath}")
+                df_processed = cached_proc.get("data")
+                scaler_info = cached_proc.get(
+                    "scaler_info", scaler_info
+                )
+                encoder_info = cached_proc.get(
+                    "encoder_info", encoder_info
+                )
+                if df_processed is not None and verbose:
+                    print(
+                        f"Loaded cached processed DataFrame: {processed_fpath}"
+                    )
             elif verbose > 0:
-                 print(
-                     f"Processed cache invalid/not found: {processed_fpath}")
+                print(
+                    f"Processed cache invalid/not found: {processed_fpath}"
+                )
         except FileNotFoundError:
-             if verbose > 0:
-                 print(
-                     f"Processed cache not found: {processed_fpath}")
+            if verbose > 0:
+                print(
+                    f"Processed cache not found: {processed_fpath}"
+                )
         except Exception as e:
-             warnings.warn(
-                 f"Error loading cached processed data: {e}. Reprocessing.")
-             df_processed = None
+            warnings.warn(
+                f"Error loading cached processed data: {e}. Reprocessing.",
+                stacklevel=2,
+            )
+            df_processed = None
 
     # --- Perform Processing if Cache Miss ---
     if df_processed is None:
-        if verbose: print("Processing data from raw file...")
+        if verbose:
+            print("Processing data from raw file...")
         # 1. Load Raw Data
         df_raw = fetch_func(
-            as_frame=True, 
-            n_samples=n_samples, 
+            as_frame=True,
+            n_samples=n_samples,
             data_home=data_home,
             download_if_missing=download_if_missing,
-            force_download=force_download_raw, 
+            force_download=force_download_raw,
             random_state=random_state,
-            verbose=verbose > 1, 
-            include_coords=True, 
-            include_target=True
+            verbose=verbose > 1,
+            include_coords=True,
+            include_target=True,
         )
         df_processed = df_raw.copy()
-        df_processed.sort_values('year', inplace=True)
+        df_processed.sort_values("year", inplace=True)
         # 2. Feature Selection
         if apply_feature_select:
             # Ensure all required features for the steps exist
             required_cols = default_features + [target_col]
-            missing_fs = [f for f in required_cols if f not in df_processed.columns]
+            missing_fs = [
+                f
+                for f in required_cols
+                if f not in df_processed.columns
+            ]
             if missing_fs:
-                 raise ValueError(f"Required features missing from raw data:"
-                                  f" {missing_fs}")
+                raise ValueError(
+                    f"Required features missing from raw data:"
+                    f" {missing_fs}"
+                )
             # Select only the columns needed for this workflow
-            df_processed = df_processed[default_features].copy()
+            df_processed = df_processed[
+                default_features
+            ].copy()
             if verbose:
-                 print(f"  Applied feature selection. Kept: {default_features}")
+                print(
+                    f"  Applied feature selection. Kept: {default_features}"
+                )
 
         # 3. NaN Handling
         if apply_nan_ops:
-             original_len = len(df_processed)
-             df_processed = nan_ops(
-                 df_processed, ops='sanitize', 
-                 action=nan_handling_method,
-                 process="do_anyway", 
-                 verbose=verbose > 1
-                 )
-             if verbose:
-                 print(f"  Applied NaN handling ('{nan_handling_method}')."
-                       f" Rows removed: {original_len - len(df_processed)}")
+            original_len = len(df_processed)
+            df_processed = nan_ops(
+                df_processed,
+                ops="sanitize",
+                action=nan_handling_method,
+                process="do_anyway",
+                verbose=verbose > 1,
+            )
+            if verbose:
+                print(
+                    f"  Applied NaN handling ('{nan_handling_method}')."
+                    f" Rows removed: {original_len - len(df_processed)}"
+                )
 
         # 4. Categorical Encoding
-        encoder_info = {'columns': {}, 'names': {}} # Reset encoder info
+        encoder_info = {
+            "columns": {},
+            "names": {},
+        }  # Reset encoder info
         if encode_categoricals:
-             if verbose: print("  Encoding categorical features...")
-             # Keep non-categorical columns
-             cols_to_keep_temp = df_processed.columns.difference(
-                 categorical_cols).tolist()
-             df_encoded_list = [df_processed[cols_to_keep_temp]]
+            if verbose:
+                print("  Encoding categorical features...")
+            # Keep non-categorical columns
+            cols_to_keep_temp = (
+                df_processed.columns.difference(
+                    categorical_cols
+                ).tolist()
+            )
+            df_encoded_list = [
+                df_processed[cols_to_keep_temp]
+            ]
 
-             for col in categorical_cols:
-                 if col in df_processed.columns:
-                      encoder = OneHotEncoder(
-                          sparse_output=False,
-                        handle_unknown='ignore',
-                        dtype=np.float32
-                        ) # Ensure float output
-                      encoded_data = encoder.fit_transform(df_processed[[col]])
-                      # Use categories_ for naming to handle unseen values if needed
-                      new_cols = [f"{col}_{cat}" for cat in encoder.categories_[0]]
-                      encoded_df = pd.DataFrame(encoded_data,
-                                                columns=new_cols,
-                                                index=df_processed.index)
-                      df_encoded_list.append(encoded_df)
-                      encoder_info['columns'][col] = new_cols
-                      encoder_info['names'][col] = encoder.categories_[0]
-                      if verbose > 1: print(f"    Encoded '{col}' -> {len(new_cols)} cols")
-                 else:
-                      warnings.warn(f"Categorical column '{col}' not found.")
-             # Combine original non-categorical with new encoded columns
-             df_processed = pd.concat(df_encoded_list, axis=1)
+            for col in categorical_cols:
+                if col in df_processed.columns:
+                    encoder = OneHotEncoder(
+                        sparse_output=False,
+                        handle_unknown="ignore",
+                        dtype=np.float32,
+                    )  # Ensure float output
+                    encoded_data = encoder.fit_transform(
+                        df_processed[[col]]
+                    )
+                    # Use categories_ for naming to handle unseen values if needed
+                    new_cols = [
+                        f"{col}_{cat}"
+                        for cat in encoder.categories_[0]
+                    ]
+                    encoded_df = pd.DataFrame(
+                        encoded_data,
+                        columns=new_cols,
+                        index=df_processed.index,
+                    )
+                    df_encoded_list.append(encoded_df)
+                    encoder_info["columns"][col] = new_cols
+                    encoder_info["names"][col] = (
+                        encoder.categories_[0]
+                    )
+                    if verbose > 1:
+                        print(
+                            f"    Encoded '{col}' -> {len(new_cols)} cols"
+                        )
+                else:
+                    warnings.warn(
+                        f"Categorical column '{col}' not found.",
+                        stacklevel=2,
+                    )
+            # Combine original non-categorical with new encoded columns
+            df_processed = pd.concat(df_encoded_list, axis=1)
         else:
-             if verbose: 
-                 print("  Skipped categorical encoding.")
+            if verbose:
+                print("  Skipped categorical encoding.")
 
         # 5. Numerical Scaling
-        scaler_info = {'columns': [], 'scaler': None} # Reset scaler info
+        scaler_info = {
+            "columns": [],
+            "scaler": None,
+        }  # Reset scaler info
         if scale_numericals:
             # Identify numerical columns to scale from the *current* dataframe
             # Exclude coordinates, target (scaled separately or not at all),
             # and already encoded categoricals.
-            current_num_cols = df_processed.select_dtypes(include=np.number).columns
+            current_num_cols = df_processed.select_dtypes(
+                include=np.number
+            ).columns
             encoded_flat_list = [
-                item for sublist in encoder_info['columns'].values()
+                item
+                for sublist in encoder_info[
+                    "columns"
+                ].values()
                 for item in sublist
-                ]
+            ]
             cols_to_scale = list(
-                set(numerical_cols) & set(current_num_cols) - set(
-                    encoded_flat_list))
+                set(numerical_cols)
+                & set(current_num_cols)
+                - set(encoded_flat_list)
+            )
             # Also scale the target column if present
-            if scale_target: 
-                if target_col in df_processed.columns and target_col not in cols_to_scale:
+            if scale_target:
+                if (
+                    target_col in df_processed.columns
+                    and target_col not in cols_to_scale
+                ):
                     cols_to_scale.append(target_col)
-            else: 
-                # for consisteny drop target if exist in cols_to_scale 
-                if target_col in cols_to_scale: 
+            else:
+                # for consisteny drop target if exist in cols_to_scale
+                if target_col in cols_to_scale:
                     try:
                         cols_to_scale.remove(target_col)
-                    except: 
+                    except:
                         cols_to_scale = [
-                            col for col in cols_to_scale if col !=target_col
+                            col
+                            for col in cols_to_scale
+                            if col != target_col
                         ]
-                    
-            if cols_to_scale:
-                if verbose: 
-                    print(f"  Scaling numerical features: {cols_to_scale}...")
-                if scaler_type == 'minmax':
-                    scaler = MinMaxScaler()
-                elif scaler_type == 'standard': 
-                    scaler = StandardScaler()
-                else: 
-                    raise ValueError(f"Unknown scaler_type: {scaler_type}")
 
-                df_processed[cols_to_scale] = scaler.fit_transform(
-                    df_processed[cols_to_scale])
-                scaler_info['columns'] = cols_to_scale
-                scaler_info['scaler'] = scaler # Store fitted scaler
+            if cols_to_scale:
+                if verbose:
+                    print(
+                        f"  Scaling numerical features: {cols_to_scale}..."
+                    )
+                if scaler_type == "minmax":
+                    scaler = MinMaxScaler()
+                elif scaler_type == "standard":
+                    scaler = StandardScaler()
+                else:
+                    raise ValueError(
+                        f"Unknown scaler_type: {scaler_type}"
+                    )
+
+                df_processed[cols_to_scale] = (
+                    scaler.fit_transform(
+                        df_processed[cols_to_scale]
+                    )
+                )
+                scaler_info["columns"] = cols_to_scale
+                scaler_info["scaler"] = (
+                    scaler  # Store fitted scaler
+                )
             else:
-                 if verbose: print("  No numerical columns found/left to scale.")
+                if verbose:
+                    print(
+                        "  No numerical columns found/left to scale."
+                    )
         else:
-             if verbose: print("  Skipped numerical scaling.")
+            if verbose:
+                print("  Skipped numerical scaling.")
 
         # 6. Save Processed DataFrame if requested
         if save_processed_frame:
             # Include data and potentially scalers/encoders
             save_data = {
-                'data': df_processed,
-                'scaler_info': scaler_info,
-                'encoder_info': encoder_info
+                "data": df_processed,
+                "scaler_info": scaler_info,
+                "encoder_info": encoder_info,
             }
             try:
                 joblib.dump(save_data, processed_fpath)
-                if verbose: print(f"Saved processed DataFrame to: {processed_fpath}")
+                if verbose:
+                    print(
+                        f"Saved processed DataFrame to: {processed_fpath}"
+                    )
             except Exception as e:
-                warnings.warn(f"Failed to save processed data: {e}")
+                warnings.warn(
+                    f"Failed to save processed data: {e}",
+                    stacklevel=2,
+                )
 
     # --- Return Processed DataFrame or Bunch if Sequences Not Requested ---
     if not return_sequences:
@@ -1662,18 +1956,32 @@ def load_processed_subsidence_data(
         else:
             # Create Bunch from processed data
             # ... (Keep Bunch creation logic as before, using df_processed) ...
-            target_names = ([target_col] if include_target and
-                            target_col in df_processed else [])
-            target_array = df_processed[target_names].values.ravel(
-                ) if target_names else None
+            target_names = (
+                [target_col]
+                if include_target
+                and target_col in df_processed
+                else []
+            )
+            target_array = (
+                df_processed[target_names].values.ravel()
+                if target_names
+                else None
+            )
             bunch_feature_names = [
-                c for c in df_processed.columns
-                if c not in spatial_cols + target_names # Use spatial_cols
-                ]
+                c
+                for c in df_processed.columns
+                if c
+                not in spatial_cols
+                + target_names  # Use spatial_cols
+            ]
             try:
-                data_array = df_processed[bunch_feature_names].select_dtypes(
-                    include=np.number).values
-            except Exception: data_array = None
+                data_array = (
+                    df_processed[bunch_feature_names]
+                    .select_dtypes(include=np.number)
+                    .values
+                )
+            except Exception:
+                data_array = None
 
             descr = textwrap.dedent(f"""\
             Processed {dataset_name.capitalize()} Landslide Dataset
@@ -1681,9 +1989,9 @@ def load_processed_subsidence_data(
 
             **Origin:** See fetch_{dataset_name}_data docstring.
             **Processing Applied:** Feature Selection={apply_feature_select},
-            NaN Handling='{nan_handling_method if apply_nan_ops else 'None'}',
-            Categorical Encoding={'OneHot' if encode_categoricals else 'None'},
-            Numerical Scaling={'None' if not scale_numericals else scaler_type}.
+            NaN Handling='{nan_handling_method if apply_nan_ops else "None"}',
+            Categorical Encoding={"OneHot" if encode_categoricals else "None"},
+            Numerical Scaling={"None" if not scale_numericals else scaler_type}.
 
             **Data Characteristics:**
             - Samples: {len(df_processed)}
@@ -1691,17 +1999,23 @@ def load_processed_subsidence_data(
             """)
 
             bunch_dict = {
-                "frame": df_processed, "data": data_array,
+                "frame": df_processed,
+                "data": data_array,
                 "feature_names": bunch_feature_names,
-                "target_names": target_names, "target": target_array,
+                "target_names": target_names,
+                "target": target_array,
                 "DESCR": descr,
             }
             # Add coords only if requested AND present
             if include_coords:
-                if 'longitude' in df_processed: 
-                    bunch_dict['longitude'] = df_processed['longitude'].values
-                if 'latitude' in df_processed:
-                    bunch_dict['latitude'] = df_processed['latitude'].values
+                if "longitude" in df_processed:
+                    bunch_dict["longitude"] = df_processed[
+                        "longitude"
+                    ].values
+                if "latitude" in df_processed:
+                    bunch_dict["latitude"] = df_processed[
+                        "latitude"
+                    ].values
 
             return XBunch(**bunch_dict)
 
@@ -1712,45 +2026,83 @@ def load_processed_subsidence_data(
     # === Step 6 Revision: Define final feature sets for reshape_xtft_data ===
     # Get list of one-hot encoded columns generated previously
     encoded_cat_cols = []
-    if encode_categoricals and encoder_info.get('columns'):
-        for cols in encoder_info['columns'].values():
+    if encode_categoricals and encoder_info.get("columns"):
+        for cols in encoder_info["columns"].values():
             encoded_cat_cols.extend(cols)
 
     # Define Static Features for the model sequences
     # Paper example used: coords + encoded geology + encoded density_tier
-    final_static_cols = list(spatial_cols) # Start with coordinates
-    if dataset_name == 'zhongshan':
-         # Add encoded columns if they exist in df_processed
-         final_static_cols.extend([c for c in encoded_cat_cols if c.startswith(
-             'geology_') or c.startswith('density_tier_')])
-    elif dataset_name == 'nansha':
-         # Add encoded columns for nansha if applicable
-         final_static_cols.extend([c for c in encoded_cat_cols if c.startswith(
-             'geology_') or c.startswith('building_concentration_')])
+    final_static_cols = list(
+        spatial_cols
+    )  # Start with coordinates
+    if dataset_name == "zhongshan":
+        # Add encoded columns if they exist in df_processed
+        final_static_cols.extend(
+            [
+                c
+                for c in encoded_cat_cols
+                if c.startswith("geology_")
+                or c.startswith("density_tier_")
+            ]
+        )
+    elif dataset_name == "nansha":
+        # Add encoded columns for nansha if applicable
+        final_static_cols.extend(
+            [
+                c
+                for c in encoded_cat_cols
+                if c.startswith("geology_")
+                or c.startswith("building_concentration_")
+            ]
+        )
     # Ensure no duplicates and columns exist
-    final_static_cols = sorted(list(set(
-        c for c in final_static_cols if c in df_processed.columns)))
-    if verbose > 1: print(f"  Final Static Cols: {final_static_cols}")
+    final_static_cols = sorted(
+        list(
+            set(
+                c
+                for c in final_static_cols
+                if c in df_processed.columns
+            )
+        )
+    )
+    if verbose > 1:
+        print(f"  Final Static Cols: {final_static_cols}")
 
     # Define Dynamic Features for the model sequences
     # Paper example used: 'GWL', 'rainfall_mm', 'normalized_seismic_risk_score',
     #  'normalized_density'
     # These should correspond to columns in numerical_cols (already scaled)
-    final_dynamic_cols = sorted(list(set(
-        c for c in numerical_cols if c in df_processed.columns and c != target_col
-    )))
-    if verbose > 1: 
+    final_dynamic_cols = sorted(
+        list(
+            set(
+                c
+                for c in numerical_cols
+                if c in df_processed.columns
+                and c != target_col
+            )
+        )
+    )
+    if verbose > 1:
         print(f"  Final Dynamic Cols: {final_dynamic_cols}")
 
     # Define Future Features for the model sequences
     # Paper example used: 'rainfall_mm'
-    final_future_cols = ['rainfall_mm'] # As per paper example
+    final_future_cols = [
+        "rainfall_mm"
+    ]  # As per paper example
     # Ensure it exists
-    final_future_cols = [c for c in final_future_cols if c in df_processed.columns]
-    if not final_future_cols and dataset_name=='zhongshan': 
+    final_future_cols = [
+        c
+        for c in final_future_cols
+        if c in df_processed.columns
+    ]
+    if not final_future_cols and dataset_name == "zhongshan":
         # Check if required feature missing
-         warnings.warn("'rainfall_mm' required for future features based on"
-                       " example, but not found in processed data.")
+        warnings.warn(
+            "'rainfall_mm' required for future features based on"
+            " example, but not found in processed data.",
+            stacklevel=2,
+        )
     if verbose > 1:
         print(f"  Final Future Cols: {final_future_cols}")
 
@@ -1758,33 +2110,47 @@ def load_processed_subsidence_data(
 
     # Check if required columns exist before calling reshape
     required_for_reshape = (
-         [dt_col, target_col] + final_static_cols + final_dynamic_cols
-         + final_future_cols + spatial_cols
-         )
+        [dt_col, target_col]
+        + final_static_cols
+        + final_dynamic_cols
+        + final_future_cols
+        + spatial_cols
+    )
     # Remove potential duplicates before checking
     required_unique = sorted(list(set(required_for_reshape)))
     missing_in_processed = [
-         c for c in required_unique if c not in df_processed.columns
-         ]
+        c
+        for c in required_unique
+        if c not in df_processed.columns
+    ]
     if missing_in_processed:
-        raise ValueError(f"Columns missing for reshape_xtft_data after"
-                         f" processing: {missing_in_processed}. Available:"
-                         f" {df_processed.columns.tolist()}")
+        raise ValueError(
+            f"Columns missing for reshape_xtft_data after"
+            f" processing: {missing_in_processed}. Available:"
+            f" {df_processed.columns.tolist()}"
+        )
 
     # Call reshape_xtft_data on the fully processed DataFrame
     # Call reshape_xtft_data on the fully processed DataFrame
     try:
-        static_data, dynamic_data, future_data, target_data = reshape_xtft_data(
+        (
+            static_data,
+            dynamic_data,
+            future_data,
+            target_data,
+        ) = reshape_xtft_data(
             df=df_processed,
             dt_col=dt_col,  # Use 'year' as the time index column
             target_col=target_col,
             static_cols=final_static_cols,
             dynamic_cols=final_dynamic_cols,
             future_cols=final_future_cols,
-            spatial_cols=None if not group_by_cols else spatial_cols,
+            spatial_cols=None
+            if not group_by_cols
+            else spatial_cols,
             time_steps=time_steps,
             forecast_horizon=forecast_horizon,
-            verbose=verbose > 0
+            verbose=verbose > 0,
         )
     except ValueError as ve:
         required_len = time_steps + forecast_horizon
@@ -1802,30 +2168,34 @@ def load_processed_subsidence_data(
             "     to create more samples per location.\n"
         )
         raise ValueError(msg) from None
-    
 
     # Save sequences if requested
     if save_sequences:
-         sequence_data_to_save = {
-             'static_data': static_data, 'dynamic_data': dynamic_data,
-             'future_data': future_data, 'target_data': target_data
-         }
-         try:
-              joblib.dump(sequence_data_to_save, seq_fpath)
-              if verbose: print(f"Saved sequences to: {seq_fpath}")
-         except Exception as e:
-              warnings.warn(f"Failed to save sequences: {e}")
+        sequence_data_to_save = {
+            "static_data": static_data,
+            "dynamic_data": dynamic_data,
+            "future_data": future_data,
+            "target_data": target_data,
+        }
+        try:
+            joblib.dump(sequence_data_to_save, seq_fpath)
+            if verbose:
+                print(f"Saved sequences to: {seq_fpath}")
+        except Exception as e:
+            warnings.warn(
+                f"Failed to save sequences: {e}", stacklevel=2
+            )
 
     return static_data, dynamic_data, future_data, target_data
 
 
 def _resolve_data_path(
-    data_home: Optional[str],
-    metadata: "RemoteMetadata",
+    data_home: str | None,
+    metadata: RemoteMetadata,
     data_name: str,
     strategy: str,
-    verbose: int = 0
-) -> Tuple[str, "RemoteMetadata"]:
+    verbose: int = 0,
+) -> tuple[str, RemoteMetadata]:
     """Validates data path and resolves the final path to a raw data file.
 
     This internal helper encapsulates the complex logic for finding the
@@ -1920,69 +2290,90 @@ def _resolve_data_path(
     >>> # path would be '.../my_data_other/unique_file.csv'
     >>> # meta.file would become 'unique_file.csv'
     """
-    from ..utils.generic_utils import ExistenceChecker 
-    
+    from ..utils.generic_utils import ExistenceChecker
+
     if data_home is None:
         # Case 1: No data_home provided. Use default geoprior cache.
         resolved_home = get_data()
-        data_path_resolved = os.path.join(resolved_home, metadata.file)
+        data_path_resolved = os.path.join(
+            resolved_home, metadata.file
+        )
         if verbose >= 1:
-            logger.info(f"No `data_home` provided. Using default path:"
-                        f" {data_path_resolved}")
+            logger.info(
+                f"No `data_home` provided. Using default path:"
+                f" {data_path_resolved}"
+            )
     else:
         # Case 2: A data_home path is provided.
         path_obj = Path(data_home)
-        
+
         if path_obj.is_file():
             # Subcase 2a: data_home is a direct path to a file.
             if verbose >= 1:
-                logger.info(f"Provided `data_home` is a file. Using it directly:"
-                            f" {data_home}")
+                logger.info(
+                    f"Provided `data_home` is a file. Using it directly:"
+                    f" {data_home}"
+                )
             data_path_resolved = str(path_obj.resolve())
             # Update metadata to reflect the user-provided file.
             metadata = metadata._replace(
                 file=path_obj.name,
-                url=None # Local file has no download URL
+                url=None,  # Local file has no download URL
             )
             return data_path_resolved, metadata
 
         else:
             # Subcase 2b: data_home is a directory. Validate and search it.
             try:
-                resolved_home = str(ExistenceChecker.ensure_directory(path_obj))
+                resolved_home = str(
+                    ExistenceChecker.ensure_directory(
+                        path_obj
+                    )
+                )
             except (TypeError, FileExistsError, OSError) as e:
                 raise FileNotFoundError(
                     f"The provided `data_home` directory '{data_home}' is "
                     f"invalid. Please check the path. Original error: {e}"
                 )
-            
-            default_file_path = os.path.join(resolved_home, metadata.file)
+
+            default_file_path = os.path.join(
+                resolved_home, metadata.file
+            )
             if os.path.exists(default_file_path):
                 data_path_resolved = default_file_path
                 if verbose >= 1:
-                    logger.info(f"Found default dataset '{metadata.file}'"
-                                f" in `data_home`.")
+                    logger.info(
+                        f"Found default dataset '{metadata.file}'"
+                        f" in `data_home`."
+                    )
             else:
                 # Default file not found, search for other data files.
                 if verbose >= 2:
                     logger.debug(
                         f"Default file '{metadata.file}' not found in"
                         f" '{resolved_home}'. Searching for other data files..."
-                        )
-                
+                    )
+
                 other_files = [
-                    f for f in os.listdir(resolved_home)
-                    if f.endswith(('.csv', '.xlsx')) and not f.startswith('~')
+                    f
+                    for f in os.listdir(resolved_home)
+                    if f.endswith((".csv", ".xlsx"))
+                    and not f.startswith("~")
                 ]
-                
+
                 if len(other_files) == 1:
                     # Exactly one other file found, use it.
                     new_filename = other_files[0]
-                    data_path_resolved = os.path.join(resolved_home, new_filename)
-                    metadata = metadata._replace(file=new_filename, url=None)
+                    data_path_resolved = os.path.join(
+                        resolved_home, new_filename
+                    )
+                    metadata = metadata._replace(
+                        file=new_filename, url=None
+                    )
                     if verbose >= 1:
                         logger.info(
-                            f"Using auto-detected data file: {new_filename}")
+                            f"Using auto-detected data file: {new_filename}"
+                        )
                 elif len(other_files) > 1:
                     # Ambiguous situation.
                     raise ValueError(
@@ -2003,15 +2394,17 @@ def _resolve_data_path(
     # --- Download Logic ---
     # This block runs if the resolved_path points to a file that doesn't exist.
     try:
-        if metadata.url and not os.path.exists(data_path_resolved):
+        if metadata.url and not os.path.exists(
+            data_path_resolved
+        ):
             if verbose >= 1:
                 logger.info(
                     f"Data not found locally. Attempting to download {data_name} "
                     f"data from {metadata.url} to {data_path_resolved}..."
                 )
-            download_file_if( # This function should handle the download
+            download_file_if(  # This function should handle the download
                 metadata,
-                data_home=os.path.dirname(data_path_resolved)
+                data_home=os.path.dirname(data_path_resolved),
             )
     except Exception as e:
         if strategy == "load":
@@ -2023,6 +2416,5 @@ def _resolve_data_path(
             f"Could not download data for {data_name}: {e}. "
             "Will proceed based on strategy."
         )
-        
-    return data_path_resolved, metadata
 
+    return data_path_resolved, metadata

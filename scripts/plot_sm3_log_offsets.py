@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -9,20 +8,19 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 from . import config as cfg
 from . import utils
 
-
 _EPS = 1e-12
 
 
-def _load_meta(path: Path) -> Dict[str, Any]:
+def _load_meta(path: Path) -> dict[str, Any]:
     meta_p = Path(str(path) + ".meta.json")
     if not meta_p.exists():
         return {}
@@ -32,7 +30,7 @@ def _load_meta(path: Path) -> Dict[str, Any]:
         return {}
 
 
-def _load_payload(path: Path) -> Dict[str, np.ndarray]:
+def _load_payload(path: Path) -> dict[str, np.ndarray]:
     suf = path.suffix.lower()
 
     if suf == ".npz":
@@ -51,9 +49,9 @@ def _load_payload(path: Path) -> Dict[str, np.ndarray]:
 
 
 def _pick(
-    payload: Dict[str, np.ndarray],
+    payload: dict[str, np.ndarray],
     *keys: str,
-) -> Optional[np.ndarray]:
+) -> np.ndarray | None:
     for k in keys:
         if k in payload and payload[k] is not None:
             return np.asarray(payload[k])
@@ -70,10 +68,10 @@ def _safe_log10(x: np.ndarray, eps: float) -> np.ndarray:
 
 
 def _ensure_same_n(
-    cols: Dict[str, np.ndarray],
-) -> Dict[str, np.ndarray]:
-    n0: Optional[int] = None
-    out: Dict[str, np.ndarray] = {}
+    cols: dict[str, np.ndarray],
+) -> dict[str, np.ndarray]:
+    n0: int | None = None
+    out: dict[str, np.ndarray] = {}
 
     for k, v in cols.items():
         vv = _as_1d(np.asarray(v))
@@ -92,17 +90,16 @@ def _ensure_same_n(
 def _prior_series(
     *,
     n: int,
-    payload: Dict[str, np.ndarray],
-    payload_keys: Tuple[str, ...],
-    scalar: Optional[float],
-) -> Optional[np.ndarray]:
+    payload: dict[str, np.ndarray],
+    payload_keys: tuple[str, ...],
+    scalar: float | None,
+) -> np.ndarray | None:
     arr = _pick(payload, *payload_keys)
     if arr is not None:
         a1 = _as_1d(arr)
         if a1.size != n:
             raise ValueError(
-                "Prior array size mismatch: "
-                f"{a1.size} vs {n}"
+                f"Prior array size mismatch: {a1.size} vs {n}"
             )
         return a1
 
@@ -113,11 +110,11 @@ def _prior_series(
 
 
 def build_offsets_table(
-    payload: Dict[str, np.ndarray],
+    payload: dict[str, np.ndarray],
     *,
-    K_prior: Optional[float],
-    Ss_prior: Optional[float],
-    Hd_prior: Optional[float],
+    K_prior: float | None,
+    Ss_prior: float | None,
+    Hd_prior: float | None,
     eps: float = _EPS,
 ) -> pd.DataFrame:
     tau = _pick(payload, "tau", "tau_eff")
@@ -131,7 +128,9 @@ def build_offsets_table(
             "payload must contain tau and tau_prior/tau_closure"
         )
     if K is None or Ss is None or Hd is None:
-        raise KeyError("payload must contain K, Ss, Hd (or H)")
+        raise KeyError(
+            "payload must contain K, Ss, Hd (or H)"
+        )
 
     tau = _as_1d(tau)
     tp = _as_1d(tp)
@@ -140,13 +139,20 @@ def build_offsets_table(
     Hd = _as_1d(Hd)
 
     n = int(tau.size)
-    if tp.size != n or K.size != n or Ss.size != n or Hd.size != n:
-        raise ValueError("payload arrays must have same length")
+    if (
+        tp.size != n
+        or K.size != n
+        or Ss.size != n
+        or Hd.size != n
+    ):
+        raise ValueError(
+            "payload arrays must have same length"
+        )
 
     log10_tau = _safe_log10(tau, eps)
     log10_tp = _safe_log10(tp, eps)
 
-    cols: Dict[str, np.ndarray] = {
+    cols: dict[str, np.ndarray] = {
         "log10_tau": log10_tau,
         "log10_tau_prior": log10_tp,
         "delta_log_tau": log10_tau - log10_tp,
@@ -170,16 +176,26 @@ def build_offsets_table(
     Hdp = _prior_series(
         n=n,
         payload=payload,
-        payload_keys=("Hd_prior", "H_d_prior", "Hd_lith_prior"),
+        payload_keys=(
+            "Hd_prior",
+            "H_d_prior",
+            "Hd_lith_prior",
+        ),
         scalar=Hd_prior,
     )
 
     if Kp is not None:
-        cols["delta_logK"] = _safe_log10(K, eps) - _safe_log10(Kp, eps)
+        cols["delta_logK"] = _safe_log10(
+            K, eps
+        ) - _safe_log10(Kp, eps)
     if Ssp is not None:
-        cols["delta_logSs"] = _safe_log10(Ss, eps) - _safe_log10(Ssp, eps)
+        cols["delta_logSs"] = _safe_log10(
+            Ss, eps
+        ) - _safe_log10(Ssp, eps)
     if Hdp is not None:
-        cols["delta_logHd"] = _safe_log10(Hd, eps) - _safe_log10(Hdp, eps)
+        cols["delta_logHd"] = _safe_log10(
+            Hd, eps
+        ) - _safe_log10(Hdp, eps)
 
     cols = _ensure_same_n(cols)
     cols["index"] = np.arange(n, dtype=int)
@@ -220,13 +236,13 @@ def plot_offsets(
     out_base: str,
     dpi: int,
     show_title: bool,
-    title: Optional[str],
+    title: str | None,
     bins: int,
-) -> List[str]:
+) -> list[str]:
     utils.ensure_script_dirs()
     utils.set_paper_style()
 
-    out_paths: List[str] = []
+    out_paths: list[str] = []
 
     base = utils.resolve_fig_out(out_base)
     if base.suffix:
@@ -242,7 +258,9 @@ def plot_offsets(
     # --------------------------
     # Figure 1: 2x2 hist grid
     # --------------------------
-    fig = plt.figure(figsize=(7.2, 4.2), constrained_layout=True)
+    fig = plt.figure(
+        figsize=(7.2, 4.2), constrained_layout=True
+    )
     gs = fig.add_gridspec(2, 2)
 
     for i, col in enumerate(delta_cols):
@@ -283,8 +301,12 @@ def plot_offsets(
     # --------------------------
     # Figure 2: tau scatter
     # --------------------------
-    if {"log10_tau_prior", "delta_log_tau"}.issubset(df.columns):
-        fig2 = plt.figure(figsize=(3.6, 3.0), constrained_layout=True)
+    if {"log10_tau_prior", "delta_log_tau"}.issubset(
+        df.columns
+    ):
+        fig2 = plt.figure(
+            figsize=(3.6, 3.0), constrained_layout=True
+        )
         ax2 = fig2.add_subplot(1, 1, 1)
         _beautify(ax2)
 
@@ -300,7 +322,9 @@ def plot_offsets(
         ax2.set_ylabel(r"$\delta_\tau$")
 
         p2 = str(base) + "-tau-scatter"
-        fig2.savefig(p2 + ".png", dpi=dpi, bbox_inches="tight")
+        fig2.savefig(
+            p2 + ".png", dpi=dpi, bbox_inches="tight"
+        )
         fig2.savefig(p2 + ".svg", bbox_inches="tight")
         plt.close(fig2)
         out_paths += [p2 + ".png", p2 + ".svg"]
@@ -310,8 +334,8 @@ def plot_offsets(
 
 def _resolve_payload_path(
     *,
-    src: Optional[str],
-    payload: Optional[str],
+    src: str | None,
+    payload: str | None,
 ) -> Path:
     if payload:
         return Path(payload).expanduser()
@@ -319,7 +343,9 @@ def _resolve_payload_path(
     if not src:
         raise ValueError("Provide --payload or --src")
 
-    p = utils.find_latest(src, cfg.PATTERNS["physics_payload"])
+    p = utils.find_latest(
+        src, cfg.PATTERNS["physics_payload"]
+    )
     if p is None:
         raise FileNotFoundError(
             f"No physics payload under: {src}"
@@ -328,7 +354,7 @@ def _resolve_payload_path(
 
 
 def plot_sm3_log_offsets_main(
-    argv: Optional[List[str]] = None,
+    argv: list[str] | None = None,
 ) -> None:
     ap = argparse.ArgumentParser(
         prog="plot-sm3-log-offsets",
@@ -391,7 +417,9 @@ def plot_sm3_log_offsets_main(
     df.to_csv(out_raw, index=False)
     summ.to_csv(out_sum)
 
-    show_title = utils.str_to_bool(args.show_title, default=True)
+    show_title = utils.str_to_bool(
+        args.show_title, default=True
+    )
 
     fig_paths = plot_offsets(
         df,
@@ -429,7 +457,7 @@ def plot_sm3_log_offsets_main(
         print(f"[OK] wrote {p}")
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     plot_sm3_log_offsets_main(argv)
 
 

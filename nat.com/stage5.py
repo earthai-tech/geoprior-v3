@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
 
-# 
+#
 # python stage5.py \
 #   --city-a nansha \
 #   --city-b zhongshan \
@@ -27,63 +26,65 @@ import datetime as dt
 import glob
 import json
 import os
-from typing import Any, Dict, List, Optional, Tuple, Callable, Mapping 
+from collections.abc import Callable, Mapping
 from pathlib import Path
-import joblib
+from typing import (
+    Any,
+)
 
+import joblib
 import numpy as np
-import pandas as pd 
+import pandas as pd
 import tensorflow as tf
 
-from geoprior.utils.generic_utils import (
-    ensure_directory_exists,
+from geoprior.compat.keras import (
+    load_inference_model,
+    load_model_from_tfv2,
 )
-from geoprior.utils.scale_metrics import (
-    inverse_scale_target,
-    per_horizon_metrics,
-    point_metrics,
-    scale_target, 
+from geoprior.compat.keras_fit import (
+    normalize_predict_output,
+    suppress_compiled_metrics_warning,
 )
-from geoprior.utils.forecast_utils import (
-    format_and_forecast,
-)
-from geoprior.utils.nat_utils import (
-    ensure_input_shapes,
-    # extract_preds,
-    map_targets_for_training,
-    sanitize_inputs_np,
-    load_tuned_hps_near_model, 
-    load_trained_hps_near_model, 
-    load_hps_auto_near_model, 
-)
-# from geoprior.utils.shapes import canonicalize_BHQO
-from geoprior.models.keras_metrics import (
-    coverage80_fn,
-    sharpness80_fn,
+from geoprior.deps import with_progress
+from geoprior.models import (
+    GeoPriorSubsNet,
 )
 from geoprior.models.calibration import (
     IntervalCalibrator,
     apply_calibrator_to_subs,
     fit_interval_calibrator_on_val,
 )
-from geoprior.compat.keras import (
-    load_inference_model,
-    load_model_from_tfv2,
-)
-from geoprior.compat.keras_fit import normalize_predict_output
 
-from geoprior.models import (
-    GeoPriorSubsNet,
+# from geoprior.utils.shapes import canonicalize_BHQO
+from geoprior.models.keras_metrics import (
+    coverage80_fn,
+    sharpness80_fn,
 )
-from geoprior.compat.keras_fit import (
-    suppress_compiled_metrics_warning,
+from geoprior.utils.forecast_utils import (
+    format_and_forecast,
 )
-
-from geoprior.deps import with_progress
-from geoprior.utils.generic_utils import vlog
-from geoprior.utils.transfer import xfer_utils as xu 
-from geoprior.utils.transfer import xfer_metrics as xm  
+from geoprior.utils.generic_utils import (
+    ensure_directory_exists,
+    vlog,
+)
+from geoprior.utils.nat_utils import (
+    ensure_input_shapes,
+    load_hps_auto_near_model,
+    load_trained_hps_near_model,
+    load_tuned_hps_near_model,
+    # extract_preds,
+    map_targets_for_training,
+    sanitize_inputs_np,
+)
+from geoprior.utils.scale_metrics import (
+    inverse_scale_target,
+    per_horizon_metrics,
+    point_metrics,
+    scale_target,
+)
+from geoprior.utils.transfer import xfer_metrics as xm
 from geoprior.utils.transfer import xfer_units as xun
+from geoprior.utils.transfer import xfer_utils as xu
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 tf.get_logger().setLevel("ERROR")
@@ -142,9 +143,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--rescale-to-source",
         action="store_true",
-        help=(
-            "Deprecated alias for --rescale-modes strict."
-        ),
+        help=("Deprecated alias for --rescale-modes strict."),
     )
     p.add_argument("--batch-size", type=int, default=32)
     p.add_argument(
@@ -152,9 +151,7 @@ def parse_args() -> argparse.Namespace:
         nargs="*",
         type=float,
         default=None,
-        help=(
-            "Override quantiles (else read manifest)."
-        ),
+        help=("Override quantiles (else read manifest)."),
     )
     p.add_argument(
         "--model-name",
@@ -227,10 +224,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--continue-on-error",
         action="store_true",
-        help=(
-            "Continue other jobs even "
-            "if one job fails."
-        ),
+        help=("Continue other jobs even if one job fails."),
     )
 
     # Warm-start settings (only when strategy=warm)
@@ -270,7 +264,7 @@ def parse_args() -> argparse.Namespace:
         default=123,
         help="Warm-start sampling seed.",
     )
-    
+
     p.add_argument(
         "--allow-reorder-dynamic",
         action="store_true",
@@ -335,9 +329,10 @@ def parse_args() -> argparse.Namespace:
 
     return args
 
+
 def _make_sink(args):
     if args.log == "none" or int(args.verbose) < 1:
-        return (lambda *_a, **_k: None)
+        return lambda *_a, **_k: None
     return print
 
 
@@ -352,6 +347,7 @@ def _mklog(args, sink):
             vp=False,
             logger=sink,
         )
+
     return _log
 
 
@@ -363,10 +359,11 @@ def _keras_verbose(v: int) -> int:
         return 1
     return 0
 
+
 def _build_jobs(
     args: argparse.Namespace,
-    directions: List[Tuple[str, Any, Any]],
-) -> List[Dict[str, Any]]:
+    directions: list[tuple[str, Any, Any]],
+) -> list[dict[str, Any]]:
     """
     Build Stage-5 jobs.
 
@@ -376,7 +373,7 @@ def _build_jobs(
     - kind: one|warm
     - strategy: baseline|xfer|warm
     """
-    jobs: List[Dict[str, Any]] = []
+    jobs: list[dict[str, Any]] = []
 
     want_baseline = "baseline" in (args.strategies or [])
     want_xfer = "xfer" in (args.strategies or [])
@@ -385,9 +382,9 @@ def _build_jobs(
     for tag, src_b, tgt_b in directions:
         is_base_dir = tag in ("A_to_A", "B_to_B")
 
-        for split in (args.splits or []):
-            for cm in (args.calib_modes or []):
-                for rm in (args.rescale_modes or []):
+        for split in args.splits or []:
+            for cm in args.calib_modes or []:
+                for rm in args.rescale_modes or []:
                     strict = bool(rm == "strict")
 
                     if is_base_dir and want_baseline:
@@ -438,14 +435,13 @@ def _build_jobs(
     return jobs
 
 
-
 def _best_model_artifact(run_dir: str) -> str | None:
     pats = [
         os.path.join(run_dir, "**", "*_best.keras"),
         os.path.join(run_dir, "**", "*.keras"),
         os.path.join(run_dir, "**", "*_best_savedmodel"),
     ]
-    cands: List[Tuple[float, str]] = []
+    cands: list[tuple[float, str]] = []
     for pat in pats:
         for p in glob.glob(pat, recursive=True):
             try:
@@ -458,7 +454,7 @@ def _best_model_artifact(run_dir: str) -> str | None:
     return cands[0][1]
 
 
-def _resolve_bundle_paths(model_path: str) -> Dict[str, Any]:
+def _resolve_bundle_paths(model_path: str) -> dict[str, Any]:
     mp = os.path.abspath(model_path)
     run_dir = mp if os.path.isdir(mp) else os.path.dirname(mp)
 
@@ -472,7 +468,9 @@ def _resolve_bundle_paths(model_path: str) -> Dict[str, Any]:
         prefix = mp[: -len("_best_savedmodel")]
         keras_path = prefix + "_best.keras"
         cand_w = prefix + "_best.weights.h5"
-        weights_path = cand_w if os.path.isfile(cand_w) else None
+        weights_path = (
+            cand_w if os.path.isfile(cand_w) else None
+        )
 
     else:
         base = os.path.basename(mp)
@@ -482,7 +480,9 @@ def _resolve_bundle_paths(model_path: str) -> Dict[str, Any]:
             weights_path = mp
             prefix = mp[: -len("_best.weights.h5")]
             cand_k = prefix + "_best.keras"
-            keras_path = cand_k if os.path.isfile(cand_k) else None
+            keras_path = (
+                cand_k if os.path.isfile(cand_k) else None
+            )
 
         elif base.endswith(".weights.h5"):
             weights_path = mp
@@ -521,7 +521,9 @@ def _resolve_bundle_paths(model_path: str) -> Dict[str, Any]:
             if os.path.isdir(cand_tf):
                 tf_dir = cand_tf
 
-    init_path = os.path.join(run_dir, "model_init_manifest.json")
+    init_path = os.path.join(
+        run_dir, "model_init_manifest.json"
+    )
 
     return {
         "run_dir": run_dir,
@@ -532,10 +534,9 @@ def _resolve_bundle_paths(model_path: str) -> Dict[str, Any]:
     }
 
 
-
-def _load_json(path: str) -> Dict[str, Any]:
+def _load_json(path: str) -> dict[str, Any]:
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
     except Exception:
         return {}
@@ -549,16 +550,16 @@ def _safe_load(path: str) -> Any:
 
 
 def _ensure_np_inputs(
-    x: Dict[str, Any],
+    x: dict[str, Any],
     mode: str,
     horizon: int,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     x = sanitize_inputs_np(x)
     x = ensure_input_shapes(x, mode, horizon)
     return x
 
 
-def _pick_npz(M: Dict[str, Any], split: str):
+def _pick_npz(M: dict[str, Any], split: str):
     npzs = M["artifacts"]["numpy"]
     if split == "train":
         xi = npzs["train_inputs_npz"]
@@ -580,9 +581,9 @@ def _pick_npz(M: Dict[str, Any], split: str):
 
 
 def _feature_list(
-    M: Dict[str, Any],
+    M: dict[str, Any],
     kind: str,
-) -> List[str]:
+) -> list[str]:
     cfg = M.get("config") or {}
     feats = cfg.get("features") or {}
     out = feats.get(kind) or []
@@ -590,7 +591,8 @@ def _feature_list(
         return [str(x) for x in out]
     return []
 
-def _short_list(xs: List[str], n: int = 8) -> str:
+
+def _short_list(xs: list[str], n: int = 8) -> str:
     xs = [str(x) for x in (xs or [])]
     if len(xs) <= n:
         return ", ".join(xs)
@@ -599,9 +601,9 @@ def _short_list(xs: List[str], n: int = 8) -> str:
 
 
 def _schema_diff(
-    src: List[str],
-    tgt: List[str],
-) -> Tuple[List[str], List[str], bool]:
+    src: list[str],
+    tgt: list[str],
+) -> tuple[list[str], list[str], bool]:
     src = [str(x) for x in (src or [])]
     tgt = [str(x) for x in (tgt or [])]
 
@@ -614,26 +616,28 @@ def _schema_diff(
 
     return missing, extra, reorder
 
+
 def _reorder_last_dim(
     arr: Any,
-    src_feats: List[str],
-    tgt_feats: List[str],
+    src_feats: list[str],
+    tgt_feats: list[str],
 ) -> np.ndarray:
     a = np.asarray(arr)
     name2idx = {n: i for i, n in enumerate(tgt_feats)}
     idx = [int(name2idx[n]) for n in src_feats]
     return a[..., idx].astype(np.float32)
 
+
 def _print_static_alignment_note(
     *,
     src_city: str,
     tgt_city: str,
-    static_src: List[str],
-    static_tgt: List[str],
-    log_fn: Optional[Callable[[str], Any]] = None,
+    static_src: list[str],
+    static_tgt: list[str],
+    log_fn: Callable[[str], Any] | None = None,
 ) -> None:
     log = log_fn if callable(log_fn) else print
-    
+
     missing, extra, reorder = _schema_diff(
         static_src,
         static_tgt,
@@ -660,6 +664,7 @@ def _print_static_alignment_note(
     )
     log(msg)
 
+
 def _raise_schema_error(
     *,
     kind: str,
@@ -667,15 +672,15 @@ def _raise_schema_error(
     tgt_city: str,
     expected_dim: int,
     got_dim: int,
-    src_feats: List[str],
-    tgt_feats: List[str],
+    src_feats: list[str],
+    tgt_feats: list[str],
 ) -> None:
     missing, extra, reorder = _schema_diff(
         src_feats,
         tgt_feats,
     )
 
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append(
         f"{kind} feature schema mismatch "
         f"({src_city} -> {tgt_city})."
@@ -686,22 +691,15 @@ def _raise_schema_error(
 
     if missing:
         lines.append(
-            "missing_in_target: "
-            f"{_short_list(missing)}"
+            f"missing_in_target: {_short_list(missing)}"
         )
     if extra:
-        lines.append(
-            "extra_in_target: "
-            f"{_short_list(extra)}"
-        )
+        lines.append(f"extra_in_target: {_short_list(extra)}")
     if reorder and not (missing or extra):
-        lines.append(
-            "same names but different ORDER."
-        )
+        lines.append("same names but different ORDER.")
 
     lines.append(
-        "Fix: harmonize Stage-1 feature lists "
-        "across cities."
+        "Fix: harmonize Stage-1 feature lists across cities."
     )
     lines.append(
         "Use same columns and same order for "
@@ -710,24 +708,25 @@ def _raise_schema_error(
 
     raise SystemExit("\n".join(lines))
 
+
 def _check_transfer_schema(
     *,
-    M_src: Dict[str, Any],
-    M_tgt: Dict[str, Any],
-    X_tgt: Dict[str, Any],
+    M_src: dict[str, Any],
+    M_tgt: dict[str, Any],
+    X_tgt: dict[str, Any],
     s_src: int,
     d_src: int,
     f_src: int,
     allow_reorder_dynamic: bool = False,
     allow_reorder_future: bool = False,
-    log_fn: Optional[Callable[[str], Any]] = None,
-) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    log_fn: Callable[[str], Any] | None = None,
+) -> tuple[dict[str, Any], dict[str, Any]]:
     log = log_fn if callable(log_fn) else print
 
     src_city = str(M_src.get("city", "src"))
     tgt_city = str(M_tgt.get("city", "tgt"))
 
-    schema_audit: Dict[str, Any] = {
+    schema_audit: dict[str, Any] = {
         "src_city": src_city,
         "tgt_city": tgt_city,
         "static_aligned": False,
@@ -763,10 +762,10 @@ def _check_transfer_schema(
     # s_tgt = int(X_tgt["static_features"].shape[-1])
     # d_tgt = int(X_tgt["dynamic_features"].shape[-1])
     # f_tgt = int(X_tgt["future_features"].shape[-1])
-    
+
     s_tgt = int(X_tgt["static_features"].shape[-1])
     d_tgt = int(X_tgt["dynamic_features"].shape[-1])
-    
+
     fk = _future_key(X_tgt)
     if fk is None:
         f_tgt = 0
@@ -884,7 +883,7 @@ def _check_transfer_schema(
                 src_feats=fut_src,
                 tgt_feats=[],
             )
-        
+
         X_tgt = dict(X_tgt)
         X_tgt[fk] = _reorder_last_dim(
             X_tgt[fk],
@@ -896,10 +895,10 @@ def _check_transfer_schema(
 
 
 def _align_static_to_source(
-    X_tgt: Dict[str, Any],
-    M_src: Dict[str, Any],
-    M_tgt: Dict[str, Any],
-) -> Dict[str, Any]:
+    X_tgt: dict[str, Any],
+    M_src: dict[str, Any],
+    M_tgt: dict[str, Any],
+) -> dict[str, Any]:
     static_src = _feature_list(M_src, "static")
     static_tgt = _feature_list(M_tgt, "static")
 
@@ -938,8 +937,8 @@ def _align_static_to_source(
 
 
 def _infer_input_dims(
-    M: Dict[str, Any],
-) -> Tuple[int, int, int]:
+    M: dict[str, Any],
+) -> tuple[int, int, int]:
     seq = (M.get("artifacts") or {}).get("sequences") or {}
     dims = seq.get("dims") or {}
 
@@ -952,17 +951,17 @@ def _infer_input_dims(
 
     if s_dim is None:
         sf = tr_in.get("static_features")
-        if isinstance(sf, (list, tuple)) and len(sf) >= 2:
+        if isinstance(sf, list | tuple) and len(sf) >= 2:
             s_dim = sf[-1]
 
     if d_dim is None:
         df = tr_in.get("dynamic_features")
-        if isinstance(df, (list, tuple)) and len(df) >= 3:
+        if isinstance(df, list | tuple) and len(df) >= 3:
             d_dim = df[-1]
 
     if f_dim is None:
         ff = tr_in.get("future_features")
-        if isinstance(ff, (list, tuple)) and len(ff) >= 3:
+        if isinstance(ff, list | tuple) and len(ff) >= 3:
             f_dim = ff[-1]
 
     if s_dim is None:
@@ -998,21 +997,30 @@ def _future_key(X: Mapping[str, Any]) -> str | None:
         return "future_features"
     return None
 
+
 def _safe_inverse_y(arr, ysi, key, log=None):
     if not isinstance(ysi, Mapping) or not ysi:
         if log:
-            log(f"[stage5] NOTE: no y_scaler_info; "
-                f"assuming {key} already physical.")
+            log(
+                f"[stage5] NOTE: no y_scaler_info; "
+                f"assuming {key} already physical."
+            )
         return np.asarray(arr, np.float32)
 
     ent = ysi.get(key)
     if not isinstance(ent, Mapping) or not ent:
         if log:
-            log(f"[stage5] NOTE: missing y scaler entry "
-                f"for {key!r}; identity.")
+            log(
+                f"[stage5] NOTE: missing y scaler entry "
+                f"for {key!r}; identity."
+            )
         return np.asarray(arr, np.float32)
 
-    params = ent.get("params") if isinstance(ent, Mapping) else None
+    params = (
+        ent.get("params")
+        if isinstance(ent, Mapping)
+        else None
+    )
     return inverse_scale_target(
         np.asarray(arr, np.float32),
         scaler_entry=ent,
@@ -1052,7 +1060,6 @@ def _can_inverse(ysi: Any, key: str) -> bool:
     return False
 
 
-
 def _safe_scale_y(arr_phys, ysi, key, log=None):
     if not isinstance(ysi, Mapping) or not ysi:
         return np.asarray(arr_phys, np.float32)
@@ -1061,7 +1068,11 @@ def _safe_scale_y(arr_phys, ysi, key, log=None):
     if not isinstance(ent, Mapping) or not ent:
         return np.asarray(arr_phys, np.float32)
 
-    params = ent.get("params") if isinstance(ent, Mapping) else None
+    params = (
+        ent.get("params")
+        if isinstance(ent, Mapping)
+        else None
+    )
     return scale_target(
         np.asarray(arr_phys, np.float32),
         scaler_entry=ent,
@@ -1070,13 +1081,12 @@ def _safe_scale_y(arr_phys, ysi, key, log=None):
     )
 
 
-
 def _reproject_dynamic_to_source(
     X_tgt: dict,
     src_b: Any,
     tgt_b: Any,
     *,
-    log_fn: Optional[Callable[[str], Any]] = None,
+    log_fn: Callable[[str], Any] | None = None,
 ) -> dict:
     """
     Strict transfer:
@@ -1093,7 +1103,7 @@ def _reproject_dynamic_to_source(
 
     si_s = _bundle_scaler_info(src_b)
     si_t = _bundle_scaler_info(tgt_b)
-    
+
     if not si_s or not si_t:
         return X_tgt
 
@@ -1126,7 +1136,6 @@ def _reproject_dynamic_to_source(
             return
 
         col = arr[:, :, j : j + 1]
-        
 
         phys = inverse_scale_target(
             col,
@@ -1168,6 +1177,7 @@ def _reproject_dynamic_to_source(
 
     return X
 
+
 def _load_calibrator_near(
     run_dir: str,
     target: float = 0.80,
@@ -1200,14 +1210,14 @@ def _load_calibrator_near(
 
 
 def _build_geoprior_builder(
-    M_src: Dict[str, Any],
-    X_sample: Dict[str, Any],
+    M_src: dict[str, Any],
+    X_sample: dict[str, Any],
     out_s_dim: int,
     out_g_dim: int,
     horizon: int,
-    quantiles: List[float] | None,
-    best_hps: Dict[str, Any],
-    manifest: Dict[str, Any] | None = None
+    quantiles: list[float] | None,
+    best_hps: dict[str, Any],
+    manifest: dict[str, Any] | None = None,
 ) -> Any:
     cfg = dict(M_src.get("config") or {})
 
@@ -1260,7 +1270,9 @@ def _build_geoprior_builder(
     }
     hps = {k: v for k, v in best_hps.items() if k in allowed}
 
-    def _builder(_manifest: Dict[str, Any] | None = None) -> GeoPriorSubsNet:
+    def _builder(
+        _manifest: dict[str, Any] | None = None,
+    ) -> GeoPriorSubsNet:
         params = dict(fixed)
         params.update(hps)
         return GeoPriorSubsNet(**params)
@@ -1270,16 +1282,16 @@ def _build_geoprior_builder(
 
 def _load_source_model(
     src_b: Any,
-    X_sample: Dict[str, Any],
-    quantiles: List[float] | None,
+    X_sample: dict[str, Any],
+    quantiles: list[float] | None,
     *,
     model_pick: str = "auto",
     load_mode: str = "auto",
     hps_pick: str = "auto",
     model_name: str = "GeoPriorSubsNet",
     prefer_artifact: str = "keras",
-    log_fn: Optional[Callable[[str], Any]] = None,
-) -> Tuple[Any, Any, Dict[str, Any]]:
+    log_fn: Callable[[str], Any] | None = None,
+) -> tuple[Any, Any, dict[str, Any]]:
     """
     Load the "source" model from the source Stage-1 bundle.
 
@@ -1326,7 +1338,7 @@ def _load_source_model(
     stage1_root = os.path.dirname(run_dir)
 
     def _best_in_dir(root: str) -> str | None:
-        pats: List[str] = []
+        pats: list[str] = []
 
         if prefer_artifact == "keras":
             pats.append(
@@ -1342,9 +1354,7 @@ def _load_source_model(
             pats.append(
                 os.path.join(root, "**", "*_best.keras")
             )
-            pats.append(
-                os.path.join(root, "**", "*.keras")
-            )
+            pats.append(os.path.join(root, "**", "*.keras"))
         else:
             pats.append(
                 os.path.join(
@@ -1368,7 +1378,7 @@ def _load_source_model(
                 )
             )
 
-        cands: List[Tuple[float, str]] = []
+        cands: list[tuple[float, str]] = []
         for pat in pats:
             for p in glob.glob(pat, recursive=True):
                 try:
@@ -1404,8 +1414,7 @@ def _load_source_model(
     best = _pick_model_path()
     if not best:
         raise SystemExit(
-            "No model artifact found under: "
-            f"{stage1_root}"
+            f"No model artifact found under: {stage1_root}"
         )
 
     bundle = _resolve_bundle_paths(best)
@@ -1490,12 +1499,9 @@ def _load_source_model(
             log_fn=log,
         )
 
-    dims = (
-        (M_src.get("artifacts") or {})
-        .get("sequences", {})
-        .get("dims", {})
-        or {}
-    )
+    dims = (M_src.get("artifacts") or {}).get(
+        "sequences", {}
+    ).get("dims", {}) or {}
     out_s = int(dims.get("output_subsidence_dim", 1))
     out_g = int(dims.get("output_gwl_dim", 1))
 
@@ -1529,7 +1535,7 @@ def _load_source_model(
             log_fn=log,
         )
     except Exception as e:
-        msg: List[str] = ["Weights fallback failed."]
+        msg: list[str] = ["Weights fallback failed."]
         if full_err is not None:
             msg.append(f"Full load error: {full_err!r}")
         msg.append(f"Weights error: {e!r}")
@@ -1546,6 +1552,7 @@ def _load_source_model(
             model_pred = model
 
     return model, model_pred, bundle
+
 
 def _choose_warm_idx(
     n_total: int,
@@ -1570,10 +1577,10 @@ def _choose_warm_idx(
 
 
 def _slice_npz_dict(
-    d: Dict[str, Any],
+    d: dict[str, Any],
     idx: np.ndarray,
-) -> Dict[str, Any]:
-    out: Dict[str, Any] = {}
+) -> dict[str, Any]:
+    out: dict[str, Any] = {}
     for k, v in d.items():
         a = np.asarray(v)
         if a.ndim >= 1 and int(a.shape[0]) >= len(idx):
@@ -1581,7 +1588,6 @@ def _slice_npz_dict(
         else:
             out[k] = a
     return out
-
 
 
 def _bundle_scaler_info(b) -> dict:
@@ -1604,8 +1610,10 @@ def _bundle_scaler_info(b) -> dict:
 
     # common: enc["scaler_info"] is a joblib path
     si = enc.get("scaler_info", None)
-    if isinstance(si, (str, Path)):
-        p = xu.resolve_artifact_path(b.run_dir, si, strict=False)
+    if isinstance(si, str | Path):
+        p = xu.resolve_artifact_path(
+            b.run_dir, si, strict=False
+        )
         if p and p.exists():
             try:
                 si = joblib.load(str(p))
@@ -1626,6 +1634,7 @@ def _bundle_scaler_info(b) -> dict:
 
     return {}
 
+
 def _bundle_y_scaler_info(b) -> dict:
     M = b.manifest
     cfg = M.get("config", {}) or {}
@@ -1643,8 +1652,10 @@ def _bundle_y_scaler_info(b) -> dict:
     if isinstance(ysi, dict) and ysi:
         return _hydrate_si_dict(b, ysi)
 
-    if isinstance(ysi, (str, Path)):
-        p = xu.resolve_artifact_path(b.run_dir, ysi, strict=False)
+    if isinstance(ysi, str | Path):
+        p = xu.resolve_artifact_path(
+            b.run_dir, ysi, strict=False
+        )
         if p and p.exists():
             try:
                 ysi = joblib.load(str(p))
@@ -1657,6 +1668,7 @@ def _bundle_y_scaler_info(b) -> dict:
         return _hydrate_si_dict(b, ysi)
 
     return {}
+
 
 def _hydrate_si_dict(b, si: dict) -> dict:
     """
@@ -1675,7 +1687,9 @@ def _hydrate_si_dict(b, si: dict) -> dict:
         sp = v.get("scaler_path", None)
         if not sp:
             continue
-        p = xu.resolve_artifact_path(b.run_dir, sp, strict=False)
+        p = xu.resolve_artifact_path(
+            b.run_dir, sp, strict=False
+        )
         if p and p.exists():
             try:
                 v["scaler"] = joblib.load(str(p))
@@ -1703,6 +1717,7 @@ def _pick_si_key(si: dict, preferred: str) -> str:
                 return orig
 
     return preferred
+
 
 # def _apply_sklearn_1d(arr, scaler, inverse=False):
 #     a = np.asarray(arr)
@@ -1742,7 +1757,9 @@ def _pinball_loss(quantiles):
     if not quantiles or len(quantiles) <= 1:
         return tf.keras.losses.MeanSquaredError()
 
-    q = tf.reshape(tf.constant(quantiles, tf.float32), (1, 1, -1))  # (1,1,Q)
+    q = tf.reshape(
+        tf.constant(quantiles, tf.float32), (1, 1, -1)
+    )  # (1,1,Q)
 
     def _loss(y_true, y_pred):
         y_true = tf.convert_to_tensor(y_true)
@@ -1760,18 +1777,20 @@ def _pinball_loss(quantiles):
 
         # Broadcast y_true across quantiles -> (B,H,1)
         yt = y_true[..., None]
-        e = yt - y_pred                          # (B,H,Q)
+        e = yt - y_pred  # (B,H,Q)
 
-        return tf.reduce_mean(tf.maximum(q * e, (q - 1.0) * e))
+        return tf.reduce_mean(
+            tf.maximum(q * e, (q - 1.0) * e)
+        )
 
     return _loss
 
+
 def _compile_warm_model(
     model: tf.keras.Model,
-    quantiles: List[float] | None,
+    quantiles: list[float] | None,
     lr: float,
-) -> List[str]:
-    
+) -> list[str]:
     from geoprior.compat.keras import (
         ensure_loss_dict,
         zero_loss,
@@ -1788,7 +1807,7 @@ def _compile_warm_model(
     if not bool(sk.get("allow_missing_targets", False)):
         sk2 = dict(sk)
         sk2["allow_missing_targets"] = True
-        setattr(model, "scaling_kwargs", sk2)
+        model.scaling_kwargs = sk2
 
     losses = {"subs_pred": subs_loss}
 
@@ -1814,7 +1833,7 @@ def _compile_warm_model(
 
 
 def _has_q(
-    qs: List[float],
+    qs: list[float],
     q: float,
     tol: float = 1e-6,
 ) -> bool:
@@ -1823,9 +1842,10 @@ def _has_q(
     a = np.asarray(qs, dtype=float)
     return float(np.min(np.abs(a - float(q)))) <= float(tol)
 
+
 def _make_ds(
-    x: Dict[str, Any],
-    y: Dict[str, Any],
+    x: dict[str, Any],
+    y: dict[str, Any],
     batch_size: int,
     seed: int,
 ) -> tf.data.Dataset:
@@ -1838,7 +1858,8 @@ def _make_ds(
     )
     return ds.batch(batch_size).prefetch(tf.data.AUTOTUNE)
 
-def _fix_horizon_keys(d: Dict[str, Any]) -> Dict[str, Any]:
+
+def _fix_horizon_keys(d: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(d, dict) or not d:
         return d
     ks = []
@@ -1852,7 +1873,7 @@ def _fix_horizon_keys(d: Dict[str, Any]) -> Dict[str, Any]:
     ks = sorted(set(ks))
     # detect the common off-by-one pattern: starts at 2 and is consecutive
     if ks[0] == 2 and ks == list(range(2, 2 + len(ks))):
-        out: Dict[str, Any] = {}
+        out: dict[str, Any] = {}
         for k, v in d.items():
             s = str(k)
             if s.startswith("H") and s[1:].isdigit():
@@ -1864,19 +1885,20 @@ def _fix_horizon_keys(d: Dict[str, Any]) -> Dict[str, Any]:
 
     return d
 
+
 def run_one_direction(
     *,
     strategy: str = "xfer",
     rescale_mode: str = "as_is",
-    model_pack: Tuple[Any, Any, Dict[str, Any]] | None = None,
-    warm_meta: Dict[str, Any] | None = None,
+    model_pack: tuple[Any, Any, dict[str, Any]] | None = None,
+    warm_meta: dict[str, Any] | None = None,
     src_b: Any,
     tgt_b: Any,
     split: str,
     calib_mode: str,
     rescale_to_source: bool,
     batch_size: int,
-    quantiles_override: List[float] | None,
+    quantiles_override: list[float] | None,
     save_dir: str,
     model_pick: str = "auto",
     load_mode: str = "auto",
@@ -1889,9 +1911,9 @@ def run_one_direction(
     subs_unit: str = "mm",
     subs_unit_from: str = "m",
     metrics_unit: str | None = None,
-    log_fn: Optional[Callable[[str], Any]] = None,
+    log_fn: Callable[[str], Any] | None = None,
     verbose: int = 0,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """
     Execute one evaluation job for a single direction.
 
@@ -1932,9 +1954,8 @@ def run_one_direction(
     mode = str(cfg_t.get("MODE", "tft_like"))
     H = int(cfg_t.get("FORECAST_HORIZON_YEARS", 1))
 
-    Q = (
-        quantiles_override
-        or cfg_t.get("QUANTILES", [0.1, 0.5, 0.9])
+    Q = quantiles_override or cfg_t.get(
+        "QUANTILES", [0.1, 0.5, 0.9]
     )
 
     # ------------------------------
@@ -1979,7 +2000,7 @@ def run_one_direction(
     if model_pack is None:
         model, model_pred, bundle = _load_source_model(
             # M_src=M_src,
-            src_b=src_b, 
+            src_b=src_b,
             X_sample=X_tgt,
             quantiles=Q,
             model_pick=model_pick,
@@ -2061,7 +2082,7 @@ def run_one_direction(
         X_tgt,
         verbose=int(verbose),
     )
-    
+
     pred_dict = normalize_predict_output(
         model_pred,
         x=X_tgt,
@@ -2071,21 +2092,24 @@ def run_one_direction(
         log_fn=log,
     )
 
-    if "subs_pred" not in pred_dict or "gwl_pred" not in pred_dict:
+    if (
+        "subs_pred" not in pred_dict
+        or "gwl_pred" not in pred_dict
+    ):
         raise KeyError(
             "predict() must return 'subs_pred' and "
             "'gwl_pred'. Got keys="
             f"{list(pred_dict.keys())}"
         )
-        
+
     subs_pred = pred_dict["subs_pred"]
     gwl_pred = pred_dict["gwl_pred"]
-    
+
     # subs_pred, gwl_pred = extract_preds(
     #     model,
     #     pred_dict,
     # )
-    
+
     # =================================================
     # Canonicalize quantile layout to BHQO (robust).
     #
@@ -2095,27 +2119,35 @@ def run_one_direction(
     #   For MAE tie-break (H==Q), compare against
     #   y_true projected into SOURCE scaling.
     # =================================================
-    
+
     # (1) prepare scalers + keys (must exist BEFORE canonicalize)
     y_si_s = _bundle_y_scaler_info(src_b)
     y_si_t = _bundle_y_scaler_info(tgt_b)
-    
+
     subs_pref_s = str(src_b.target_cols.get("subs", "subs"))
     subs_pref_t = str(tgt_b.target_cols.get("subs", "subs"))
-    
-    subs_key_s = _pick_si_key(y_si_s, subs_pref_s) if y_si_s else subs_pref_s
-    subs_key_t = _pick_si_key(y_si_t, subs_pref_t) if y_si_t else subs_pref_t
-    
+
+    subs_key_s = (
+        _pick_si_key(y_si_s, subs_pref_s)
+        if y_si_s
+        else subs_pref_s
+    )
+    subs_key_t = (
+        _pick_si_key(y_si_t, subs_pref_t)
+        if y_si_t
+        else subs_pref_t
+    )
+
     # (2) run canonicalize
     subs_pred_raw = subs_pred
-    
+
     y_true_src = None
     if y_map and ("subs_pred" in y_map):
         y_true_tgt = np.asarray(
             y_map["subs_pred"][..., :1],
             np.float32,
         )
-    
+
         if y_si_s and y_si_t:
             y_phys = _safe_inverse_y(
                 y_true_tgt,
@@ -2131,13 +2163,15 @@ def run_one_direction(
             )
         else:
             y_true_src = y_true_tgt
-    
-    if (y_true_src is not None) and (subs_pred_raw is not None):
+
+    if (y_true_src is not None) and (
+        subs_pred_raw is not None
+    ):
         sp = tf.convert_to_tensor(subs_pred_raw)
         yt = tf.convert_to_tensor(y_true_src)
-    
+
         subs_pred_raw = sp.numpy()
-    
+
     elif (
         subs_pred_raw is not None
         and int(np.asarray(subs_pred_raw).ndim) == 4
@@ -2148,17 +2182,20 @@ def run_one_direction(
             np.asarray(subs_pred_raw),
             axis=2,
         )
-    
+
     subs_pred = subs_pred_raw  # <-- IMPORTANT: feed canonicalized back
-    
+
     # (3) now calibration is safe (expects Q axis)
-    if cal is not None and int(np.asarray(subs_pred).ndim) == 4:
+    if (
+        cal is not None
+        and int(np.asarray(subs_pred).ndim) == 4
+    ):
         subs_pred = apply_calibrator_to_subs(
             cal,
             subs_pred,
             q_values=Q,
         )
-    
+
     preds = {
         "subs_pred": subs_pred,
         "gwl_pred": gwl_pred,
@@ -2167,45 +2204,67 @@ def run_one_direction(
     # ------------------------------
     # Metrics in physical units
     # ------------------------------
-    
+
     y_si_s = _bundle_y_scaler_info(src_b)
     y_si_t = _bundle_y_scaler_info(tgt_b)
 
     subs_pref_s = str(src_b.target_cols.get("subs", "subs"))
     subs_pref_t = str(tgt_b.target_cols.get("subs", "subs"))
-    
-    subs_key_s = _pick_si_key(y_si_s, subs_pref_s) if y_si_s else subs_pref_s
-    subs_key_t = _pick_si_key(y_si_t, subs_pref_t) if y_si_t else subs_pref_t
-    
+
+    subs_key_s = (
+        _pick_si_key(y_si_s, subs_pref_s)
+        if y_si_s
+        else subs_pref_s
+    )
+    subs_key_t = (
+        _pick_si_key(y_si_t, subs_pref_t)
+        if y_si_t
+        else subs_pref_t
+    )
+
     ent_s = (y_si_s or {}).get(subs_key_s) or {}
     ent_t = (y_si_t or {}).get(subs_key_t) or {}
-    log(f"[stage5][debug] subs_key_s={subs_key_s!r} "
-        f"idx={ent_s.get('idx')} has_scaler={ent_s.get('scaler') is not None}")
-    log(f"[stage5][debug] subs_key_t={subs_key_t!r} "
-        f"idx={ent_t.get('idx')} has_scaler={ent_t.get('scaler') is not None}")
-    
-    log(f"[stage5][debug] ent_s keys={list(ent_s.keys())[:10]}")
-    log(f"[stage5][debug] ent_t keys={list(ent_t.keys())[:10]}")
+    log(
+        f"[stage5][debug] subs_key_s={subs_key_s!r} "
+        f"idx={ent_s.get('idx')} has_scaler={ent_s.get('scaler') is not None}"
+    )
+    log(
+        f"[stage5][debug] subs_key_t={subs_key_t!r} "
+        f"idx={ent_t.get('idx')} has_scaler={ent_t.get('scaler') is not None}"
+    )
+
+    log(
+        f"[stage5][debug] ent_s keys={list(ent_s.keys())[:10]}"
+    )
+    log(
+        f"[stage5][debug] ent_t keys={list(ent_t.keys())[:10]}"
+    )
     log(f"[stage5][debug] ent_s params={ent_s.get('params')}")
     log(f"[stage5][debug] ent_t params={ent_t.get('params')}")
 
     # Build comparable arrays (scaled space first)
     # --------
     y_true_scaled = None
-    
+
     if "subs_pred" in y_map:
-        y_true_scaled = np.asarray(y_map["subs_pred"][..., :1], np.float32)
-    
+        y_true_scaled = np.asarray(
+            y_map["subs_pred"][..., :1], np.float32
+        )
+
     if int(subs_pred.ndim) == 4:
         q_arr = np.asarray(Q, dtype=np.float32)
         mid = int(np.argmin(np.abs(q_arr - 0.5)))
-        y_pred_scaled = np.asarray(subs_pred[:, :, mid, :1], np.float32)
+        y_pred_scaled = np.asarray(
+            subs_pred[:, :, mid, :1], np.float32
+        )
     else:
-        y_pred_scaled = np.asarray(subs_pred[:, :, :1], np.float32)
-    
-    metrics_overall: Dict[str, Any] = {}
-    metrics_h: Dict[str, Any] = {}
-    
+        y_pred_scaled = np.asarray(
+            subs_pred[:, :, :1], np.float32
+        )
+
+    metrics_overall: dict[str, Any] = {}
+    metrics_h: dict[str, Any] = {}
+
     # --------
     # Decide space: physical only if BOTH sides can be inverse-scaled
     # --------
@@ -2215,7 +2274,7 @@ def run_one_direction(
 
     can_true = _can_inverse(y_si_t, subs_key_t)
     can_pred = _can_inverse(y_si_s, subs_key_s)
-    
+
     if y_true_scaled is not None:
         if can_true and can_pred:
             y_true_phys = _safe_inverse_y(
@@ -2238,9 +2297,11 @@ def run_one_direction(
                 "(missing/invalid y scaler for true or pred)"
             )
             yA, yB = y_true_scaled, y_pred_scaled
-    
-        metrics_overall = point_metrics(yA, yB, use_physical=False)
-        
+
+        metrics_overall = point_metrics(
+            yA, yB, use_physical=False
+        )
+
         # Backward compatibility: older point_metrics may omit rmse.
         try:
             if (
@@ -2254,24 +2315,23 @@ def run_one_direction(
         except Exception:
             pass
 
-        mae_h, r2_h = per_horizon_metrics(yA, yB, use_physical=False)
+        mae_h, r2_h = per_horizon_metrics(
+            yA, yB, use_physical=False
+        )
         mae_h = _fix_horizon_keys(mae_h)
         r2_h = _fix_horizon_keys(r2_h)
 
         metrics_h = {"mae": mae_h, "r2": r2_h}
-        
+
         metrics_space = "physical"
         log("[stage5] metrics_space=physical")
 
-    
         v = float(np.var(yA))
         log(f"[stage5][debug] var(y_eval)={v:.6g}")
-    
 
     # Coverage/sharpness for quantile outputs (physical).
     coverage80 = None
     sharpness80 = None
-
 
     if (
         metrics_space == "physical"
@@ -2286,16 +2346,17 @@ def run_one_direction(
                 subs_key_s,
                 log=log,
             )
-    
+
             yt = tf.convert_to_tensor(y_true_phys, tf.float32)
             sq = tf.convert_to_tensor(s_q_phys, tf.float32)
-    
+
             coverage80 = float(coverage80_fn(yt, sq).numpy())
-            sharpness80 = float(sharpness80_fn(yt, sq).numpy())
+            sharpness80 = float(
+                sharpness80_fn(yt, sq).numpy()
+            )
         except Exception:
             coverage80 = None
             sharpness80 = None
-
 
     # ------------------------------
     # Formatting + CSV outputs
@@ -2303,7 +2364,7 @@ def run_one_direction(
     # Reproject subs predictions into *target* scaling so
     # format_and_forecast can inverse-scale with target scalers.
     preds_fmt = dict(preds)
-    
+
     if (
         y_si_s
         and y_si_t
@@ -2362,7 +2423,11 @@ def run_one_direction(
 
     ff_scaler_info = (
         y_si_t
-        if (isinstance(y_si_t, Mapping) and y_si_t and subs_key_t in y_si_t)
+        if (
+            isinstance(y_si_t, Mapping)
+            and y_si_t
+            and subs_key_t in y_si_t
+        )
         else None
     )
     ff_scaler_name = subs_key_t if ff_scaler_info else None
@@ -2373,11 +2438,11 @@ def run_one_direction(
         coords=X_tgt.get("coords", None),
         quantiles=_q,
         target_name=subs_pref_t,
-        scaler_target_name= ff_scaler_name, # subs_key_t,
+        scaler_target_name=ff_scaler_name,  # subs_key_t,
         output_target_name="subsidence",
         target_key_pred="subs_pred",
         component_index=0,
-        scaler_info=ff_scaler_info, #si_t,
+        scaler_info=ff_scaler_info,  # si_t,
         coord_scaler=coord_scaler,
         coord_columns=("coord_t", "coord_x", "coord_y"),
         train_end_time=train_end,
@@ -2397,12 +2462,11 @@ def run_one_direction(
         output_unit_mode="overwrite",
         output_unit_col="subsidence_unit",
     )
-    
-  
+
     def _unit_scale_from_eval(df: pd.DataFrame) -> float:
         """
         Return factor to convert eval CSV numbers into meters.
-    
+
         Your eval CSV is usually exported as mm.
         We keep xfer_results metrics in meters (as your current
         overall_mae values show ~0.01–0.03).
@@ -2416,11 +2480,10 @@ def run_one_direction(
         if u0.startswith("mm"):
             return 1.0 / 1000.0
         return 1.0
-    
 
     def _eval_metrics_from_df(
         df_eval: pd.DataFrame,
-        ) -> tuple[
+    ) -> tuple[
         xm.EvalSummary | None,
         dict,
         dict,
@@ -2430,15 +2493,15 @@ def run_one_direction(
     ]:
         if df_eval is None:
             return None, {}, {}, {}, {}, "mm"
-    
+
         need = ["subsidence_actual", "subsidence_q50"]
         if any(c not in df_eval.columns for c in need):
             return None, {}, {}, {}, {}, "mm"
-    
+
         eval_u = xun.infer_unit(df_eval, default=subs_unit)
         mu = str(metrics_unit or subs_unit).lower()
         fac = xun.unit_factor(eval_u, mu)
-    
+
         cols = [
             "subsidence_actual",
             "subsidence_q10",
@@ -2446,9 +2509,9 @@ def run_one_direction(
             "subsidence_q90",
         ]
         dfm = xun.scale_cols(df_eval, cols, fac)
-    
+
         summary = xm.summarize_eval_df(dfm)
-    
+
         # ph_mae: dict = {}
         # ph_r2: dict = {}
         ph_mae: dict = {}
@@ -2457,43 +2520,47 @@ def run_one_direction(
         ph_r2: dict = {}
 
         if "forecast_step" in dfm.columns:
-            steps = pd.to_numeric(dfm["forecast_step"], errors="coerce")
+            steps = pd.to_numeric(
+                dfm["forecast_step"], errors="coerce"
+            )
             steps = steps[np.isfinite(steps)].to_numpy(float)
-        
+
             uniq = np.unique(steps)
             uniq.sort()
-        
+
             step_to_h = {
                 float(s): f"H{i + 1}"
                 for i, s in enumerate(uniq)
             }
-        
-            for step, g in dfm.groupby("forecast_step", dropna=False):
+
+            for step, g in dfm.groupby(
+                "forecast_step", dropna=False
+            ):
                 try:
                     s = float(step)
                 except Exception:
                     continue
-        
+
                 h = step_to_h.get(s)
                 if h is None:
                     continue
-        
+
                 yy = pd.to_numeric(
                     g["subsidence_actual"], errors="coerce"
                 ).to_numpy(float)
                 pp = pd.to_numeric(
                     g["subsidence_q50"], errors="coerce"
                 ).to_numpy(float)
-        
+
                 ph_mae[h] = float(xm.mae(yy, pp))
                 ph_mse[h] = float(xm.mse(yy, pp))
                 ph_rmse[h] = float(xm.rmse(yy, pp))
                 ph_r2[h] = float(xm.r2_score(yy, pp))
-                
+
         return summary, ph_mae, ph_mse, ph_rmse, ph_r2, mu
-    
+
     force = bool(recompute_missing)
-    
+
     need_any = (
         force
         or (coverage80 is None)
@@ -2507,7 +2574,7 @@ def run_one_direction(
         or not bool(metrics_h.get("rmse"))
         or not bool(metrics_h.get("r2"))
     )
-    mu = "" 
+    mu = ""
     if need_any:
         try:
             summ, ph_mae2, ph_mse2, ph_rmse2, ph_r2_2, mu = (
@@ -2530,7 +2597,7 @@ def run_one_direction(
                     metrics_h["r2"] = ph_r2_2
             else:
                 mu = str(metrics_unit or subs_unit).lower()
-    
+
                 log(
                     "[stage5] metrics recomputed from eval CSV "
                     f"(force={force})"
@@ -2563,10 +2630,11 @@ def run_one_direction(
 
     def _stat(a, name):
         a = np.asarray(a)
-        log(f"[stage5][debug] {name}: "
+        log(
+            f"[stage5][debug] {name}: "
             f"min={a.min():.6g} max={a.max():.6g} "
-            f"mean={a.mean():.6g} std={a.std():.6g}")
-        
+            f"mean={a.mean():.6g} std={a.std():.6g}"
+        )
 
     if y_true_scaled is not None:
         _stat(y_true_scaled, "y_true_scaled")
@@ -2604,10 +2672,13 @@ def run_one_direction(
         "hps_mode": hps_pick,
         "model_name": model_name,
         "prefer_artifact": prefer_artifact,
-        "metrics_source": "eval_csv" if bool(recompute_missing) else "mixed",
+        "metrics_source": "eval_csv"
+        if bool(recompute_missing)
+        else "mixed",
         "subsidence_unit": mu,
         "metrics_unit": (metrics_unit or mu),
     }
+
 
 def run_warm_start_direction(
     *,
@@ -2617,7 +2688,7 @@ def run_warm_start_direction(
     calib_mode: str,
     rescale_to_source: bool,
     batch_size: int,
-    quantiles_override: List[float] | None,
+    quantiles_override: list[float] | None,
     save_dir: str,
     warm_split: str,
     warm_samples: int,
@@ -2634,9 +2705,9 @@ def run_warm_start_direction(
     allow_reorder_dynamic: bool = False,
     allow_reorder_future: bool = False,
     recompute_missing: bool = False,
-    log_fn: Optional[Callable[[str], Any]] = None,
+    log_fn: Callable[[str], Any] | None = None,
     verbose: int = 0,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """
     Warm-start the source model on a subset of target data,
     then evaluate on the requested split via run_one_direction.
@@ -2666,9 +2737,8 @@ def run_warm_start_direction(
     mode = str(cfg_t.get("MODE", "tft_like"))
     H = int(cfg_t.get("FORECAST_HORIZON_YEARS", 1))
 
-    Q = (
-        quantiles_override
-        or cfg_t.get("QUANTILES", [0.1, 0.5, 0.9])
+    Q = quantiles_override or cfg_t.get(
+        "QUANTILES", [0.1, 0.5, 0.9]
     )
 
     # ------------------------------
@@ -2704,7 +2774,7 @@ def run_warm_start_direction(
     # Load the source model
     # ------------------------------
     model, _pred, bundle = _load_source_model(
-        src_b=src_b, 
+        src_b=src_b,
         X_sample=X_w,
         quantiles=Q,
         model_pick=model_pick,
@@ -2737,11 +2807,7 @@ def run_warm_start_direction(
         quantiles=Q,
         lr=warm_lr,
     )
-    y_ws = {
-        k: y_ws[k]
-        for k in warm_keys
-        if k in y_ws
-    }
+    y_ws = {k: y_ws[k] for k in warm_keys if k in y_ws}
 
     ds = _make_ds(
         X_ws,
@@ -2795,6 +2861,7 @@ def run_warm_start_direction(
         verbose=verbose,
     )
 
+
 def main() -> None:
     args = parse_args()
 
@@ -2813,7 +2880,7 @@ def main() -> None:
     )
 
     root = Path(args.results_dir)
-    
+
     A = xu.load_stage1_bundle(
         results_root=root,
         city=args.city_a,
@@ -2822,7 +2889,7 @@ def main() -> None:
         load_scalers_flag=True,
         strict=False,
     )
-    
+
     B = xu.load_stage1_bundle(
         results_root=root,
         city=args.city_b,
@@ -2831,7 +2898,6 @@ def main() -> None:
         load_scalers_flag=True,
         strict=False,
     )
-
 
     stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
     outdir = os.path.join(
@@ -2843,19 +2909,18 @@ def main() -> None:
     ensure_directory_exists(outdir)
 
     directions = []
-    
+
     if "baseline" in args.strategies:
         directions += [
             ("A_to_A", A, A),
             ("B_to_B", B, B),
         ]
-    
+
     if "xfer" in args.strategies or "warm" in args.strategies:
         directions += [
             ("A_to_B", A, B),
             ("B_to_A", B, A),
         ]
-
 
     jobs = _build_jobs(args, directions)
     n_jobs = int(len(jobs))
@@ -2894,7 +2959,7 @@ def main() -> None:
         mininterval=1.0,
     )
 
-    results: List[Dict[str, Any]] = []
+    results: list[dict[str, Any]] = []
 
     for i, job in enumerate(it, start=1):
         tag = job["tag"]
@@ -2941,7 +3006,9 @@ def main() -> None:
                     allow_reorder_future=(
                         args.allow_reorder_future
                     ),
-                    recompute_missing=bool(args.recompute_missing),
+                    recompute_missing=bool(
+                        args.recompute_missing
+                    ),
                     log_fn=args.log_fn,
                     verbose=kv,
                     **load_kwargs,
@@ -2969,12 +3036,13 @@ def main() -> None:
                     allow_reorder_future=(
                         args.allow_reorder_future
                     ),
-                    recompute_missing=bool(args.recompute_missing),
+                    recompute_missing=bool(
+                        args.recompute_missing
+                    ),
                     log_fn=args.log_fn,
                     verbose=kv,
                     **load_kwargs,
                 )
-
 
         except SystemExit as e:
             log(
@@ -2998,8 +3066,7 @@ def main() -> None:
 
         if r is None:
             log(
-                f"[stage5] SKIP ({i}/{n_jobs}) "
-                f"{tag} {strat}",
+                f"[stage5] SKIP ({i}/{n_jobs}) {tag} {strat}",
                 level=2,
             )
             continue
@@ -3069,13 +3136,21 @@ def main() -> None:
     h_rmse_keys = set()
     h_r2_keys = set()
     for r in results:
-        h_mae = _fix_horizon_keys(r.get("per_horizon_mae") or {})
+        h_mae = _fix_horizon_keys(
+            r.get("per_horizon_mae") or {}
+        )
         h_mae_keys |= set(h_mae.keys())
-        h_mse = _fix_horizon_keys(r.get("per_horizon_mse") or {})
+        h_mse = _fix_horizon_keys(
+            r.get("per_horizon_mse") or {}
+        )
         h_mse_keys |= set(h_mse.keys())
-        h_rmse = _fix_horizon_keys(r.get("per_horizon_rmse") or {})
+        h_rmse = _fix_horizon_keys(
+            r.get("per_horizon_rmse") or {}
+        )
         h_rmse_keys |= set(h_rmse.keys())
-        h_r2 = _fix_horizon_keys(r.get("per_horizon_r2") or {})
+        h_r2 = _fix_horizon_keys(
+            r.get("per_horizon_r2") or {}
+        )
         h_r2_keys |= set(h_r2.keys())
 
     h_mae_keys = _sorted_hkeys(h_mae_keys)
@@ -3103,7 +3178,7 @@ def main() -> None:
         for r in results:
             warm = r.get("warm") or {}
             schema = r.get("schema") or {}
-            
+
             row = [
                 r.get("strategy"),
                 r.get("rescale_mode"),
@@ -3132,10 +3207,18 @@ def main() -> None:
                 schema.get("static_extra_n"),
             ]
 
-            ph_mae = _fix_horizon_keys(r.get("per_horizon_mae") or {})
-            ph_mse = _fix_horizon_keys(r.get("per_horizon_mse") or {})
-            ph_rmse = _fix_horizon_keys(r.get("per_horizon_rmse") or {})
-            ph_r2 = _fix_horizon_keys(r.get("per_horizon_r2") or {})
+            ph_mae = _fix_horizon_keys(
+                r.get("per_horizon_mae") or {}
+            )
+            ph_mse = _fix_horizon_keys(
+                r.get("per_horizon_mse") or {}
+            )
+            ph_rmse = _fix_horizon_keys(
+                r.get("per_horizon_rmse") or {}
+            )
+            ph_r2 = _fix_horizon_keys(
+                r.get("per_horizon_r2") or {}
+            )
 
             row.extend(
                 [ph_mae.get(k, "NA") for k in h_mae_keys]

@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from tests._helpers import DummyLayer, DummyModel, import_module_group
+from tests._helpers import (
+    DummyLayer,
+    DummyModel,
+    import_module_group,
+)
 
 mod = import_module_group("identifiability")
 
@@ -16,7 +20,10 @@ def test_get_ident_profile_normalizes_and_falls_back_to_base():
 
     regime, profile = mod.get_ident_profile("unknown-profile")
     assert regime == "base"
-    assert profile["sk"]["freeze_physics_fields_over_time"] is True
+    assert (
+        profile["sk"]["freeze_physics_fields_over_time"]
+        is True
+    )
 
 
 def test_init_identifiability_preserves_user_values_and_adds_bounds_loss():
@@ -121,5 +128,7 @@ def test_ident_audit_dict_reports_effective_state():
     assert audit["locks"]["tau_head"] is True
     assert audit["heads"]["tau_head"]["trainable"] is False
     assert audit["lambdas"]["lambda_prior"] == 100.0
-    assert audit["sk_effective"]["bounds_loss_kind"] == "barrier"
+    assert (
+        audit["sk_effective"]["bounds_loss_kind"] == "barrier"
+    )
     assert audit["bounds_loss"]["kind"] == "barrier"

@@ -1,10 +1,10 @@
 import tensorflow as tf
-
 from fusionlab.nn.components.heads import (
     GaussianHead,
-    QuantileHead,
     MixtureDensityHead,
+    QuantileHead,
 )
+
 
 @tf.function
 def run_all(x2, x3):
@@ -28,6 +28,7 @@ def run_all(x2, x3):
         atol=1e-5,
     )
     return g2, g3, q2, q3, m2, m3
+
 
 x2 = tf.random.normal((4, 16))
 x3 = tf.random.normal((4, 7, 16))

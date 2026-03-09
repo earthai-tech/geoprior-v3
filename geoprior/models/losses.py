@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -6,61 +5,63 @@
 
 
 """
-Contains loss functions used in the `gofast-nn` package for neural 
+Contains loss functions used in the `gofast-nn` package for neural
 network models. The loss functions are designed to be compatible with Keras
-and TensorFlow models. 
+and TensorFlow models.
 """
-import warnings 
-from numbers import Real 
-from typing import List, Optional 
 
-from ..logging import get_logger
+import warnings
+from numbers import Real
+
 from ..compat.sklearn import Interval
-
 from ..core.checks import ParamsValidator, check_params
-from ..core.diagnose_q import validate_quantiles_in 
+from ..core.diagnose_q import validate_quantiles_in
+from ..logging import get_logger
 from ..utils.deps_utils import ensure_pkg
-from ..utils.validator import check_consistent_length 
-from . import KERAS_DEPS, KERAS_BACKEND, dependency_message
-from .keras_validator import validate_keras_loss 
+from ..utils.validator import check_consistent_length
+from . import KERAS_BACKEND, KERAS_DEPS, dependency_message
+from .keras_validator import validate_keras_loss
 
 K = KERAS_DEPS.backend
-Loss=KERAS_DEPS.Loss
-Tensor=KERAS_DEPS.Tensor 
+Loss = KERAS_DEPS.Loss
+Tensor = KERAS_DEPS.Tensor
 
-tf_abs=KERAS_DEPS.abs
-tf_reduce_mean=KERAS_DEPS.reduce_mean 
-tf_square=KERAS_DEPS.square 
-tf_reshape=KERAS_DEPS.reshape 
-tf_convert_to_tensor=KERAS_DEPS.convert_to_tensor 
-tf_expand_dims=KERAS_DEPS.expand_dims 
-tf_maximum=KERAS_DEPS.maximum
-tf_rank=KERAS_DEPS.rank 
-tf_cond =KERAS_DEPS.cond 
-tf_constant =KERAS_DEPS.constant 
-tf_equal = KERAS_DEPS.equal 
-tf_cast=KERAS_DEPS.cast 
-tf_zeros_like=KERAS_DEPS.zeros_like
-tf_constant = KERAS_DEPS.constant 
-tf_float32 = KERAS_DEPS.float32 
+tf_abs = KERAS_DEPS.abs
+tf_reduce_mean = KERAS_DEPS.reduce_mean
+tf_square = KERAS_DEPS.square
+tf_reshape = KERAS_DEPS.reshape
+tf_convert_to_tensor = KERAS_DEPS.convert_to_tensor
+tf_expand_dims = KERAS_DEPS.expand_dims
+tf_maximum = KERAS_DEPS.maximum
+tf_rank = KERAS_DEPS.rank
+tf_cond = KERAS_DEPS.cond
+tf_constant = KERAS_DEPS.constant
+tf_equal = KERAS_DEPS.equal
+tf_cast = KERAS_DEPS.cast
+tf_zeros_like = KERAS_DEPS.zeros_like
+tf_constant = KERAS_DEPS.constant
+tf_float32 = KERAS_DEPS.float32
 tf_reduce_sum = KERAS_DEPS.reduce_sum
-tf_gather = KERAS_DEPS.gather 
+tf_gather = KERAS_DEPS.gather
 
-register_keras_serializable=KERAS_DEPS.register_keras_serializable
-    
-DEP_MSG = dependency_message('models.losses') 
+register_keras_serializable = (
+    KERAS_DEPS.register_keras_serializable
+)
+
+DEP_MSG = dependency_message("models.losses")
 
 logger = get_logger(__name__)
 
 __all__ = [
-    'quantile_loss', 
-    'quantile_loss_multi', 
-    'anomaly_loss', 
-    'combined_quantile_loss', 
-    'combined_total_loss',
-    'objective_loss', 
-    'prediction_based_loss'
- ]
+    "quantile_loss",
+    "quantile_loss_multi",
+    "anomaly_loss",
+    "combined_quantile_loss",
+    "combined_total_loss",
+    "objective_loss",
+    "prediction_based_loss",
+]
+
 
 @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
 def make_weighted_pinball(qs, weights):
@@ -156,6 +157,7 @@ def make_weighted_pinball(qs, weights):
     """
     # existing implementation unchanged…
     qs_list = [float(q) for q in list(qs)]
+
     def _lookup_weight(q):
         if isinstance(weights, dict):
             for k, v in weights.items():
@@ -171,47 +173,58 @@ def make_weighted_pinball(qs, weights):
         w_list = list(weights)
 
     qs_tf = tf_constant(qs_list, dtype=tf_float32)  # [Q]
-    w_tf  = tf_constant(w_list, dtype=tf_float32)   # [Q]
-    w_tf  = w_tf / tf_reduce_sum(w_tf)
+    w_tf = tf_constant(w_list, dtype=tf_float32)  # [Q]
+    w_tf = w_tf / tf_reduce_sum(w_tf)
 
-    @register_keras_serializable("geoprior.nn.losses",
-                                 name="make_weighted_pinball")
+    @register_keras_serializable(
+        "geoprior.nn.losses", name="make_weighted_pinball"
+    )
     def loss_fn(y_true, y_pred):
         y_true = tf_convert_to_tensor(y_true)
         y_pred = tf_convert_to_tensor(y_pred)
 
         # If someone accidentally passed (B,H,Q,O) targets, drop Q.
         if y_true.shape.rank == 4:
-            y_true = tf_gather(y_true, 0, axis=2)   # -> (B,H,O)
-    
+            y_true = tf_gather(
+                y_true, 0, axis=2
+            )  # -> (B,H,O)
+
         # y_true -> (B,H,1)
         ytrue_rank = tf_rank(y_true)
-        
+
         y_true_3 = tf_cond(
             tf_equal(ytrue_rank, 2),
-            lambda: tf_expand_dims(y_true, axis=-1),  # (B,H)->(B,H,1)
-            lambda: y_true
+            lambda: tf_expand_dims(
+                y_true, axis=-1
+            ),  # (B,H)->(B,H,1)
+            lambda: y_true,
         )
 
         # y_pred -> (B,H,Q,1)
         ypred_rank = tf_rank(y_pred)
         y_pred_4 = tf_cond(
             tf_equal(ypred_rank, 3),
-            lambda: tf_expand_dims(y_pred, axis=-1),  # (B,H,Q)->(B,H,Q,1)
-            lambda: y_pred                             # already (B,H,Q,1)
+            lambda: tf_expand_dims(
+                y_pred, axis=-1
+            ),  # (B,H,Q)->(B,H,Q,1)
+            lambda: y_pred,  # already (B,H,Q,1)
         )
 
         # Broadcast y_true over Q
-        y_true_exp = tf_expand_dims(y_true_3, axis=2)     # (B,H,1,1)
+        y_true_exp = tf_expand_dims(
+            y_true_3, axis=2
+        )  # (B,H,1,1)
 
         # Pinball
-        tau = tf_reshape(qs_tf, [1, 1, -1, 1])            # (1,1,Q,1)
-        err = y_true_exp - y_pred_4                       # (B,H,Q,1)
-        pin = tf_maximum(tau * err, (tau - 1.0) * err)    # (B,H,Q,1)
+        tau = tf_reshape(qs_tf, [1, 1, -1, 1])  # (1,1,Q,1)
+        err = y_true_exp - y_pred_4  # (B,H,Q,1)
+        pin = tf_maximum(
+            tau * err, (tau - 1.0) * err
+        )  # (B,H,Q,1)
 
         # Weighted over Q
-        ww  = tf_reshape(w_tf, [1, 1, -1, 1])             # (1,1,Q,1)
-        pin_w = tf_reduce_sum(ww * pin, axis=2)           # (B,H,1)
+        ww = tf_reshape(w_tf, [1, 1, -1, 1])  # (1,1,Q,1)
+        pin_w = tf_reduce_sum(ww * pin, axis=2)  # (B,H,1)
 
         # Mean over batch & horizon
         return tf_reduce_mean(pin_w)
@@ -220,7 +233,7 @@ def make_weighted_pinball(qs, weights):
 
 
 @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
-def pinball_loss(qs: List[float]):
+def pinball_loss(qs: list[float]):
     r"""
     Unweighted quantile (pinball) loss for sequence forecasts.
 
@@ -297,7 +310,9 @@ def pinball_loss(qs: List[float]):
     # existing implementation unchanged
     q_base = tf_constant(qs, dtype=tf_float32)  # shape (Q,)
 
-    @register_keras_serializable("geoprior.nn.losses", name="pinball_loss")
+    @register_keras_serializable(
+        "geoprior.nn.losses", name="pinball_loss"
+    )
     def loss(y_true, y_pred):
         yt = tf_cast(y_true, tf_float32)
         yp = tf_cast(y_pred, tf_float32)
@@ -306,18 +321,22 @@ def pinball_loss(qs: List[float]):
         # y_pred: either (B,H,Q) or (B,H,Q,1)
         if yp.shape.rank == 3:
             # want y_true as (B,H,1) so it broadcasts across Q
-            if yt.shape.rank == 2:               # (B,H) -> (B,H,1)
+            if yt.shape.rank == 2:  # (B,H) -> (B,H,1)
                 yt = tf_expand_dims(yt, axis=-1)
             # if yt is already (B,H,1), leave it
-            q = q_base[None, None, :]            # (1,1,Q) -> matches (B,H,Q)
+            q = q_base[
+                None, None, :
+            ]  # (1,1,Q) -> matches (B,H,Q)
 
         elif yp.shape.rank == 4:
             # want y_true as (B,H,1,1) to match (B,H,Q,1)
-            if yt.shape.rank == 2:               # (B,H) -> (B,H,1)
+            if yt.shape.rank == 2:  # (B,H) -> (B,H,1)
                 yt = tf_expand_dims(yt, axis=-1)
-            if yt.shape.rank == 3:               # (B,H,1) -> (B,H,1,1)
+            if yt.shape.rank == 3:  # (B,H,1) -> (B,H,1,1)
                 yt = tf_expand_dims(yt, axis=2)
-            q = q_base[None, None, :, None]      # (1,1,Q,1) -> matches (B,H,Q,1)
+            q = q_base[
+                None, None, :, None
+            ]  # (1,1,Q,1) -> matches (B,H,Q,1)
 
         else:
             raise ValueError(
@@ -331,10 +350,11 @@ def pinball_loss(qs: List[float]):
 
     return loss
 
+
 @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
 def objective_loss(
     multi_obj_loss: Loss,
-    anomaly_scores: Optional[Tensor] = None,
+    anomaly_scores: Tensor | None = None,
 ):
     """
     Create a multi-objective Keras loss function that wraps
@@ -389,25 +409,27 @@ def objective_loss(
 
     See Also
     --------
-    geoprior.nn.losses.MultiObjectiveLoss : 
+    geoprior.nn.losses.MultiObjectiveLoss :
         The layer combining quantile + anomaly losses.
     """
     from .components import MultiObjectiveLoss
+
     # Optional: check if multi_obj_loss has a 'call' method
-    # or if it's a valid Keras layer. 
-    multi_obj_loss= validate_keras_loss (
-        multi_obj_loss, deep_check=True, 
-        ops="validate", 
+    # or if it's a valid Keras layer.
+    multi_obj_loss = validate_keras_loss(
+        multi_obj_loss,
+        deep_check=True,
+        ops="validate",
     )
     if not isinstance(multi_obj_loss, MultiObjectiveLoss):
         warnings.warn(
-            "Expected a MultiObjectiveLoss instance, got %s" % type(
-                multi_obj_loss)
-    )
+            f"Expected a MultiObjectiveLoss instance, got {type(multi_obj_loss)}",
+            stacklevel=2,
+        )
 
     @register_keras_serializable(
         package="geoprior.nn.losses", name="objective_loss"
-     )
+    )
     @ParamsValidator(
         {
             "y_true": ["array-like:tf:transf"],
@@ -418,10 +440,14 @@ def objective_loss(
         # If anomaly_scores is not None, we can do a length check:
         if anomaly_scores is not None:
             # Basic length check (optional)
-            check_consistent_length(y_true, y_pred, anomaly_scores)
+            check_consistent_length(
+                y_true, y_pred, anomaly_scores
+            )
 
             # Actual call to multi_obj_layer
-            return multi_obj_loss(y_true, y_pred, anomaly_scores)
+            return multi_obj_loss(
+                y_true, y_pred, anomaly_scores
+            )
         else:
             check_consistent_length(y_true, y_pred)
             return multi_obj_loss(y_true, y_pred)
@@ -429,15 +455,16 @@ def objective_loss(
     return _loss_fn
 
 
-
-@ParamsValidator({
-    'quantiles': ['array-like', None],  
-    'anomaly_loss_weight': [Real, None]
-})
+@ParamsValidator(
+    {
+        "quantiles": ["array-like", None],
+        "anomaly_loss_weight": [Real, None],
+    }
+)
 @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
 def prediction_based_loss(
-    quantiles: Optional[List[float]] = None,
-    anomaly_loss_weight: float = 0.1
+    quantiles: list[float] | None = None,
+    anomaly_loss_weight: float = 0.1,
 ):
     """
     Create a combined prediction + anomaly loss function for prediction-based strategy.
@@ -466,39 +493,50 @@ def prediction_based_loss(
         logger.debug(f"Using quantiles: {quantiles}")
 
     @register_keras_serializable(
-        "geoprior.nn.losses", 
-        name=f"prediction_based_loss_q{quantiles}_w{anomaly_loss_weight}"
+        "geoprior.nn.losses",
+        name=f"prediction_based_loss_q{quantiles}_w{anomaly_loss_weight}",
     )
     def _pb_loss(y_true, y_pred):
         # Compute prediction loss
         if quantiles:
             # Quantile loss calculation
-            pred_loss = combined_quantile_loss(quantiles)(y_true, y_pred)
+            pred_loss = combined_quantile_loss(quantiles)(
+                y_true, y_pred
+            )
         else:
             # Standard MSE loss
-            pred_loss = tf_reduce_mean(tf_square(y_true - y_pred))
+            pred_loss = tf_reduce_mean(
+                tf_square(y_true - y_pred)
+            )
 
         # Compute anomaly scores from absolute errors
         prediction_errors = tf_abs(y_true - y_pred)
-        
+
         # Handle quantile dimension if present
-        if len(y_pred.shape) == 3 and quantiles:  # (batch, horizon, quantiles)
+        if (
+            len(y_pred.shape) == 3 and quantiles
+        ):  # (batch, horizon, quantiles)
             # Average errors across quantiles
-            anomaly_scores = tf_reduce_mean(prediction_errors, axis=-1)
+            anomaly_scores = tf_reduce_mean(
+                prediction_errors, axis=-1
+            )
         else:
             anomaly_scores = prediction_errors
 
         # Compute anomaly loss (mean tf_squared anomaly scores)
-        anomaly_loss = tf_reduce_mean(tf_square(anomaly_scores))
+        anomaly_loss = tf_reduce_mean(
+            tf_square(anomaly_scores)
+        )
 
         # Combine losses
         return pred_loss + anomaly_loss_weight * anomaly_loss
 
     return _pb_loss
 
-@ParamsValidator({'quantiles': [Real, 'array-like']})
+
+@ParamsValidator({"quantiles": [Real, "array-like"]})
 @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
-def combined_quantile_loss_(quantiles: List[float]):
+def combined_quantile_loss_(quantiles: list[float]):
     """
     Create a quantile loss function for multiple quantiles.
 
@@ -524,31 +562,37 @@ def combined_quantile_loss_(quantiles: List[float]):
     """
     # Validate & store quantiles
     quantiles = validate_quantiles_in(quantiles)
-    
+
     @register_keras_serializable(
-        "geoprior.nn.losses", 
-        name="combined_quantile_loss_"
+        "geoprior.nn.losses", name="combined_quantile_loss_"
     )
     def _cqloss(y_true, y_pred):
-        
         def case_rank3():
-            yp = tf_expand_dims(y_pred, axis=-1)  # (B, H, Q, 1)
+            yp = tf_expand_dims(
+                y_pred, axis=-1
+            )  # (B, H, Q, 1)
             return yp
 
         def case_rank4():
             return y_pred  # Already has shape (B, H, Q, O)
-    
+
         # Expand y_true so it matches y_pred's quantile dimension
-        y_true_expanded = tf_expand_dims(y_true, axis=2)  # => (B, H, 1, O)
-        rank = tf_rank(y_pred) 
-        #XXX TODO: FIX 
-        try: 
+        y_true_expanded = tf_expand_dims(
+            y_true, axis=2
+        )  # => (B, H, 1, O)
+        rank = tf_rank(y_pred)
+        # XXX TODO: FIX
+        try:
             if len(y_pred) == 3:
                 # e.g. shape (B, H, Q) => expand last dim
-                y_pred = tf_expand_dims(y_pred, axis=-1)  # => (B, H, Q, 1)
-        except: 
+                y_pred = tf_expand_dims(
+                    y_pred, axis=-1
+                )  # => (B, H, Q, 1)
+        except:
             # Conditionally expand if rank == 3
-            y_pred = tf_cond(tf_equal(rank, 3), case_rank3, case_rank4)
+            y_pred = tf_cond(
+                tf_equal(rank, 3), case_rank3, case_rank4
+            )
 
         # Broadcast y_true_expanded to match y_pred's shape
         # shape => (B, H, Q, O)
@@ -558,8 +602,10 @@ def combined_quantile_loss_(quantiles: List[float]):
 
         # Accumulate pinball losses for each quantile
         for i, q in enumerate(quantiles):
-            q_loss = tf_maximum(q * error[:, :, i, :],
-                              (q - 1) * error[:, :, i, :])
+            q_loss = tf_maximum(
+                q * error[:, :, i, :],
+                (q - 1) * error[:, :, i, :],
+            )
             # Aggregate loss (mean over batch, horizons, and output_dim)
             loss_val += tf_reduce_mean(q_loss)
 
@@ -568,18 +614,18 @@ def combined_quantile_loss_(quantiles: List[float]):
 
     return _cqloss
 
-@register_keras_serializable("geoprior.nn.losses", name="combined_quantile_loss")
-def combined_quantile_loss(quantiles):
 
+@register_keras_serializable(
+    "geoprior.nn.losses", name="combined_quantile_loss"
+)
+def combined_quantile_loss(quantiles):
     # Validate & store quantiles
     quantiles = validate_quantiles_in(quantiles)
-    
+
     @register_keras_serializable(
-        "geoprior.nn.losses",
-        name="combined_quantile_loss"
+        "geoprior.nn.losses", name="combined_quantile_loss"
     )
     def _cqloss(y_true, y_pred):
-
         # y_true original shape: (batch_size, horizon, output_dim), e.g., (20, 3, 1)
         # Expand y_true to (batch_size, horizon, 1, output_dim) for broadcasting
         y_true_expanded = tf_expand_dims(y_true, axis=2)
@@ -595,19 +641,23 @@ def combined_quantile_loss(quantiles):
         # These functions capture `y_pred` from the _cqloss arguments.
         def case_rank3():
             # Called when y_pred is (Batch, Horizon, Quantiles)
-            return tf_expand_dims(y_pred, axis=-1)  # Returns (B, H, Q, 1)
+            return tf_expand_dims(
+                y_pred, axis=-1
+            )  # Returns (B, H, Q, 1)
 
         def case_rank4():
             # Called when y_pred is (Batch, Horizon, Quantiles, OutputDim)
-            return y_pred # Returns (B, H, Q, O)
+            return y_pred  # Returns (B, H, Q, O)
 
         # --- MODIFICATION START ---
         # Remove the try-except block and directly use tf.cond
         # This ensures y_pred is reshaped correctly before the subtraction.
         # The result of tf.cond is assigned back to y_pred (or a new variable).
-        y_pred_reshaped = tf_cond(tf_equal(rank, 3),
-                                  true_fn=case_rank3,
-                                  false_fn=case_rank4)
+        y_pred_reshaped = tf_cond(
+            tf_equal(rank, 3),
+            true_fn=case_rank3,
+            false_fn=case_rank4,
+        )
         # --- MODIFICATION END ---
 
         # Now, y_pred_reshaped should have shape (B, H, Q, O), e.g., (20, 3, 3, 1)
@@ -623,58 +673,79 @@ def combined_quantile_loss(quantiles):
         loss_val = tf_constant(0.0, dtype=error.dtype)
 
         # Accumulate pinball losses for each quantile
-        for i, q_float in enumerate(quantiles): # quantiles is the list of float values
+        for i, q_float in enumerate(
+            quantiles
+        ):  # quantiles is the list of float values
             q = tf_cast(q_float, dtype=error.dtype)
 
             # error is (B,H,Q,O). Slicing error[:, :, i, :] gives (B,H,O)
             current_error_slice = error[:, :, i, :]
 
-            q_loss = tf_maximum(q * current_error_slice,
-                                (q - 1) * current_error_slice)
+            q_loss = tf_maximum(
+                q * current_error_slice,
+                (q - 1) * current_error_slice,
+            )
             # Aggregate loss (mean over batch, horizons, and output_dim for this quantile)
             loss_val += tf_reduce_mean(q_loss)
 
         # Average loss over all quantiles
-        return loss_val / tf_cast(len(quantiles), dtype=loss_val.dtype)
+        return loss_val / tf_cast(
+            len(quantiles), dtype=loss_val.dtype
+        )
 
     return _cqloss
 
-@register_keras_serializable("geoprior.nn.losses", name="combined_quantile_loss__")
+
+@register_keras_serializable(
+    "geoprior.nn.losses", name="combined_quantile_loss__"
+)
 def combined_quantile_loss__(quantiles):
     quantiles = validate_quantiles_in(quantiles)
 
     # @optional_tf_function
     def _cqloss(y_true, y_pred):
         # Ensure y_pred has shape (B, H, Q, O)
-        y_true_exp = tf_expand_dims(y_true, axis=2)  # (B, H, 1, O)
+        y_true_exp = tf_expand_dims(
+            y_true, axis=2
+        )  # (B, H, 1, O)
 
         # Handle y_pred that may be (B, H, Q) or (B, H, Q, O)
         y_pred_rank = tf_rank(y_pred)
 
         def expand_pred():
-            return tf_expand_dims(y_pred, axis=-1)  # (B, H, Q) → (B, H, Q, 1)
+            return tf_expand_dims(
+                y_pred, axis=-1
+            )  # (B, H, Q) → (B, H, Q, 1)
 
         def identity_pred():
             return y_pred
 
-        y_pred = tf_cond(tf_equal(y_pred_rank, 3), expand_pred, identity_pred)
+        y_pred = tf_cond(
+            tf_equal(y_pred_rank, 3),
+            expand_pred,
+            identity_pred,
+        )
 
         # Now both y_true_exp and y_pred are (B, H, Q, O)
         error = y_true_exp - y_pred
         loss_val = 0.0
         for i, q in enumerate(quantiles):
-            q_loss = tf_maximum(q * error[:, :, i, :], (q - 1) * error[:, :, i, :])
+            q_loss = tf_maximum(
+                q * error[:, :, i, :],
+                (q - 1) * error[:, :, i, :],
+            )
             loss_val += tf_reduce_mean(q_loss)
 
         return loss_val / len(quantiles)
 
     return _cqloss
 
+
 @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
 def combined_total_loss(
-    quantiles: List[float],
-    anomaly_layer: Loss,   #  an instance of your AnomalyLoss
-    anomaly_scores: Tensor, 
+    quantiles: list[float],
+    anomaly_layer: Loss,  #  an instance of your AnomalyLoss
+    anomaly_scores: Tensor,
 ):
     """
     Create a total loss that adds quantile loss + anomaly loss.
@@ -696,61 +767,63 @@ def combined_total_loss(
     callable
         A loss function: loss_fn(y_true, y_pred)
     """
-    from .components import AnomalyLoss 
+    from .components import AnomalyLoss
+
     # Re-use the same logic from combined_quantile_loss
     quantile_loss_fn = combined_quantile_loss(quantiles)
     # validate layer
-    anomaly_layer =validate_keras_loss(
-        anomaly_layer, ops="validate", 
+    anomaly_layer = validate_keras_loss(
+        anomaly_layer,
+        ops="validate",
     )
     if not isinstance(anomaly_layer, AnomalyLoss):
         warnings.warn(
-            "Expected a AnomalyLoss instance, got %s" % type(
-                anomaly_layer)
-    )
-    
+            f"Expected a AnomalyLoss instance, got {type(anomaly_layer)}",
+            stacklevel=2,
+        )
+
     @register_keras_serializable(
-        package="geoprior.nn.losses", 
-        name="combined_total_loss"
+        package="geoprior.nn.losses",
+        name="combined_total_loss",
     )
     def _total_loss(y_true, y_pred):
         q_loss = quantile_loss_fn(y_true, y_pred)
         a_loss = anomaly_layer(
-            anomaly_scores, 
-            tf_zeros_like(anomaly_scores)
+            anomaly_scores, tf_zeros_like(anomaly_scores)
         )
         return q_loss + a_loss
 
     return _total_loss
+
 
 @check_params({"q": Real})
 @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
 def quantile_loss(q):
     """
     Quantile (Pinball) Loss Function for Quantile Regression.
-    
+
     The ``quantile_loss`` function computes the quantile loss, also known as
     Pinball loss, which is used in quantile regression to predict a specific
     quantile of the target variable's distribution. This loss function
     penalizes over-predictions and under-predictions differently based on
     the quantile parameter, allowing the model to estimate the desired
     quantile.
-    
+
     .. math::
         L_q(y, \hat{y}) = \frac{1}{N} \sum_{i=1}^{N} \rho_q(y_i -
         \hat{y}_i)
-    
+
     Where:
     - :math:`y_i` is the true value.
     - :math:`\hat{y}_i` is the predicted value.
     - :math:`\rho_q(u)` is the quantile loss function defined as:
-    
+
     .. math::
         \rho_q(u) = u \cdot (q - \mathbb{I}(u < 0))
-    
+
     Here, :math:`\mathbb{I}(u < 0)` is the indicator function that is 1
     if :math:`u < 0` and 0 otherwise.
-    
+
     Parameters
     ----------
     q : float
@@ -758,14 +831,14 @@ def quantile_loss(q):
         and 1. For example, ``q=0.1`` corresponds to the 10th percentile,
         ``q=0.5`` is the median, and ``q=0.9`` corresponds to the 90th
         percentile.
-    
+
     Returns
     -------
     loss : callable
         A loss function that can be used in Keras models. This function
         takes two arguments, ``y_true`` and ``y_pred``, and returns the
         computed quantile loss.
-    
+
     Examples
     --------
     >>> from geoprior.nn.losses import quantile_loss
@@ -773,22 +846,22 @@ def quantile_loss(q):
     >>> from tensorflow.keras.models import Sequential
     >>> from tensorflow.keras.layers import Dense
     >>> import numpy as np
-    >>> 
+    >>>
     >>> # Create a simple Keras model
     >>> model = Sequential()
     >>> model.add(Dense(64, input_dim=10, activation='relu'))
     >>> model.add(Dense(1))
-    >>> 
+    >>>
     >>> # Compile the model with quantile loss for the 10th percentile
     >>> model.compile(optimizer='adam', loss=quantile_loss(q=0.1))
-    >>> 
+    >>>
     >>> # Generate example data
     >>> X_train = np.random.rand(100, 10)
     >>> y_train = np.random.rand(100, 1)
-    >>> 
+    >>>
     >>> # Train the model
     >>> model.fit(X_train, y_train, epochs=10, batch_size=32)
-        
+
     Notes
     -----
     - **Usage in Probabilistic Forecasting**:
@@ -796,22 +869,22 @@ def quantile_loss(q):
         forecasting where multiple quantiles are predicted to provide a
         distribution of possible outcomes rather than a single point
         estimate.
-    
+
     - **Handling Multiple Quantiles**:
         To predict multiple quantiles, you can create separate output
         layers for each quantile and compile the model with a list of
         quantile loss functions.
-    
+
     - **Gradient Computation**:
         The quantile loss function is differentiable, allowing it to be
         used seamlessly with gradient-based optimization algorithms in
         Keras.
-    
+
     - **Robustness to Outliers**:
         Unlike Mean Squared Error (MSE), the quantile loss function is
         more robust to outliers, especially when predicting lower or
         higher quantiles.
-    
+
     See Also
     --------
     tensorflow.keras.losses : A module containing built-in loss functions
@@ -820,7 +893,7 @@ def quantile_loss(q):
         similar to quantile loss used here.
     statsmodels.regression.quantile_regression : Provides tools for
         quantile regression analysis.
-    
+
     References
     ----------
     .. [1] Koenker, R., & Bassett Jr, G. (1978). Regression quantiles.
@@ -829,10 +902,13 @@ def quantile_loss(q):
            of quantile regression in financial time series forecasting.
            *Applied Financial Economics*, 18(12), 955-967.
     .. [3] Koenker, R. (2005). Quantile Regression. *Cambridge University
-           Press* 
+           Press*
             .
     """
-    @register_keras_serializable("geoprior.nn.losses", name='quantile_loss')
+
+    @register_keras_serializable(
+        "geoprior.nn.losses", name="quantile_loss"
+    )
     def _q_loss(y_true, y_pred):
         """
         Compute the Quantile Loss (Pinball Loss) for a Given Batch.
@@ -861,50 +937,48 @@ def quantile_loss(q):
         """
         error = y_true - y_pred
         loss = K.mean(
-            K.maximum(q * error, (q - 1) * error),
-            axis=-1
+            K.maximum(q * error, (q - 1) * error), axis=-1
         )
         return loss
 
     return _q_loss
 
-@check_params ({
-     'quantiles': List[float]}
-  )
+
+@check_params({"quantiles": list[float]})
 @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
-def quantile_loss_multi(quantiles=[0.1, 0.5, 0.9]):
+def quantile_loss_multi(quantiles=None):
     """
     Multi-Quantile (Pinball) Loss Function for Quantile Regression.
-    
+
     The ``quantile_loss_multi`` function computes the average quantile loss
     across multiple quantiles, allowing for the simultaneous prediction of
     several quantiles of the target variable's distribution. This is
     particularly useful in probabilistic forecasting where a range of
     possible outcomes is desired.
-    
+
     .. math::
         L_{\text{multi}}(Y, \hat{Y}) = \frac{1}{Q} \sum_{q \in
         \text{quantiles}} L_q(Y, \hat{Y})
-    
+
     Where:
     - :math:`L_q(Y, \hat{Y})` is the quantile loss for a specific quantile
       :math:`q`.
     - :math:`Q` is the total number of quantiles.
-    
+
     Each individual quantile loss is defined as:
-    
+
     .. math::
         L_q(Y, \hat{Y}) = \frac{1}{N} \sum_{i=1}^{N} \rho_q(y_i -
         \hat{y}_i)
-    
+
     And the pinball loss function :math:`\rho_q(u)` is:
-    
+
     .. math::
         \rho_q(u) = u \cdot (q - \mathbb{I}(u < 0))
-    
+
     Here, :math:`\mathbb{I}(u < 0)` is the indicator function that is 1 if
     :math:`u < 0` and 0 otherwise.
-    
+
     Parameters
     ----------
     quantiles : list of float, default=[0.1, 0.5, 0.9]
@@ -912,14 +986,14 @@ def quantile_loss_multi(quantiles=[0.1, 0.5, 0.9]):
         between 0 and 1. For example, ``quantiles=[0.1, 0.5, 0.9]``
         corresponds to the 10th percentile, median, and 90th percentile
         respectively.
-    
+
     Returns
     -------
     loss : callable
         A loss function that can be used in Keras models. This function
         takes two arguments, ``y_true`` and ``y_pred``, and returns the
         averaged quantile loss across the specified quantiles.
-    
+
     Examples
     --------
     >>> from geoprior.nn.loss import quantile_loss_multi
@@ -927,53 +1001,53 @@ def quantile_loss_multi(quantiles=[0.1, 0.5, 0.9]):
     >>> from tensorflow.keras.models import Sequential
     >>> from tensorflow.keras.layers import Dense
     >>> import numpy as np
-    >>> 
+    >>>
     >>> # Create a simple Keras model
     >>> model = Sequential()
     >>> model.add(Dense(64, input_dim=10, activation='relu'))
     >>> model.add(Dense(1))
-    >>> 
+    >>>
     >>> # Compile the model with multi-quantile loss for the 10th, 50th,
     >>> # and 90th percentiles
     >>> model.compile(optimizer='adam', loss=quantile_loss_multi(
     ...     quantiles=[0.1, 0.5, 0.9]))
-    >>> 
+    >>>
     >>> # Generate example data
     >>> X_train = np.random.rand(100, 10)
     >>> y_train = np.random.rand(100, 1)
-    >>> 
+    >>>
     >>> # Train the model
     >>> model.fit(X_train, y_train, epochs=10, batch_size=32)
-        
+
     Notes
     -----
     - **Probabilistic Forecasting**:
         The multi-quantile loss function is essential for probabilistic
         forecasting, where multiple quantiles provide a comprehensive view
         of the possible outcomes rather than a single point estimate.
-    
+
     - **Model Output Configuration**:
         When using multiple quantiles, ensure that the model's output
         layer is configured to output predictions for each quantile. For
         example, the output layer should have a number of units equal to
         the number of quantiles.
-    
+
     - **Handling Multiple Quantiles in Predictions**:
         The model will output a separate prediction for each quantile.
         It is important to interpret these predictions correctly,
         understanding that each represents a specific percentile of the
         target distribution.
-    
+
     - **Gradient Computation**:
         The quantile loss function is differentiable, allowing it to be
         used seamlessly with gradient-based optimization algorithms in
         Keras.
-    
+
     - **Robustness to Outliers**:
         Unlike Mean Squared Error (MSE), the quantile loss function is
         more robust to outliers, especially when predicting lower or
         higher quantiles.
-    
+
     See Also
     --------
     tensorflow.keras.losses : A module containing built-in loss functions
@@ -982,7 +1056,7 @@ def quantile_loss_multi(quantiles=[0.1, 0.5, 0.9]):
         similar to quantile loss used here.
     statsmodels.regression.quantile_regression : Provides tools for
         quantile regression analysis.
-    
+
     References
     ----------
     .. [1] Koenker, R., & Bassett Jr, G. (1978). Regression quantiles.
@@ -993,16 +1067,20 @@ def quantile_loss_multi(quantiles=[0.1, 0.5, 0.9]):
     .. [3] Koenker, R. (2005). Quantile Regression. *Cambridge University
            Press*.
     """
-    quantiles =validate_quantiles_in(quantiles)
-    
-    @register_keras_serializable("geoprior.nn.losses", name="quantile_loss_multi")
+    if quantiles is None:
+        quantiles = [0.1, 0.5, 0.9]
+    quantiles = validate_quantiles_in(quantiles)
+
+    @register_keras_serializable(
+        "geoprior.nn.losses", name="quantile_loss_multi"
+    )
     def _q_loss_multi(y_true, y_pred):
         """
-        Compute the Multi-Quantile Loss (Averaged Pinball Loss) for a Given 
+        Compute the Multi-Quantile Loss (Averaged Pinball Loss) for a Given
         Batch.
 
-        This function calculates the quantile loss for each specified quantile 
-        and returns the average loss across all quantiles. It is suitable 
+        This function calculates the quantile loss for each specified quantile
+        and returns the average loss across all quantiles. It is suitable
         for models that predict multiple quantiles simultaneously.
 
         Parameters
@@ -1020,72 +1098,78 @@ def quantile_loss_multi(quantiles=[0.1, 0.5, 0.9]):
         losses = []
         for q in quantiles:
             error = y_true - y_pred
-            loss_q = K.mean(K.tf_maximum(q * error, (q - 1) * error), axis=-1)
+            loss_q = K.mean(
+                K.tf_maximum(q * error, (q - 1) * error),
+                axis=-1,
+            )
             losses.append(loss_q)
-        
+
         # Stack the losses for each quantile and compute the mean
         loss_stack = K.stack(losses, axis=0)
         loss_mean = K.mean(loss_stack, axis=0)
-        
+
         return loss_mean
-    
+
     return _q_loss_multi
 
+
 @ParamsValidator(
-    { 
-        'anomaly_scores': ['array-like:tf:transf'], 
-        'anomaly_loss_weight': [Interval(Real, 0, None, closed ='neither')]
+    {
+        "anomaly_scores": ["array-like:tf:transf"],
+        "anomaly_loss_weight": [
+            Interval(Real, 0, None, closed="neither")
+        ],
     }
 )
 @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
 def anomaly_loss(anomaly_scores, anomaly_loss_weight=1.0):
     """
-    Compute the anomaly loss based on given anomaly scores and a 
-    scaling weight. 
-    
-    The function returns a loss function callable that can be directly used 
+    Compute the anomaly loss based on given anomaly scores and a
+    scaling weight.
+
+    The function returns a loss function callable that can be directly used
     in Keras model compilation and  training workflows.
     The anomaly loss penalizes large anomaly scores, thereby guiding
-    the model towards producing lower values when data points are considered 
+    the model towards producing lower values when data points are considered
     normal.
-     
-    Given anomaly scores 
-    :math:`a = [a_1, a_2, ..., a_n]`, the anomaly loss 
+
+    Given anomaly scores
+    :math:`a = [a_1, a_2, ..., a_n]`, the anomaly loss
     :math:`L` is defined as:
-    
+
     .. math::
         L = w \cdot \frac{1}{n} \sum_{i=1}^{n} a_i^{2}
-    
-    where :math:`w` is the `anomaly_loss_weight`, and 
+
+    where :math:`w` is the `anomaly_loss_weight`, and
     :math:`n` is the number of data points.
-    
-    The model thus aims to reduce these anomaly scores, forcing 
-    representations or intermediate outputs to behave more 
+
+    The model thus aims to reduce these anomaly scores, forcing
+    representations or intermediate outputs to behave more
     normally according to its learned patterns.
-    
+
     Parameters
     ----------
     anomaly_scores : tf.Tensor or array-like
-        The anomaly scores reflecting the degree of abnormality in 
-        data points. Higher values indicate more unusual points. 
-        If provided as array-like, they will be converted into a 
-        :class:`tf.Tensor` of type float32.  
+        The anomaly scores reflecting the degree of abnormality in
+        data points. Higher values indicate more unusual points.
+        If provided as array-like, they will be converted into a
+        :class:`tf.Tensor` of type float32.
     anomaly_loss_weight : float, optional
-        A scaling factor controlling the influence of the anomaly 
-        loss on the overall training objective. Default is 
-        ``1.0``. Increasing this value places greater emphasis on 
-        reducing anomaly scores, encouraging the model to learn 
+        A scaling factor controlling the influence of the anomaly
+        loss on the overall training objective. Default is
+        ``1.0``. Increasing this value places greater emphasis on
+        reducing anomaly scores, encouraging the model to learn
         representations or predictions that minimize these values.
-    
+
     Returns
     -------
     callable
-        A callable loss function with signature 
-        ``loss(y_true, y_pred)`` compatible with Keras. This 
-        returned function ignores `y_true` and focuses only on 
-        `anomaly_scores`, computing the mean of the tf_squared 
+        A callable loss function with signature
+        ``loss(y_true, y_pred)`` compatible with Keras. This
+        returned function ignores `y_true` and focuses only on
+        `anomaly_scores`, computing the mean of the tf_squared
         anomaly scores and scaling by ``anomaly_loss_weight``.
-    
+
     Examples
     --------
     >>> from geoprior.nn.losses import anomaly_loss
@@ -1097,25 +1181,25 @@ def anomaly_loss(anomaly_scores, anomaly_loss_weight=1.0):
     >>> loss_value = loss_fn(y_true_dummy, y_pred_dummy)
     >>> print(loss_value.numpy())
     1.4166666
-    
-    In this example, the anomaly loss encourages the model to 
+
+    In this example, the anomaly loss encourages the model to
     reduce the given anomaly scores.
-    
+
     Notes
     -----
-    - The `y_true` and `y_pred` parameters are included for 
-      compatibility with Keras losses but are not utilized 
+    - The `y_true` and `y_pred` parameters are included for
+      compatibility with Keras losses but are not utilized
       in the anomaly loss computation.
-    - If `anomaly_scores` is provided as array-like, it is 
-      converted to float32 for consistency. If it is already 
+    - If `anomaly_scores` is provided as array-like, it is
+      converted to float32 for consistency. If it is already
       a tensor, it is cast to float32 if needed.
-    
+
     See Also
     --------
     :func:`tf.keras.losses.Loss` : Base class for all Keras losses.
     :func:`tf.tf_reduce_mean` : TensorFlow method for computing mean.
     :func:`tf.tf_square` : Squares tensor elements.
-    
+
     References
     ----------
     .. [1] Goodfellow, Ian, et al. *Deep Learning.* MIT Press, 2016.
@@ -1128,15 +1212,18 @@ def anomaly_loss(anomaly_scores, anomaly_loss_weight=1.0):
     #         anomaly_scores = tf.cast(anomaly_scores, tf.float32)
 
     if anomaly_scores.shape.tf_rank is None:
-        anomaly_scores =tf_reshape(anomaly_scores, [-1])
+        anomaly_scores = tf_reshape(anomaly_scores, [-1])
 
-    anomaly_loss_weight =tf_convert_to_tensor(
+    anomaly_loss_weight = tf_convert_to_tensor(
         anomaly_loss_weight, dtype=anomaly_scores.dtype
     )
+
     @register_keras_serializable(
         "geoprior.nn.losses", name="anomaly_loss"
     )
     def _a_loss(y_true, y_pred):
-        return anomaly_loss_weight * tf_reduce_mean(tf_square(anomaly_scores))
+        return anomaly_loss_weight * tf_reduce_mean(
+            tf_square(anomaly_scores)
+        )
 
     return _a_loss

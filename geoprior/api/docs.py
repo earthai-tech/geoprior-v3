@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #   License: BSD-3-Clause
 #   Author: LKouadio Laurent <etanoyau@gmail.com>
 #
@@ -17,38 +15,38 @@ Adapted for FusionLab from the original gofast implementation.
 from __future__ import annotations
 
 import re
-from textwrap import dedent 
-from typing import Callable 
-
+from collections.abc import Callable
+from textwrap import dedent
 
 __all__ = [
-    '_core_params',
-    'refglossary',
-    '_core_docs',
-    '_shared_nn_params',
-    '_shared_docs', 
-    'DocstringComponents',
-    'filter_docs', 
-    'doc'
+    "_core_params",
+    "refglossary",
+    "_core_docs",
+    "_shared_nn_params",
+    "_shared_docs",
+    "DocstringComponents",
+    "filter_docs",
+    "doc",
 ]
+
 
 class DocstringComponents:
     r"""
     A class for managing and cleaning docstring components for classes, methods,
-    or functions. It provides structured access to raw docstrings by parsing 
+    or functions. It provides structured access to raw docstrings by parsing
     them from a dictionary, optionally stripping outer whitespace, and allowing
     dot access to the components.
 
-    This class is typically used to standardize, clean, and manage the 
+    This class is typically used to standardize, clean, and manage the
     docstrings for different components of a codebase (such as methods or classes),
-    particularly when docstrings contain multiple components that need to be 
+    particularly when docstrings contain multiple components that need to be
     extracted, cleaned, and accessed easily.
 
     Parameters
     ----------
     comp_dict : dict
-        A dictionary where the keys are component names and the values are 
-        the raw docstring contents. The dictionary may contain entries such as 
+        A dictionary where the keys are component names and the values are
+        the raw docstring contents. The dictionary may contain entries such as
         "description", "parameters", "returns", etc.
 
     strip_whitespace : bool, optional, default=True
@@ -58,8 +56,8 @@ class DocstringComponents:
     Attributes
     ----------
     entries : dict
-        A dictionary containing the cleaned or raw docstring components after 
-        parsing, depending on the `strip_whitespace` flag. These components 
+        A dictionary containing the cleaned or raw docstring components after
+        parsing, depending on the `strip_whitespace` flag. These components
         are accessible via dot notation.
 
     Methods
@@ -141,10 +139,10 @@ class DocstringComponents:
         """Add multiple sub-sets of components."""
         return cls(kwargs, strip_whitespace=False)
 
+
 def doc(
-    *docstrings: str | Callable, 
-    **params
-    ) -> Callable[[callable], callable]:
+    *docstrings: str | Callable, **params
+) -> Callable[[callable], callable]:
     """
     A decorator take docstring templates, concatenate them and perform string
     substitution on it.
@@ -168,7 +166,9 @@ def doc(
         # collecting docstring and docstring templates
         docstring_components: list[str | Callable] = []
         if decorated.__doc__:
-            docstring_components.append(dedent(decorated.__doc__))
+            docstring_components.append(
+                dedent(decorated.__doc__)
+            )
 
         for docstring in docstrings:
             if hasattr(docstring, "_docstring_components"):
@@ -179,7 +179,10 @@ def doc(
                 docstring_components.extend(
                     docstring._docstring_components  # type: ignore[union-attr]
                 )
-            elif isinstance(docstring, str) or docstring.__doc__:
+            elif (
+                isinstance(docstring, str)
+                or docstring.__doc__
+            ):
                 docstring_components.append(docstring)
 
         # formatting templates and concatenating docstring
@@ -200,10 +203,11 @@ def doc(
 
     return decorator
 
+
 def filter_docs(keys, input_dict=None):
     """
-    Filters a dictionary to include only the key-value pairs where 
-    the key is present in the specified list of keys. By default, 
+    Filters a dictionary to include only the key-value pairs where
+    the key is present in the specified list of keys. By default,
     filters from the global `_shared_docs` dictionary.
 
     Parameters
@@ -212,13 +216,13 @@ def filter_docs(keys, input_dict=None):
         A list of keys to keep in the resulting filtered dictionary.
 
     input_dict : dict, optional, default=_shared_docs
-        The dictionary to be filtered. If not provided, uses the global 
+        The dictionary to be filtered. If not provided, uses the global
         `_shared_docs` dictionary.
 
     Returns
     -------
     dict
-        A new dictionary containing only the key-value pairs where the 
+        A new dictionary containing only the key-value pairs where the
         key is present in the specified `keys` list.
 
     Examples
@@ -235,16 +239,23 @@ def filter_docs(keys, input_dict=None):
     Notes
     -----
     This function returns a new dictionary with only the specified keys
-    and their corresponding values. If a key is not found in the original 
+    and their corresponding values. If a key is not found in the original
     dictionary, it is ignored.
     """
-    input_dict = input_dict or _shared_docs  # Default to _shared_docs if None
-    return dict(filter(lambda item: item[0] in keys, input_dict.items()))
+    input_dict = (
+        input_dict or _shared_docs
+    )  # Default to _shared_docs if None
+    return dict(
+        filter(
+            lambda item: item[0] in keys, input_dict.items()
+        )
+    )
+
 
 # ------------------------core params ------------------------------------------
 
-_core_params= dict ( 
-    data =r"""
+_core_params = dict(
+    data=r"""
 data: str, filepath_or_buffer, or :class:`pandas.core.DataFrame`
     Data source, which can be a path-like object, a DataFrame, or a file-like object.
     - For path-like objects, data is read, asserted, and validated. Accepts 
@@ -257,8 +268,8 @@ data: str, filepath_or_buffer, or :class:`pandas.core.DataFrame`
     This flexibility allows for various data sources, including local files or 
     files hosted on remote servers.
 
-    """, 
-    X = r"""
+    """,
+    X=r"""
 X: ndarray of shape (M, N), where M = m-samples and N = n-features
     Training data; represents observed data at both training and prediction 
     times, used as independent variables in learning. The uppercase notation 
@@ -268,7 +279,7 @@ X: ndarray of shape (M, N), where M = m-samples and N = n-features
     transformation. It's critical to ensure data consistency and compatibility 
     with the chosen learning model.
     """,
-    y = r"""
+    y=r"""
 y: array-like of shape (m,), where M = m-samples
     Training target; signifies the dependent variable in learning, observed 
     during training but unavailable at prediction time. The target is often 
@@ -276,7 +287,7 @@ y: array-like of shape (m,), where M = m-samples
     correct alignment and representation of target data is crucial for effective 
     model training.
     """,
-    Xt = r"""
+    Xt=r"""
 Xt: ndarray, shape (M, N), where M = m-samples and N = n-features
     Test set; denotes data observed during testing and prediction, used as 
     independent variables in learning. Like X, Xt is typically a matrix where 
@@ -284,50 +295,49 @@ Xt: ndarray, shape (M, N), where M = m-samples and N = n-features
     training set (X) and the test set (Xt) in terms of feature representation 
     and preprocessing is essential for accurate model evaluation.
     """,
-    yt = r"""
+    yt=r"""
 yt: array-like, shape (M,), where M = m-samples
     Test target; represents the dependent variable in learning, akin to 'y' 
     but for the testing phase. While yt is observed during training, it is used
     to evaluate the performance of predictive models. The test target helps 
     in assessing the generalization capabilities of the model to unseen data.
     """,
-    target_name = r"""
+    target_name=r"""
 target_name: str
     Target name or label used in supervised learning. It serves as the reference name 
     for the target variable (`y`) or label. Accurate identification of `target_name` is 
     crucial for model training and interpretation, especially in datasets with multiple 
     potential targets.
 """,
-
-   z = r"""
+    z=r"""
 z: array-like 1D or pandas.Series
     Represents depth values in a 1D array or pandas series. Multi-dimensional arrays 
     are not accepted. If `z` is provided as a DataFrame and `zname` is unspecified, 
     an error is raised. In such cases, `zname` is necessary for extracting the depth 
     column from the DataFrame.
 """,
-    zname = r"""
+    zname=r"""
 zname: str or int
     Specifies the column name or index for depth values within a DataFrame. If an 
     integer is provided, it is interpreted as the column index for depth values. 
     The integer value should be within the DataFrame's column range. `zname` is 
     essential when the depth information is part of a larger DataFrame.
 """,
-    kname = r"""
+    kname=r"""
 kname: str or int
     Identifies the column name or index for permeability coefficient ('K') within a 
     DataFrame. An integer value represents the column index for 'K'. It must be within 
     the DataFrame's column range. `kname` is required when permeability data is 
     integrated into a DataFrame, ensuring correct retrieval and processing of 'K' values.
 """,
-   k = r"""
+    k=r"""
 k: array-like 1D or pandas.Series
     Array or series containing permeability coefficient ('K') values. Multi-dimensional 
     arrays are not supported. If `K` is provided as a DataFrame without specifying 
     `kname`, an error is raised. `kname` is used to extract 'K' values from the DataFrame 
     and overwrite the original `K` input.
 """,
-    target = r"""
+    target=r"""
 target: Array-like or pandas.Series
     The dependent variable in supervised (and semi-supervised) learning, usually 
     denoted as `y` in an estimator's fit method. Also known as the dependent variable, 
@@ -415,7 +425,7 @@ scoring: str, callable
     diverse API.  ``scoring`` may also be set to None, in which case the
     estimator's :term:`score` method is used.  See `slearn.scoring_parameter`
     in the `Scikit-learn`_ User Guide.
-    """, 
+    """,
     random_state=r"""
 random_state : int, RandomState instance or None, default=None
     Controls the shuffling applied to the data before applying the split.
@@ -428,7 +438,7 @@ test_size : float or int, default=None
     absolute number of test samples. If None, the value is set to the
     complement of the train size. If ``train_size`` is also None, it will
     be set to 0.25.    
-    """, 
+    """,
     n_jobs=r"""
 n_jobs: int, 
     is used to specify how many concurrent processes or threads should be 
@@ -449,16 +459,19 @@ n_jobs: int,
     verbose=r"""
 verbose: int, `default` is ``0``    
     Control the level of verbosity. Higher value lead to more messages. 
-    """  
-) 
+    """,
+)
 
 _core_docs = dict(
     params=DocstringComponents(_core_params),
 )
 
 
-refglossary =type ('refglossary', (), dict (
-    __doc__="""\
+refglossary = type(
+    "refglossary",
+    (),
+    dict(
+        __doc__="""\
 
 .. _GeekforGeeks: https://www.geeksforgeeks.org/style-plots-using-matplotlib/#:~:text=Matplotlib%20is%20the%20most%20popular,without%20using%20any%20other%20GUIs
 
@@ -477,7 +490,7 @@ refglossary =type ('refglossary', (), dict (
 .. _scipy.optimize.curve_fit: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html
 
 """
-    ) 
+    ),
 )
 
 
@@ -596,7 +609,7 @@ _spatial_params = dict(
 )
 
 _shared_nn_params = dict(
-    input_dim = r"""
+    input_dim=r"""
 input_dim: int
     The dimensionality of each input variable. This defines the number of
     features (or the length of the feature vector) for each individual input.
@@ -613,9 +626,8 @@ input_dim: int
       ``input_dim = 300``.
     - For time-series data with 10 features at each time step, 
       ``input_dim = 10``.
-    """, 
-    
-    units = r"""
+    """,
+    units=r"""
 units: int
     The number of units in the attention layer. This parameter defines
     the dimensionality of the output space for the attention mechanism.
@@ -628,8 +640,7 @@ units: int
     more challenging tasks, but it can also increase memory and 
     computational requirements, so tuning this parameter is important.
     """,
-
-    num_heads = r"""
+    num_heads=r"""
 num_heads: int
     The number of attention heads in the multi-head attention mechanism.
     Multiple attention heads allow the model to focus on different aspects
@@ -643,8 +654,7 @@ num_heads: int
     Using more heads can increase the model's capacity to learn complex
     features, but it also requires more memory and computational power.
     """,
-
-    dropout_rate = r"""
+    dropout_rate=r"""
 dropout_rate: float, optional
     The dropout rate applied during training to prevent overfitting.
     Dropout is a regularization technique where a fraction of input units
@@ -656,8 +666,7 @@ dropout_rate: float, optional
     is applied and a value of ``1.0`` means that all units are dropped. 
     A typical value for ``dropout_rate`` ranges from 0.1 to 0.5.
     """,
-
-    activation = r"""
+    activation=r"""
 activation: str, optional
     The activation function to use in the Gated Recurrent Networks (GRNs).
     The activation function defines how the model's internal representations
@@ -711,8 +720,7 @@ activation: str, optional
 
     The default activation function is ``'elu'``.
     """,
-
-    use_batch_norm = r"""
+    use_batch_norm=r"""
 use_batch_norm: bool, optional
     Whether to use batch normalization in the Gated Recurrent Networks (GRNs).
     Batch normalization normalizes the input to each layer, stabilizing and
@@ -723,9 +731,8 @@ use_batch_norm: bool, optional
     also acts as a form of regularization, reducing the need for other techniques
     like dropout. By default, batch normalization is turned off (``False``).
     
-    """, 
-    
-    hidden_units = """
+    """,
+    hidden_units="""
 hidden_units: int
     The number of hidden units in the model's layers. This parameter 
     defines the size of the hidden layers throughout the model, including 
@@ -737,8 +744,7 @@ hidden_units: int
     balance model capacity and computational feasibility, depending on the 
     complexity of the problem and available resources.
     """,
-
-quantiles = """
+    quantiles="""
 quantiles: list of float or None, optional
     A list of quantiles to predict for each time step. For example, 
     specifying ``[0.1, 0.5, 0.9]`` would result in the model predicting 
@@ -749,160 +755,133 @@ quantiles: list of float or None, optional
     or most likely value) for each time step. Quantile forecasting is commonly 
     used for applications where it is important to predict not just the 
     most likely outcome, but also the range of possible outcomes.
-    """
+    """,
 )
-    
+
 # ---------------------------------------------------------------------
 # Shared docstring snippets used across FusionLab metric‑plotting
 # utilities.
 # ---------------------------------------------------------------------
 _shared_metric_plot_params = dict(
-
     y_true="""
 y_true : ndarray of shape (n_samples, …)
     Ground‑truth target values.  Depending on the metric a 1‑D
     array (global aggregation), a 2‑D array *(n_samples, n_outputs)*,
     or a 3‑D array *(n_samples, n_horizons, n_outputs)* may be
     expected.""",
-
     y_pred="""
 y_pred : ndarray
     Point‑forecast predictions with the same shape semantics as
     `y_true`.  Used by deterministic metrics such as MAE or RMSE as
     well as for plotting point predictions alongside intervals.""",
-
     y_median="""
 y_median : ndarray
     Median (50‑th quantile) of a probabilistic forecast.  The array
     must align with `y_true` along every sampled dimension.""",
-
     y_lower="""
 y_lower : ndarray
     Lower‑bound quantile (e.g. 0.05 or 0.10) for an uncertainty
     interval.  Shape must mirror `y_true`.  Required by coverage,
     interval‑width, and WIS plots.""",
-
     y_upper="""
 y_upper : ndarray
     Upper‑bound quantile (e.g. 0.95 or 0.90) paired with `y_lower`.
     Must share the same shape and broadcast semantics as `y_true`. """,
-
     y_pred_quantiles="""
 y_pred_quantiles : ndarray
     Stack of predictive quantiles.  Typical shape is
     *(n_samples, n_horizons, n_quantiles)* or
     *(n_samples, n_quantiles)* for horizon‑aggregated diagnostics.""",
-
     quantiles="""
 quantiles : 1‑D ndarray
     Numeric array of the quantile levels represented in
     `y_pred_quantiles`, sorted in ascending order
     (e.g. ``np.array([0.1, 0.5, 0.9])``).""",
-
     alphas="""
 alphas : 1‑D ndarray
     Alpha levels *α = 2 × min(q, 1−q)* that define the nominal
     coverage *(1 − α)* of each prediction interval used in Weighted
     Interval Score (WIS) computations.""",
-
     metric_values="""
 metric_values : float or ndarray, default=None
     Pre‑computed metric value(s).  Supply this to skip internal
     calculation and plot the given numbers directly.""",
-
     metric_kws="""
 metric_kws : dict, default=None
     Extra keyword arguments forwarded verbatim to the underlying
     metric function (e.g. `coverage_score`).  Use this to tweak
     nan‑handling, sample‑weights, or multi‑output behaviour.""",
-
     kind="""
 kind : {'summary_bar', 'intervals', 'reliability_diagram', ...}
     High‑level style of plot to produce.  The accepted values depend
     on the specific helper, and unsupported kinds raise
     ``ValueError``.""",
-
     output_idx="""
 output_idx : int, optional
     Index of the target variable to visualise when the model
     predicts multiple outputs.  If *None*, the first output or an
     aggregated view is plotted, depending on the function.""",
-
     sample_idx="""
 sample_idx : int, default=0
     Index of the time series (row) to highlight in sample‑wise
     plots (e.g. CRPS ECDF per sample).""",
-
     figsize="""
 figsize : tuple of float, optional
     Size of the figure in inches *(width, height)*.  If omitted the
     helper chooses sensible defaults such as ``(8, 6)``.""",
-
     title="""
 title : str, optional
     Main title for the figure.  If *None*, a context‑aware default
     is generated from the metric name and input parameters.""",
-
     xlabel="""
 xlabel : str, optional
     Label for the x‑axis.  If *None*, a function‑specific default is
     applied.""",
-
     ylabel="""
 ylabel : str, optional
     Label for the y‑axis.  If *None*, a context‑sensitive default is
     used (e.g. 'Coverage', 'Score').""",
-
     bar_color="""
 bar_color : str or list of str, optional
     Bar face‑colour(s).  Accepts any Matplotlib‑recognised colour
     spec or a list for multi‑bar plots.""",
-
     bar_width="""
 bar_width : float, default=0.8
     Relative width of bars in bar‑type plots (0 < bar_width ≤ 1).""",
-
     score_annotation_format="""
 score_annotation_format : str, default='{:.4f}'
     Python format string used for numeric annotations.  Examples:
     ``'{:.4f}'`` → 0.1234, ``'{:.2%}'`` → 12.34 %. """,
-
     show_score_on_title="""
 show_score_on_title : bool, default=True
     If *True*, appends the aggregated metric value to the plot
     title.""",
-
     show_score="""
 show_score : bool, default=True
     Whether to display individual metric values (e.g. bar labels or
     legend entries) on the plot.""",
-
     show_grid="""
 show_grid : bool, default=True
     Toggle the background grid on the plot axes.""",
-
     grid_props="""
 grid_props : dict, optional
     Keyword arguments forwarded to ``Axes.grid`` for fine‑grained
     grid style control (linestyle, linewidth, alpha, etc.).""",
-
     ax="""
 ax : matplotlib.axes.Axes, optional
     Existing Matplotlib axes to draw on.  If *None*, a new figure
     and axes are created internally.""",
-
     verbose="""
 verbose : int, default=0
     Verbosity level.  0 ⇒ silent, 1 ⇒ basic info, 2+ ⇒ debug
     details printed to stdout.""",
-
     kwargs="""
 **kwargs
     Additional keyword arguments passed directly to the underlying
     Matplotlib primitives (``plot``, ``scatter``, ``bar``,
-    ``fill_between`` …) for low‑level aesthetic control."""
+    ``fill_between`` …) for low‑level aesthetic control.""",
 )
-    
+
 # --------------------------------------------------------------------------- #
 # Centralised parameter‑descriptions for evaluation / radar‑style plots.
 # Each entry is a reStructuredText‑ready snippet that can be injected into
@@ -911,19 +890,16 @@ verbose : int, default=0
 # --------------------------------------------------------------------------- #
 
 _evaluation_plot_params = dict(
-
     forecast_df="""
 forecast_df : pandas.DataFrame
     Long‑format table of predictions.  Must contain
     ``'sample_idx'`` and ``'forecast_step'`` plus the prediction,
     {segment_col}, and actual columns (for instance
     ``'{target_name}_actual'``).""",
-
     segment_col="""
 segment_col : str
     Column whose unique values form the radar spokes
     (e.g. ``'ItemID'``, ``'Month'`` or ``'DayOfWeek'``).""",
-
     metric="""
 metric : str or Callable, default ``'mae'``
     Metric to compute per segment.
@@ -932,72 +908,58 @@ metric : str or Callable, default ``'mae'``
     For a custom metric pass a function ``f(y_true, y_pred) -> float``.
     When *quantiles* are supplied the median prediction is forwarded
     to that callable.""",
-
     target_name="""
 target_name : str, default ``"target"``
     Base name used to assemble prediction / actual column names.""",
-
     quantiles="""
 quantiles : list[float], optional
     Quantiles included in *forecast_df* (e.g. ``[0.1, 0.5, 0.9]``).
     If present and a generic metric is chosen the median
     (``0.5`` or nearest) prediction is employed as ``y_pred``.
     Omit for point forecasts.""",
-
     output_dim="""
 output_dim : int, default ``1``
     Number of target dimensions.  A separate radar is generated
     for each dimension when ``output_dim > 1``.""",
-
     actual_col_pattern="""
 actual_col_pattern : str, default ``"{target_name}_actual"``
     Format string for locating actual columns.
     Place‑holders: ``{target_name}``, ``{o_idx}``.""",
-
     pred_col_pattern_point="""
 pred_col_pattern_point : str, default ``"{target_name}_pred"``
     Format string for point‑forecast columns.""",
-
     pred_col_pattern_quantile="""
 pred_col_pattern_quantile : str, default
     ``"{target_name}_q{quantile_int}"``
     Format string for quantile columns.
     Place‑holders: ``{target_name}``, ``{o_idx}``, ``{quantile_int}``.""",
-
     aggregate_across_horizon="""
 aggregate_across_horizon : bool, default ``True``
     If *True* the metric is computed on all time‑steps per segment.
     If *False* the caller must provide pre‑aggregated values or expect
     one metric per step (rare for radar plots).""",
-
     scaler="""
 scaler : Any, optional
     Fitted scikit‑learn‑style transformer used to inverse‑scale data
     before metric evaluation.""",
-
     scaler_feature_names="""
 scaler_feature_names : list[str], optional
     Full feature order that *scaler* was trained on.
     Mandatory when *scaler* is given.""",
-
     target_idx_in_scaler="""
 target_idx_in_scaler : int, optional
     Position of *target_name* inside *scaler_feature_names*.
     Mandatory when *scaler* is given.""",
-
     figsize="""
 figsize : tuple[float, float], default ``(8, 8)``
     Width and height of each radar chart in inches.""",
-
     max_segments_to_plot="""
 max_segments_to_plot : int, optional
     Hard cap on the number of segments shown on one radar.
     Defaults to ``12`` – exceeding this might overcrowd the figure.""",
-
     verbose="""
 verbose : int, default ``0``
     Controls diagnostic output.  ``0`` = silent.""",
-
     plot_kwargs="""
 **plot_kwargs : Any
     Extra arguments forwarded to the underlying Matplotlib
@@ -1007,7 +969,6 @@ verbose : int, default ``0``
 
 # Common parameter docs reused by XTFTTuner / TFTTuner
 _tuner_common_params = dict(
-
     model_name="""
 model_name : str, optional
     Identifier of the model variant to tune.  Must match one of
@@ -1016,7 +977,6 @@ model_name : str, optional
     ``"tft"`` for :class:`TFTTuner`.  Validation occurs before
     the base class initialiser is called.
 """,
-
     param_space="""
 param_space : dict, optional
     Dictionary mapping hyper‑parameter names to search options
@@ -1024,72 +984,61 @@ param_space : dict, optional
     distributions).  When *None* a built‑in default space is
     employed.
 """,
-
     max_trials="""
 max_trials : int, default ``10``
     Upper bound on the number of trial configurations that the
     tuner explores.  Must be a positive integer.
 """,
-
     objective="""
 objective : str, default ``'val_loss'``
     Metric name that the tuner seeks to minimise (or maximise if
     prefixed with ``'max'``).  Any Keras history key is valid.
 """,
-
     epochs="""
 epochs : int, default ``10``
     Training epochs for the *refit* phase carried out on the best
     hyper‑parameters of each batch‑size loop.
 """,
-
     batch_sizes="""
 batch_sizes : list[int], default ``[32]``
     Ensemble of batch sizes to iterate over.  A separate tuning
     run is executed for every value.
 """,
-
     validation_split="""
 validation_split : float, default ``0.2``
     Fraction of the training data reserved for validation inside
     both the search and refit stages.  Must fall in ``(0, 1)``.
 """,
-
     tuner_dir="""
 tuner_dir : str, optional
     Root directory where Keras Tuner artefacts are written
     (trial summaries, checkpoints, logs).  A path within the
     current working directory is autogenerated if omitted.
 """,
-
     project_name="""
 project_name : str, optional
     Folder name under *tuner_dir* used to isolate results of one
     tuning job.  Defaults to a slug derived from the model type
     and run description.
 """,
-
     tuner_type="""
 tuner_type : {'random', 'bayesian'}, default ``'random'``
     Search strategy.  *'random'* draws configurations uniformly;
     *'bayesian'* performs probabilistic optimisation of the
     objective.
 """,
-
     callbacks="""
 callbacks : list[keras.callbacks.Callback], optional
     Extra Keras callbacks active during both the search and refit
     phases.  When *None* a sensible :class:`EarlyStopping` is
     injected automatically.
 """,
-
     model_builder="""
 model_builder : Callable[[kt.HyperParameters], Model], optional
     Custom factory returning a compiled Keras model from a
     hyper‑parameter set.  If missing an internal builder
     covering the canonical search space is substituted.
 """,
-
     verbose="""
 verbose : int, default ``1``
     Controls console logging produced by the tuner wrapper:
@@ -1099,7 +1048,6 @@ verbose : int, default ``1``
 )
 
 _pinn_tuner_common_params = dict(
-
     fixed_model_params="""
 fixed_model_params : dict
     Dictionary of parameters that are fixed for this tuning session.
@@ -1116,7 +1064,6 @@ fixed_model_params : dict
     These values are required; there is no default. The tuner will treat
     them as constants while varying only the hyperparameters in `param_space`.
 """,
-
     param_space="""
 param_space : dict, optional
     A mapping from hyperparameter names (strings) to search‐space
@@ -1130,7 +1077,6 @@ param_space : dict, optional
     subclass’s `build(hp)` method. Users may omit this to use built‐in
     defaults or supply a custom search space dictionary here.
 """,
-
     objective="""
 objective : str or keras_tuner.Objective, optional
     The metric that the tuner should optimize. Examples:
@@ -1145,7 +1091,6 @@ objective : str or keras_tuner.Objective, optional
       - `"val_loss"` in `PINNTunerBase`.
       - `"val_total_loss"` in `PIHALTuner`.
 """,
-
     max_trials="""
 max_trials : int, optional
     The maximum number of hyperparameter combinations (trials) to explore
@@ -1157,7 +1102,6 @@ max_trials : int, optional
     Larger values increase search coverage but proportionally increase
     total computation time.
 """,
-
     project_name="""
 project_name : str, optional
     Name of the subdirectory under `directory` in which tuner artifacts
@@ -1166,7 +1110,6 @@ project_name : str, optional
     will contain model checkpoints, best‐hyperparameters logs, and any
     JSON summaries for each trial.
 """,
-
     directory="""
 directory : str, optional
     Root directory where Keras Tuner stores results for this project.
@@ -1176,7 +1119,6 @@ directory : str, optional
       - `"pihalnet_tuner_results"` for `PIHALTuner`.
     Specify a writable path if you wish to archive or inspect tuning runs.
 """,
-
     executions_per_trial="""
 executions_per_trial : int, optional
     Number of models to build and fit for each trial. Each execution will
@@ -1186,7 +1128,6 @@ executions_per_trial : int, optional
     when each trial’s performance is noisy and you want more robust
     ranking of hyperparameter sets.
 """,
-
     tuner_type="""
 tuner_type : str, optional
     Search strategy to use. Supported values:
@@ -1198,7 +1139,6 @@ tuner_type : str, optional
     Defaults to `"randomsearch"`. Choose `"bayesianoptimization"` if you
     want more sample‐efficient search (may require specifying a prior).
 """,
-
     seed="""
 seed : int, optional
     Random seed for reproducibility. Controls:
@@ -1208,7 +1148,6 @@ seed : int, optional
     fixed seed ensures that repeated runs with the same configuration
     produce identical trial order and model initializations.
 """,
-
     overwrite_tuner="""
 overwrite_tuner : bool, optional
     If `True`, any existing tuner directory with the same `project_name`
@@ -1216,7 +1155,6 @@ overwrite_tuner : bool, optional
     fresh tuning run without retaining previous trials. Defaults to `True`.
     If set to `False`, existing trial results may be reused if present.
 """,
-
     tuner_kwargs="""
 **tuner_kwargs : dict
     Additional keyword arguments to pass directly to the chosen Keras
@@ -1225,7 +1163,7 @@ overwrite_tuner : bool, optional
       - For `Hyperband`: `{"hyperband_iterations": 3}` to set bracket depth.
       - For `RandomSearch`: `{"overwrite": False}` or other tuner‐specific
         flags. Any argument accepted by the underlying tuner API is valid.
-"""
+""",
 )
 
 
@@ -1375,10 +1313,10 @@ vsn_units : int, optional
     of the Variable Selection Networks. This parameter controls the
     capacity of the feature selection sub-networks. If `None`, it often
     defaults to a value based on `hidden_units`.
-"""
+""",
 )
 
-#---------------------------------Share docs ----------------------------------
+# ---------------------------------Share docs ----------------------------------
 
 _shared_docs: dict[str, str] = {}
 
@@ -1536,9 +1474,7 @@ _shared_docs[
         [[0.1, 0.9], [0.8, 0.2], [0.2, 0.8], [0.7, 0.3]]
 """
 
-_shared_docs[
-    "alpha"
-] = """alpha : float, default={value}
+_shared_docs["alpha"] = """alpha : float, default={value}
     Decay factor for time weighting, controlling the emphasis on 
     more recent predictions.
 
@@ -1576,9 +1512,7 @@ _shared_docs[
 """
 
 
-_shared_docs[
-    "threshold"
-] = """threshold : float, default=%s
+_shared_docs["threshold"] = """threshold : float, default=%s
     Threshold value for converting probabilities to binary labels 
     in binary or multilabel classification tasks.
 
@@ -1763,5 +1697,3 @@ _shared_docs[
     >>> nan_policy = 'propagate'  # Let NaNs propagate; if any NaN is 
     >>> nan_policy = 'raise'  # Raise an error if NaNs are found in the 
 """
-
-

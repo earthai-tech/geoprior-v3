@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Author: LKouadio Laurent (@Daniel) <etanoyau@gmail.com>
 # Adapted from: earthai-tech/gofast — https://github.com/earthai-tech/gofast
@@ -58,9 +57,10 @@ and its capacity to adapt to various computational requirements, making it a
 powerful tool for scientific research and data analysis.
 """
 
-from .base import BaseBackend 
+from .base import BaseBackend
 
-__all__=["ScipyBackend"]
+__all__ = ["ScipyBackend"]
+
 
 class ScipyBackend(BaseBackend):
     """
@@ -99,7 +99,7 @@ class ScipyBackend(BaseBackend):
     --------
     >>> from fusionlab.backends.scipy_backend import ScipyBackend
     >>> scipy_backend = ScipyBackend()
-    
+
     Optimizing a quadratic function:
     >>> result = scipy_backend.optimize_quadratic(a=1, b=-3, c=2, x0=[0])
     >>> print(result.x)  # Optimal solution
@@ -129,7 +129,7 @@ class ScipyBackend(BaseBackend):
 
     def __init__(self):
         super().__init__()
-        self._scipy = __import__('scipy')
+        self._scipy = __import__("scipy")
 
     def __getattr__(self, name):
         """
@@ -139,16 +139,16 @@ class ScipyBackend(BaseBackend):
         """
         # Define custom methods with specific logic
         custom_methods = {
-            'optimize_quadratic': self.optimize_quadratic,
-            'find_root': self.find_root, 
-            'integrate_function': self.integrate_function, 
-            'solve_ode': self.solve_ode, 
-            'curve_fit': self.curve_fit, 
-            'array': self.array, 
-            'dot': self.dot, 
-            'solve': self.solve, 
-            'eig': self.eig
-           }
+            "optimize_quadratic": self.optimize_quadratic,
+            "find_root": self.find_root,
+            "integrate_function": self.integrate_function,
+            "solve_ode": self.solve_ode,
+            "curve_fit": self.curve_fit,
+            "array": self.array,
+            "dot": self.dot,
+            "solve": self.solve,
+            "eig": self.eig,
+        }
         if name in custom_methods:
             return custom_methods[name]
 
@@ -156,7 +156,9 @@ class ScipyBackend(BaseBackend):
         if attr is not None:
             return attr
         else:
-            raise AttributeError(f"'{self.__class__.__name__}' has no attribute '{name}'")
+            raise AttributeError(
+                f"'{self.__class__.__name__}' has no attribute '{name}'"
+            )
 
     def optimize_quadratic(self, *args, **kwargs):
         """
@@ -165,65 +167,103 @@ class ScipyBackend(BaseBackend):
         This method simplifies the process by setting up the quadratic function and
         calling scipy.optimize.minimize with predetermined arguments.
         """
+
         # Define the quadratic function
         def quadratic_function(x, a=1, b=0, c=0):
-            return a*x**2 + b*x + c
-        
+            return a * x**2 + b * x + c
+
         # Extract coefficients if provided, else default to a=1, b=0, c=0
-        a = kwargs.pop('a', 1)
-        b = kwargs.pop('b', 0)
-        c = kwargs.pop('c', 0)
-    
+        a = kwargs.pop("a", 1)
+        b = kwargs.pop("b", 0)
+        c = kwargs.pop("c", 0)
+
         # Setup the optimization problem
-        initial_guess = kwargs.pop('x0', [0])  # Initial guess for the minimization
-        
+        initial_guess = kwargs.pop(
+            "x0", [0]
+        )  # Initial guess for the minimization
+
         # Call scipy.optimize.minimize with the quadratic function
         result = self._scipy.optimize.minimize(
-            quadratic_function, x0=initial_guess, args=(a, b, c), **kwargs)
-        
+            quadratic_function,
+            x0=initial_guess,
+            args=(a, b, c),
+            **kwargs,
+        )
+
         return result
-    
+
     def find_root(self, func, x0, *args, **kwargs):
         """
         Custom method to find a root of a nonlinear equation.
         """
-        result = self._scipy.optimize.root(func, x0, args=args, **kwargs)
+        result = self._scipy.optimize.root(
+            func, x0, args=args, **kwargs
+        )
         return result
-    
+
     def integrate_function(self, func, a, b, *args, **kwargs):
         """
         Custom method to numerically integrate a function over a given interval [a, b].
         """
-        result, error = self._scipy.integrate.quad(func, a, b, args=args, **kwargs)
+        result, error = self._scipy.integrate.quad(
+            func, a, b, args=args, **kwargs
+        )
         return result, error
-    
+
     def solve_ode(self, func, y0, t, *args, **kwargs):
         """
         Custom method to solve an Ordinary Differential Equation (ODE) given an initial value.
         """
-        sol = self._scipy.integrate.solve_ivp(func, (t[0], t[-1]), y0, t_eval=t, args=args, **kwargs)
+        sol = self._scipy.integrate.solve_ivp(
+            func,
+            (t[0], t[-1]),
+            y0,
+            t_eval=t,
+            args=args,
+            **kwargs,
+        )
         return sol
-    
+
     def curve_fit(self, func, xdata, ydata, *args, **kwargs):
         """
         Custom method to fit a curve to data points using nonlinear least squares.
         """
-        params, cov = self._scipy.optimize.curve_fit(func, xdata, ydata, *args, **kwargs)
+        params, cov = self._scipy.optimize.curve_fit(
+            func, xdata, ydata, *args, **kwargs
+        )
         return params, cov
 
-
-    def array(self, data, dtype=None, *, copy=True, order='K', subok=False, ndmin=0, like=None):
+    def array(
+        self,
+        data,
+        dtype=None,
+        *,
+        copy=True,
+        order="K",
+        subok=False,
+        ndmin=0,
+        like=None,
+    ):
         """
         Convert input data to a NumPy array, leveraging NumPy's array creation functionality.
         """
-        import numpy as np 
-        return np.array(data, dtype=dtype, copy=copy, order=order, subok=subok, ndmin=ndmin)
+        import numpy as np
+
+        return np.array(
+            data,
+            dtype=dtype,
+            copy=copy,
+            order=order,
+            subok=subok,
+            ndmin=ndmin,
+        )
 
     def dot(self, a, b):
         """
         Perform dot product of two arrays using NumPy.
         """
-        import numpy as np 
+        import numpy as np
+
         return np.dot(a, b)
 
     def solve(self, a, b):
@@ -238,10 +278,12 @@ class ScipyBackend(BaseBackend):
         Compute the eigenvalues and right eigenvectors of a square array using SciPy's
         linear algebra functions.
         """
-        return self._scipy.linalg.eig(a )
+        return self._scipy.linalg.eig(a)
 
-if __name__=='__main__': 
 
+if __name__ == "__main__":
     scipy_backend = ScipyBackend()
-    result = scipy_backend.optimize_quadratic(x0=[0], a=1, b=-3, c=2)
+    result = scipy_backend.optimize_quadratic(
+        x0=[0], a=1, b=-3, c=2
+    )
     print(f"Optimization result: {result}")

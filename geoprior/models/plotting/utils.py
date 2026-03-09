@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -7,30 +6,32 @@
 """
 Net Model utilities.
 """
+
 from __future__ import annotations
 
-import warnings
 import os
-import numpy as np 
+import warnings
 
-from typing import List, Optional, Union, Dict
 import matplotlib.pyplot as plt
+import numpy as np
 
-from ...core.handlers import _get_valid_kwargs 
-from .. import KERAS_DEPS, KERAS_BACKEND
+from ...core.handlers import _get_valid_kwargs
+from .. import KERAS_BACKEND, KERAS_DEPS
 
 if KERAS_BACKEND:
-    History =KERAS_DEPS.History 
+    History = KERAS_DEPS.History
 else:
+
     class History:
         def __init__(self):
             self.history = {}
 
 
-__all__ = ['select_mode', 'plot_history_in', 'plot_history']
+__all__ = ["select_mode", "plot_history_in", "plot_history"]
+
 
 def select_mode(
-    mode: Union[str, None] = None,
+    mode: str | None = None,
     default: str = "pihal_like",
 ) -> str:
     r"""
@@ -99,9 +100,14 @@ def select_mode(
       IEEE T‑PAMI 2025 (in press).
     """
 
-    canonical = {"pihal": "pihal_like", "pihal_like": "pihal_like",
-                 "tft": "tft_like", "tft_like": "tft_like", 
-                 "tft-like": "tft_like","pihal-like": "pihal_like",}
+    canonical = {
+        "pihal": "pihal_like",
+        "pihal_like": "pihal_like",
+        "tft": "tft_like",
+        "tft_like": "tft_like",
+        "tft-like": "tft_like",
+        "pihal-like": "pihal_like",
+    }
 
     if mode is None:
         return canonical[default]
@@ -116,19 +122,19 @@ def select_mode(
 
 
 def plot_history_in(
-    history: Union[History, Dict],
-    metrics: Optional[Dict[str, List[str]]] = None,
-    layout: str = 'subplots',
+    history: History | dict,
+    metrics: dict[str, list[str]] | None = None,
+    layout: str = "subplots",
     title: str = "Model Training History",
-    figsize: Optional[tuple] = None,
-    style: str = 'default',
-    savefig: Optional[str] = None,
-    max_cols: Union[int, str] = 'auto',
+    figsize: tuple | None = None,
+    style: str = "default",
+    savefig: str | None = None,
+    max_cols: int | str = "auto",
     show_grid: bool = True,
-    grid_props: Optional[Dict] = None,
-    yscale_settings: Optional[Dict[str, str]] = None,
-    log_fn =None,  
-    **plot_kwargs
+    grid_props: dict | None = None,
+    yscale_settings: dict[str, str] | None = None,
+    log_fn=None,
+    **plot_kwargs,
 ) -> None:
     r"""Visualizes the training and validation history of a Keras model.
 
@@ -160,7 +166,7 @@ def plot_history_in(
 
     layout : {'single', 'subplots'}, default 'subplots'
         Determines the plot layout:
-            
+
         - ``'single'``: All specified metrics are plotted on a single
           graph. This is useful for comparing the trends of different
           losses together.
@@ -199,18 +205,18 @@ def plot_history_in(
         A dictionary of properties to pass to ``ax.grid()`` for
         customizing the grid appearance. For example:
         ``{'linestyle': '--', 'alpha': 0.6}``.
-        
+
     yscale_settings : dict, optional
         A dictionary mapping subplot titles (keys from `metrics` dict)
         to their desired y-axis scale (e.g., 'linear' or 'log').
         This allows for per-subplot scale control.
 
         .. code-block:: python
-        
+
            yscale_settings = {
                "Loss Components": "log",
                "Component Losses": "log",
-               "Subsidence MAE": "linear" 
+               "Subsidence MAE": "linear"
            }
 
     **plot_kwargs : dict
@@ -224,7 +230,7 @@ def plot_history_in(
     None
         This function does not return any value. It displays and/or
         saves the Matplotlib figure directly.
-        
+
     See Also
     --------
     geoprior.plot.forecast.forecast_view : For visualizing predictions.
@@ -310,7 +316,7 @@ def plot_history_in(
     ...    ),
     ...)
     """
-    log = log_fn if log_fn is not None else print 
+    log = log_fn if log_fn is not None else print
 
     if isinstance(history, History):
         history_dict = history.history
@@ -322,7 +328,10 @@ def plot_history_in(
         )
 
     if not history_dict:
-        warnings.warn("The history dictionary is empty. Nothing to plot.")
+        warnings.warn(
+            "The history dictionary is empty. Nothing to plot.",
+            stacklevel=2,
+        )
         return
 
     try:
@@ -330,54 +339,73 @@ def plot_history_in(
     except OSError:
         warnings.warn(
             f"Style '{style}' not found. See `plt.style.available` "
-            "for options. Falling back to 'default' style."
+            "for options. Falling back to 'default' style.",
+            stacklevel=2,
         )
-        plt.style.use('default')
+        plt.style.use("default")
 
     if metrics is None:
         metrics = {}
         for key in history_dict.keys():
-            if not key.startswith('val_'):
-                base_metric_name = key.replace('_', ' ').title()
-                group_name = "Losses" if "loss" in key.lower() else base_metric_name
+            if not key.startswith("val_"):
+                base_metric_name = key.replace(
+                    "_", " "
+                ).title()
+                group_name = (
+                    "Losses"
+                    if "loss" in key.lower()
+                    else base_metric_name
+                )
                 if group_name not in metrics:
                     metrics[group_name] = []
                 metrics[group_name].append(key)
-        
+
         if "Losses" in metrics:
-             metrics["Losses"].sort(
-                 key=lambda x: (x != 'loss' and x != 'total_loss', x)
-             )
+            metrics["Losses"].sort(
+                key=lambda x: (
+                    x != "loss" and x != "total_loss",
+                    x,
+                )
+            )
 
     n_plots = len(metrics)
     if n_plots == 0:
-        warnings.warn("No valid metrics found to plot.")
+        warnings.warn(
+            "No valid metrics found to plot.", stacklevel=2
+        )
         return
 
     # --- Plotting Setup ---
-    if layout == 'subplots':
-        n_cols_resolved = 2 if max_cols == 'auto' else int(max_cols)
+    if layout == "subplots":
+        n_cols_resolved = (
+            2 if max_cols == "auto" else int(max_cols)
+        )
         n_cols = min(n_cols_resolved, n_plots)
         n_rows = (n_plots + n_cols - 1) // n_cols
         if figsize is None:
             figsize = (n_cols * 6, n_rows * 5)
-    else: # layout == 'single'
+    else:  # layout == 'single'
         n_rows, n_cols = 1, 1
         if figsize is None:
             figsize = (10, 6)
 
-    fig, axes = plt.subplots(n_rows, n_cols, figsize=figsize, squeeze=False)
+    fig, axes = plt.subplots(
+        n_rows, n_cols, figsize=figsize, squeeze=False
+    )
     axes_flat = axes.flatten()
-    fig.suptitle(title, fontsize=16, weight='bold')
-    
-    grid_properties = grid_props or {'linestyle': ':', 'alpha': 0.7}
-    
+    fig.suptitle(title, fontsize=16, weight="bold")
+
+    grid_properties = grid_props or {
+        "linestyle": ":",
+        "alpha": 0.7,
+    }
+
     # --- New yscale_settings logic ---
     if yscale_settings is None:
         yscale_settings = {}
-    
+
     # --- Revised Plotting Logic ---
-    if layout == 'single':
+    if layout == "single":
         ax = axes_flat[0]
         # Collect all metric keys from all groups to plot on one axis
         all_metric_keys = [
@@ -385,102 +413,135 @@ def plot_history_in(
         ]
         for metric in all_metric_keys:
             if metric not in history_dict:
-                warnings.warn(f"Metric '{metric}' not found. Skipping.")
+                warnings.warn(
+                    f"Metric '{metric}' not found. Skipping.",
+                    stacklevel=2,
+                )
                 continue
-            
+
             epochs = range(1, len(history_dict[metric]) + 1)
-            plot_kwargs = _get_valid_kwargs (ax.plot, plot_kwargs)
-            ax.plot(
-                epochs, history_dict[metric],
-                label=f'Train {metric.replace("_", " ").title()}',
-                **plot_kwargs
+            plot_kwargs = _get_valid_kwargs(
+                ax.plot, plot_kwargs
             )
-            val_metric = f'val_{metric}'
+            ax.plot(
+                epochs,
+                history_dict[metric],
+                label=f"Train {metric.replace('_', ' ').title()}",
+                **plot_kwargs,
+            )
+            val_metric = f"val_{metric}"
             if val_metric in history_dict:
                 ax.plot(
-                    epochs, history_dict[val_metric], linestyle='--',
-                    label=f'Val {metric.replace("_", " ").title()}',
-                    **plot_kwargs
+                    epochs,
+                    history_dict[val_metric],
+                    linestyle="--",
+                    label=f"Val {metric.replace('_', ' ').title()}",
+                    **plot_kwargs,
                 )
-        
-        subplot_title = next(iter(metrics.keys())) if n_plots == 1 else "All Metrics"
+
+        subplot_title = (
+            next(iter(metrics.keys()))
+            if n_plots == 1
+            else "All Metrics"
+        )
         ax.set_title(subplot_title)
         ax.set_xlabel("Epoch")
         ax.set_ylabel("Value")
         ax.legend()
         if show_grid:
             ax.grid(**grid_properties)
-        
+
         # --- Apply yscale to single plot ---
         # Use the scale specified for the first metric group, or default to linear
-        first_group_scale = yscale_settings.get(subplot_title, 'linear')
+        first_group_scale = yscale_settings.get(
+            subplot_title, "linear"
+        )
         ax.set_yscale(first_group_scale)
-        if first_group_scale == 'log':
+        if first_group_scale == "log":
             ax.set_ylabel("Value (log scale)")
-            
-    else: # layout == 'subplots'
+
+    else:  # layout == 'subplots'
         plot_idx = 0
         for subplot_title, metric_keys in metrics.items():
-            if plot_idx >= len(axes_flat): break
+            if plot_idx >= len(axes_flat):
+                break
             ax = axes_flat[plot_idx]
-            
+
             for metric in metric_keys:
                 if metric not in history_dict:
-                    warnings.warn(f"Metric '{metric}' not found. Skipping.")
+                    warnings.warn(
+                        f"Metric '{metric}' not found. Skipping.",
+                        stacklevel=2,
+                    )
                     continue
 
-                epochs = range(1, len(history_dict[metric]) + 1)
-                plot_kwargs = _get_valid_kwargs (ax.plot, plot_kwargs)
-                ax.plot(
-                    epochs, history_dict[metric],
-                    label=f'Train {metric.replace("_", " ").title()}',
-                    **plot_kwargs
+                epochs = range(
+                    1, len(history_dict[metric]) + 1
                 )
-                val_metric = f'val_{metric}'
+                plot_kwargs = _get_valid_kwargs(
+                    ax.plot, plot_kwargs
+                )
+                ax.plot(
+                    epochs,
+                    history_dict[metric],
+                    label=f"Train {metric.replace('_', ' ').title()}",
+                    **plot_kwargs,
+                )
+                val_metric = f"val_{metric}"
                 if val_metric in history_dict:
                     ax.plot(
-                        epochs, history_dict[val_metric],
-                        linestyle='--',
-                        label=f'Val {metric.replace("_", " ").title()}',
-                        **plot_kwargs
+                        epochs,
+                        history_dict[val_metric],
+                        linestyle="--",
+                        label=f"Val {metric.replace('_', ' ').title()}",
+                        **plot_kwargs,
                     )
 
             ax.set_xlabel("Epoch")
             ax.set_ylabel("Value")
             ax.set_title(subplot_title)
-            
+
             # --- Apply per-subplot yscale ---
-            scale_type = yscale_settings.get(subplot_title, 'linear')
+            scale_type = yscale_settings.get(
+                subplot_title, "linear"
+            )
             try:
                 ax.set_yscale(scale_type)
-                if scale_type == 'log':
+                if scale_type == "log":
                     ax.set_ylabel("Value (log scale)")
                     # Prevent log(0) or negative values from breaking the plot
                     min_val = min(
-                        np.min(history_dict[m]) for m in metric_keys 
-                        if m in history_dict and len(history_dict[m]) > 0
+                        np.min(history_dict[m])
+                        for m in metric_keys
+                        if m in history_dict
+                        and len(history_dict[m]) > 0
                     )
                     if min_val <= 0:
                         # Set a small positive minimum for the y-axis
-                        ax.set_ylim(bottom=1e-6) 
+                        ax.set_ylim(bottom=1e-6)
             except Exception as e:
-                warnings.warn(f"Could not set y-scale to '{scale_type}' "
-                              f"for plot '{subplot_title}'."
-                              f" Defaulting to 'linear'. Error: {e}")
-                ax.set_yscale('linear')
-            
+                warnings.warn(
+                    f"Could not set y-scale to '{scale_type}' "
+                    f"for plot '{subplot_title}'."
+                    f" Defaulting to 'linear'. Error: {e}",
+                    stacklevel=2,
+                )
+                ax.set_yscale("linear")
+
             ax.legend()
             if show_grid:
                 ax.grid(**grid_properties)
-            
+
             plot_idx += 1
-        
+
         # Hide any unused subplots
         for i in range(plot_idx, len(axes_flat)):
             axes_flat[i].set_visible(False)
 
-    plt.tight_layout(rect=[0, 0.03, 1, 0.96]) # Adjust for suptitle
-    
+    plt.tight_layout(
+        rect=[0, 0.03, 1, 0.96]
+    )  # Adjust for suptitle
+
     if savefig:
         try:
             save_dir = os.path.dirname(savefig)
@@ -489,14 +550,17 @@ def plot_history_in(
             plt.savefig(savefig, dpi=300)
             log(f"Figure saved to {savefig}")
         except Exception as e:
-            warnings.warn(f"Failed to save figure: {e}")
-            
+            warnings.warn(
+                f"Failed to save figure: {e}", stacklevel=2
+            )
+
         plt.close(fig)
-        
-    else: 
-    # if plt.get_fignums():
+
+    else:
+        # if plt.get_fignums():
         plt.show()
-    
+
+
 def plot_history(
     history,
     metrics=None,
@@ -590,7 +654,10 @@ def plot_history(
         if "Losses" in groups:
             groups["Losses"] = sorted(
                 _uniq(groups["Losses"]),
-                key=lambda x: (x not in ("loss", "total_loss"), x),
+                key=lambda x: (
+                    x not in ("loss", "total_loss"),
+                    x,
+                ),
             )
         else:
             for g in list(groups.keys()):
@@ -639,7 +706,9 @@ def plot_history(
     history_dict = _as_history_dict(history)
 
     if not history_dict:
-        warnings.warn("Empty history. Nothing to plot.")
+        warnings.warn(
+            "Empty history. Nothing to plot.", stacklevel=2
+        )
         return
 
     # Style (fallback gracefully)
@@ -647,7 +716,8 @@ def plot_history(
         plt.style.use(style)
     except Exception:
         warnings.warn(
-            f"Style '{style}' not found. Using 'default'."
+            f"Style '{style}' not found. Using 'default'.",
+            stacklevel=2,
         )
         plt.style.use("default")
 
@@ -655,7 +725,7 @@ def plot_history(
         metrics = _auto_groups(history_dict)
 
     if not metrics:
-        warnings.warn("No metrics to plot.")
+        warnings.warn("No metrics to plot.", stacklevel=2)
         return
 
     if yscale_settings is None:
@@ -673,7 +743,8 @@ def plot_history(
     if layout not in ("single", "subplots"):
         warnings.warn(
             "layout must be 'single' or 'subplots'. "
-            "Falling back to 'subplots'."
+            "Falling back to 'subplots'.",
+            stacklevel=2,
         )
         layout = "subplots"
 
@@ -709,7 +780,9 @@ def plot_history(
             scale = "linear"
         scale = str(scale).lower()
 
-        if scale == "log" and any(_has_nonpos(y) for y in y_list):
+        if scale == "log" and any(
+            _has_nonpos(y) for y in y_list
+        ):
             # Avoid broken log plots when <= 0 exists.
             ax.set_yscale("symlog", linthresh=1e-6)
             return
@@ -799,7 +872,9 @@ def plot_history(
                 if not is_val:
                     vk = f"val_{k}"
                     if vk in history_dict:
-                        xv, yv = _safe_series(history_dict[vk])
+                        xv, yv = _safe_series(
+                            history_dict[vk]
+                        )
                         if xv is not None:
                             y_seen.append(yv)
                             labv = f"Val {_pretty(k)}"
@@ -847,7 +922,9 @@ def plot_history(
             )
             log(f"Figure saved to {savefig}")
         except Exception as e:
-            warnings.warn(f"Failed to save figure: {e}")
+            warnings.warn(
+                f"Failed to save figure: {e}", stacklevel=2
+            )
         finally:
             plt.close(fig)
     else:

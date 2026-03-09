@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
@@ -10,7 +9,7 @@ import argparse
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -20,10 +19,10 @@ from . import utils
 
 @dataclass(frozen=True)
 class _Grid:
-    zone_ids: List[str]
-    zone_labels: List[str]
-    geoms: List[Any]
-    attrs: List[Dict[str, Any]]
+    zone_ids: list[str]
+    zone_labels: list[str]
+    geoms: list[Any]
+    attrs: list[dict[str, Any]]
 
 
 def _as_path(x: str) -> Path:
@@ -51,20 +50,17 @@ def _load_clusters(path: str) -> pd.DataFrame:
             df[c] = pd.to_numeric(df[c], errors="coerce")
 
     if "cluster_id" in df.columns:
-        df["cluster_id"] = (
-            pd.to_numeric(df["cluster_id"], errors="coerce")
-            .astype("Int64")
-        )
+        df["cluster_id"] = pd.to_numeric(
+            df["cluster_id"], errors="coerce"
+        ).astype("Int64")
     if "year" in df.columns:
-        df["year"] = (
-            pd.to_numeric(df["year"], errors="coerce")
-            .astype("Int64")
-        )
+        df["year"] = pd.to_numeric(
+            df["year"], errors="coerce"
+        ).astype("Int64")
     if "priority_rank" in df.columns:
-        df["priority_rank"] = (
-            pd.to_numeric(df["priority_rank"], errors="coerce")
-            .astype("Int64")
-        )
+        df["priority_rank"] = pd.to_numeric(
+            df["priority_rank"], errors="coerce"
+        ).astype("Int64")
 
     return df
 
@@ -74,7 +70,7 @@ def _try_read_grid_geopandas(
     *,
     zone_id_field: str,
     zone_label_field: str,
-) -> Optional[_Grid]:
+) -> _Grid | None:
     try:
         import geopandas as gpd
     except Exception:
@@ -85,20 +81,18 @@ def _try_read_grid_geopandas(
         return None
 
     if zone_id_field not in gdf.columns:
-        raise KeyError(
-            f"grid: missing {zone_id_field!r}"
-        )
+        raise KeyError(f"grid: missing {zone_id_field!r}")
 
     if zone_label_field not in gdf.columns:
-        gdf[zone_label_field] = (
-            "Zone " + gdf[zone_id_field].astype(str)
-        )
+        gdf[zone_label_field] = "Zone " + gdf[
+            zone_id_field
+        ].astype(str)
 
     zone_ids = gdf[zone_id_field].astype(str).tolist()
     zone_labs = gdf[zone_label_field].astype(str).tolist()
     geoms = list(gdf.geometry.values)
 
-    attrs: List[Dict[str, Any]] = []
+    attrs: list[dict[str, Any]] = []
     for _, r in gdf.drop(columns="geometry").iterrows():
         attrs.append(dict(r))
 
@@ -118,17 +112,15 @@ def _read_grid_geojson_fallback(
     if not feats:
         raise ValueError("grid: empty GeoJSON")
 
-    zone_ids: List[str] = []
-    zone_labs: List[str] = []
-    geoms: List[Any] = []
-    attrs: List[Dict[str, Any]] = []
+    zone_ids: list[str] = []
+    zone_labs: list[str] = []
+    geoms: list[Any] = []
+    attrs: list[dict[str, Any]] = []
 
     for f in feats:
         props = dict(f.get("properties", {}) or {})
         if zone_id_field not in props:
-            raise KeyError(
-                f"grid: missing {zone_id_field!r}"
-            )
+            raise KeyError(f"grid: missing {zone_id_field!r}")
 
         zid = str(props.get(zone_id_field))
         zlab = props.get(zone_label_field)
@@ -180,7 +172,7 @@ def _match_points_to_polys(
     grid: _Grid,
     *,
     nearest: bool,
-) -> Tuple[List[Optional[str]], List[Optional[str]]]:
+) -> tuple[list[str | None], list[str | None]]:
     from shapely.geometry import Point
 
     try:
@@ -188,18 +180,21 @@ def _match_points_to_polys(
     except Exception:
         STRtree = None
 
-    pts = [Point(float(x), float(y)) for x, y in zip(xs, ys)]
+    pts = [
+        Point(float(x), float(y))
+        for x, y in zip(xs, ys, strict=False)
+    ]
 
     # Build spatial index if available
     tree = None
-    geom_to_idx: Dict[int, int] = {}
+    geom_to_idx: dict[int, int] = {}
     if STRtree is not None:
         tree = STRtree(grid.geoms)
         for i, g in enumerate(grid.geoms):
             geom_to_idx[id(g)] = i
 
-    out_id: List[Optional[str]] = []
-    out_lab: List[Optional[str]] = []
+    out_id: list[str | None] = []
+    out_lab: list[str | None] = []
 
     for p in pts:
         idx = None
@@ -303,7 +298,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def tag_clusters_with_zones_main(
-    argv: Optional[List[str]] = None,
+    argv: list[str] | None = None,
 ) -> None:
     args = build_parser().parse_args(argv)
 
@@ -384,7 +379,7 @@ def tag_clusters_with_zones_main(
     print(f"[OK] wrote {p}")
 
 
-def main(argv: Optional[List[str]] = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     tag_clusters_with_zones_main(argv)
 
 

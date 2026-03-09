@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Author: LKouadio <etanoyau@gmail.com>
-# Adapted from: earthai-tech/fusionlab-learn — https://github.com/earthai-tech/gofast
+# Adapted from: earthai-tech/fusionlab-learn https://github.com/earthai-tech/gofast
 # Modified for GeoPrior-v3 API.
+
 """
 Mask helpers for attention / sequence ops.
 
@@ -11,19 +11,18 @@ Mask helpers for attention / sequence ops.
 """
 
 from __future__ import annotations
-from typing import Optional
 
 from ._config import (
     Tensor,
-    tf_cast, 
-    tf_int32, 
-    tf_bool, 
-    tf_float32,
-    tf_range, 
+    tf_bool,
+    tf_cast,
     tf_expand_dims,
-    tf_shape, 
+    tf_float32,
+    tf_int32,
     tf_logical_not,
+    tf_range,
     tf_reduce_max,
+    tf_shape,
 )
 
 __all__ = ["pad_mask_from_lengths", "sequence_mask_3d"]
@@ -31,7 +30,7 @@ __all__ = ["pad_mask_from_lengths", "sequence_mask_3d"]
 
 def pad_mask_from_lengths(
     lengths: Tensor,
-    max_len: Optional[int] = None,
+    max_len: int | None = None,
     *,
     dtype: Tensor = tf_bool,
     invert: bool = False,
@@ -60,11 +59,11 @@ def pad_mask_from_lengths(
         max_len = tf_reduce_max(lengths)
     max_len = tf_cast(max_len, tf_int32)
 
-    rng = tf_range(max_len)                   # (T,)
-    rng = tf_expand_dims(rng, 0)              # (1, T)
-    len_col = tf_expand_dims(lengths, 1)      # (B, 1)
+    rng = tf_range(max_len)  # (T,)
+    rng = tf_expand_dims(rng, 0)  # (1, T)
+    len_col = tf_expand_dims(lengths, 1)  # (B, 1)
 
-    mask = tf_cast(rng < len_col, tf_bool)    # (B, T) bool
+    mask = tf_cast(rng < len_col, tf_bool)  # (B, T) bool
     if invert:
         mask = tf_logical_not(mask)
 
@@ -76,8 +75,8 @@ def pad_mask_from_lengths(
 def sequence_mask_3d(
     data: Tensor,
     *,
-    lengths: Optional[Tensor] = None,
-    mask_2d: Optional[Tensor] = None,
+    lengths: Tensor | None = None,
+    mask_2d: Tensor | None = None,
     time_axis: int = 1,
     invert: bool = False,
     dtype: Tensor = tf_bool,
@@ -111,7 +110,7 @@ def sequence_mask_3d(
         raise ValueError("Provide `lengths` or `mask_2d`.")
 
     # Infer batch/time from data
-    b = tf_shape(data)[0] # noqa
+    b = tf_shape(data)[0]  # noqa
     t = tf_shape(data)[time_axis]
 
     if mask_2d is None:

@@ -1,23 +1,26 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Author: LKouadio <etanoyau@gmail.com>
 # Adapted from: earthai-tech/k-diagram — https://github.com/earthai-tech/k-diagram
 # Modified for GeoPrior-v3 API conventions.
 
-from __future__ import annotations 
+from __future__ import annotations
+
+from numbers import Integral, Real
 from typing import Union
-from numbers import Integral, Real 
+
 import numpy as np
 import pandas as pd
+from sklearn.utils.validation import check_array
 
-from sklearn.utils.validation import check_array 
-
-from ..compat.sklearn import validate_params, StrOptions, Hidden, Interval
+from ..compat.sklearn import (
+    Hidden,
+    Interval,
+    StrOptions,
+    validate_params,
+)
 from ..utils.validator import check_consistent_length
 
-__all__ = [ 
-    "clustered_anomaly_severity_score"
- ]
+__all__ = ["clustered_anomaly_severity_score"]
 
 
 ArrayLike = Union[np.ndarray, pd.Series]
@@ -30,18 +33,28 @@ ArrayLike = Union[np.ndarray, pd.Series]
         "sample_weight": ["array-like", None],
         "window_size": [Integral],
         "sort_by": ["array-like", None],
-        "normalize": [StrOptions({"none","band","mad"})],
-        "density_source": [StrOptions({"indicator","magnitude"})],
-        "kernel": [StrOptions({"box","triangular","gaussian","epan"})],
-        "eps": [Hidden(Interval(Real, 0, 1, closed="neither"))],
+        "normalize": [StrOptions({"none", "band", "mad"})],
+        "density_source": [
+            StrOptions({"indicator", "magnitude"})
+        ],
+        "kernel": [
+            StrOptions(
+                {"box", "triangular", "gaussian", "epan"}
+            )
+        ],
+        "eps": [
+            Hidden(Interval(Real, 0, 1, closed="neither"))
+        ],
         "gamma": [Interval(Real, 0, None, closed="neither")],
-        "lambda_": [Interval(Real, 0, None, closed="neither")],
+        "lambda_": [
+            Interval(Real, 0, None, closed="neither")
+        ],
         "multioutput": [
-            StrOptions({"uniform_average","raw_values"})
+            StrOptions({"uniform_average", "raw_values"})
         ],
         "return_details": [bool],
         "nan_policy": [
-            StrOptions({"omit","propagate","raise"})
+            StrOptions({"omit", "propagate", "raise"})
         ],
     }
 )
@@ -87,7 +100,7 @@ def clustered_anomaly_severity_score(
 
     scores = []
     details = [] if return_details else None
-        
+
     for i in range(len(bounds)):
         lo_i, up_i = bounds[i]
         y_i = y_true[:, min(i, y_true.shape[1] - 1)]
@@ -111,7 +124,7 @@ def clustered_anomaly_severity_score(
             return_details=return_details,
             nan_policy=nan_policy,
         )
-        
+
         if return_details:
             sc, det = res
             scores.append(sc)
@@ -120,19 +133,26 @@ def clustered_anomaly_severity_score(
             scores.append(res)
 
     if len(scores) == 1:
-        return (scores[0], details[0]) if return_details else scores[0]
+        return (
+            (scores[0], details[0])
+            if return_details
+            else scores[0]
+        )
 
     if multioutput == "raw_values":
         out = np.asarray(scores, float)
     elif multioutput == "uniform_average":
         out = float(np.mean(scores))
     else:
-        raise ValueError("multioutput must be 'raw_values' or "
-                         "'uniform_average'")
+        raise ValueError(
+            "multioutput must be 'raw_values' or "
+            "'uniform_average'"
+        )
 
     if return_details:
         return out, details
     return out
+
 
 clustered_anomaly_severity_score.__doc__ = r"""
 Compute the Clustered Anomaly Severity (CAS) score.
@@ -327,9 +347,10 @@ References
        Journal of Forecasting*, 41(3), 1148–1164.
 """
 
+
 def _rolling_kernel(
-        a: np.ndarray, w: int, kernel: str
-    ) -> np.ndarray:
+    a: np.ndarray, w: int, kernel: str
+) -> np.ndarray:
     w = int(max(1, w))
     if kernel == "box":
         k = np.ones(w) / w
@@ -354,6 +375,7 @@ def _rolling_kernel(
     ap = np.pad(a, (pad, pad), mode="edge")
     conv = np.convolve(ap, k, mode="valid")
     return conv
+
 
 def _cas_core(
     y: ArrayLike,
@@ -398,7 +420,9 @@ def _cas_core(
                 f"CAS: found {bad} NaN/inf rows; policy=raise."
             )
         if nan_policy == "propagate":
-            return (np.nan, None) if return_details else np.nan
+            return (
+                (np.nan, None) if return_details else np.nan
+            )
         # "omit"
         y, lo, up = y[mask], lo[mask], up[mask]
         if sort_by is not None:
@@ -407,14 +431,19 @@ def _cas_core(
             sample_weight = np.asarray(sample_weight)[mask]
 
     if y.size == 0:
-        return (np.nan, pd.DataFrame()) if return_details else np.nan
+        return (
+            (np.nan, pd.DataFrame())
+            if return_details
+            else np.nan
+        )
 
     is_under = y < lo
     is_over = y > up
     A = np.where(is_under | is_over, 1.0, 0.0)
 
-    m = np.where(is_under, lo - y, 0.0) + \
-        np.where(is_over, y - up, 0.0)
+    m = np.where(is_under, lo - y, 0.0) + np.where(
+        is_over, y - up, 0.0
+    )
 
     if normalize == "band":
         w = (up - lo) + eps
@@ -440,8 +469,9 @@ def _cas_core(
     if not return_details:
         return score
 
-    typ = np.where(is_under, "under",
-          np.where(is_over, "over", "none"))
+    typ = np.where(
+        is_under, "under", np.where(is_over, "over", "none")
+    )
     det = pd.DataFrame(
         {
             "y_true": y,
@@ -456,18 +486,23 @@ def _cas_core(
     )
     return score, det
 
+
 def _split_bounds(y_pred):
     # supports (n,2), (n,n_out,2), or (n, 2*n_out)
     yp = np.asarray(y_pred)
     if yp.ndim == 2 and yp.shape[1] == 2:
         return [(yp[:, 0], yp[:, 1])]
     if yp.ndim == 3 and yp.shape[2] == 2:
-        return [(yp[:, i, 0], yp[:, i, 1])
-                for i in range(yp.shape[1])]
+        return [
+            (yp[:, i, 0], yp[:, i, 1])
+            for i in range(yp.shape[1])
+        ]
     if yp.ndim == 2 and yp.shape[1] % 2 == 0:
         n_out = yp.shape[1] // 2
-        return [(yp[:, 2*i], yp[:, 2*i+1])
-                for i in range(n_out)]
+        return [
+            (yp[:, 2 * i], yp[:, 2 * i + 1])
+            for i in range(n_out)
+        ]
     raise ValueError(
         "y_pred must be (n,2), (n,n_out,2), or (n,2*n_out)"
     )

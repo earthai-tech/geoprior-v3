@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # https://lkouadio.com
@@ -14,51 +13,39 @@ For the `TypeGuard` feature, which is available in Python 3.10 and later,
 it attempts to import from `typing_extensions` if not found in the built-in module.
 """
 
-import sys
-from typing import (
-    List,
-    Tuple,
-    Sequence,
-    Dict,
-    Iterable,
+from collections.abc import (
     Callable,
-    Union,
-    Any,
-    Generic,
-    Optional,
-    Type,
-    Mapping,
-    Text,
-    TypeVar,
+    Generator,
+    Iterable,
     Iterator,
-    SupportsInt,
-    Set,
-    ContextManager,
-    Deque,
-    FrozenSet,
-    NamedTuple,
-    NewType,
-    TypedDict,
-    Generator, 
-    Pattern, 
-    Literal
+    Mapping,
+    Sequence,
 )
+from re import Pattern
 
 # Check if Python version is 3.10 or higher
-if sys.version_info >= (3, 10):
-    from typing import TypeGuard
-else:
-    try:
-        # Try to import TypeGuard from typing_extensions
-        from typing_extensions import TypeGuard
-    except ImportError:
-        # Try to install typing_extensions if it's not available
-        try:
-            from typing_extensions import TypeGuard  # noqa: F401
-        except Exception:
-            class TypeGuard(bool):  # minimal sentinel
-                pass
-
+from typing import (
+    Any,
+    ContextManager,
+    Deque,
+    Dict,
+    FrozenSet,
+    Generic,
+    List,
+    Literal,
+    NamedTuple,
+    NewType,
+    Optional,
+    Set,
+    SupportsInt,
+    Text,
+    Tuple,
+    Type,
+    TypedDict,
+    TypeGuard,
+    TypeVar,
+    Union,
+)
 
 __all__ = [
     "List",
@@ -86,6 +73,6 @@ __all__ = [
     "TypedDict",
     "Generator",
     "TypeGuard",
-    "Pattern", 
-    "Literal"
+    "Pattern",
+    "Literal",
 ]

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3  https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -7,18 +6,17 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 from .. import KERAS_DEPS
 from ..utils import get_tensor_from
-
 from .batch_io import _get_coords
-from .debugs import ( 
-    dbg_step9_losses, 
+from .debugs import (
     dbg_step2_coords_checks,
-    dbg_step33_physics_fields, 
-    dbg_step33_physics_logits
-   )
+    dbg_step9_losses,
+    dbg_step33_physics_fields,
+    dbg_step33_physics_logits,
+)
 from .derivatives import (
     compute_head_pde_derivatives_raw,
     ensure_si_derivative_frame,
@@ -29,7 +27,7 @@ from .losses import (
     pack_eval_physics,
 )
 from .maths import (
-    _get_bounds_loss_cfg, 
+    _get_bounds_loss_cfg,
     compose_physics_fields,
     compute_bounds_residual,
     compute_consolidation_step_residual,
@@ -142,24 +140,24 @@ def _physics_is_on(model: Any) -> bool:
 
 def physics_core(
     model: Any,
-    inputs: Dict[str, Optional[Tensor]],
+    inputs: dict[str, Tensor | None],
     training: bool,
     return_maps: bool = False,
     *,
     for_train: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     r"""
     Compute GeoPrior physics residuals and losses for a batch.
-    
+
     This function implements the shared physics pathway used by both
     training and evaluation for GeoPrior-style PINN models. It is
     designed to keep the physics logic consistent across:
-    
+
     * ``train_step()`` (when physics losses are added to the total loss)
     * evaluation routines (when physics diagnostics are reported)
-    
+
     At a high level, the function performs:
-    
+
     1. Input preparation and SI conversions (thickness, head, coords).
     2. Forward pass through the model to obtain data predictions and
        physics logits.
@@ -178,18 +176,18 @@ def physics_core(
     7. Optional nondimensionalization / residual scaling.
     8. Assembly of physics losses, gating schedules, and diagnostic
        epsilon metrics.
-    
+
     The returned dictionary contains predictions, auxiliary forward
     outputs, packed physics values (for logging), and optionally the
     full residual maps and fields.
-    
+
     Parameters
     ----------
     model : object
         Model instance providing GeoPrior-style methods and attributes.
-    
+
         The function expects the model to expose (at minimum):
-    
+
         * ``scaling_kwargs`` : dict
             Resolved scaling and convention payload.
         * ``time_units`` : str or None
@@ -207,7 +205,7 @@ def physics_core(
             Active PDE modes (e.g., {'consolidation', 'gw_flow'}).
         * Optional gates: ``_q_gate()``, ``_subs_resid_gate()``.
         * Optional physics switch: ``_physics_off()``.
-    
+
         Notes
         -----
         The function is tolerant to partial capabilities and will
@@ -215,7 +213,7 @@ def physics_core(
         signals (e.g., thickness) raise errors.
     inputs : dict
         Dict input batch following the GeoPrior batch API.
-    
+
         Required entries
         ----------------
         * ``coords`` : Tensor
@@ -224,7 +222,7 @@ def physics_core(
             horizon.
         * ``H_field`` or ``soil_thickness`` : Tensor
             Thickness field used by consolidation closure and priors.
-    
+
         Common optional entries
         -----------------------
         * ``static_features`` : Tensor
@@ -232,7 +230,7 @@ def physics_core(
         * ``future_features`` : Tensor
         * ``s0_si`` : Tensor (optional state injection)
             Used by settlement-state formatting utilities.
-    
+
         Notes
         -----
         The exact batch layout depends on your Stage-1 export. This
@@ -246,7 +244,7 @@ def physics_core(
         If True, return additional intermediate tensors and residual
         maps, including (K, Ss, tau, tau_prior, Q), SI thickness, SI head
         and reference head, and both raw and scaled residual fields.
-    
+
         Notes
         -----
         Enabling ``return_maps`` increases memory usage and is intended
@@ -254,56 +252,56 @@ def physics_core(
     for_train : bool, default False
         If True, apply training-time gating schedules for physics loss
         activation (warmup and ramp) based on optimizer step.
-    
+
         Notes
         -----
         This flag is separate from ``training`` to allow evaluation-style
         forward passes with training-time schedules when needed.
-    
+
     Returns
     -------
     out : dict
         Output dictionary with the following common keys:
-    
+
         ``'y_pred'`` : dict
             Model predictions (at least ``'subs_pred'`` and ``'gwl_pred'``).
-    
+
         ``'aux'`` : dict
             Auxiliary forward outputs produced by the model forward path.
             Commonly includes:
             * ``data_mean_raw`` (optional),
             * ``phys_mean_raw`` (required by this function).
-    
+
         ``'physics'`` : dict or None
             Physics bundle returned by :func:`build_physics_bundle`.
             Contains loss scalars, epsilons, and diagnostics. If physics
             is disabled, this is None.
-    
+
         ``'physics_packed'`` : dict
             Packed physics values suitable for logging in evaluation
             mode. This is always returned (may be empty when physics off).
-    
+
         ``'terms_scaled'`` : dict
             Dictionary of physics loss terms after scheduling gates and
             multipliers have been applied. Keys are stable across train
             and eval for consistent logging.
-    
+
         ``'dt_units'`` : Tensor
             Inferred dataset time step size in dataset time units
             (not seconds). This value is used in settlement-state and
             certain Q conversions.
-    
+
         ``'scales'`` : dict or None
             Optional residual scaling dictionary when physics residual
             scaling is enabled. May include per-term scale factors used
             for nondimensionalization.
-    
+
         If ``return_maps=True``, additional keys include (non-exhaustive):
         ``'K_field'``, ``'Ss_field'``, ``'tau_field'``, ``'tau_phys'``,
         ``'Hd_eff'``, ``'H_si'``, ``'Q_si'``, ``'h_si'``,
         ``'h_ref_si_11'``, ``'R_cons'``, ``'R_gw'``, ``'R_prior'``,
         ``'R_smooth'``, ``'R_bounds'``, and scaled counterparts.
-    
+
     Raises
     ------
     ValueError
@@ -313,83 +311,83 @@ def physics_core(
     ValueError
         If expected forward outputs are missing (e.g., missing
         ``'phys_mean_raw'``).
-    
+
     Notes
     -----
     Physics switch behavior
     ~~~~~~~~~~~~~~~~~~~~~~~
     If the model indicates physics is disabled (via ``_physics_off``),
     the function performs only the forward pass and returns:
-    
+
     * predictions and aux outputs,
     * ``physics=None``,
     * packed physics with ``physics=None``,
     * empty scaled term dict.
-    
+
     This allows unified train/eval code paths without special casing.
-    
+
     Derivative handling and SI conversion
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Derivatives are computed via autodiff with respect to the coords
     tensor fed to ``call()``. These raw derivatives are then converted
     to SI-consistent derivatives using coordinate ranges and
     conversions:
-    
+
     * normalized coords are rescaled by spans (and spans squared for
       second derivatives),
     * degree-based spatial coords are converted to meters when needed,
     * time derivatives are converted to per-second using ``time_units``
       unless SI time spans are already supplied.
-    
+
     Residual families
     ~~~~~~~~~~~~~~~~~
     The core residual maps assembled by this function correspond to:
-    
+
     Groundwater flow
         .. math::
-    
+
            R_{gw} = S_s \\, \partial_t h
                     - \nabla \cdot (K \\, \nabla h) - Q
-    
+
     Consolidation relaxation
         .. math::
-    
+
            R_{cons} = \partial_t s - \frac{s_{eq}(h) - s}{tau}
-    
+
     Time-scale prior
         A residual tying learned :math:`tau` to a closure prior
         :math:`tau_{phys}` in log space (implementation-dependent).
-    
+
     Smoothness prior
         A spatial smoothness regularizer on :math:`K` and :math:`S_s`
         implemented via gradients of fields w.r.t. spatial coords.
-    
+
     Bounds residual
         Residual measuring violation of declared bounds for
         (H, K, S_s, tau) or their log transforms.
-    
+
     Scaling and nondimensionalization
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     When enabled (``model.scale_pde_residuals=True``), residuals may be
     scaled by data-driven or physics-driven magnitudes to produce
     dimensionless residuals with more comparable scales across sites.
     Floors are applied to prevent division by near-zero scales.
-    
+
     Training gates
     ~~~~~~~~~~~~~~
     When ``for_train=True``, the physics loss is gated by a warmup/ramp
     schedule based on optimizer step:
-    
+
     * warmup: physics contribution is suppressed,
     * ramp: physics contribution increases to full strength.
-    
+
     This improves stability in early training by letting the data head
     learn a reasonable representation before enforcing physics strongly.
-    
+
     Examples
     --------
     Compute physics losses during training:
-    
+
     >>> out = physics_core(
     ...     model=model,
     ...     inputs=batch,
@@ -398,9 +396,9 @@ def physics_core(
     ... )
     >>> float(out["physics"]["physics_loss_scaled"])
     0.0  # may be gated early in training
-    
+
     Evaluate and return residual maps for debugging:
-    
+
     >>> out = physics_core(
     ...     model=model,
     ...     inputs=batch,
@@ -409,35 +407,35 @@ def physics_core(
     ... )
     >>> sorted([k for k in out if k.startswith("R_")])[:4]
     ['R_bounds', 'R_cons', 'R_gw', 'R_prior']
-    
+
     See Also
     --------
     geoprior.nn.pinn.geoprior.derivatives.compute_head_pde_derivatives_raw
         Compute raw autodiff PDE derivatives w.r.t. coords.
-    
+
     geoprior.nn.pinn.geoprior.derivatives.ensure_si_derivative_frame
         Convert raw derivatives to SI-consistent derivatives.
-    
+
     geoprior.nn.pinn.geoprior.losses.assemble_physics_loss
         Assemble physics loss scalars and term dictionaries.
-    
+
     geoprior.nn.pinn.geoprior.losses.build_physics_bundle
         Build a packed physics bundle used for logging and metrics.
-    
+
     geoprior.nn.pinn.geoprior.maths.compose_physics_fields
         Map logits to bounded physical fields and tau prior.
-    
+
     References
     ----------
     .. [1] Bear, J. Dynamics of Fluids in Porous Media. Dover
        Publications, 1988.
-    
+
     .. [2] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
        Physics-informed neural networks: A deep learning framework
        for solving forward and inverse problems involving nonlinear
        partial differential equations. Journal of Computational
        Physics, 2019.
-    
+
     .. [3] Terzaghi, K. Theoretical Soil Mechanics. Wiley, 1943.
     """
 
@@ -468,7 +466,9 @@ def physics_core(
     H_floor = float(get_sk(sk, "H_floor_si", default=1e-3))
     H_si = tf_maximum(H_si, tf_constant(H_floor, tf_float32))
 
-    coords = tf_convert_to_tensor(_get_coords(inputs), tf_float32)
+    coords = tf_convert_to_tensor(
+        _get_coords(inputs), tf_float32
+    )
     coords = _coords_to_bh3(model, coords)
 
     if coords.shape.rank != 3 or coords.shape[-1] != 3:
@@ -482,15 +482,19 @@ def physics_core(
     t = coords[..., 0:1]
     dt_units = infer_dt_units_from_t(t, sk)
 
-    coords_norm = bool(get_sk(sk, "coords_normalized", default=False))
-    coords_deg = bool(get_sk(sk, "coords_in_degrees", default=False))
+    coords_norm = bool(
+        get_sk(sk, "coords_normalized", default=False)
+    )
+    coords_deg = bool(
+        get_sk(sk, "coords_in_degrees", default=False)
+    )
 
     dbg_step2_coords_checks(
         verbose=verbose,
         coords=coords,
         inputs=inputs,
     )
-        
+
     # ----------------------------------------------------------
     # 2) Physics OFF shortcut
     # ----------------------------------------------------------
@@ -535,7 +539,9 @@ def physics_core(
         subs_mean_raw = _mean_if_quantiles(subs_m)
         gwl_mean_raw = _mean_if_quantiles(gwl_m)
 
-        gwl_si = to_si_head(tf_cast(gwl_mean_raw, tf_float32), sk)
+        gwl_si = to_si_head(
+            tf_cast(gwl_mean_raw, tf_float32), sk
+        )
         h_si = gwl_to_head_m(gwl_si, sk, inputs=inputs_fwd)
 
         phys_mean_raw = aux.get("phys_mean_raw", None)
@@ -552,11 +558,13 @@ def physics_core(
             Q_l,
         )
 
-        freeze = bool(get_sk(
-            sk,
-            "freeze_physics_fields_over_time",
-            default=True,
-        ))
+        freeze = bool(
+            get_sk(
+                sk,
+                "freeze_physics_fields_over_time",
+                default=True,
+            )
+        )
         if freeze:
             K_b = tf_broadcast_to(
                 tf_reduce_mean(K_l, axis=1, keepdims=True),
@@ -584,7 +592,7 @@ def physics_core(
             logSs,
             log_tau,
             log_tau_phys,
-            loss_bounds_barrier, 
+            loss_bounds_barrier,
         ) = compose_physics_fields(
             model,
             coords_flat=coords,
@@ -595,7 +603,7 @@ def physics_core(
             training=training,
             verbose=verbose,
         )
- 
+
         dbg_step33_physics_logits(
             verbose=verbose,
             K_logits=K_l,
@@ -620,7 +628,7 @@ def physics_core(
             log_tau=log_tau,
             log_tau_phys=log_tau_phys,
         )
-            
+
         deriv_raw = compute_head_pde_derivatives_raw(
             tape,
             coords,
@@ -697,14 +705,15 @@ def physics_core(
     # 6) Consolidation residual
     # ----------------------------------------------------------
     # dbg_step7_consolidation(...)
-    allow_resid = bool(get_sk(sk, "allow_subs_residual", default=False))
-    cons_active = (
-        hasattr(model, "pde_modes_active")
-        and "consolidation" in getattr(
-            model,
-            "pde_modes_active",
-            (),
-        )
+    allow_resid = bool(
+        get_sk(sk, "allow_subs_residual", default=False)
+    )
+    cons_active = hasattr(
+        model, "pde_modes_active"
+    ) and "consolidation" in getattr(
+        model,
+        "pde_modes_active",
+        (),
     )
 
     like_11 = h_si[:, :1, :1]
@@ -721,7 +730,9 @@ def physics_core(
             sk,
         )
 
-        s0_cum_11 = get_s_init_si(model, inputs_fwd, like=like_11)
+        s0_cum_11 = get_s_init_si(
+            model, inputs_fwd, like=like_11
+        )
 
         pde_inputs = dict(inputs_fwd)
         pde_inputs["s0_si"] = s0_cum_11
@@ -794,7 +805,9 @@ def physics_core(
         Ss_field=Ss_field,
     )
 
-    step = getattr(getattr(model, "optimizer", None), "iterations", None)
+    step = getattr(
+        getattr(model, "optimizer", None), "iterations", None
+    )
     if step is None:
         step = tf_constant(0, tf_int32)
 
@@ -804,8 +817,12 @@ def physics_core(
         logSs=logSs,
         as_loss=True,
         step=step,
-        alpha_disp=float(get_sk(sk, "mv_alpha_disp",default= 0.1)),
-        delta=float(get_sk(sk, "mv_huber_delta", default=1.0)),
+        alpha_disp=float(
+            get_sk(sk, "mv_alpha_disp", default=0.1)
+        ),
+        delta=float(
+            get_sk(sk, "mv_huber_delta", default=1.0)
+        ),
         verbose=verbose,
     )
 
@@ -819,7 +836,7 @@ def physics_core(
     # )
     # bounds_res = tf_concat([R_H, R_K, R_Ss, R_tau], axis=-1)
     # loss_bounds = tf_reduce_mean(tf_square(bounds_res))
-    
+
     R_H, R_K, R_Ss, R_tau = compute_bounds_residual(
         model,
         H_field=H_si,
@@ -828,7 +845,7 @@ def physics_core(
         log_tau=log_tau,
         verbose=verbose,
     )
-    
+
     bounds_res = tf_concat(
         [R_H, R_K, R_Ss, R_tau],
         axis=-1,
@@ -836,20 +853,23 @@ def physics_core(
     loss_bounds_resid = tf_reduce_mean(
         tf_square(bounds_res),
     )
-    
+
     # If we want H enforced even in "barrier" mode:
     loss_bounds_H = tf_reduce_mean(tf_square(R_H))
-    
-    kind = str(_get_bounds_loss_cfg(
-        sk).get("kind", "barrier")).strip().lower()
+
+    kind = (
+        str(_get_bounds_loss_cfg(sk).get("kind", "barrier"))
+        .strip()
+        .lower()
+    )
 
     if kind == "residual":
         loss_bounds = loss_bounds_resid
-    
+
     elif kind == "barrier":
         # barrier is for K/Ss/tau; keep H from residual
         loss_bounds = loss_bounds_barrier + loss_bounds_H
-    
+
     else:  # "both"
         # WARNING: double-penalizes K/Ss/tau if barrier+residual
         loss_bounds = loss_bounds_resid + loss_bounds_barrier
@@ -876,7 +896,7 @@ def physics_core(
     # ----------------------------------------------------------
     cons_scaled = cons_res
     gw_scaled = gw_res_si
-    scales: Optional[Dict[str, Tensor]] = None
+    scales: dict[str, Tensor] | None = None
 
     if bool(getattr(model, "scale_pde_residuals", False)):
         cons_floor = resolve_auto_scale_floor("cons", sk)
@@ -907,7 +927,9 @@ def physics_core(
             verbose=verbose,
         )
         scales = sanitize_scales(scales)
-        scales = {k: tf_stop_gradient(v) for k, v in scales.items()}
+        scales = {
+            k: tf_stop_gradient(v) for k, v in scales.items()
+        }
 
         cons_s = guard_scale_with_residual(
             residual=cons_res,
@@ -962,7 +984,9 @@ def physics_core(
     )
 
     if for_train:
-        w = int(get_sk(sk, "physics_warmup_steps", default=500))
+        w = int(
+            get_sk(sk, "physics_warmup_steps", default=500)
+        )
         r = int(get_sk(sk, "physics_ramp_steps", default=500))
 
         gate = compute_physics_warmup_gate(
@@ -971,7 +995,9 @@ def physics_core(
             ramp_steps=r,
         )
         phys_scaled = phys_scaled * gate
-        terms_scaled = {k: v * gate for k, v in terms_scaled.items()}
+        terms_scaled = {
+            k: v * gate for k, v in terms_scaled.items()
+        }
 
     physics = build_physics_bundle(
         model,
@@ -995,7 +1021,7 @@ def physics_core(
         eps_gw_raw=eps_gw_raw,
     )
 
-    out: Dict[str, Any] = {
+    out: dict[str, Any] = {
         "y_pred": y_pred,
         "aux": aux,
         "physics": physics,
@@ -1031,21 +1057,21 @@ def physics_core(
             }
         )
 
-        # add legacies names. 
+        # add legacies names.
         out.update(
             {
-                "K": K_field,               # effective K (m/s)
-                "Ss": Ss_field,             # effective Ss (1/m)
-                "tau": tau_field,           # learned tau (s)
-                "tau_prior": tau_phys,      # closure tau (s)
-                "tau_closure": tau_phys,    # alias (clearer naming)
-                "Hd": Hd_eff,               # effective drainage thickness (m)
-                "H": H_si,                  # base thickness (m)
-                "H_field": H_si,            # legacy name used elsewhere
+                "K": K_field,  # effective K (m/s)
+                "Ss": Ss_field,  # effective Ss (1/m)
+                "tau": tau_field,  # learned tau (s)
+                "tau_prior": tau_phys,  # closure tau (s)
+                "tau_closure": tau_phys,  # alias (clearer naming)
+                "Hd": Hd_eff,  # effective drainage thickness (m)
+                "H": H_si,  # base thickness (m)
+                "H_field": H_si,  # legacy name used elsewhere
                 "cons_res_vals": cons_res,  # alias
             }
         )
-        
+
     dbg_step9_losses(
         verbose=verbose,
         loss_cons=loss_cons,

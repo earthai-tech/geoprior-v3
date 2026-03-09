@@ -1,20 +1,17 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
 
-
 from __future__ import annotations
 
 import os
-from typing import Dict, Any, Optional, List
+from typing import Any
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-
 
 # ---------------------------------------------------------------------
 # Helpers
@@ -27,7 +24,9 @@ def _ensure_dir(path: str) -> None:
         os.makedirs(path, exist_ok=True)
 
 
-def _pick_first(d: Dict[str, Any], *candidates: str) -> Optional[str]:
+def _pick_first(
+    d: dict[str, Any], *candidates: str
+) -> str | None:
     """Return first key present in dict from a list of candidates."""
     for k in candidates:
         if k in d:
@@ -35,14 +34,14 @@ def _pick_first(d: Dict[str, Any], *candidates: str) -> Optional[str]:
     return None
 
 
-def _load_npz(path: str) -> Dict[str, np.ndarray]:
+def _load_npz(path: str) -> dict[str, np.ndarray]:
     """Load a .npz file into a dict of arrays."""
     with np.load(path, allow_pickle=True) as data:
         return {k: data[k] for k in data.files}
 
 
 def _compute_offsets_table(
-    payload: Dict[str, np.ndarray]
+    payload: dict[str, np.ndarray],
 ) -> pd.DataFrame:
     """
     Build a tidy table with log-offsets from the physics payload.
@@ -78,20 +77,30 @@ def _compute_offsets_table(
     )
 
     # Utility to grab an array, or None if missing
-    def arr(key_candidates: List[str]) -> Optional[np.ndarray]:
+    def arr(
+        key_candidates: list[str],
+    ) -> np.ndarray | None:
         k = _pick_first(payload, *key_candidates)
         return None if k is None else np.asarray(payload[k])
 
     # Candidate names for each physical field
     K_prior = arr(["K_prior", "k_prior", "K_lith_prior"])
-    K_eff = arr(["K_eff", "K_effective", "K_geo", "K_posterior"])
+    K_eff = arr(
+        ["K_eff", "K_effective", "K_geo", "K_posterior"]
+    )
     Ss_prior = arr(["Ss_prior", "Ss_lith_prior", "Ss0"])
-    Ss_eff = arr(["Ss_eff", "Ss_effective", "Ss_geo", "Ss_posterior"])
+    Ss_eff = arr(
+        ["Ss_eff", "Ss_effective", "Ss_geo", "Ss_posterior"]
+    )
     Hd_prior = arr(["Hd_prior", "H_d_prior", "Hd_lith_prior"])
-    Hd_eff = arr(["Hd_eff", "H_d_effective", "Hd_geo", "Hd_posterior"])
+    Hd_eff = arr(
+        ["Hd_eff", "H_d_effective", "Hd_geo", "Hd_posterior"]
+    )
 
     tau_prior = arr(["tau_prior", "timescale_prior", "tau0"])
-    tau_eff = arr(["tau_eff", "tau_effective", "tau_geoprior"])
+    tau_eff = arr(
+        ["tau_eff", "tau_effective", "tau_geoprior"]
+    )
 
     depth = None
     if depth_key is not None:
@@ -100,7 +109,9 @@ def _compute_offsets_table(
     # Determine base size and flatten
     base_size = None
 
-    def _check_and_flatten(x: np.ndarray, name: str) -> np.ndarray:
+    def _check_and_flatten(
+        x: np.ndarray, name: str
+    ) -> np.ndarray:
         nonlocal base_size
         x_flat = x.ravel()
         if base_size is None:
@@ -111,20 +122,26 @@ def _compute_offsets_table(
             )
         return x_flat
 
-    cols: Dict[str, np.ndarray] = {}
+    cols: dict[str, np.ndarray] = {}
 
     if (K_prior is not None) and (K_eff is not None):
         delta_logK = np.log10(K_eff) - np.log10(K_prior)
-        cols["delta_logK"] = _check_and_flatten(delta_logK, "delta_logK")
+        cols["delta_logK"] = _check_and_flatten(
+            delta_logK, "delta_logK"
+        )
 
     if (Ss_prior is not None) and (Ss_eff is not None):
         delta_logSs = np.log10(Ss_eff) - np.log10(Ss_prior)
-        cols["delta_logSs"] = _check_and_flatten(delta_logSs, "delta_logSs")
+        cols["delta_logSs"] = _check_and_flatten(
+            delta_logSs, "delta_logSs"
+        )
 
     if (Hd_prior is not None) and (Hd_eff is not None):
         # Hd is already in linear space; we use log10 for consistency
         delta_logHd = np.log10(Hd_eff) - np.log10(Hd_prior)
-        cols["delta_logHd"] = _check_and_flatten(delta_logHd, "delta_logHd")
+        cols["delta_logHd"] = _check_and_flatten(
+            delta_logHd, "delta_logHd"
+        )
 
     if (tau_prior is not None) and (tau_eff is not None):
         log_tau_prior = np.log10(tau_prior)
@@ -175,9 +192,11 @@ def _summarize_offsets(df: pd.DataFrame) -> pd.DataFrame:
     if not delta_cols:
         raise RuntimeError("No δ-columns found in DataFrame.")
 
-    desc = df[delta_cols].describe(
-        percentiles=[0.05, 0.5, 0.95]
-    ).T
+    desc = (
+        df[delta_cols]
+        .describe(percentiles=[0.05, 0.5, 0.95])
+        .T
+    )
     desc = desc.rename(
         columns={
             "mean": "mean",
@@ -198,16 +217,21 @@ def _make_plots(
     df: pd.DataFrame,
     outdir: str,
     prefix: str = "sm3_offsets",
-) -> List[str]:
+) -> list[str]:
     """
     Produce simple histograms and τ–δτ scatter plot.
     Returns a list of saved file paths.
     """
-    saved: List[str] = []
+    saved: list[str] = []
     _ensure_dir(outdir)
 
     # Histograms
-    for col in ["delta_logK", "delta_logSs", "delta_logHd", "delta_log_tau"]:
+    for col in [
+        "delta_logK",
+        "delta_logSs",
+        "delta_logHd",
+        "delta_log_tau",
+    ]:
         if col not in df.columns:
             continue
 
@@ -216,14 +240,18 @@ def _make_plots(
         plt.xlabel(col)
         plt.ylabel("Count")
         plt.title(f"Distribution of {col}")
-        fname = os.path.join(outdir, f"{prefix}_{col}_hist.png")
+        fname = os.path.join(
+            outdir, f"{prefix}_{col}_hist.png"
+        )
         plt.tight_layout()
         plt.savefig(fname, dpi=200)
         plt.close()
         saved.append(fname)
 
     # τ–δτ scatter (prior vs offset)
-    if {"log_tau_prior", "delta_log_tau"}.issubset(df.columns):
+    if {"log_tau_prior", "delta_log_tau"}.issubset(
+        df.columns
+    ):
         plt.figure()
         plt.scatter(
             df["log_tau_prior"],
@@ -233,10 +261,14 @@ def _make_plots(
         )
         plt.axhline(0.0, linestyle="--")
         plt.xlabel(r"$\log_{10}\tau_{\mathrm{prior}}$")
-        plt.ylabel(r"$\delta_{\tau} = \log_{10}\tau_{\mathrm{eff}} - "
-                   r"\log_{10}\tau_{\mathrm{prior}}$")
+        plt.ylabel(
+            r"$\delta_{\tau} = \log_{10}\tau_{\mathrm{eff}} - "
+            r"\log_{10}\tau_{\mathrm{prior}}$"
+        )
         plt.title("Timescale prior vs log-offset (SM3)")
-        fname = os.path.join(outdir, f"{prefix}_tau_scatter.png")
+        fname = os.path.join(
+            outdir, f"{prefix}_tau_scatter.png"
+        )
         plt.tight_layout()
         plt.savefig(fname, dpi=200)
         plt.close()
@@ -252,10 +284,10 @@ def _make_plots(
 
 def run_sm3_offsets_from_payload(
     physics_npz_path: str,
-    outdir: Optional[str] = None,
-    city: Optional[str] = None,
+    outdir: str | None = None,
+    city: str | None = None,
     model_name: str = "GeoPriorSubsNet",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     High-level driver: compute SM3 diagnostics from a physics payload.
 
@@ -292,23 +324,33 @@ def run_sm3_offsets_from_payload(
         tag.append(model_name.lower())
     tag_str = "_".join(tag) if tag else "geoprior"
 
-    print(f"[SM3] Loading physics payload: {physics_npz_path}")
+    print(
+        f"[SM3] Loading physics payload: {physics_npz_path}"
+    )
     payload = _load_npz(physics_npz_path)
-    print(f"[SM3] Keys in physics payload: {sorted(payload.keys())}")
+    print(
+        f"[SM3] Keys in physics payload: {sorted(payload.keys())}"
+    )
 
     df = _compute_offsets_table(payload)
     print(f"[SM3] Built offsets table with shape {df.shape}.")
 
-    raw_csv = os.path.join(outdir, f"{tag_str}_sm3_offsets_raw.csv")
+    raw_csv = os.path.join(
+        outdir, f"{tag_str}_sm3_offsets_raw.csv"
+    )
     df.to_csv(raw_csv, index=False)
     print(f"[SM3] Saved raw offsets CSV -> {raw_csv}")
 
     summary_df = _summarize_offsets(df)
-    summary_csv = os.path.join(outdir, f"{tag_str}_sm3_offsets_summary.csv")
+    summary_csv = os.path.join(
+        outdir, f"{tag_str}_sm3_offsets_summary.csv"
+    )
     summary_df.to_csv(summary_csv)
     print(f"[SM3] Saved summary offsets CSV -> {summary_csv}")
 
-    plots = _make_plots(df, outdir=outdir, prefix=f"{tag_str}_sm3")
+    plots = _make_plots(
+        df, outdir=outdir, prefix=f"{tag_str}_sm3"
+    )
     for p in plots:
         print(f"[SM3] Saved plot -> {p}")
 
@@ -317,4 +359,3 @@ def run_sm3_offsets_from_payload(
         "summary_csv": summary_csv,
         "plots": plots,
     }
-

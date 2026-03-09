@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # Author: LKouadio <etanoyau@gmail.com>
 # Adapted from: earthai-tech/fusionlab-learn — https://github.com/earthai-tech/fusionlab-learn
@@ -8,24 +7,26 @@
 Provides high-level utilities for computing and saving diagnostic
 metrics for quantile forecasts.
 """
+
 from __future__ import annotations
 
-from pathlib import Path 
+from collections.abc import Callable, Sequence
+from pathlib import Path
 from typing import (
-    Union, Tuple, Optional, Any, Dict, Sequence, List, Callable
+    Any,
 )
 
 import numpy as np
-import pandas as pd 
+import pandas as pd
 from sklearn.metrics import (
-    r2_score,
-    mean_squared_error,
     mean_absolute_error,
+    mean_squared_error,
+    r2_score,
 )
-from ..core.checks import are_all_frames_valid 
-from ..core.handlers import _get_valid_kwargs 
-from ..core.diagnose_q import validate_quantiles 
 
+from ..core.checks import are_all_frames_valid
+from ..core.diagnose_q import validate_quantiles
+from ..core.handlers import _get_valid_kwargs
 from ._metrics import (
     coverage_score,
     prediction_stability_score,
@@ -34,19 +35,22 @@ from ._metrics import (
 
 
 def compute_quantile_diagnostics(
-    *dfs: Union[ pd.DataFrame, Sequence[pd.DataFrame]],
+    *dfs: pd.DataFrame | Sequence[pd.DataFrame],
     target_name: str,
     quantiles: Sequence[float],
-    coverage_quantile_indices: Tuple[int, int] = (0, -1),
-    savefile: Optional[str] = None,
+    coverage_quantile_indices: tuple[int, int] = (0, -1),
+    savefile: str | None = None,
     filename: str = "diagnostics.json",
-    name : Optional [str] =None, 
-    metrics: Optional [Union [ List[str], List[callable],  Dict[str, callable]]] =None,   
-    default_metrics_set: Optional[str] = 'regression',
+    name: str | None = None,
+    metrics: list[str]
+    | list[callable]
+    | dict[str, callable]
+    | None = None,
+    default_metrics_set: str | None = "regression",
     verbose: int = 0,
     logger: Any = None,
-    **kwargs # future extension 
-) -> Dict[str, float]:
+    **kwargs,  # future extension
+) -> dict[str, float]:
     """Compute and save a suite of diagnostic metrics for quantile forecasts.
 
     This function calculates a core set of probabilistic forecast
@@ -144,15 +148,17 @@ def compute_quantile_diagnostics(
     >>> 'mean_squared_log_error' in results_custom
     True
     """
-    from ..utils.generic_utils import  ( 
-        ExistenceChecker,  vlog, insert_affix_in 
+    from ..utils.generic_utils import (
+        ExistenceChecker,
+        insert_affix_in,
+        vlog,
     )
-    from ..utils.io_utils import to_txt 
-    
-    dfs = are_all_frames_valid (*dfs, ops ='validate')
+    from ..utils.io_utils import to_txt
+
+    dfs = are_all_frames_valid(*dfs, ops="validate")
     # 1. Prepare the DataFrame
     df = pd.concat(list(dfs), axis=1)
-    
+
     # 2. Validate & sort quantiles
     quantiles_sorted = sorted(
         validate_quantiles(quantiles, dtype=np.float64)
@@ -168,10 +174,10 @@ def compute_quantile_diagnostics(
         )
 
     # 3. Build column names
-    lower_q_col  = f"{target_name}_q{int(lower_q * 100)}"
-    upper_q_col  = f"{target_name}_q{int(upper_q * 100)}"
-    actual_col   = f"{target_name}_actual"
-    
+    lower_q_col = f"{target_name}_q{int(lower_q * 100)}"
+    upper_q_col = f"{target_name}_q{int(upper_q * 100)}"
+    actual_col = f"{target_name}_actual"
+
     # 3b. Determine which quantile to treat as “median”
     n_q = len(quantiles_sorted)
     if n_q == 1:
@@ -187,13 +193,16 @@ def compute_quantile_diagnostics(
         i1, i2 = n_q // 2 - 1, n_q // 2
         q1, q2 = quantiles_sorted[i1], quantiles_sorted[i2]
         # build a synthetic “median” name like q25_75 for 0.25 & 0.75
-        median_q_col = f"{target_name}_q{int(q1*100)}_" \
-                       f"{int(q2*100)}"
+        median_q_col = (
+            f"{target_name}_q{int(q1 * 100)}_{int(q2 * 100)}"
+        )
 
     # 4. Check columns exist
     for col in (lower_q_col, upper_q_col, actual_col):
         if col not in df.columns:
-            raise ValueError(f"Missing required column: {col}")
+            raise ValueError(
+                f"Missing required column: {col}"
+            )
 
     # 5. Compute metrics
     coverage = coverage_score(
@@ -208,91 +217,108 @@ def compute_quantile_diagnostics(
     qce = quantile_calibration_error(
         y_true=df[actual_col],
         y_pred=df[[lower_q_col, median_q_col, upper_q_col]],
-        quantiles=quantiles_sorted
+        quantiles=quantiles_sorted,
     )
     results = {
         "coverage": float(coverage),
-        "pss":      float(pss),
-        "qce":      float(qce),
+        "pss": float(pss),
+        "qce": float(qce),
     }
-    
+
     # 6. Log coverage
     vlog(
         f"Coverage for {target_name} "
         f"({lower_q:.2f}-{upper_q:.2f}): {coverage:.4f}",
-        level=3, verbose=verbose, logger=logger
+        level=3,
+        verbose=verbose,
+        logger=logger,
     )
     # 5. Compute the core quantile diagnostic metrics
     y_true = df[actual_col].values
     resolved_metrics = _resolve_metrics(
-        metrics, default_set=default_metrics_set)
+        metrics, default_set=default_metrics_set
+    )
     y_med = df[median_q_col].values
-    
+
     for metric_name, metric_func in resolved_metrics.items():
         try:
             kwargs = _get_valid_kwargs(metric_func, kwargs)
             score = metric_func(y_true, y_med, **kwargs)
             results[metric_name] = float(score)
         except Exception as e:
-            vlog(f"Could not compute metric '{metric_name}': {e}",
-                 level=1, verbose=verbose, logger=logger)
-    
+            vlog(
+                f"Could not compute metric '{metric_name}': {e}",
+                level=1,
+                verbose=verbose,
+                logger=logger,
+            )
+
     # 7. Save results to JSON file if requested
     if savefile:
         save_path = Path(savefile)
-        
+
         # Determine if the provided path is a directory or a full file path
-        if save_path.suffix and save_path.name: # It's a file path
+        if (
+            save_path.suffix and save_path.name
+        ):  # It's a file path
             output_dir = save_path.parent
             output_filename = save_path.name
-        else: # It's intended as a directory
+        else:  # It's intended as a directory
             output_dir = save_path
             output_filename = "diagnostics_results.json"
-        
+
         # Ensure the output directory exists
         ExistenceChecker.ensure_directory(output_dir)
-        
+
         try:
             # Add the optional name affix to the filename
             full_filename = insert_affix_in(
-                output_filename, affix=name, separator='.')
-            
+                output_filename, affix=name, separator="."
+            )
+
             vlog(
                 f"Saving diagnostics to {output_dir / full_filename}",
-                level=2, verbose=verbose, logger=logger
+                level=2,
+                verbose=verbose,
+                logger=logger,
             )
-            
+
             to_txt(
                 results,
-                format='json',
+                format="json",
                 indent=4,
                 filename=full_filename,
                 savepath=str(output_dir),
                 verbose=verbose,
-                logger=logger
+                logger=logger,
             )
         except Exception as e:
             vlog(
                 f"Error saving diagnostics: {e}",
-                level=1, verbose=verbose, logger=logger
+                level=1,
+                verbose=verbose,
+                logger=logger,
             )
 
     return results
 
+
 def _resolve_metrics(
-    metrics: Optional[Union[List[str], List[Callable],
-                            Dict[str, Callable]]],
-    default_set: Optional[str] = None
-) -> Dict[str, Callable]:
+    metrics: list[str]
+    | list[Callable]
+    | dict[str, Callable]
+    | None,
+    default_set: str | None = None,
+) -> dict[str, Callable]:
     """
     Parses a flexible list/dict of metrics into a standardized
     dictionary of name -> callable function, with optional default sets.
     """
     # --- Predefined default metric sets ---
     REGRESSION_METRICS = {
-        'r2': r2_score,
-        'mse': mean_squared_error,
-        'mae': mean_absolute_error,
+        "r2": r2_score,
+        "mse": mean_squared_error,
+        "mae": mean_absolute_error,
         # 'mape': mean_absolute_percentage_error,
     }
     # Future sets will add CLASSIFICATION_METRICS
@@ -302,9 +328,9 @@ def _resolve_metrics(
 
     # 1. Load the default set if requested by the user
     if default_set:
-        if default_set == 'regression':
+        if default_set == "regression":
             resolved_metrics.update(REGRESSION_METRICS)
-        elif default_set == 'classification':
+        elif default_set == "classification":
             # This is a placeholder for future extension.
             raise NotImplementedError(
                 "The 'classification' default metric set is not yet "
@@ -313,8 +339,10 @@ def _resolve_metrics(
             )
         else:
             # Handle any other unknown default sets gracefully.
-            raise ValueError(f"Unknown default_set: '{default_set}'. "
-                             "Supported sets are: 'regression'.")
+            raise ValueError(
+                f"Unknown default_set: '{default_set}'. "
+                "Supported sets are: 'regression'."
+            )
 
     # 2. Process and merge/override with user-provided metrics
     if metrics is None:
@@ -322,7 +350,9 @@ def _resolve_metrics(
         return resolved_metrics
 
     # Determine the set of available metric names for validation
-    available_metrics = REGRESSION_METRICS.keys() # Extend this for other sets
+    available_metrics = (
+        REGRESSION_METRICS.keys()
+    )  # Extend this for other sets
 
     if isinstance(metrics, dict):
         # User-provided dictionary overrides any defaults
@@ -332,9 +362,13 @@ def _resolve_metrics(
         for metric in metrics:
             if isinstance(metric, str):
                 if metric in available_metrics:
-                    resolved_metrics[metric] = REGRESSION_METRICS[metric]
+                    resolved_metrics[metric] = (
+                        REGRESSION_METRICS[metric]
+                    )
                 else:
-                    raise ValueError(f"Unknown metric string: '{metric}'.")
+                    raise ValueError(
+                        f"Unknown metric string: '{metric}'."
+                    )
             elif callable(metric):
                 resolved_metrics[metric.__name__] = metric
             else:
@@ -348,10 +382,11 @@ def _resolve_metrics(
 
     return resolved_metrics
 
+
 def stack_quantile_predictions(
-    q_lower:   Union[np.ndarray, Sequence],
-    q_median:  Union[np.ndarray, Sequence],
-    q_upper:   Union[np.ndarray, Sequence],
+    q_lower: np.ndarray | Sequence,
+    q_median: np.ndarray | Sequence,
+    q_upper: np.ndarray | Sequence,
 ) -> np.ndarray:
     """
     Stack three quantile trajectories into a single y_pred array
@@ -374,6 +409,7 @@ def stack_quantile_predictions(
     ValueError
         If the three inputs (after promotion) do not share the same shape.
     """
+
     def _ensure_2d(arr):
         a = np.asarray(arr)
         if a.ndim == 1:
@@ -381,7 +417,8 @@ def stack_quantile_predictions(
         if a.ndim == 2:
             return a
         raise ValueError(
-            f"Each quantile array must be 1D or 2D, got shape {a.shape}")
+            f"Each quantile array must be 1D or 2D, got shape {a.shape}"
+        )
 
     lower = _ensure_2d(q_lower)
     median = _ensure_2d(q_median)
@@ -396,4 +433,3 @@ def stack_quantile_predictions(
     # Stack along new axis=1 → (n_samples, 3, n_timesteps)
     y_pred = np.stack([lower, median, upper], axis=1)
     return y_pred
-

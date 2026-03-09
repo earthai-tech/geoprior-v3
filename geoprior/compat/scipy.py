@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 #   License: BSD-3-Clause
 #   Author: LKouadio <etanoyau@gmail.com>
 """
 Provides compatibility utilities for different versions of SciPy.
 This module includes functions and feature flags to ensure smooth
 operation across various SciPy versions, handling breaking changes
-and deprecated features. It also sets up logging for the gofast 
+and deprecated features. It also sets up logging for the gofast
 package.
 
 Key functionalities include:
@@ -60,14 +59,14 @@ get_scipy_function
     Retrieve a specific SciPy function.
 """
 
-from packaging.version import Version, parse
 import warnings
+
 # import logging
 import numpy as np
-
 import scipy
-from scipy import special
-from scipy import stats
+from packaging.version import Version, parse
+from scipy import special, stats
+
 from ..logging import get_logger
 
 _logger = get_logger(__name__)
@@ -80,17 +79,17 @@ __all__ = [
     "linalg_solve",
     "linalg_det",
     "sparse_csr_matrix",
-    "ensure_scipy_compatibility", 
-    "calculate_statistics", 
-    "is_sparse_matrix", 
+    "ensure_scipy_compatibility",
+    "calculate_statistics",
+    "is_sparse_matrix",
     "solve_linear_system",
     "check_scipy_interpolate",
-    "get_scipy_function", 
+    "get_scipy_function",
     "SP_LT_1_6",
     "SP_LT_1_5",
-    "SP_LT_1_7", 
-    "SP_LT_0_15", 
-    "probplot", 
+    "SP_LT_1_7",
+    "SP_LT_0_15",
+    "probplot",
 ]
 # Version checks
 scipy_version = parse(scipy.__version__)
@@ -101,15 +100,15 @@ SP_LT_0_15 = scipy_version < Version("0.14.0")
 
 
 def probplot(
-    x, 
-    dist='norm', 
-    sparams=(), 
-    fit=True, 
-    plot=None, 
-    xlabel=None, 
-    ylabel=None, 
-    line='s'
-    ):
+    x,
+    dist="norm",
+    sparams=(),
+    fit=True,
+    plot=None,
+    xlabel=None,
+    ylabel=None,
+    line="s",
+):
     """
     A compatible probplot function that attempts to use scipy's probplot.
     If an error occurs (e.g., due to scipy version changes), it falls back
@@ -120,18 +119,18 @@ def probplot(
     x : array-like
         Ordered sample data.
     dist : str or distribution, optional
-        The theoretical distribution to compare to. 
+        The theoretical distribution to compare to.
         Currently, only 'norm' is supported.
     sparams : tuple, optional
-        Shape parameters for the theoretical distribution. 
+        Shape parameters for the theoretical distribution.
         Not utilized in this implementation.
     fit : bool, default=True
-        If True, fit the distribution to the data. 
+        If True, fit the distribution to the data.
         Not utilized in this implementation.
     plot : matplotlib axes or figure, optional
         If provided, plot the Q-Q plot on the given axes.
     xlabel : str, optional
-        Label for the x-axis. 
+        Label for the x-axis.
         If None, defaults to 'Theoretical Quantiles'.
     ylabel : str, optional
         Label for the y-axis. If None, defaults to 'Ordered Residuals'.
@@ -145,44 +144,52 @@ def probplot(
         The function directly plots the Q-Q plot.
     """
     import matplotlib.pyplot as plt
-    
+
     try:
         # Attempt to use scipy's probplot
         if plot is not None:
             ax = plot
         else:
             ax = plt.gca()
-        
-        stats.probplot(x, dist=dist, sparams=sparams, fit=fit, plot=ax)
-        
+
+        stats.probplot(
+            x, dist=dist, sparams=sparams, fit=fit, plot=ax
+        )
+
     except ValueError as ve:
         # Check if the error is due to too many values to unpack
-        if 'too many values to unpack' in str(ve):
-            print("scipy.stats.probplot encountered an"
-                  " error due to version incompatibility.")
-            print("Attempting to use statsmodels'"
-                  "qqplot as a fallback.")
+        if "too many values to unpack" in str(ve):
+            print(
+                "scipy.stats.probplot encountered an"
+                " error due to version incompatibility."
+            )
+            print(
+                "Attempting to use statsmodels'"
+                "qqplot as a fallback."
+            )
             try:
-                from statsmodels.graphics.gofplots import qqplot as sm_qqplot
-                
+                from statsmodels.graphics.gofplots import (
+                    qqplot as sm_qqplot,
+                )
+
                 if plot is not None:
                     ax = plot
                 else:
                     ax = plt.gca()
-                
+
                 sm_qqplot(x, line=line, ax=ax, fit=fit)
-                
+
                 # Set labels if provided
                 if xlabel is not None:
                     ax.set_xlabel(xlabel)
                 else:
-                    ax.set_xlabel('Theoretical Quantiles')
-                
+                    ax.set_xlabel("Theoretical Quantiles")
+
                 if ylabel is not None:
                     ax.set_ylabel(ylabel)
                 else:
-                    ax.set_ylabel('Ordered Residuals')
-                
+                    ax.set_ylabel("Ordered Residuals")
+
             except ImportError:
                 raise ImportError(
                     "statsmodels is required for generating Q-Q"
@@ -198,19 +205,21 @@ def probplot(
         if xlabel is not None:
             ax.set_xlabel(xlabel)
         else:
-            ax.set_xlabel('Theoretical Quantiles')
-        
+            ax.set_xlabel("Theoretical Quantiles")
+
         if ylabel is not None:
             ax.set_ylabel(ylabel)
         else:
-            ax.set_ylabel('Ordered Residuals')
-            
+            ax.set_ylabel("Ordered Residuals")
+
 
 # Utilize function-based approach for direct imports and version-based configurations
-def get_scipy_function(module_path, function_name, version_requirement=None):
+def get_scipy_function(
+    module_path, function_name, version_requirement=None
+):
     """
     Dynamically imports a function from scipy based on the version requirement.
-    
+
     Parameters
     ----------
     module_path : str
@@ -219,24 +228,34 @@ def get_scipy_function(module_path, function_name, version_requirement=None):
         The name of the function to import.
     version_requirement : Version, optional
         The minimum version of scipy required for this function.
-        
+
     Returns
     -------
     function or None
         The scipy function if available and meets version requirements, else None.
     """
-    if version_requirement is None: 
+    if version_requirement is None:
         version_requirement = Version("0.14.0")
-    if version_requirement and scipy_version < version_requirement:
-        _logger.warning(f"{function_name} requires scipy version {version_requirement} or higher.")
+    if (
+        version_requirement
+        and scipy_version < version_requirement
+    ):
+        _logger.warning(
+            f"{function_name} requires scipy version {version_requirement} or higher."
+        )
         return None
-    
+
     try:
-        module = __import__(f"scipy.{module_path}", fromlist=[function_name])
+        module = __import__(
+            f"scipy.{module_path}", fromlist=[function_name]
+        )
         return getattr(module, function_name)
     except ImportError as e:
-        _logger.error(f"Failed to import {function_name} from scipy.{module_path}: {e}")
+        _logger.error(
+            f"Failed to import {function_name} from scipy.{module_path}: {e}"
+        )
         return None
+
 
 # Define functionalities using the utility function with appropriate
 # version checks where necessary
@@ -261,6 +280,7 @@ if SP_LT_1_7:
 else:
     stats_norm_pdf = stats.norm.pdf
 
+
 # Define a function that uses version-dependent functionality
 def calculate_statistics(data):
     """
@@ -276,8 +296,9 @@ def calculate_statistics(data):
         mean = stats.tmean(data)
         median = stats.median(data)
         pdf = stats_norm_pdf(data)
-    
+
     return mean, median, pdf
+
 
 def is_sparse_matrix(matrix) -> bool:
     """
@@ -318,23 +339,31 @@ def solve_linear_system(A, b):
 
 
 # Special functions
-if hasattr(special, 'erf'):
+if hasattr(special, "erf"):
     special_erf = special.erf
 else:
     # Define a fallback for erf if it's not present in the current scipy version
     def special_erf(x):
         # Approximation or use an alternative approach
-        return "erf function not available in this scipy version"
+        return (
+            "erf function not available in this scipy version"
+        )
+
 
 # Messages
-_msg = ''.join([
-    'Note: need scipy version 0.14.0 or higher for interpolation,',
-    ' might not work.']
+_msg = "".join(
+    [
+        "Note: need scipy version 0.14.0 or higher for interpolation,",
+        " might not work.",
+    ]
 )
-_msg0 = ''.join([
-    'Could not find scipy.interpolate, cannot use method interpolate. ',
-    'Check your installation. You can get scipy from scipy.org.']
+_msg0 = "".join(
+    [
+        "Could not find scipy.interpolate, cannot use method interpolate. ",
+        "Check your installation. You can get scipy from scipy.org.",
+    ]
 )
+
 
 def ensure_scipy_compatibility():
     """
@@ -343,23 +372,25 @@ def ensure_scipy_compatibility():
     """
     global interp_import
     try:
-        scipy_version = [int(ss) for ss in scipy.__version__.split('.')]
+        scipy_version = [
+            int(ss) for ss in scipy.__version__.split(".")
+        ]
         if scipy_version[0] == 0 and scipy_version[1] < 14:
-            warnings.warn(_msg, ImportWarning)
+            warnings.warn(_msg, ImportWarning, stacklevel=2)
             _logger.warning(_msg)
 
         # Attempt to import required modules
-        import scipy.interpolate as spi # noqa 
-        from scipy.spatial import distance # noqa 
+        import scipy.interpolate as spi  # noqa
+        from scipy.spatial import distance  # noqa
 
         interp_import = True
-       # _logger.info("scipy.interpolate and scipy.spatial.distance imported successfully.")
+    # _logger.info("scipy.interpolate and scipy.spatial.distance imported successfully.")
 
-    except ImportError as e: # noqa
-        warnings.warn(_msg0, ImportWarning)
-       # _logger.warning(_msg0)
+    except ImportError as e:  # noqa
+        warnings.warn(_msg0, ImportWarning, stacklevel=2)
+        # _logger.warning(_msg0)
         interp_import = False
-        #_logger.error(f"ImportError: {e}")
+        # _logger.error(f"ImportError: {e}")
 
     return interp_import
 
@@ -367,7 +398,7 @@ def ensure_scipy_compatibility():
 def check_scipy_interpolate():
     """
     Checks for scipy.interpolate compatibility and imports required modules.
-    
+
     Returns
     -------
     module or None
@@ -378,16 +409,19 @@ def check_scipy_interpolate():
 
         # Checking for the minimum version requirement
         if scipy_version < Version("0.14.0"):
-            _logger.warning('Scipy version 0.14.0 or higher is required for'
-                            ' interpolation. Might not work.')
+            _logger.warning(
+                "Scipy version 0.14.0 or higher is required for"
+                " interpolation. Might not work."
+            )
             return None
-        
-        from scipy import interpolate # noqa 
+
+        from scipy import interpolate  # noqa
+
         return scipy.interpolate
 
     except ImportError:
-        _logger.error('Could not find scipy.interpolate, cannot use method'
-                      ' interpolate. Check your scipy installation.') 
+        _logger.error(
+            "Could not find scipy.interpolate, cannot use method"
+            " interpolate. Check your scipy installation."
+        )
         return None
-
-

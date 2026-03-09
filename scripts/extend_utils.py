@@ -1,22 +1,23 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Literal
-from typing import Optional, Sequence, Tuple
+from typing import (
+    Any,
+    Literal,
+)
 
 import numpy as np
 import pandas as pd
 
 from . import utils
-
 
 SubsKind = Literal["cumulative", "rate", "increment"]
 OutKind = Literal["same", "cumulative", "rate"]
@@ -24,7 +25,7 @@ Method = Literal["linear_last", "linear_fit"]
 UncGrowth = Literal["hold", "sqrt", "linear"]
 
 
-_ALIASES: Dict[str, Tuple[str, ...]] = {
+_ALIASES: dict[str, tuple[str, ...]] = {
     "sample_idx": ("sample_idx", "sample_id", "sample"),
     "forecast_step": ("forecast_step", "forecast_s", "h"),
     "coord_t": ("coord_t", "year", "t"),
@@ -107,7 +108,7 @@ def _coerce(
 def load_eval_csv(
     path: Any,
     *,
-    cc: Optional[ExtendCfg] = None,
+    cc: ExtendCfg | None = None,
 ) -> pd.DataFrame:
     cc2 = cc or ExtendCfg()
     df = pd.read_csv(_as_path(path))
@@ -133,7 +134,7 @@ def load_eval_csv(
 def load_future_csv(
     path: Any,
     *,
-    cc: Optional[ExtendCfg] = None,
+    cc: ExtendCfg | None = None,
 ) -> pd.DataFrame:
     cc2 = cc or ExtendCfg()
     df = pd.read_csv(_as_path(path))
@@ -192,10 +193,7 @@ def to_mm(df: pd.DataFrame) -> pd.DataFrame:
         "subsidence_actual",
     ]:
         if c in d.columns:
-            d[c] = (
-                pd.to_numeric(d[c], errors="coerce")
-                * fac
-            )
+            d[c] = pd.to_numeric(d[c], errors="coerce") * fac
 
     d["subsidence_unit"] = "mm"
     return d
@@ -205,15 +203,12 @@ def _targets(
     y_max: int,
     *,
     add_years: int,
-    years: Optional[List[int]],
-) -> List[int]:
+    years: list[int] | None,
+) -> list[int]:
     if years:
         ys = sorted(set(int(y) for y in years))
         return [y for y in ys if y > int(y_max)]
-    return [
-        int(y_max) + i
-        for i in range(1, add_years + 1)
-    ]
+    return [int(y_max) + i for i in range(1, add_years + 1)]
 
 
 def _growth(mode: UncGrowth, h: int) -> float:
@@ -227,7 +222,7 @@ def _growth(mode: UncGrowth, h: int) -> float:
 def _nanline_fit(
     t: np.ndarray,
     y: np.ndarray,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     w = np.isfinite(y).astype(float)
     ws = np.sum(w, axis=1)
     ws = np.where(ws <= 0, 1.0, ws)
@@ -289,10 +284,8 @@ def _base_from_eval(
     col: str,
     ids: pd.Index,
     cc: ExtendCfg,
-) -> Optional[np.ndarray]:
-    d = ev.loc[
-        ev[cc.time_col].astype(int).eq(int(year))
-    ]
+) -> np.ndarray | None:
+    d = ev.loc[ev[cc.time_col].astype(int).eq(int(year))]
     if d.empty:
         return None
 
@@ -307,7 +300,7 @@ def _cum_to_rate_all(
     wc: pd.DataFrame,
     *,
     years: np.ndarray,
-    base: Optional[np.ndarray],
+    base: np.ndarray | None,
 ) -> np.ndarray:
     w = wc.reindex(columns=years).to_numpy(float)
     r = np.full_like(w, np.nan, dtype=float)
@@ -353,10 +346,10 @@ def _meta_last(
 def extend_future_df(
     future_df: pd.DataFrame,
     *,
-    eval_df: Optional[pd.DataFrame] = None,
+    eval_df: pd.DataFrame | None = None,
     add_years: int = 1,
-    years: Optional[List[int]] = None,
-    cc: Optional[ExtendCfg] = None,
+    years: list[int] | None = None,
+    cc: ExtendCfg | None = None,
 ) -> pd.DataFrame:
     """
     Extend a future forecast by 1-2+ years.
@@ -373,9 +366,7 @@ def extend_future_df(
         [cc2.group_col, cc2.time_col]
     ).copy()
 
-    y_max = int(
-        np.nanmax(fut[cc2.time_col].to_numpy(int))
-    )
+    y_max = int(np.nanmax(fut[cc2.time_col].to_numpy(int)))
     tgt = _targets(
         y_max,
         add_years=add_years,
@@ -512,7 +503,7 @@ def extend_future_df(
     meta = _meta_last(fut, ids=ids, cc=cc2)
 
     y_prev = int(years_all[-1])
-    new_parts: List[pd.DataFrame] = []
+    new_parts: list[pd.DataFrame] = []
 
     for j, y_new in enumerate(tgt, start=1):
         r50_new = _predict(
@@ -587,11 +578,11 @@ def extend_future_df(
 def extend_future_csv_file(
     future_csv: Any,
     *,
-    eval_csv: Optional[Any] = None,
-    out_csv: Optional[Any] = None,
+    eval_csv: Any | None = None,
+    out_csv: Any | None = None,
     add_years: int = 1,
-    years: Optional[List[int]] = None,
-    cc: Optional[ExtendCfg] = None,
+    years: list[int] | None = None,
+    cc: ExtendCfg | None = None,
 ) -> Path:
     """
     Load -> extend -> write an updated future CSV.
@@ -622,7 +613,8 @@ def extend_future_csv_file(
     out.to_csv(p, index=False)
     return p
 
-#How to use it (quick examples)
+
+# How to use it (quick examples)
 # from scripts import forecast_extend_utils as fx
 
 # cc = fx.ExtendCfg(

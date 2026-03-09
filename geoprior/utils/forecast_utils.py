@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # https://lkouadio.com
@@ -8,98 +7,94 @@
 """
 Forecast utilities.
 """
-from __future__ import annotations
-import os 
-import re
-import logging 
-from collections.abc import Mapping, Sequence
-from pathlib import Path
-import json 
-import inspect
 
-from typing import ( 
-    Dict, 
-    Iterable, 
-    List, 
-    Union, 
-    Any, 
-    Optional,
-    Tuple , 
-    Callable,
-    Literal, 
-    MutableMapping,
-)
+from __future__ import annotations
+
+import inspect
+import json
+import logging
+import os
+import re
 import warnings
-from datetime import datetime, date
+from collections.abc import (
+    Callable,
+    Iterable,
+    Mapping,
+    MutableMapping,
+    Sequence,
+)
+from datetime import date, datetime
+from pathlib import Path
+from typing import (
+    Any,
+    Literal,
+)
+
 import matplotlib.pyplot as plt
 import matplotlib.style as style
-
-import numpy as np 
+import numpy as np
 import pandas as pd
-
-from sklearn.preprocessing import MinMaxScaler 
 from sklearn.metrics import (
     mean_absolute_error,
     mean_squared_error,
     r2_score,
 )
+from sklearn.preprocessing import MinMaxScaler
 
-from ..logging import get_logger 
-
-from ..core.handlers import columns_manager 
-from ..core.checks import check_spatial_columns, check_empty  
+from ..core.checks import check_empty, check_spatial_columns
+from ..core.handlers import columns_manager
 from ..core.io import is_data_readable
-from ..decorators import isdf 
+from ..decorators import isdf
+from ..logging import get_logger
 from ..metrics._registry import get_metric
 from .calibrate import calibrate_quantile_forecasts
-from .generic_utils import vlog, ensure_directory_exists  
-from .validator import is_frame 
+from .generic_utils import ensure_directory_exists, vlog
+from .scale_metrics import _resolve_stage1_entry
 from .subsidence_utils import (
     convert_target_units_df,
 )
-from .scale_metrics import _resolve_stage1_entry
+from .validator import is_frame
 
 logger = get_logger(__name__)
 
-__all__= [ 
-     'detect_forecast_type',
-     'format_forecast_dataframe',
-     'get_value_prefixes',
-     'get_value_prefixes_in',
-     'pivot_forecast_dataframe', 
-     'get_step_names', 
-     'stack_quantile_predictions', 
-     'adjust_time_predictions', 
-     'add_forecast_times', 
-     'pivot_forecast', 
-     'plot_reliability_diagram', 
-     'format_and_forecast', 
-     'evaluate_forecast'
-     
+__all__ = [
+    "detect_forecast_type",
+    "format_forecast_dataframe",
+    "get_value_prefixes",
+    "get_value_prefixes_in",
+    "pivot_forecast_dataframe",
+    "get_step_names",
+    "stack_quantile_predictions",
+    "adjust_time_predictions",
+    "add_forecast_times",
+    "pivot_forecast",
+    "plot_reliability_diagram",
+    "format_and_forecast",
+    "evaluate_forecast",
 ]
 
 _DIGIT_RE = re.compile(r"\d+")
 
+
 def evaluate_forecast(
-    eval_data: Union[str, os.PathLike, pd.DataFrame],
+    eval_data: str | os.PathLike | pd.DataFrame,
     *,
     target_name: str = "subsidence",
-    column_map: Optional[Mapping[str, Any]] = None,
-    quantile_interval: Tuple[float, float] = (0.1, 0.9),
+    column_map: Mapping[str, Any] | None = None,
+    quantile_interval: tuple[float, float] = (0.1, 0.9),
     per_horizon: bool = False,
-    extra_metrics: Optional[
-        Union[Sequence[str], Mapping[str, Callable[..., Any]]]
-    ] = None,
-    extra_metric_kwargs: Optional[
-        Mapping[str, Mapping[str, Any]]
-    ] = None,
-    overall_key: Optional[str]  =  "__overall__",   
-    savefile: Optional[Union[str, os.PathLike, bool]] = None,
+    extra_metrics: Sequence[str]
+    | Mapping[str, Callable[..., Any]]
+    | None = None,
+    extra_metric_kwargs: Mapping[str, Mapping[str, Any]]
+    | None = None,
+    overall_key: str | None = "__overall__",
+    savefile: str | os.PathLike | bool | None = None,
     save_format: str = ".json",
     time_as_str: bool = True,
     verbose: int = 1,
-    logger: Optional[logging.Logger] = None,
-) -> Union[Dict[str, Any], pd.DataFrame]:
+    logger: logging.Logger | None = None,
+) -> dict[str, Any] | pd.DataFrame:
     """
     Evaluate forecast diagnostics from an evaluation DataFrame.
 
@@ -304,7 +299,7 @@ def evaluate_forecast(
       - ``per_horizon_mae``, ``per_horizon_mse``,
         ``per_horizon_r2``.
     """
-    
+
     vlog(
         "[evaluate_forecast] Starting metrics computation.",
         verbose=verbose,
@@ -315,8 +310,8 @@ def evaluate_forecast(
     # ------------------------------------------------------------------
     # 1. Load DataFrame
     # ------------------------------------------------------------------
-    source_path: Optional[Path] = None
-    if isinstance(eval_data, (str, os.PathLike)):
+    source_path: Path | None = None
+    if isinstance(eval_data, str | os.PathLike):
         source_path = Path(eval_data)
         df = pd.read_csv(source_path)
         vlog(
@@ -343,7 +338,9 @@ def evaluate_forecast(
 
     # Logical column names (with defaults)
     # sample_col = column_map.get("sample_idx", "sample_idx")
-    step_col = column_map.get("forecast_step", "forecast_step")
+    step_col = column_map.get(
+        "forecast_step", "forecast_step"
+    )
     time_col = column_map.get("coord_t", "coord_t")
 
     # Actual column (required)
@@ -372,7 +369,7 @@ def evaluate_forecast(
     # 2. Detect quantile vs point mode and build quantile map
     # ------------------------------------------------------------------
     quantiles_spec = column_map.get("quantiles", None)
-    quantile_map: Dict[float, str] = {}
+    quantile_map: dict[float, str] = {}
 
     if quantiles_spec is not None:
         # User explicitly provided quantile columns
@@ -387,7 +384,7 @@ def evaluate_forecast(
                 quantile_map[q_float] = col
         else:
             # Sequence of column names; try to infer q from suffix
-            from re import match, escape
+            from re import escape, match
 
             for col in quantiles_spec:
                 if col not in df.columns:
@@ -408,7 +405,7 @@ def evaluate_forecast(
                 quantile_map[q_int / 100.0] = col
     else:
         # Auto-detect quantiles from column names
-        from re import match, escape
+        from re import escape, match
 
         pat = rf"^{escape(target_name)}_q(\d+)$"
         for col in df.columns:
@@ -422,7 +419,9 @@ def evaluate_forecast(
     # Prediction (median / point) column
     if quantile_mode:
         # Choose q closest to 0.5 as "median"
-        median_q = min(quantile_map.keys(), key=lambda q: abs(q - 0.5))
+        median_q = min(
+            quantile_map.keys(), key=lambda q: abs(q - 0.5)
+        )
         median_col = quantile_map[median_q]
         vlog(
             f"[evaluate_forecast] Detected quantile mode with "
@@ -477,7 +476,7 @@ def evaluate_forecast(
     # ------------------------------------------------------------------
     # 4. Prepare extra metrics (names -> callables)
     # ------------------------------------------------------------------
-    metric_fns: Dict[str, Callable[..., Any]] = {}
+    metric_fns: dict[str, Callable[..., Any]] = {}
     if extra_metrics is not None:
         if isinstance(extra_metrics, Mapping):
             metric_fns = dict(extra_metrics)
@@ -501,7 +500,7 @@ def evaluate_forecast(
     # ------------------------------------------------------------------
     # 5. Core metric computation loop
     # ------------------------------------------------------------------
-    results_by_time: MutableMapping[Any, Dict[str, Any]] = {}
+    results_by_time: MutableMapping[Any, dict[str, Any]] = {}
 
     # Pre-resolve coverage & sharpness metrics, if quantile mode
     if quantile_mode:
@@ -520,7 +519,7 @@ def evaluate_forecast(
 
     q_lower_target, q_upper_target = quantile_interval
 
-    for t_val, g in (groups if has_time else groups):
+    for t_val, g in groups if has_time else groups:
         # When has_time is False, groups is a list of tuples
         # (None, df). When True, groups is a pandas GroupBy and
         # iteration yields (t_val, g) pairs directly.
@@ -532,7 +531,7 @@ def evaluate_forecast(
         y_true = g[actual_col].to_numpy()
         y_pred = g[median_col].to_numpy()
 
-        metrics_here: Dict[str, Any] = {}
+        metrics_here: dict[str, Any] = {}
 
         # ---- 5a. Default deterministic metrics ------------------------
         if quantile_mode:
@@ -567,14 +566,20 @@ def evaluate_forecast(
                 metrics_here["r2"] = np.nan
 
         # ---- 5b. Coverage and sharpness (quantile mode only) ----------
-        if quantile_mode and coverage_fn is not None and miw_fn is not None:
+        if (
+            quantile_mode
+            and coverage_fn is not None
+            and miw_fn is not None
+        ):
             # Choose quantiles closest to requested interval
             qs_sorted = sorted(quantile_map.keys())
             q_low = min(
-                qs_sorted, key=lambda q: abs(q - q_lower_target)
+                qs_sorted,
+                key=lambda q: abs(q - q_lower_target),
             )
             q_high = min(
-                qs_sorted, key=lambda q: abs(q - q_upper_target)
+                qs_sorted,
+                key=lambda q: abs(q - q_upper_target),
             )
 
             y_lower = g[quantile_map[q_low]].to_numpy()
@@ -590,7 +595,9 @@ def evaluate_forecast(
                     verbose=0,
                 )
             except TypeError:
-                cov_val = coverage_fn(y_true, y_lower, y_upper)
+                cov_val = coverage_fn(
+                    y_true, y_lower, y_upper
+                )
             metrics_here["coverage80"] = float(cov_val)
 
             # sharpness80 (mean interval width)
@@ -607,10 +614,10 @@ def evaluate_forecast(
 
         # ---- 5c. Per-horizon deterministic metrics --------------------
         if per_horizon and step_col in g.columns:
-            per_mae: Dict[int, float] = {}
-            per_mse: Dict[int, float] = {}
-            per_rmse: Dict[int, float] = {}
-            per_r2: Dict[int, float] = {}
+            per_mae: dict[int, float] = {}
+            per_mse: dict[int, float] = {}
+            per_rmse: dict[int, float] = {}
+            per_r2: dict[int, float] = {}
 
             for h, g_h in g.groupby(step_col):
                 yt_h = g_h[actual_col].to_numpy()
@@ -623,7 +630,7 @@ def evaluate_forecast(
                 mse_h = float(mean_squared_error(yt_h, yp_h))
                 per_mse[h_int] = mse_h
                 per_rmse[h_int] = float(np.sqrt(mse_h))
-                
+
                 if yt_h.size >= 2:
                     per_r2[h_int] = float(
                         r2_score(yt_h, yp_h)
@@ -644,13 +651,17 @@ def evaluate_forecast(
             y_pred=y_pred,
             metric_fns=metric_fns,
             extra_metric_kwargs=extra_metric_kwargs,
-            horizon_steps=(g[step_col].to_numpy() if step_col in g.columns else None),
+            horizon_steps=(
+                g[step_col].to_numpy()
+                if step_col in g.columns
+                else None
+            ),
             verbose=verbose,
             logger=logger,
         )
 
         results_by_time[t_key] = metrics_here
-        
+
     # ------------------------------------------------------------------
     # 5bis. Overall totals across *all* rows (all times/horizons)
     # ------------------------------------------------------------------
@@ -659,14 +670,15 @@ def evaluate_forecast(
     # naturally contain only one entry. Adding a global summary makes it
     # easier to track the model's overall behavior across the full eval
     # split (all horizons together).
-    
+
     # overall_key: Optional[str] (or str but allow None)
-    _write_overall = (
-        (overall_key is not None)
-        and (str(overall_key).strip() != "")
+    _write_overall = (overall_key is not None) and (
+        str(overall_key).strip() != ""
     )
-    
-    if ( has_time and len(results_by_time) > 1) and _write_overall :
+
+    if (
+        has_time and len(results_by_time) > 1
+    ) and _write_overall:
         y_true_all = df[actual_col].astype(float).to_numpy()
         y_pred_all = df[median_col].astype(float).to_numpy()
         horizon_all = (
@@ -674,8 +686,8 @@ def evaluate_forecast(
             if step_col in df.columns
             else None
         )
-    
-        metrics_all: Dict[str, Any] = {}
+
+        metrics_all: dict[str, Any] = {}
         metrics_all["overall_mae"] = float(
             mean_absolute_error(y_true_all, y_pred_all)
         )
@@ -690,42 +702,63 @@ def evaluate_forecast(
             if y_true_all.size >= 2
             else float("nan")
         )
-    
+
         # Coverage / sharpness for overall (quantile mode)
         if quantile_mode:
             qs_sorted = sorted(quantile_map.keys())
-            q_low = min(qs_sorted, key=lambda q: abs(q - q_lower_target))
-            q_high = min(qs_sorted, key=lambda q: abs(q - q_upper_target))
-    
-            y_lower_all = df[quantile_map[q_low]].astype(float).to_numpy()
-            y_upper_all = df[quantile_map[q_high]].astype(float).to_numpy()
-    
+            q_low = min(
+                qs_sorted,
+                key=lambda q: abs(q - q_lower_target),
+            )
+            q_high = min(
+                qs_sorted,
+                key=lambda q: abs(q - q_upper_target),
+            )
+
+            y_lower_all = (
+                df[quantile_map[q_low]]
+                .astype(float)
+                .to_numpy()
+            )
+            y_upper_all = (
+                df[quantile_map[q_high]]
+                .astype(float)
+                .to_numpy()
+            )
+
             if coverage_fn is not None and miw_fn is not None:
                 try:
                     cov_val = coverage_fn(
-                        y_true_all, y_lower_all, y_upper_all,
-                        nan_policy="omit", verbose=0,
+                        y_true_all,
+                        y_lower_all,
+                        y_upper_all,
+                        nan_policy="omit",
+                        verbose=0,
                     )
                 except TypeError:
-                    cov_val = coverage_fn(y_true_all, y_lower_all, y_upper_all)
+                    cov_val = coverage_fn(
+                        y_true_all, y_lower_all, y_upper_all
+                    )
                 metrics_all["coverage80"] = float(cov_val)
-    
+
                 try:
                     miw_val = miw_fn(
-                        y_lower_all, y_upper_all,
-                        nan_policy="omit", verbose=0,
+                        y_lower_all,
+                        y_upper_all,
+                        nan_policy="omit",
+                        verbose=0,
                     )
                 except TypeError:
                     miw_val = miw_fn(y_lower_all, y_upper_all)
                 metrics_all["sharpness80"] = float(miw_val)
-    
+
         # Per-horizon totals across all rows
         if horizon_all is not None:
-            per_mae: Dict[int, float] = {}
-            per_mse: Dict[int, float] = {}
-            per_rmse: Dict[int, float] = {}
-            per_r2: Dict[int, float] = {}
-    
+            per_mae: dict[int, float] = {}
+            per_mse: dict[int, float] = {}
+            per_rmse: dict[int, float] = {}
+            per_r2: dict[int, float] = {}
+
             for h in sorted(set(horizon_all.tolist())):
                 h_int = int(h)
                 mask_h = horizon_all == h
@@ -733,20 +766,24 @@ def evaluate_forecast(
                 yp_h = y_pred_all[mask_h]
                 if yt_h.size == 0:
                     continue
-    
-                per_mae[h_int] = float(mean_absolute_error(yt_h, yp_h))
+
+                per_mae[h_int] = float(
+                    mean_absolute_error(yt_h, yp_h)
+                )
                 mse_h = float(mean_squared_error(yt_h, yp_h))
                 per_mse[h_int] = mse_h
                 per_rmse[h_int] = float(np.sqrt(mse_h))
                 per_r2[h_int] = (
-                    float(r2_score(yt_h, yp_h)) if yt_h.size >= 2 else float("nan")
+                    float(r2_score(yt_h, yp_h))
+                    if yt_h.size >= 2
+                    else float("nan")
                 )
-    
+
             metrics_all["per_horizon_mae"] = per_mae
             metrics_all["per_horizon_mse"] = per_mse
             metrics_all["per_horizon_rmse"] = per_rmse
             metrics_all["per_horizon_r2"] = per_r2
-    
+
         # Extra metrics: reuse exact same calling logic as per-group
         apply_extra_metrics(
             dest=metrics_all,
@@ -755,8 +792,8 @@ def evaluate_forecast(
             metric_fns=metric_fns,
             extra_metric_kwargs=extra_metric_kwargs,
             horizon_steps=horizon_all,
-            verbose=verbose, 
-            logger=logger, 
+            verbose=verbose,
+            logger=logger,
         )
 
         # Put it under a configurable key (default "__overall__")
@@ -767,7 +804,7 @@ def evaluate_forecast(
     # ------------------------------------------------------------------
     if len(results_by_time) == 1:
         # Single time or no time column → return metrics only
-        final_result: Union[Dict[str, Any], Dict[Any, Any]]
+        final_result: dict[str, Any] | dict[Any, Any]
         final_result = next(iter(results_by_time.values()))
     else:
         # Multiple time values → dict keyed by time
@@ -797,7 +834,9 @@ def evaluate_forecast(
             )
             ts = datetime.now().strftime("%Y%m%d-%H%M%S")
             if fmt in (".csv",):
-                fname = f"eval_{target_name}_diagnostics_{ts}.csv"
+                fname = (
+                    f"eval_{target_name}_diagnostics_{ts}.csv"
+                )
             else:
                 fname = f"eval_{target_name}_diagnostics_{ts}.json"
             out_path = base_dir / fname
@@ -814,7 +853,7 @@ def evaluate_forecast(
         if fmt in (".json", "json"):
             # Ensure JSON-serializable (convert numpy scalars)
             def _to_jsonable(obj: Any) -> Any:
-                if isinstance(obj, (np.generic,)):
+                if isinstance(obj, np.generic):
                     return obj.item()
                 if isinstance(obj, np.ndarray):
                     return obj.tolist()
@@ -828,7 +867,10 @@ def evaluate_forecast(
                     for k, v in final_result.items()  # type: ignore[arg-type]
                 }
             else:
-                for t_key, metrics_here in final_result.items():  # type: ignore[union-attr]
+                for (
+                    t_key,
+                    metrics_here,
+                ) in final_result.items():  # type: ignore[union-attr]
                     json_ready[t_key] = {
                         k: _to_jsonable(v)
                         for k, v in metrics_here.items()
@@ -854,7 +896,10 @@ def evaluate_forecast(
         elif fmt in (".csv", "csv"):
             # Flatten to long-form DataFrame
             rows = []
-            for t_key, metrics_here in results_by_time.items():
+            for (
+                t_key,
+                metrics_here,
+            ) in results_by_time.items():
                 t_val = t_key
                 if time_as_str and t_val is not None:
                     t_val = str(t_val)
@@ -899,16 +944,17 @@ def evaluate_forecast(
     # No saving requested: just return in-memory result
     return final_result
 
+
 def apply_extra_metrics(
     *,
-    dest: Dict[str, Any],
+    dest: dict[str, Any],
     y_true: np.ndarray,
     y_pred: np.ndarray,
     metric_fns: Mapping[str, Callable[..., Any]],
     extra_metric_kwargs: Mapping[str, Mapping[str, Any]],
-    horizon_steps: Optional[np.ndarray] = None,
+    horizon_steps: np.ndarray | None = None,
     verbose: int = 1,
-    logger: Optional[logging.Logger] = None,
+    logger: logging.Logger | None = None,
 ) -> None:
     """
     Apply extra metrics into `dest` using robust calling heuristics.
@@ -921,7 +967,9 @@ def apply_extra_metrics(
     If a metric supports `horizon_steps`, it will be passed when provided.
     """
     for m_name, fn in metric_fns.items():
-        kwargs = dict(extra_metric_kwargs.get(m_name, {}) or {})
+        kwargs = dict(
+            extra_metric_kwargs.get(m_name, {}) or {}
+        )
 
         # Pass horizon_steps if supported and available
         if horizon_steps is not None:
@@ -938,15 +986,21 @@ def apply_extra_metrics(
             param_names = list(sig.parameters.keys())
 
             # Case 1: standard supervised metric: metric(y_true, y_pred, ...)
-            if ("y_true" in param_names) and ("y_pred" in param_names):
+            if ("y_true" in param_names) and (
+                "y_pred" in param_names
+            ):
                 try:
-                    m_val = fn(y_true=y_true, y_pred=y_pred, **kwargs)
+                    m_val = fn(
+                        y_true=y_true, y_pred=y_pred, **kwargs
+                    )
                 except TypeError:
                     m_val = fn(y_true, y_pred, **kwargs)
 
             # Case 2: prediction-only metric: metric(y_pred, ...)
             elif param_names and param_names[0] in (
-                "y_pred", "y_forecast", "y_hat"
+                "y_pred",
+                "y_forecast",
+                "y_hat",
             ):
                 # prefer keyword when possible
                 try:
@@ -961,7 +1015,10 @@ def apply_extra_metrics(
                 except TypeError:
                     m_val = fn(y_pred, **kwargs)
 
-            if isinstance(m_val, np.ndarray) and m_val.size == 1:
+            if (
+                isinstance(m_val, np.ndarray)
+                and m_val.size == 1
+            ):
                 m_val = float(m_val.reshape(()))
 
             dest[m_name] = m_val
@@ -974,7 +1031,10 @@ def apply_extra_metrics(
                 logger=logger,
             )
 
-def _find_scaler_block(scaler_info, keys=("targets", "target", "y")):
+
+def _find_scaler_block(
+    scaler_info, keys=("targets", "target", "y")
+):
     """Best-effort helper to locate a scaler block inside scaler_info."""
     if not isinstance(scaler_info, dict):
         return None
@@ -984,6 +1044,7 @@ def _find_scaler_block(scaler_info, keys=("targets", "target", "y")):
             if isinstance(block, dict):
                 return block
     return None
+
 
 def _inverse_with_stage1(
     values: np.ndarray,
@@ -1012,7 +1073,9 @@ def _inverse_with_stage1(
             allow_passthrough=True,
         )
 
-    if scaler is None or not hasattr(scaler, "inverse_transform"):
+    if scaler is None or not hasattr(
+        scaler, "inverse_transform"
+    ):
         return np.asarray(values)
 
     arr = np.asarray(values, dtype=float)
@@ -1032,6 +1095,7 @@ def _inverse_with_stage1(
 
     return inv.reshape(shp)
 
+
 def _ensure_q_order(qmat: np.ndarray) -> np.ndarray:
     """Ensure q_low <= q_high by flipping Q-axis if needed."""
     qmat = np.asarray(qmat)
@@ -1042,6 +1106,7 @@ def _ensure_q_order(qmat: np.ndarray) -> np.ndarray:
     if np.isfinite(lo) and np.isfinite(hi) and lo > hi:
         return qmat[:, ::-1]
     return qmat
+
 
 def _inverse_with_block(values, block, col_name):
     """Inverse-transform a 1D array using a scaler block.
@@ -1054,7 +1119,9 @@ def _inverse_with_block(values, block, col_name):
         return values
 
     scaler = block.get("scaler")
-    if scaler is None or not hasattr(scaler, "inverse_transform"):
+    if scaler is None or not hasattr(
+        scaler, "inverse_transform"
+    ):
         return values
 
     # ---- Old style: columns/cols present ---------------------------------
@@ -1074,10 +1141,14 @@ def _inverse_with_block(values, block, col_name):
             n_features = len(all_features)
         else:
             # Fallback: trust the scaler
-            n_features = getattr(scaler, "n_features_in_", idx + 1)
+            n_features = getattr(
+                scaler, "n_features_in_", idx + 1
+            )
 
     values = np.asarray(values).reshape(-1)
-    tmp = np.zeros((values.shape[0], n_features), dtype=np.float32)
+    tmp = np.zeros(
+        (values.shape[0], n_features), dtype=np.float32
+    )
     tmp[:, idx] = values
 
     try:
@@ -1085,6 +1156,7 @@ def _inverse_with_block(values, block, col_name):
     except Exception:
         return values
     return inv
+
 
 def _auto_output_target_name(
     target_name: str,
@@ -1101,7 +1173,10 @@ def _auto_output_target_name(
     target_name='subsidence'       -> 'subsidence'
     target_name='subsidence_cumulative' -> 'subsidence'
     """
-    if output_target_name is not None and str(output_target_name).strip():
+    if (
+        output_target_name is not None
+        and str(output_target_name).strip()
+    ):
         return str(output_target_name)
 
     name = str(target_name)
@@ -1110,22 +1185,25 @@ def _auto_output_target_name(
             return name[: -len(sfx)]
     return name
 
+
 def format_and_forecast(
     y_pred: dict,
     y_true: dict | None,
     *,
     coords: np.ndarray | None = None,
     quantiles: list[float] | None = None,
-    
     target_name: str = "subsidence",
-    output_target_name: str | None = None,   
-    scaler_target_name: str | None = None,   
-
+    output_target_name: str | None = None,
+    scaler_target_name: str | None = None,
     target_key_pred: str = "subs_pred",
     component_index: int = 0,
     scaler_info: dict | None = None,
     coord_scaler: object | None = None,
-    coord_columns: tuple[str, str, str] = ("coord_t", "coord_x", "coord_y"),
+    coord_columns: tuple[str, str, str] = (
+        "coord_t",
+        "coord_x",
+        "coord_y",
+    ),
     #
     # Temporal config
     train_end_time: float | int | str | None = None,
@@ -1135,10 +1213,12 @@ def format_and_forecast(
     eval_forecast_step: int | None = None,
     #
     eval_export: object = "all",
-    value_mode: str = "rate",   
-    input_value_mode: str = "rate",    # what MODEL produced (NEW)
-    rate_first: str = "cum_over_dtref",# for cumulative->rate (NEW)
-    absolute_baseline: float | Mapping[int, float] | None = None,  
+    value_mode: str = "rate",
+    input_value_mode: str = "rate",  # what MODEL produced (NEW)
+    rate_first: str = "cum_over_dtref",  # for cumulative->rate (NEW)
+    absolute_baseline: float
+    | Mapping[int, float]
+    | None = None,
     # Output / I/O
     sample_index_offset: int = 0,
     city_name: str | None = None,
@@ -1150,15 +1230,17 @@ def format_and_forecast(
     # Time dtype control
     time_as_datetime: bool = False,
     time_format: str | None = None,
-    # calibrations 
+    # calibrations
     calibration: str | bool = False,
-    calibration_kwargs: Optional[Mapping[str, Any]] = None,
-    calibration_save_stats: Optional[Union[str, os.PathLike]] = None,
-    
+    calibration_kwargs: Mapping[str, Any] | None = None,
+    calibration_save_stats: str | os.PathLike | None = None,
     # Evaluation options (metrics, optional)
     eval_metrics: bool = False,
     metrics_column_map: Mapping[str, Any] | None = None,
-    metrics_quantile_interval: tuple[float, float] = (0.1, 0.9),
+    metrics_quantile_interval: tuple[float, float] = (
+        0.1,
+        0.9,
+    ),
     metrics_per_horizon: bool = False,
     metrics_extra: (
         Sequence[str]
@@ -1171,18 +1253,16 @@ def format_and_forecast(
     metrics_savefile: str | os.PathLike | bool | None = None,
     metrics_save_format: str = ".json",
     metrics_time_as_str: bool = True,
-    
     # --- NEW: unit conversion before export/metrics ---
     output_unit: str | None = None,
     output_unit_from: str = "m",
     output_unit_mode: str = "overwrite",
     output_unit_suffix: str = "_mm",
     output_unit_col: str | None = None,
-
     # Logging
     verbose: int = 1,
     logger: logging.Logger | None = None,
-    **kws
+    **kws,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Format PINN forecasts into evaluation and future DataFrames.
@@ -1237,55 +1317,55 @@ def format_and_forecast(
         Logical target identifier used as the default key for locating the
         target scaler in ``scaler_info`` and as a fallback for resolving
         truth arrays in ``y_true``.
-    
+
         Column naming is controlled by ``output_target_name`` (or the
         auto-derived output prefix when it is ``None``).
 
     output_target_name : str or None, optional
         Output prefix used when creating DataFrame columns for predictions
         and actuals.
-    
+
         This controls the *column naming* only (e.g. the function will
         emit ``f"{output_target_name}_q10"``, ``f"{output_target_name}_pred"``,
         and ``f"{output_target_name}_actual"``).
-    
+
         If ``None`` (default), the function derives the output prefix from
         ``target_name`` and applies a small convenience rule:
-    
+
         * if ``target_name`` ends with ``"_cum"`` (or ``"_cumulative"``),
           the suffix is stripped for output naming.
-    
+
         This keeps downstream tooling consistent (many plotting and metrics
         utilities expect names like ``subsidence_q10`` rather than
         ``subsidence_cum_q10``), while still allowing the scaler lookup to
         use the true target key::
-    
+
             >>> target_name = "subsidence_cum"
             >>> output_target_name = None
             # Output columns become: subsidence_q10, subsidence_q50, subsidence_actual
-        
+
             >>> target_name = "subsidence_cum"
             >>> output_target_name = "subsidence_cum"
             # Output columns keep the suffix: subsidence_cum_q10, ...
-    
+
     scaler_target_name : str or None, optional
         Name used to locate the target scaling block inside ``scaler_info``
         and to perform inverse-transform for predictions and actuals.
-    
+
         This controls the *scaler key and inverse scaling*, not the output
         column naming.
-    
+
         If ``None`` (default), the scaler key is assumed to be
         ``target_name``. This is important when you want clean output
         columns but the scaler was fitted/stored under the original target
         name.
-    
+
         Notes:
-        
+
         A common pattern is to keep ``target_name="subsidence_cum"`` so the
         scaler lookup matches the Stage-1 schema, while letting
         ``output_target_name=None`` produce clean output columns:
-    
+
         * inverse-transform uses ``scaler_target_name="subsidence_cum"``
           (implicitly via ``target_name``),
         * output columns are named ``subsidence_*`` due to the auto-strip
@@ -1344,7 +1424,7 @@ def format_and_forecast(
     eval_forecast_step : int or None, optional
         Horizon step index (1-based) to use for evaluation.  If
         ``None``, defaults to the last horizon step H.
-        
+
     eval_export : {"all", "last"} or str or int or sequence, optional
         Controls which evaluation rows are exported in ``df_eval`` and
         written to ``csv_eval_path``. By default (``"all"``), the
@@ -1547,13 +1627,13 @@ def format_and_forecast(
         DataFrame containing predictions for the future horizon,
         without actuals.  Same structure as ``df_eval`` but without
         the ``'<target_name>_actual'`` column.
-    
+
     Notes
     -----
     This function separates *scaler lookup* (``scaler_target_name``) from
-    *output column naming* (``output_target_name``). 
-    This is useful when the stored scaler key contains suffixes like 
-    ``"_cum"`` but downstream tools expect canonical names such 
+    *output column naming* (``output_target_name``).
+    This is useful when the stored scaler key contains suffixes like
+    ``"_cum"`` but downstream tools expect canonical names such
     as ``subsidence_*``.
 
 
@@ -1561,7 +1641,9 @@ def format_and_forecast(
 
     t_col, x_col, y_col = coord_columns
     scale_name = scaler_target_name or target_name
-    out_name = _auto_output_target_name(target_name, output_target_name)
+    out_name = _auto_output_target_name(
+        target_name, output_target_name
+    )
 
     vlog(
         "[format_and_forecast] Starting formatting of predictions "
@@ -1569,7 +1651,7 @@ def format_and_forecast(
         f"dataset={dataset_name}",
         verbose=verbose,
         level=1,
-        logger = logger
+        logger=logger,
     )
 
     if target_key_pred not in y_pred:
@@ -1589,7 +1671,9 @@ def format_and_forecast(
     H = subs_pred.shape[1]
 
     # Choose evaluation horizon step (1-based → 0-based index)
-    if eval_forecast_step is None or not (1 <= eval_forecast_step <= H):
+    if eval_forecast_step is None or not (
+        1 <= eval_forecast_step <= H
+    ):
         eval_forecast_step = H  # last step by default
     s_idx = eval_forecast_step - 1
 
@@ -1597,7 +1681,7 @@ def format_and_forecast(
         f"[format_and_forecast] B={B}, H={H}, eval_step={eval_forecast_step}",
         verbose=verbose,
         level=2,
-        logger = logger
+        logger=logger,
     )
 
     # ------------------------------------------------------------------
@@ -1617,7 +1701,7 @@ def format_and_forecast(
                 f"match Q={Q}; using first {min(len(quantiles), Q)}.",
                 verbose=verbose,
                 level=1,
-                logger = logger
+                logger=logger,
             )
             Q = min(len(quantiles), Q)
 
@@ -1631,25 +1715,34 @@ def format_and_forecast(
                 "Point mode requires subs_pred.ndim == 3. "
                 f"Got shape={subs_pred.shape!r}"
             )
-        subs_eval_q = subs_pred[:, s_idx, component_index]    # (B,)
-        subs_future_q = subs_pred[:, :, component_index]      # (B, H)
+        subs_eval_q = subs_pred[
+            :, s_idx, component_index
+        ]  # (B,)
+        subs_future_q = subs_pred[
+            :, :, component_index
+        ]  # (B, H)
 
     # ------------------------------------------------------------------
     # Ground truth for evaluation (last step + all horizons)
     # ------------------------------------------------------------------
-    subs_true_eval = None          # (B,)
-    subs_true_all_flat = None      # (B*H,)
+    subs_true_eval = None  # (B,)
+    subs_true_all_flat = None  # (B*H,)
     true_arr = None
 
-    true_key_candidates = (out_name, scale_name, target_key_pred, target_name)
-    
+    true_key_candidates = (
+        out_name,
+        scale_name,
+        target_key_pred,
+        target_name,
+    )
+
     true_arr = None
     if y_true is not None:
         for k in true_key_candidates:
             if k in y_true:
                 true_arr = np.asarray(y_true[k])
                 break
-            
+
     if true_arr is not None:
         if true_arr.ndim != 3:
             vlog(
@@ -1661,20 +1754,24 @@ def format_and_forecast(
             )
         else:
             # (B, H, O) → pick component_index
-            subs_true_eval = true_arr[:, s_idx, component_index]          # (B,)
-            subs_true_all_flat = true_arr[:, :, component_index].reshape(-1)  # (B*H,)
+            subs_true_eval = true_arr[
+                :, s_idx, component_index
+            ]  # (B,)
+            subs_true_all_flat = true_arr[
+                :, :, component_index
+            ].reshape(-1)  # (B*H,)
 
     # ------------------------------------------------------------------
     # Coords (only used for x/y; time will come from temporal config)
     # ------------------------------------------------------------------
     coord_x_eval = coord_y_eval = None
     coord_x_future = coord_y_future = None
-    
+
     if coords is not None:
         coords = np.asarray(coords)
         if coords.ndim == 3 and coords.shape[-1] >= 3:
             B_coords, H_coords, D_coords = coords.shape
-    
+
             # Optional sanity check: coords horizon should match predictions
             if H_coords != H:
                 vlog(
@@ -1687,11 +1784,18 @@ def format_and_forecast(
                 )
             # ---- NEW: inverse-transform coords if we have a coord_scaler ----
             if coord_scaler is not None and hasattr(
-                    coord_scaler, "inverse_transform"):
+                coord_scaler, "inverse_transform"
+            ):
                 try:
-                    flat = coords.reshape(-1, D_coords)        # (B*H, D)
-                    flat_inv = coord_scaler.inverse_transform(flat)
-                    coords = flat_inv.reshape(B_coords, H_coords, D_coords)
+                    flat = coords.reshape(
+                        -1, D_coords
+                    )  # (B*H, D)
+                    flat_inv = coord_scaler.inverse_transform(
+                        flat
+                    )
+                    coords = flat_inv.reshape(
+                        B_coords, H_coords, D_coords
+                    )
                 except Exception:
                     vlog(
                         "[format_and_forecast] coord_scaler inverse_transform "
@@ -1700,11 +1804,11 @@ def format_and_forecast(
                         level=1,
                         logger=logger,
                     )
-    
+
             # Now coords are in physical units; extract x/y for eval + future
             coord_x_eval = coords[:, s_idx, 1]
             coord_y_eval = coords[:, s_idx, 2]
-    
+
             coord_x_future = coords[:, :, 1].reshape(-1)
             coord_y_future = coords[:, :, 2].reshape(-1)
         else:
@@ -1722,14 +1826,14 @@ def format_and_forecast(
     # ------------------------------------------------------------------
     if quantiles is not None:
         subs_eval_q = _ensure_q_order(subs_eval_q)
-    
+
     subs_eval_q = _inverse_with_stage1(
         subs_eval_q,
         scaler_info,
         target_name=scale_name,
         scaler_name=scaler_target_name,
     )
-    
+
     if subs_true_eval is not None:
         subs_true_eval = _inverse_with_stage1(
             subs_true_eval,
@@ -1737,7 +1841,7 @@ def format_and_forecast(
             target_name=scale_name,
             scaler_name=scaler_target_name,
         )
-    
+
     if subs_true_all_flat is not None:
         subs_true_all_flat = _inverse_with_stage1(
             subs_true_all_flat,
@@ -1745,13 +1849,13 @@ def format_and_forecast(
             target_name=scale_name,
             scaler_name=scaler_target_name,
         )
-    
+
     # Future
     if quantiles is not None:
         Q = int(subs_future_q.shape[2])
         flat = subs_future_q.reshape(-1, Q)
         flat = _ensure_q_order(flat)
-    
+
         flat = _inverse_with_stage1(
             flat,
             scaler_info,
@@ -1770,7 +1874,10 @@ def format_and_forecast(
     # ------------------------------------------------------------------
     # Build temporal grid for future horizon (if not given)
     # ------------------------------------------------------------------
-    if future_time_grid is None and forecast_start_time is not None:
+    if (
+        future_time_grid is None
+        and forecast_start_time is not None
+    ):
         if forecast_horizon is None:
             forecast_horizon = H
         # For generality, we don't assume "years"; we simply treat
@@ -1783,13 +1890,17 @@ def format_and_forecast(
             # Try numeric
             base_val = float(base)
             future_time_grid = np.array(
-                [base_val + i for i in range(forecast_horizon)],
+                [
+                    base_val + i
+                    for i in range(forecast_horizon)
+                ],
                 dtype=float,
             )
         except Exception:
             # Leave as raw objects (e.g., strings or datetimes)
             future_time_grid = np.array(
-                [base for _ in range(forecast_horizon)], dtype=object
+                [base for _ in range(forecast_horizon)],
+                dtype=object,
             )
 
     if future_time_grid is None:
@@ -1809,8 +1920,10 @@ def format_and_forecast(
     def _to_time(values):
         if not time_as_datetime:
             return values
-        return pd.to_datetime(values, format=time_format, errors="coerce")
-    
+        return pd.to_datetime(
+            values, format=time_format, errors="coerce"
+        )
+
     # ------------------------------------------------------------------
     # Build evaluation time grid for ALL horizons first (length H)
     # ------------------------------------------------------------------
@@ -1825,37 +1938,48 @@ def format_and_forecast(
         except Exception:
             # Fallback: same label repeated
             eval_time_grid_full = np.array(
-                [train_end_time for _ in range(H)], dtype=object
+                [train_end_time for _ in range(H)],
+                dtype=object,
             )
     else:
         # If no train_end_time provided, use future grid if it matches H,
         # otherwise fall back to 1..H.
-        if future_time_grid is not None and len(future_time_grid) == H:
+        if (
+            future_time_grid is not None
+            and len(future_time_grid) == H
+        ):
             eval_time_grid_full = np.asarray(future_time_grid)
         else:
             eval_time_grid_full = np.arange(1, H + 1)
-    
+
     # ------------------------------------------------------------------
     # eval time must correspond to the chosen eval_forecast_step (s_idx)
     # ------------------------------------------------------------------
     eval_time_value = eval_time_grid_full[s_idx]
-    eval_time_series = _to_time(np.full(B, eval_time_value, dtype=object))
-    
+    eval_time_series = _to_time(
+        np.full(B, eval_time_value, dtype=object)
+    )
+
     # Future times: repeat grid for each sample
-    future_time_series = _to_time(np.tile(np.asarray(future_time_grid), B))
-    
+    future_time_series = _to_time(
+        np.tile(np.asarray(future_time_grid), B)
+    )
+
     # Repeat per sample for (B*H)
-    eval_all_time_series = _to_time(np.tile(eval_time_grid_full, B))
+    eval_all_time_series = _to_time(
+        np.tile(eval_time_grid_full, B)
+    )
 
     # ------------------------------------------------------------------
     # Build DataFrames
     # ------------------------------------------------------------------
     # Evaluation DataFrame (one row per sample)
-    sample_idx_eval = (
-        np.arange(sample_index_offset, sample_index_offset + B)
-        .astype(int)
+    sample_idx_eval = np.arange(
+        sample_index_offset, sample_index_offset + B
+    ).astype(int)
+    forecast_step_eval = np.full(
+        B, eval_forecast_step, dtype=int
     )
-    forecast_step_eval = np.full(B, eval_forecast_step, dtype=int)
 
     df_eval = pd.DataFrame(
         {
@@ -1865,9 +1989,13 @@ def format_and_forecast(
     )
 
     if quantiles is not None:
-        for j, q in enumerate(quantiles[: subs_eval_q.shape[1]]):
+        for j, q in enumerate(
+            quantiles[: subs_eval_q.shape[1]]
+        ):
             q_name = int(round(q * 100))
-            df_eval[f"{out_name}_q{q_name:d}"] = subs_eval_q[:, j]
+            df_eval[f"{out_name}_q{q_name:d}"] = subs_eval_q[
+                :, j
+            ]
     else:
         df_eval[f"{out_name}_pred"] = subs_eval_q
 
@@ -1884,9 +2012,14 @@ def format_and_forecast(
     # Future DataFrame (one row per sample × horizon)
     N = B * H
     sample_idx_future = np.repeat(
-        np.arange(sample_index_offset, sample_index_offset + B), H
+        np.arange(
+            sample_index_offset, sample_index_offset + B
+        ),
+        H,
     ).astype(int)
-    forecast_step_future = np.tile(np.arange(1, H + 1), B).astype(int)
+    forecast_step_future = np.tile(
+        np.arange(1, H + 1), B
+    ).astype(int)
 
     df_future = pd.DataFrame(
         {
@@ -1896,17 +2029,27 @@ def format_and_forecast(
     )
 
     if quantiles is not None:
-        for j, q in enumerate(quantiles[: subs_future_flat.shape[1]]):
+        for j, q in enumerate(
+            quantiles[: subs_future_flat.shape[1]]
+        ):
             q_name = int(round(q * 100))
-            df_future[f"{out_name}_q{q_name:d}"] = subs_future_flat[:, j]
+            df_future[f"{out_name}_q{q_name:d}"] = (
+                subs_future_flat[:, j]
+            )
     else:
         df_future[f"{out_name}_pred"] = subs_future_flat
 
     df_future[t_col] = future_time_series
 
-    if coord_x_future is not None and coord_x_future.shape[0] == N:
+    if (
+        coord_x_future is not None
+        and coord_x_future.shape[0] == N
+    ):
         df_future[x_col] = coord_x_future
-    if coord_y_future is not None and coord_y_future.shape[0] == N:
+    if (
+        coord_y_future is not None
+        and coord_y_future.shape[0] == N
+    ):
         df_future[y_col] = coord_y_future
 
     # ------------------------------------------------------------------
@@ -1917,62 +2060,82 @@ def format_and_forecast(
         # Base index columns: same structure as df_future
         df_eval_all = pd.DataFrame(
             {
-                "sample_idx": sample_idx_future,      # length B*H
+                "sample_idx": sample_idx_future,  # length B*H
                 "forecast_step": forecast_step_future,
-                t_col: eval_all_time_series,          # 2020,2021,2022
+                t_col: eval_all_time_series,  # 2020,2021,2022
                 f"{out_name}_actual": subs_true_all_flat,
             }
         )
 
         # Add predictions
         if quantiles is not None:
-            for j, q in enumerate(quantiles[: subs_future_flat.shape[1]]):
+            for j, q in enumerate(
+                quantiles[: subs_future_flat.shape[1]]
+            ):
                 q_name = int(round(q * 100))
-                df_eval_all[f"{out_name}_q{q_name:d}"] = subs_future_flat[:, j]
+                df_eval_all[f"{out_name}_q{q_name:d}"] = (
+                    subs_future_flat[:, j]
+                )
         else:
             df_eval_all[f"{out_name}_pred"] = subs_future_flat
 
         # Add coords if available
-        if coord_x_future is not None and coord_x_future.shape[0] == N:
+        if (
+            coord_x_future is not None
+            and coord_x_future.shape[0] == N
+        ):
             df_eval_all[x_col] = coord_x_future
-        if coord_y_future is not None and coord_y_future.shape[0] == N:
+        if (
+            coord_y_future is not None
+            and coord_y_future.shape[0] == N
+        ):
             df_eval_all[y_col] = coord_y_future
 
     # ------------------------------------------------------------------
     # Optional: transform values between (rate <-> cumulative)
     # ------------------------------------------------------------------
     out_mode = (value_mode or "rate").lower()
-    in_mode  = (input_value_mode or "rate").lower()
-    
+    in_mode = (input_value_mode or "rate").lower()
+
     # prediction columns to transform
     pred_cols = [
-        c for c in df_future.columns
-        if c.startswith(f"{out_name}_q") or c == f"{out_name}_pred"
+        c
+        for c in df_future.columns
+        if c.startswith(f"{out_name}_q")
+        or c == f"{out_name}_pred"
     ]
-    
+
     # normalize mode aliases
     CUM_MODES = {
-        "cum", "cumulative", "relative_cumulative",
-        "absolute_cumulative", "abs_cum", "absolute"
+        "cum",
+        "cumulative",
+        "relative_cumulative",
+        "absolute_cumulative",
+        "abs_cum",
+        "absolute",
     }
     RATE_MODES = {"rate", "increment", "diff", "delta"}
-    
+
     if out_mode not in (CUM_MODES | RATE_MODES):
         vlog(
             f"[format_and_forecast] Unknown value_mode={value_mode!r}; "
             "falling back to 'rate'.",
-            verbose=verbose, level=1, logger=logger,
+            verbose=verbose,
+            level=1,
+            logger=logger,
         )
         out_mode = "rate"
-    
+
     if in_mode not in (CUM_MODES | RATE_MODES):
         vlog(
             f"[format_and_forecast] Unknown input_value_mode={input_value_mode!r}; "
             "falling back to 'rate'.",
-            verbose=verbose, level=1, logger=logger,
+            verbose=verbose,
+            level=1,
+            logger=logger,
         )
         in_mode = "rate"
-    
+
     def _rate_by_sample(
         df: pd.DataFrame,
         cols: list[str],
@@ -1988,89 +2151,138 @@ def format_and_forecast(
             act = f"{out_name}_actual"
             if act in out.columns:
                 use_cols.append(act)
-    
+
         # group per sample (each sample has H rows)
-        for _, gidx in out.groupby(group_col, sort=False).groups.items():
+        for _, gidx in out.groupby(
+            group_col, sort=False
+        ).groups.items():
             g = out.loc[gidx].sort_values("forecast_step")
-            t = pd.to_numeric(g[time_col], errors="coerce").to_numpy(float)
-    
+            t = pd.to_numeric(
+                g[time_col], errors="coerce"
+            ).to_numpy(float)
+
             if t.size <= 1:
                 continue
-    
+
             dt = np.diff(t)
             good = np.isfinite(dt) & (dt != 0)
-            dt_ref = float(np.median(dt[good])) if np.any(good) else 1.0
+            dt_ref = (
+                float(np.median(dt[good]))
+                if np.any(good)
+                else 1.0
+            )
             if not np.isfinite(dt_ref) or dt_ref == 0:
                 dt_ref = 1.0
-    
+
             dt_i = np.diff(t)
-            dt_i = np.where((~np.isfinite(dt_i)) | (dt_i == 0), dt_ref, dt_i)
-    
+            dt_i = np.where(
+                (~np.isfinite(dt_i)) | (dt_i == 0),
+                dt_ref,
+                dt_i,
+            )
+
             for ccol in use_cols:
-                c = pd.to_numeric(g[ccol], errors="coerce").to_numpy(float)
+                c = pd.to_numeric(
+                    g[ccol], errors="coerce"
+                ).to_numpy(float)
                 r = np.zeros_like(c, dtype=float)
-    
+
                 if first == "nan":
                     r[0] = np.nan
                 elif first == "cum_over_dtref":
                     r[0] = c[0] / dt_ref
                 else:
-                    raise ValueError("rate_first must be 'nan' or 'cum_over_dtref'.")
-    
+                    raise ValueError(
+                        "rate_first must be 'nan' or 'cum_over_dtref'."
+                    )
+
                 r[1:] = np.diff(c) / dt_i
                 out.loc[g.index, ccol] = r
-    
+
         return out
-    
+
     # --- transform path -------------------------------------------------
     want_cum = out_mode in CUM_MODES
     have_cum = in_mode in CUM_MODES
-    
+
     if want_cum and not have_cum:
         # rate -> cumulative (legacy behavior)
         df_future = _cum_by_sample(
-            df_future, pred_cols, include_actual=False,
-            target_name=target_name, verbose=verbose
+            df_future,
+            pred_cols,
+            include_actual=False,
+            target_name=target_name,
+            verbose=verbose,
         )
         if df_eval_all is not None:
             df_eval_all = _cum_by_sample(
-                df_eval_all, pred_cols, include_actual=True,
-                target_name=target_name, verbose=verbose
+                df_eval_all,
+                pred_cols,
+                include_actual=True,
+                target_name=target_name,
+                verbose=verbose,
             )
-            df_eval = df_eval_all[df_eval_all["forecast_step"] == eval_forecast_step].copy()
-    
+            df_eval = df_eval_all[
+                df_eval_all["forecast_step"]
+                == eval_forecast_step
+            ].copy()
+
     elif (not want_cum) and have_cum:
         # cumulative -> rate (NEW)
         df_future = _rate_by_sample(
-            df_future, pred_cols, include_actual=False,
-            time_col=t_col, first=rate_first
+            df_future,
+            pred_cols,
+            include_actual=False,
+            time_col=t_col,
+            first=rate_first,
         )
         if df_eval_all is not None:
             df_eval_all = _rate_by_sample(
-                df_eval_all, pred_cols, include_actual=True,
-                time_col=t_col, first=rate_first
+                df_eval_all,
+                pred_cols,
+                include_actual=True,
+                time_col=t_col,
+                first=rate_first,
             )
-            df_eval = df_eval_all[df_eval_all["forecast_step"] == eval_forecast_step].copy()
-    
+            df_eval = df_eval_all[
+                df_eval_all["forecast_step"]
+                == eval_forecast_step
+            ].copy()
+
     # absolute baseline shift ONLY makes sense when output is cumulative
-    if want_cum and out_mode in ("absolute_cumulative", "abs_cum", "absolute"):
+    if want_cum and out_mode in (
+        "absolute_cumulative",
+        "abs_cum",
+        "absolute",
+    ):
         if absolute_baseline is None:
             vlog(
                 "[format_and_forecast] absolute cumulative requested but "
                 "absolute_baseline is None; keeping relative cumulative.",
-                verbose=verbose, level=1, logger=logger,
+                verbose=verbose,
+                level=1,
+                logger=logger,
             )
         else:
             df_future = _add_baseline(
-                df_future, pred_cols, include_actual=False,
-                target_name=out_name, absolute_baseline=absolute_baseline
+                df_future,
+                pred_cols,
+                include_actual=False,
+                target_name=out_name,
+                absolute_baseline=absolute_baseline,
             )
             if df_eval_all is not None:
                 df_eval_all = _add_baseline(
-                    df_eval_all, pred_cols, include_actual=True,
-                    target_name=out_name, absolute_baseline=absolute_baseline
+                    df_eval_all,
+                    pred_cols,
+                    include_actual=True,
+                    target_name=out_name,
+                    absolute_baseline=absolute_baseline,
                 )
-                df_eval = df_eval_all[df_eval_all["forecast_step"] == eval_forecast_step].copy()
+                df_eval = df_eval_all[
+                    df_eval_all["forecast_step"]
+                    == eval_forecast_step
+                ].copy()
 
     # ------------------------------------------------------------------
     # Drop actuals from future DF and save CSVs if requested
@@ -2078,7 +2290,6 @@ def format_and_forecast(
     actual_col = f"{out_name}_actual"
     if actual_col in df_future.columns:
         df_future = df_future.drop(columns=[actual_col])
-
 
     if output_unit is not None:
         df_future = convert_target_units_df(
@@ -2091,7 +2302,7 @@ def format_and_forecast(
             unit_col=output_unit_col,
             copy_df=False,
         )
-    
+
         if df_eval_all is not None:
             df_eval_all = convert_target_units_df(
                 df_eval_all,
@@ -2103,7 +2314,7 @@ def format_and_forecast(
                 unit_col=output_unit_col,
                 copy_df=False,
             )
-    
+
             df_eval = df_eval_all[
                 df_eval_all["forecast_step"]
                 == eval_forecast_step
@@ -2120,34 +2331,32 @@ def format_and_forecast(
                 copy_df=False,
             )
 
-    
     cal_do = calibration
     if isinstance(cal_do, str):
         cal_do = cal_do.strip().lower()
-    
-    cal_stats: Dict[str, Any] = {}
-    
+
+    cal_stats: dict[str, Any] = {}
+
     if (
         cal_do not in (False, "false", "0", "no", "off")
         and quantiles is not None
         and df_eval_all is not None
     ):
-
         ckw = dict(calibration_kwargs or {})
-    
+
         ckw.setdefault("target_name", out_name)
         ckw.setdefault("step_col", "forecast_step")
         ckw.setdefault("interval", metrics_quantile_interval)
         ckw.setdefault("use", cal_do)
         ckw.setdefault("verbose", verbose)
         ckw.setdefault("logger", logger)
-    
+
         if calibration_save_stats is not None:
             ckw.setdefault(
                 "save_stats",
                 calibration_save_stats,
             )
-    
+
         df_eval_cal, df_future_cal, cal_stats = (
             calibrate_quantile_forecasts(
                 df_eval=df_eval_all,
@@ -2155,33 +2364,33 @@ def format_and_forecast(
                 **ckw,
             )
         )
-    
+
         if df_eval_cal is not None:
             df_eval_all = df_eval_cal
             df_eval = df_eval_all[
                 df_eval_all["forecast_step"]
                 == eval_forecast_step
             ].copy()
-    
+
         if df_future_cal is not None:
             df_future = df_future_cal
-    
+
     # Decide which evaluation DataFrame to export
     df_eval_to_write = df_eval  # fallback
-    
+
     if eval_export is not None and df_eval_all is not None:
         # Case 1: string control ("all", "last", "2022", ...)
         if isinstance(eval_export, str):
             key = eval_export.lower()
-    
+
             if key in ("all", "full", "horizons"):
                 # Use the full multi-horizon DF (2020,2021,2022,...)
                 df_eval_to_write = df_eval_all
-    
+
             elif key in ("last", "single", "default"):
                 # Old behaviour: single eval_forecast_step only
                 df_eval_to_write = df_eval
-    
+
             else:
                 vals = [eval_export]
                 if time_as_datetime:
@@ -2193,28 +2402,29 @@ def format_and_forecast(
                 df_eval_to_write = df_eval_all[
                     df_eval_all[t_col].isin(vals)
                 ]
-    
+
         else:
             # Non-string: scalar or sequence of time values (2021, [2021, 2022], ...)
             if isinstance(eval_export, Sequence):
                 vals = list(eval_export)
             else:
                 vals = [eval_export]
-    
+
             if time_as_datetime:
                 vals = pd.to_datetime(
                     vals,
                     format=time_format,
                     errors="coerce",
                 )
-    
+
             df_eval_to_write = df_eval_all[
                 df_eval_all[t_col].isin(vals)
             ]
 
-
     if csv_eval_path:
-        ensure_directory_exists(os.path.dirname(csv_eval_path))
+        ensure_directory_exists(
+            os.path.dirname(csv_eval_path)
+        )
         df_eval_to_write.to_csv(csv_eval_path, index=False)
         vlog(
             f"[format_and_forecast] df_eval written to {csv_eval_path} "
@@ -2225,23 +2435,29 @@ def format_and_forecast(
         )
 
     if csv_future_path:
-        ensure_directory_exists(os.path.dirname(csv_future_path))
+        ensure_directory_exists(
+            os.path.dirname(csv_future_path)
+        )
         df_future.to_csv(csv_future_path, index=False)
         vlog(
             f"[format_and_forecast] df_future written to "
             f"{csv_future_path}",
             verbose=verbose,
             level=1,
-            logger = logger
+            logger=logger,
         )
 
     # ------------------------------------------------------------------
     # Optional metrics evaluation (using df_eval)
     # ------------------------------------------------------------------
     # df_for_metrics = df_eval_all if df_eval_all is not None else df_eval
-    df_for_metrics = df_eval_to_write 
+    df_for_metrics = df_eval_to_write
     if df_for_metrics is None or df_for_metrics.empty:
-        df_for_metrics = df_eval_all if df_eval_all is not None else df_eval
+        df_for_metrics = (
+            df_eval_all
+            if df_eval_all is not None
+            else df_eval
+        )
 
     if eval_metrics:
         # Prefer full-horizon eval DF (per-year metrics),
@@ -2253,13 +2469,13 @@ def format_and_forecast(
             level=1,
             logger=logger,
         )
-        
+
         # We pass df_eval directly; if metrics_savefile is True
         # without a path, evaluate_forecast will auto-generate
         # a filename in the current working directory.  If you
         # want it near csv_eval_path, pass an explicit path.
-        
-        metrics =evaluate_forecast(
+
+        metrics = evaluate_forecast(
             df_for_metrics,
             target_name=out_name,
             column_map=metrics_column_map,
@@ -2287,22 +2503,25 @@ def format_and_forecast(
         "[format_and_forecast] Done.",
         verbose=verbose,
         level=1,
-        logger = logger
+        logger=logger,
     )
 
     return df_eval_to_write, df_future
+
 
 # Helper to cumulative-sum per sample over forecast_step
 def _cum_by_sample(
     df: pd.DataFrame,
     cols: list[str],
-    include_actual: bool = False, 
-    target_name ="subsidence", 
-    verbose: int = 2 
-    ) -> pd.DataFrame:
+    include_actual: bool = False,
+    target_name="subsidence",
+    verbose: int = 2,
+) -> pd.DataFrame:
     if df is None or df.empty:
         return df
-    if not {"sample_idx", "forecast_step"}.issubset(df.columns):
+    if not {"sample_idx", "forecast_step"}.issubset(
+        df.columns
+    ):
         vlog(
             "[format_and_forecast] Cannot apply cumulative mode: "
             "missing 'sample_idx' or 'forecast_step'.",
@@ -2318,21 +2537,24 @@ def _cum_by_sample(
 
     g = df_sorted.groupby("sample_idx", sort=False)
     df_sorted[cols] = g[cols].cumsum()
-    if include_actual and f"{target_name}_actual" in df_sorted.columns:
+    if (
+        include_actual
+        and f"{target_name}_actual" in df_sorted.columns
+    ):
         df_sorted[f"{target_name}_actual"] = g[
             f"{target_name}_actual"
         ].cumsum()
 
     return df_sorted
 
+
 # Helper to add an absolute baseline per sample
 def _add_baseline(
     df: pd.DataFrame,
     cols: list[str],
-    target_name: str, 
-    absolute_baseline: Mapping, 
+    target_name: str,
+    absolute_baseline: Mapping,
     include_actual: bool = False,
-    
 ) -> pd.DataFrame:
     if df is None or df.empty:
         return df
@@ -2352,31 +2574,36 @@ def _add_baseline(
     base_series = base_series.fillna(0.0).astype(float)
     for c in cols:
         if c in df.columns:
-            df[c] = df[c].astype(float) + base_series.to_numpy()
+            df[c] = (
+                df[c].astype(float) + base_series.to_numpy()
+            )
     if include_actual:
         a_col = f"{target_name}_actual"
         if a_col in df.columns:
-            df[a_col] = df[a_col].astype(float) + base_series.to_numpy()
+            df[a_col] = (
+                df[a_col].astype(float)
+                + base_series.to_numpy()
+            )
     return df
 
 
-@check_empty(['models_data'])
+@check_empty(["models_data"])
 def plot_reliability_diagram(
-    models_data: Dict,
+    models_data: dict,
     y_true: pd.Series = None,
-    prefix: str = 'subsidence',
-    figsize: Tuple[int, int] = (8, 8),
+    prefix: str = "subsidence",
+    figsize: tuple[int, int] = (8, 8),
     title: str = "Reliability Diagram",
-    plot_style: str = 'seaborn-whitegrid',
-    verbose: Optional[int] = None,
-    _logger=None
+    plot_style: str = "seaborn-whitegrid",
+    verbose: int | None = None,
+    _logger=None,
 ):
     # Initialize logging
     vlog(
         "Starting reliability diagram plot...",
         verbose,
         level=3,
-        logger=_logger
+        logger=_logger,
     )
 
     # Apply plotting style and set figure size
@@ -2386,74 +2613,73 @@ def plot_reliability_diagram(
 
     # Plot perfect calibration baseline
     ax.plot(
-        [0, 1], [0, 1],
-        'k--',
-        label='Perfect Calibration',
+        [0, 1],
+        [0, 1],
+        "k--",
+        label="Perfect Calibration",
         lw=2.5,
-        zorder=1
+        zorder=1,
     )
 
     # Default colors and markers
     colors = [
-        '#E41A1C',
-        '#377EB8',
-        '#4DAF4A',
-        '#984EA3',
-        '#FF7F00'
+        "#E41A1C",
+        "#377EB8",
+        "#4DAF4A",
+        "#984EA3",
+        "#FF7F00",
     ]
-    markers = ['o', 's', '^', 'D', 'P']
+    markers = ["o", "s", "^", "D", "P"]
 
     # Wrap simple inputs into nested structure
     first = next(iter(models_data.values()))
     if isinstance(first, pd.DataFrame):
         models_data = {
-            name: {'forecasts': df}
+            name: {"forecasts": df}
             for name, df in models_data.items()
         }
 
     # Define probability intervals
     intervals = {
-        0.8: (10, 90), # 80% PI uses q10 and q90
-        0.6: (20, 80), # 60% PI uses q20 and q80
-        0.4: (30, 70), # 40% PI uses q30 and q70
-        0.2: (40, 60), # 20% PI uses q40 and q60
+        0.8: (10, 90),  # 80% PI uses q10 and q90
+        0.6: (20, 80),  # 60% PI uses q20 and q80
+        0.4: (30, 70),  # 40% PI uses q30 and q70
+        0.2: (40, 60),  # 20% PI uses q40 and q60
     }
 
     # Loop through each model
-    for i, (model_name, data) in enumerate(models_data.items()):
+    for i, (model_name, data) in enumerate(
+        models_data.items()
+    ):
         vlog(
             f"Processing model: {model_name}",
             verbose,
             level=3,
-            logger=_logger
+            logger=_logger,
         )
 
         # Use precomputed points if available
-        if 'observed_probs' in data and \
-           'nominal_probs' in data:
-            nominal = data['nominal_probs']
-            observed = data['observed_probs']
+        if (
+            "observed_probs" in data
+            and "nominal_probs" in data
+        ):
+            nominal = data["nominal_probs"]
+            observed = data["observed_probs"]
         else:
             # Require forecasts key
-            if 'forecasts' not in data:
+            if "forecasts" not in data:
                 vlog(
                     f"Skip {model_name}: missing forecasts",  # noqa
                     verbose,
                     level=2,
-                    logger=_logger
+                    logger=_logger,
                 )
                 continue
 
-            forecasts = data['forecasts']
-            style_line = data.get(
-                'style', '-'
-            )
-            marker = data.get(
-                'marker', markers[i]
-            )
-            color = data.get(
-                'color', colors[i]
-            )
+            forecasts = data["forecasts"]
+            style_line = data.get("style", "-")
+            marker = data.get("marker", markers[i])
+            color = data.get("color", colors[i])
 
             # Compute reliability points
             nominal = sorted(intervals.keys(), reverse=True)
@@ -2464,18 +2690,19 @@ def plot_reliability_diagram(
                 low_c = f"{prefix}_q{low_q}"
                 up_c = f"{prefix}_q{up_q}"
 
-                if low_c not in forecasts.columns or \
-                   up_c not in forecasts.columns:
+                if (
+                    low_c not in forecasts.columns
+                    or up_c not in forecasts.columns
+                ):
                     continue
 
-                covered = (
-                    (y_true >= forecasts[low_c]) &
-                    (y_true <= forecasts[up_c])
+                covered = (y_true >= forecasts[low_c]) & (
+                    y_true <= forecasts[up_c]
                 )
                 observed.append(np.mean(covered))
 
             # Trim nominal to match observed length
-            nominal = nominal[:len(observed)]
+            nominal = nominal[: len(observed)]
 
         # Plot the curve
         if nominal:
@@ -2488,37 +2715,20 @@ def plot_reliability_diagram(
                 label=model_name,
                 lw=2,
                 markersize=7,
-                zorder=2
+                zorder=2,
             )
 
     # Finalize labels and layout
     ax.set_xlabel(
-        'Forecast Probability (Nominal)',
-        fontsize=14
+        "Forecast Probability (Nominal)", fontsize=14
     )
     ax.set_ylabel(
-        'Observed Frequency (Empirical)',
-        fontsize=14
+        "Observed Frequency (Empirical)", fontsize=14
     )
-    ax.set_title(
-        title,
-        fontsize=18,
-        fontweight='bold'
-    )
-    ax.legend(
-        fontsize=12,
-        loc='upper left'
-    )
-    ax.grid(
-        True,
-        which='both',
-        linestyle=':',
-        linewidth=0.7
-    )
-    ax.set_aspect(
-        'equal',
-        adjustable='box'
-    )
+    ax.set_title(title, fontsize=18, fontweight="bold")
+    ax.legend(fontsize=12, loc="upper left")
+    ax.grid(True, which="both", linestyle=":", linewidth=0.7)
+    ax.set_aspect("equal", adjustable="box")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
 
@@ -2612,16 +2822,16 @@ Examples
 ... )
 """
 
-    
+
 def _plot_reliability_diagram(
     models_data,
     y_true,
     figsize=(8, 8),
     title="Reliability Diagram",
     show_grid=True,
-    plot_style='seaborn-whitegrid', 
-    verbose=0, 
-   ):
+    plot_style="seaborn-whitegrid",
+    verbose=0,
+):
     """
     Plots a reliability diagram for one or multiple models.
     """
@@ -2630,49 +2840,69 @@ def _plot_reliability_diagram(
     ax = plt.gca()
 
     # Plot the perfect calibration line
-    ax.plot([0, 1], [0, 1], 'k--', label='Perfect Calibration',
-            lw=2.5, zorder=1)
+    ax.plot(
+        [0, 1],
+        [0, 1],
+        "k--",
+        label="Perfect Calibration",
+        lw=2.5,
+        zorder=1,
+    )
 
     # Default properties for iterating through models
-    colors = ['#E41A1C', '#377EB8', '#4DAF4A', '#984EA3', '#FF7F00']
-    markers = ['o', 's', '^', 'D', 'P']
-    
-    for i, (model_name, data) in enumerate(models_data.items()):
-        forecasts = data['forecasts']
-        line_style = data.get('style', '-')
-        marker = data.get('marker', markers[i % len(markers)])
-        color = data.get('color', colors[i % len(colors)])
-        
+    colors = [
+        "#E41A1C",
+        "#377EB8",
+        "#4DAF4A",
+        "#984EA3",
+        "#FF7F00",
+    ]
+    markers = ["o", "s", "^", "D", "P"]
+
+    for i, (model_name, data) in enumerate(
+        models_data.items()
+    ):
+        forecasts = data["forecasts"]
+        line_style = data.get("style", "-")
+        marker = data.get("marker", markers[i % len(markers)])
+        color = data.get("color", colors[i % len(colors)])
+
         nominal_probs = np.arange(0.1, 1.0, 0.1)
         observed_probs = []
 
         for prob in nominal_probs:
             lower_q = int(50 - (prob * 100 / 2))
             upper_q = int(50 + (prob * 100 / 2))
-            
-            lower_bound_col = f'q{lower_q}'
-            upper_bound_col = f'q{upper_q}'
 
-            if ( 
-                    lower_bound_col not in forecasts.columns 
-                    or upper_bound_col not in forecasts.columns
-                ):
-                if verbose: 
-                    vlog (f"Warning: Columns for {prob*100:.0f}% PI"
-                          f" not found in '{model_name}'. Skipping.", level=1, 
-                          verbose= verbose  
-                          )
+            lower_bound_col = f"q{lower_q}"
+            upper_bound_col = f"q{upper_q}"
+
+            if (
+                lower_bound_col not in forecasts.columns
+                or upper_bound_col not in forecasts.columns
+            ):
+                if verbose:
+                    vlog(
+                        f"Warning: Columns for {prob * 100:.0f}% PI"
+                        f" not found in '{model_name}'. Skipping.",
+                        level=1,
+                        verbose=verbose,
+                    )
                 continue
 
             lower_bound = forecasts[lower_bound_col]
             upper_bound = forecasts[upper_bound_col]
-            
-            is_covered = (y_true >= lower_bound) & (y_true <= upper_bound)
+
+            is_covered = (y_true >= lower_bound) & (
+                y_true <= upper_bound
+            )
             observed_probs.append(np.mean(is_covered))
-        
+
         # Filter nominal_probs to match available data
-        plottable_nominal = nominal_probs[:len(observed_probs)]
-        
+        plottable_nominal = nominal_probs[
+            : len(observed_probs)
+        ]
+
         ax.plot(
             plottable_nominal,
             observed_probs,
@@ -2682,23 +2912,29 @@ def _plot_reliability_diagram(
             label=model_name,
             lw=2,
             markersize=7,
-            zorder=2
+            zorder=2,
         )
 
-    ax.set_xlabel('Forecast Probability (Nominal)', fontsize=14)
-    ax.set_ylabel('Observed Frequency (Empirical)', fontsize=14)
-    ax.set_title(title, fontsize=18, fontweight='bold')
-    ax.legend(fontsize=12, loc='upper left')
-    
+    ax.set_xlabel(
+        "Forecast Probability (Nominal)", fontsize=14
+    )
+    ax.set_ylabel(
+        "Observed Frequency (Empirical)", fontsize=14
+    )
+    ax.set_title(title, fontsize=18, fontweight="bold")
+    ax.legend(fontsize=12, loc="upper left")
+
     if show_grid:
-        ax.grid(True, which='both', linestyle=':', linewidth=0.7)
-        
-    ax.set_aspect('equal', adjustable='box')
+        ax.grid(
+            True, which="both", linestyle=":", linewidth=0.7
+        )
+
+    ax.set_aspect("equal", adjustable="box")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     plt.tight_layout()
     plt.show()
-    
+
 
 @check_empty(["df"])
 @isdf
@@ -2706,17 +2942,17 @@ def compute_quantile_coverage(
     df: pd.DataFrame,
     quantiles: Sequence[float],
     q_prefix: str,
-    actual_col: str
+    actual_col: str,
 ) -> pd.DataFrame:
     """
     For each nominal quantile q in `quantiles`, compute the fraction
     of samples where actual <= predicted q‑quantile.
-    
+
     Returns a DataFrame with columns ['nominal', 'empirical'].
     """
     records = []
     for q in quantiles:
-        col = f"{q_prefix}_q{int(q*100)}"
+        col = f"{q_prefix}_q{int(q * 100)}"
         if col not in df:
             raise KeyError(f"Column '{col}' not found")
         # fraction of times actual ≤ prediction
@@ -2730,29 +2966,35 @@ def compute_quantile_coverage(
 def plot_reliability_diagram_in(
     coverage_df: pd.DataFrame,
     ax: plt.Axes = None,
-    figsize=(6,6),
+    figsize=(6, 6),
     title: str = "Reliability Diagram",
     diag_kwargs: dict = None,
-    pts_kwargs: dict = None
+    pts_kwargs: dict = None,
 ) -> plt.Axes:
     """
     Plot nominal vs empirical probabilities.
     """
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
-    diag_kwargs  = diag_kwargs or {"linestyle":"--", "color":"gray"}
-    pts_kwargs   = pts_kwargs  or {"marker":"o", "linewidth":1.5}
-    
+    diag_kwargs = diag_kwargs or {
+        "linestyle": "--",
+        "color": "gray",
+    }
+    pts_kwargs = pts_kwargs or {
+        "marker": "o",
+        "linewidth": 1.5,
+    }
+
     # diagonal
-    ax.plot([0,1],[0,1], **diag_kwargs)
+    ax.plot([0, 1], [0, 1], **diag_kwargs)
     # points
     ax.plot(
         coverage_df["nominal"],
         coverage_df["empirical"],
-        **pts_kwargs
+        **pts_kwargs,
     )
-    ax.set_xlim(0,1)
-    ax.set_ylim(0,1)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
     ax.set_xlabel("Nominal probability")
     ax.set_ylabel("Empirical frequency")
     ax.set_title(title)
@@ -2766,18 +3008,19 @@ def pivot_forecast(
     df: pd.DataFrame,
     *,
     index_col: str = "sample_idx",
-    pivot_col: Optional[str] = None,
+    pivot_col: str | None = None,
     step_col: str = "forecast_step",
     time_col: str = "coord_t",
-    value_cols: Optional[Union[str, Sequence[str]]] = None,
-    spatial_cols: Optional[Sequence[str]] = None,
-    aggfunc: Union[str, Callable] = "first",
+    value_cols: str | Sequence[str] | None = None,
+    spatial_cols: Sequence[str] | None = None,
+    aggfunc: str | Callable = "first",
     fill_value: Any = np.nan,
     sep: str = "_",
-    time_formatter: Callable[[Any], str] = lambda t: pd.to_datetime(
-        t).strftime("%Y-%m-%d"),
+    time_formatter: Callable[
+        [Any], str
+    ] = lambda t: pd.to_datetime(t).strftime("%Y-%m-%d"),
     inplace: bool = False,
-    savefile: Optional[str] = None,
+    savefile: str | None = None,
     verbose: int = 0,
 ) -> pd.DataFrame:
     """
@@ -2834,10 +3077,10 @@ def pivot_forecast(
         Wide-format DataFrame with one row per `index_col`
         and columns like `<value><sep><step>` or
         `<value><sep><formatted time>`.
-    Example 
+    Example
     --------
     >>> from geoprior.utils.forecast_utils import pivot_forecast
-    
+
     >>> dff = pivot_forecast(
     ...    df_,
     ...    index_col="sample_idx",
@@ -2850,9 +3093,9 @@ def pivot_forecast(
     ... )
     [INFO] Pivoting on 'coord_t' for values ['subsidence_q10', 'subsidence_q50', 'subsidence_q90']
     [INFO] Joining back spatial cols ['longitude', 'latitude']
-    
+
     >>> dff.columns
-    Out[37]: 
+    Out[37]:
     Index(['sample_idx', 'subsidence_q10_2022', 'subsidence_q10_2023',
            'subsidence_q10_2024', 'subsidence_q50_2022', 'subsidence_q50_2023',
            'subsidence_q50_2024', 'subsidence_q90_2022', 'subsidence_q90_2023',
@@ -2863,7 +3106,10 @@ def pivot_forecast(
     if not inplace:
         df = df.copy()
 
-    if time_formatter is not (lambda t: t) and pivot_col is None:
+    if (
+        time_formatter is not (lambda t: t)
+        and pivot_col is None
+    ):
         pivot_col = time_col
 
     # 1) Decide pivot column
@@ -2878,27 +3124,40 @@ def pivot_forecast(
                 "cannot auto-detect pivot column."
             )
     elif pivot_col not in df.columns:
-        raise KeyError(f"pivot_col='{pivot_col}' not in DataFrame")
+        raise KeyError(
+            f"pivot_col='{pivot_col}' not in DataFrame"
+        )
 
     # 2) Determine value columns
     if value_cols is None:
-        excluded = {index_col, step_col, time_col, *(spatial_cols or ())}
+        excluded = {
+            index_col,
+            step_col,
+            time_col,
+            *(spatial_cols or ()),
+        }
         value_cols = [
-            c for c in df.select_dtypes(include="number").columns
+            c
+            for c in df.select_dtypes(
+                include="number"
+            ).columns
             if c not in excluded
         ]
     elif isinstance(value_cols, str):
         value_cols = [value_cols]
 
     # 3) Pivot
-    vlog(f"Pivoting on '{pivot_col}' for values {value_cols}",
-         level=3, verbose=verbose)
+    vlog(
+        f"Pivoting on '{pivot_col}' for values {value_cols}",
+        level=3,
+        verbose=verbose,
+    )
     wide = df.pivot_table(
         index=index_col,
         columns=pivot_col,
         values=value_cols,
         aggfunc=aggfunc,
-        fill_value=fill_value
+        fill_value=fill_value,
     )
 
     # 4) Flatten column MultiIndex → single level
@@ -2913,8 +3172,11 @@ def pivot_forecast(
 
     # 5) Re-attach spatial columns
     if spatial_cols:
-        vlog(f"Joining back spatial cols {spatial_cols}",
-             level=3, verbose=verbose)
+        vlog(
+            f"Joining back spatial cols {spatial_cols}",
+            level=3,
+            verbose=verbose,
+        )
         sp = (
             df[[index_col, *spatial_cols]]
             .drop_duplicates(index_col)
@@ -2927,29 +3189,40 @@ def pivot_forecast(
 
     # 7) Optionally save to CSV
     if savefile:
-        os.makedirs(os.path.dirname(savefile) or ".", exist_ok=True)
+        os.makedirs(
+            os.path.dirname(savefile) or ".", exist_ok=True
+        )
         result.to_csv(savefile, index=False)
-        vlog(f"Pivoted forecasts saved to: {savefile}", 
-             level=1, verbose=verbose 
-             )
+        vlog(
+            f"Pivoted forecasts saved to: {savefile}",
+            level=1,
+            verbose=verbose,
+        )
 
     return result
+
 
 @check_empty(["df"])
 @isdf
 def add_forecast_times(
     df: pd.DataFrame,
     *,
-    forecast_times: Optional[
-        Sequence[Union[int, str, date, datetime, pd.Timestamp]]
-    ] = None,
-    start: Union[int, str, date, datetime, pd.Timestamp, None] = None,
+    forecast_times: Sequence[
+        int | str | date | datetime | pd.Timestamp
+    ]
+    | None = None,
+    start: int
+    | str
+    | date
+    | datetime
+    | pd.Timestamp
+    | None = None,
     freq: str = "YS",
     step_col: str = "forecast_step",
     time_col: str = "coord_t",
     error: Literal["raise", "warn", "ignore"] = "raise",
     inplace: bool = False,
-    savefile: Optional[str] =None, 
+    savefile: str | None = None,
     verbose: int = 0,
 ) -> pd.DataFrame:
     """
@@ -2961,7 +3234,7 @@ def add_forecast_times(
 
     If any entry in `forecast_times` is an integer of exactly 4 digits,
     it will be interpreted as January 1 of that year.
-    
+
     Parameters
     ----------
     df : pd.DataFrame
@@ -2990,11 +3263,11 @@ def add_forecast_times(
         - 'ignore': silently truncate to available times
     inplace : bool, default False
         If True, modify `df` in place; otherwise return a new DataFrame.
-        
+
     savefile : str, optional
         If provided, path to CSV where the resulting DataFrame
         will be saved.
-        
+
     verbose : int, default 0
         Passed to `vlog` for debug logging.
 
@@ -3043,10 +3316,14 @@ def add_forecast_times(
         if isinstance(start, int) and 1000 <= start <= 9999:
             start = pd.Timestamp(year=start, month=1, day=1)
         raw_times = pd.date_range(
-            start=start, periods=int(df[step_col].max()), freq=freq
+            start=start,
+            periods=int(df[step_col].max()),
+            freq=freq,
         ).tolist()
     else:
-        raise ValueError("Must provide either `forecast_times` or `start`")
+        raise ValueError(
+            "Must provide either `forecast_times` or `start`"
+        )
 
     # 2. Normalize each entry to pd.Timestamp
     times: list[pd.Timestamp] = []
@@ -3068,12 +3345,15 @@ def add_forecast_times(
         if error == "raise":
             raise ValueError(msg)
         elif error == "warn":
-            warnings.warn(msg, UserWarning)
+            warnings.warn(msg, UserWarning, stacklevel=2)
         # truncate
         H = min(H, max_step)
 
-    vlog(f"Mapping steps 1..{H} -> times {times[:H]}", level=3, 
-         verbose=verbose)
+    vlog(
+        f"Mapping steps 1..{H} -> times {times[:H]}",
+        level=3,
+        verbose=verbose,
+    )
     arr = np.array(times[:H], dtype="datetime64[ns]")
     # clip to [1,H], subtract 1 for zero-based
     idx = df[step_col].to_numpy().clip(1, H).astype(int) - 1
@@ -3081,44 +3361,55 @@ def add_forecast_times(
 
     # 3. Optionally save to CSV
     if savefile:
-        os.makedirs(os.path.dirname(savefile) or ".", exist_ok=True)
+        os.makedirs(
+            os.path.dirname(savefile) or ".", exist_ok=True
+        )
         df.to_csv(savefile, index=False)
-        vlog(f"Forecast times DataFrame saved to: {savefile}", 
-             level=1, verbose=verbose )
+        vlog(
+            f"Forecast times DataFrame saved to: {savefile}",
+            level=1,
+            verbose=verbose,
+        )
 
     return df
 
-@check_empty(['df']) 
+
+@check_empty(["df"])
 def normalize_for_pinn(
     df: pd.DataFrame,
     time_col: str,
     coord_x: str,
     coord_y: str,
-    cols_to_scale: Union[List[str], str, None] = "auto",
+    cols_to_scale: list[str] | str | None = "auto",
     scale_coords: bool = True,
-    exclude_cols: Optional[List[str]] = None,
+    exclude_cols: list[str] | None = None,
     protect_si_suffix: str = "__si",
     shift_time_by_horizon: bool = False,
-    verbose: int = 1, 
-    forecast_horizon: Optional[int] = None,  
-    _logger: Optional[Union[logging.Logger, Callable[[str], None]]] = None,
-    coord_scaler: Optional[MinMaxScaler] = None,
+    verbose: int = 1,
+    forecast_horizon: int | None = None,
+    _logger: logging.Logger
+    | Callable[[str], None]
+    | None = None,
+    coord_scaler: MinMaxScaler | None = None,
     fit_coord_scaler: bool = True,
-    other_scaler: Optional[MinMaxScaler] = None,
+    other_scaler: MinMaxScaler | None = None,
     fit_other_scaler: bool = True,
-    
-    **kws
-) -> Tuple[pd.DataFrame, Optional[MinMaxScaler], Optional[MinMaxScaler]]:
+    **kws,
+) -> tuple[
+    pd.DataFrame,
+    MinMaxScaler | None,
+    MinMaxScaler | None,
+]:
     """
-    Apply Min-Max normalization to spatial–temporal coordinates and 
-    optionally to other numeric columns. If `cols_to_scale == "auto"`, 
-    automatically select numeric columns excluding categorical and one-hot 
+    Apply Min-Max normalization to spatial–temporal coordinates and
+    optionally to other numeric columns. If `cols_to_scale == "auto"`,
+    automatically select numeric columns excluding categorical and one-hot
     features.
 
-    By default, this function scales the time, longitude, and latitude 
-    columns (if `scale_coords=True`). Then, it either scales explicitly 
-    provided columns in `cols_to_scale` or automatically infers numeric 
-    columns (excluding coordinates if `scale_coords` is False, and excluding 
+    By default, this function scales the time, longitude, and latitude
+    columns (if `scale_coords=True`). Then, it either scales explicitly
+    provided columns in `cols_to_scale` or automatically infers numeric
+    columns (excluding coordinates if `scale_coords` is False, and excluding
     one-hot/boolean columns).
 
     The Min-Max scaling for a feature \(x\) is:
@@ -3129,74 +3420,74 @@ def normalize_for_pinn(
     Parameters
     ----------
     df : pd.DataFrame
-        The input DataFrame containing at least `time_col`, `lon_col`, 
-        and `lat_col` columns. The DataFrame should contain temporal 
+        The input DataFrame containing at least `time_col`, `lon_col`,
+        and `lat_col` columns. The DataFrame should contain temporal
         and spatial information to be scaled.
-        
+
     time_col : str
-        The name of the numeric time column (e.g., year as numeric 
-        or datetime). This column will be used to adjust and scale 
+        The name of the numeric time column (e.g., year as numeric
+        or datetime). This column will be used to adjust and scale
         the temporal data.
-        
+
     coord_x : str
-        The name of the longitude column in the DataFrame. This column 
+        The name of the longitude column in the DataFrame. This column
         will be scaled along with the latitude and time columns.
-        
+
     coord_y : str
-        The name of the latitude column in the DataFrame. This column 
+        The name of the latitude column in the DataFrame. This column
         will be scaled along with the longitude and time columns.
-        
+
     cols_to_scale : list of str or "auto" or None, default "auto"
         If a list of column names, scales exactly those columns.
-        If "auto", selects all numeric columns, excluding `time_col`, 
-        `lon_col`, `lat_col` if `scale_coords=False`, and excluding 
+        If "auto", selects all numeric columns, excluding `time_col`,
+        `lon_col`, `lat_col` if `scale_coords=False`, and excluding
         one-hot encoded columns (values only \{0,1\}).
         If None, no extra columns are scaled.
 
     scale_coords : bool, default True
         If True, scales the `[time_col, lon_col, lat_col]` columns.
         If False, these columns remain unchanged.
-        
+
     verbose : int, default 1
-        Verbosity level for logging. Values higher than 1 provide 
+        Verbosity level for logging. Values higher than 1 provide
         more detailed logging information.
 
     forecast_horizon : Optional[int], default None
-        The number of time steps to shift the time column by. This is 
+        The number of time steps to shift the time column by. This is
         added to the time values before scaling if provided.
 
     _logger : Optional[Union[logging.Logger, Callable[[str], None]]], default None
-        Logger or function to handle logging messages. If None, the 
+        Logger or function to handle logging messages. If None, the
         default logging mechanism is used.
 
     **kws : Additional keyword arguments
-        These will be passed on to any other internal function used in 
+        These will be passed on to any other internal function used in
         the data processing or scaling steps.
 
     Returns
     -------
     df_scaled : pd.DataFrame
         A new DataFrame with the specified columns normalized.
-        
+
     coord_scaler : MinMaxScaler or None
-        The fitted scaler for the `[time_col, lon_col, lat_col]` columns 
+        The fitted scaler for the `[time_col, lon_col, lat_col]` columns
         if `scale_coords=True`, else None.
-        
+
     other_scaler : MinMaxScaler or None
-        The fitted scaler for any additional columns that were scaled 
-        (either explicitly provided or auto-selected). None if no 
+        The fitted scaler for any additional columns that were scaled
+        (either explicitly provided or auto-selected). None if no
         columns were scaled beyond the coordinates.
 
     Raises
     ------
     TypeError
-        If `df` is not a DataFrame, or `cols_to_scale` is neither a list 
-        nor "auto" nor None, or if any explicitly provided column is not 
+        If `df` is not a DataFrame, or `cols_to_scale` is neither a list
+        nor "auto" nor None, or if any explicitly provided column is not
         a string.
-        
+
     ValueError
-        If required columns (`time_col`, `lon_col`, `lat_col`) or any 
-        of `cols_to_scale` do not exist in `df`, or cannot be converted 
+        If required columns (`time_col`, `lon_col`, `lat_col`) or any
+        of `cols_to_scale` do not exist in `df`, or cannot be converted
         to numeric.
 
     Examples
@@ -3228,12 +3519,12 @@ def normalize_for_pinn(
 
     Notes
     -----
-    - When `cols_to_scale="auto"`, numeric columns with only {0,1} 
+    - When `cols_to_scale="auto"`, numeric columns with only {0,1}
       values are assumed one-hot and excluded from scaling.
-    - If `scale_coords=False`, coordinate columns remain unchanged, 
+    - If `scale_coords=False`, coordinate columns remain unchanged,
       and auto-selection (if used) will exclude them.
-    - Returned `coord_scaler` is None if `scale_coords=False`. 
-      Returned `other_scaler` is None if `cols_to_scale` is None or 
+    - Returned `coord_scaler` is None if `scale_coords=False`.
+      Returned `other_scaler` is None if `cols_to_scale` is None or
       results in an empty set after filtering.
 
     See Also
@@ -3243,53 +3534,82 @@ def normalize_for_pinn(
 
     # --- Validate df ---
     if not isinstance(df, pd.DataFrame):
-        raise TypeError(f"`df` must be a pandas DataFrame, got "
-                        f"{type(df).__name__}")
+        raise TypeError(
+            f"`df` must be a pandas DataFrame, got "
+            f"{type(df).__name__}"
+        )
 
     # --- Validate core column names ---
     for name in (time_col, coord_x, coord_y):
         if not isinstance(name, str):
-            raise TypeError(f"Column names must be strings, got {name}")
+            raise TypeError(
+                f"Column names must be strings, got {name}"
+            )
         if name not in df.columns:
-            raise ValueError(f"Column '{name}' not found in DataFrame")
+            raise ValueError(
+                f"Column '{name}' not found in DataFrame"
+            )
 
     # --- Validate cols_to_scale type ---
     if cols_to_scale is not None and cols_to_scale != "auto":
         if not isinstance(cols_to_scale, list) or not all(
             isinstance(c, str) for c in cols_to_scale
         ):
-            raise TypeError("`cols_to_scale` must be a list of strings, "
-                            "'auto', or None")
+            raise TypeError(
+                "`cols_to_scale` must be a list of strings, "
+                "'auto', or None"
+            )
 
     # Make a copy to avoid side effects
     df_scaled = df.copy(deep=True)
     # --- 1. Optionally adjust time before scaling (OFF by default) ---
     if shift_time_by_horizon and forecast_horizon is not None:
         if pd.api.types.is_numeric_dtype(df_scaled[time_col]):
-            df_scaled[time_col] = df_scaled[time_col] + float(forecast_horizon)
+            df_scaled[time_col] = df_scaled[time_col] + float(
+                forecast_horizon
+            )
             vlog(
                 f"Time column shifted by forecast_horizon={forecast_horizon}",
-                verbose=verbose, level=4, logger=_logger
+                verbose=verbose,
+                level=4,
+                logger=_logger,
             )
-        elif pd.api.types.is_datetime64_any_dtype(df_scaled[time_col]):
-            df_scaled = increment_dates_by_horizon(df_scaled, time_col, forecast_horizon)
+        elif pd.api.types.is_datetime64_any_dtype(
+            df_scaled[time_col]
+        ):
+            df_scaled = increment_dates_by_horizon(
+                df_scaled, time_col, forecast_horizon
+            )
             vlog(
                 f"Datetime column shifted by forecast_horizon={forecast_horizon}",
-                verbose=verbose, level=4, logger=_logger
+                verbose=verbose,
+                level=4,
+                logger=_logger,
             )
 
     # --- 2. Scale coordinates if requested ---
     if scale_coords:
-        vlog("Scaling time, lon, lat columns...",
-             verbose=verbose, level=2, logger=_logger
-             )
+        vlog(
+            "Scaling time, lon, lat columns...",
+            verbose=verbose,
+            level=2,
+            logger=_logger,
+        )
         coord_cols = [time_col, coord_x, coord_y]
         for col in coord_cols:
-            if not pd.api.types.is_numeric_dtype(df_scaled[col]):
+            if not pd.api.types.is_numeric_dtype(
+                df_scaled[col]
+            ):
                 try:
-                    df_scaled[col] = pd.to_numeric(df_scaled[col])
-                    vlog(f"Converted '{col}' to numeric.", 
-                         verbose=verbose, level=3, logger=_logger)
+                    df_scaled[col] = pd.to_numeric(
+                        df_scaled[col]
+                    )
+                    vlog(
+                        f"Converted '{col}' to numeric.",
+                        verbose=verbose,
+                        level=3,
+                        logger=_logger,
+                    )
                 except Exception as e:
                     raise ValueError(
                         f"Cannot convert '{col}' to numeric: {e}"
@@ -3297,75 +3617,116 @@ def normalize_for_pinn(
         if coord_scaler is None:
             if not fit_coord_scaler:
                 raise ValueError(
-                    "coord_scaler must be provided when fit_coord_scaler=False")
+                    "coord_scaler must be provided when fit_coord_scaler=False"
+                )
             coord_scaler = MinMaxScaler()
 
         if fit_coord_scaler:
-            df_scaled[coord_cols] = coord_scaler.fit_transform(
-                df_scaled[coord_cols])
+            df_scaled[coord_cols] = (
+                coord_scaler.fit_transform(
+                    df_scaled[coord_cols]
+                )
+            )
         else:
             if not hasattr(coord_scaler, "min_"):
                 raise ValueError(
                     "fit_coord_scaler=False but `coord_scaler` is not fitted."
                 )
             df_scaled[coord_cols] = coord_scaler.transform(
-                df_scaled[coord_cols])
-            
+                df_scaled[coord_cols]
+            )
+
     # --- 3. Determine `other_cols_to_scale` ---
 
     exclude_set = set(exclude_cols or [])
     if protect_si_suffix:
-        exclude_set |= {c for c in df_scaled.columns if str(c).endswith(protect_si_suffix)}
-        
+        exclude_set |= {
+            c
+            for c in df_scaled.columns
+            if str(c).endswith(protect_si_suffix)
+        }
+
     if cols_to_scale == "auto":
-        numeric_cols = df_scaled.select_dtypes(include=[np.number]).columns.tolist()
-    
+        numeric_cols = df_scaled.select_dtypes(
+            include=[np.number]
+        ).columns.tolist()
+
         # always exclude coords from "other" scaling
         for c in (time_col, coord_x, coord_y):
             if c in numeric_cols:
                 numeric_cols.remove(c)
-    
+
         auto_cols = []
         for c in numeric_cols:
             if c in exclude_set:
-                vlog(f"Excluding locked column '{c}' from auto-scaling.",
-                     verbose=verbose, level=3, logger=_logger)
+                vlog(
+                    f"Excluding locked column '{c}' from auto-scaling.",
+                    verbose=verbose,
+                    level=3,
+                    logger=_logger,
+                )
                 continue
-    
+
             uniq = pd.unique(df_scaled[c])
             if set(np.unique(uniq)) <= {0, 1}:
-                vlog(f"Excluding one-hot/boolean column '{c}' from auto-scaling.",
-                     verbose=verbose, level=3, logger=_logger)
+                vlog(
+                    f"Excluding one-hot/boolean column '{c}' from auto-scaling.",
+                    verbose=verbose,
+                    level=3,
+                    logger=_logger,
+                )
                 continue
-    
+
             auto_cols.append(c)
-    
+
         other_cols_to_scale = auto_cols
 
     elif isinstance(cols_to_scale, list):
-       other_cols_to_scale = [c for c in cols_to_scale if c not in exclude_set]
-       dropped = [c for c in cols_to_scale if c in exclude_set]
-       if dropped:
-           vlog(f"Dropped locked columns from scaling list: {dropped}",
-                verbose=verbose, level=2, logger=_logger)
+        other_cols_to_scale = [
+            c for c in cols_to_scale if c not in exclude_set
+        ]
+        dropped = [
+            c for c in cols_to_scale if c in exclude_set
+        ]
+        if dropped:
+            vlog(
+                f"Dropped locked columns from scaling list: {dropped}",
+                verbose=verbose,
+                level=2,
+                logger=_logger,
+            )
 
     else:  # cols_to_scale is None
         other_cols_to_scale = []
-    
+
     # --- 4. Scale `other_cols_to_scale` if any ---
     if other_cols_to_scale:
-        vlog(f"Scaling additional columns: {other_cols_to_scale}", 
-             verbose=verbose, level=2, logger=_logger)
+        vlog(
+            f"Scaling additional columns: {other_cols_to_scale}",
+            verbose=verbose,
+            level=2,
+            logger=_logger,
+        )
         # Verify existence and numeric type
         valid_cols = []
         for col in other_cols_to_scale:
             if col not in df_scaled.columns:
-                raise ValueError(f"Column '{col}' not found for scaling.")
-            if not pd.api.types.is_numeric_dtype(df_scaled[col]):
+                raise ValueError(
+                    f"Column '{col}' not found for scaling."
+                )
+            if not pd.api.types.is_numeric_dtype(
+                df_scaled[col]
+            ):
                 try:
-                    df_scaled[col] = pd.to_numeric(df_scaled[col])
-                    vlog(f"Converted '{col}' to numeric.", 
-                         verbose=verbose, level=3, logger=_logger)
+                    df_scaled[col] = pd.to_numeric(
+                        df_scaled[col]
+                    )
+                    vlog(
+                        f"Converted '{col}' to numeric.",
+                        verbose=verbose,
+                        level=3,
+                        logger=_logger,
+                    )
                 except Exception as e:
                     raise ValueError(
                         f"Cannot convert '{col}' to numeric: {e}"
@@ -3373,7 +3734,6 @@ def normalize_for_pinn(
             valid_cols.append(col)
 
         if valid_cols:
-            
             if other_scaler is None:
                 if not fit_other_scaler:
                     raise ValueError(
@@ -3381,34 +3741,46 @@ def normalize_for_pinn(
                     )
                 other_scaler = MinMaxScaler()
 
-
             if fit_other_scaler:
-                df_scaled[valid_cols] = other_scaler.fit_transform(
-                    df_scaled[valid_cols])
+                df_scaled[valid_cols] = (
+                    other_scaler.fit_transform(
+                        df_scaled[valid_cols]
+                    )
+                )
             else:
                 if not hasattr(other_scaler, "min_"):
                     raise ValueError(
                         "fit_other_scaler=False but `other_scaler` is not fitted."
                     )
 
-                df_scaled[valid_cols] = other_scaler.transform(
-                    df_scaled[valid_cols])
-            
-            vlog ( f" other_scaler.data_min_: {other_scaler.data_min_}", 
-                  verbose=verbose, level =3, logger =_logger ) 
+                df_scaled[valid_cols] = (
+                    other_scaler.transform(
+                        df_scaled[valid_cols]
+                    )
+                )
+
             vlog(
-                f" other_scaler.data_max_: {other_scaler.data_max_}", 
-                verbose=verbose, level =3 , logger =_logger, 
+                f" other_scaler.data_min_: {other_scaler.data_min_}",
+                verbose=verbose,
+                level=3,
+                logger=_logger,
+            )
+            vlog(
+                f" other_scaler.data_max_: {other_scaler.data_max_}",
+                verbose=verbose,
+                level=3,
+                logger=_logger,
             )
 
     return df_scaled, coord_scaler, other_scaler
 
+
 def increment_dates_by_horizon(
-        df: pd.DataFrame, time_col: str, 
-        forecast_horizon: int) -> pd.DataFrame:
+    df: pd.DataFrame, time_col: str, forecast_horizon: int
+) -> pd.DataFrame:
     """
     Increments the values in a datetime column by the forecast horizon.
-    
+
     Parameters
     ----------
     df : pd.DataFrame
@@ -3428,17 +3800,20 @@ def increment_dates_by_horizon(
         df[time_col] = pd.to_datetime(df[time_col])
 
     # Add the forecast horizon (years)
-    df[time_col] = df[time_col] + pd.DateOffset(years=forecast_horizon)
-    
+    df[time_col] = df[time_col] + pd.DateOffset(
+        years=forecast_horizon
+    )
+
     return df
 
+
 def adjust_time_predictions(
-    df: pd.DataFrame, 
-    time_col: str, 
-    forecast_horizon: int, 
-    coord_scaler: Optional[MinMaxScaler] = None, 
-    inverse_transformed: bool = False,  
-    verbose: int = 1
+    df: pd.DataFrame,
+    time_col: str,
+    forecast_horizon: int,
+    coord_scaler: MinMaxScaler | None = None,
+    inverse_transformed: bool = False,
+    verbose: int = 1,
 ) -> pd.DataFrame:
     """
     Adjusts time predictions by adding the forecast horizon to inverse
@@ -3451,27 +3826,27 @@ def adjust_time_predictions(
         The DataFrame containing the time predictions (inverse scaled).
         The time column specified by `time_col` should contain the time
         values that need to be adjusted.
-        
+
     time_col : str
         The name of the time column in the DataFrame. This column will
         be adjusted by adding the forecast horizon.
-        
+
     forecast_horizon : int
         The forecast horizon (e.g., number of years or time steps)
         that will be added to the time predictions. This value shifts the
         time predictions forward.
-        
+
     coord_scaler : MinMaxScaler, optional
         The scaler that was used for the coordinates. It is necessary to
         reverse the scaling for the time column if it was previously normalized.
         If not provided, the time column should already be inverse-transformed.
-        
+
     inverse_transformed : bool, default False
         If `True`, skips the inverse transformation of the time column and
         directly adds the forecast horizon. This is useful when the time column
         has already been inverse-transformed, and you only need to adjust the
         time by the forecast horizon.
-        
+
     verbose : int, default 1
         Verbosity level for logging. Higher values (e.g., `verbose=2`) provide
         more detailed information about the operation.
@@ -3482,13 +3857,13 @@ def adjust_time_predictions(
         The adjusted DataFrame with the time column updated to reflect the
         forecast horizon. The time predictions are adjusted by adding the
         `forecast_horizon` to each entry in the time column.
-        
+
     Raises
     ------
     ValueError
         If the time column is not found in the DataFrame or if the scaler is
         not available when necessary.
-        
+
     Examples
     --------
     >>> import pandas as pd
@@ -3511,7 +3886,7 @@ def adjust_time_predictions(
     >>> )
     >>> adjusted_df['year']
     [0.0, 0.5, 1.0] -> After adjustment, will be shifted to the future.
-    
+
     Notes
     -----
     - The time column must be in a normalized scale if not already
@@ -3520,16 +3895,20 @@ def adjust_time_predictions(
       by the `forecast_horizon` without applying the inverse transformation.
     - The forecast horizon is added directly to the time values after the
       necessary inverse transformation (if applicable).
-    
+
     See Also
     --------
     sklearn.preprocessing.MinMaxScaler : Scales features to [0,1].
     """
     if time_col not in df.columns:
-        raise ValueError(f"Column '{time_col}' not found in DataFrame.")
+        raise ValueError(
+            f"Column '{time_col}' not found in DataFrame."
+        )
 
     if coord_scaler is None and not inverse_transformed:
-        raise ValueError("coord_scaler is required unless `inverse_transformed` is True.")
+        raise ValueError(
+            "coord_scaler is required unless `inverse_transformed` is True."
+        )
 
     # Apply inverse scaling to the time predictions if they haven't been inverse-transformed yet
     time_predictions = df[time_col].values
@@ -3537,24 +3916,29 @@ def adjust_time_predictions(
     if not inverse_transformed:
         # Revert the time predictions from the normalized scale to the original scale
         time_predictions = coord_scaler.inverse_transform(
-            time_predictions.reshape(-1, 1)).flatten()
+            time_predictions.reshape(-1, 1)
+        ).flatten()
 
     # Add the forecast horizon to the time predictions
-    adjusted_time_predictions = time_predictions + forecast_horizon
+    adjusted_time_predictions = (
+        time_predictions + forecast_horizon
+    )
 
     # Update the DataFrame with the adjusted time predictions
     df[time_col] = adjusted_time_predictions
 
     if verbose >= 1:
-        logger.info(f"Time predictions adjusted by {forecast_horizon} years.")
+        logger.info(
+            f"Time predictions adjusted by {forecast_horizon} years."
+        )
 
     return df
 
 
 def stack_quantile_predictions(
-    q_lower:   Union[np.ndarray, Sequence],
-    q_median:  Union[np.ndarray, Sequence],
-    q_upper:   Union[np.ndarray, Sequence],
+    q_lower: np.ndarray | Sequence,
+    q_median: np.ndarray | Sequence,
+    q_upper: np.ndarray | Sequence,
 ) -> np.ndarray:
     """
     Stack three quantile trajectories into a single y_pred array
@@ -3577,6 +3961,7 @@ def stack_quantile_predictions(
     ValueError
         If the three inputs (after promotion) do not share the same shape.
     """
+
     def _ensure_2d(arr):
         a = np.asarray(arr)
         if a.ndim == 1:
@@ -3584,7 +3969,8 @@ def stack_quantile_predictions(
         if a.ndim == 2:
             return a
         raise ValueError(
-            f"Each quantile array must be 1D or 2D, got shape {a.shape}")
+            f"Each quantile array must be 1D or 2D, got shape {a.shape}"
+        )
 
     lower = _ensure_2d(q_lower)
     median = _ensure_2d(q_median)
@@ -3600,13 +3986,15 @@ def stack_quantile_predictions(
     y_pred = np.stack([lower, median, upper], axis=1)
     return y_pred
 
+
 def get_step_names(
     forecast_steps: Iterable[int],
-    step_names:Optional[
-        Union[ Mapping[Any, str], Sequence[str], None]] = None,
+    step_names: Mapping[Any, str]
+    | Sequence[str]
+    | None
+    | None = None,
     default_name: str = "",
-) -> Dict[int, str]:
-    
+) -> dict[int, str]:
     r"""
     Build a *step → label* mapping for multi‑horizon plots.
 
@@ -3679,20 +4067,23 @@ def get_step_names(
     """
     # Ensure we have a concrete list to preserve order and allow
     # multiple passes.
-    forecast_steps = columns_manager( forecast_steps , empty_as_none= False)
-    steps: List[int] = [int(s) for s in forecast_steps]
-    lookup: Dict[int, str] = {}
+    forecast_steps = columns_manager(
+        forecast_steps, empty_as_none=False
+    )
+    steps: list[int] = [int(s) for s in forecast_steps]
+    lookup: dict[int, str] = {}
 
     if step_names is None:
-        pass # remain empty
+        pass  # remain empty
     elif isinstance(step_names, Mapping):
         for k, v in step_names.items():
-            idx = _to_int_key(k) 
+            idx = _to_int_key(k)
             # Skip keys that cannot be coerced to int (e.g. None, dict)
             if idx is not None:
                 lookup[idx] = str(v)
     elif isinstance(step_names, Sequence) and not isinstance(
-            step_names, (str, bytes)):
+        step_names, str | bytes
+    ):
         for idx, v in enumerate(step_names, start=1):
             lookup[idx] = str(v)
     else:
@@ -3702,7 +4093,7 @@ def get_step_names(
         )
 
     # Build the final mapping, applying defaults where necessary.
-    result: Dict[int, str] = {}
+    result: dict[int, str] = {}
     for step in steps:
         if step in lookup:
             result[step] = lookup[step]
@@ -3711,6 +4102,7 @@ def get_step_names(
         else:
             result[step] = str(step)
     return result
+
 
 def _to_int_key(key: Any) -> int | None:
     """Try to coerce a mapping key to int by stripping non‑digits."""
@@ -3724,12 +4116,14 @@ def _to_int_key(key: Any) -> int | None:
 def format_forecast_dataframe(
     df: pd.DataFrame,
     to_wide: bool = True,
-    time_col: str = 'coord_t',
-    spatial_cols: Tuple[str]=('coord_x', 'coord_y'), 
-    value_prefixes: Optional[List[str]] = None,
-    _logger: Optional[Union[logging.Logger, Callable[[str], None]]] = None,
-    **pivot_kwargs
-) -> Union[pd.DataFrame, str]:
+    time_col: str = "coord_t",
+    spatial_cols: tuple[str] = ("coord_x", "coord_y"),
+    value_prefixes: list[str] | None = None,
+    _logger: logging.Logger
+    | Callable[[str], None]
+    | None = None,
+    **pivot_kwargs,
+) -> pd.DataFrame | str:
     """Auto-detects DataFrame format and conditionally pivots to wide format.
 
     This function serves as a smart wrapper. It first determines if the
@@ -3802,89 +4196,122 @@ def format_forecast_dataframe(
 
     # Heuristic 2: Check for wide-format columns like 'prefix_YYYY_suffix'
     # Use a regex to look for (prefix)_(4-digit year)_...
-    _spatial_cols = columns_manager(spatial_cols, empty_as_none= False)
-    
-    if spatial_cols: 
-        spatial_cols = columns_manager (spatial_cols)
+    _spatial_cols = columns_manager(
+        spatial_cols, empty_as_none=False
+    )
+
+    if spatial_cols:
+        spatial_cols = columns_manager(spatial_cols)
         check_spatial_columns(df, spatial_cols=spatial_cols)
-        # coord_x, coord_y = spatial_cols 
-        
+        # coord_x, coord_y = spatial_cols
+
     if value_prefixes is None:
         # Auto-infer prefixes if not provided
         # Exclude common ID columns
         non_value_cols = {
-            'sample_idx', *_spatial_cols,  'forecast_step', time_col
-            }
-        value_prefixes = sorted(list(set(
-            [c.split('_')[0] for c in df.columns
-             if c not in non_value_cols]
-        )))
+            "sample_idx",
+            *_spatial_cols,
+            "forecast_step",
+            time_col,
+        }
+        value_prefixes = sorted(
+            list(
+                set(
+                    [
+                        c.split("_")[0]
+                        for c in df.columns
+                        if c not in non_value_cols
+                    ]
+                )
+            )
+        )
 
     wide_col_pattern = re.compile(
-        r'(' + '|'.join(re.escape(p) for p in value_prefixes) + 
-        r')_(\d{4})_?.*'
+        r"("
+        + "|".join(re.escape(p) for p in value_prefixes)
+        + r")_(\d{4})_?.*"
     )
-    has_wide_columns = any(wide_col_pattern.match(col) for col in df.columns)
+    has_wide_columns = any(
+        wide_col_pattern.match(col) for col in df.columns
+    )
 
-    detected_format = 'unknown'
+    detected_format = "unknown"
     if is_long_format:
-        detected_format = 'long'
+        detected_format = "long"
     elif has_wide_columns:
-        detected_format = 'wide'
-    
-    verbose = pivot_kwargs.get('verbose', 0)
-    vlog(f"Auto-detected DataFrame format: '{detected_format}'",
-         level=1, verbose=verbose, logger = _logger 
-         )
+        detected_format = "wide"
+
+    verbose = pivot_kwargs.get("verbose", 0)
+    vlog(
+        f"Auto-detected DataFrame format: '{detected_format}'",
+        level=1,
+        verbose=verbose,
+        logger=_logger,
+    )
 
     # --- Action based on mode ---
     if to_wide:
-        if detected_format == 'long':
-            vlog("`to_wide` is True and format is 'long'. "
-                 "Pivoting DataFrame...", level=1, verbose=verbose, 
-                 logger = _logger )
+        if detected_format == "long":
+            vlog(
+                "`to_wide` is True and format is 'long'. "
+                "Pivoting DataFrame...",
+                level=1,
+                verbose=verbose,
+                logger=_logger,
+            )
             # Pass necessary args to the pivot function
             pivot_args = {
-                'time_col': time_col,
-                'value_prefixes': value_prefixes,
-                **pivot_kwargs # Pass through other args
+                "time_col": time_col,
+                "value_prefixes": value_prefixes,
+                **pivot_kwargs,  # Pass through other args
             }
-            if 'id_vars' not in pivot_args:
+            if "id_vars" not in pivot_args:
                 # Provide a sensible default for id_vars if not given
-                pivot_args['id_vars'] = [
-                    c for c in ['sample_idx', *_spatial_cols]
+                pivot_args["id_vars"] = [
+                    c
+                    for c in ["sample_idx", *_spatial_cols]
                     if c in df.columns
                 ]
-                vlog(f"Using default id_vars: {pivot_args['id_vars']}",
-                     level=2, verbose=verbose, logger = _logger 
-                     )
+                vlog(
+                    f"Using default id_vars: {pivot_args['id_vars']}",
+                    level=2,
+                    verbose=verbose,
+                    logger=_logger,
+                )
 
             return pivot_forecast_dataframe(
-                df.copy(), _logger =_logger,  
-                **pivot_args)
-        
-        elif detected_format == 'wide':
-            vlog("`to_wide` is True but DataFrame is already in wide "
-                 "format. Returning as is.", level=1, verbose=verbose, 
-                 logger = _logger 
-                 )
+                df.copy(), _logger=_logger, **pivot_args
+            )
+
+        elif detected_format == "wide":
+            vlog(
+                "`to_wide` is True but DataFrame is already in wide "
+                "format. Returning as is.",
+                level=1,
+                verbose=verbose,
+                logger=_logger,
+            )
             return df
-        else: # 'unknown'
-            vlog("Warning: DataFrame format is 'unknown'. "
-                 "Cannot pivot. Returning original DataFrame.",
-                 level=1, verbose=verbose, logger = _logger 
-                 )
+        else:  # 'unknown'
+            vlog(
+                "Warning: DataFrame format is 'unknown'. "
+                "Cannot pivot. Returning original DataFrame.",
+                level=1,
+                verbose=verbose,
+                logger=_logger,
+            )
             return df
-    else: # to_wide is False
+    else:  # to_wide is False
         return detected_format
+
 
 @isdf
 def get_value_prefixes(
     df: pd.DataFrame,
-    exclude_cols: Optional[List[str]] = None, 
-    spatial_cols: Tuple[str, str] = ('coord_x', 'coord_y'), 
-    time_col: str ='coord_t'
-) -> List[str]:
+    exclude_cols: list[str] | None = None,
+    spatial_cols: tuple[str, str] = ("coord_x", "coord_y"),
+    time_col: str = "coord_t",
+) -> list[str]:
     """
     Automatically detects the prefixes of value columns from a DataFrame.
 
@@ -3925,8 +4352,10 @@ def get_value_prefixes(
     if exclude_cols is None:
         # Default set of columns that are not value columns
         exclude_cols = {
-            'sample_idx', 'forecast_step', time_col,
-            *spatial_cols
+            "sample_idx",
+            "forecast_step",
+            time_col,
+            *spatial_cols,
         }
     else:
         exclude_cols = set(exclude_cols)
@@ -3936,28 +4365,31 @@ def get_value_prefixes(
         if col in exclude_cols:
             continue
         # The prefix is assumed to be the part before the first underscore
-        prefix = col.split('_')[0]
+        prefix = col.split("_")[0]
         prefixes.add(prefix)
-    
+
     return sorted(list(prefixes))
 
+
 def get_test_data_from(
-    df: pd.DataFrame, 
+    df: pd.DataFrame,
     time_col: str,
-    time_steps: int,  
-    train_end_year: Optional[int] = None,  
-    forecast_horizon: Optional[int] = 1,  
-    strategy: str = 'onwards',  
-    objective: str = "pure" , # for forecasting
-    verbose: int = 1, 
-    _logger: Optional[Union[logging.Logger, Callable[[str], None]]] = None,
+    time_steps: int,
+    train_end_year: int | None = None,
+    forecast_horizon: int | None = 1,
+    strategy: str = "onwards",
+    objective: str = "pure",  # for forecasting
+    verbose: int = 1,
+    _logger: logging.Logger
+    | Callable[[str], None]
+    | None = None,
 ) -> pd.DataFrame:
     r"""
-    Prepares the test data for forecasting by ensuring there is enough 
+    Prepares the test data for forecasting by ensuring there is enough
     future data.
     It adjusts the start and end years based on the forecast horizon
     and strategy provided.
-    
+
     Parameters
     ----------
     df : pd.DataFrame
@@ -3967,7 +4399,7 @@ def get_test_data_from(
     time_steps : int
         The number of steps to look back for generating sequences.
     train_end_year : int, optional
-        The last year used for training. If not provided, defaults to the last year 
+        The last year used for training. If not provided, defaults to the last year
         in the dataset.
     forecast_horizon : int, optional
         The forecast horizon, i.e., the number of years to predict. Default is 1.
@@ -3984,17 +4416,17 @@ def get_test_data_from(
     pd.DataFrame
         The prepared test data, based on the forecast horizon
         and selected strategy.
-    
+
     Notes
     -----
-    - If `train_end_year` is not provided, it is determined automatically 
+    - If `train_end_year` is not provided, it is determined automatically
       from the latest year in the `time_col`.
     - The `strategy` parameter defines how the test data is selected:
       * `onwards`: Select data starting from `train_end_year + time_steps`.
       * `lookback`: Select data until `train_end_year`.
-    - If there isn't enough data for the `forecast_horizon`, the function will 
+    - If there isn't enough data for the `forecast_horizon`, the function will
       adjust and either fetch earlier data or use the `lookback` strategy.
-    
+
     Examples
     --------
     >>> import pandas as pd
@@ -4003,144 +4435,180 @@ def get_test_data_from(
     >>>     'subsidence': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
     >>> })
     >>> test_data = get_test_data_from(
-    >>>     df=df, 
-    >>>     time_col='year', 
-    >>>     time_steps=3, 
-    >>>     forecast_horizon=2, 
-    >>>     strategy='onwards', 
+    >>>     df=df,
+    >>>     time_col='year',
+    >>>     time_steps=3,
+    >>>     forecast_horizon=2,
+    >>>     strategy='onwards',
     >>>     verbose=2
     >>> )
     >>> print(test_data)
     """
-    def _v(msg, lvl): 
+
+    def _v(msg, lvl):
         vlog(msg, verbose=verbose, level=lvl, logger=_logger)
-    
+
     # Determine the last available year if not explicitly given
     if train_end_year is None:
         if pd.api.types.is_numeric_dtype(df[time_col]):
-            train_end_year = df[time_col].max()  # Use the last numeric year
-        elif pd.api.types.is_datetime64_any_dtype(df[time_col]):
+            train_end_year = df[
+                time_col
+            ].max()  # Use the last numeric year
+        elif pd.api.types.is_datetime64_any_dtype(
+            df[time_col]
+        ):
             # Handle various datetime formats
             if df[time_col].dt.is_year_end.any():
-                train_end_year = df[time_col].dt.year.max()  # Year format
+                train_end_year = df[
+                    time_col
+                ].dt.year.max()  # Year format
             elif df[time_col].dt.is_month_end.any():
-                train_end_year = df[time_col].dt.to_period('M').max().year  # Month format
+                train_end_year = (
+                    df[time_col].dt.to_period("M").max().year
+                )  # Month format
             elif df[time_col].dt.week.any():
-                train_end_year = df[time_col].dt.to_period('W').max().year  # Week format
+                train_end_year = (
+                    df[time_col].dt.to_period("W").max().year
+                )  # Week format
             else:
                 # Default to full datetime handling
                 train_end_year = df[time_col].dt.year.max()
 
         if verbose >= 1:
-            _v("Train end year not specified."
-               f" Using last available year: {train_end_year}",
-               lvl=1)
-    
+            _v(
+                "Train end year not specified."
+                f" Using last available year: {train_end_year}",
+                lvl=1,
+            )
+
     # Adjust forecast end year based on the datetime frequency
     forecast_end_year = train_end_year + forecast_horizon
     forecast_start_year = train_end_year - forecast_horizon
-    if objective =="forecasting": 
-        forecast_end_year= train_end_year + time_steps
+    if objective == "forecasting":
+        forecast_end_year = train_end_year + time_steps
         forecast_start_year = train_end_year - time_steps
-        
+
     if verbose >= 2:
-        _v(f"Forecast start year: {forecast_start_year},"
-           f" Forecast end year: {forecast_end_year}", lvl=2)
-    
+        _v(
+            f"Forecast start year: {forecast_start_year},"
+            f" Forecast end year: {forecast_end_year}",
+            lvl=2,
+        )
+
     # Handle data based on the specified strategy
-    if strategy == 'onwards':
+    if strategy == "onwards":
         # Get the test data starting from the forecast start year
         # (train_end_year + time_steps)
         test_data = df[df[time_col] >= forecast_end_year]
-    elif strategy == 'lookback':
+    elif strategy == "lookback":
         # If 'lookback', select data that ends at `train_end_year`
-        #(train_end_year - time_steps)
-        if objective =='forecasting':
-            test_data = df[df[time_col] >= forecast_start_year]
+        # (train_end_year - time_steps)
+        if objective == "forecasting":
+            test_data = df[
+                df[time_col] >= forecast_start_year
+            ]
         else:
             test_data = df[df[time_col] > forecast_start_year]
     else:
-        raise ValueError(f"Invalid strategy '{strategy}'."
-                         " Choose either 'onwards' or 'lookback'.")
-    
+        raise ValueError(
+            f"Invalid strategy '{strategy}'."
+            " Choose either 'onwards' or 'lookback'."
+        )
+
     # Check if enough data is available for the forecast horizon
-    if test_data.empty or len(test_data[time_col].unique()) < forecast_horizon:
+    if (
+        test_data.empty
+        or len(test_data[time_col].unique())
+        < forecast_horizon
+    ):
         if verbose >= 1:
-            _v(f"Not enough data for the forecast horizon"
-               f" ({forecast_horizon} years). Adjusting test data.", 
-               lvl=1)
-        
+            _v(
+                f"Not enough data for the forecast horizon"
+                f" ({forecast_horizon} years). Adjusting test data.",
+                lvl=1,
+            )
+
         # Fall back to using a lookback strategy if there
         # isn't enough data for the forecast horizon
         # (train_end_year - time_steps)
-        if objective =='forecasting': 
-            test_data = df[df[time_col] >=forecast_start_year]
+        if objective == "forecasting":
+            test_data = df[
+                df[time_col] >= forecast_start_year
+            ]
         else:
             test_data = df[df[time_col] > forecast_start_year]
-        
+
         if verbose >= 1:
-            _v(f"Using data from {forecast_start_year} onwards.", lvl=1)
-    
+            _v(
+                f"Using data from {forecast_start_year} onwards.",
+                lvl=1,
+            )
+
     # Log the years included in the test data
     if verbose >= 1:
-        _v(f"Test data years: {test_data[time_col].unique()}", lvl=2)
-    
+        _v(
+            f"Test data years: {test_data[time_col].unique()}",
+            lvl=2,
+        )
+
     # Return the test data
     return test_data
 
 
-@check_empty(['data']) 
-@is_data_readable 
+@check_empty(["data"])
+@is_data_readable
 def pivot_forecast_dataframe(
     data: pd.DataFrame,
-    id_vars: List[str],
+    id_vars: list[str],
     time_col: str,
-    value_prefixes: List[str],
-    static_actuals_cols: Optional[List[str]] = None,
-    time_col_is_float_year: Union[bool, str] = 'auto',
+    value_prefixes: list[str],
+    static_actuals_cols: list[str] | None = None,
+    time_col_is_float_year: bool | str = "auto",
     round_time_col: bool = False,
     verbose: int = 0,
-    savefile: Optional[str] = None, 
-    _logger: Optional[Union[logging.Logger, Callable[[str], None]]] = None,
-    **kws
+    savefile: str | None = None,
+    _logger: logging.Logger
+    | Callable[[str], None]
+    | None = None,
+    **kws,
 ) -> pd.DataFrame:
     """Transforms a long-format forecast DataFrame to a wide format.
-    
+
     This utility reshapes time series prediction data from a "long"
     format, where each row represents a single time step for a given
     sample, to a "wide" format, where each row represents a single
     sample and columns correspond to values at different time steps.
-    
+
     Parameters
     ----------
     data : pd.DataFrame
         The input long-format DataFrame. It must contain the columns
         specified in `id_vars` and `time_col`, as well as value
         columns that start with the strings in `value_prefixes`.
-    
+
     id_vars : list of str
         A list of column names that uniquely identify each sample
         or group. These columns will be preserved in the wide-format
         output. For example: ``['sample_idx', 'coord_x', 'coord_y']``.
-    
+
     time_col : str
         The name of the column that represents the time step or year
         of the forecast (e.g., 'coord_t' or 'forecast_step').
         This column's values will become part of the new column names.
-    
+
     value_prefixes : list of str
         A list of prefixes for the value columns that need to be
         pivoted. The function identifies columns starting with
         these prefixes. For instance, ``['subsidence', 'GWL']``
         would match 'subsidence_q10', 'GWL_q50', etc.
-    
+
     static_actuals_cols : list of str, optional
         A list of columns containing static "actual" or ground truth
         values for each sample. These values are assumed to be
         constant for each unique `sample_idx` and are merged back
         into the wide DataFrame after pivoting.
         Example: ``['subsidence_actual']``.
-    
+
     time_col_is_float_year : bool or 'auto', default 'auto'
         Controls how the `time_col` values are formatted into new
         column names.
@@ -4150,33 +4618,33 @@ def pivot_forecast_dataframe(
           years and converts them to integer strings ('2018').
         - If ``False``, uses the string representation of the value
           as is.
-    
+
     round_time_col : bool, default False
         If ``True`` and `time_col` is a float type, its values will
         be rounded to the nearest integer before being used in
         column names. This is useful for cleaning up float years
         (e.g., 2018.0001 -> 2018).
-    
+
     verbose : int, default 0
         Controls the verbosity of logging messages. `0` is silent.
         Higher values print more details about the process.
-    
+
     savefile : str, optional
         If a file path is provided, the final wide-format DataFrame
         will be saved as a CSV file to that location.
-    
+
     Returns
     -------
     pd.DataFrame
         A wide-format DataFrame with one row per unique combination
         of `id_vars`. New columns are created in the format
         `{prefix}_{time_str}{_suffix}` (e.g., 'subsidence_2018_q10').
-    
+
     See Also
     --------
     pandas.pivot_table : The core function used for reshaping data.
     pandas.merge : Used to re-join static columns after pivoting.
-    
+
     Notes
     -----
     - The combination of columns in `id_vars` and `time_col` must
@@ -4184,7 +4652,7 @@ def pivot_forecast_dataframe(
       succeed without data loss.
     - If using `static_actuals_cols`, the `id_vars` list must
       contain 'sample_idx' to correctly merge the static data back.
-    
+
     Examples
     --------
     >>> import pandas as pd
@@ -4213,12 +4681,16 @@ def pivot_forecast_dataframe(
            'subsidence_2019_q50'],
           dtype='object')
     """
-    is_frame(data, df_only= True) 
-    
+    is_frame(data, df_only=True)
+
     df_processed = data.copy()
-    
-    vlog(f"Starting pivot operation. Initial shape: {df_processed.shape}",
-         level=2, verbose=verbose, logger = _logger )
+
+    vlog(
+        f"Starting pivot operation. Initial shape: {df_processed.shape}",
+        level=2,
+        verbose=verbose,
+        logger=_logger,
+    )
 
     if not isinstance(df_processed, pd.DataFrame):
         raise TypeError(
@@ -4226,13 +4698,19 @@ def pivot_forecast_dataframe(
         )
 
     value_cols_to_pivot = [
-        col for col in df_processed.columns
-        if any(col.startswith(prefix) for prefix in value_prefixes)
+        col
+        for col in df_processed.columns
+        if any(
+            col.startswith(prefix)
+            for prefix in value_prefixes
+        )
     ]
-    
+
     required_cols = id_vars + [time_col] + value_cols_to_pivot
     missing_cols = [
-        col for col in required_cols if col not in df_processed.columns
+        col
+        for col in required_cols
+        if col not in df_processed.columns
     ]
     if missing_cols:
         raise ValueError(
@@ -4241,56 +4719,80 @@ def pivot_forecast_dataframe(
 
     # Determine if the time column should be treated as a float year
     is_float_year = False
-    if time_col_is_float_year == 'auto':
-        if pd.api.types.is_float_dtype(df_processed[time_col]):
+    if time_col_is_float_year == "auto":
+        if pd.api.types.is_float_dtype(
+            df_processed[time_col]
+        ):
             is_float_year = True
-            vlog(f"'{time_col}' auto-detected as float year.",
-                 level=2, verbose=verbose, logger = _logger 
-                 )
+            vlog(
+                f"'{time_col}' auto-detected as float year.",
+                level=2,
+                verbose=verbose,
+                logger=_logger,
+            )
     elif time_col_is_float_year is True:
         is_float_year = True
-    
+
     # Round the time column before pivoting if requested
     if round_time_col and is_float_year:
-        vlog(f"Rounding time column '{time_col}'.",
-             level=1, verbose=verbose, logger = _logger 
-             )
-        df_processed[time_col] = df_processed[time_col].round().astype(int)
+        vlog(
+            f"Rounding time column '{time_col}'.",
+            level=1,
+            verbose=verbose,
+            logger=_logger,
+        )
+        df_processed[time_col] = (
+            df_processed[time_col].round().astype(int)
+        )
         # After rounding, it's no longer a float year
         is_float_year = False
     elif round_time_col and not is_float_year:
-        vlog(f"Warning: `round_time_col` is True but '{time_col}' "
-             "is not a float year. Skipping rounding.",
-             level=1, verbose=verbose, logger = _logger  )
+        vlog(
+            f"Warning: `round_time_col` is True but '{time_col}' "
+            "is not a float year. Skipping rounding.",
+            level=1,
+            verbose=verbose,
+            logger=_logger,
+        )
 
     static_df = None
     if static_actuals_cols:
-        if 'sample_idx' not in df_processed.columns:
+        if "sample_idx" not in df_processed.columns:
             raise ValueError(
                 "'sample_idx' must be in df_long to handle "
                 "static_actuals_cols."
             )
-        vlog(f"Extracting static columns: {static_actuals_cols}",
-             level=2, verbose=verbose, logger = _logger )
-        static_df = df_processed[
-            ['sample_idx'] + static_actuals_cols
-        ].drop_duplicates(
-            subset=['sample_idx']
-        ).set_index('sample_idx')
+        vlog(
+            f"Extracting static columns: {static_actuals_cols}",
+            level=2,
+            verbose=verbose,
+            logger=_logger,
+        )
+        static_df = (
+            df_processed[["sample_idx"] + static_actuals_cols]
+            .drop_duplicates(subset=["sample_idx"])
+            .set_index("sample_idx")
+        )
 
-    pivot_index = list(set(id_vars) & set(df_processed.columns))
+    pivot_index = list(
+        set(id_vars) & set(df_processed.columns)
+    )
     pivot_columns = [time_col]
     pivot_values = value_cols_to_pivot
 
-    vlog(f"Pivoting data with index={pivot_index}, "
-         f"columns='{time_col}'.", level=2, verbose=verbose, 
-         logger = _logger  )
+    vlog(
+        f"Pivoting data with index={pivot_index}, "
+        f"columns='{time_col}'.",
+        level=2,
+        verbose=verbose,
+        logger=_logger,
+    )
     try:
         df_pivoted = df_processed.pivot_table(
             index=pivot_index,
             columns=pivot_columns,
             values=pivot_values,
-            aggfunc='first'
+            aggfunc="first",
         )
     except Exception as e:
         raise RuntimeError(
@@ -4298,21 +4800,25 @@ def pivot_forecast_dataframe(
             f"`time_col` uniquely identify rows. Error: {e}"
         )
 
-    vlog("Flattening pivoted column names.", level=2, verbose=verbose, 
-         logger = _logger  )
+    vlog(
+        "Flattening pivoted column names.",
+        level=2,
+        verbose=verbose,
+        logger=_logger,
+    )
     new_columns = []
     for value_col, time_val in df_pivoted.columns:
-        parts = value_col.split('_', 1)
+        parts = value_col.split("_", 1)
         prefix = parts[0]
         suffix = f"_{parts[1]}" if len(parts) > 1 else ""
-        
+
         time_str = str(time_val)
         if is_float_year:
             try:
                 time_str = str(int(time_val))
             except (ValueError, TypeError):
-                pass 
-        
+                pass
+
         new_col_name = f"{prefix}_{time_str}{suffix}"
         new_columns.append(new_col_name)
 
@@ -4320,52 +4826,76 @@ def pivot_forecast_dataframe(
     df_pivoted = df_pivoted.reset_index()
 
     if static_df is not None:
-        vlog("Merging static columns back into the wide DataFrame.",
-             level=2, verbose=verbose, logger = _logger  )
-        df_wide = pd.merge(
-            df_pivoted, static_df, on='sample_idx', how='left'
+        vlog(
+            "Merging static columns back into the wide DataFrame.",
+            level=2,
+            verbose=verbose,
+            logger=_logger,
         )
-        cols_order = id_vars + static_actuals_cols + [
-            c for c in df_wide.columns 
-            if c not in id_vars + static_actuals_cols
-        ]
+        df_wide = pd.merge(
+            df_pivoted, static_df, on="sample_idx", how="left"
+        )
+        cols_order = (
+            id_vars
+            + static_actuals_cols
+            + [
+                c
+                for c in df_wide.columns
+                if c not in id_vars + static_actuals_cols
+            ]
+        )
         df_wide = df_wide[cols_order]
     else:
         df_wide = df_pivoted
-    
-    vlog(f"Pivot complete. Final shape: {df_wide.shape}",
-         level=1, verbose=verbose, logger = _logger 
-         )
+
+    vlog(
+        f"Pivot complete. Final shape: {df_wide.shape}",
+        level=1,
+        verbose=verbose,
+        logger=_logger,
+    )
 
     if savefile:
         try:
-            vlog(f"Saving DataFrame to '{savefile}'.",
-                 level=1, verbose=verbose, logger = _logger )
+            vlog(
+                f"Saving DataFrame to '{savefile}'.",
+                level=1,
+                verbose=verbose,
+                logger=_logger,
+            )
             save_dir = os.path.dirname(savefile)
             if save_dir and not os.path.exists(save_dir):
                 os.makedirs(save_dir, exist_ok=True)
             df_wide.to_csv(savefile, index=False)
-            vlog("Save successful.", level=2, verbose=verbose, 
-                 logger = _logger 
-                 )
+            vlog(
+                "Save successful.",
+                level=2,
+                verbose=verbose,
+                logger=_logger,
+            )
         except Exception as e:
-            logger.error(f"Failed to save file to '{savefile}': {e}")
+            logger.error(
+                f"Failed to save file to '{savefile}': {e}"
+            )
 
     return df_wide
 
+
 @isdf
 def get_value_prefixes_in(
-    df: pd.DataFrame,
-    exclude_cols: Optional[List[str]] = None
-) -> List[str]:
+    df: pd.DataFrame, exclude_cols: list[str] | None = None
+) -> list[str]:
     """
     Automatically detects the prefixes of value columns from a DataFrame.
     (This is a dependency for the function below)
     """
     if exclude_cols is None:
         exclude_cols = {
-            'sample_idx', 'forecast_step', 'coord_t',
-            'coord_x', 'coord_y'
+            "sample_idx",
+            "forecast_step",
+            "coord_t",
+            "coord_x",
+            "coord_y",
         }
     else:
         exclude_cols = set(exclude_cols)
@@ -4376,16 +4906,16 @@ def get_value_prefixes_in(
             continue
         # The prefix is assumed to be the
         # part before the first underscore
-        prefix = col.split('_')[0]
+        prefix = col.split("_")[0]
         prefixes.add(prefix)
-    
+
     return sorted(list(prefixes))
 
-@isdf 
+
+@isdf
 def detect_forecast_type(
     df: pd.DataFrame,
-    value_prefixes: Optional[List[str]] = None, 
-    
+    value_prefixes: list[str] | None = None,
 ) -> str:
     """
     Auto-detects whether a DataFrame contains deterministic or
@@ -4424,7 +4954,7 @@ def detect_forecast_type(
     >>> df_quant_long = pd.DataFrame(columns=['subsidence_q50', 'GWL_q90'])
     >>> detect_forecast_type(df_quant_long)
     'quantile'
-    
+
     >>> # Wide format quantile
     >>> df_quant_wide = pd.DataFrame(columns=['subsidence_2022_q50'])
     >>> detect_forecast_type(df_quant_wide)
@@ -4440,14 +4970,14 @@ def detect_forecast_type(
         value_prefixes = get_value_prefixes(df)
 
     if not value_prefixes:
-        return 'unknown'
-    
+        return "unknown"
+
     # Updated regex to handle both long (_q50) and wide (_YYYY_q50) formats
     # It looks for '_q' followed by one or more digits anywhere in the string.
-    quantile_pattern = re.compile(r'_q\d+')
+    quantile_pattern = re.compile(r"_q\d+")
     # Regex to find deterministic suffixes like _pred or _actual at the end
-    pred_pattern = re.compile(r'_(pred|actual)$')
-    
+    pred_pattern = re.compile(r"_(pred|actual)$")
+
     has_quantile = False
     has_pred_or_actual = False
     has_bare_prefix = False
@@ -4461,9 +4991,9 @@ def detect_forecast_type(
                     break
         if has_quantile:
             break
-    
+
     if has_quantile:
-        return 'quantile'
+        return "quantile"
 
     # If no quantiles, check for deterministic patterns
     for col in df.columns:
@@ -4472,16 +5002,16 @@ def detect_forecast_type(
             if col == prefix:
                 has_bare_prefix = True
             # Check for patterns like 'subsidence_pred', 'GWL_2022_actual'
-            elif col.startswith(prefix) and pred_pattern.search(col):
+            elif col.startswith(
+                prefix
+            ) and pred_pattern.search(col):
                 has_pred_or_actual = True
-        
+
         if has_pred_or_actual or has_bare_prefix:
             break
-            
+
     if has_pred_or_actual or has_bare_prefix:
-        return 'deterministic'
+        return "deterministic"
 
     # If neither format is detected, return 'unknown'.
-    return 'unknown'
-
-
+    return "unknown"

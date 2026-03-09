@@ -1,46 +1,56 @@
-
 """
-Provides common helper functions and for validation, 
+Provides common helper functions and for validation,
 comparison, and other generic operations
 """
+
 from __future__ import annotations
 
+import inspect
+import logging
 import os
 import re
-import warnings
-import inspect
-import textwrap
-import logging
 import shutil
-from numbers import Real 
-from pathlib import Path
-from itertools import chain
-from collections.abc import Mapping
-import matplotlib.pyplot as plt
+import textwrap
+import warnings
+from collections.abc import Iterable, Mapping, Sequence
 from datetime import datetime
-from typing import ( 
-    Union, Optional, 
-    Dict, Any, List,
-    Literal, Tuple, 
-    Sequence,Iterable
+from itertools import chain
+from numbers import Real
+from pathlib import Path
+from typing import (
+    Any,
+    Literal,
+    Union,
 )
-import numpy as np 
-import pandas as pd 
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 PathLike = Union[str, os.PathLike]
 
-_SENTINEL = object()     
+_SENTINEL = object()
 
-__all__ =[
-    'ExistenceChecker', 'ensure_directory_exists', 
-    'verify_identical_items', 'vlog', 'detect_dt_format',
-    'get_actual_column_name', 'transform_contributions', 
-    'exclude_duplicate_kwargs', 'reorder_columns',
-    'find_id_column', 'check_group_column_validity', 
-    'save_all_figures', 'rename_dict_keys', 
-    'normalize_time_column', 'select_mode', 
-    'normalize_model_inputs', 'print_config_table'
- ]
+__all__ = [
+    "ExistenceChecker",
+    "ensure_directory_exists",
+    "verify_identical_items",
+    "vlog",
+    "detect_dt_format",
+    "get_actual_column_name",
+    "transform_contributions",
+    "exclude_duplicate_kwargs",
+    "reorder_columns",
+    "find_id_column",
+    "check_group_column_validity",
+    "save_all_figures",
+    "rename_dict_keys",
+    "normalize_time_column",
+    "select_mode",
+    "normalize_model_inputs",
+    "print_config_table",
+]
+
 
 class ExistenceChecker:
     """
@@ -118,9 +128,11 @@ class ExistenceChecker:
             (e.g., insufficient permissions).
         """
         # Validate type
-        if not isinstance(path, (str, Path)):
-            raise TypeError("`path` must be a str or pathlib.Path, got "
-                            f"{type(path).__name__!r}")
+        if not isinstance(path, str | Path):
+            raise TypeError(
+                "`path` must be a str or pathlib.Path, got "
+                f"{type(path).__name__!r}"
+            )
 
         dir_path = Path(path)
 
@@ -130,15 +142,18 @@ class ExistenceChecker:
                 return dir_path
             else:
                 # A non-directory file exists at this path
-                raise FileExistsError(f"A non-directory file exists at: "
-                                      f"{dir_path}")
+                raise FileExistsError(
+                    f"A non-directory file exists at: "
+                    f"{dir_path}"
+                )
 
         # Attempt to create the directory (including parents)
         try:
             dir_path.mkdir(parents=True, exist_ok=True)
         except OSError as exc:
-            raise OSError(f"Unable to create directory {dir_path}: {exc}") \
-                from exc
+            raise OSError(
+                f"Unable to create directory {dir_path}: {exc}"
+            ) from exc
 
         return dir_path
 
@@ -174,9 +189,11 @@ class ExistenceChecker:
             filesystem errors.
         """
         # Validate type
-        if not isinstance(path, (str, Path)):
-            raise TypeError("`path` must be a str or pathlib.Path, got "
-                            f"{type(path).__name__!r}")
+        if not isinstance(path, str | Path):
+            raise TypeError(
+                "`path` must be a str or pathlib.Path, got "
+                f"{type(path).__name__!r}"
+            )
 
         file_path = Path(path)
 
@@ -186,7 +203,9 @@ class ExistenceChecker:
                 return file_path
             else:
                 # A directory exists at this path
-                raise FileExistsError(f"A directory exists at: {file_path}")
+                raise FileExistsError(
+                    f"A directory exists at: {file_path}"
+                )
 
         # Create parent directories if requested
         parent_dir = file_path.parent
@@ -194,20 +213,28 @@ class ExistenceChecker:
             try:
                 parent_dir.mkdir(parents=True, exist_ok=True)
             except OSError as exc:
-                raise OSError(f"Unable to create parent directories {parent_dir}: "
-                              f"{exc}") from exc
+                raise OSError(
+                    f"Unable to create parent directories {parent_dir}: "
+                    f"{exc}"
+                ) from exc
 
         # Attempt to create the file
         try:
             file_path.touch(exist_ok=True)
         except OSError as exc:
-            raise OSError(f"Unable to create file {file_path}: {exc}") from exc
+            raise OSError(
+                f"Unable to create file {file_path}: {exc}"
+            ) from exc
 
         return file_path
 
+
 def normalize_model_inputs(
-    *data: Union[pd.DataFrame, Mapping[str, pd.DataFrame], list, tuple]
-) -> Dict[str, pd.DataFrame]:
+    *data: pd.DataFrame
+    | Mapping[str, pd.DataFrame]
+    | list
+    | tuple,
+) -> dict[str, pd.DataFrame]:
     # If single argument
     if len(data) == 1:
         single = data[0]
@@ -215,9 +242,12 @@ def normalize_model_inputs(
         if isinstance(single, Mapping):
             return single  # assume Mapping[str, DataFrame]
         # Case: list/tuple of DataFrames
-        if isinstance(single, (list, tuple)):
+        if isinstance(single, list | tuple):
             dfs = single
-            return {f"model_{i+1}": df for i, df in enumerate(dfs)}
+            return {
+                f"model_{i + 1}": df
+                for i, df in enumerate(dfs)
+            }
         # Case: single DataFrame
         if isinstance(single, pd.DataFrame):
             return {"model": single}
@@ -228,7 +258,9 @@ def normalize_model_inputs(
 
     # If multiple arguments, expect each to be a DataFrame
     if all(isinstance(d, pd.DataFrame) for d in data):
-        return {f"model_{i+1}": df for i, df in enumerate(data)}
+        return {
+            f"model_{i + 1}": df for i, df in enumerate(data)
+        }
 
     raise TypeError(
         "When passing multiple arguments,"
@@ -239,14 +271,14 @@ def normalize_model_inputs(
 def check_group_column_validity(
     df: pd.DataFrame,
     group_col: str,
-    ops: str = 'check_only',  
+    ops: str = "check_only",
     max_unique: int = 10,
     auto_bin: bool = False,
     bins: int = 4,
-    error: str = "warn",      
-    bin_labels: Optional[List[str]] = None,
-    verbose: bool = True
-) -> Union[pd.DataFrame, bool]:
+    error: str = "warn",
+    bin_labels: list[str] | None = None,
+    verbose: bool = True,
+) -> pd.DataFrame | bool:
     """
     Checks and optionally transforms a numeric group column,
     providing flexibility for categorical plots or group-based
@@ -311,7 +343,7 @@ def check_group_column_validity(
     many unique values, the function may raise or warn,
     based on the ``error`` argument. If ``auto_bin=True``,
     it automatically switches to ``"binning"``.
-    
+
     Mathematically, if the user chooses quantile binning, then
     :math:`bins` equally spaced quantiles are computed:
 
@@ -368,34 +400,26 @@ def check_group_column_validity(
 
     # Extract data from the column and check if numeric.
     col_data = df[group_col]
-    is_numeric = pd.api.types.is_numeric_dtype(
-        col_data
-    )
+    is_numeric = pd.api.types.is_numeric_dtype(col_data)
     # If numeric, ensure we haven't exceeded max_unique.
     is_valid_group = (
-        not is_numeric
-        or col_data.nunique()
-          <= max_unique
+        not is_numeric or col_data.nunique() <= max_unique
     )
 
     # Validate ops argument.
-    if ops not in {
-        'check_only',
-        'binning',
-        'validate'
-    }:
+    if ops not in {"check_only", "binning", "validate"}:
         raise ValueError(
             f"Unknown 'ops' value: {ops}. Choose from "
             f"'check_only', 'binning', 'validate'."
         )
 
     # If user only wants a check, return boolean.
-    if ops == 'check_only':
+    if ops == "check_only":
         return is_valid_group
 
     # If 'validate', decide whether to warn/raise
     # or fallback to binning if auto_bin is True.
-    elif ops == 'validate':
+    elif ops == "validate":
         if is_valid_group:
             return df
         msg = (
@@ -404,16 +428,16 @@ def check_group_column_validity(
             "Not suitable for grouping in plots."
         )
         if auto_bin:
-            ops = 'binning'  # fallback
+            ops = "binning"  # fallback
         else:
-            if error == 'raise':
+            if error == "raise":
                 raise ValueError(msg)
-            elif error == 'warn':
-                warnings.warn(f"{msg}")
+            elif error == "warn":
+                warnings.warn(f"{msg}", stacklevel=2)
             return df
 
     # If 'binning', we attempt to transform the column.
-    if ops == 'binning':
+    if ops == "binning":
         # If already valid, no change needed.
         if is_valid_group:
             return df
@@ -422,13 +446,10 @@ def check_group_column_validity(
         if auto_bin:
             if bin_labels is None:
                 bin_labels = [
-                    f"Q{i+1}"
-                    for i in range(bins)
+                    f"Q{i + 1}" for i in range(bins)
                 ]
             df[group_col] = pd.qcut(
-                col_data,
-                q=bins,
-                labels=bin_labels
+                col_data, q=bins, labels=bin_labels
             )
             if verbose:
                 print(
@@ -439,45 +460,43 @@ def check_group_column_validity(
         else:
             # If auto_bin is False and data is invalid,
             # we handle per 'error'.
-            if error == 'raise':
+            if error == "raise":
                 raise ValueError(
                     "Auto-binning disabled, and group "
                     "column is not suitable."
                 )
-            elif error == 'warn':
+            elif error == "warn":
                 warnings.warn(
                     "Group column is not categorical "
-                    "and was not binned."
+                    "and was not binned.",
+                    stacklevel=2,
                 )
             return df
+
 
 def find_id_column(
     df: pd.DataFrame,
     strategy: Literal[
-        'naive',
-        'exact',
-        'dtype',
-        'regex',
-        'prefix_suffix'
-    ] = 'naive',
-    regex_pattern: Optional[str] = None,
+        "naive", "exact", "dtype", "regex", "prefix_suffix"
+    ] = "naive",
+    regex_pattern: str | None = None,
     uniqueness_threshold: float = 0.95,
-    errors: Literal['raise', 'warn', 'ignore'] = 'raise',
+    errors: Literal["raise", "warn", "ignore"] = "raise",
     empty_as_none: bool = True,
     as_list: bool = False,
     case_sensitive: bool = False,
-    as_frame: bool = False
-) -> Union[str, List[str], pd.DataFrame, None]:
+    as_frame: bool = False,
+) -> str | list[str] | pd.DataFrame | None:
     """
     Identify potential ID column(s) in a pandas DataFrame
     using multiple heuristic strategies.
-    
+
     The function examines column names and/or data properties
     to detect columns likely to serve as unique identifiers.
     This is particularly useful for large datasets where the
     ID field is not explicitly labeled, and for quick scanning
     of possible key columns [1]_.
-    
+
     Parameters
     ----------
     df : pandas.DataFrame
@@ -509,14 +528,14 @@ def find_id_column(
     uniqueness_threshold : float, default 0.95
         For `<dtype>` strategy, columns are flagged as ID
         candidates if the ratio:
-    
+
         .. math::
            r = \\frac{
                   \\text{unique\\_values}
               }{
                   \\text{non\\_NA\\_rows}
               }
-    
+
         satisfies :math:`r \\geq \\text{uniqueness\\_threshold}`,
         or if the number of unique values equals the number
         of non-null rows.
@@ -545,7 +564,7 @@ def find_id_column(
         it may include multiple columns. If no column
         is found, returns an empty DataFrame (if
         `<errors>` is `'warn'` or `'ignore'`).
-    
+
     Returns
     -------
     str or List[str] or pandas.DataFrame or None
@@ -564,7 +583,7 @@ def find_id_column(
         - `as_frame`=True, `as_list`=True:
           returns a DataFrame with all matched columns
           included.
-    
+
     Notes
     -----
     - For `<dtype>` strategy, integer, string, and
@@ -575,7 +594,7 @@ def find_id_column(
       values above 1.
     - If the DataFrame has no columns or is empty, the
       behavior is determined by `<errors>`.
-    
+
     Examples
     --------
     >>> from gofast.utils.generic_utils import find_id_column
@@ -592,7 +611,7 @@ def find_id_column(
     >>> cols = find_id_column(data, strategy='naive',
     ...                       as_list=True)
     >>> print(cols)  # ['ID_code']
-    
+
     See Also
     --------
     re.compile : The regex compilation method used
@@ -600,7 +619,7 @@ def find_id_column(
     pandas.api.types.is_integer_dtype : Checks integer type.
     pandas.api.types.is_string_dtype : Checksstring type.
     pandas.api.types.is_object_dtype : Checksobject type.
-    
+
     References
     ----------
     .. [1] E. F. Codd (1970). "A Relational Model of Data
@@ -613,11 +632,11 @@ def find_id_column(
         )
 
     valid_strategies = [
-        'naive',
-        'exact',
-        'dtype',
-        'regex',
-        'prefix_suffix'
+        "naive",
+        "exact",
+        "dtype",
+        "regex",
+        "prefix_suffix",
     ]
     if strategy not in valid_strategies:
         raise ValueError(
@@ -625,7 +644,7 @@ def find_id_column(
             f"of {valid_strategies}."
         )
 
-    valid_errors = ['raise', 'warn', 'ignore']
+    valid_errors = ["raise", "warn", "ignore"]
     if errors not in valid_errors:
         raise ValueError(
             f"Invalid errors value '{errors}'. Must be one "
@@ -633,9 +652,10 @@ def find_id_column(
         )
 
     # If strategy='regex', ensure regex_pattern is valid
-    if strategy == 'regex':
+    if strategy == "regex":
         if not regex_pattern or not isinstance(
-           regex_pattern, str):
+            regex_pattern, str
+        ):
             raise ValueError(
                 "Parameter 'regex_pattern' must be a "
                 "non-empty string when strategy is "
@@ -643,7 +663,7 @@ def find_id_column(
             )
 
     # If strategy='dtype', ensure threshold in [0,1]
-    if strategy == 'dtype':
+    if strategy == "dtype":
         if not (0.0 <= uniqueness_threshold <= 1.0):
             raise ValueError(
                 "Parameter 'uniqueness_threshold' must be "
@@ -652,12 +672,14 @@ def find_id_column(
 
     # If DataFrame is empty, handle accordingly
     if df.empty or len(df.columns) == 0:
-        msg = ("DataFrame is empty or has no columns. "
-               "Cannot find ID column.")
-        if errors == 'raise':
+        msg = (
+            "DataFrame is empty or has no columns. "
+            "Cannot find ID column."
+        )
+        if errors == "raise":
             raise ValueError(msg)
-        elif errors == 'warn':
-            warnings.warn(msg, UserWarning)
+        elif errors == "warn":
+            warnings.warn(msg, UserWarning, stacklevel=2)
         if as_frame:
             return pd.DataFrame()
         else:
@@ -681,51 +703,54 @@ def find_id_column(
     found_matches_keys = []
 
     # -------------- Strategy: 'exact' --------------
-    if strategy == 'exact':
-        target = 'id' if not case_sensitive else 'id'
+    if strategy == "exact":
+        target = "id" if not case_sensitive else "id"
         if target in match_columns_keys:
             found_matches_keys.append(target)
 
     # -------------- Strategy: 'naive' --------------
-    elif strategy == 'naive':
-        target = 'id' if not case_sensitive else 'id'
+    elif strategy == "naive":
+        target = "id" if not case_sensitive else "id"
         found_matches_keys = [
-            mc_key for mc_key in match_columns_keys
+            mc_key
+            for mc_key in match_columns_keys
             if target in mc_key
         ]
 
     # -------------- Strategy: 'prefix_suffix' -------
-    elif strategy == 'prefix_suffix':
-        targets = ['id', '_id']
+    elif strategy == "prefix_suffix":
+        targets = ["id", "_id"]
         if not case_sensitive:
             targets = [t.lower() for t in targets]
         for mc_key in match_columns_keys:
             match = False
             for t in targets:
-                if (mc_key.startswith(t)
-                   or mc_key.endswith(t)):
+                if mc_key.startswith(t) or mc_key.endswith(t):
                     match = True
                     break
             if match:
                 found_matches_keys.append(mc_key)
 
     # -------------- Strategy: 'regex' --------------
-    elif strategy == 'regex':
+    elif strategy == "regex":
         try:
             flags = 0 if case_sensitive else re.IGNORECASE
             pattern = re.compile(regex_pattern, flags)
             original_regex_matches = [
-                c for c in original_columns
+                c
+                for c in original_columns
                 if pattern.search(c)
             ]
             if not case_sensitive:
                 found_matches_keys = [
-                    k for k, v in col_map.items()
+                    k
+                    for k, v in col_map.items()
                     if v in original_regex_matches
                 ]
             else:
                 found_matches_keys = [
-                    k for k in original_regex_matches
+                    k
+                    for k in original_regex_matches
                     if k in match_columns_keys
                 ]
         except re.error as e:
@@ -734,7 +759,7 @@ def find_id_column(
             ) from e
 
     # -------------- Strategy: 'dtype' --------------
-    elif strategy == 'dtype':
+    elif strategy == "dtype":
         for col_name in original_columns:
             col_series = df[col_name]
             # Check if type is integer, string, or object
@@ -746,23 +771,23 @@ def find_id_column(
             if is_potential_type:
                 non_na = col_series.dropna()
                 if len(non_na) > 0:
-                    if pd.api.types.is_object_dtype(
-                       non_na):
-                        num_unique = (
-                            non_na.astype(str)
-                            .nunique()
-                        )
+                    if pd.api.types.is_object_dtype(non_na):
+                        num_unique = non_na.astype(
+                            str
+                        ).nunique()
                     else:
                         num_unique = non_na.nunique()
-                    uniqueness_ratio = (
-                        num_unique / len(non_na)
+                    uniqueness_ratio = num_unique / len(
+                        non_na
                     )
-                    is_perfectly_unique = (
-                        num_unique == len(non_na)
+                    is_perfectly_unique = num_unique == len(
+                        non_na
                     )
-                    if (uniqueness_ratio
-                       >= uniqueness_threshold
-                       or is_perfectly_unique):
+                    if (
+                        uniqueness_ratio
+                        >= uniqueness_threshold
+                        or is_perfectly_unique
+                    ):
                         key_to_add = (
                             col_name.lower()
                             if not case_sensitive
@@ -770,7 +795,8 @@ def find_id_column(
                         )
                         if key_to_add in col_map:
                             if key_to_add not in (
-                               found_matches_keys):
+                                found_matches_keys
+                            ):
                                 found_matches_keys.append(
                                     key_to_add
                                 )
@@ -778,7 +804,7 @@ def find_id_column(
     # Remove duplicates while preserving order
     ordered_unique_matches_keys = sorted(
         list(set(found_matches_keys)),
-        key=found_matches_keys.index
+        key=found_matches_keys.index,
     )
     original_matches = [
         col_map[mk] for mk in ordered_unique_matches_keys
@@ -789,22 +815,25 @@ def find_id_column(
         if as_frame:
             # Decide columns to select
             cols_to_select = (
-                original_matches if as_list else
-                [original_matches[0]]
+                original_matches
+                if as_list
+                else [original_matches[0]]
             )
             valid_cols = [
-                c for c in cols_to_select
-                if c in df.columns
+                c for c in cols_to_select if c in df.columns
             ]
             if not valid_cols:
-                msg = ("Internal error: Matched columns "
-                       "not found in DataFrame.")
-                if errors == 'raise':
+                msg = (
+                    "Internal error: Matched columns "
+                    "not found in DataFrame."
+                )
+                if errors == "raise":
                     raise ValueError(msg)
-                elif errors == 'warn':
+                elif errors == "warn":
                     warnings.warn(
                         f"{msg} Returning empty DataFrame.",
-                        UserWarning
+                        UserWarning,
+                        stacklevel=2,
                     )
                 return pd.DataFrame()
             return df[valid_cols]
@@ -813,21 +842,23 @@ def find_id_column(
         else:
             return original_matches[0]
     else:
-        msg = (f"No ID column found in DataFrame using "
-               f"strategy='{strategy}'")
-        if regex_pattern and strategy == 'regex':
+        msg = (
+            f"No ID column found in DataFrame using "
+            f"strategy='{strategy}'"
+        )
+        if regex_pattern and strategy == "regex":
             msg += f" with pattern='{regex_pattern}'"
-        if strategy == 'dtype':
+        if strategy == "dtype":
             msg += f" and threshold={uniqueness_threshold}"
         if not case_sensitive:
             msg += " (case-insensitive)."
         else:
             msg += " (case-sensitive)."
 
-        if errors == 'raise':
+        if errors == "raise":
             raise ValueError(msg)
-        elif errors == 'warn':
-            warnings.warn(msg, UserWarning)
+        elif errors == "warn":
+            warnings.warn(msg, UserWarning, stacklevel=2)
 
         # Return empty or None if no match
         if as_frame:
@@ -835,17 +866,17 @@ def find_id_column(
         else:
             return [] if not empty_as_none else None
 
-    
+
 def verify_identical_items(
-    list1, 
-    list2, 
-    mode: str = "unique", 
-    ops: str = "check_only", 
-    error: str = "raise", 
-    objname: str = None, 
-) -> Union[bool, list]:
+    list1,
+    list2,
+    mode: str = "unique",
+    ops: str = "check_only",
+    error: str = "raise",
+    objname: str = None,
+) -> bool | list:
     """
-    Check if two lists contain identical elements according 
+    Check if two lists contain identical elements according
     to the specified mode.
 
     In "unique" mode, the function compares the unique elements
@@ -877,7 +908,7 @@ def verify_identical_items(
 
     Examples
     --------
-    >>> from gofast.utils.generic_utils import verify_identical_items 
+    >>> from gofast.utils.generic_utils import verify_identical_items
     >>> list1 = [0.1, 0.5, 0.9]
     >>> list2 = [0.1, 0.5, 0.9]
     >>> verify_identical_items(list1, list2, mode="unique", ops="validate")
@@ -895,12 +926,17 @@ def verify_identical_items(
     """
     # Validate mode.
     if mode not in ("unique", "ascending"):
-        raise ValueError("mode must be either 'unique' or 'ascending'")
+        raise ValueError(
+            "mode must be either 'unique' or 'ascending'"
+        )
     if ops not in ("check_only", "validate"):
-        raise ValueError("ops must be either 'check_only' or 'validate'")
+        raise ValueError(
+            "ops must be either 'check_only' or 'validate'"
+        )
     if error not in ("raise", "warn", "ignore"):
         raise ValueError(
-            "error must be one of 'raise', 'warn', or 'ignore'")
+            "error must be one of 'raise', 'warn', or 'ignore'"
+        )
 
     # Ascending mode: compare each element in order.
     if mode == "ascending":
@@ -913,22 +949,24 @@ def verify_identical_items(
                 raise ValueError(msg)
             elif error == "warn":
                 import warnings
-                warnings.warn(msg, UserWarning)
+
+                warnings.warn(msg, UserWarning, stacklevel=2)
             return False
-        
+
         differences = []
-        for idx, (a, b) in enumerate(zip(list1, list2)):
+        for idx, (a, b) in enumerate(
+            zip(list1, list2, strict=False)
+        ):
             if a != b:
                 differences.append((idx, a, b))
         if differences:
-            msg = (
-                f"Differences in {objname or 'object lists'}: {differences}."
-            )
+            msg = f"Differences in {objname or 'object lists'}: {differences}."
             if error == "raise":
                 raise ValueError(msg)
             elif error == "warn":
                 import warnings
-                warnings.warn(msg, UserWarning)
+
+                warnings.warn(msg, UserWarning, stacklevel=2)
             return False
         return True if ops == "check_only" else list1
 
@@ -949,7 +987,8 @@ def verify_identical_items(
                 raise ValueError(msg)
             elif error == "warn":
                 import warnings
-                warnings.warn(msg, UserWarning)
+
+                warnings.warn(msg, UserWarning, stacklevel=2)
             return False
         return True if ops == "check_only" else unique1
 
@@ -958,11 +997,11 @@ def vlog(
     message,
     verbose=None,
     level: int = 3,
-    depth: Union[int, str] = "auto",
-    mode:Optional[str]=None,
-    vp: bool=True, 
+    depth: int | str = "auto",
+    mode: str | None = None,
+    vp: bool = True,
     logger=None,
-    **kws
+    **kws,
 ):
     r"""
     Log or naive messages with optional indentation and
@@ -1015,7 +1054,7 @@ def vlog(
         Otherwise (if ``None`` or ``'naive'``), it
         follows a custom logic driven by `<parameter
         inline> verbose`.
-    
+
     vp : bool, default=True
         If ``True``, the function automatically prepends
         bracketed tags (e.g. [INFO]) unless the message
@@ -1023,17 +1062,17 @@ def vlog(
         [WARNING], or [TRACE].
     logger : logging.Logger or Callable[[str], None], optional
         Custom sink that receives the *already-formatted* message string.
-        
+
         * If you pass a standard :pyclass:`logging.Logger` instance,
           the message is routed through ``logger.info``.
         * If you supply any ``callable`` that accepts a single ``str``
           (e.g. a GUI text-append function), that callable is invoked
           directly.
         * Defaults to :pyfunc:`print`, which writes to *stdout*.
-    
-    kws: Logging instance, optional 
+
+    kws: Logging instance, optional
        For future extensions.
-       
+
     Returns
     -------
     None
@@ -1056,7 +1095,7 @@ def vlog(
     >>> # Example with mode='log'
     >>> # This prints only if global or passed-in
     >>> # verbose >= 4.
-    >>> vlog("Check debugging details.", verbose=3, 
+    >>> vlog("Check debugging details.", verbose=3,
     ...      level=4, mode='log')
     >>> # Example with mode='naive'
     >>> # If verbose=2, it displays as [INFO] prefixed.
@@ -1070,10 +1109,12 @@ def vlog(
     """
     logger = logger or print
     if isinstance(logger, logging.Logger):
-        _emit = logger.info          # unify interface → Callable[[str], None]
+        _emit = (
+            logger.info
+        )  # unify interface → Callable[[str], None]
     else:
-        _emit = logger               # assume it's already a callable
-    
+        _emit = logger  # assume it's already a callable
+
     verbosity_labels = {
         1: "[ERROR]",
         2: "[WARNING]",
@@ -1081,7 +1122,7 @@ def vlog(
         4: "[DEBUG]",
         5: "[DEBUG]",
         6: "[TRACE]",
-        7: "[TRACE]"
+        7: "[TRACE]",
     }
 
     # When depth="auto", assign indentation based on `level`.
@@ -1100,19 +1141,25 @@ def vlog(
             depth = 0
 
     # Fallback to a global 'verbose' if none given.
-    actual_verbose = verbose if verbose is not None else globals().get('verbose', 0)
+    actual_verbose = (
+        verbose
+        if verbose is not None
+        else globals().get("verbose", 0)
+    )
 
     # If mode == 'log', keep original approach:
-    if mode == 'log':
+    if mode == "log":
         if actual_verbose >= level:
             # Indent and prefix with the label from `level`.
             indent = " " * (depth * 2)
-            _emit(rf"{indent}{verbosity_labels[level]} {message}")
+            _emit(
+                rf"{indent}{verbosity_labels[level]} {message}"
+            )
         # Nothing else for mode='log' if verbosity is too low.
         return
 
     # If mode == 'naive' or None, override with the new rules:
-    if mode in [None, 'naive']:
+    if mode in [None, "naive"]:
         # If actual_verbose < 1, do not print anything.
         if actual_verbose < 1:
             return
@@ -1120,19 +1167,27 @@ def vlog(
         # Otherwise, figure out the prefix based on the threshold:
         # We check if the message already includes [INFO], [DEBUG], [WARNING],
         # [ERROR], or [TRACE]. If so, skip adding any prefix.
-        prefix_tags = ("[INFO]", "[DEBUG]", "[ERROR]", "[WARNING]", "[TRACE]")
-        already_tagged = any(tag in message for tag in prefix_tags)
+        prefix_tags = (
+            "[INFO]",
+            "[DEBUG]",
+            "[ERROR]",
+            "[WARNING]",
+            "[TRACE]",
+        )
+        already_tagged = any(
+            tag in message for tag in prefix_tags
+        )
 
         # indent as per the computed `depth`
         indent = " " * (depth * 2)
-        
+
         # If >=3 => prefix with [INFO] if vp is True and not already tagged
-        if actual_verbose <=3:
+        if actual_verbose <= 3:
             if vp and not already_tagged:
                 _emit(rf"{indent}[INFO] {message}")
             else:
                 _emit(rf"{indent}{message}")
-            return 
+            return
 
         # If 3 < verbose < 5 => prefix with [DEBUG] if vp is True and not already tagged
         if 3 < actual_verbose < 5:
@@ -1150,12 +1205,13 @@ def vlog(
                 _emit(rf"{indent}{message}")
             return
 
+
 def get_actual_column_name(
-    df: pd.DataFrame, 
-    tname: str = None, 
-    actual_name: str = None, 
-    error: str = 'raise',  
-    default_to=None, 
+    df: pd.DataFrame,
+    tname: str = None,
+    actual_name: str = None,
+    error: str = "raise",
+    default_to=None,
 ) -> str:
     """
     Determines the actual target column name in the given DataFrame.
@@ -1178,7 +1234,7 @@ def get_actual_column_name(
     Returns
     -------
     str or None
-        The determined actual column name, or None if no match is found 
+        The determined actual column name, or None if no match is found
         and `error='warn'` or `error='ignore'`.
 
     Raises
@@ -1200,7 +1256,7 @@ def get_actual_column_name(
     >>> df = pd.DataFrame({'actual': [1, 2, 3]})
     >>> get_actual_column_name(df)
     'actual'
-    
+
     >>> df = pd.DataFrame({'measurement': [1, 2, 3]})
     >>> get_actual_column_name(df, tname="subsidence", error="warn")
     Warning: Could not determine the actual target column in the DataFrame.
@@ -1229,14 +1285,14 @@ def get_actual_column_name(
 
     # Handle the case when no valid column is found
     msg = "Could not determine the actual target column in the DataFrame."
-    if error == 'raise':
+    if error == "raise":
         raise ValueError(msg)
-    elif error == 'warn':
-        warnings.warn(msg, UserWarning)
-    
-    if default_to=='tname': 
-        return tname 
-    
+    elif error == "warn":
+        warnings.warn(msg, UserWarning, stacklevel=2)
+
+    if default_to == "tname":
+        return tname
+
     return None  # If `error='ignore'`, return None silently
 
 
@@ -1246,10 +1302,10 @@ def detect_dt_format(series: pd.Series) -> str:
 
     This function inspects a non-null sample from the datetime Series and
     infers the format string based on its components (year, month, day, hour,
-    minute, and second). It returns a format string that can be used with 
-    ``strftime``. For example, if the sample indicates only a year is relevant, 
-    it returns ``"%Y"``; if full date information is present, it returns 
-    ``"%Y-%m-%d"``; and if time details are also present, it extends the format 
+    minute, and second). It returns a format string that can be used with
+    ``strftime``. For example, if the sample indicates only a year is relevant,
+    it returns ``"%Y"``; if full date information is present, it returns
+    ``"%Y-%m-%d"``; and if time details are also present, it extends the format
     accordingly.
 
     Parameters
@@ -1260,7 +1316,7 @@ def detect_dt_format(series: pd.Series) -> str:
     Returns
     -------
     str
-        A datetime format string (e.g., ``"%Y"``, ``"%Y-%m-%d"``, or 
+        A datetime format string (e.g., ``"%Y"``, ``"%Y-%m-%d"``, or
         ``"%Y-%m-%d %H:%M:%S"``) that represents the resolution of the data.
 
     Examples
@@ -1274,7 +1330,7 @@ def detect_dt_format(series: pd.Series) -> str:
 
     Notes
     -----
-    The detection logic checks if month, day, hour, minute, and second are 
+    The detection logic checks if month, day, hour, minute, and second are
     all default values (e.g., month == 1, day == 1, hour == 0, etc.) and infers
     the most compact format that still represents the data accurately.
 
@@ -1285,67 +1341,81 @@ def detect_dt_format(series: pd.Series) -> str:
 
     # Drop null values and pick a sample for analysis.
     sample = series.dropna().iloc[0]
-    
+
     # Always include year.
     fmt = "%Y"
-    
+
     # Include month if not January.
-    if sample.month != 1 or sample.day != 1 or sample.hour != 0 or \
-       sample.minute != 0 or sample.second != 0:
+    if (
+        sample.month != 1
+        or sample.day != 1
+        or sample.hour != 0
+        or sample.minute != 0
+        or sample.second != 0
+    ):
         fmt += "-%m"
-    
+
     # Include day if not the first day.
-    if sample.day != 1 or sample.hour != 0 or sample.minute != 0 or \
-       sample.second != 0:
+    if (
+        sample.day != 1
+        or sample.hour != 0
+        or sample.minute != 0
+        or sample.second != 0
+    ):
         fmt += "-%d"
-    
+
     # Include time details if any are non-zero.
-    if sample.hour != 0 or sample.minute != 0 or sample.second != 0:
+    if (
+        sample.hour != 0
+        or sample.minute != 0
+        or sample.second != 0
+    ):
         fmt += " %H"
         if sample.minute != 0 or sample.second != 0:
             fmt += ":%M"
         if sample.second != 0:
             fmt += ":%S"
-    
+
     return fmt
 
+
 def transform_contributions(
-    contributions, 
-    to_percent=True, 
-    normalize=False, 
-    norm_range=(0, 1), 
-    scale_type=None, 
-    zero_division='warn', 
-    epsilon=1e-6, 
-    log_transform=False
+    contributions,
+    to_percent=True,
+    normalize=False,
+    norm_range=(0, 1),
+    scale_type=None,
+    zero_division="warn",
+    epsilon=1e-6,
+    log_transform=False,
 ):
     """
-    Converts the feature contributions either to a direct percentage, 
-    normalizes them to a custom range, or applies a scaling strategy 
+    Converts the feature contributions either to a direct percentage,
+    normalizes them to a custom range, or applies a scaling strategy
     based on the chosen parameters.
 
     Parameters
     ----------
     contributions : dict
-        A dictionary where keys are feature names and values are the 
-        feature contributions. Each value is expected to be a numerical 
+        A dictionary where keys are feature names and values are the
+        feature contributions. Each value is expected to be a numerical
         value representing the contribution of the respective feature.
 
     to_percent : bool, optional, default=True
-        Whether to convert the contributions to percentages. If `True`, 
-        each value in `contributions` will be multiplied by 100. This is 
-        useful when contributions are given in decimal form but are expected 
+        Whether to convert the contributions to percentages. If `True`,
+        each value in `contributions` will be multiplied by 100. This is
+        useful when contributions are given in decimal form but are expected
         as percentages.
 
     normalize : bool, optional, default=False
-        Whether to normalize the contributions using min-max scaling. If 
-        `True`, the values will be scaled to the range defined in 
+        Whether to normalize the contributions using min-max scaling. If
+        `True`, the values will be scaled to the range defined in
         ``norm_range``.
 
     norm_range : tuple, optional, default=(0, 1)
-        A tuple specifying the range (min, max) for normalization. This range 
-        is applied when `normalize` is set to `True`. The contributions will 
-        be rescaled so that the minimum value maps to `norm_range[0]` and the 
+        A tuple specifying the range (min, max) for normalization. This range
+        is applied when `normalize` is set to `True`. The contributions will
+        be rescaled so that the minimum value maps to `norm_range[0]` and the
         maximum value maps to `norm_range[1]`.
 
     scale_type : str, optional, default=None
@@ -1355,51 +1425,51 @@ def transform_contributions(
         If `None`, no scaling is applied.
 
     zero_division : str, optional, default='warn'
-        Defines how to handle zero or missing values in the contributions. 
+        Defines how to handle zero or missing values in the contributions.
         Options include:
         - ``'skip'``: Skips zero values (no modification).
         - ``'warn'``: Issues a warning if zero values are found.
-        - ``'replace'``: Replaces zeros with a small value defined by 
+        - ``'replace'``: Replaces zeros with a small value defined by
           ``epsilon`` to avoid division by zero or undefined results.
 
     epsilon : float, optional, default=1e-6
-        A small value used to replace zeros when `zero_division` is set to 
-        ``'replace'``. This prevents division by zero errors during 
+        A small value used to replace zeros when `zero_division` is set to
+        ``'replace'``. This prevents division by zero errors during
         transformations like Z-score or log transformation.
 
     log_transform : bool, optional, default=False
-        Whether to apply a logarithmic transformation to the contributions. 
-        If `True`, it applies the natural logarithm to each value in the 
-        `contributions` dictionary. Only positive values are valid for log 
-        transformation, and zero values are either skipped or replaced 
+        Whether to apply a logarithmic transformation to the contributions.
+        If `True`, it applies the natural logarithm to each value in the
+        `contributions` dictionary. Only positive values are valid for log
+        transformation, and zero values are either skipped or replaced
         based on the ``zero_division`` parameter.
 
     Returns
     -------
     dict
-        A dictionary with feature names as keys and the transformed feature 
-        contributions as values. The transformation is applied according to 
+        A dictionary with feature names as keys and the transformed feature
+        contributions as values. The transformation is applied according to
         the chosen parameters.
 
     Notes
     -----
-    - When ``normalize=True``, if the minimum and maximum values in the 
+    - When ``normalize=True``, if the minimum and maximum values in the
       `contributions` are the same, normalization is skipped with a warning.
     - If ``scale_type='zscore'``, the function applies Z-score normalization:
-      
+
       .. math::
           Z = \frac{X - \mu}{\sigma}
-      
-      where :math:`X` is the contribution, :math:`\mu` is the mean of the 
-      contributions, and :math:`\sigma` is the standard deviation of the 
+
+      where :math:`X` is the contribution, :math:`\mu` is the mean of the
+      contributions, and :math:`\sigma` is the standard deviation of the
       contributions.
-      
+
     - If ``log_transform=True``, the function applies the natural logarithm:
-      
+
       .. math::
           \text{log}(X) \text{ for } X > 0
-          
-    - The ``zero_division`` parameter handles zero values by either skipping, 
+
+    - The ``zero_division`` parameter handles zero values by either skipping,
       warning, or replacing them with a small value (`epsilon`).
 
     Examples
@@ -1417,7 +1487,7 @@ def transform_contributions(
     >>> }
     >>> transform_contributions(contributions, to_percent=True, normalize=True)
     >>> transform_contributions(contributions, to_percent=False, scale_type='zscore')
-    
+
     See Also
     --------
     `numpy.mean`: Compute the arithmetic mean of an array.
@@ -1425,102 +1495,114 @@ def transform_contributions(
 
     References
     ----------
-    [1]_ "Statistical Methods for Data Transformation" by J. Smith, 
+    [1]_ "Statistical Methods for Data Transformation" by J. Smith,
          Springer, 2020.
     """
-    
+
     # Handle zero values based on user preference
-    if zero_division == 'replace':
+    if zero_division == "replace":
         contributions = {
-            feature: (contribution if contribution != 0 else epsilon)
+            feature: (
+                contribution if contribution != 0 else epsilon
+            )
             for feature, contribution in contributions.items()
         }
-    elif zero_division == 'warn' and any(
-        contribution == 0 for contribution in contributions.values()
+    elif zero_division == "warn" and any(
+        contribution == 0
+        for contribution in contributions.values()
     ):
         warnings.warn(
             "Some contribution values are zero. Consider replacing them.",
-            UserWarning
+            UserWarning,
+            stacklevel=2,
         )
 
     # Convert contributions to percentage if specified
     if to_percent:
         contributions = {
-            feature: contribution * 100 
+            feature: contribution * 100
             for feature, contribution in contributions.items()
         }
-    
+
     # Apply normalization to the specified range
     if normalize:
         min_val = min(contributions.values())
         max_val = max(contributions.values())
-        
+
         # Check if min and max values are the
         # same to avoid division by zero
         if min_val == max_val:
             warnings.warn(
                 "All contribution values are the same,"
                 " cannot normalize; Skipped.",
-                UserWarning
+                UserWarning,
+                stacklevel=2,
             )
         else:
-            norm_range = 100 * np.asarray(
-                norm_range) if to_percent else norm_range 
-            
+            norm_range = (
+                100 * np.asarray(norm_range)
+                if to_percent
+                else norm_range
+            )
+
             contributions = {
                 feature: (
-                    ((contribution - min_val) / (max_val - min_val)) * 
-                    (norm_range[1] - norm_range[0]) + norm_range[0]
-                ) 
+                    (
+                        (contribution - min_val)
+                        / (max_val - min_val)
+                    )
+                    * (norm_range[1] - norm_range[0])
+                    + norm_range[0]
+                )
                 for feature, contribution in contributions.items()
             }
 
     # Apply scaling (Z-score or log)
-    if scale_type == 'zscore':
+    if scale_type == "zscore":
         mean_val = np.mean(list(contributions.values()))
         std_val = np.std(list(contributions.values()))
-        
+
         contributions = {
-            feature: (contribution - mean_val) / std_val 
-            if std_val != 0 else contribution
+            feature: (contribution - mean_val) / std_val
+            if std_val != 0
+            else contribution
             for feature, contribution in contributions.items()
         }
-    
+
     elif log_transform:
         contributions = {
-            feature: np.log(contribution) if contribution > 0 else 0
+            feature: np.log(contribution)
+            if contribution > 0
+            else 0
             for feature, contribution in contributions.items()
         }
-    
+
     return contributions
 
 
 def exclude_duplicate_kwargs(
     func: callable,
-    existing_kwargs: Union[
-        Dict[str, Any],
-        List[str]
-    ],
-    user_kwargs: Dict[str, Any]
-) -> Dict[str, Any]:
+    existing_kwargs: dict[str, Any] | list[str],
+    user_kwargs: dict[str, Any],
+) -> dict[str, Any]:
     """
     Prevents the user from overriding existing parameters
     in a target function. The method `exclude_duplicate_kwargs`
     checks both developer-specified and function-level
     parameter names to exclude them from `user_kwargs`.
-    
+
     .. math::
        \text{final\_kwargs} =
        \{\,(k, v) \in \text{user\_kwargs} \,\mid\,
        k \notin \text{protected\_params}\,\}
-    
+
     Parameters
     ----------
     func : callable
         The target function whose valid parameters are
         checked. It uses Python's introspection to gather
         the acceptable parameter names.
-    
+
     existing_kwargs : dict or list
         Developer-defined parameters to protect. Can be:
         * A dictionary of parameter-value pairs (e.g.,
@@ -1528,19 +1610,19 @@ def exclude_duplicate_kwargs(
           are excluded from user overrides.
         * A list of parameter names (e.g., ``['ax',
           'data']``) to protect from user overrides.
-    
+
     user_kwargs : dict
         The user-supplied keyword arguments that are
         candidates for merging with `existing_kwargs`.
         This dictionary is filtered to remove collisions
         with protected parameters.
-    
+
     Returns
     -------
     dict
         A filtered dictionary of user-defined arguments
         that do not overlap with protected parameters.
-    
+
     Examples
     --------
     >>> from gofast.utils.generic_utils import exclude_duplicate_kwargs
@@ -1564,7 +1646,7 @@ def exclude_duplicate_kwargs(
     ... )
     >>> safe_args
     {'color': 'red'}
-    
+
     Notes
     -----
     By default, if `existing_kwargs` is a dictionary,
@@ -1573,7 +1655,7 @@ def exclude_duplicate_kwargs(
     function signature of `func` is also used to
     verify that only recognized parameters are
     protected.
-    
+
     See Also
     --------
     inspect.signature : Used to introspect function
@@ -1581,7 +1663,7 @@ def exclude_duplicate_kwargs(
     filter_valid_kwargs : Another inline function that
         discards user params not valid for a given
         function.
-    
+
     References
     ----------
     .. [1] David Beazley and Brian K. Jones.
@@ -1589,7 +1671,7 @@ def exclude_duplicate_kwargs(
     """
 
     # Validate existing_kwargs
-    if not isinstance(existing_kwargs, (dict, list)):
+    if not isinstance(existing_kwargs, dict | list):
         raise TypeError(
             "existing_kwargs must be a dict or list"
         )
@@ -1606,10 +1688,8 @@ def exclude_duplicate_kwargs(
     valid_params = {
         name: param
         for name, param in sig.parameters.items()
-        if param.kind not in (
-            param.VAR_POSITIONAL,
-            param.VAR_KEYWORD
-        )
+        if param.kind
+        not in (param.VAR_POSITIONAL, param.VAR_KEYWORD)
     }
 
     # Restrict protection to valid parameters only
@@ -1628,10 +1708,11 @@ def exclude_duplicate_kwargs(
 
     return safe_kwargs
 
+
 def reorder_columns(
     df: pd.DataFrame,
-    columns: Union[str, List[str]],
-    pos: Union[str, int, float] = "end"
+    columns: str | list[str],
+    pos: str | int | float = "end",
 ):
     """
     Reorder columns in a DataFrame by moving specified
@@ -1690,7 +1771,7 @@ def reorder_columns(
     - Negative indices for integer ``pos`` are
       converted to positive by adding the total
       number of remaining columns.
-      
+
     .. math::
        i_{\\text{center}} = \\left\\lfloor
            \\frac{|R|}{2}
@@ -1740,7 +1821,7 @@ def reorder_columns(
     # Normalize 'columns' to a list of strings
     if isinstance(columns, str):
         columns = [columns]
-    elif not isinstance(columns, (list, tuple, set)):
+    elif not isinstance(columns, list | tuple | set):
         raise TypeError(
             "columns must be a string or an "
             "iterable of strings."
@@ -1759,14 +1840,12 @@ def reorder_columns(
     # Create a list of remaining columns while
     # preserving their original order
     remaining_columns = [
-        col for col in df.columns if col not in
-        valid_targets
+        col for col in df.columns if col not in valid_targets
     ]
 
     # Maintain the original target columns' order
     target_order = [
-        col for col in df.columns if col in
-        valid_targets
+        col for col in df.columns if col in valid_targets
     ]
 
     # Compute new order based on 'pos'
@@ -1794,14 +1873,16 @@ def reorder_columns(
 
     # If 'pos' is numeric, insert the columns at
     # that position
-    if isinstance(pos, (int, float)):
+    if isinstance(pos, int | float):
         pos_int = int(pos)
         # Check if pos_int is within bounds
-        if (pos_int > len(remaining_columns)
-           or pos_int < -len(remaining_columns)):
+        if pos_int > len(remaining_columns) or pos_int < -len(
+            remaining_columns
+        ):
             warnings.warn(
                 "Position is out of bounds. Skipping "
-                "moving columns."
+                "moving columns.",
+                stacklevel=2,
             )
             return df
         # Convert negative index to positive
@@ -1824,26 +1905,26 @@ def reorder_columns(
 
 
 def map_scales_choice(
-    scales_choice_str: str
-) -> Optional[List[int]]:
+    scales_choice_str: str,
+) -> list[int] | None:
     """
-    Maps a string choice for scales to an actual list of scale values 
+    Maps a string choice for scales to an actual list of scale values
     or None if no scales are provided.
 
-    This function interprets specific string inputs and converts them 
-    to corresponding lists of integers. If no matching string is found, 
+    This function interprets specific string inputs and converts them
+    to corresponding lists of integers. If no matching string is found,
     it returns None as a default fallback.
 
     Parameters
     ----------
     scales_choice_str : str
-        A string representing the choice of scale. It can be one of 
+        A string representing the choice of scale. It can be one of
         'default_scales', 'alt_scales', or 'no_scales'.
 
     Returns
     -------
     Optional[List[int]]
-        A list of integers corresponding to the chosen scales, or None 
+        A list of integers corresponding to the chosen scales, or None
         if no scales are provided.
 
     Examples
@@ -1851,10 +1932,10 @@ def map_scales_choice(
     >>> from geoprior.utils.generic_utils import map_scales_choice
     >>> map_scales_choice('default_scales')
     [1, 3, 7]
-    
+
     >>> map_scales_choice('alt_scales')
     [1, 5, 10]
-    
+
     >>> map_scales_choice('no_scales')
     None
 
@@ -1862,40 +1943,42 @@ def map_scales_choice(
     None
     """
     if not isinstance(scales_choice_str, str):
-        raise ValueError("scales_choice_str must be a string.")
-    
-    if scales_choice_str == 'default_scales':
+        raise ValueError(
+            "scales_choice_str must be a string."
+        )
+
+    if scales_choice_str == "default_scales":
         return [1, 3, 7]
-    elif scales_choice_str == 'alt_scales':
+    elif scales_choice_str == "alt_scales":
         return [1, 5, 10]
-    elif scales_choice_str == 'no_scales':
+    elif scales_choice_str == "no_scales":
         return None
     return None  # Default fallback for unrecognized inputs
 
 
 def cast_hp_to_bool(
-    params: Dict[str, Any],
+    params: dict[str, Any],
     param_name: str,
-    default_value: bool = False  
+    default_value: bool = False,
 ) -> None:
     """
     Casts a hyperparameter value in the `params` dictionary to a boolean.
 
-    The function ensures that hyperparameters that are supposed to be 
-    booleans are correctly cast to Python booleans. This is particularly 
-    useful in cases where Keras Tuner or other libraries might return 
+    The function ensures that hyperparameters that are supposed to be
+    booleans are correctly cast to Python booleans. This is particularly
+    useful in cases where Keras Tuner or other libraries might return
     0 or 1 as the value for boolean choices.
 
     Parameters
     ----------
     params : Dict[str, Any]
         A dictionary of hyperparameters to be validated and updated in place.
-    
+
     param_name : str
         The key of the hyperparameter to be checked and casted to boolean.
-    
+
     default_value : bool, optional
-        The default value to assign if the parameter is not found or 
+        The default value to assign if the parameter is not found or
         has an invalid value. The default is False.
 
     Returns
@@ -1910,12 +1993,12 @@ def cast_hp_to_bool(
     >>> cast_hp_to_bool(params, 'use_batch_norm', default_value=False)
     >>> print(params['use_batch_norm'])
     True
-    
+
     >>> params = {'use_residuals': 0}
     >>> cast_hp_to_bool(params, 'use_residuals', default_value=True)
     >>> print(params['use_residuals'])
     False
-    
+
     >>> params = {'use_dropout': 'yes'}
     >>> cast_hp_to_bool(params, 'use_dropout', default_value=False)
     >>> print(params['use_dropout'])
@@ -1923,39 +2006,43 @@ def cast_hp_to_bool(
     """
     if not isinstance(params, dict):
         raise ValueError("params must be a dictionary.")
-    
+
     if param_name in params:
         value = params[param_name]
-        if isinstance(value, (int, float)):  # Handles 0, 1, 0.0, 1.0
+        if isinstance(
+            value, int | float
+        ):  # Handles 0, 1, 0.0, 1.0
             params[param_name] = bool(value)
         elif not isinstance(value, bool):
             # Warn if the value is not a valid boolean type (int, float, bool)
             warnings.warn(
                 f"Hyperparameter '{param_name}' received unexpected value "
                 f"'{value}' (type: {type(value)}). Expected bool or 0/1. "
-                f"Defaulting to {default_value}. Please check param_space definition."
+                f"Defaulting to {default_value}. Please check param_space definition.",
+                stacklevel=2,
             )
             params[param_name] = default_value
 
+
 def cast_multiple_bool_params(
-    params: Dict[str, Any],
-    bool_params_to_cast: List[Tuple[str, bool]]
+    params: dict[str, Any],
+    bool_params_to_cast: list[tuple[str, bool]],
 ) -> None:
     """
     Casts a list of boolean hyperparameters to ensure they are Python booleans.
 
     This function iterates over a list of parameter names and default values,
-    ensuring that each parameter is properly cast to a boolean type. If a 
-    parameter does not exist or has an invalid value, it is set to the 
+    ensuring that each parameter is properly cast to a boolean type. If a
+    parameter does not exist or has an invalid value, it is set to the
     provided default.
 
     Parameters
     ----------
     params : Dict[str, Any]
         A dictionary of hyperparameters to be validated and updated in place.
-    
+
     bool_params_to_cast : List[Tuple[str, bool]]
-        A list of tuples where each tuple consists of a hyperparameter name 
+        A list of tuples where each tuple consists of a hyperparameter name
         and its default boolean value. The function will cast the corresponding
         parameter to a boolean.
 
@@ -1974,23 +2061,26 @@ def cast_multiple_bool_params(
     """
     if not isinstance(params, dict):
         raise ValueError("params must be a dictionary.")
-    
+
     if not isinstance(bool_params_to_cast, list):
-        raise ValueError("bool_params_to_cast must be a list of tuples.")
-    
+        raise ValueError(
+            "bool_params_to_cast must be a list of tuples."
+        )
+
     for param_name, default_value in bool_params_to_cast:
         cast_hp_to_bool(params, param_name, default_value)
+
 
 def save_all_figures(
     output_dir: str = "figures",
     prefix: str = "figure",
-    fmts: Union[List[str], tuple] = ("png",),
+    fmts: list[str] | tuple = ("png",),
     close: bool = True,
-    dpi: Union[int, None] = 150,
+    dpi: int | None = 150,
     transparent: bool = False,
     timestamp: bool = True,
-    verbose: bool = True
-) -> List[str]:
+    verbose: bool = True,
+) -> list[str]:
     """
     Save all currently open Matplotlib figures to disk in specified formats.
 
@@ -2029,44 +2119,51 @@ def save_all_figures(
     """
     # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
-    
+
     saved_paths = []
     fig_nums = plt.get_fignums()
-    
+
     for num in fig_nums:
         fig = plt.figure(num)
         # Build base filename
         name_parts = [prefix, str(num)]
         if timestamp:
-            name_parts.append(datetime.now().strftime("%Y%m%dT%H%M%S"))
+            name_parts.append(
+                datetime.now().strftime("%Y%m%dT%H%M%S")
+            )
         base_name = "_".join(name_parts)
-        
+
         # Save in each requested format
         for ext in fmts:
             filename = f"{base_name}.{ext.lstrip('.')}"
             path = os.path.join(output_dir, filename)
             try:
-                fig.savefig(path, dpi=dpi, transparent=transparent)
+                fig.savefig(
+                    path, dpi=dpi, transparent=transparent
+                )
                 saved_paths.append(path)
                 if verbose:
                     print(f"Saved Figure {num} as: {path}")
             except Exception as e:
                 if verbose:
-                    print(f"ERROR saving Figure {num} to {path}: {e}")
-        
+                    print(
+                        f"ERROR saving Figure {num} to {path}: {e}"
+                    )
+
         if close:
             plt.close(fig)
-    
+
     return saved_paths
 
+
 def print_box(
-    msg: Union[str, List[str]],
+    msg: str | list[str],
     width: int = 80,
-    align: str = 'center',
-    border_char: str = '+',
-    horizontal_char: str = '-',
-    vertical_char: str = '|',
-    padding: int = 1
+    align: str = "center",
+    border_char: str = "+",
+    horizontal_char: str = "-",
+    vertical_char: str = "|",
+    padding: int = 1,
 ) -> None:
     """
     Print a boxed message with customizable styling.
@@ -2096,7 +2193,7 @@ def print_box(
 
     Examples
     --------
-    >>> from geoprior.utils.generic_utils import print_box 
+    >>> from geoprior.utils.generic_utils import print_box
     >>> print_box("Hello, world!", width=40)
     +--------------------------------------+
     |             Hello, world!           |
@@ -2113,12 +2210,14 @@ def print_box(
     **************************************************
     """
     # Ensure msg is a list of lines
-    lines = msg if isinstance(msg, list) else msg.split('\n')
+    lines = msg if isinstance(msg, list) else msg.split("\n")
 
     # Calculate inner width for text (excluding borders & padding)
     inner_width = width - 2 - 2 * padding
     if inner_width < 10:
-        raise ValueError("Width too small for the given padding.")
+        raise ValueError(
+            "Width too small for the given padding."
+        )
 
     # Build top and bottom border
     border_line = (
@@ -2131,9 +2230,9 @@ def print_box(
     def align_line(text: str) -> str:
         if len(text) > inner_width:
             text = text[:inner_width]
-        if align == 'left':
+        if align == "left":
             return text.ljust(inner_width)
-        elif align == 'right':
+        elif align == "right":
             return text.rjust(inner_width)
         else:  # center
             return text.center(inner_width)
@@ -2142,22 +2241,23 @@ def print_box(
     print(border_line)
     for raw_line in lines:
         # Wrap long lines
-        wrapped = textwrap.wrap(raw_line, inner_width) or ['']
+        wrapped = textwrap.wrap(raw_line, inner_width) or [""]
         for wline in wrapped:
             print(
                 vertical_char
-                + ' ' * padding
+                + " " * padding
                 + align_line(wline)
-                + ' ' * padding
+                + " " * padding
                 + vertical_char
             )
     print(border_line)
 
+
 def handle_emptiness(
     obj: Any,
-    ops: str = 'validate',
-    empty_as_none: bool = True
-) -> Union[Any, bool]:
+    ops: str = "validate",
+    empty_as_none: bool = True,
+) -> Any | bool:
     """
     Smart helper to check or normalize empty/None values.
 
@@ -2204,54 +2304,70 @@ def handle_emptiness(
     []
 
     """
+
     def _is_empty(o: Any) -> bool:
         """Determine if o is None or contains no elements."""
         if o is None:
             return True
         if isinstance(o, np.ndarray):
             return o.size == 0
-        if isinstance(o, (pd.Series, pd.DataFrame)):
+        if isinstance(o, pd.Series | pd.DataFrame):
             return o.empty
         try:
             return len(o) == 0
         except Exception:
             return False
 
-    if ops == 'check_only':
+    if ops == "check_only":
         return _is_empty(obj)
 
-    if ops == 'validate':
+    if ops == "validate":
         if _is_empty(obj):
             return None if empty_as_none else []
         return obj
 
-    raise ValueError("`ops` must be 'validate' or 'check_only'")
+    raise ValueError(
+        "`ops` must be 'validate' or 'check_only'"
+    )
+
 
 def _report_condition(
-    policy: Literal['raise', 'warn', 'ignore'],
+    policy: Literal["raise", "warn", "ignore"],
     default_message: str,
-    custom_message: Optional[str],
+    custom_message: str | None,
     exception_type: type = ValueError,
-    warning_type: type = UserWarning
+    warning_type: type = UserWarning,
 ) -> None:
     """Helper to raise error, issue warning, or ignore based on policy."""
-    message_to_use = custom_message if custom_message is not None \
+    message_to_use = (
+        custom_message
+        if custom_message is not None
         else default_message
-    
-    if policy == 'raise':
+    )
+
+    if policy == "raise":
         raise exception_type(message_to_use)
-    elif policy == 'warn':
-        warnings.warn(message_to_use, warning_type)
+    elif policy == "warn":
+        warnings.warn(
+            message_to_use, warning_type, stacklevel=2
+        )
     # If 'ignore', do nothing.
+
 
 def are_all_values_in_bounds(
     values: Any,
-    bounds: Union[Tuple[Real, Real], List[Real]] = (0, 1),
-    closed: Literal['both', 'left', 'right', 'neither'] = 'neither',
-    nan_policy: Literal['raise', 'propagate', 'omit'] = 'propagate',
-    empty_policy: Literal['allow_true', 'treat_as_false'] = 'allow_true',
-    error: Literal['raise', 'warn', 'ignore'] = 'raise',
-    message: Optional[str] = None
+    bounds: tuple[Real, Real] | list[Real] = (0, 1),
+    closed: Literal[
+        "both", "left", "right", "neither"
+    ] = "neither",
+    nan_policy: Literal[
+        "raise", "propagate", "omit"
+    ] = "propagate",
+    empty_policy: Literal[
+        "allow_true", "treat_as_false"
+    ] = "allow_true",
+    error: Literal["raise", "warn", "ignore"] = "raise",
+    message: str | None = None,
 ) -> bool:
     """
     Check if all evaluable input values are within specified numeric bounds.
@@ -2344,27 +2460,30 @@ def are_all_values_in_bounds(
 
     # --- 1. Input Conversion to NumPy float array ---
     if np.isscalar(values):
-        if not isinstance(values, (int, float, np.number)):
+        if not isinstance(values, int | float | np.number):
             try:
                 val_float = float(values)
                 arr = np.array([val_float])
             except (ValueError, TypeError):
-                 _report_condition(
+                _report_condition(
                     error,
                     f"Scalar input '{values}' of type {type(values).__name__} "
                     "is not convertible to a numeric value.",
                     message,
                 )
-                 return False
+                return False
         else:
             arr = np.array([float(values)])
-            
-    elif isinstance(values, (pd.Series, pd.Index)):
+
+    elif isinstance(values, pd.Series | pd.Index):
         temp_arr = values.to_numpy()
         try:
-            if temp_arr.dtype == object or \
-               not np.issubdtype(temp_arr.dtype, np.number):
-                arr = pd.to_numeric(temp_arr, errors='raise').astype(float)
+            if temp_arr.dtype == object or not np.issubdtype(
+                temp_arr.dtype, np.number
+            ):
+                arr = pd.to_numeric(
+                    temp_arr, errors="raise"
+                ).astype(float)
             else:
                 arr = temp_arr.astype(float)
         except (ValueError, TypeError):
@@ -2374,7 +2493,7 @@ def are_all_values_in_bounds(
                 message,
             )
             return False
-    else: 
+    else:
         try:
             arr = np.asarray(values, dtype=float)
         except (ValueError, TypeError):
@@ -2384,18 +2503,20 @@ def are_all_values_in_bounds(
                 message,
             )
             return False
-    
+
     # --- 2. Validate `bounds` and `closed` Parameters ---
     # These checks happen early. If they fail and error is 'raise'/'warn',
     # the function returns False or raises, so subsequent logic is safe.
-    if not (isinstance(bounds, (list, tuple)) and len(bounds) == 2):
+    if not (
+        isinstance(bounds, list | tuple) and len(bounds) == 2
+    ):
         _report_condition(
             error,
             "`bounds` must be a list or tuple of two numbers.",
-            message
+            message,
         )
-        return False 
-    
+        return False
+
     try:
         lower_b = float(bounds[0])
         upper_b = float(bounds[1])
@@ -2404,7 +2525,7 @@ def are_all_values_in_bounds(
             error,
             "Elements of `bounds` must be numeric and `bounds` must "
             "have length 2.",
-            message
+            message,
         )
         return False
 
@@ -2413,65 +2534,68 @@ def are_all_values_in_bounds(
             error,
             f"Lower bound {lower_b} cannot be greater than upper "
             f"bound {upper_b}.",
-            message
+            message,
         )
         return False
 
-    valid_closed_options = {'both', 'left', 'right', 'neither'}
+    valid_closed_options = {
+        "both",
+        "left",
+        "right",
+        "neither",
+    }
     if closed not in valid_closed_options:
         _report_condition(
             error,
             f"Invalid 'closed' parameter: {closed}. Must be one of "
             f"{valid_closed_options}.",
-            message
+            message,
         )
         return False
-        
+
     # --- 3. Handle NaNs based on `nan_policy` ---
     # This section modifies `arr` if nan_policy is 'omit'.
     # For other policies, it might return early.
     has_nans = np.isnan(arr).any()
 
     if has_nans:
-        if nan_policy == 'raise':
+        if nan_policy == "raise":
             _report_condition(
-                error,
-                "Input contains NaNs.",
-                message
+                error, "Input contains NaNs.", message
             )
-            return False # Returns False if error policy is 'warn' or 'ignore'
-        elif nan_policy == 'propagate':
-            return False 
-        elif nan_policy == 'omit':
+            return False  # Returns False if error policy is 'warn' or 'ignore'
+        elif nan_policy == "propagate":
+            return False
+        elif nan_policy == "omit":
             arr = arr[~np.isnan(arr)]
             # `arr` might be empty now. This is handled in step 4.
-    
+
     # --- 4. Handle Empty Array (original or after NaN omission) ---
     if arr.size == 0:
-        if empty_policy == 'allow_true':
+        if empty_policy == "allow_true":
             return True
-        elif empty_policy == 'treat_as_false':
+        elif empty_policy == "treat_as_false":
             return False
-        else: # Should be caught by Literal type hint
+        else:  # Should be caught by Literal type hint
             _report_condition(
                 error,
                 f"Internal error: Invalid 'empty_policy' "
                 f"value '{empty_policy}'.",
-                message
+                message,
             )
-            return False # Fallback for invalid policy if not raised
+            return False  # Fallback for invalid policy if not raised
 
     # --- 5. Perform Bounds Check on (Potentially Modified) `arr` ---
     # At this point, `arr` contains only non-NaN numeric values,
     # and is guaranteed to be non-empty.
     in_bounds_mask: np.ndarray
-    if closed == 'both':
+    if closed == "both":
         in_bounds_mask = (arr >= lower_b) & (arr <= upper_b)
-    elif closed == 'left':
+    elif closed == "left":
         in_bounds_mask = (arr >= lower_b) & (arr < upper_b)
-    elif closed == 'right':
+    elif closed == "right":
         in_bounds_mask = (arr > lower_b) & (arr <= upper_b)
-    elif closed == 'neither': 
+    elif closed == "neither":
         in_bounds_mask = (arr > lower_b) & (arr < upper_b)
     else:
         # This case should have been caught by parameter validation.
@@ -2480,7 +2604,7 @@ def are_all_values_in_bounds(
             error,
             f"Internal error: Invalid 'closed' value '{closed}' "
             "reached bounds check.",
-            message
+            message,
         )
         return False
 
@@ -2490,46 +2614,47 @@ def are_all_values_in_bounds(
         _report_condition(
             error,
             "One or more values are out of the specified bounds.",
-            message
+            message,
         )
-        return False # Returns False if error policy is 'warn' or 'ignore'
+        return False  # Returns False if error policy is 'warn' or 'ignore'
     else:
         return True
 
+
 def rename_dict_keys(
-       data: dict,
-       param_to_rename: Optional[dict] = None,
-       order: str = "forward",
-    ):
+    data: dict,
+    param_to_rename: dict | None = None,
+    order: str = "forward",
+):
     """
-    Renames keys in the `data` dictionary based on 
+    Renames keys in the `data` dictionary based on
     the provided `param_to_rename` dictionary.
-    
+
     This function will check if the key exists in the `data` dictionary.
-    If the key is present, it will be renamed according to the mapping 
-    provided in the `param_to_rename` dictionary. If the key is not found 
-    in `data` and a mapping exists in `param_to_rename`, the function will 
-    apply the rename. If no rename is required, the function will return the 
+    If the key is present, it will be renamed according to the mapping
+    provided in the `param_to_rename` dictionary. If the key is not found
+    in `data` and a mapping exists in `param_to_rename`, the function will
+    apply the rename. If no rename is required, the function will return the
     original dictionary.
 
     Parameters
     ----------
     data : dict
-        The dictionary whose keys may be renamed. The function will iterate 
-        over the keys of this dictionary and rename them according to the 
+        The dictionary whose keys may be renamed. The function will iterate
+        over the keys of this dictionary and rename them according to the
         mapping provided in `param_to_rename`.
 
     param_to_rename : dict, optional
-        A dictionary mapping old keys to new keys. Each key in this dictionary 
-        represents an old key that may be found in `data`, and the corresponding 
-        value is the new key. If `None`, no renaming is performed. If a key in 
+        A dictionary mapping old keys to new keys. Each key in this dictionary
+        represents an old key that may be found in `data`, and the corresponding
+        value is the new key. If `None`, no renaming is performed. If a key in
         `data` matches an old key in `param_to_rename`, that key will be renamed.
-    order: str, {'forward', 'reverse'}: 
+    order: str, {'forward', 'reverse'}:
         Order for renaming keys in a flat dict::
-            
+
             forward (default):
                 param_to_rename = {old_key: new_key}
-    
+
             reverse:
               param_to_rename = {
                 canonical_key: alias or (alias1, alias2, ...)
@@ -2540,7 +2665,7 @@ def rename_dict_keys(
     Returns
     -------
     dict
-        The updated dictionary with keys renamed as per the `param_to_rename` 
+        The updated dictionary with keys renamed as per the `param_to_rename`
         mapping. If no keys need renaming, the original dictionary is returned.
 
     Raises
@@ -2550,51 +2675,57 @@ def rename_dict_keys(
 
     Examples
     --------
-    >>> from geoprior.utils.generic_utils import 
+    >>> from geoprior.utils.generic_utils import
     Example 1: Renaming a key in the dictionary:
-    
+
     >>> data = {"subsidence": 100}
     >>> param_to_rename = {"subsidence": "subs_pred"}
     >>> rename_dict_keys(data, param_to_rename)
     {'subs_pred': 100}
-    
+
     Example 2: When the key is already valid (no change needed):
-    
+
     >>> data = {"subs_pred": 100}
     >>> param_to_rename = {"subsidence": "subs_pred"}
     >>> rename_dict_keys(data, param_to_rename)
     {'subs_pred': 100}
-    
+
     Example 3: When `param_to_rename` is `None`, no renaming is performed:
-    
+
     >>> data = {"subsidence": 100}
     >>> rename_dict_keys(data)
     {'subsidence': 100}
 
     Notes
     -----
-    - If `param_to_rename` is `None`, no renaming occurs, and the `data` 
+    - If `param_to_rename` is `None`, no renaming occurs, and the `data`
       dictionary is returned as is.
-    - This function raises an error if `param_to_rename` is not a dictionary. 
+    - This function raises an error if `param_to_rename` is not a dictionary.
       Ensure that the parameter is a valid dictionary of old-to-new key mappings.
     """
-    
+
     if param_to_rename is None:
-        return data  # If no param_to_rename, return data as is
-    
+        return (
+            data  # If no param_to_rename, return data as is
+        )
+
     # Ensure param_to_rename is a dictionary
     if not isinstance(param_to_rename, dict):
         raise ValueError(
-            "param_to_rename must be a dictionary.")
+            "param_to_rename must be a dictionary."
+        )
     if not isinstance(data, dict):
         raise ValueError(
-            f"data must be a dictionary. Got {type(data).__name__!r}")
+            f"data must be a dictionary. Got {type(data).__name__!r}"
+        )
     if order not in ("forward", "reverse"):
-        raise ValueError("order must be 'forward' or 'reverse'.")
-        
+        raise ValueError(
+            "order must be 'forward' or 'reverse'."
+        )
+
     # Create a copy of data to avoid modifying the original
     updated_data = data.copy()
-    
+
     if order == "forward":
         # Rename keys based on param_to_rename mapping
         for old_key, new_key in param_to_rename.items():
@@ -2602,17 +2733,22 @@ def rename_dict_keys(
                 continue
             if old_key in updated_data:
                 # do not clobber an existing canonical value
-                if new_key in updated_data and new_key != old_key:
+                if (
+                    new_key in updated_data
+                    and new_key != old_key
+                ):
                     # keep existing new_key; drop old_key
                     updated_data.pop(old_key)
                 else:
-                    updated_data[new_key] = updated_data.pop(old_key)
+                    updated_data[new_key] = updated_data.pop(
+                        old_key
+                    )
             return updated_data
-    
+
     # reverse mode: canonical -> aliases
     for canonical, aliases in param_to_rename.items():
         # normalize aliases to tuple
-        if isinstance(aliases, (list, tuple)):
+        if isinstance(aliases, list | tuple):
             alias_iter = tuple(aliases)
         elif isinstance(aliases, str):
             alias_iter = (aliases,)
@@ -2630,13 +2766,14 @@ def rename_dict_keys(
             if a in updated_data:
                 updated_data[canonical] = updated_data.pop(a)
                 break
-            
+
     # Rename keys based on param_to_rename mapping
     # for old_key, new_key in param_to_rename.items():
     #     if old_key in updated_data:
     #         updated_data[new_key] = updated_data.pop(old_key)
-    
+
     return updated_data
+
 
 def ensure_directory_exists(path):
     """
@@ -2692,9 +2829,11 @@ def ensure_directory_exists(path):
     os.makedirs : Legacy function for creating directories recursively.
     """
     # Validate type
-    if not isinstance(path, (str, Path)):
-        raise TypeError("`path` must be a str or pathlib.Path, got "
-                        f"{type(path).__name__!r}")
+    if not isinstance(path, str | Path):
+        raise TypeError(
+            "`path` must be a str or pathlib.Path, got "
+            f"{type(path).__name__!r}"
+        )
 
     # Convert to Path
     dir_path = Path(path)
@@ -2706,22 +2845,26 @@ def ensure_directory_exists(path):
         else:
             # A non-directory file exists at this path
             raise FileExistsError(
-                f"A non-directory file exists at: {dir_path}")
+                f"A non-directory file exists at: {dir_path}"
+            )
 
     # Attempt to create the directory (including parents)
     try:
         dir_path.mkdir(parents=True, exist_ok=True)
     except OSError as exc:
-        raise OSError(f"Unable to create directory {dir_path}: {exc}") from exc
+        raise OSError(
+            f"Unable to create directory {dir_path}: {exc}"
+        ) from exc
 
     return dir_path
+
 
 def normalize_time_column(
     df: pd.DataFrame,
     time_col: str,
     datetime_col: str = "datetime_temp",
     year_col: str = "year_int",
-    drop_orig: bool= False, 
+    drop_orig: bool = False,
 ) -> pd.DataFrame:
     r"""
     Ensure a time column becomes both a datetime and an integer year.
@@ -2821,10 +2964,14 @@ def normalize_time_column(
     pandas.to_datetime : Convert argument to datetime.
     """
     if not isinstance(df, pd.DataFrame):
-        raise TypeError(f"`df` must be a pandas DataFrame, got {type(df).__name__}.")
+        raise TypeError(
+            f"`df` must be a pandas DataFrame, got {type(df).__name__}."
+        )
 
     if time_col not in df.columns:
-        raise ValueError(f"Time column '{time_col}' not found in DataFrame.")
+        raise ValueError(
+            f"Time column '{time_col}' not found in DataFrame."
+        )
 
     df_norm = df.copy()
 
@@ -2833,7 +2980,10 @@ def normalize_time_column(
 
     # 1) Identify rows where value is already a Timestamp or datetime64
     mask_ts = df_norm[time_col].apply(
-        lambda x: pd.api.types.is_datetime64_any_dtype(type(x)))
+        lambda x: pd.api.types.is_datetime64_any_dtype(
+            type(x)
+        )
+    )
 
     if mask_ts.all():
         # If entire column is datetime dtype, just copy it
@@ -2841,13 +2991,17 @@ def normalize_time_column(
     else:
         # 2) Identify pure-integer years
         mask_int = df_norm[time_col].apply(
-            lambda x: isinstance(x, (int, np.integer)))
+            lambda x: isinstance(x, int | np.integer)
+        )
 
         # Parse integer‐year entries via format="%Y"
         if mask_int.any():
             try:
-                df_norm.loc[mask_int, datetime_col] = pd.to_datetime(
-                    df_norm.loc[mask_int, time_col], format="%Y"
+                df_norm.loc[mask_int, datetime_col] = (
+                    pd.to_datetime(
+                        df_norm.loc[mask_int, time_col],
+                        format="%Y",
+                    )
                 )
             except Exception as exc:
                 raise ValueError(
@@ -2858,8 +3012,11 @@ def normalize_time_column(
         mask_remain = ~mask_int
         if mask_remain.any():
             try:
-                df_norm.loc[mask_remain, datetime_col] = pd.to_datetime(
-                    df_norm.loc[mask_remain, time_col], errors="raise"
+                df_norm.loc[mask_remain, datetime_col] = (
+                    pd.to_datetime(
+                        df_norm.loc[mask_remain, time_col],
+                        errors="raise",
+                    )
                 )
             except Exception as exc:
                 raise ValueError(
@@ -2868,23 +3025,31 @@ def normalize_time_column(
                 )
 
     # Finally, ensure datetime_col is dtype datetime64[ns]
-    if not pd.api.types.is_datetime64_any_dtype(df_norm[datetime_col]):
+    if not pd.api.types.is_datetime64_any_dtype(
+        df_norm[datetime_col]
+    ):
         try:
-            df_norm[datetime_col] = pd.to_datetime(df_norm[datetime_col], errors="raise")
+            df_norm[datetime_col] = pd.to_datetime(
+                df_norm[datetime_col], errors="raise"
+            )
         except Exception as exc:
-            raise ValueError(f"Failed to coerce '{datetime_col}' to datetime: {exc}")
+            raise ValueError(
+                f"Failed to coerce '{datetime_col}' to datetime: {exc}"
+            )
 
     # 4) Extract integer year into year_col
     try:
-        df_norm[year_col] = df_norm[datetime_col].dt.year.astype(int)
+        df_norm[year_col] = df_norm[
+            datetime_col
+        ].dt.year.astype(int)
     except Exception as exc:
         raise ValueError(
             f"Failed to extract year from '{datetime_col}': {exc}"
         )
- 
+
     # --- Drop original time_col and adjust columns if requested ---
     if drop_orig:
-        # If the original time_col and year_col share the same name, 
+        # If the original time_col and year_col share the same name,
         # we need to preserve the integer year before dropping.
         if year_col == time_col:
             # Temporarily stash original values
@@ -2892,17 +3057,20 @@ def normalize_time_column(
             df_norm[temp_col] = df_norm[time_col]
             df_norm.drop(columns=[time_col], inplace=True)
             # Rename the stashed column back to time_col
-            df_norm.rename(columns={temp_col: time_col}, inplace=True)
+            df_norm.rename(
+                columns={temp_col: time_col}, inplace=True
+            )
         else:
             # Simply drop the original time_col
             df_norm.drop(columns=[time_col], inplace=True)
-        
+
     return df_norm
 
+
 def select_mode(
-    mode: Union[str, None] = None,
+    mode: str | None = None,
     default: str = "pihal_like",
-    canonical: Optional[Union[Dict[str, Any], List[Any]]] = None,
+    canonical: dict[str, Any] | list[Any] | None = None,
 ) -> str:
     r"""
     Resolve a user‑supplied *mode* string to the canonical value
@@ -2927,16 +3095,16 @@ def select_mode(
         A custom mapping from user input to canonical value.
         - If a dictionary is provided, it must map input strings to
           their canonical representation.
-        - If a list is provided, it will be converted to a dictionary 
+        - If a list is provided, it will be converted to a dictionary
           where each element is a key, and the value will be the
           same as the key.
         - By default, the function uses a predefined dictionary
           for mode resolution.
-        
+
     Returns
     -------
     str
-        Canonical string corresponding to the mode, either 
+        Canonical string corresponding to the mode, either
         ``'pihal_like'`` or ``'tft_like'``.
 
     Raises
@@ -2981,23 +3149,24 @@ def select_mode(
     """
 
     default_canonical = {
-        "pihal": "pihal_like", 
+        "pihal": "pihal_like",
         "pihal_like": "pihal_like",
-        "tft": "tft_like", 
-        "tft_like": "tft_like", 
-        "tft-like": "tft_like", 
-        "pihal-like": "pihal_like"
+        "tft": "tft_like",
+        "tft_like": "tft_like",
+        "tft-like": "tft_like",
+        "pihal-like": "pihal_like",
     }
     # Use provided canonical map or fall back to the default
     if canonical is None:
         canonical = default_canonical
-        
+
     elif isinstance(canonical, list):
         # Convert list to dictionary where each element is both key and value
         canonical = {
-            str(mode).lower(): str(mode).lower() for mode in canonical
+            str(mode).lower(): str(mode).lower()
+            for mode in canonical
         }
-        
+
     if mode is None:
         return canonical.get(default, default)
 
@@ -3009,13 +3178,14 @@ def select_mode(
             f"Invalid mode '{mode}'. Choose one of: {valid} or None."
         ) from None
 
+
 def _coerce_dt_kw(
-    *,        
+    *,
     dt_col: Any = _SENTINEL,
     time_col: Any = _SENTINEL,
-    _time_default: Optional[str]= None,
-    **kwargs
-) -> Dict[str, Any]:
+    _time_default: str | None = None,
+    **kwargs,
+) -> dict[str, Any]:
     r"""
     Harmonise the interchangeable ``dt_col`` / ``time_col`` keywords.
 
@@ -3083,8 +3253,12 @@ def _coerce_dt_kw(
     ValueError: Supply **exactly one** of 'dt_col' or 'time_col'.
     """
     # ­──────────────────────── detect “omitted” vs “provided None” ──
-    dt_provided   = (dt_col   is not _SENTINEL) and (dt_col   is not None)
-    time_provided = time_col is not _SENTINEL and (time_col is not None)
+    dt_provided = (dt_col is not _SENTINEL) and (
+        dt_col is not None
+    )
+    time_provided = time_col is not _SENTINEL and (
+        time_col is not None
+    )
 
     # ­──────────────────────── three legal scenarios ───────────────
     if not dt_provided and not time_provided:
@@ -3096,7 +3270,7 @@ def _coerce_dt_kw(
         if str(time_col) != str(_time_default):
             raise ValueError(
                 "Supply **exactly one** of 'dt_col' or 'time_col', not both "
-                f"({'dt_col='+str(dt_col)!r}, {'time_col='+str(time_col)!r})."
+                f"({'dt_col=' + str(dt_col)!r}, {'time_col=' + str(time_col)!r})."
             )
         # user gave dt_col; time_col was default -> ignore default
         chosen = dt_col
@@ -3108,14 +3282,15 @@ def _coerce_dt_kw(
     out["dt_col"] = chosen
     return out
 
+
 def save_figure(
     figure: plt.Figure,
-    savefile: Optional[str] = None,
-    save_fmts: Union[str, List[str]] = '.png',
+    savefile: str | None = None,
+    save_fmts: str | list[str] = ".png",
     overwrite: bool = True,
     verbose: int = 1,
     _logger=None,
-    **kwargs
+    **kwargs,
 ):
     """
     Save the given matplotlib figure to disk in one or more formats.
@@ -3155,13 +3330,21 @@ def save_figure(
     """
     # Define a set of common, valid image extensions for checking.
     VALID_EXTENSIONS = {
-        '.png', '.jpg', '.jpeg', '.pdf', '.svg', '.eps', '.tiff'
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".pdf",
+        ".svg",
+        ".eps",
+        ".tiff",
     }
 
     # --- Step 1: Determine the base output path and name ---
     if savefile is None:
         # Generate a default timestamped filename if none is provided.
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.datetime.now().strftime(
+            "%Y%m%d_%H%M%S"
+        )
         base_name = f"figure_{timestamp}"
         output_dir = Path.cwd()
     else:
@@ -3170,61 +3353,80 @@ def save_figure(
         # Check if the provided savefile has a valid image extension.
         if p.suffix.lower() in VALID_EXTENSIONS:
             # If yes, use the part before the extension as the base name.
-            base_name = p.stem # str(p.with_suffix(''))#
+            base_name = p.stem  # str(p.with_suffix(''))#
         else:
             # If not, treat the entire string as the base name.
-            base_name = p.name # str(savefile) # p.name
-  
+            base_name = p.name  # str(savefile) # p.name
+
     # --- Step 2: Prepare the list of formats to save ---
     if isinstance(save_fmts, str):
-        save_fmts = [save_fmts] # Ensure it's a list for iteration.
-    
+        save_fmts = [
+            save_fmts
+        ]  # Ensure it's a list for iteration.
+
     # Clean up formats to ensure they start with a dot.
-    formats_to_save = [f".{fmt.lstrip('.')}" for fmt in save_fmts]
+    formats_to_save = [
+        f".{fmt.lstrip('.')}" for fmt in save_fmts
+    ]
 
     # --- Step 3: Save the figure in each requested format ---
     saved_paths = []
     try:
         # Ensure the output directory exists before saving.
         ExistenceChecker.ensure_directory(output_dir)
-        
-        for fmt in set(formats_to_save): # Use set to avoid duplicates
+
+        for fmt in set(
+            formats_to_save
+        ):  # Use set to avoid duplicates
             # Construct the final, full path for the current format.
-            final_path = (output_dir / f"{base_name}{fmt}") # .with_suffix(fmt)
-            
+            final_path = (
+                output_dir / f"{base_name}{fmt}"
+            )  # .with_suffix(fmt)
+
             # Handle overwrite logic.
             if not overwrite and final_path.exists():
                 raise FileExistsError(
                     f"File '{final_path}' already exists. "
                     "Set 'overwrite=True' to overwrite."
                 )
-            
+
             # Save the figure with any extra keyword arguments.
             figure.savefig(final_path, **kwargs)
-            
+
             if verbose > 0:
                 vlog(
                     f"Saved figure to {final_path}",
-                    verbose=verbose, level=2, logger=_logger
+                    verbose=verbose,
+                    level=2,
+                    logger=_logger,
                 )
             saved_paths.append(str(final_path))
 
         # Return a single path if only one file was saved, else the list.
-        return saved_paths[0] if len(saved_paths) == 1 else saved_paths
+        return (
+            saved_paths[0]
+            if len(saved_paths) == 1
+            else saved_paths
+        )
 
     except Exception as e:
         if verbose > 0:
-            vlog(f"Error saving figure: {e}",
-                 verbose=verbose, level=0, logger=_logger)
+            vlog(
+                f"Error saving figure: {e}",
+                verbose=verbose,
+                level=0,
+                logger=_logger,
+            )
         return None
-       
+
+
 def ensure_cols_exist(
     df: pd.DataFrame,
-    *cols: Union[str, Sequence[str]],
+    *cols: str | Sequence[str],
     strict: bool = False,
     error: str = "warn",
     return_as_flatten: bool = True,
-) -> List[str] | List[List[str]]:
+) -> list[str] | list[list[str]]:
     """
     Validate that *every* requested column is present in a DataFrame.
 
@@ -3280,17 +3482,18 @@ def ensure_cols_exist(
     >>> ensure_cols_exist(df, "x", strict=True)
     ValueError: missing columns: ['x']
     """
+
     # ---- 1 • normalise cols
-    def _to_list(obj: Union[str, Iterable[str]]) -> List[str]:
+    def _to_list(obj: str | Iterable[str]) -> list[str]:
         return [obj] if isinstance(obj, str) else list(obj)
 
-    grouped: List[List[str]] = [_to_list(c) for c in cols]
-    flat: List[str] = list(chain.from_iterable(grouped))
+    grouped: list[list[str]] = [_to_list(c) for c in cols]
+    flat: list[str] = list(chain.from_iterable(grouped))
 
     if not flat:  # nothing to check
         return [] if return_as_flatten else grouped
 
-    #  membership test 
+    #  membership test
     present = [c for c in flat if c in df.columns]
     missing = [c for c in flat if c not in df.columns]
 
@@ -3304,24 +3507,25 @@ def ensure_cols_exist(
     #  return
     if return_as_flatten:
         # keep original order but drop the missing ones
-        return list(set ([c for c in flat if c in present]))
+        return list(set([c for c in flat if c in present]))
 
     # keep original grouping, dropping any missing names
-    filtered_grouped: List[List[str]] = [
+    filtered_grouped: list[list[str]] = [
         [c for c in grp if c in present] for grp in grouped
     ]
     return filtered_grouped
 
+
 def apply_affix(
     value: Any,
-    label: Optional[str] = None,
+    label: str | None = None,
     *,
     mode: str = "suffix",
     affix_prefix: str = "",
     separator: str = "",
     include_date: bool = False,
     date_format: str = "%Y%m%d",
-    version: Optional[str] = None,
+    version: str | None = None,
     version_prefix: str = "v",
     part_separator: str = "",
 ) -> str:
@@ -3412,17 +3616,26 @@ def apply_affix(
         return base
 
     if mode == "suffix":
-        return f"{base}{separator}{combined}" if separator else f"{base}{combined}"
+        return (
+            f"{base}{separator}{combined}"
+            if separator
+            else f"{base}{combined}"
+        )
     elif mode == "prefix":
-        return f"{combined}{separator}{base}" if separator else f"{combined}{base}"
+        return (
+            f"{combined}{separator}{base}"
+            if separator
+            else f"{combined}{base}"
+        )
     else:
         raise ValueError("mode must be 'suffix' or 'prefix'")
 
+
 def insert_affix_in(
-    filepath: Union[str, Path],
+    filepath: str | Path,
     affix: str,
     *,
-    separator: str = ""
+    separator: str = "",
 ) -> str:
     """
     Insert an affix between the base name and extension of a filename.
@@ -3453,20 +3666,22 @@ def insert_affix_in(
     '/tmp/log.tar.backup.gz'
     """
     p = Path(filepath)
-    base = p.stem         # name without last suffix
-    ext = p.suffix        # last suffix, including the dot
-    if affix is None or str(affix) =='': 
-        separator = ''; affix=''
+    base = p.stem  # name without last suffix
+    ext = p.suffix  # last suffix, including the dot
+    if affix is None or str(affix) == "":
+        separator = ""
+        affix = ""
     new_name = f"{base}{separator}{affix}{ext}"
     return str(p.with_name(new_name))
+
 
 def split_train_test_by_time(
     df: pd.DataFrame,
     time_col: str,
-    cutoff: Union[int, float, str, pd.Timestamp],
+    cutoff: int | float | str | pd.Timestamp,
     *,
-    parse_time_col: bool = True
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    parse_time_col: bool = True,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Split a DataFrame into train/test based on a time cutoff,
     robust to different time formats.
@@ -3493,15 +3708,15 @@ def split_train_test_by_time(
     ------
     ValueError
         If types are incompatible or parsing fails.
-        
-    Example 
+
+    Example
     --------
     >>> import numpy as np ; import pandas as pd
-    >>> from geoprior.utils.generic_utils import split_train_test_by_time 
+    >>> from geoprior.utils.generic_utils import split_train_test_by_time
 
     >>> # 1. datetime column vs integer year cutoff
     >>> df = pd.DataFrame({
-        'year': ['2017-01-01','2018-01-01','2019-01-01'], 
+        'year': ['2017-01-01','2018-01-01','2019-01-01'],
         'value': [1,2,3]
     })
     >>> train, test = split_train_test_by_time(df, 'year', 2018)
@@ -3516,22 +3731,26 @@ def split_train_test_by_time(
     >>> # 4. disable parsing (if already datetime)
     >>> df['year'] = pd.to_datetime(df['year'])
     >>> train, test = split_train_test_by_time(df, 'year', pd.Timestamp('2019-01-01'))
-    
+
     """
-    if not isinstance (df, pd.DataFrame): 
-        raise TypeError (
-            f"Expect dataframe for 'df'. Got {type(df).__name__!r}")
-        
-    if time_col not in df.columns: 
-        raise ValueError (f"Time column is missing in df: {time_col}")
-        
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError(
+            f"Expect dataframe for 'df'. Got {type(df).__name__!r}"
+        )
+
+    if time_col not in df.columns:
+        raise ValueError(
+            f"Time column is missing in df: {time_col}"
+        )
+
     # 2. Rewrap into DataFrame copy
     working = df.copy()
     series = working[time_col]
     # 1. Detect a “numeric-year” column:
-    is_int   = pd.api.types.is_integer_dtype(series)
-    is_float = pd.api.types.is_float_dtype(
-        series) and np.all(series.dropna() % 1 == 0)
+    is_int = pd.api.types.is_integer_dtype(series)
+    is_float = pd.api.types.is_float_dtype(series) and np.all(
+        series.dropna() % 1 == 0
+    )
     numeric_year_col = is_int or is_float
 
     # 2. Branch on column type
@@ -3539,34 +3758,43 @@ def split_train_test_by_time(
         # Convert floats→int if needed
         years = series.astype(int)
         # Cutoff must also be numeric
-        if not isinstance(cutoff, (int, float)):
+        if not isinstance(cutoff, int | float):
             raise ValueError(
                 "Cannot compare numeric-year column"
                 " to non-numeric cutoff"
             )
         cut_val = int(cutoff)
         train_mask = years <= cut_val
-        test_mask  = years >= cut_val
+        test_mask = years >= cut_val
 
     else:
         # Expect a datetime-like column
-        if parse_time_col and not pd.api.types.is_datetime64_any_dtype(series):
+        if (
+            parse_time_col
+            and not pd.api.types.is_datetime64_any_dtype(
+                series
+            )
+        ):
             try:
-                series = pd.to_datetime(series, errors='coerce')
+                series = pd.to_datetime(
+                    series, errors="coerce"
+                )
             except Exception as e:
                 raise ValueError(
-                    f"Failed to parse `{time_col}` to datetime: {e}")
+                    f"Failed to parse `{time_col}` to datetime: {e}"
+                )
         if not pd.api.types.is_datetime64_any_dtype(series):
             raise ValueError(
-                f"Column `{time_col}` is not datetime or numeric-year.")
+                f"Column `{time_col}` is not datetime or numeric-year."
+            )
 
         # Now handle cutoff as year or full date
-        if isinstance(cutoff, (int, float)):
+        if isinstance(cutoff, int | float):
             # Year-based split
             years = series.dt.year
             cut_val = int(cutoff)
             train_mask = years <= cut_val
-            test_mask  = years >= cut_val
+            test_mask = years >= cut_val
 
         else:
             # Parse cutoff to Timestamp if needed
@@ -3574,21 +3802,23 @@ def split_train_test_by_time(
                 try:
                     cutoff = pd.to_datetime(cutoff)
                 except Exception as e:
-                    raise ValueError(f"Failed to parse cutoff {cutoff!r}: {e}")
+                    raise ValueError(
+                        f"Failed to parse cutoff {cutoff!r}: {e}"
+                    )
             train_mask = series <= cutoff
-            test_mask  = series >= cutoff
+            test_mask = series >= cutoff
 
     # 3. Return splits
     train_df = working.loc[train_mask].copy()
-    test_df  = working.loc[test_mask].copy()
+    test_df = working.loc[test_mask].copy()
     return train_df, test_df
 
 
 def getenv_stripped(
     name: str,
-    default: Optional[str] = None,
-    allow_empty: bool = False
- ) -> Optional[str]:
+    default: str | None = None,
+    allow_empty: bool = False,
+) -> str | None:
     """
     Read an environment variable and strip whitespace robustly.
 
@@ -3619,10 +3849,10 @@ def getenv_stripped(
 
 
 def default_results_dir(
-    start: Optional[PathLike] = None,
+    start: PathLike | None = None,
     env_var: str = "RESULTS_DIR",
     folder_name: str = "results",
-    create: bool = False
+    create: bool = False,
 ) -> str:
     """
     Resolve the canonical 'results' directory with robust fallbacks.
@@ -3676,7 +3906,11 @@ def default_results_dir(
         return str(p)
 
     # 2) Search upward for `folder_name`
-    base = Path(start).resolve() if start else Path.cwd().resolve()
+    base = (
+        Path(start).resolve()
+        if start
+        else Path.cwd().resolve()
+    )
     for parent in (base, *base.parents):
         cand = parent / folder_name
         if cand.exists():
@@ -3688,10 +3922,12 @@ def default_results_dir(
         fallback.mkdir(parents=True, exist_ok=True)
     return str(fallback.resolve())
 
+
 def print_config_table(
-    sections: Union[Dict[str, Any], Sequence[Tuple[str, Dict[str, Any]]]],
-    title: Optional[str] = None,
-    table_width: Optional[int] = None,
+    sections: dict[str, Any]
+    | Sequence[tuple[str, dict[str, Any]]],
+    title: str | None = None,
+    table_width: int | None = None,
     sort_keys: bool = True,
     key_col_fraction: float = 0.35,
     max_value_length: int = 200,
@@ -3760,7 +3996,9 @@ def print_config_table(
     if table_width is None:
         # Fallback to terminal width or 80 columns
         try:
-            table_width = shutil.get_terminal_size((80, 20)).columns
+            table_width = shutil.get_terminal_size(
+                (80, 20)
+            ).columns
         except Exception:  # pragma: no cover
             table_width = 80
 
@@ -3769,16 +4007,19 @@ def print_config_table(
 
     # 2) Normalize `sections` into a sequence of (name, dict)
     if isinstance(sections, dict):
-        sections_list: Sequence[Tuple[str, Dict[str, Any]]] = [
-            ("", sections)
-        ]
+        sections_list: Sequence[
+            tuple[str, dict[str, Any]]
+        ] = [("", sections)]
     else:
-        norm_sections: List[Tuple[str, Dict[str, Any]]] = []
+        norm_sections: list[tuple[str, dict[str, Any]]] = []
         for idx, sec in enumerate(sections):
             if isinstance(sec, dict):
-                norm_sections.append((f"Section {idx+1}", sec))
+                norm_sections.append(
+                    (f"Section {idx + 1}", sec)
+                )
             elif (
-                isinstance(sec, (tuple, list)) and len(sec) == 2
+                isinstance(sec, tuple | list)
+                and len(sec) == 2
                 and isinstance(sec[1], dict)
             ):
                 name, params = sec
@@ -3791,33 +4032,42 @@ def print_config_table(
         sections_list = norm_sections
 
     # 3) Determine column widths
-    all_keys: List[str] = []
+    all_keys: list[str] = []
     for _, params in sections_list:
         all_keys.extend(str(k) for k in params.keys())
 
     if all_keys:
         key_width = max(len(k) for k in all_keys) + 2
-        key_width = int(min(key_width, table_width * key_col_fraction))
+        key_width = int(
+            min(key_width, table_width * key_col_fraction)
+        )
     else:
         key_width = int(table_width * key_col_fraction)
 
     key_width = max(8, key_width)
-    value_width = max(10, table_width - key_width - 3)  # "key : value"
-
+    value_width = max(
+        10, table_width - key_width - 3
+    )  # "key : value"
 
     # 4) Helpers for value formatting and wrapping
     def _format_value(v: Any) -> str:
         """Compact, human-readable representation for table."""
         if isinstance(v, float):
             s = f"{v:.6g}"
-        elif isinstance(v, (list, tuple, set)):
+        elif isinstance(v, list | tuple | set):
             inner = ", ".join(repr(x) for x in v)
-            open_br, close_br = ("[", "]") if isinstance(v, list) else \
-                                ("(", ")") if isinstance(v, tuple) else \
-                                ("{", "}")
+            open_br, close_br = (
+                ("[", "]")
+                if isinstance(v, list)
+                else ("(", ")")
+                if isinstance(v, tuple)
+                else ("{", "}")
+            )
             s = f"{open_br}{inner}{close_br}"
         elif isinstance(v, dict):
-            inner = ", ".join(f"{k}={val!r}" for k, val in v.items())
+            inner = ", ".join(
+                f"{k}={val!r}" for k, val in v.items()
+            )
             s = "{" + inner + "}"
         else:
             s = repr(v)
@@ -3825,7 +4075,7 @@ def print_config_table(
             s = s[: max_value_length - 3] + "..."
         return s
 
-    lines: List[str] = []
+    lines: list[str] = []
     border = "-" * table_width
 
     # 5) Build lines
@@ -3849,13 +4099,13 @@ def print_config_table(
         for key, value in items:
             key_str = str(key)
             val_str = _format_value(value)
-            wrapped = textwrap.wrap(val_str, width=value_width) or [""]
+            wrapped = textwrap.wrap(
+                val_str, width=value_width
+            ) or [""]
 
             # First line with key
             first = wrapped[0]
-            lines.append(
-                f"{key_str:<{key_width}} : {first}"
-            )
+            lines.append(f"{key_str:<{key_width}} : {first}")
             # Continuation lines for long values
             for cont in wrapped[1:]:
                 lines.append(" " * (key_width + 3) + cont)
@@ -3870,6 +4120,7 @@ def print_config_table(
     log_fn(table_text)
     return table_text
 
+
 def as_tuple(
     obj: Any,
     names: Sequence[str] | None = None,
@@ -3879,7 +4130,7 @@ def as_tuple(
     allow_unwrap_singleton: bool = True,
     max_unwrap_depth: int = 4,
     missing_value: Any = None,
-) -> Tuple[Any, ...]:
+) -> tuple[Any, ...]:
     """
     Convert model I/O structures (dict/list/tuple/tensor-like) into a tuple.
 
@@ -3988,9 +4239,13 @@ def as_tuple(
     # ------------------------------------------------------------
     # 2) Sequence case: validate length against names if provided
     # ------------------------------------------------------------
-    if isinstance(obj, (tuple, list)):
+    if isinstance(obj, tuple | list):
         tup = tuple(obj)
-        if names is not None and strict and len(tup) != len(names):
+        if (
+            names is not None
+            and strict
+            and len(tup) != len(names)
+        ):
             raise ValueError(
                 f"{ctx} has length {len(tup)} but expected {len(names)} "
                 f"to match output_names={list(names)}."
@@ -4012,4 +4267,3 @@ def as_tuple(
         return (obj,)
 
     return (obj,)
-

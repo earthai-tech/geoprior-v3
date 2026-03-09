@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 - https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
-# Author: LKouadio <etanoyau@gmail.com>
-# website:https://lkouadio.com
+# Author: LKouadio <https://lkouadio.com>
 
 import numpy as np
 
@@ -47,8 +45,7 @@ def _interval_indices(q_values):
     med_i = int(np.argmin(np.abs(q - 0.5)))
     if abs(float(q[med_i]) - 0.5) > 1e-6:
         raise ValueError(
-            "Interval calibration requires q=0.5 in "
-            "q_values."
+            "Interval calibration requires q=0.5 in q_values."
         )
 
     return lo_i, med_i, hi_i
@@ -236,8 +233,10 @@ def _extract_subs_pred(model, out):
     if ("subs_pred" in out) and ("gwl_pred" in out):
         return out["subs_pred"]
 
-    if "data_final" in out: 
-        s_pred, _ = model.split_data_predictions(out["data_final"])
+    if "data_final" in out:
+        s_pred, _ = model.split_data_predictions(
+            out["data_final"]
+        )
         return s_pred
 
     raise KeyError(

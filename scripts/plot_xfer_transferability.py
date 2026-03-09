@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: Apache-2.0
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
@@ -43,14 +42,14 @@ Notes
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable, List, Optional, Tuple
-
-import numpy as np
-import pandas as pd
+from typing import Any
 
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 from matplotlib.gridspec import GridSpec
 from matplotlib.lines import Line2D
 
@@ -61,6 +60,7 @@ from . import utils as u
 # Plot encodings
 # ---------------------------------------------------------------------
 
+
 @dataclass
 class TextFlags:
     show_legend: bool
@@ -68,7 +68,7 @@ class TextFlags:
     show_ticklabels: bool
     show_title: bool
     show_panel_titles: bool
-    title: Optional[str]
+    title: str | None
 
 
 # ---------------------------------------------------------------------
@@ -119,7 +119,12 @@ def _canon_cols(df: pd.DataFrame) -> pd.DataFrame:
         if c in df.columns:
             df[c] = df[c].astype(str).str.strip()
 
-    for c in ("strategy", "rescale_mode", "direction", "split"):
+    for c in (
+        "strategy",
+        "rescale_mode",
+        "direction",
+        "split",
+    ):
         if c in df.columns:
             df[c] = df[c].str.lower()
 
@@ -150,7 +155,7 @@ def _subset(
     strategy: str,
     split: str,
     calib: str,
-    rescale_mode: Optional[str],
+    rescale_mode: str | None,
     baseline_rescale: str,
 ) -> pd.DataFrame:
     d = str(direction).lower()
@@ -214,7 +219,7 @@ def _pick_metric(
     strategy: str,
     split: str,
     calib: str,
-    rescale_mode: Optional[str],
+    rescale_mode: str | None,
     baseline_rescale: str,
     col: str,
     reduce: str,
@@ -271,9 +276,9 @@ def _bar_panel(
     *,
     direction: str,
     split: str,
-    strategies: List[str],
-    calib_modes: List[str],
-    rescale_mode: Optional[str],
+    strategies: list[str],
+    calib_modes: list[str],
+    rescale_mode: str | None,
     baseline_rescale: str,
     metric_key: str,
     reduce: str,
@@ -322,12 +327,16 @@ def _bar_panel(
                 color=base_c,
                 alpha=0.85,
                 hatch=cfg._STRAT_HATCH.get(strat, ""),
-                edgecolor=cfg._STRAT_EDGE.get(strat, "#111111"),
+                edgecolor=cfg._STRAT_EDGE.get(
+                    strat, "#111111"
+                ),
                 linewidth=0.6,
             )
 
     ax.set_xticks(x0)
-    ax.set_xticklabels([cfg._CAL_LABEL.get(c, c) for c in calib_modes])
+    ax.set_xticklabels(
+        [cfg._CAL_LABEL.get(c, c) for c in calib_modes]
+    )
 
     if text.show_labels:
         ax.set_ylabel(ylab)
@@ -350,9 +359,9 @@ def _scatter_panel(
     *,
     direction: str,
     split: str,
-    strategies: List[str],
-    calib_modes: List[str],
-    rescale_mode: Optional[str],
+    strategies: list[str],
+    calib_modes: list[str],
+    rescale_mode: str | None,
     baseline_rescale: str,
     cov_target: float,
     text: TextFlags,
@@ -400,7 +409,9 @@ def _scatter_panel(
                 s=42,
                 marker=cfg._CAL_MARKER.get(cm, "o"),
                 facecolors=face_c,
-                edgecolors=cfg._STRAT_EDGE.get(strat, "#111111"),
+                edgecolors=cfg._STRAT_EDGE.get(
+                    strat, "#111111"
+                ),
                 linewidths=0.8,
                 alpha=0.90,
             )
@@ -429,8 +440,8 @@ def _scatter_panel(
 def _add_legends(
     ax: Any,
     *,
-    strategies: List[str],
-    calib_modes: List[str],
+    strategies: list[str],
+    calib_modes: list[str],
 ) -> None:
     cal_h = []
     for c in calib_modes:
@@ -456,7 +467,9 @@ def _add_legends(
                 marker="s",
                 linestyle="None",
                 markerfacecolor="none",
-                markeredgecolor=cfg._STRAT_EDGE.get(s, "#111111"),
+                markeredgecolor=cfg._STRAT_EDGE.get(
+                    s, "#111111"
+                ),
                 markersize=6,
                 label=cfg._STRAT_LABEL.get(s, s),
             )
@@ -484,9 +497,9 @@ def render(
     df: pd.DataFrame,
     *,
     split: str,
-    strategies: List[str],
-    calib_modes: List[str],
-    rescale_mode: Optional[str],
+    strategies: list[str],
+    calib_modes: list[str],
+    rescale_mode: str | None,
     baseline_rescale: str,
     metric_top: str,
     metric_bottom: str,
@@ -494,7 +507,7 @@ def render(
     cov_target: float,
     out: Path,
     text: TextFlags,
-) -> Tuple[Path, Path]:
+) -> tuple[Path, Path]:
     u.set_paper_style()
 
     dirs = ("A_to_B", "B_to_A")
@@ -593,7 +606,7 @@ def render(
 # ---------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------
-def parse_args(argv: List[str] | None = None) -> Any:
+def parse_args(argv: list[str] | None = None) -> Any:
     ap = u.argparse.ArgumentParser(  # type: ignore[attr-defined]
         prog="plot-xfer-transferability",
         description=(
@@ -684,13 +697,19 @@ def parse_args(argv: List[str] | None = None) -> Any:
 
 def _text_flags(args: Any) -> TextFlags:
     return TextFlags(
-        show_legend=u.str_to_bool(args.show_legend, default=True),
-        show_labels=u.str_to_bool(args.show_labels, default=True),
+        show_legend=u.str_to_bool(
+            args.show_legend, default=True
+        ),
+        show_labels=u.str_to_bool(
+            args.show_labels, default=True
+        ),
         show_ticklabels=u.str_to_bool(
             args.show_ticklabels,
             default=True,
         ),
-        show_title=u.str_to_bool(args.show_title, default=True),
+        show_title=u.str_to_bool(
+            args.show_title, default=True
+        ),
         show_panel_titles=u.str_to_bool(
             args.show_panel_titles,
             default=True,
@@ -700,7 +719,7 @@ def _text_flags(args: Any) -> TextFlags:
 
 
 def figSx_xfer_transferability_main(
-    argv: List[str] | None = None,
+    argv: list[str] | None = None,
 ) -> None:
     u.ensure_script_dirs()
 
@@ -749,7 +768,7 @@ def figSx_xfer_transferability_main(
     print(f"[OK] Wrote {svg}")
 
 
-def main(argv: List[str] | None = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     figSx_xfer_transferability_main(argv)
 
 
