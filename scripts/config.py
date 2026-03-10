@@ -124,12 +124,12 @@ PLOT_METRIC_META = {
         "unit": "mm²",
     },
     "coverage80": {
-        "title": "Coverage (@80) (↑)",
+        "title": "Coverage (80% PI; target 0.80)",
         "ylabel": "Coverage",
         "fmt": "{:.3f}",
     },
     "sharpness80": {
-        "title": "Sharpness (@80) (↓, {unit})",
+        "title": "Sharpness (80% PI; ↓, {unit})",
         "ylabel": "Sharpness ({unit})",
         "fmt": "{:.3f}",
         "unit": "mm",
