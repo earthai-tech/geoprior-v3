@@ -148,16 +148,22 @@ Documentation is under active development.
 
 ---
 
-## 💻 Premium GUI
+## 💻 GeoPrior 3.0 Forecaster App
 
-The **GeoPrior research core** is released as open-source software to
-support reproducible science.
-The **premium GUI/application layer** is developed separately and is not
-included in the public repository, which is intentionally kept focused
-on the scientific and reproducible components of the project.
+The **GeoPrior research core** is openly available to support
+reproducible scientific research.
 
-For information regarding access to the **GUI version**, please
+In addition, GeoPrior includes the **GeoPrior 3.0 Forecaster App**,
+which offers a complete GUI-based application workflow built on top of
+the research framework. This application version is maintained
+separately from the public repository, which focuses on the core
+scientific and reproducible modules.
+
+For access to the **GeoPrior 3.0 Forecaster App**, please
 **contact the author** directly.
+
+* App tutorial: [https://youtu.be/JtOpX5lv4iw](https://youtu.be/JtOpX5lv4iw)
+* Example simulation run: [https://youtu.be/nCouLQQFpQg](https://youtu.be/nCouLQQFpQg)
 
 ---
 

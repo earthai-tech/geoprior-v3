@@ -1,7 +1,23 @@
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
-# Copyright (c) 2026-present
-# Author: LKouadio <https://lkouadio.com>
+#
+# GeoPrior-v3: Physics-guided AI for geohazards
+# Repo: https://github.com/earthai-tech/geoprior-v3
+# Web:  https://lkouadio.com
+#
+# Copyright 2026-present Kouadio Laurent
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#   https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied. See the License for the specific language governing
+# permissions and limitations under the License.
+#
+# Author: LKouadio <etanoyau@gmail.com>
 
 from __future__ import annotations
 
@@ -3523,7 +3539,7 @@ class GeoPriorSubsNet(BaseAttentive):
             lambda: Q_fallback,
         )
 
-        # (Optional safety) if q_dim != 1 but you still want (B,H,1) everywhere:
+        # (Optional safety) if q_dim != 1 but we still want (B,H,1) everywhere:
         # Q_logits = Q_logits[..., :1]
 
         return K_logits, Ss_logits, dlogtau_logits, Q_logits
@@ -4505,7 +4521,7 @@ class PoroElasticSubsNet(GeoPriorSubsNet):
         static_input_dim: int,
         dynamic_input_dim: int,
         future_input_dim: int,
-        # keep all public kwargs, but change some defaults:
+        # keep all public kwargs, but we change some defaults:
         pde_mode: str = "consolidation",
         use_effective_h: bool = True,
         hd_factor: float = 0.6,
