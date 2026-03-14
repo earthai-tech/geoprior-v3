@@ -103,7 +103,7 @@ __all__ = [
     "LearnableK",
     "LearnableSs",
     "LearnableQ",
-    # --- New Parameters for Revised Manuscript ---
+
     "LearnableMV",
     "LearnableKappa",
     "FixedGammaW",

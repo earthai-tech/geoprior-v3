@@ -667,37 +667,40 @@ def _resolve_map_metrics(
 # ---------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------
+def _coverage_target(metric: str) -> float | None:
+    s = str(metric).strip().lower()
+    if s.startswith("coverage"):
+        tail = s[len("coverage") :]
+        if tail.isdigit():
+            return int(tail) / 100.0
+    return None
+
+
 def _metric_label(name: str) -> str:
     k = str(name).strip()
     if k in cfg.PHYS_LABELS:
         return cfg.PHYS_LABELS[k]
 
+    # Coverage is special: target-based, not monotone.
+    tgt = _coverage_target(k)
+    if tgt is not None:
+        p = int(round(100.0 * tgt))
+        return f"Coverage ({p}% PI; target {tgt:.2f})"
+
     meta = cfg.PLOT_METRIC_META.get(k, None)
     if isinstance(meta, dict):
-        yl = str(meta.get("ylabel", k))
+        txt = str(
+            meta.get("title")
+            or meta.get("ylabel")
+            or k
+        )
         unit = str(meta.get("unit", "") or "")
-        return yl.format(unit=unit)
+        return txt.format(unit=unit)
 
     kl = k.lower()
-    if kl == "coverage80":
-        return "Coverage (80%)"
-    if kl == "sharpness80":
-        return "Sharpness (80%)"
     if kl == "r2":
-        return "R\u00b2"
+        return r"$R^2$ (↑)"
     return k
-
-
-def _metric_fmt(metric: str) -> str:
-    meta = cfg.PLOT_METRIC_META.get(str(metric), None)
-    if isinstance(meta, dict):
-        return str(meta.get("fmt", "{:.3g}"))
-    return "{:.3g}"
-
-
-def _axes_cleanup(ax: plt.Axes) -> None:
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
 
 
 def _best_ij(
@@ -708,7 +711,14 @@ def _best_ij(
         if not np.isfinite(a).any():
             return None
 
-        if str(metric).lower() in _LOWER_IS_BETTER:
+        kl = str(metric).strip().lower()
+        tgt = _coverage_target(kl)
+
+        if tgt is not None:
+            obj = np.abs(a - tgt)
+            obj[~np.isfinite(a)] = np.nan
+            idx = int(np.nanargmin(obj))
+        elif kl in _LOWER_IS_BETTER:
             idx = int(np.nanargmin(a))
         else:
             idx = int(np.nanargmax(a))
@@ -717,6 +727,17 @@ def _best_ij(
         return (int(i), int(j))
     except Exception:
         return None
+    
+def _metric_fmt(metric: str) -> str:
+    meta = cfg.PLOT_METRIC_META.get(str(metric), None)
+    if isinstance(meta, dict):
+        return str(meta.get("fmt", "{:.3g}"))
+    return "{:.3g}"
+
+
+def _axes_cleanup(ax: plt.Axes) -> None:
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
 
 
 def _bars_by_lambda(
