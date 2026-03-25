@@ -20,6 +20,7 @@ from ..core.array_manager import (
     to_array,
 )
 from ..core.checks import (
+    are_all_frames_valid,
     check_empty,
     ensure_same_shape,
     exist_features,

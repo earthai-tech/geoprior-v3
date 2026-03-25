@@ -13,20 +13,23 @@ These types are designed to aid static type checking, ensuring compatibility
 across different functions and classes within the package.
 """
 
-from collections.abc import Callable, Iterable, Iterator
+from __future__ import annotations
+
+from collections.abc import (
+    Callable,
+    Iterable,
+)
+from collections.abc import (
+    Iterator as AbcIterator,
+)
 from re import Pattern
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    List,
     Literal,
     Optional,
-    Set,
     SupportsInt,
-    Tuple,
     TypeVar,
-    Union,
 )
 
 import numpy as np
@@ -129,11 +132,12 @@ _V = TypeVar("_V")
 
 # Type aliases for callable functions and operations
 if TYPE_CHECKING:
-    ArrayLike = Union[NDArray, Series, list, tuple]
+    ArrayLike = NDArray | Series | list[Any] | tuple[Any, ...]
     _Sub = Callable[[Any], Any]
     _F = Callable[[ArrayLike], Any]
 else:
-    # at runtime we avoid the subscript, so Callable[[…], …] isn't evaluated
+    # At runtime we avoid the subscript, so
+    # Callable[[...], ...] is not evaluated.
     from collections.abc import Callable as _RuntimeCallable
 
     ArrayLike = (
@@ -146,20 +150,22 @@ else:
     _F = _RuntimeCallable
 
 
-# --- Multi‑framework type aliases ---
+# --- Multi-framework type aliases ---
 JNPNDArray = jnp.ndarray if jnp else None
-_Tensor = Union[TorchTensor, TFTensor, JNPNDArray]
-_Dataset = Union[TorchDataset, TFDataset]
-_Optimizer = Union[TorchOptimizer, TFOptimizer]
-_Callback = Union[TFCallback]
-_Model = Union[TorchModel, TFModel]
-_Sequential = Union[TorchSequential, TFSequential]
+_Tensor = TorchTensor | TFTensor | JNPNDArray
+_Dataset = TorchDataset | TFDataset
+_Optimizer = TorchOptimizer | TFOptimizer
+_Callback = (
+    TFCallback if TFCallback is not None else type(None)
+)
+_Model = TorchModel | TFModel
+_Sequential = TorchSequential | TFSequential
 
 # Type aliases for additional Python built-in types
-Iterator = Iterator[Any]
+Iterator = AbcIterator[Any]
 
 # Define MultioutputLiteral for type hinting
-#  if not using StrOptions directly in hints
+# if not using StrOptions directly in hints
 MultioutputLiteral = Literal["raw_values", "uniform_average"]
 NanPolicyLiteral = Literal["omit", "propagate", "raise"]
 MetricFunctionType = Callable[..., float | np.ndarray]
@@ -222,7 +228,8 @@ def is_ndarray(obj: Any) -> bool:
 
 def is_array_like(obj: Any) -> bool:
     """
-    Check if an object is array-like (e.g., numpy ndarray, pandas Series, list, or tuple).
+    Check if an object is array-like
+    (e.g., numpy ndarray, pandas Series, list, or tuple).
 
     Parameters
     ----------
@@ -239,10 +246,10 @@ def is_array_like(obj: Any) -> bool:
     )
 
 
-# Example callable function types
 def apply_function(f: _F, data: ArrayLike) -> Any:
     """
-    Apply a callable function (e.g., np.mean, np.sum) to an array-like structure.
+    Apply a callable function (e.g., np.mean, np.sum)
+    to an array-like structure.
 
     Parameters
     ----------
@@ -262,12 +269,14 @@ def apply_function(f: _F, data: ArrayLike) -> Any:
 
 def transform_data(f: _Sub, data: Any) -> Any:
     """
-    Apply a transformation to the data using a callable function.
+    Apply a transformation to the data
+    using a callable function.
 
     Parameters
     ----------
     f : _Sub
-        The callable function to transform the data (e.g., a lambda function).
+        The callable function to transform the data
+        (e.g., a lambda function).
 
     data : Any
         The data to which the transformation is applied.
@@ -280,7 +289,6 @@ def transform_data(f: _Sub, data: Any) -> Any:
     return f(data)
 
 
-# Define __all__ to specify what gets imported when * is used
 __all__ = [
     "DataFrame",
     "Series",
@@ -302,16 +310,10 @@ __all__ = [
     "_Sequential",
     "_T",
     "_V",
-    "Union",
     "Any",
     "Callable",
-    "List",
     "Optional",
     "Iterable",
-    "Union",
-    "Dict",
-    "Tuple",
-    "Set",
     "Pattern",
     "SupportsInt",
     "Iterator",

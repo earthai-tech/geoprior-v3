@@ -20,7 +20,7 @@ import contextlib
 import itertools
 import warnings
 from collections.abc import Callable, Mapping, Sequence
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 
@@ -47,7 +47,7 @@ tf_squeeze = KERAS_DEPS.squeeze
 tf_cast = KERAS_DEPS.cast
 tf_expand_dims = KERAS_DEPS.expand_dims
 
-LogFn = Optional[Callable[[str], None]]
+LogFn = Callable[[str], None] | None
 
 
 def _slice_first_batch(x: Any, n: int) -> Any:

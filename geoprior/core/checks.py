@@ -20,7 +20,8 @@ import os
 import re
 import warnings
 from collections.abc import Callable, Iterable
-from functools import wraps
+from functools import reduce, wraps
+from operator import or_
 from re import Pattern
 from typing import (
     Any,
@@ -6200,14 +6201,38 @@ def validate_nested_param(
         )
 
     # Handle Optional[...] which is Union[..., NoneType]
+    # if origin is Union and type(None) in args:
+    #     non_none_args = tuple(
+    #         arg for arg in args if arg is not type(None)
+    #     )
+    #     if value is None:
+    #         return value
+    #     return validate_nested_param(
+    #         value, Union[non_none_args], # noqa: UP007
+    #         param_name, coerce
+    #     )
+
+    # Handle Optional[...] which is Union[..., NoneType]
     if origin is Union and type(None) in args:
         non_none_args = tuple(
             arg for arg in args if arg is not type(None)
         )
         if value is None:
             return value
+
+        expected_type_no_none = (
+            non_none_args[0]
+            if len(non_none_args) == 1
+            else reduce(
+                or_, non_none_args[1:], non_none_args[0]
+            )
+        )
+
         return validate_nested_param(
-            value, Union[non_none_args], param_name, coerce
+            value,
+            expected_type_no_none,
+            param_name,
+            coerce,
         )
 
     # Handle Union types

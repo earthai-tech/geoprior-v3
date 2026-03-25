@@ -196,6 +196,11 @@ _param_docs = DocstringComponents.from_nested_components(
 
 __all__ = ["GeoPriorSubsNet", "PoroElasticSubsNet"]
 
+DEFAULT_MV = LearnableMV(initial_value=1e-7)
+DEFAULT_KAPPA = LearnableKappa(initial_value=1.0)
+DEFAULT_GAMMA_W = FixedGammaW(value=9810.0)
+DEFAULT_HREF = FixedHRef(value=0.0, mode="auto")
+
 
 @register_keras_serializable(
     "models.subsidence.models", name="GeoPriorSubsNet"
@@ -286,18 +291,10 @@ class GeoPriorSubsNet(BaseAttentive):
         use_batch_norm: bool = False,
         pde_mode: str | list[str] = "both",
         identifiability_regime: str | None = None,
-        mv: LearnableMV | float = LearnableMV(
-            initial_value=1e-7
-        ),
-        kappa: LearnableKappa | float = LearnableKappa(
-            initial_value=1.0
-        ),
-        gamma_w: FixedGammaW | float = FixedGammaW(
-            value=9810.0
-        ),
-        h_ref: FixedHRef | float | str | None = FixedHRef(
-            value=0.0, mode="auto"
-        ),
+        mv: LearnableMV | float = DEFAULT_MV,
+        kappa: LearnableKappa | float = DEFAULT_KAPPA,
+        gamma_w: FixedGammaW | float = DEFAULT_GAMMA_W,
+        h_ref: FixedHRef | float | str | None = DEFAULT_HREF,
         use_effective_h: bool = False,
         hd_factor: float = 1.0,  # if Hd = Hd_factor * H
         kappa_mode: str = "kb",  # {"bar", "kb"}  # κ̄ vs κ_b

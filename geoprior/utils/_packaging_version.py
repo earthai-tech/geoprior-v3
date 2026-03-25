@@ -30,10 +30,7 @@ import itertools
 import re
 import warnings
 from collections.abc import Callable, Iterator
-from typing import (
-    SupportsInt,
-    Union,
-)
+from typing import SupportsInt
 
 from .version import (
     Infinity,
@@ -50,18 +47,18 @@ __all__ = [
     "VERSION_PATTERN",
 ]
 
-InfiniteTypes = Union[InfinityType, NegativeInfinityType]
-PrePostDevType = Union[InfiniteTypes, tuple[str, int]]
-SubLocalType = Union[InfiniteTypes, int, str]
-LocalType = Union[
-    NegativeInfinityType,
-    tuple[
+InfiniteTypes = InfinityType | NegativeInfinityType
+PrePostDevType = InfiniteTypes | tuple[str, int]
+SubLocalType = InfiniteTypes | int | str
+LocalType = (
+    NegativeInfinityType
+    | tuple[
         SubLocalType
         | tuple[SubLocalType, str]
         | tuple[NegativeInfinityType, SubLocalType],
         ...,
-    ],
-]
+    ]
+)
 CmpKey = tuple[
     int,
     tuple[int, ...],
@@ -85,7 +82,7 @@ _Version = collections.namedtuple(
 )
 
 
-def parse(version: str) -> Union["LegacyVersion", "Version"]:
+def parse(version: str) -> "LegacyVersion | Version":
     """Parse the given version from a string to an appropriate class.
     Parameters
     ----------
@@ -530,7 +527,7 @@ def _cmpkey(
     pre: tuple[str, int] | None,
     post: tuple[str, int] | None,
     dev: tuple[str, int] | None,
-    local: tuple[SubLocalType] | None,
+    local: tuple[SubLocalType, ...] | None,
 ) -> CmpKey:
     # When we compare a release version, we want to compare it with all of the
     # trailing zeros removed. So we'll use a reverse the list, drop all the now

@@ -20,7 +20,7 @@ import textwrap
 import warnings
 from collections.abc import Callable, Iterable
 from functools import wraps
-from typing import Any, Optional, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -1347,12 +1347,10 @@ def read_data(
 
 @check_params(
     {
-        "file_paths": Union[str, list[str]],
-        "columns": Optional[list[str]],
-        "extensions": Optional[str | list[str]],
-        "writer_opptions": Optional[
-            dict[str, dict[str, Any]]
-        ],
+        "file_paths": str | list[str],
+        "columns": list[str] | None,
+        "extensions": str | list[str] | None,
+        "writer_opptions": dict[str, dict[str, Any] | None],
         "default_extension": str,
         "overwrite": bool,
     },
@@ -2243,10 +2241,10 @@ def to_frame_if(
 @check_params(
     {
         "text": str,
-        "style": Optional[str],
+        "style": str | None,
         "alignment": str,
         "extra_space": int,
-        "text_size": Union[int, None],
+        "text_size": int | None,
         "break_word": bool,
     }
 )

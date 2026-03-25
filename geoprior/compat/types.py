@@ -5,14 +5,16 @@
 # Author: LKouadio <etanoyau@gmail.com>
 
 """
-Provides a compatibility layer for Python typing features,
-ensuring support across different Python versions.
+Provides a compatibility layer for Python typing
+features across supported Python versions.
 
-It imports various typing constructs from the built-in `typing` module.
-For the `TypeGuard` feature, which is available in Python 3.10 and later,
-it attempts to import from `typing_extensions` if not found in the built-in module.
+The module re-exports common typing-related names
+used across the codebase. Deprecated container
+aliases from ``typing`` are mapped to their modern
+built-in or stdlib equivalents.
 """
 
+from collections import deque
 from collections.abc import (
     Callable,
     Generator,
@@ -21,31 +23,37 @@ from collections.abc import (
     Mapping,
     Sequence,
 )
+from contextlib import AbstractContextManager
 from re import Pattern
-
-# Check if Python version is 3.10 or higher
 from typing import (
     Any,
-    ContextManager,
-    Deque,
-    Dict,
-    FrozenSet,
     Generic,
-    List,
     Literal,
     NamedTuple,
     NewType,
     Optional,
-    Set,
     SupportsInt,
-    Text,
-    Tuple,
-    Type,
     TypedDict,
-    TypeGuard,
     TypeVar,
     Union,
 )
+
+try:
+    from typing import TypeGuard
+except ImportError:
+    from typing import TypeGuard
+
+# Modern aliases kept for backward compatibility.
+List = list
+Tuple = tuple
+Dict = dict
+Set = set
+FrozenSet = frozenset
+Type = type
+Text = str
+Deque = deque
+ContextManager = AbstractContextManager
+
 
 __all__ = [
     "List",

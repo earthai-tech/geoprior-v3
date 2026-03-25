@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 from numbers import Integral, Real
-from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -23,7 +22,7 @@ from ..utils.validator import check_consistent_length
 __all__ = ["clustered_anomaly_severity_score"]
 
 
-ArrayLike = Union[np.ndarray, pd.Series]
+ArrayLike = np.ndarray | pd.Series
 
 
 @validate_params(

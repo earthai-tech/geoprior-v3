@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import (
     Any,
     Literal,
-    Union,
 )
 
 import numpy as np
@@ -31,8 +30,8 @@ from .generic_utils import vlog
 
 logger = get_logger(__name__)
 
-PathLike = Union[str, "os.PathLike[str]"]
-DataSource = Union[PathLike, pd.DataFrame]
+PathLike = str | os.PathLike[str]
+DataSource = PathLike | pd.DataFrame
 
 
 __all__ = [
