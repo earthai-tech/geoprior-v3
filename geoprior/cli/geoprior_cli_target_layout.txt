@@ -1,0 +1,27 @@
+geoprior-v3/
+├─ geoprior/
+│  ├─ __init__.py
+│  ├─ cli/
+│  │  ├─ __init__.py
+│  │  ├─ __main__.py
+│  │  ├─ init_config.py
+│  │  ├─ stage1.py
+│  │  ├─ stage2.py
+│  │  ├─ stage3.py
+│  │  ├─ stage4.py
+│  │  └─ stage5.py
+│  ├─ resources/
+│  │  └─ natcom_config_template.py
+│  └─ utils/
+│     └─ nat_utils.py
+├─ nat.com/
+│  ├─ config.py
+│  └─ config.json
+├─ scripts/
+│  ├─ __init__.py
+│  ├─ __main__.py
+│  ├─ plot_physics_fields.py
+│  ├─ plot_litho_parity.py
+│  └─ ... reproducibility / figure scripts only
+├─ pyproject.toml
+└─ ...

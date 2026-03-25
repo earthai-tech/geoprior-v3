@@ -2,6 +2,7 @@
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
+
 """
 run_sensitivity.py
 
@@ -77,10 +78,12 @@ python nat.com/run_sensitivity.py --gold --epochs 10 --fast --threads 20
 from __future__ import annotations
 
 import argparse
+import ast
 import itertools
 import json
 import os
 import runpy
+import shutil
 import subprocess
 import sys
 from collections.abc import Iterable
@@ -94,13 +97,22 @@ from typing import (
     Any,
 )
 
-from sensitivity_lib import (
-    build_context,
-    cleanup_between_runs,
-)
-from sensitivity_lib import (
-    run_one as run_one_gold,
-)
+try:
+    from .sensitivity_lib import (
+        build_context,
+        cleanup_between_runs,
+    )
+    from .sensitivity_lib import (
+        run_one as run_one_gold,
+    )
+except ImportError:  # pragma: no cover
+    from sensitivity_lib import (
+        build_context,
+        cleanup_between_runs,
+    )
+    from sensitivity_lib import (
+        run_one as run_one_gold,
+    )
 
 from geoprior.utils import (
     apply_gpu_env,
@@ -112,6 +124,10 @@ from geoprior.utils import (
     resolve_gpu_ids,
     resolve_n_jobs,
     threads_per_job,
+)
+from geoprior.utils.nat_utils import (
+    ensure_config_json,
+    get_config_paths,
 )
 
 TRAIN_SCRIPT_DEFAULT = Path(__file__).with_name(
@@ -190,7 +206,9 @@ class RunSpec:
         return f"pde_{pde}__lc_{lc}__lp_{lp}"
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(
+    argv: list[str] | None = None,
+) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description=(
             "Run a lambda_cons / lambda_prior sensitivity "
@@ -457,7 +475,7 @@ def parse_args() -> argparse.Namespace:
         help="Print planned commands without executing.",
     )
 
-    return p.parse_args()
+    return p.parse_args(argv)
 
 
 def build_grid(
@@ -817,8 +835,330 @@ def run_one_script(
         gc.collect()
 
 
-def main() -> None:
-    args = parse_args()
+def _parse_override_value(text: str) -> Any:
+    s = str(text).strip()
+    if not s:
+        return s
+
+    low = s.lower()
+    if low in {"true", "false"}:
+        return low == "true"
+    if low in {"none", "null"}:
+        return None
+
+    try:
+        return ast.literal_eval(s)
+    except Exception:
+        return s
+
+
+def _refresh_config_fields(
+    cfg: dict[str, Any],
+) -> dict[str, Any]:
+    out = dict(cfg)
+
+    city = str(out.get("CITY_NAME", "")).strip().lower()
+    variant = str(out.get("DATASET_VARIANT", "")).strip()
+
+    big_t = out.get("BIG_FN_TEMPLATE")
+    small_t = out.get("SMALL_FN_TEMPLATE")
+
+    if city and variant and isinstance(big_t, str):
+        out["BIG_FN"] = big_t.format(
+            city=city,
+            variant=variant,
+        )
+
+    if city and variant and isinstance(small_t, str):
+        out["SMALL_FN"] = small_t.format(
+            city=city,
+            variant=variant,
+        )
+
+    return out
+
+
+def _apply_config(
+    cfg: dict[str, Any],
+) -> dict[str, Any]:
+    return _refresh_config_fields(dict(cfg))
+
+
+def _install_user_config(
+    config_path: str,
+    *,
+    config_root: str = "nat.com",
+) -> str:
+    src = Path(config_path).expanduser().resolve()
+    if not src.exists():
+        raise FileNotFoundError(
+            f"Config file not found: {src}"
+        )
+
+    config_py, config_json = get_config_paths(
+        root=config_root
+    )
+    dst = Path(config_py).expanduser().resolve()
+    dst.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    if src != dst:
+        shutil.copy2(src, dst)
+
+    json_path = Path(config_json)
+    if json_path.exists():
+        json_path.unlink()
+
+    return str(dst)
+
+
+def _persist_runtime_overrides(
+    overrides: dict[str, Any] | None = None,
+    *,
+    config_root: str = "nat.com",
+) -> dict[str, Any]:
+    cfg0, config_json = ensure_config_json(root=config_root)
+    cfg = _apply_config(cfg0)
+
+    if overrides:
+        cfg.update(overrides)
+        cfg = _apply_config(cfg)
+
+        payload: dict[str, Any] = {}
+        cfg_json = Path(config_json)
+        if cfg_json.exists():
+            try:
+                payload = json.loads(
+                    cfg_json.read_text(encoding="utf-8")
+                )
+            except Exception:
+                payload = {}
+
+        payload["city"] = cfg.get("CITY_NAME")
+        payload["model"] = cfg.get("MODEL_NAME")
+        payload["config"] = cfg
+        payload.setdefault("__meta__", {})
+
+        cfg_json.write_text(
+            json.dumps(payload, indent=2),
+            encoding="utf-8",
+        )
+
+    return cfg
+
+
+def _parse_set_items(
+    items: list[str] | None,
+) -> dict[str, Any]:
+    out: dict[str, Any] = {}
+    for item in items or []:
+        if "=" not in item:
+            raise SystemExit(
+                f"Each --set must be KEY=VALUE. Got: {item!r}"
+            )
+        key, value = item.split("=", 1)
+        key = key.strip()
+        if not key:
+            raise SystemExit(
+                f"Invalid empty key in: {item!r}"
+            )
+        out[key] = _parse_override_value(value)
+    return out
+
+
+def _build_wrapper_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(
+        prog="sensitivity",
+        add_help=False,
+        description=(
+            "Run the lambda sensitivity grid through geoprior-run. "
+            "Unknown arguments are forwarded to the native sensitivity driver."
+        ),
+    )
+    p.add_argument(
+        "--config",
+        type=str,
+        default=None,
+        help=(
+            "Optional config.py to install into "
+            "nat.com/config.py before running."
+        ),
+    )
+    p.add_argument(
+        "--config-root",
+        type=str,
+        default="nat.com",
+        help="Config root directory.",
+    )
+    p.add_argument(
+        "--city",
+        type=str,
+        default=None,
+        help=(
+            "Seed CITY_NAME and CITY for Stage-1 lookup when omitted "
+            "from the active config."
+        ),
+    )
+    p.add_argument(
+        "--model",
+        type=str,
+        default=None,
+        help=(
+            "Seed MODEL_NAME for sensitivity runs when omitted "
+            "from the active config."
+        ),
+    )
+    p.add_argument(
+        "--stage1-manifest",
+        type=str,
+        default=None,
+        help=(
+            "Explicit Stage-1 manifest to reuse for sensitivity training."
+        ),
+    )
+    p.add_argument(
+        "--results-dir",
+        type=str,
+        default=None,
+        help=(
+            "Optional results root used to seed --scan-root when the "
+            "driver was not given one explicitly."
+        ),
+    )
+    p.add_argument(
+        "--set",
+        dest="sets",
+        action="append",
+        default=[],
+        metavar="KEY=VALUE",
+        help=(
+            "Extra config override. Repeat as needed, for example "
+            "--set EPOCHS=10."
+        ),
+    )
+    p.add_argument(
+        "-h",
+        "--help",
+        action="store_true",
+        help="Show the combined wrapper/driver help.",
+    )
+    return p
+
+
+def _cli_overrides(
+    args: argparse.Namespace,
+) -> dict[str, Any]:
+    out = _parse_set_items(args.sets)
+
+    if args.city:
+        out["CITY_NAME"] = str(args.city).strip().lower()
+    if args.model:
+        out["MODEL_NAME"] = str(args.model).strip()
+    if args.results_dir:
+        out["RESULTS_DIR"] = str(args.results_dir).strip()
+
+    return out
+
+
+def _has_opt(
+    argv: list[str],
+    *names: str,
+) -> bool:
+    for token in argv:
+        for name in names:
+            if token == name:
+                return True
+            if token.startswith(name + "="):
+                return True
+    return False
+
+
+def sensitivity_main(
+    argv: list[str] | None = None,
+) -> None:
+    wrapper = _build_wrapper_parser()
+    args, rest = wrapper.parse_known_args(argv)
+
+    if args.help:
+        wrapper.print_help()
+        print("\nDriver options:\n")
+        try:
+            parse_args(["--help"])
+        except SystemExit:
+            pass
+        return
+
+    if args.config:
+        _install_user_config(
+            args.config,
+            config_root=args.config_root,
+        )
+
+    cfg = _persist_runtime_overrides(
+        _cli_overrides(args),
+        config_root=args.config_root,
+    )
+
+    effective_city = (
+        str(
+            cfg.get("CITY_NAME")
+            or args.city
+            or os.environ.get("CITY", "")
+        )
+        .strip()
+        .lower()
+    )
+    effective_model = str(
+        cfg.get("MODEL_NAME")
+        or args.model
+        or os.environ.get("MODEL_NAME_OVERRIDE", "")
+    ).strip()
+    effective_results_dir = str(
+        cfg.get("RESULTS_DIR") or args.results_dir or ""
+    ).strip()
+
+    forwarded = list(rest)
+    if effective_results_dir and not _has_opt(
+        forwarded, "--scan-root"
+    ):
+        scan_root = Path(effective_results_dir)
+        if effective_city:
+            scan_root = scan_root / effective_city
+        forwarded += [
+            "--scan-root",
+            str(scan_root),
+        ]
+
+    env_updates: dict[str, str] = {}
+    if effective_city:
+        env_updates["CITY"] = effective_city
+    if effective_model:
+        env_updates["MODEL_NAME_OVERRIDE"] = effective_model
+    if args.stage1_manifest:
+        env_updates["STAGE1_MANIFEST"] = str(
+            Path(args.stage1_manifest).expanduser().resolve()
+        )
+    if effective_results_dir:
+        env_updates["RESULTS_DIR"] = effective_results_dir
+        env_updates["GEOPRIOR_RESULTS_DIR"] = (
+            effective_results_dir
+        )
+
+    old_env = os.environ.copy()
+    try:
+        os.environ.update(env_updates)
+        main(forwarded)
+    finally:
+        os.environ.clear()
+        os.environ.update(old_env)
+
+
+def main(
+    argv: list[str] | None = None,
+) -> None:
+    args = parse_args(argv)
 
     train_script = Path(args.train_script)
     if not train_script.exists():
@@ -1335,4 +1675,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    sensitivity_main()

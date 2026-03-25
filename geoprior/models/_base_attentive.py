@@ -1441,7 +1441,7 @@ See Also
   
 Examples
 --------
->>> from geoprior.nn.models._base_attentive import BaseAttentive  
+>>> from geoprior.models._base_attentive import BaseAttentive  
 >>> model = BaseAttentive(  
 ...     static_input_dim=4, dynamic_input_dim=8, future_input_dim=6,  
 ...     output_dim=2, forecast_horizon=24, quantiles=[0.1, 0.5, 0.9],  
@@ -1456,7 +1456,7 @@ Examples
 >>> y_hat.shape  
 TensorShape([32, 24, 3, 2])  # B × H × Q × output_dim
 
->>> from geoprior.nn.models import BaseAttentive
+>>> from geoprior.models import BaseAttentive
 >>> import tensorflow as tf
 
 >>> # Example using the recommended architecture_config
@@ -1490,13 +1490,11 @@ TensorShape([32, 24, 3, 2])
 
 See Also
 --------
-geoprior.nn.pinn.PIHALNet
-    A physics-informed extension of this architecture.
-geoprior.nn.components.MultiScaleLSTM
+geoprior.models.components.MultiScaleLSTM
     The multi-resolution LSTM component used in the hybrid encoder.
-geoprior.nn.components.VariableSelectionNetwork
+geoprior.models.components.VariableSelectionNetwork
     The learnable feature-selection component.
-geoprior.nn.models.HALNet
+fusionlab.nn.models.HALNet
     A direct, data-driven implementation of ``BaseAttentive``.
 
 References  

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3  https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
@@ -2053,7 +2053,7 @@ def run_experiment(args: argparse.Namespace) -> pd.DataFrame:
     return df
 
 
-def main() -> None:
+def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser()
 
     ap.add_argument("--outdir", required=True)
@@ -2124,7 +2124,10 @@ def main() -> None:
         "--start-realisation",
         type=int,
         default=1,
-        help="1-based realisation index to start from (resume-safe).",
+        help=(
+            "1-based realisation index to start from "
+            "(resume-safe)."
+        ),
     )
     ap.add_argument(
         "--identify",
@@ -2192,9 +2195,16 @@ def main() -> None:
             "'none' disables profile merge/locks."
         ),
     )
+    return ap
 
-    args = ap.parse_args()
 
+def parse_args(
+    argv: list[str] | None = None,
+) -> argparse.Namespace:
+    return build_parser().parse_args(argv)
+
+
+def validate_args(args: argparse.Namespace) -> None:
     ok = args.tau_min > 0.0 and args.tau_max > args.tau_min
     if not ok:
         raise ValueError("--tau-min must be >0 and <tau-max.")
@@ -2214,6 +2224,10 @@ def main() -> None:
                 "--identify both needs --nx >= 3."
             )
 
+
+def main(argv: list[str] | None = None) -> None:
+    args = parse_args(argv)
+    validate_args(args)
     _ = run_experiment(args)
 
 

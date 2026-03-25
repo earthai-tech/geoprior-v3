@@ -68,8 +68,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from scripts import config as cfg
-from scripts import utils
+from . import config as cfg
+from . import utils
 
 
 # ---------------------------------------------------------------------
