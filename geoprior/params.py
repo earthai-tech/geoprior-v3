@@ -103,7 +103,6 @@ __all__ = [
     "LearnableK",
     "LearnableSs",
     "LearnableQ",
-
     "LearnableMV",
     "LearnableKappa",
     "FixedGammaW",

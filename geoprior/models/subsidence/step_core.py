@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3 Â— https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
@@ -72,6 +72,7 @@ tf_broadcast_to = K.broadcast_to
 tf_cast = K.cast
 tf_concat = K.concat
 tf_cond = K.cond
+
 tf_constant = K.constant
 tf_convert_to_tensor = K.convert_to_tensor
 tf_equal = K.equal

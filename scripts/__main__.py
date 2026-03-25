@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
-# GeoPrior-v3  https://github.com/earthai-tech/geoprior-v3
+# GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
 from __future__ import annotations
 
 import importlib
+import runpy
 import sys
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -16,7 +17,7 @@ class _CmdSpec:
     mod: str
     fn: str
     desc: str
-    mode: str = "argv"  # "argv" | "sysargv"
+    mode: str = "argv"  # argv | sysargv | module
 
 
 # ---------------------------------------------------------------------
@@ -280,6 +281,23 @@ def _call_with_sysargv(
         sys.argv = old
 
 
+def _run_module(
+    spec: _CmdSpec,
+    cmd: str,
+    argv: list[str] | None,
+) -> None:
+    old = list(sys.argv)
+    sys.argv = [f"python -m scripts {cmd}"]
+    if argv:
+        sys.argv += list(argv)
+
+    mod_name = f"{__package__}.{spec.mod}"
+    try:
+        runpy.run_module(mod_name, run_name="__main__")
+    finally:
+        sys.argv = old
+
+
 def _print_group(title: str, cmds: tuple[str, ...]) -> None:
     print(f"{title}:")
 
@@ -304,7 +322,6 @@ def _print_help() -> None:
     for title, cmds in _GROUPS:
         _print_group(title, cmds)
 
-    # Any commands not listed in groups
     grouped = {c for _, cs in _GROUPS for c in cs}
     extra = sorted(set(_CMD) - grouped)
     if extra:
@@ -337,6 +354,10 @@ def main(argv: list[str] | None = None) -> None:
         print(f"[ERR] Unknown command: {cmd}")
         _print_help()
         raise SystemExit(2)
+
+    if spec.mode == "module":
+        _run_module(spec, cmd, rest)
+        return
 
     fn = _load_callable(spec)
 

@@ -75,6 +75,7 @@ pip install -e .[dev]
 ```
 
 The `[dev]` extra installs testing and tooling dependencies
+
 (e.g., pytest, coverage, black, ruff).
 
 ---
