@@ -93,27 +93,103 @@ log = get_logger(__name__)
 log.info("GeoPrior logging is ready.")
 ```
 
-### 2) Use the CLI
+### 2) Initialize a project config
+
+GeoPrior now exposes a **family-based CLI**.
+The root entry point is `geoprior`, and dedicated shortcuts are also
+available for the `run`, `build`, and `plot` families.
 
 ```bash
+geoprior-init --help
 geoprior --help
+geoprior-run --help
+geoprior-build --help
 ```
 
-### 3) Reproduce paper-style runs (example)
+To create `nat.com/config.py` interactively:
 
-We ship reproducibility scripts under `scripts/`.
-A typical end-to-end run is organized as:
+```bash
+geoprior-init
+```
 
-* dataset / preprocessing
-* training
-* evaluation + figure generation
+### 3) Use the CLI families
+
+The canonical root form is:
+
+```bash
+geoprior run <command> [args]
+geoprior build <command> [args]
+geoprior plot <command> [args]
+```
+
+Family-specific entry points avoid repeating the family name:
+
+```bash
+geoprior-run <command> [args]
+geoprior-build <command> [args]
+geoprior-plot <command> [args]
+```
+
+Examples:
+
+```bash
+geoprior run stage1-preprocess
+geoprior-run stage2-train --help
+geoprior build full-inputs-npz --help
+geoprior-build physics-payload-npz --help
+geoprior-run sm3-suite --preset tau50 --help
+```
+
+#### Compact CLI command table
+
+| Family | Command | Purpose |
+|---|---|---|
+| `run` | `stage1-preprocess` | Stage-1 preprocessing and artifact export. |
+| `run` | `stage2-train` | Train the main GeoPrior model. |
+| `run` | `stage3-tune` | Hyperparameter tuning workflow. |
+| `run` | `stage4-infer` | Inference, evaluation, and export from trained runs. |
+| `run` | `stage5-transfer` | Cross-city transfer evaluation. |
+| `run` | `sensitivity` | Run physics or lambda sensitivity workflows. |
+| `run` | `sm3-identifiability` | Run one SM3 synthetic identifiability experiment. |
+| `run` | `sm3-suite` | Launch preset SM3 regime suites such as `tau50` or `both50`. |
+| `run` | `offset-diagnostics` | Run SM3 log-offset diagnostics. |
+| `build` | `full-inputs-npz` | Merge Stage-1 split input NPZ files into one union NPZ. |
+| `build` | `physics-payload-npz` | Export a physics payload NPZ from a trained model and inputs. |
+| `build` | `external-validation-metrics` | Compute borehole or external validation metrics. |
+| `build` | `external-validation-fullcity` | Build the full-city validation workflow end to end. |
+| `build` | `assign-boreholes` | Assign validation boreholes to the nearest city cloud. |
+| `build` | `add-zsurf-from-coords` | Merge elevation lookup tables and add `z_surf` to tabular data. |
+| `build` | `sm3-collect-summaries` | Combine per-regime SM3 summary CSV files into one table. |
+
+Typical usage:
+
+```bash
+geoprior run stage1-preprocess
+geoprior run stage2-train
+geoprior build full-inputs-npz
+geoprior-build external-validation-metrics --help
+geoprior-run sm3-suite --preset tau50
+```
+
+### 4) Reproduce paper-style workflows
+
+A typical end-to-end workflow is organized as:
+
+* Stage-1 preprocessing
+* Stage-2 training
+* Stage-3 tuning
+* Stage-4 inference
+* Stage-5 transfer evaluation
+* supplementary build and diagnostic commands
 
 Example:
 
 ```bash
-python -m scripts plot-physics-fields  --help
-python -m scripts plot-sm3-identifiability --help
-python -m scripts make-exposure --help
+geoprior run stage1-preprocess
+geoprior run stage2-train
+geoprior run stage4-infer --help
+geoprior build external-validation-metrics --help
+geoprior build sm3-collect-summaries --help
 ```
 
 > For Code Ocean users: see `codeocean/README.md` and `codeocean/run.sh`.
@@ -124,14 +200,16 @@ python -m scripts make-exposure --help
 
 GeoPrior-v3 is designed for **end-to-end reproducible science**.
 
-* Stable configs in `configs/`
-* Deterministic/controlled pipelines in `scripts/`
+* Stable configs via `nat.com/config.py` and CLI overrides
+* Deterministic pipeline stages exposed through `geoprior run ...`
+* Reusable artifact builders exposed through `geoprior build ...`
 * Capsule-friendly execution via `codeocean/`
 
 If you publish results, please pin:
 
 * the GeoPrior version (tag / release)
 * config files used
+* CLI commands invoked
 * environment definition (e.g., `environment.yml`)
 
 ---
@@ -144,7 +222,9 @@ Documentation is under active development.
 * Meanwhile, start with:
 
   * `docs/reproducibility.md`
-  * `scripts/` entrypoints
+  * `geoprior --help`
+  * `geoprior-run --help`
+  * `geoprior-build --help`
   * inline API docstrings
 
 ---
