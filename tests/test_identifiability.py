@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from tests._helpers import (
+from ._helpers import (
     DummyLayer,
     DummyModel,
     import_module_group,

@@ -12,14 +12,8 @@ import collections
 import itertools
 import re
 import warnings
-
-from ..api.types import (
-    Callable,
-    Iterator,
-    SupportsInt,
-    Tuple,
-    Union,
-)
+from collections.abc import Callable, Iterator
+from typing import SupportsInt
 
 __all__ = [
     "parse",
@@ -94,33 +88,31 @@ class NegativeInfinityType:
 NegativeInfinity = NegativeInfinityType()
 
 
-InfiniteTypes = Union[InfinityType, NegativeInfinityType]
-PrePostDevType = Union[InfiniteTypes, Tuple[str, int]]
-SubLocalType = Union[InfiniteTypes, int, str]
-LocalType = Union[
-    NegativeInfinityType,
-    Tuple[
-        Union[
-            SubLocalType,
-            Tuple[SubLocalType, str],
-            Tuple[NegativeInfinityType, SubLocalType],
-        ],
+InfiniteTypes = InfinityType | NegativeInfinityType
+PrePostDevType = InfiniteTypes | tuple[str, int]
+SubLocalType = InfiniteTypes | int | str
+LocalType = (
+    tuple[
+        SubLocalType
+        | tuple[SubLocalType, str]
+        | tuple[NegativeInfinityType, SubLocalType],
         ...,
-    ],
-]
-CmpKey = Tuple[
+    ]
+    | NegativeInfinityType
+)
+CmpKey = tuple[
     int,
-    Tuple[int, ...],
+    tuple[int, ...],
     PrePostDevType,
     PrePostDevType,
     PrePostDevType,
     LocalType,
 ]
-LegacyCmpKey = Tuple[int, Tuple[str, ...]]
+LegacyCmpKey = tuple[int, tuple[str, ...]]
 VersionComparisonMethod = Callable[
     [
-        Union[CmpKey, LegacyCmpKey],
-        Union[CmpKey, LegacyCmpKey],
+        CmpKey | LegacyCmpKey,
+        CmpKey | LegacyCmpKey,
     ],
     bool,
 ]

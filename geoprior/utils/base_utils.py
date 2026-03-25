@@ -17,23 +17,14 @@ import os
 import re
 import shutil
 import warnings
+from collections.abc import Callable
+from re import Pattern
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
-from ..api.types import (
-    Any,
-    ArrayLike,
-    Callable,
-    DataFrame,
-    Dict,
-    List,
-    Optional,
-    Pattern,
-    Series,
-    Tuple,
-    Union,
-)
+from ..api.types import ArrayLike, DataFrame, Series
 from ..compat.pandas import select_dtypes
 from ..core.array_manager import (
     array_preserver,
@@ -591,9 +582,9 @@ def fill_NaN(arr, method="ff"):
 
 
 def fillNaN(
-    arr: Union[ArrayLike, Series, DataFrame],
+    arr: ArrayLike | Series | DataFrame,
     method: str = "ff",
-) -> Union[ArrayLike, Series, DataFrame]:
+) -> ArrayLike | Series | DataFrame:
     """
     Fill NaN values in a numpy array, pandas Series, or pandas DataFrame
     using specified methods for forward filling, backward filling, or both.
@@ -701,26 +692,24 @@ def fillNaN(
 
 
 def select_features(
-    data: Union[DataFrame, dict, np.ndarray, list],
-    features: Optional[
-        Union[List[str], Pattern, Callable[[str], bool]]
-    ] = None,
-    dtypes_inc: Optional[Union[str, List[str]]] = None,
-    dtypes_exc: Optional[Union[str, List[str]]] = None,
+    data: DataFrame | dict | np.ndarray | list,
+    features: list[str]
+    | Pattern
+    | Callable[[str], bool]
+    | None = None,
+    dtypes_inc: str | list[str] | None = None,
+    dtypes_exc: str | list[str] | None = None,
     coerce: bool = False,
-    columns: Optional[List[str]] = None,
+    columns: list[str] | None = None,
     verify_integrity: bool = False,
     parse_features: bool = False,
-    include_missing: Optional[bool] = None,
-    exclude_missing: Optional[bool] = None,
-    transform: Optional[
-        Union[
-            Callable[[pd.Series], Any],
-            Dict[str, Callable[[pd.Series], Any]],
-        ]
-    ] = None,
-    regex: Optional[Union[str, Pattern]] = None,
-    callable_selector: Optional[Callable[[str], bool]] = None,
+    include_missing: bool | None = None,
+    exclude_missing: bool | None = None,
+    transform: Callable[[pd.Series], Any]
+    | dict[str, Callable[[pd.Series], Any]]
+    | None = None,
+    regex: str | Pattern | None = None,
+    callable_selector: Callable[[str], bool] | None = None,
     inplace: bool = False,
     **astype_kwargs: Any,
 ) -> DataFrame:
@@ -1045,11 +1034,11 @@ def download_file(url, filename, dstpath=None):
 def fancier_downloader(
     url: str,
     filename: str,
-    dstpath: Optional[str] = None,
+    dstpath: str | None = None,
     check_size: bool = False,
     error: str = "raise",
     verbose: bool = True,
-) -> Optional[str]:
+) -> str | None:
     """
     Download a remote file with a progress bar and optional size verification.
 
@@ -1380,17 +1369,17 @@ def check_file_exists(package, resource):
 
 
 def extract_target(
-    data: Union[ArrayLike, DataFrame],
-    target_names: Union[str, int, List[Union[str, int]]],
+    data: ArrayLike | DataFrame,
+    target_names: str | int | list[str | int],
     drop: bool = True,
-    columns: Optional[List[str]] = None,
+    columns: list[str] | None = None,
     return_y_X: bool = False,
-) -> Union[
-    ArrayLike,
-    Series,
-    DataFrame,
-    Tuple[ArrayLike, pd.DataFrame],
-]:
+) -> (
+    ArrayLike
+    | Series
+    | DataFrame
+    | tuple[ArrayLike, pd.DataFrame]
+):
     """
     Extracts specified target column(s) from a multidimensional numpy array
     or pandas DataFrame.

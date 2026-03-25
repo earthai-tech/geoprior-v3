@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from tests._helpers import DummyModel, import_module_group
+from ._helpers import DummyModel, import_module_group
 
 mod = import_module_group("models")
 GeoPriorSubsNet = mod.GeoPriorSubsNet

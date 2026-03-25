@@ -19,8 +19,9 @@ import re
 import time
 import warnings
 from collections import defaultdict
-from collections.abc import Sequence
+from collections.abc import Callable, Iterable, Sequence
 from contextlib import contextmanager
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -28,15 +29,7 @@ import pandas as pd
 
 from ..api.types import (
     _F,
-    Any,
-    Callable,
     DataFrame,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Tuple,
-    Union,
     _Sub,
 )
 from ..compat.scipy import check_scipy_interpolate
@@ -67,15 +60,15 @@ __all__ = [
 
 def run_return(
     self,
-    attribute_name: Optional[str] = None,
+    attribute_name: str | None = None,
     error: str = "warn",
-    default_value: Optional[Any] = None,
+    default_value: Any | None = None,
     check_callable: bool = False,
     return_type: str = "attribute",
     on_callable_error: str = "warn",
     allow_private: bool = False,
-    msg: Optional[str] = None,
-    config_return_type: Optional[Union[str, bool]] = None,
+    msg: str | None = None,
+    config_return_type: str | bool | None = None,
 ) -> Any:
     """
     Return `self`, a specified attribute of `self`, or both, with error handling
@@ -1229,10 +1222,10 @@ def listing_items_format(
 
 
 def shrunkformat(
-    text: Union[str, Iterable[Any]],
+    text: str | Iterable[Any],
     chunksize: int = 7,
-    insert_at: Optional[str] = None,
-    sep: Optional[str] = None,
+    insert_at: str | None = None,
+    sep: str | None = None,
 ) -> None:
     """Format class and add ellipsis when classes are greater than maxview
 
@@ -1323,7 +1316,7 @@ def shrunkformat(
 
 def accept_types(
     *objtypes: list, format: bool = False
-) -> Union[List[str], str]:
+) -> list[str] | str:
     """
     List the type formats that can be accepted by a function.
 
@@ -2100,9 +2093,9 @@ def strip_item(item_to_clean, item=None, multi_space=12):
 
 
 def pretty_printer(
-    clfs: List[_F],
-    clf_score: List[float] = None,
-    scoring: Optional[str] = None,
+    clfs: list[_F],
+    clf_score: list[float] = None,
+    scoring: str | None = None,
     **kws,
 ) -> None:
     """Format and pretty print messages after gridSearch using multiples
@@ -2688,8 +2681,8 @@ def fancier_repr_formatter(obj, max_attrs=7):
 
 def normalize_string(
     input_str: str,
-    target_strs: Optional[List[str]] = None,
-    num_chars_check: Optional[int] = None,
+    target_strs: list[str] | None = None,
+    num_chars_check: int | None = None,
     deep: bool = False,
     return_target_str: bool = False,
     return_target_only: bool = False,
@@ -2697,7 +2690,7 @@ def normalize_string(
     ignore_case: bool = True,
     match_method: str = "exact",
     error_msg: str = None,
-) -> Union[str, Tuple[str, Optional[str]]]:
+) -> str | tuple[str, str | None]:
     """
     Normalizes a string by applying various transformations and optionally checks
     against a list of target strings based on different matching methods.
@@ -2885,7 +2878,7 @@ def format_and_print_dict(data_dict, front_space=4):
 def fill_nan_in(
     data: DataFrame,
     method: str = "constant",
-    value: Optional[Union[int, float, str]] = 0,
+    value: int | float | str | None = 0,
 ) -> DataFrame:
     """
     Fills NaN values in a Pandas DataFrame using various methods.
@@ -2955,7 +2948,7 @@ def fill_nan_in(
 
 
 def contains_delimiter(
-    s: str, delimiters: Union[str, list, set]
+    s: str, delimiters: str | list | set
 ) -> bool:
     """
     Checks if the given string contains any of the specified delimiters.
@@ -3020,11 +3013,11 @@ def lowertify(
     strip: bool = True,
     return_origin: bool = False,
     unpack: bool = False,
-) -> Union[
-    Tuple[str, ...],
-    Tuple[Tuple[str, Any], ...],
-    Tuple[Any, ...],
-]:
+) -> (
+    tuple[str, ...]
+    | tuple[tuple[str, Any], ...]
+    | tuple[Any, ...]
+):
     """
     Convert all input values to lowercase strings, optionally stripping
     whitespace, and optionally return the original values alongside the
@@ -3103,11 +3096,11 @@ def lowertify(
 
 
 def fetch_value_in(
-    data: Dict[str, Any],
+    data: dict[str, Any],
     key: str,
     kind: str = "metric",
     mode: str = "soft",
-    suffixes: Tuple[str, ...] = ("_score", "_loss", "_error"),
+    suffixes: tuple[str, ...] = ("_score", "_loss", "_error"),
     strict_suffix: bool = False,
     error: str = "raise",
 ) -> Any:

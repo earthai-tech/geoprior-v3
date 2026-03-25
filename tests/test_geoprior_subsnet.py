@@ -8,25 +8,27 @@ tf = pytest.importorskip("tensorflow")
 
 
 def _import_geoprior_subsnet():
-    candidates = [
-        ("geoprior.models", "GeoPriorSubsNet"),
-        ("geoprior.models.subsidence", "GeoPriorSubsNet"),
-        (
-            "geoprior.models.subsidence.models",
-            "GeoPriorSubsNet",
-        ),
-    ]
-    errors = []
-    for module_name, attr in candidates:
-        try:
-            module = importlib.import_module(module_name)
-            return getattr(module, attr)
-        except Exception as exc:  # pragma: no cover
-            errors.append(f"{module_name}: {exc!r}")
-    raise ImportError(
-        "Could not import GeoPriorSubsNet from any known path.\n"
-        + "\n".join(errors)
-    )
+    from geoprior.models.subsidence import GeoPriorSubsNet
+
+    # candidates = [
+    #     ("geoprior.models", "GeoPriorSubsNet"),
+    #     ("geoprior.models.subsidence", "GeoPriorSubsNet"),
+    #     ("geoprior.models.subsidence.models",
+    #         "GeoPriorSubsNet",
+    #     ),
+    # ]
+    # errors = []
+    # for module_name, attr in candidates:
+    #     try:
+    #         module = importlib.import_module(module_name)
+    #         return getattr(module, attr)
+    #     except Exception as exc:  # pragma: no cover
+    #         errors.append(f"{module_name}: {exc!r}")
+    # raise ImportError(
+    #     "Could not import GeoPriorSubsNet from any known path.\n"
+    #     + "\n".join(errors)
+    # )
+    return GeoPriorSubsNet
 
 
 GeoPriorSubsNet = _import_geoprior_subsnet()
@@ -266,6 +268,8 @@ def test_missing_coords_raises(
     dims, scaling_kwargs, batch_inputs
 ):
     model = _make_model(dims, scaling_kwargs)
+    _ = model(batch_inputs, training=False)
+
     bad_inputs = dict(batch_inputs)
     bad_inputs.pop("coords")
 
@@ -276,28 +280,29 @@ def test_missing_coords_raises(
 def test_hard_bounds_without_bounds_raise(
     dims, scaling_kwargs
 ):
-    model = _make_model(
-        dims, scaling_kwargs, bounds_mode="hard"
-    )
+    # model = _make_model(
+    #     dims, scaling_kwargs, bounds_mode="hard"
+    # )
 
     with pytest.raises(ValueError, match="requires bounds"):
-        model.build(
-            {
-                "static_features": (None, dims["static_dim"]),
-                "dynamic_features": (
-                    None,
-                    dims["horizon"],
-                    dims["dynamic_dim"],
-                ),
-                "future_features": (
-                    None,
-                    dims["horizon"],
-                    dims["future_dim"],
-                ),
-                "coords": (None, dims["horizon"], 3),
-                "H_field": (None, dims["horizon"], 1),
-            }
-        )
+        # model.build(
+        #     {
+        #         "static_features": (None, dims["static_dim"]),
+        #         "dynamic_features": (
+        #             None,
+        #             dims["horizon"],
+        #             dims["dynamic_dim"],
+        #         ),
+        #         "future_features": (
+        #             None,
+        #             dims["horizon"],
+        #             dims["future_dim"],
+        #         ),
+        #         "coords": (None, dims["horizon"], 3),
+        #         "H_field": (None, dims["horizon"], 1),
+        #     }
+        # )
+        _make_model(dims, scaling_kwargs, bounds_mode="hard")
 
 
 def test_split_helpers_cover_point_and_legacy_q_fallback(
