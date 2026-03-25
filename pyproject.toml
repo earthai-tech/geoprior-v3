@@ -10,7 +10,13 @@ readme = { file = "README.md", content-type = "text/markdown" }
 authors = [{ name = "Laurent Kouadio", email = "etanoyau@gmail.com" }]
 license = { text = "Apache-2.0" }
 requires-python = ">=3.9"
-keywords = ["geohazards", "subsidence", "physics-informed", "forecasting", "risk"]
+keywords = [
+  "geohazards",
+  "subsidence",
+  "physics-informed",
+  "forecasting",
+  "risk",
+]
 
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -35,7 +41,7 @@ dependencies = [
   "scikit-learn>=0.24",
   "joblib",
   "tensorflow>=2.20",
-  "keras>=3.0", 
+  "keras>=3.0",
   "statsmodels",
   "PyYAML",
   "platformdirs",
@@ -50,6 +56,10 @@ dependencies = [
 
 [project.scripts]
 geoprior = "geoprior.cli:main"
+geoprior-run = "geoprior.cli:run_main"
+geoprior-build = "geoprior.cli:build_main"
+geoprior-plot = "geoprior.cli:plot_main"
+geoprior-init = "geoprior.cli.init_config:main"
 
 [project.optional-dependencies]
 kdiagram = ["k-diagram>=1.3.0"]
@@ -88,6 +98,7 @@ geoprior = [
   "_glog.yml",
   "assets/**",
   "schemas/**",
+  "resources/**",
 ]
 
 [tool.pytest.ini_options]
@@ -98,7 +109,6 @@ testpaths = ["tests"]
 source = ["geoprior"]
 branch = true
 parallel = true
-
 omit = [
   "geoprior/__init__.py",
   "geoprior/__main__.py",
@@ -110,7 +120,6 @@ omit = [
 show_missing = true
 skip_covered = false
 precision = 1
-
 exclude_lines = [
   "pragma: no cover",
   "if __name__ == .__main__.:",
@@ -129,7 +138,7 @@ exclude = ["docs"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
-ignore = ["F401", "E501", "E741","E722", "E402", "B007", "B023", "B904"]
+ignore = ["F401", "E501", "E741", "E722", "E402", "B007", "B023", "B904"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["geoprior"]

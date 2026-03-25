@@ -690,9 +690,7 @@ def _metric_label(name: str) -> str:
     meta = cfg.PLOT_METRIC_META.get(k, None)
     if isinstance(meta, dict):
         txt = str(
-            meta.get("title")
-            or meta.get("ylabel")
-            or k
+            meta.get("title") or meta.get("ylabel") or k
         )
         unit = str(meta.get("unit", "") or "")
         return txt.format(unit=unit)
@@ -727,7 +725,8 @@ def _best_ij(
         return (int(i), int(j))
     except Exception:
         return None
-    
+
+
 def _metric_fmt(metric: str) -> str:
     meta = cfg.PLOT_METRIC_META.get(str(metric), None)
     if isinstance(meta, dict):
