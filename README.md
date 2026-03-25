@@ -192,6 +192,27 @@ geoprior build external-validation-metrics --help
 geoprior build sm3-collect-summaries --help
 ```
 
+
+A slightly more concise version is:
+
+### 3) Backward-compatible legacy scripts
+
+For reproducibility and legacy workflows, helper scripts are 
+still available under `scripts/`.
+
+A typical workflow includes:
+
+- preprocessing
+- training
+- evaluation and figure generation
+
+These script-based entry points remain supported. For example:
+
+```bash
+python -m scripts plot-physics-fields --help
+python -m scripts plot-sm3-identifiability --help
+python -m scripts make-exposure --help
+```
 > For Code Ocean users: see `codeocean/README.md` and `codeocean/run.sh`.
 
 ---
