@@ -32,7 +32,7 @@ from __future__ import annotations
 import os
 import warnings
 from collections.abc import Callable, Mapping
-from typing import Any, Optional
+from typing import Any
 
 try:
     # Centralized TF import / HAS_TF flag
@@ -52,7 +52,7 @@ TF_MESSAGE = (
     "are disabled. Install TensorFlow to enable GPU/CPU control."
 )
 
-LogFn = Optional[Callable[[str], None]]
+LogFn = Callable[[str], None] | None
 
 
 def _get_logger(logger: LogFn) -> Callable[[str], None]:

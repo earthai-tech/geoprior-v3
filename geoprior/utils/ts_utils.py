@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import warnings
 from numbers import Integral, Real
-from typing import Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -4584,7 +4583,7 @@ def ts_outlier_detector(
     return df
 
 
-@check_params({"lags": Union[int, list[int]]})
+@check_params({"lags": int | list[int]})
 def create_lag_features(
     df,
     value_col,

@@ -9,11 +9,7 @@ description = "Physics-guided AI for geohazards"
 readme = { file = "README.md", content-type = "text/markdown" }
 authors = [{ name = "Laurent Kouadio", email = "etanoyau@gmail.com" }]
 license = { text = "Apache-2.0" }
-<<<<<<< HEAD
 requires-python = ">=3.10"
-keywords = ["geohazards", "subsidence", "physics-informed", "forecasting", "risk"]
-=======
-requires-python = ">=3.9"
 keywords = [
   "geohazards",
   "subsidence",
@@ -21,7 +17,6 @@ keywords = [
   "forecasting",
   "risk",
 ]
->>>>>>> 0590997a8abd420f34d307d12b858827c71be853
 
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -143,7 +138,7 @@ exclude = ["docs"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
-ignore = ["F401", "E501", "E741", "E722", "E402", "B007", "B023", "B904"]
+ignore = ["F401", "E501", "E741", "E722","E731",  "E402", "B007", "B023", "B024", "B904"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["geoprior"]

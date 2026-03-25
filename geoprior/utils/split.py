@@ -64,10 +64,13 @@ def _check_ratios(r: tuple[float, float, float]) -> None:
         raise ValueError("ratios must sum to 1.0.")
 
 
+_SPLITCFG = SplitCfg()
+
+
 def split_group_keys(
     keys: np.ndarray,
     *,
-    cfg: SplitCfg = SplitCfg(),
+    cfg: SplitCfg = _SPLITCFG,
 ) -> dict[str, np.ndarray]:
     _check_ratios(cfg.ratios)
 
@@ -213,7 +216,7 @@ def build_group_holdout_npzs(
     model_name: str,
     train_end: float | None,
     keys_ok: np.ndarray,
-    cfg: SplitCfg = SplitCfg(),
+    cfg: SplitCfg = _SPLITCFG,
     normalize_coords: bool = True,
 ) -> dict[str, Any]:
     """

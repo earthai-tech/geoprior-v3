@@ -16,10 +16,7 @@ from collections.abc import (
     Mapping,
     Sequence,
 )
-from typing import (
-    Any,
-    Union,
-)
+from typing import Any
 
 import numpy as np
 
@@ -50,18 +47,15 @@ tf_expand_dims = KERAS_DEPS.expand_dims
 tf_broadcast_to = KERAS_DEPS.broadcast_to
 tf_logical_and = KERAS_DEPS.logical_and
 
-ScheduleType = Union[
-    Callable[[int | None, int, float], float],
-    Mapping[int, float],
-    Sequence[float],
-    None,
-]
+ScheduleType = (
+    Callable[[int | None, int, float], float]
+    | Mapping[int, float]
+    | Sequence[float]
+    | None,
+)
 
 
 __all__ = [
-    # "ResetOptimizerStats",
-    # "make_lr_scheduler",
-    # "summarize_lr_schedule",
     "NaNGuard",
     "FrozenValQuantileMonitor",
     "FrozenValQuantilePrinter",

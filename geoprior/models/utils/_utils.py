@@ -2203,9 +2203,7 @@ def prepare_model_inputs_in(
     return [s_to_pass, d_to_pass, f_to_pass]
 
 
-@check_params(
-    {"domain_func": Optional[Callable]}, coerce=False
-)
+@check_params({"domain_func": Callable | None}, coerce=False)
 @ParamsValidator(
     {
         "y_true": ["array-like:np:transf"],

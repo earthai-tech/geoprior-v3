@@ -17,17 +17,13 @@ from datetime import datetime
 from itertools import chain
 from numbers import Real
 from pathlib import Path
-from typing import (
-    Any,
-    Literal,
-    Union,
-)
+from typing import Any, Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-PathLike = Union[str, os.PathLike]
+PathLike = str | os.PathLike
 
 _SENTINEL = object()
 

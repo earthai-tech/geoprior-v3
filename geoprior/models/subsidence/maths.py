@@ -11,10 +11,7 @@ Short docs only; full docs later.
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from typing import (
-    Any,
-    Optional,
-)
+from typing import Any
 
 import numpy as np
 
@@ -106,7 +103,7 @@ _param_docs = DocstringComponents.from_nested_components(
 # Constants + types
 _EPSILON = 1e-15
 
-AxisLike = Optional[int | Sequence[int]]
+AxisLike = int | Sequence[int] | None
 
 # Time units + scaling
 TIME_UNIT_TO_SECONDS = {

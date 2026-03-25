@@ -19,10 +19,7 @@ import inspect
 import json
 import os
 from collections.abc import Callable, Mapping, Sequence
-from typing import (
-    Any,
-    Optional,
-)
+from typing import Any
 
 __all__ = [
     "keras_major",
@@ -37,9 +34,9 @@ __all__ = [
     "compute_loss",
 ]
 
-CustomObjects = Optional[dict[str, Any]]
-Builder = Optional[Callable[[dict[str, Any]], Any]]
-LogFn = Optional[Callable[[str], None]]
+CustomObjects = dict[str, Any] | None
+Builder = Callable[[dict[str, Any]], Any] | None
+LogFn = Callable[[str], None] | None
 
 
 # ---------------------------------------------------------------------
