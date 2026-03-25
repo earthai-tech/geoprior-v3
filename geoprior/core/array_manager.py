@@ -29,14 +29,8 @@ from ..api.types import (
     Any,
     ArrayLike,
     DataFrame,
-    Dict,
-    List,
     NDArray,
-    Optional,
     Series,
-    Set,
-    Tuple,
-    Union,
 )
 from .checks import (
     are_all_frames_valid,
@@ -84,7 +78,7 @@ __all__ = [
 
 def to_array(
     arr: Any,
-    accept: Optional[str] = None,
+    accept: str | None = None,
     error: str = "raise",
     force_conversion: bool = False,
     axis: int = 0,
@@ -92,7 +86,7 @@ def to_array(
     as_frame: bool = False,
     verbose: int = 0,
     **kwargs,
-) -> Union[np.ndarray, pd.Series, pd.DataFrame]:
+) -> np.ndarray | pd.Series | pd.DataFrame:
     """
     Convert various array-like objects to the desired dimensionality.
 
@@ -706,7 +700,7 @@ def to_array(
 
 def to_arrays(
     *arrays: Any,
-    accept: Optional[str] = None,
+    accept: str | None = None,
     error: str = "raise",
     force_conversion: bool = False,
     axis: int = 0,
@@ -714,7 +708,7 @@ def to_arrays(
     mode: str = "keep_origin",
     as_frame: bool = False,
     **kwargs,
-) -> Tuple[Union[np.ndarray, pd.Series, pd.DataFrame], ...]:
+) -> tuple[np.ndarray | pd.Series | pd.DataFrame, ...]:
     """
     Convert multiple array-like objects to desired dimensionality 
     using ``to_array``.
@@ -1700,21 +1694,17 @@ def is_array_like(x):
 
 def reduce_dimensions(
     arr: np.ndarray,
-    z: Union[List, np.ndarray],
-    x: Union[List, np.ndarray],
+    z: list | np.ndarray,
+    x: list | np.ndarray,
     ops: str = "reduce",
-    axis_names: Tuple[str, str] = ("Z", "X"),
+    axis_names: tuple[str, str] = ("Z", "X"),
     error: str = "raise",
     strict: bool = False,
-    logger: Optional[logging.Logger] = None,
-) -> Union[
-    bool,
-    Tuple[
-        np.ndarray,
-        Union[List, np.ndarray],
-        Union[List, np.ndarray],
-    ],
-]:
+    logger: logging.Logger | None = None,
+) -> (
+    bool
+    | tuple[np.ndarray, list | np.ndarray, list | np.ndarray]
+):
     """
     Reduce or Check the Dimensionality of a 2D Data Array.
     
@@ -1926,9 +1916,9 @@ def reduce_dimensions(
     # Define helper function to adjust axis lengths
     def adjust_axis_length(
         desired_length: int,
-        current_axis: Union[List, np.ndarray],
+        current_axis: list | np.ndarray,
         axis_name: str,
-    ) -> Tuple[int, Union[List, np.ndarray]]:
+    ) -> tuple[int, list | np.ndarray]:
         """
         Adjust the length of an axis to match the desired length.
 
@@ -2172,14 +2162,14 @@ def decode_sparse_data(
 
 def process_and_extract_data(
     *args: ArrayLike,
-    columns: Optional[List[Union[str, int]]] = None,
+    columns: list[str | int] | None = None,
     enforce_extraction: bool = True,
     allow_split: bool = False,
     search_multiple: bool = False,
     ensure_uniform_length: bool = False,
     to_array: bool = False,
     on_error: str = "raise",
-) -> List[np.ndarray]:
+) -> list[np.ndarray]:
     """
     Extracts and processes data from various input types, focusing on column
     extraction from pandas DataFrames and conversion of inputs to numpy
@@ -2254,13 +2244,13 @@ def process_and_extract_data(
     ValueError: Extracted data arrays do not have uniform length.
     """
     extracted_data = []
-    columns_found: Set[Union[str, int]] = set()
+    columns_found: set[str | int] = set()
 
     def _process_input(
         input_data: ArrayLike,
-        target_columns: Optional[List[Union[str, int]]],
+        target_columns: list[str | int] | None,
         to_array: bool,
-    ) -> Optional[np.ndarray]:
+    ) -> np.ndarray | None:
         """
         Processes each input based on its type, extracting specified columns
         if necessary, and converting to numpy array if specified.
@@ -2355,8 +2345,8 @@ def process_and_extract_data(
 
 def to_series_if(
     *values: Any,
-    value_names: Optional[List[str]] = None,
-    name: Optional[str] = None,
+    value_names: list[str] | None = None,
+    name: str | None = None,
     error: str = "ignore",
     **kws,
 ) -> Series:
@@ -2547,7 +2537,7 @@ def make_arr_consistent(
 
 def split_train_test(
     data: DataFrame, test_ratio: float = 0.2
-) -> Tuple[DataFrame, DataFrame]:
+) -> tuple[DataFrame, DataFrame]:
     """
     Split a DataFrame into train and test sets based on a given ratio.
 
@@ -2634,10 +2624,10 @@ def test_set_check_id(
 def split_train_test_by_id(
     data: DataFrame,
     test_ratio: float,
-    id_column: Optional[List[str]] = None,
+    id_column: list[str] | None = None,
     keep_colindex: bool = True,
     hash: _F = hashlib.md5,
-) -> Tuple[DataFrame, DataFrame]:
+) -> tuple[DataFrame, DataFrame]:
     """
     Split a DataFrame into train and test sets while ensuring data consistency
     by using specified id columns or the DataFrame's index as unique identifiers.
@@ -2724,8 +2714,8 @@ def split_train_test_by_id(
 
 
 def split_list(
-    lst: List[Any], val: int, fill_value: Optional[Any] = None
-) -> List[List[Any]]:
+    lst: list[Any], val: int, fill_value: Any | None = None
+) -> list[list[Any]]:
     """
     Split a one‑dimensional list into contiguous chunks of length
     ``val`` while preserving order.
@@ -2835,7 +2825,7 @@ def split_list(
 
 
 def squeeze_specific_dim(
-    arr: np.ndarray, axis: Optional[int] = -1
+    arr: np.ndarray, axis: int | None = -1
 ) -> np.ndarray:
     """
     Remove single‑dimension axes from *arr* along a chosen
@@ -2901,9 +2891,7 @@ def squeeze_specific_dim(
         return arr
 
 
-def reshape(
-    arr: Any, axis: Optional[int] = None
-) -> np.ndarray:
+def reshape(arr: Any, axis: int | None = None) -> np.ndarray:
     """
     Reshape a 1‑D or 2‑D array to match a desired orientation
     given by `axis`.
@@ -2988,21 +2976,21 @@ def reshape(
 
 
 def to_numeric_dtypes(
-    arr: Union[NDArray, DataFrame],
+    arr: NDArray | DataFrame,
     *,
-    columns: Optional[List[str]] = None,
+    columns: list[str] | None = None,
     return_feature_types: bool = False,
     missing_values: float = np.nan,
     pop_cat_features: bool = False,
     sanitize_columns: bool = False,
-    regex: Optional[re.Pattern] = None,
+    regex: re.Pattern | None = None,
     fill_pattern: str = "_",
     drop_nan_columns: bool = ...,
     how: str = "all",
     reset_index: bool = False,
     drop_index: bool = ...,
     verbose: bool = False,
-) -> Union[DataFrame, Tuple[DataFrame, List[str], List[str]]]:
+) -> DataFrame | tuple[DataFrame, list[str], list[str]]:
     """
     Convert input array or DataFrame into a numeric-friendly DataFrame by
     coercing values to numeric data types where applicable and identifying
@@ -3306,7 +3294,7 @@ def convert_to_structured_format(
     skip_sparse: bool = True,
     cols_as_str: bool = False,
     solo_return: bool = False,
-) -> List[Union[ArrayLike, DataFrame, Series]]:
+) -> list[ArrayLike | DataFrame | Series]:
     """
     Converts input objects to structured numpy arrays or pandas DataFrame/Series
     based on their shapes and the `as_frame` flag. If conversion to a structured
@@ -3383,7 +3371,7 @@ def convert_to_structured_format(
 
     def attempt_conversion_to_pandas(
         arr: np.ndarray,
-    ) -> Union[np.ndarray, pd.DataFrame, pd.Series]:
+    ) -> np.ndarray | pd.DataFrame | pd.Series:
         """Attempts to convert an array to a DataFrame or Series based on shape."""
         from scipy.sparse import issparse
 
@@ -3434,7 +3422,7 @@ def convert_to_structured_format(
 def map_specific_columns(
     data: DataFrame,
     ufunc: _F,
-    columns_to_skip: List[str] = None,
+    columns_to_skip: list[str] = None,
     pattern: str = None,
     inplace: bool = False,
     **kws,
@@ -3666,16 +3654,14 @@ def concat_array_from_list(list_of_array, concat_axis=0):
 
 
 def drop_nan_in(
-    *arrays: Union[np.ndarray, pd.DataFrame],
-    ref_array: Optional[
-        Union[np.ndarray, pd.DataFrame]
-    ] = None,
-    columns: Optional[List[str]] = None,
+    *arrays: np.ndarray | pd.DataFrame,
+    ref_array: np.ndarray | pd.DataFrame | None = None,
+    columns: list[str] | None = None,
     reset_index: bool = True,
-    axis: Union[int, str] = 0,
+    axis: int | str = 0,
     error: str = "raise",
     solo_return=False,
-) -> List[Union[np.ndarray, pd.DataFrame]]:
+) -> list[np.ndarray | pd.DataFrame]:
     """
     Drop rows or columns containing NaNs across multiple arrays consistently.
 
@@ -3907,10 +3893,10 @@ def drop_nan_in(
 
 
 def _process_reference_array(
-    ref_array: Optional[Union[np.ndarray, pd.DataFrame]],
+    ref_array: np.ndarray | pd.DataFrame | None,
     axis: int,
     reset_index: bool,
-) -> Tuple[Optional[pd.DataFrame], bool]:
+) -> tuple[pd.DataFrame | None, bool]:
     """
     Process the reference array and determine its type.
     """
@@ -3937,10 +3923,10 @@ def _process_reference_array(
 
 
 def _determine_na_mask(
-    df_arrays: List[pd.DataFrame],
-    ref_df: Optional[pd.DataFrame],
+    df_arrays: list[pd.DataFrame],
+    ref_df: pd.DataFrame | None,
     ref_is_df: bool,
-    columns: Optional[List[str]],
+    columns: list[str] | None,
     axis: int,
 ) -> pd.Series:
     """
@@ -4018,10 +4004,10 @@ def _drop_labels_from_df(
     labels_to_drop: pd.Index,
     axis: int,
     reset_index: bool,
-    ref_df: Optional[pd.DataFrame],
+    ref_df: pd.DataFrame | None,
     ref_is_df: bool,
     error: str,
-    df_arrays: List[pd.DataFrame],
+    df_arrays: list[pd.DataFrame],
 ) -> pd.DataFrame:
     """
     Drop the specified labels from the DataFrame based on the axis.
@@ -4146,11 +4132,9 @@ def _drop_labels_from_df(
 
 
 def _convert_arrays_to_df(
-    arrays: Tuple[
-        Union[np.ndarray, pd.DataFrame, pd.Series], ...
-    ],
+    arrays: tuple[np.ndarray | pd.DataFrame | pd.Series, ...],
     reset_index: bool = True,
-) -> Tuple[List[pd.DataFrame], List[str]]:
+) -> tuple[list[pd.DataFrame], list[str]]:
     """
     Convert all input arrays to DataFrames and track their original types.
 
@@ -4204,10 +4188,10 @@ def _convert_arrays_to_df(
 
 
 def _convert_back_to_original_types(
-    processed_dfs: List[pd.DataFrame],
-    original_types: List[str],
+    processed_dfs: list[pd.DataFrame],
+    original_types: list[str],
     solo_return: bool = False,
-) -> List[Union[np.ndarray, pd.DataFrame, pd.Series]]:
+) -> list[np.ndarray | pd.DataFrame | pd.Series]:
     """
     Convert the processed DataFrames back to their original types.
 
@@ -4286,7 +4270,7 @@ def array_preserver(
     error: str = "warn",
     deep_restore: bool = False,
     solo_return: bool = True,
-) -> Union[Dict[str, List[Any]], List[Any]]:
+) -> dict[str, list[Any]] | list[Any]:
     """
     Collect and restore array-like objects while preserving their 
     original properties.
@@ -4458,11 +4442,11 @@ def array_preserver(
         )
 
     if action == "collect":
-        processed: List[Any] = []
-        metadata: List[Dict[str, Any]] = []
+        processed: list[Any] = []
+        metadata: list[dict[str, Any]] = []
 
         for arr in arrays:
-            meta: Dict[str, Any] = {}
+            meta: dict[str, Any] = {}
 
             # Determine the type and capture relevant metadata
             if isinstance(arr, pd.DataFrame):
@@ -4520,8 +4504,8 @@ def array_preserver(
                 "The container must have 'processed' and 'metadata' keys."
             )
 
-        processed: List[Any] = container["processed"]
-        metadata: List[Dict[str, Any]] = container["metadata"]
+        processed: list[Any] = container["processed"]
+        metadata: list[dict[str, Any]] = container["metadata"]
 
         if not isinstance(processed, list) or not isinstance(
             metadata, list
@@ -4530,7 +4514,7 @@ def array_preserver(
                 "'processed' and 'metadata' must be lists within the container."
             )
 
-        restored: List[Any] = []
+        restored: list[Any] = []
 
         for proc_arr, meta in zip(
             processed, metadata, strict=False

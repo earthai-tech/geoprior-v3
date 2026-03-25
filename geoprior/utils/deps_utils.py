@@ -13,15 +13,10 @@ import inspect
 import subprocess
 import sys
 import warnings
+from collections.abc import Callable
+from typing import Any
 
-from ..api.types import (
-    _T,
-    Any,
-    Callable,
-    List,
-    Optional,
-    Union,
-)
+from ..api.types import _T
 from ..core.handlers import delegate_on_error
 from ..decorators import Deprecated
 from ..logging import get_logger
@@ -215,10 +210,10 @@ def get_versions(extras=None, distribution_mapping=None):
 def ensure_module_installed(
     module_name: str,
     auto_install: bool = False,
-    version: Optional[str] = None,
+    version: str | None = None,
     package_manager: str = "pip",
-    dist_name: Optional[str] = None,
-    extra_install_args: Optional[List[str]] = None,
+    dist_name: str | None = None,
+    extra_install_args: list[str] | None = None,
 ) -> bool:
     """
     Ensure that the required module is installed, optionally installing it 
@@ -361,9 +356,9 @@ def ensure_module_installed(
 
 def install_package(
     name: str,
-    dist_name: Optional[str] = None,
+    dist_name: str | None = None,
     infer_dist_name: bool = False,
-    version: Optional[str] = None,
+    version: str | None = None,
     extra: str = "",
     use_conda: bool = False,
     verbose: bool = True,
@@ -644,7 +639,7 @@ def install_package(
 )
 def install_pkg(
     name: str,
-    dist_name: Optional[str] = None,
+    dist_name: str | None = None,
     infer_dist_name: bool = False,
     version: str = "",
     use_conda: bool = False,
@@ -831,9 +826,9 @@ def ensure_pkg(
     name: str,
     extra: str = "",
     error: str = "raise",
-    min_version: Optional[str] = None,
+    min_version: str | None = None,
     exception: Exception = None,
-    dist_name: Optional[str] = None,
+    dist_name: str | None = None,
     infer_dist_name: bool = False,
     auto_install: bool = False,
     use_conda: bool = False,
@@ -1097,16 +1092,12 @@ def _should_check_condition(
 
 
 def ensure_pkgs(
-    names: Union[str, List[str]],
+    names: str | list[str],
     extra: str = "",
     error: str = "raise",
-    min_versions: Optional[
-        Union[str, List[Optional[str]]]
-    ] = None,
+    min_versions: str | list[str | None] | None = None,
     exception: Exception = None,
-    dist_names: Optional[
-        Union[str, List[Optional[str]]]
-    ] = None,
+    dist_names: str | list[str | None] | None = None,
     infer_dist_name: bool = False,
     auto_install: bool = False,
     use_conda: bool = False,
@@ -1389,9 +1380,9 @@ def _check_distribution_installed(
 
 def get_installation_name(
     module_name: str,
-    distribution_name: Optional[str] = None,
+    distribution_name: str | None = None,
     return_bool: bool = False,
-) -> Union[str, bool]:
+) -> str | bool:
     """
     Determines the appropriate name for installing a package, considering potential
     discrepancies between the distribution name and the module import name. Optionally,

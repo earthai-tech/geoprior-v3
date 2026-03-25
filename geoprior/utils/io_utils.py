@@ -12,6 +12,8 @@ deserialization, directory management, and archive handling
 Adapted for FusionLab from the original geoprior.utils.io_utils.
 """
 
+from __future__ import annotations
+
 import copy
 import csv
 import datetime

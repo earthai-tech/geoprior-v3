@@ -4011,6 +4011,37 @@ def exp_from_bounds(
     eps_f = float(eps)
 
     raw_log = tf_cast(raw_log, dtype)
+    # log_min = tf_cast(log_min, dtype)
+    # log_max = tf_cast(log_max, dtype)
+
+    if (log_min is None) or (log_max is None):
+        if mode == "hard":
+            raise ValueError(
+                "bounds_mode='hard' requires finite log bounds."
+            )
+
+        # Soft / none mode without configured bounds:
+        # keep raw log values for diagnostics, but guard the
+        # exponentiation so float32 never overflows.
+        safe_log_abs_max = tf_constant(80.0, dtype)
+        log_safe = tf_clip_by_value(
+            raw_log,
+            -safe_log_abs_max,
+            safe_log_abs_max,
+        )
+        pen = tf_zeros_like(raw_log)
+        field = tf_exp(log_safe) + tf_constant(eps_f, dtype)
+
+        if name:
+            tf_debugging.assert_all_finite(
+                raw_log, f"{name} raw_log non-finite"
+            )
+            tf_debugging.assert_all_finite(
+                field, f"{name} field non-finite"
+            )
+
+        return field, raw_log, log_safe, pen
+
     log_min = tf_cast(log_min, dtype)
     log_max = tf_cast(log_max, dtype)
 

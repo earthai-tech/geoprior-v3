@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from tests._helpers import DummyModel, import_module_group
+from ._helpers import DummyModel, import_module_group
 
 pytest.importorskip("tensorflow")
 

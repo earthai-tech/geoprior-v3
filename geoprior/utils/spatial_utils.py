@@ -28,13 +28,7 @@ from sklearn.metrics import silhouette_score
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
 
-from ..api.types import (
-    DataFrame,
-    List,
-    Optional,
-    Tuple,
-    Union,
-)
+from ..api.types import DataFrame
 from ..compat.sklearn import (
     Interval,
     StrOptions,
@@ -103,12 +97,12 @@ def deg_to_m_from_lat(lat_deg: float) -> tuple[float, float]:
 @isdf
 def extract_spatial_roi(
     df: pd.DataFrame,
-    x_range: Tuple[float, float],
-    y_range: Tuple[float, float],
+    x_range: tuple[float, float],
+    y_range: tuple[float, float],
     x_col: str = "longitude",
     y_col: str = "latitude",
     snap_to_closest: bool = True,
-    savefile: Optional[str] = None,
+    savefile: str | None = None,
     **kwargs,
 ) -> pd.DataFrame:
     """Extracts a spatial Region of Interest (ROI) from a DataFrame.
@@ -194,23 +188,23 @@ def _find_closest_value(
 def gen_negative_samples_plus(
     df: pd.DataFrame,
     target_col: str,
-    spatial_cols: Tuple[str, str] = ("longitude", "latitude"),
-    feature_cols: Optional[List[str]] = None,
+    spatial_cols: tuple[str, str] = ("longitude", "latitude"),
+    feature_cols: list[str] | None = None,
     buffer_km: float = 10,
-    neg_feature_range: Tuple[float, float] = (0, 5),
+    neg_feature_range: tuple[float, float] = (0, 5),
     num_neg_per_pos: int = 1,
     strategy: str = "landslide",
-    gauge_data: Optional[pd.DataFrame] = None,
-    elevation_data: Optional[pd.DataFrame] = None,
-    similarity_features: Optional[List[str]] = None,
-    time_col: Optional[str] = None,
+    gauge_data: pd.DataFrame | None = None,
+    elevation_data: pd.DataFrame | None = None,
+    similarity_features: list[str] | None = None,
+    time_col: str | None = None,
     cluster_method: str = "kmeans",
-    use_gpd: Union[bool, str] = "auto",
+    use_gpd: bool | str = "auto",
     id_col="auto",
     view: bool = False,
-    savefile: Optional[str] = None,
+    savefile: str | None = None,
     verbose: int = 1,
-    seed: Optional[int] = None,
+    seed: int | None = None,
 ) -> pd.DataFrame:
     """
     Generates negative samples for modeling in spatial scenarios,
@@ -669,18 +663,18 @@ def gen_negative_samples_plus(
 def gen_buffered_negative_samples(
     df: pd.DataFrame,
     target_col: str,
-    spatial_cols: Tuple[str, str] = ("longitude", "latitude"),
-    feature_cols: Optional[List[str]] = None,
+    spatial_cols: tuple[str, str] = ("longitude", "latitude"),
+    feature_cols: list[str] | None = None,
     buffer_km: float = 10,
-    neg_feature_range: Tuple[float, float] = (0, 5),
+    neg_feature_range: tuple[float, float] = (0, 5),
     num_neg_per_pos: int = 1,
     strategy: str = "landslide",
-    gauge_data: Optional[pd.DataFrame] = None,
-    use_gpd: Union[bool, str] = "auto",
+    gauge_data: pd.DataFrame | None = None,
+    use_gpd: bool | str = "auto",
     id_col="auto",
     view: bool = False,
-    savefile: Optional[str] = None,
-    seed: Optional[int] = None,
+    savefile: str | None = None,
+    seed: int | None = None,
     verbose: int = 1,
 ) -> pd.DataFrame:
     """
@@ -1068,14 +1062,14 @@ def _visualize_negative_sampling(
 def gen_negative_samples(
     df: DataFrame,
     target_col: str,
-    spatial_cols: Tuple[str, str] = ("longitude", "latitude"),
-    feature_cols: Optional[List[str]] = None,
+    spatial_cols: tuple[str, str] = ("longitude", "latitude"),
+    feature_cols: list[str] | None = None,
     buffer_km: float = 10,
-    neg_feature_range: Tuple[float, float] = (0, 5),
+    neg_feature_range: tuple[float, float] = (0, 5),
     num_neg_per_pos: int = 1,
-    use_gpd: Union[bool, str] = "auto",
+    use_gpd: bool | str = "auto",
     view: bool = False,
-    savefile: Optional[str] = None,
+    savefile: str | None = None,
     verbose: int = 1,
 ):
     r"""
@@ -1444,11 +1438,11 @@ def gen_negative_samples(
 def _validate_negative_sampling(
     df: DataFrame,
     target_col: str,
-    spatial_cols: Tuple[str, str] = ("longitude", "latitude"),
-    feature_cols: Optional[List[str]] = None,
-    neg_feature_range: Tuple[float, float] = (0, 5),
+    spatial_cols: tuple[str, str] = ("longitude", "latitude"),
+    feature_cols: list[str] | None = None,
+    neg_feature_range: tuple[float, float] = (0, 5),
     num_neg_per_pos: int = 1,
-    id_col: Optional[str] = "auto",
+    id_col: str | None = "auto",
     verbose: int = 0,
 ):
     """
@@ -1530,9 +1524,9 @@ def _validate_negative_sampling(
 @isdf
 def create_spatial_clusters(
     df: pd.DataFrame,
-    spatial_cols: Optional[List[str]] = None,
+    spatial_cols: list[str] | None = None,
     cluster_col: str = "region",
-    n_clusters: Optional[int] = None,
+    n_clusters: int | None = None,
     algorithm: str = "kmeans",
     view: bool = True,
     figsize: tuple = (14, 10),
@@ -1542,7 +1536,7 @@ def create_spatial_clusters(
     show_grid: bool = True,
     grid_props: dict = None,
     auto_scale: bool = True,
-    savefile: Optional[str] = None,
+    savefile: str | None = None,
     verbose: int = 1,
     **kwargs,
 ) -> pd.DataFrame:
@@ -1858,7 +1852,7 @@ def _auto_detect_k(
 
 def _plot_clusters(
     df: pd.DataFrame,
-    spatial_cols: List[str],
+    spatial_cols: list[str],
     cluster_col: str,
     figsize: tuple,
     cmap: str,
@@ -2508,7 +2502,7 @@ def extract_zones_from(
 def dual_merge(
     df1: pd.DataFrame,
     df2: pd.DataFrame,
-    feature_cols: Union[list, tuple] = (
+    feature_cols: list | tuple = (
         "longitude",
         "latitude",
     ),
@@ -2516,7 +2510,7 @@ def dual_merge(
     force_coords: bool = False,
     threshold: float = 0.01,
     how: str = "inner",
-    savefile: Optional[str] = None,
+    savefile: str | None = None,
 ) -> pd.DataFrame:
     """
     Merge two DataFrames based on specified feature columns. The function
@@ -2682,12 +2676,12 @@ def extract_coordinates(
     df: pd.DataFrame,
     as_frame: bool = False,
     drop_xy: bool = False,
-    error: Union[bool, str] = "raise",
+    error: bool | str = "raise",
     verbose: int = 0,
-) -> Tuple[
-    Union[Tuple[float, float], pd.DataFrame, None],
+) -> tuple[
+    tuple[float, float] | pd.DataFrame | None,
     pd.DataFrame,
-    Tuple[str, str],
+    tuple[str, str],
 ]:
     """
     Identifies coordinate columns (longitude/latitude or easting/northing)
