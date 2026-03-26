@@ -437,14 +437,14 @@ def scenario_tau_only_derive_K(
     K_key: str = "K_mps",
     Ss_key: str = "Ss",
     Hd_key: str = "Hd",
-    Ss_fixed: Tensor | None = None,
-    Hd_fixed: Tensor | None = None,
+    Ss_fixed: "Tensor | None" = None,
+    Hd_fixed: "Tensor | None" = None,
     freeze_Ss: bool = True,
     freeze_Hd: bool = True,
     add_soft_anchor: bool = False,
     anchor_w: float = 0.0,
-    Ss_prior: Tensor | None = None,
-    Hd_prior: Tensor | None = None,
+    Ss_prior: "Tensor | None" = None,
+    Hd_prior: "Tensor | None" = None,
 ) -> ScenarioOut:
     """
     Option A:

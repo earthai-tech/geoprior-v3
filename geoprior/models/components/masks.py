@@ -75,8 +75,8 @@ def pad_mask_from_lengths(
 def sequence_mask_3d(
     data: Tensor,
     *,
-    lengths: Tensor | None = None,
-    mask_2d: Tensor | None = None,
+    lengths: "Tensor | None" = None,
+    mask_2d: "Tensor | None" = None,
     time_axis: int = 1,
     invert: bool = False,
     dtype: Tensor = tf_bool,

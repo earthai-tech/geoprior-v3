@@ -120,9 +120,11 @@ def _poly_from_points(
 
 def make_boundary_main(
     argv: list[str] | None = None,
+    *,
+    prog: str | None = None,
 ) -> None:
     ap = argparse.ArgumentParser(
-        prog="make-boundary",
+        prog=prog or "make-boundary",
         description="Create a boundary polygon from forecast points.",
     )
     utils.add_city_flags(ap, default_both=True)

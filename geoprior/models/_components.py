@@ -417,7 +417,7 @@ class TransformerEncoderLayer(Layer, NNLearner):
         self,
         x: Tensor,
         training: bool = False,
-        attention_mask: Tensor | None = None,
+        attention_mask: "Tensor | None" = None,
     ) -> Tensor:
         attn_output = self.mha(
             query=x,
@@ -515,9 +515,9 @@ class TransformerDecoderLayer(Layer, NNLearner):
         x: Tensor,
         enc_output: Tensor,
         training: bool = False,
-        look_ahead_mask: Tensor | None = None,
+        look_ahead_mask: "Tensor | None" = None,
         # For encoder output in cross-attention
-        padding_mask: Tensor | None = None,
+        padding_mask: "Tensor | None" = None,
     ) -> Tensor:
         # Masked Multi-Head Self-Attention (for decoder inputs)
         attn1_output = self.mha1_self_attn(
@@ -3083,9 +3083,9 @@ class CrossAttention(Layer, NNLearner):
         inputs,
         training: bool = False,
         *,
-        attention_mask: Tensor | None = None,
-        query_mask: Tensor | None = None,
-        value_mask: Tensor | None = None,
+        attention_mask: "Tensor | None" = None,
+        query_mask: "Tensor | None" = None,
+        value_mask: "Tensor | None" = None,
         use_causal_mask: bool = False,
         **kwargs,
     ):
@@ -3391,9 +3391,9 @@ class MemoryAugmentedAttention(Layer, NNLearner):
         inputs,
         training: bool = False,
         *,
-        attention_mask: Tensor | None = None,
-        query_mask: Tensor | None = None,
-        value_mask: Tensor | None = None,
+        attention_mask: "Tensor | None" = None,
+        query_mask: "Tensor | None" = None,
+        value_mask: "Tensor | None" = None,
         use_causal_mask: bool = False,
         **kwargs,
     ):
@@ -3474,8 +3474,8 @@ class HierarchicalAttention(Layer, NNLearner):
         inputs,
         training: bool = False,
         *,
-        short_mask: Tensor | None = None,
-        long_mask: Tensor | None = None,
+        short_mask: "Tensor | None" = None,
+        long_mask: "Tensor | None" = None,
         use_causal_mask: bool = False,
         **kwargs,
     ):

@@ -77,7 +77,7 @@ def _infer_quantile_axis(t: Tensor, n_q: int = 3):
     return None
 
 
-def _as_BHO(y_true: Tensor, y_pred: Tensor | None = None):
+def _as_BHO(y_true: Tensor, y_pred: "Tensor | None" = None):
     """Normalize y_true to (B,H,O) float32."""
     y = tf_convert_to_tensor(y_true)
 
@@ -146,7 +146,7 @@ def _as_BHO_like_pred(x: Tensor, dtype=tf_float32):
 
 def _weighted_sum_and_count(
     values: Tensor,
-    sample_weight: Tensor | None = None,
+    sample_weight: "Tensor | None" = None,
 ):
     """Return (sum, count) as float32."""
     v = tf_cast(values, tf_float32)

@@ -53,9 +53,11 @@ _LOWER_IS_BETTER = {
 # ---------------------------------------------------------------------
 def _parse_args(
     argv: list[str] | None,
+    *,
+    prog: str | None = None,
 ) -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        prog="build-ablation-table",
+        prog=prog or "build-ablation-table",
         description=(
             "Build ablation tables from ablation_record.jsonl."
         ),
@@ -1469,8 +1471,10 @@ def _build_table_s7(
 # ---------------------------------------------------------------------
 def build_ablation_table_main(
     argv: list[str] | None = None,
+    *,
+    prog: str | None = None,
 ) -> None:
-    args = _parse_args(argv)
+    args = _parse_args(argv, prog=prog)
     utils.ensure_script_dirs()
 
     df = _load_records(args)

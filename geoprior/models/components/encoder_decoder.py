@@ -104,7 +104,7 @@ class TransformerEncoderBlock(Layer):
         self,
         inputs: Tensor,
         training: bool = False,
-        mask: Tensor | None = None,
+        mask: "Tensor | None" = None,
     ) -> Tensor:
         """
         Forward pass through the encoder block.
@@ -253,8 +253,8 @@ class TransformerDecoderBlock(Layer):
         inputs: Tensor,
         enc_output: Tensor,
         training: bool = False,
-        look_ahead_mask: Tensor | None = None,
-        padding_mask: Tensor | None = None,
+        look_ahead_mask: "Tensor | None" = None,
+        padding_mask: "Tensor | None" = None,
     ) -> Tensor:
         """
         Forward pass through the decoder block.
@@ -420,7 +420,7 @@ class TransformerEncoderLayer(Layer, NNLearner):
         self,
         x: Tensor,
         training: bool = False,
-        attention_mask: Tensor | None = None,
+        attention_mask: "Tensor | None" = None,
     ) -> Tensor:
         attn_output = self.mha(
             query=x,
@@ -520,9 +520,9 @@ class TransformerDecoderLayer(Layer, NNLearner):
         x: Tensor,
         enc_output: Tensor,
         training: bool = False,
-        look_ahead_mask: Tensor | None = None,
+        look_ahead_mask: "Tensor | None" = None,
         # For encoder output in cross-attention
-        padding_mask: Tensor | None = None,
+        padding_mask: "Tensor | None" = None,
     ) -> Tensor:
         # Masked Multi-Head Self-Attention (for decoder inputs)
         attn1_output = self.mha1_self_attn(

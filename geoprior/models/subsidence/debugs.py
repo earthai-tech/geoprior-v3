@@ -527,8 +527,8 @@ def dbg_pde_divergence_maxabs(
     raw_dKdhx_dcoords: Tensor,
     raw_d_K_dh_dx_dx: Tensor,
     raw_d_K_dh_dy_dy: Tensor,
-    d_K_dh_dx_dx: Tensor | None = None,
-    d_K_dh_dy_dy: Tensor | None = None,
+    d_K_dh_dx_dx: "Tensor | None" = None,
+    d_K_dh_dy_dy: "Tensor | None" = None,
     level: int = 7,
     prefix: str = "pde/div",
 ) -> None:
@@ -897,7 +897,7 @@ def dbg_assert_data_layout(
     *,
     verbose: int,
     data_final: Tensor,
-    data_mean_raw: Tensor | None,
+    data_mean_raw: "Tensor | None",
     quantiles: Sequence[float] | None,
     level: int = 12,
 ) -> None:
@@ -961,7 +961,7 @@ def dbg_step31_forward_outputs(
     data_final: Tensor,
     s_pred_final: Tensor,
     gwl_pred_final: Tensor,
-    data_mean_raw: Tensor | None,
+    data_mean_raw: "Tensor | None",
     phys_mean_raw: Tensor,
     level: int = 12,
 ) -> None:
@@ -986,7 +986,7 @@ def dbg_step33_physics_logits(
     K_logits: Tensor,
     Ss_logits: Tensor,
     dlogtau_logits: Tensor,
-    Q_logits: Tensor | None,
+    Q_logits: "Tensor | None",
     K_base: Tensor,
     Ss_base: Tensor,
     dlogtau_base: Tensor,
@@ -1335,14 +1335,14 @@ def dbg_chk_core_finite(
 def dbg_step9_losses(
     *,
     verbose: int,
-    data_loss: Tensor | None = None,
-    loss_cons: Tensor | None = None,
-    loss_gw: Tensor | None = None,
-    loss_prior: Tensor | None = None,
-    loss_smooth: Tensor | None = None,
-    physics_loss_raw: Tensor | None = None,
-    physics_loss_scaled: Tensor | None = None,
-    total_loss: Tensor | None = None,
+    data_loss: "Tensor | None" = None,
+    loss_cons: "Tensor | None" = None,
+    loss_gw: "Tensor | None" = None,
+    loss_prior: "Tensor | None" = None,
+    loss_smooth: "Tensor | None" = None,
+    physics_loss_raw: "Tensor | None" = None,
+    physics_loss_scaled: "Tensor | None" = None,
+    total_loss: "Tensor | None" = None,
     level: int = 7,
 ) -> None:
     """Debug-print loss scalars (only those provided)."""
@@ -1384,7 +1384,7 @@ def dbg_step10_grads(
     *,
     verbose: int,
     trainable_vars: Sequence[Tensor],
-    grads: Sequence[Tensor | None],
+    grads: Sequence["Tensor | None"],
     level: int = 9,
 ) -> None:
     if not dbg_on(verbose, level):

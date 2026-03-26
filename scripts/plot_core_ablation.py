@@ -518,9 +518,11 @@ def _add_plot_fig3_args(ap: argparse.ArgumentParser) -> None:
 
 def plot_fig3_core_ablation_main(
     argv: list[str] | None = None,
+    *,
+    prog: str | None = None,
 ) -> None:
     ap = argparse.ArgumentParser(
-        prog="plot-core-ablation",
+        prog=prog or "plot-core-ablation",
         description="Fig. 3 core + ablation.",
     )
     _add_plot_fig3_args(ap)
@@ -588,8 +590,10 @@ def plot_fig3_core_ablation_main(
     )
 
 
-def main(argv: list[str] | None = None) -> None:
-    plot_fig3_core_ablation_main(argv)
+def main(
+    argv: list[str] | None = None, *, prog: str | None = None
+) -> None:
+    plot_fig3_core_ablation_main(argv, prog=prog)
 
 
 if __name__ == "__main__":

@@ -364,10 +364,10 @@ def q_to_gw_source_term_si(
     model,
     Q_logits: Tensor,
     *,
-    Ss_field: Tensor | None,
-    H_field: Tensor | None,
+    Ss_field: "Tensor | None",
+    H_field: "Tensor | None",
     coords_normalized: bool,
-    t_range_units: Tensor | None,
+    t_range_units: "Tensor | None",
     time_units: str | None,
     scaling_kwargs: dict[str, Any] | None,
     H_floor: float = 1e0,  # 1e-6,
@@ -687,7 +687,7 @@ def _apply_q_normalized_time_rule(
     *,
     sk: dict[str, Any] | None,
     coords_normalized: bool,
-    t_range_units: Tensor | None,
+    t_range_units: "Tensor | None",
 ) -> Tensor:
     """
     If Q was produced w.r.t normalized time, convert it back to per-time_unit
@@ -720,7 +720,7 @@ def q_to_per_second(
     scaling_kwargs: dict[str, Any] | None,
     time_units: str | None,
     coords_normalized: bool,
-    t_range_units: Tensor | None = None,
+    t_range_units: "Tensor | None" = None,
     eps: float = 1e-12,
 ) -> Tensor:
     """
@@ -888,7 +888,7 @@ def _resolve_mv_prior_weight(
     warmup_steps=None,
     step=None,
     dtype=tf_float32,
-) -> Tensor | None:
+) -> "Tensor | None":
     """
     Resolve mv-prior weight with delay + warmup.
 
@@ -1077,8 +1077,8 @@ def resolve_mv_gamma_log_target_from_logSs(
 def _mv_prior_disabled_return(
     *,
     as_loss: bool,
-    Ss_field: Tensor | None,
-    logSs: Tensor | None,
+    Ss_field: "Tensor | None",
+    logSs: "Tensor | None",
     dtype=tf_float32,
 ) -> Tensor:
     """
@@ -1111,9 +1111,9 @@ def _mv_prior_is_disabled(model, *, mode: str) -> bool:
 
 def compute_mv_prior(
     model,
-    Ss_field: Tensor | None = None,
+    Ss_field: "Tensor | None" = None,
     *,
-    logSs: Tensor | None = None,
+    logSs: "Tensor | None" = None,
     mode: str | None = None,
     as_loss: bool = True,
     weight=None,
@@ -1635,7 +1635,7 @@ def compute_gw_flow_residual(
     d_K_dh_dy_dy: Tensor,
     Ss_field: Tensor,
     *,
-    Q: Tensor | None = None,
+    Q: "Tensor | None" = None,
     verbose: int = 0,
 ) -> Tensor:
     """Groundwater flow PDE residual (NaN/Inf-safe, broadcast-safe)."""
@@ -1705,7 +1705,7 @@ def compute_consolidation_residual(
     H_field: Tensor,
     tau_field: Tensor,
     *,
-    Ss_field: Tensor | None = None,
+    Ss_field: "Tensor | None" = None,
     inputs: dict[str, Tensor] | None = None,
     verbose: int = 0,
 ) -> Tensor:
@@ -2188,7 +2188,7 @@ def integrate_consolidation_mean(
     tau_field: Tensor,
     h_ref_si: Tensor,
     s_init_si: Tensor,
-    dt: Tensor | None = None,
+    dt: "Tensor | None" = None,
     time_units: str | None = "yr",
     method: str = "exact",
     eps_tau: float = 1e-12,
@@ -2738,7 +2738,7 @@ def compute_consolidation_step_residual(
     H_field_si: Tensor,
     tau_field: Tensor,
     h_ref_si: Tensor,
-    dt: Tensor | None = None,
+    dt: "Tensor | None" = None,
     time_units: str | None = "yr",
     method: str = "exact",
     eps_tau: float = 1e-12,
@@ -3044,8 +3044,8 @@ def compute_consolidation_step_residual(
     #      - (B,1,1) -> broadcast later
     # ---------------------------------------------------------
     def _align_to_steps(
-        x: Tensor | None, name: str
-    ) -> Tensor | None:
+        x: "Tensor | None", name: str
+    ) -> "Tensor | None":
         if x is None:
             return None
 
@@ -3688,8 +3688,8 @@ def compute_smoothness_prior(
     dSs_dx: Tensor,
     dSs_dy: Tensor,
     *,
-    K_field: Tensor | None = None,
-    Ss_field: Tensor | None = None,
+    K_field: "Tensor | None" = None,
+    Ss_field: "Tensor | None" = None,
     already_log: bool = False,
     verbose: int = 0,
 ) -> Tensor:
@@ -5425,12 +5425,12 @@ def compute_bounds_residual(
     model: Any,
     *,
     H_field: Tensor,
-    logK: Tensor | None = None,
-    logSs: Tensor | None = None,
-    log_tau: Tensor | None = None,
-    K_field: Tensor | None = None,
-    Ss_field: Tensor | None = None,
-    tau_field: Tensor | None = None,
+    logK: "Tensor | None" = None,
+    logSs: "Tensor | None" = None,
+    log_tau: "Tensor | None" = None,
+    K_field: "Tensor | None" = None,
+    Ss_field: "Tensor | None" = None,
+    tau_field: "Tensor | None" = None,
     eps: float = _EPSILON,
     verbose: int = 0,
 ) -> tuple[Tensor, Tensor, Tensor, Tensor]:
@@ -6622,9 +6622,9 @@ def _gw_scale_core(
     dt_ref_s: Tensor,
     time_units: str,
     gw_units: str,
-    dh_dt: Tensor | None,
-    div_K_grad_h: Tensor | None,
-    Q: Tensor | None,
+    dh_dt: "Tensor | None",
+    div_K_grad_h: "Tensor | None",
+    Q: "Tensor | None",
     floor: float,
 ) -> Tensor:
     r"""
@@ -6980,14 +6980,14 @@ def compute_scales(
     h_mean: Tensor,
     K_field: Tensor,
     Ss_field: Tensor,
-    tau_field: Tensor | None = None,
-    H_field: Tensor | None = None,
-    h_ref_si: Tensor | None = None,
-    Q: Tensor | None = None,
-    dt: Tensor | None = None,
+    tau_field: "Tensor | None" = None,
+    H_field: "Tensor | None" = None,
+    h_ref_si: "Tensor | None" = None,
+    Q: "Tensor | None" = None,
+    dt: "Tensor | None" = None,
     time_units: str | None = None,
-    dh_dt: Tensor | None = None,
-    div_K_grad_h: Tensor | None = None,
+    dh_dt: "Tensor | None" = None,
+    div_K_grad_h: "Tensor | None" = None,
     verbose: int = 0,
 ) -> dict[str, Tensor]:
     r"""
@@ -7510,7 +7510,7 @@ def settlement_state_for_pde(
         "s_ref_si",
         "subs_ref_si",
     ),
-    dt: Tensor | None = None,
+    dt: "Tensor | None" = None,
     return_incremental: bool = True,
     verbose: int = 0,
 ) -> Tensor:
@@ -8302,7 +8302,7 @@ def _ensure_3d(x: Tensor) -> Tensor:
     return x
 
 
-def _broadcast_like(x: Tensor | None, like: Tensor) -> Tensor:
+def _broadcast_like(x: "Tensor | None", like: Tensor) -> Tensor:
     """Convert and broadcast x to the shape of `like` (dtype preserved)."""
     if x is None:
         return tf_zeros_like(like)
@@ -8367,7 +8367,7 @@ def _frac_leq_zero(x: Tensor) -> Tensor:
 
 
 def _assert_grads_finite(
-    grads: list[Tensor | None],
+    grads: list["Tensor | None"],
     vars_: list[Tensor],
 ) -> None:
     for g, v in zip(grads, vars_, strict=False):

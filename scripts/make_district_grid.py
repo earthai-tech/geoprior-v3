@@ -332,9 +332,11 @@ def _assign_points_to_grid(
 
 def make_district_grid_main(
     argv: list[str] | None = None,
+    *,
+    prog: str | None = None,
 ) -> None:
     ap = argparse.ArgumentParser(
-        prog="make-district-grid",
+        prog=prog or "make-district-grid",
         description=(
             "Create a grid-based district layer "
             "(Zone IDs) from spatial points."

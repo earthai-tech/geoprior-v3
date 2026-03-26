@@ -395,8 +395,8 @@ def build_physics_bundle(
     eps_prior: Tensor,
     eps_cons: Tensor,
     eps_gw: Tensor,
-    eps_cons_raw: Tensor | None = None,
-    eps_gw_raw: Tensor | None = None,
+    eps_cons_raw: "Tensor | None" = None,
+    eps_gw_raw: "Tensor | None" = None,
 ) -> dict[str, Tensor]:
     """
     Canonical physics bundle used by train/test/eval packers.

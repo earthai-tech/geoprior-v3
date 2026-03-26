@@ -75,9 +75,11 @@ from . import utils
 # ---------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------
-def _parse_args(argv: list[str] | None) -> argparse.Namespace:
+def _parse_args(
+    argv: list[str] | None, *, prog: str | None = None
+) -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        prog="brier-exceedance",
+        prog=prog or "brier-exceedance",
         description="Brier scores for exceedance events.",
     )
 
@@ -429,8 +431,10 @@ def compute_brier_scores(
 # ---------------------------------------------------------------------
 def brier_exceedance_main(
     argv: list[str] | None = None,
+    *,
+    prog: str | None = None,
 ) -> None:
-    args = _parse_args(argv)
+    args = _parse_args(argv, prog=prog)
 
     thresholds = _parse_float_list(args.thresholds)
     years = _parse_years(args.years)

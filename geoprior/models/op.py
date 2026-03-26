@@ -187,9 +187,9 @@ def default_scales(
     s: Tensor,
     h: Tensor,
     dt: Tensor,
-    K: Tensor | None = None,
-    Ss: Tensor | None = None,
-    Q: Tensor | None = None,
+    K: "Tensor | None" = None,
+    Ss: "Tensor | None" = None,
+    Q: "Tensor | None" = None,
     time_units: str | None = "yr",
     eps: float = 1e-12,
     *,
@@ -712,7 +712,7 @@ def compute_gw_flow_residual(
     K: float | Tensor = 1.0,
     Ss: float | Tensor = 1e-4,
     Q: float | Tensor = 0.0,
-    h_pred: Tensor | None = None,
+    h_pred: "Tensor | None" = None,
 ) -> Tensor:
     r"""
     Compute the residual of the 2D transient groundwater
@@ -827,7 +827,7 @@ def compute_gw_flow_residual(
 
 
 def process_pinn_inputs(
-    inputs: dict[str, Tensor | None] | list[Tensor | None],
+    inputs: dict[str, "Tensor | None"] | list["Tensor | None"],
     mode: str = "as_dict",
     coord_keys: tuple[str, str, str] = ("t", "x", "y"),
     coord_slice_map: dict[str, int] = None,
@@ -837,10 +837,10 @@ def process_pinn_inputs(
     Tensor,
     Tensor,
     Tensor,
-    Tensor | None,
-    Tensor | None,
+    "Tensor | None",
+    "Tensor | None",
     Tensor,
-    Tensor | None,
+    "Tensor | None",
 ]:
     r"""
     Processes and unpacks model inputs for PINN applications.
@@ -927,11 +927,11 @@ def process_pinn_inputs(
     """
     if coord_slice_map is None:
         coord_slice_map = {"t": 0, "x": 1, "y": 2}
-    coords_tensor: Tensor | None = None
-    static_features: Tensor | None = None
-    dynamic_features: Tensor | None = None
-    future_features: Tensor | None = None
-    H_field: Tensor | None = None
+    coords_tensor: "Tensor | None" = None
+    static_features: "Tensor | None" = None
+    dynamic_features: "Tensor | None" = None
+    future_features: "Tensor | None" = None
+    H_field: "Tensor | None" = None
 
     # --- NEW: Check model type ---
     is_geoprior = str(model_name).lower().strip() in (
@@ -1232,7 +1232,7 @@ def compute_gw_flow_derivatives(
     t: Tensor,
     x: Tensor,
     y: Tensor,
-) -> tuple[Tensor | None, Tensor | None, Tensor | None]:
+) -> tuple["Tensor | None", "Tensor | None", "Tensor | None"]:
     r"""
     Computes first and second order derivatives of predicted hydraulic
     head :math:`h` for the groundwater flow PDE using `tf.GradientTape`.
@@ -1331,9 +1331,9 @@ def _default_scales(
     h: Tensor,
     s: Tensor,
     dt: Tensor,
-    K: Tensor | None = None,
-    Ss: Tensor | None = None,
-    Q: float | Tensor | None = None,
+    K: "Tensor | None" = None,
+    Ss: "Tensor | None" = None,
+    Q: float | "Tensor | None" = None,
     time_units: str | None = None,
     **kws,
 ) -> dict[str, Tensor]:

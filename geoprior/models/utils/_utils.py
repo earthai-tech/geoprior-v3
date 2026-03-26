@@ -145,7 +145,7 @@ def get_tensor_from(
     default: Any | None = None,
     check_type: bool = True,
     auto_convert: bool = True,
-) -> Tensor | None:
+) -> "Tensor | None":
     r"""
     Safely retrieves the first available tensor from a dictionary
     using a list of possible keys.
@@ -725,15 +725,15 @@ def _aggregate_component(parts: list[Any]) -> Any:
 
 
 def format_predictions(
-    predictions: np.ndarray | Tensor | None = None,
+    predictions: np.ndarray | "Tensor | None" = None,
     model: Model | None = None,
-    inputs: list[np.ndarray | Tensor | None] | None = None,
-    y_true_sequences: np.ndarray | Tensor | None = None,
+    inputs: list[np.ndarray | "Tensor | None"] | None = None,
+    y_true_sequences: np.ndarray | "Tensor | None" = None,
     target_name: str | None = "target",
     quantiles: list[float] | None = None,
     forecast_horizon: int | None = None,
     output_dim: int | None = None,
-    spatial_data_array: np.ndarray | Tensor | None = None,
+    spatial_data_array: np.ndarray | "Tensor | None" = None,
     spatial_cols: list[str] | None = None,
     spatial_cols_indices: list[int] | None = None,
     evaluate_coverage: bool = False,
@@ -1635,13 +1635,13 @@ def format_predictions(
 )
 def prepare_model_inputs(
     dynamic_input: np.ndarray | Tensor,
-    static_input: np.ndarray | Tensor | None = None,
-    future_input: np.ndarray | Tensor | None = None,
+    static_input: np.ndarray | "Tensor | None" = None,
+    future_input: np.ndarray | "Tensor | None" = None,
     model_type: str = "strict",
     forecast_horizon: int | None = None,
     verbose: int = 0,
     **kwargs,
-) -> list[Tensor | None]:
+) -> list["Tensor | None"]:
     r"""Prepares a list of input tensors for a model's call method.
 
     This function standardizes the creation of the input list
@@ -1752,8 +1752,8 @@ def prepare_model_inputs(
         )
 
     def _to_tensor_float32(
-        data: np.ndarray | Tensor | None, name: str
-    ) -> Tensor | None:
+        data: np.ndarray | "Tensor | None", name: str
+    ) -> "Tensor | None":
         # Helper to convert to tf.Tensor and tf.float32 if not None.
         if data is None:
             return None
@@ -1837,11 +1837,11 @@ def prepare_model_inputs(
         )
 
     # --- Handle based on model_type ---
-    s_to_pass: Tensor | None = processed_static_input
+    s_to_pass: "Tensor | None" = processed_static_input
     d_to_pass: Tensor = (
         processed_dynamic_input  # Always present
     )
-    f_to_pass: Tensor | None = processed_future_input
+    f_to_pass: "Tensor | None" = processed_future_input
 
     if model_type == "strict":
         if s_to_pass is None:
@@ -1951,13 +1951,13 @@ def prepare_model_inputs(
 # @optional_tf_function
 def prepare_model_inputs_in(
     dynamic_input: np.ndarray | Tensor,
-    static_input: np.ndarray | Tensor | None = None,
-    future_input: np.ndarray | Tensor | None = None,
+    static_input: np.ndarray | "Tensor | None" = None,
+    future_input: np.ndarray | "Tensor | None" = None,
     model_type: str = "strict",
     forecast_horizon: int | None = None,
     verbose: int = 0,
     # **kwargs # Removed if not used
-) -> list[Tensor | None]:
+) -> list["Tensor | None"]:
     """Prepares a list of input tensors for a model's call method in graph
     compatible mode.
     """
@@ -1973,8 +1973,8 @@ def prepare_model_inputs_in(
         )
 
     def _to_tensor_float32(
-        data: np.ndarray | Tensor | None, name: str
-    ) -> Tensor | None:
+        data: np.ndarray | "Tensor | None", name: str
+    ) -> "Tensor | None":
         if data is None:
             return None
         try:
@@ -2085,8 +2085,8 @@ def prepare_model_inputs_in(
     # ------------------ START: GRAPH-COMPATIBLE OPTIMIZATION --------------------
 
     d_to_pass: Tensor = processed_dynamic_input
-    s_to_pass: Tensor | None = processed_static_input
-    f_to_pass: Tensor | None = processed_future_input
+    s_to_pass: "Tensor | None" = processed_static_input
+    f_to_pass: "Tensor | None" = processed_future_input
 
     # Use tf.cond for conditional logic on tensors
     past_time_steps = tf_cond(
@@ -6962,15 +6962,15 @@ def squeeze_last_dim_if(tensors, output_dims):
     alternative="format_predictions",
 )
 def format_predictions_to_dataframe(
-    predictions: np.ndarray | Tensor | None = None,
+    predictions: np.ndarray | "Tensor | None" = None,
     model: Model | None = None,
-    inputs: list[np.ndarray | Tensor | None] | None = None,
-    y_true_sequences: np.ndarray | Tensor | None = None,
+    inputs: list[np.ndarray | "Tensor | None"] | None = None,
+    y_true_sequences: np.ndarray | "Tensor | None" = None,
     target_name: str | None = "target",
     quantiles: list[float] | None = None,
     forecast_horizon: int | None = None,
     output_dim: int | None = None,
-    spatial_data_array: np.ndarray | Tensor | None = None,
+    spatial_data_array: np.ndarray | "Tensor | None" = None,
     spatial_cols: list[str] | None = None,
     spatial_cols_indices: list[int] | None = None,
     evaluate_coverage: bool = False,
@@ -7089,7 +7089,7 @@ def make_dict_to_tuple_fn(
         targets: Tensor | dict[str, Tensor] | None = None,
     ):
         # Build positional feature tuple
-        positional: list[Tensor | None] = []
+        positional: list["Tensor | None"] = []
         for k in feature_keys:
             if k in features:
                 positional.append(features[k])

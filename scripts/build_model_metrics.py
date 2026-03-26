@@ -55,9 +55,11 @@ from . import utils
 
 def _parse_args(
     argv: list[str] | None,
+    *,
+    prog: str | None = None,
 ) -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        prog="build-model-metrics",
+        prog=prog or "build-model-metrics",
         description="Build a unified model metrics table.",
     )
 
@@ -690,8 +692,10 @@ def _resolve_out(*, out: str, out_dir: str | None) -> Path:
 
 def build_model_metrics_main(
     argv: list[str] | None = None,
+    *,
+    prog: str | None = None,
 ) -> None:
-    args = _parse_args(argv)
+    args = _parse_args(argv, prog=prog)
     utils.ensure_script_dirs()
 
     src = utils.as_path(args.src)

@@ -127,9 +127,11 @@ def _density_exposure(
 
 def make_exposure_main(
     argv: list[str] | None = None,
+    *,
+    prog: str | None = None,
 ) -> None:
     ap = argparse.ArgumentParser(
-        prog="make-exposure",
+        prog=prog or "make-exposure",
         description="Build exposure.csv from spatial points (proxy).",
     )
     utils.add_city_flags(ap, default_both=True)

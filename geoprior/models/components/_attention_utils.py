@@ -90,12 +90,12 @@ def create_causal_mask_(size: int | Tensor) -> Tensor:
 
 
 def combine_masks(
-    mask_a: Tensor | None,
-    mask_b: Tensor | None,
+    mask_a: "Tensor | None",
+    mask_b: "Tensor | None",
     *,
     mode: str = "and",
     invert_b: bool = False,
-) -> Tensor | None:
+) -> "Tensor | None":
     """
     Combine two boolean/0-1 masks into one.
 

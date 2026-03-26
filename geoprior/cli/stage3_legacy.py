@@ -48,9 +48,8 @@ from geoprior.compat.keras import (
     load_model_from_tfv2,
     save_model,
 )
-
-# Import the tuner
 from geoprior.models import (
+    GeoPriorSubsNet,
     override_scaling_kwargs,
 )
 from geoprior.models.calibration import (
@@ -64,16 +63,15 @@ from geoprior.models.keras_metrics import (
     coverage80_fn,
     sharpness80_fn,
 )
-from geoprior.nn.losses import (
+from geoprior.models.losses import (
     make_weighted_pinball,  # if referenced in saved graphs
 )
-from geoprior.nn.pinn.geoprior.models import (
+from geoprior.params import (
     FixedGammaW,
     FixedHRef,
     LearnableKappa,
     LearnableMV,
 )
-from geoprior.nn.pinn.models import GeoPriorSubsNet
 from geoprior.registry.utils import _find_stage1_manifest
 from geoprior.utils.audit_utils import (
     audit_stage3_run,

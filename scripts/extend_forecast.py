@@ -145,9 +145,11 @@ def _out_path(
     return utils.resolve_out_out(str(p))
 
 
-def build_parser() -> argparse.ArgumentParser:
+def build_parser(
+    *, prog: str | None = None
+) -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(
-        prog="extend-forecast",
+        prog=prog or "extend-forecast",
         description=(
             "Extend future forecast CSV by "
             "1-2+ years (extrapolation)."
@@ -243,8 +245,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 def extend_forecast_main(
     argv: list[str] | None = None,
+    *,
+    prog: str | None = None,
 ) -> None:
-    args = build_parser().parse_args(argv)
+    args = build_parser(prog=prog).parse_args(argv)
 
     utils.ensure_script_dirs()
 

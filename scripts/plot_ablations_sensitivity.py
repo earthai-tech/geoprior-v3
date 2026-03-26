@@ -60,9 +60,13 @@ _LOWER_IS_BETTER = {
 # ---------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------
-def _parse_args(argv: list[str] | None) -> argparse.Namespace:
+def _parse_args(
+    argv: list[str] | None,
+    *,
+    prog: str | None = None,
+) -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        prog="plot-ablations-sensitivity",
+        prog=prog or "plot-ablations-sensitivity",
         description="Supplement S6: Ablations & sensitivities",
     )
 
@@ -1499,8 +1503,10 @@ def _pareto_panel(
 # ---------------------------------------------------------------------
 def plot_ablations_sensivity_main(
     argv: list[str] | None = None,
+    *,
+    prog: str | None = None,
 ) -> None:
-    args = _parse_args(argv)
+    args = _parse_args(argv, prog=prog)
 
     utils.set_paper_style(
         fontsize=int(args.font), dpi=int(args.dpi)

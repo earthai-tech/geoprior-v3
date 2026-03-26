@@ -354,7 +354,7 @@ def pinball_loss(qs: list[float]):
 @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
 def objective_loss(
     multi_obj_loss: Loss,
-    anomaly_scores: Tensor | None = None,
+    anomaly_scores: "Tensor | None" = None,
 ):
     """
     Create a multi-objective Keras loss function that wraps

@@ -141,7 +141,7 @@ def _physics_is_on(model: Any) -> bool:
 
 def physics_core(
     model: Any,
-    inputs: dict[str, Tensor | None],
+    inputs: dict[str, "Tensor | None"],
     training: bool,
     return_maps: bool = False,
     *,

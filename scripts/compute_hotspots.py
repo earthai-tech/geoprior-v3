@@ -23,9 +23,11 @@ class CityInputs:
     future_csv: Path
 
 
-def build_parser() -> argparse.ArgumentParser:
+def build_parser(
+    *, prog: str | None = None
+) -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="summarize-hotspots",
+        prog=prog or "summarize-hotspots",
         description=(
             "Compute hotspot characteristics table "
             "(city × year) and export CSV/LaTeX."
@@ -576,11 +578,13 @@ def _tex_sidewaystable(
 
 def compute_hotspots_main(
     argv: list[str] | None = None,
+    *,
+    prog: str | None = None,
 ) -> None:
-    args = parse_args(argv)
+    args = parse_args(argv, prog=prog)
 
     # ensure scripts/out exists
-    u.ensure_script_dirs()  # scripts/out + scripts/figs :contentReference[oaicite:2]{index=2}
+    u.ensure_script_dirs()  # scripts/out + scripts/figs
 
     cities = u.resolve_cities(args)
 
