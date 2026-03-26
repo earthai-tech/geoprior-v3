@@ -26,6 +26,7 @@ from collections.abc import (
 from contextlib import AbstractContextManager
 from re import Pattern
 from typing import (
+    TYPE_CHECKING,
     Any,
     Generic,
     Literal,
@@ -42,6 +43,17 @@ try:
     from typing import TypeGuard
 except ImportError:
     from typing import TypeGuard
+
+
+if TYPE_CHECKING:
+    # Keep this conservative and lightweight.
+    # If you later settle on one canonical backend type,
+    # you can refine this.
+    TensorLike = Any
+    DatasetLike = Any
+else:
+    TensorLike = Any
+    DatasetLike = Any
 
 # Modern aliases kept for backward compatibility.
 List = list
@@ -83,4 +95,6 @@ __all__ = [
     "TypeGuard",
     "Pattern",
     "Literal",
+    "TensorLike",
+    "DatasetLike",
 ]

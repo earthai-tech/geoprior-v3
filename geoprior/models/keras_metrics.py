@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from ..compat.types import TensorLike
 from . import KERAS_DEPS, dependency_message
 from ._shapes import (
     _as_BHO,
@@ -588,7 +589,7 @@ class CentralCoverage(Metric):
             Ground-truth targets, arbitrary shape.
         y_pred_interval : Tuple[Tensor, Tensor] | Tensor
             Either `(q_lo, q_hi)` or a tensor with `[..., 2]`.
-        sample_weight : "Tensor | None"
+        sample_weight : TensorLike | None
             Optional non-negative weights broadcastable to `y_true`.
         """
         y = tf_cast(y_true, self.dtype)
@@ -701,7 +702,7 @@ class IntervalSharpness(Metric):
             Unused (kept for Keras signature compatibility).
         y_pred_interval : Tuple[Tensor, Tensor] | Tensor
             Either `(q_lo, q_hi)` or a tensor with `[..., 2]`.
-        sample_weight : "Tensor | None"
+        sample_weight : TensorLike | None
             Optional non-negative weights broadcastable to the width.
         """
         lo, hi = _split_interval(y_pred_interval)

@@ -13,6 +13,7 @@ from numbers import Integral, Real
 
 from ...api.property import NNLearner
 from ...compat.sklearn import Interval, validate_params
+from ...compat.types import TensorLike
 from ...utils.deps_utils import ensure_pkg
 from ._config import (
     DEP_MSG,
@@ -22,7 +23,6 @@ from ._config import (
     Layer,
     LayerNormalization,
     MultiHeadAttention,
-    Tensor,
     _logger,
     register_keras_serializable,
     tf_add,
@@ -479,9 +479,9 @@ class CrossAttention(Layer, NNLearner):
         inputs,
         training: bool = False,
         *,
-        attention_mask: "Tensor | None" = None,
-        query_mask: "Tensor | None" = None,
-        value_mask: "Tensor | None" = None,
+        attention_mask: TensorLike | None = None,
+        query_mask: TensorLike | None = None,
+        value_mask: TensorLike | None = None,
         use_causal_mask: bool = False,
         **kwargs,
     ):
@@ -597,9 +597,9 @@ class MemoryAugmentedAttention(Layer, NNLearner):
         inputs,
         training: bool = False,
         *,
-        attention_mask: "Tensor | None" = None,
-        query_mask: "Tensor | None" = None,
-        value_mask: "Tensor | None" = None,
+        attention_mask: TensorLike | None = None,
+        query_mask: TensorLike | None = None,
+        value_mask: TensorLike | None = None,
         use_causal_mask: bool = False,
         **kwargs,
     ):
@@ -868,8 +868,8 @@ class HierarchicalAttention(Layer, NNLearner):
         inputs,
         training: bool = False,
         *,
-        short_mask: "Tensor | None" = None,
-        long_mask: "Tensor | None" = None,
+        short_mask: TensorLike | None = None,
+        long_mask: TensorLike | None = None,
         use_causal_mask: bool = False,
         **kwargs,
     ):

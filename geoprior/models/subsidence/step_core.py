@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from ...compat.types import TensorLike
 from .. import KERAS_DEPS
 from ..utils import get_tensor_from
 from .batch_io import _get_coords
@@ -141,7 +142,7 @@ def _physics_is_on(model: Any) -> bool:
 
 def physics_core(
     model: Any,
-    inputs: dict[str, "Tensor | None"],
+    inputs: dict[str, TensorLike | None],
     training: bool,
     return_maps: bool = False,
     *,

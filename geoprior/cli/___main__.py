@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import sys
 
-from scripts.registry import SCRIPT_COMMANDS
+
 
 from ._dispatch import (
     CommandSpec,
@@ -20,6 +20,8 @@ from ._dispatch import (
 
 
 def _scripts_as_cli() -> dict[str, CommandSpec]:
+    from scripts.registry import SCRIPT_COMMANDS
+    
     items: dict[str, CommandSpec] = {}
 
     for spec in SCRIPT_COMMANDS.values():

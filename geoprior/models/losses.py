@@ -14,6 +14,7 @@ import warnings
 from numbers import Real
 
 from ..compat.sklearn import Interval
+from ..compat.types import TensorLike
 from ..core.checks import ParamsValidator, check_params
 from ..core.diagnose_q import validate_quantiles_in
 from ..logging import get_logger
@@ -354,7 +355,7 @@ def pinball_loss(qs: list[float]):
 @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
 def objective_loss(
     multi_obj_loss: Loss,
-    anomaly_scores: "Tensor | None" = None,
+    anomaly_scores: TensorLike | None = None,
 ):
     """
     Create a multi-objective Keras loss function that wraps

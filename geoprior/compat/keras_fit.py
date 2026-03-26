@@ -257,7 +257,7 @@ def suppress_compiled_metrics_warning():
         yield
 
 
-def _as_BHO(y_true: Tensor, y_pred: "Tensor | None" = None):
+def _as_BHO(y_true: Tensor, y_pred: TensorLike | None = None):
     """Normalize y_true to (B,H,O) float32."""
     y = tf_convert_to_tensor(y_true)
 

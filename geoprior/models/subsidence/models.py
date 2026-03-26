@@ -40,6 +40,7 @@ from ...compat.sklearn import (
     StrOptions,
     validate_params,
 )
+from ...compat.types import TensorLike
 from ...logging import OncePerMessageFilter, get_logger
 from ...params import (
     DisabledC,
@@ -1265,7 +1266,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
     def forward_with_aux(
         self,
-        inputs: dict[str, "Tensor | None"],
+        inputs: dict[str, TensorLike | None],
         training: bool = False,
     ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
         r"""
@@ -1359,7 +1360,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
     def call(
         self,
-        inputs: dict[str, "Tensor | None"],
+        inputs: dict[str, TensorLike | None],
         training: bool = False,
     ) -> dict[str, Tensor]:
         r"""
@@ -1442,7 +1443,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
     def _forward_all(
         self,
-        inputs: dict[str, "Tensor | None"],
+        inputs: dict[str, TensorLike | None],
         training: bool = False,
     ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
         r"""
@@ -2750,7 +2751,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
     def _evaluate_physics_on_batch(
         self,
-        inputs: dict[str, 'Tensor | None'],
+        inputs: dict[str, TensorLike | None],
         return_maps: bool = False,
     ) -> dict[str, Tensor]:
         r"""
@@ -2860,7 +2861,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
     def evaluate_physics(
         self,
-        inputs: dict[str, 'Tensor | None'] | Dataset,
+        inputs: dict[str, TensorLike | None] | Dataset,
         return_maps: bool = False,
         max_batches: int | None = None,
         batch_size: int | None = None,

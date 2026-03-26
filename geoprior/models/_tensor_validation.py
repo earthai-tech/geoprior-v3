@@ -19,6 +19,7 @@ from ..compat.tf import (
     suppress_tf_warnings,
     tf_debugging_assert_equal,
 )
+from ..compat.types import TensorLike
 from ..logging import get_logger
 from ..utils.deps_utils import ensure_pkg
 from . import KERAS_BACKEND, KERAS_DEPS
@@ -573,7 +574,7 @@ def validate_anomaly_scores(
     anomaly_config: dict[str, Any] | None,
     forecast_horizon: int | None = None,
     mode: str = "strict",
-) -> "Tensor | None":
+) -> TensorLike | None:
     """
     Validates and processes the ``anomaly_scores`` in the provided
     `anomaly_config` dictionary.
@@ -678,7 +679,7 @@ def validate_tft_inputs(
     static_input_dim: int | None = None,
     future_covariate_dim: int | None = None,
     error: str = "raise",
-) -> tuple[Tensor, "Tensor | None", "Tensor | None"]:
+) -> tuple[Tensor, TensorLike | None, TensorLike | None]:
     """
     Validate and process the input tensors for TFT (Temporal Fusion
     Transformer) models in a consistent manner.
@@ -807,9 +808,9 @@ def validate_tft_inputs(
         return tensor
 
     # Initialize placeholders
-    past_inputs: "Tensor | None" = None
-    future_inputs: "Tensor | None" = None
-    static_inputs: "Tensor | None" = None
+    past_inputs: TensorLike | None = None
+    future_inputs: TensorLike | None = None
+    static_inputs: TensorLike | None = None
 
     # 3) Assign based on how many items are in `inputs`
     if num_inputs == 1:
@@ -951,7 +952,7 @@ def validate_tft_inputs(
 
 @optional_tf_function
 def validate_xtft_inputs(
-    inputs: list[np.ndarray | "Tensor | None"],
+    inputs: list[np.ndarray | TensorLike | None],
     static_input_dim: int | None = None,
     dynamic_input_dim: int | None = None,
     future_covariate_dim: int | None = None,
@@ -959,7 +960,9 @@ def validate_xtft_inputs(
     | None = None,  # For future span check
     error: str = "raise",
     verbose: int = 0,
-) -> tuple["Tensor | None", "Tensor | None", "Tensor | None"]:
+) -> tuple[
+    TensorLike | None, TensorLike | None, TensorLike | None
+]:
     """
     Validates and standardizes inputs for XTFT-like models.
     Expects `inputs` list as [static, dynamic, future].
@@ -1006,7 +1009,7 @@ def validate_xtft_inputs(
         )
 
     # --- 2. Type Conversion and Rank/Dimension Checks ---
-    processed_tensors: list["Tensor | None"] = []
+    processed_tensors: list[TensorLike | None] = []
     # Define properties for each input type in the order:
     # static, dynamic, future (matching the `inputs` list order).
     input_properties = [
@@ -1278,13 +1281,15 @@ def _get_batch_size(
 
 @optional_tf_function
 def _validate_tft_inputs(
-    inputs: list[np.ndarray | "Tensor | None"],
+    inputs: list[np.ndarray | TensorLike | None],
     static_input_dim: int | None = None,
     dynamic_input_dim: int | None = None,
     future_covariate_dim: int | None = None,
     forecast_horizon: int | None = None,
     error: str = "raise",
-) -> tuple["Tensor | None", "Tensor | None", "Tensor | None"]:
+) -> tuple[
+    TensorLike | None, TensorLike | None, TensorLike | None
+]:
     """
     Validates and standardizes inputs for TFT-like models.
     (Full docstring omitted for brevity as requested)
@@ -1321,7 +1326,7 @@ def _validate_tft_inputs(
     static_input_raw = inputs[2] if len(inputs) > 2 else None
 
     # --- 2. Type Conversion and Rank/Dimension Checks ---
-    processed_tensors: list["Tensor | None"] = []
+    processed_tensors: list[TensorLike | None] = []
     input_names = ["Dynamic", "Future", "Static"]
     # Expected feature dimensions for each input type
     expected_feature_dims = [
@@ -1496,7 +1501,7 @@ def validate_xtft_inputs_in(
     dynamic_input_dim: int,
     static_input_dim: int,
     future_covariate_dim: int | None = None,
-) -> tuple[Tensor, Tensor, "Tensor | None"]:
+) -> tuple[Tensor, Tensor, TensorLike | None]:
     """
     Validates and processes the ``inputs`` for the XTFT model.
 
@@ -1775,7 +1780,7 @@ def validate_xtft_inputs_in(
 def validate_batch_sizes(
     static_batch_size: Tensor,
     dynamic_batch_size: Tensor,
-    future_batch_size: "Tensor | None" = None,
+    future_batch_size: TensorLike | None = None,
 ) -> None:
     """
     Validates that the batch sizes of static, dynamic, and future
@@ -1824,7 +1829,7 @@ def validate_batch_sizes(
 def check_batch_sizes(
     static_batch_size: Tensor,
     dynamic_batch_size: Tensor,
-    future_batch_size: "Tensor | None" = None,
+    future_batch_size: TensorLike | None = None,
 ) -> None:
     """
     Checks that the batch sizes of static, dynamic, and future covariate
@@ -2375,7 +2380,7 @@ def validate_minimal_inputs(
     X_static: np.ndarray | Tensor,
     X_dynamic: np.ndarray | Tensor,
     X_future: np.ndarray | Tensor,
-    y: np.ndarray | "Tensor | None" = None,
+    y: np.ndarray | TensorLike | None = None,
     forecast_horizon: int
     | None = None,  # Model's output horizon
     deep_check: bool = True,
@@ -3094,14 +3099,14 @@ def _get_batch_size_for_val(
 
 @optional_tf_function
 def _validate_tensor_basic(
-    data_input: np.ndarray | "Tensor | None",
+    data_input: np.ndarray | TensorLike | None,
     name: str,
     expected_rank_int: int,
     expected_feat_dim: int | None,
     mode: str,  # 'strict' or 'soft'
     error: str,
     verbose: int,
-) -> "Tensor | None":
+) -> TensorLike | None:
     """
     Basic validation: type, rank, and optionally feature dimension.
     Returns processed tensor or None.
@@ -3238,7 +3243,9 @@ def _validate_tft_flexible_inputs_soft_mode(
     | np.ndarray
     | list[Tensor | np.ndarray | None],
     verbose: int = 0,
-) -> tuple["Tensor | None", "Tensor | None", "Tensor | None"]:
+) -> tuple[
+    TensorLike | None, TensorLike | None, TensorLike | None
+]:
     """
     Helper to infer static, dynamic, and future inputs for
     TFTFlexible in 'soft' mode.
@@ -3440,7 +3447,7 @@ def _validate_tft_flexible_inputs_soft_mode(
 def validate_model_inputs(
     inputs: Tensor
     | np.ndarray
-    | list[np.ndarray | "Tensor | None"],
+    | list[np.ndarray | TensorLike | None],
     static_input_dim: int | None = None,
     dynamic_input_dim: int | None = None,
     future_covariate_dim: int | None = None,
@@ -3451,7 +3458,9 @@ def validate_model_inputs(
     model_name: str | None = None,
     verbose: int = 0,
     **kwargs,
-) -> tuple["Tensor | None", "Tensor | None", "Tensor | None"]:
+) -> tuple[
+    TensorLike | None, TensorLike | None, TensorLike | None
+]:
     r"""
     Validate and homogenise the triplet of tensors that acts as
     input to Temporal‑Fusion‑Transformer‑type models.
@@ -3662,7 +3671,7 @@ def validate_model_inputs(
             "expected_rank": 3,
         },
     ]
-    processed_tensors: list["Tensor | None"] = []
+    processed_tensors: list[TensorLike | None] = []
 
     for prop in input_properties:
         # For 'tft_flex' in 'soft' mode, expected_feat_dim might

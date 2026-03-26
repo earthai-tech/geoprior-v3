@@ -4,6 +4,11 @@
 .. automodule:: geoprior.cli._dispatch
 
    
+   
+   
+
+   
+   
    .. rubric:: Functions
 
    .. autosummary::
@@ -16,9 +21,21 @@
       public_items
       run_module
    
+   
+
+   
+   
    .. rubric:: Classes
 
    .. autosummary::
    
       CommandSpec
    
+   
+
+   
+   
+   
+
+
+
