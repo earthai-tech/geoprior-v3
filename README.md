@@ -1,5 +1,8 @@
 <div align="center">
 
+  <a href="https://github.com/earthai-tech/geoprior-v3/actions/workflows/python-package-conda.yml">
+     <img alt="Build Status" src="https://img.shields.io/github/actions/workflow/status/earthai-tech/geoprior-v3/python-package-conda.yml?branch=main&style=flat-square">
+  </a>
   <img src="https://raw.githubusercontent.com/earthai-tech/geoprior-v3/main/docs/source/_static/geoprior-svg.svg" 
      alt="GeoPrior logo" width="320"><br>
   <h1>Physics-guided AI for Geohazards</h1>
