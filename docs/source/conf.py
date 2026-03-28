@@ -144,7 +144,11 @@ autodoc_typehints = "description"
 autoclass_content = "class"
 autosummary_generate = True
 autosummary_imported_members = False
-autodoc_mock_imports = ["tensorflow", "keras", "seaborn", "contextily"]
+autodoc_mock_imports = [
+    "tensorflow", "keras",
+    "seaborn", "contextily", 
+    "geopandas"
+ ]
 
 myst_enable_extensions = [
     "colon_fence",
