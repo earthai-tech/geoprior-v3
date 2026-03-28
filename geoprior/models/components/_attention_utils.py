@@ -12,6 +12,7 @@ Utility helpers for attention masks.
 
 from __future__ import annotations
 
+from ...compat.types import TensorLike
 from ._config import (
     Tensor,
     tf_bool,
@@ -90,12 +91,12 @@ def create_causal_mask_(size: int | Tensor) -> Tensor:
 
 
 def combine_masks(
-    mask_a: Tensor | None,
-    mask_b: Tensor | None,
+    mask_a: TensorLike | None,
+    mask_b: TensorLike | None,
     *,
     mode: str = "and",
     invert_b: bool = False,
-) -> Tensor | None:
+) -> TensorLike | None:
     """
     Combine two boolean/0-1 masks into one.
 

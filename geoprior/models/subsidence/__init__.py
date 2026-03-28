@@ -1,3 +1,7 @@
+"""Subsidence Models."""
+
+from __future__ import annotations
+
 from .debugs import debug_model_reload
 from .models import GeoPriorSubsNet, PoroElasticSubsNet
 from .payloads import load_physics_payload

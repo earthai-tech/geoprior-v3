@@ -43,8 +43,6 @@ output_subsidence_dim : int, default 1
       incremental) if your dataset explicitly defines them as distinct
       targets.
 
-    Notes
-    -----
     The physics terms are usually computed on the *mean* subsidence
     path implied by the head forecast and the consolidation closure.
     Additional subsidence channels are still supported, but developers
@@ -68,8 +66,6 @@ output_gwl_dim : int, default 1
     * ``n_wells``: multiple wells predicted jointly for the same
       spatial sample, when the dataset is organized accordingly.
 
-    Notes
-    -----
     Internally, GeoPriorSubsNet converts the predicted GWL to head
     using scaling conventions and an optional reference datum.
     Developers must ensure that the indexing used to fetch GWL from
@@ -116,8 +112,6 @@ pde_mode : {{'consolidation', 'gw_flow', 'both', 'none', \
     to introduce additional residual families in the future (e.g.,
     bounds-only, priors-only), while keeping a stable API.
 
-    Notes
-    -----
     Even when PDE residuals are disabled, the model may still produce
     and regularize physics fields (e.g., via priors or smoothness),
     depending on how the training step is configured. For a fully
@@ -207,8 +201,6 @@ identifiability_regime : {{None, 'base', 'anchored', \
     - Optional locks that set some physics heads as
       non-trainable (e.g., ``tau_head``).
 
-    Notes
-    -----
     User-provided settings always take precedence:
     profile values are merged as *defaults only* and never
     override explicit user keys in ``scaling_kwargs`` or
@@ -244,8 +236,6 @@ mv : LearnableMV or float, default LearnableMV(1e-7)
         Converted to ``LearnableMV(initial_value=float(mv),
         trainable=False)`` for reproducibility and serialization.
 
-    Notes
-    -----
     * Trainable MV parameters are commonly optimized in log space to
       enforce positivity and improve numerical stability.
     * If your formulation already fully specifies settlement amplitude
@@ -279,8 +269,6 @@ kappa : LearnableKappa or float, default LearnableKappa(1.0)
     * float:
         Converted to ``LearnableKappa(initial_value=float(kappa))``.
 
-    Notes
-    -----
     * ``kappa`` is intended to make the :math:`tau` prior robust when
       different groundwater formulations or scaling conventions are
       used across datasets.
@@ -303,8 +291,7 @@ gamma_w : FixedGammaW or float, default FixedGammaW(9810.0)
     * float:
         Converted to ``FixedGammaW(value=float(gamma_w))``.
 
-    Notes
-    -----
+
     The default value ``9810.0`` corresponds to approximately
     :math:`rho_w g` in SI units (N/m^3). Keep this fixed unless your
     unit system or dataset conventions differ.
@@ -337,8 +324,7 @@ default FixedHRef(0.0, mode='auto')
     * None:
         Same as 'auto'.
 
-    Notes
-    -----
+
     * A stable and well-defined :math:`h_{ref}` improves training
       stability when using consolidation constraints.
     * When using cumulative subsidence targets, ensure the chosen
@@ -361,8 +347,6 @@ use_effective_h : bool, default False
 
        tau_{prior} \propto H_d^2
 
-    Notes
-    -----
     Enable this if you want the :math:`tau` prior to reflect
     single-drainage vs double-drainage conditions or other
     drainage assumptions without changing the dataset thickness.
@@ -382,8 +366,6 @@ hd_factor : float, default 1.0
     * ``0.5``: double-drainage effective thickness (common
       consolidation assumption).
 
-    Notes
-    -----
     This parameter only affects the :math:`tau` prior when
     ``use_effective_h=True`` (or when drainage_mode in the scaling
     configuration activates effective thickness automatically).
@@ -405,8 +387,6 @@ kappa_mode : {{'bar', 'kb'}}, default 'kb'
         Interpret ``kappa`` as a factor applied to an effective or
         averaged conductivity scale.
 
-    Notes
-    -----
     This option is primarily for developers maintaining consistent
     mapping between learned fields and priors across formulations.
     If you do not have a specific convention, keep the default.
@@ -425,8 +405,6 @@ offset_mode : {{'mul', 'log10'}}, default 'mul'
     * 'log10'
         Use ``physics_scale = 10**lambda_offset``.
 
-    Notes
-    -----
     * 'log10' is convenient when you want to tune physics strength
       across multiple orders of magnitude.
     * ``lambda_offset`` is non-trainable by design; it is intended
@@ -449,8 +427,6 @@ bounds_mode : {{'soft', 'hard'}} or None, default 'soft'
         physical plausibility strictly but may introduce gradient
         discontinuities.
 
-    Notes
-    -----
     If ``bounds_mode`` is None and the resolved scaling configuration
     specifies a bounds policy, the scaling configuration wins.
     Otherwise, this argument provides the default behavior.
@@ -474,8 +450,6 @@ residual_method : {{'exact', 'euler'}}, default 'exact'
         Use an explicit Euler discretization. This is simpler but
         can be unstable unless time steps are small.
 
-    Notes
-    -----
     Developers should prefer 'exact' for modern training loops,
     especially when learning :math:`tau(x,y)` jointly with the
     forecasting network.
@@ -493,8 +467,6 @@ time_units : str or None, default None
     * the magnitude of time derivatives in PDE residuals,
     * the interpretation of :math:`tau` priors.
 
-    Notes
-    -----
     For reproducibility, prefer setting ``time_units`` explicitly
     (either here or in ``scaling_kwargs``) rather than relying on
     implicit defaults.
@@ -521,8 +493,6 @@ scale_pde_residuals : bool, default True
        \frac{1}{\Delta x}\partial_{x'},
        \frac{1}{\Delta y}\partial_{y'}\right]
 
-    Notes
-    -----
     Enable this whenever ``scaling_kwargs['coords_normalized']=True``
     and accurate ``coord_ranges`` are available. Disable only if you
     intentionally want a purely normalized PDE residual (rare).
@@ -577,8 +547,6 @@ or None, default None
         * 'incremental': the target is stepwise increment between
           consecutive time steps.
 
-        Notes
-        -----
         The consolidation residual typically expects a consistent
         notion of :math:`s(t)` and its time derivative. Mixing a
         cumulative target with an incremental residual definition
@@ -593,8 +561,6 @@ or None, default None
 
            s_{si} = s_{raw} \\, subs\\_scale\\_si + subs\\_bias\\_si
 
-        Examples
-        --------
         * If subsidence is stored in millimeters and internal units
           are meters, use ``subs_scale_si = 1e-3``.
         * If the dataset is already in SI, keep the defaults.
@@ -606,8 +572,6 @@ or None, default None
 
            h_{si} = h_{raw} \\, head\\_scale\\_si + head\\_bias\\_si
 
-        Notes
-        -----
         These fields are required when the dataset mixes unit
         systems or when preprocessing stores standardized variables.
 
@@ -618,8 +582,6 @@ or None, default None
 
            H_{si} = H_{raw} \\, H\\_scale\\_si + H\\_bias\\_si
 
-        Notes
-        -----
         Thickness enters the equilibrium settlement approximation
         and the :math:`tau` prior. Incorrect scaling strongly
         destabilizes physics losses.
@@ -636,8 +598,6 @@ or None, default None
         Order of the coordinate columns in the ``coords`` tensor.
         The default expectation is ``['t', 'x', 'y']``.
 
-        Notes
-        -----
         GeoPrior derivatives assume a known axis order. If your
         pipeline uses ``['x','y','t']`` you must declare it here.
 
@@ -675,8 +635,6 @@ or None, default None
            [ (1/\\Delta x) \\partial_{x'} h,
              (1/\\Delta y) \\partial_{y'} h ]
 
-        Notes
-        -----
         Provide accurate ``coord_ranges`` whenever
         ``coords_normalized=True``. Incorrect ranges will inflate or
         deflate residual magnitudes and can dominate training.
@@ -768,8 +726,6 @@ or None, default None
         * ``z_surf_col`` and conversion rule,
         * ``cols`` mapping from raw to model column names.
 
-    Notes
-    -----
     If the GWL-to-head mapping is inconsistent, the groundwater
     residual becomes physically meaningless. Always verify the
     resolved ``gwl_z_meta`` in the Stage-1 audit.
@@ -850,8 +806,6 @@ or None, default None
         * ``Ss_min`` / ``Ss_max`` (1/m) OR  ``logSs_min`` / ``logSs_max``
         * ``tau_min`` / ``tau_max`` (s) OR  ``logTau_min`` / ``logTau_max``
     
-        Notes
-        -----
         If log keys are not provided but linear keys exist, the system
         may derive log-bounds internally via ``log(max(val, eps))``.
     
@@ -952,8 +906,7 @@ or None, default None
     track_aux_metrics : bool, optional
         Enable auxiliary epsilon-style metrics and trackers.
 
-    Notes
-    -----
+
     The resolved configuration should be saved alongside model
     artifacts (Stage-1/Stage-2 audits). If results differ across
     sites, compare resolved scaling payloads first.
@@ -1123,8 +1076,7 @@ verbose : int, default 0
 **kwargs
     Forwarded to ``keras.Model``.
 
-Notes
------
+
 * Physics losses are added inside the custom training loop.
   Use compile-time weights (for example ``lambda_cons``,
   ``lambda_gw``, ``lambda_prior``, ``lambda_smooth``,
@@ -1140,14 +1092,6 @@ Notes
   epsilon-style residual summaries) when enabled in the
   scaling configuration.
 
-See Also
---------
-geoprior.nn._base_attentive.BaseAttentive
-    Core encoder-decoder backbone used by GeoPriorSubsNet.
-
-geoprior.nn.pinn.TransFlowSubsNet
-    Related PINN that couples groundwater flow and settlement
-    with a simpler coefficientization.
 
 Examples
 --------
@@ -1223,8 +1167,6 @@ References
 # ---------------------------------------------------------------------
 _poroelastic_delta_params = dict(
     poroelastic_overview=r"""
-Notes
------
 PoroElasticSubsNet is a preset configuration of GeoPriorSubsNet.
 It reuses the same architecture, I/O contract, and parameter
 definitions. Only a few defaults and policies differ (listed
@@ -1240,10 +1182,6 @@ pde_mode : str, default 'consolidation'
     The intent is to provide a poroelastic surrogate baseline:
     consolidation-driven settlement with a strong time-scale prior.
 
-    See Also
-    --------
-    GeoPriorSubsNet.pde_mode
-        Full definition and accepted values.
 """,
     poro_effective_thickness_defaults=r"""
 use_effective_h : bool, default True
@@ -1261,9 +1199,7 @@ hd_factor : float, default 0.6
     the prior more sensitive to thickness and can yield more
     physically constrained training in poroelastic baselines.
 
-    See Also
-    --------
-    GeoPriorSubsNet.use_effective_h, GeoPriorSubsNet.hd_factor
+
 """,
     poro_kappa_mode_default=r"""
 kappa_mode : {'bar', 'kb'}, default 'bar'
@@ -1271,9 +1207,6 @@ kappa_mode : {'bar', 'kb'}, default 'bar'
     to match the poroelastic surrogate convention used by this
     variant.
 
-    See Also
-    --------
-    GeoPriorSubsNet.kappa_mode
 """,
     poro_bounds_injection=r"""
 scaling_kwargs : mapping or str or GeoPriorScalingConfig or None
@@ -1290,16 +1223,11 @@ scaling_kwargs : mapping or str or GeoPriorScalingConfig or None
     This affects only missing keys in ``bounds`` and is meant to
     provide a safe poroelastic prior envelope for (H, logK, logSs).
 
-    Notes
-    -----
     This variant does not change the definition of bounds enforcement
     (soft vs hard). It only ensures typical geomechanical bounds are
     available when the user did not provide them.
 
-    See Also
-    --------
-    GeoPriorSubsNet.scaling_kwargs
-        Full key documentation and recommended payload structure.
+
 """,
     poro_compile_defaults=r"""
 compile(...) defaults
@@ -1390,8 +1318,15 @@ Notes
 
 See Also
 --------
-geoprior.nn.pinn.geoprior.models.GeoPriorSubsNet
+geoprior.models.GeoPriorSubsNet
     Full parameter reference and the groundwater-coupled variant.
+
+geoprior.models._base_attentive.BaseAttentive
+    Core encoder-decoder backbone used by GeoPriorSubsNet.
+
+geoprior.models.GeoPriorSubsNet.use_effective_h 
+geoprior.models.GeoPriorSubsNet.hd_factor
+geoprior.models.GeoPriorSubsNet.kappa_mode 
 
 Examples
 --------

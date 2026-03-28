@@ -10,6 +10,8 @@ utilities for checking data consistency, validating machine learning targets,
 ensuring proper data types, and handling various validation scenarios.
 """
 
+from __future__ import annotations
+
 import inspect
 import numbers
 import operator
@@ -111,13 +113,13 @@ __all__ = [
 
 
 def process_y_pairs(
-    *ys: "ArrayLike",
+    *ys: ArrayLike,
     error: Literal["raise", "warn", "ignore"] = "warn",
     solo_return: bool = False,
     ops: Literal["check_only", "validate"] = "check_only",
 ) -> (
-    tuple["ArrayLike", "ArrayLike"]
-    | tuple[list["ArrayLike"], list["ArrayLike"]]
+    tuple[ArrayLike, ArrayLike]
+    | tuple[list[ArrayLike], list[ArrayLike]]
 ):
     r"""
     Process and validate paired arrays of ground truth (``y_true``) and 
@@ -468,7 +470,7 @@ def check_donut_inputs(
 
     See Also
     --------
-    geoprior.core.checks.check_numeric_dtype` : 
+    geoprior.core.checks.check_numeric_dtype: 
         Validate numeric types in arrays.  
     geoprior.core.parameter_validator: Validate string parameters.
 
@@ -1031,7 +1033,7 @@ def has_methods(
 
     See Also
     --------
-    `validate_models` : Another function for model validation.
+    validate_models: Another function for model validation.
 
     References
     ----------
@@ -1206,6 +1208,7 @@ def check_is_runned(
 
     References
     ----------
+
     .. [1] Scikit-learn's `check_is_fitted` function:
            https://scikit-learn.org/stable/modules/generated/sklearn.utils.validation.check_is_fitted.html
     .. [2] Python official documentation on class attributes:
@@ -1415,25 +1418,18 @@ def validate_batch_size(
         \text{If } B < \text{min\_batch\_size} \text{ or } B > N \text{ or } B > \text{max\_batch\_size}:
         \quad \text{raise ValueError}
 
+    This function is essential for managing data batching in machine learning
+    workflows, where improper batch sizes can lead to inefficient training or
+    runtime errors.
+
     Examples
     --------
-    >>> from geoprior.utils.validators import validate_batch_size
+    >>> from geoprior.utils.validator import validate_batch_size
     >>> validate_batch_size(32, 100)  # Valid case
     >>> validate_batch_size(0, 100)  # Raises ValueError
     >>> validate_batch_size(150, 100)  # Raises ValueError
     >>> validate_batch_size(32, 100, max_batch_size=32)  # Valid case
     >>> validate_batch_size(40, 100, max_batch_size=32)  # Raises ValueError
-
-    Notes
-    -----
-    This function is essential for managing data batching in machine learning
-    workflows, where improper batch sizes can lead to inefficient training or
-    runtime errors.
-
-    See Also
-    --------
-    - Other validation functions in the `geoprior.utils.validators` module
-    - Documentation on batch processing in machine learning frameworks
 
     References
     ----------

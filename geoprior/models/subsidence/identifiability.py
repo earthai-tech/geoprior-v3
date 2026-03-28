@@ -24,6 +24,7 @@ from typing import Any
 
 import numpy as np
 
+from ...compat.types import TensorLike
 from .. import KERAS_DEPS
 
 K = KERAS_DEPS
@@ -437,14 +438,14 @@ def scenario_tau_only_derive_K(
     K_key: str = "K_mps",
     Ss_key: str = "Ss",
     Hd_key: str = "Hd",
-    Ss_fixed: Tensor | None = None,
-    Hd_fixed: Tensor | None = None,
+    Ss_fixed: TensorLike | None = None,
+    Hd_fixed: TensorLike | None = None,
     freeze_Ss: bool = True,
     freeze_Hd: bool = True,
     add_soft_anchor: bool = False,
     anchor_w: float = 0.0,
-    Ss_prior: Tensor | None = None,
-    Hd_prior: Tensor | None = None,
+    Ss_prior: TensorLike | None = None,
+    Hd_prior: TensorLike | None = None,
 ) -> ScenarioOut:
     """
     Option A:

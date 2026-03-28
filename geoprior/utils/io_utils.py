@@ -2604,8 +2604,9 @@ def parse_yaml(
 
     See Also
     --------
-    `get_config_fname_from_varname` : Utility for generating YAML configuration
-    filenames based on variable names.
+    get_config_fname_from_varname:
+        Utility for generating YAML configuration
+        filenames based on variable names.
     """
     yml_fn = check_files(
         yml_fn, formats=[".yml", ".yam"], return_valid=True
@@ -2765,9 +2766,10 @@ def parse_json(
 
     See Also
     --------
-    `fetch_json_data_from_url` : Fetches JSON data from a given URL.
-    `get_config_fname_from_varname` : Utility for generating JSON configuration
-    filenames based on variable names.
+    fetch_json_data_from_url : Fetches JSON data from a given URL.
+    get_config_fname_from_varname:
+        Utility for generating JSON configuration
+        filenames based on variable names.
     """
     json_fn = check_files(
         json_fn, formats=".json", return_valid=True

@@ -24,14 +24,14 @@ from typing import Any
 
 import pandas as pd
 
-from ._config import (
+from ._presets import SM3_PRESETS, SM3_REGIMES, get_sm3_preset
+from .config import (
     add_config_args,
     add_outdir_arg,
     add_results_dir_arg,
     bootstrap_runtime_config,
     find_latest_dir,
 )
-from ._presets import SM3_PRESETS, SM3_REGIMES, get_sm3_preset
 
 
 def _int01(raw: str | int | bool | None) -> int | None:

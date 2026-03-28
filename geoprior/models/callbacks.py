@@ -417,7 +417,7 @@ class NaNGuard(Callback):
     --------
     Basic usage:
 
-    >>> from geoprior.nn.callbacks import NaNGuard
+    >>> from geoprior.models.callbacks import NaNGuard
     >>> nan_guard = NaNGuard(
     ...     limit_to={"loss", "val_loss", "total_loss",
     ...               "data_loss", "physics_loss",

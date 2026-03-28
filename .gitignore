@@ -167,10 +167,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# Ignore JOSS paper files (unpublished work)
-# These should only exist on specific branches for JOSS review/submission.
-# paper.md
-# paper.bib
+
 
 # Ruff stuff:
 .ruff_cache/
@@ -182,24 +179,41 @@ cython_debug/
 _drafts/
 joss_reviews.md
 
-# data artifacts
-/data/processed/
-/data/modeling_results_ok/
-/data/outputs/
-/**/*.parquet
-/**/*.csv.gz
-.ipynb_checkpoints/
+# ------------------------------
+# Generated data / runtime outputs
+# ------------------------------
+data/processed/
+data/modeling_results_ok/
+data/outputs/
+outputs/
+runs/
+logs/
+scripts/out/
+scripts/figs/
 
-# remove the data and examples for now 
-# data/ 
-# examples/
-docs/source/_autosummary/
-geoprior/api/gimini_key.py 
-outputs/ 
-runs/ 
-logs/  
-*.npz 
+# Generated binary/data artifacts
+*.parquet
+*.csv.gz
+*.npz
 *.ckpt
 *.eps
-/scripts/figs/
-/scripts/out/
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# ------------------------------
+# Sphinx generated docs
+# ------------------------------
+docs/_build/
+docs/source/_autosummary/
+docs/source/generated/
+docs/source/api/_autosummary/
+docs/source/api/generated/
+
+# Optional generated static files
+docs/source/_static/switcher.json
+
+# ------------------------------
+# Local secrets / keys
+# ------------------------------
+geoprior/api/gimini_key.py

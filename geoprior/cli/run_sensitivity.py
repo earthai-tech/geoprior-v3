@@ -131,7 +131,7 @@ from geoprior.utils.nat_utils import (
 )
 
 TRAIN_SCRIPT_DEFAULT = Path(__file__).with_name(
-    "sensitivity.py"
+    "_sensitivity.py"
 )
 # 0 0.05 0.2 1.0
 DEFAULT_LCONS: list[float] = [

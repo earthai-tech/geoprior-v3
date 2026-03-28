@@ -19,6 +19,8 @@
 #
 # Author: LKouadio <etanoyau@gmail.com>
 
+"""Subsidence PINN models"""
+
 from __future__ import annotations
 
 import warnings
@@ -40,6 +42,7 @@ from ...compat.sklearn import (
     StrOptions,
     validate_params,
 )
+from ...compat.types import TensorLike
 from ...logging import OncePerMessageFilter, get_logger
 from ...params import (
     DisabledC,
@@ -1265,7 +1268,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
     def forward_with_aux(
         self,
-        inputs: dict[str, Tensor | None],
+        inputs: dict[str, TensorLike | None],
         training: bool = False,
     ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
         r"""
@@ -1298,8 +1301,6 @@ class GeoPriorSubsNet(BaseAttentive):
             * ``H_field`` or ``soil_thickness`` : Tensor, thickness field
               broadcastable to ``(B, H, 1)``
 
-            Notes
-            -----
             The exact required keys depend on the model configuration and
             Stage-1 export. This wrapper delegates all parsing and
             validation to :meth:`_forward_all`.
@@ -1359,7 +1360,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
     def call(
         self,
-        inputs: dict[str, Tensor | None],
+        inputs: dict[str, TensorLike | None],
         training: bool = False,
     ) -> dict[str, Tensor]:
         r"""
@@ -1388,8 +1389,6 @@ class GeoPriorSubsNet(BaseAttentive):
               ordered as (t, x, y)
             * ``H_field`` or ``soil_thickness`` : Tensor, thickness field
 
-            Notes
-            -----
             All parsing, shape checks, and coordinate handling are performed
             by :meth:`_forward_all`.
         training : bool, default False
@@ -1442,7 +1441,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
     def _forward_all(
         self,
-        inputs: dict[str, Tensor | None],
+        inputs: dict[str, TensorLike | None],
         training: bool = False,
     ) -> tuple[dict[str, Tensor], dict[str, Tensor]]:
         r"""
@@ -1490,8 +1489,6 @@ class GeoPriorSubsNet(BaseAttentive):
                 * ``dynamic_features`` : Tensor, shape ``(B, H, D)``
                 * ``future_features`` : Tensor, shape ``(B, H, F)``
 
-            Notes
-            -----
             Input extraction and validation are delegated to helper
             functions such as ``process_pinn_inputs`` and ``check_inputs``.
         training : bool, default False
@@ -1510,8 +1507,6 @@ class GeoPriorSubsNet(BaseAttentive):
                 Groundwater level (or related) predictions, aligned to the
                 dataset convention.
 
-            Notes
-            -----
             Output key ordering is normalized by
             ``self._order_by_output_keys`` to ensure stable contracts.
         aux : dict of str to Tensor
@@ -2033,8 +2028,6 @@ class GeoPriorSubsNet(BaseAttentive):
               API (static, dynamic, future, coords, thickness, etc.).
             * ``targets`` is a dict (or dict-like) of supervised targets.
 
-            Notes
-            -----
             The method expects a dict-style multi-output target structure.
             Targets are canonicalized and reordered to match
             ``self.output_names``.
@@ -2495,8 +2488,6 @@ class GeoPriorSubsNet(BaseAttentive):
               API (static, dynamic, future, coords, thickness, etc.).
             * ``targets`` is a dict (or dict-like) of supervised targets.
 
-            Notes
-            -----
             Targets are canonicalized and reordered to match
             ``self.output_names`` for stable loss computation.
 
@@ -2557,8 +2548,6 @@ class GeoPriorSubsNet(BaseAttentive):
             where :math:`L_{phys}` is the physics loss scalar returned by
             the physics evaluator.
 
-            Notes
-            -----
             The physics evaluator may use internal autodiff to compute PDE
             derivatives for residual diagnostics, but gradients are not used
             to update parameters in ``test_step``.
@@ -2750,7 +2739,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
     def _evaluate_physics_on_batch(
         self,
-        inputs: dict[str, Tensor | None],
+        inputs: dict[str, TensorLike | None],
         return_maps: bool = False,
     ) -> dict[str, Tensor]:
         r"""
@@ -2860,7 +2849,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
     def evaluate_physics(
         self,
-        inputs: dict[str, Tensor | None] | Dataset,
+        inputs: dict[str, TensorLike | None] | Dataset,
         return_maps: bool = False,
         max_batches: int | None = None,
         batch_size: int | None = None,
@@ -2904,8 +2893,6 @@ class GeoPriorSubsNet(BaseAttentive):
         return_maps : bool, default False
             If True, include residual maps and learned field tensors.
 
-            Notes
-            -----
             In Dataset mode, maps are not aggregated across batches. The
             method returns maps from the last processed batch only to keep
             memory usage bounded and avoid ambiguous aggregation semantics.
@@ -2913,8 +2900,6 @@ class GeoPriorSubsNet(BaseAttentive):
             Maximum number of dataset batches to process. If None, iterate
             through the entire dataset.
 
-            Notes
-            -----
             This option is useful for quick diagnostics on large datasets.
         batch_size : int or None, default None
             If provided and ``inputs`` is a mapping of numpy-like arrays,
@@ -2949,8 +2934,6 @@ class GeoPriorSubsNet(BaseAttentive):
             * closure prior: ``tau_prior`` / ``tau_closure``
             * thickness: ``H_field`` / ``H``, drainage thickness ``Hd``
 
-            Notes
-            -----
             Map availability depends on the underlying physics computation
             and whether the batch contains required inputs (coords, thickness
             field, etc.).
@@ -3811,8 +3794,6 @@ class GeoPriorSubsNet(BaseAttentive):
             * for ``offset_mode='mul'``  : :math:`alpha = \lambda_{offset}`
             * for ``offset_mode='log10'``: :math:`alpha = 10^{\lambda_{offset}}`
 
-            Notes
-            -----
             ``self._lambda_offset`` is a non-trainable scalar weight so it
             can be updated safely during training, for example:
 
@@ -3833,8 +3814,6 @@ class GeoPriorSubsNet(BaseAttentive):
             If True, multiply the :math:`L_{mv}` contribution by the global
             physics multiplier :math:`alpha` in addition to ``lambda_mv``.
 
-            Notes
-            -----
             This is useful when :math:`L_{mv}` should follow the same warmup
             schedule as other physics terms. If False, :math:`L_{mv}` is
             weighted only by ``lambda_mv``.
@@ -3843,8 +3822,7 @@ class GeoPriorSubsNet(BaseAttentive):
             If True, multiply the :math:`L_{q}` contribution by the global
             physics multiplier :math:`alpha` in addition to ``lambda_q``.
 
-            Notes
-            -----
+
             This is commonly enabled so forcing regularization ramps in
             together with other physics terms during physics warmup.
 

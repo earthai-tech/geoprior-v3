@@ -1,159 +1,280 @@
-document.addEventListener("DOMContentLoaded", function () {
-  /* ============================================================
-   * 1) "NEW" badge — show for one week after release date
-   * ========================================================== */
-  const badges = document.querySelectorAll(".new-badge, .new-badge-card");
-  const today = new Date();
-  const oneWeekInMilliseconds = 7 * 24 * 60 * 60 * 1000;
+(function () {
+  "use strict";
 
-  badges.forEach(function (badge) {
-    const releaseDateStr = badge.getAttribute("data-release-date");
-    if (!releaseDateStr) return;
-    const releaseDate = new Date(releaseDateStr);
-    const timeDifference = today.getTime() - releaseDate.getTime();
-    if (timeDifference >= 0 && timeDifference < oneWeekInMilliseconds) {
-      badge.style.display = "inline-block";
+  function onReady(fn) {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", fn, {
+        once: true,
+      });
+      return;
     }
-  });
+    fn();
+  }
 
-  /* ============================================================
-   * 2) Card Preview Popups (See-also tiles)
-   *    - robust inline styles so it works even without CSS rules
-   * ========================================================== */
-  console.log("k-diagram custom script loaded.");
+  function qsAll(selector, root = document) {
+    return Array.from(root.querySelectorAll(selector));
+  }
 
-  const previewMap = {
-    "card--uncertainty":  "uncertainty.png",
-    "card--errors":       "errors.png",
-    "card--evaluation":   "evaluation.png",
-    "card--importance":   "importance.png",
-    "card--relationship": "relationship.png"
-  };
+  function normalizeText(text) {
+    return (text || "")
+      .trim()
+      .replace(/\s+/g, " ")
+      .toLowerCase();
+  }
 
-  const cards = document.querySelectorAll(".seealso-card"); // matches your :class-card
-  console.log(`Found ${cards.length} seealso cards.`);
+  function showRecentBadges() {
+    const badges = qsAll(".new-badge, .new-badge-card");
+    if (!badges.length) {
+      return;
+    }
 
-  // Preload images for smooth popups
-  const preload = new Set(Object.values(previewMap));
-  preload.forEach(name => {
-    const img = new Image();
-    img.src = `_static/previews/${name}`;
-  });
+    const now = Date.now();
+    const visibleWindowMs = 7 * 24 * 60 * 60 * 1000;
 
-  cards.forEach(card => {
-    // Make sure the card can position an absolutely-positioned child
-    const computedPos = window.getComputedStyle(card).position;
-    if (computedPos === "static") card.style.position = "relative";
+    badges.forEach((badge) => {
+      const releaseDateStr = badge.getAttribute("data-release-date");
+      if (!releaseDateStr) {
+        return;
+      }
 
-    // Determine preview image for this card
-    let previewImageName = null;
-    for (const cls in previewMap) {
-      if (card.classList.contains(cls)) {
-        previewImageName = previewMap[cls];
-        break;
+      const releaseDate = new Date(releaseDateStr);
+      if (Number.isNaN(releaseDate.getTime())) {
+        return;
+      }
+
+      const age = now - releaseDate.getTime();
+      if (age >= 0 && age < visibleWindowMs) {
+        badge.style.display = "inline-block";
+      }
+    });
+  }
+
+  function resolvePreviewImage(card) {
+    const explicitPreview = card.dataset.preview;
+    if (explicitPreview) {
+      return explicitPreview;
+    }
+
+    const previewMap = {
+      "card--uncertainty": "uncertainty.png",
+      "card--errors": "errors.png",
+      "card--evaluation": "evaluation.png",
+      "card--importance": "importance.png",
+      "card--relationship": "relationship.png",
+      "card--physics": "physics.png",
+      "card--workflow": "workflow.png",
+      "card--cli": "cli.png",
+      "card--configuration": "configuration.png",
+    };
+
+    for (const [className, filename] of Object.entries(previewMap)) {
+      if (card.classList.contains(className)) {
+        return filename;
       }
     }
-    if (!previewImageName) return; // Full API card has no preview
 
-    const imagePath = `_static/previews/${previewImageName}`;
+    return null;
+  }
 
-    const showPopup = () => {
-      if (card.querySelector(".card-preview-popup")) return;
+  function buildPreviewPath(preview) {
+    if (!preview) {
+      return null;
+    }
+    if (/^(?:https?:)?\/\//.test(preview) || preview.startsWith("/")) {
+      return preview;
+    }
+    return `_static/previews/${preview}`;
+  }
 
-      const popup = document.createElement("div");
-      popup.className = "card-preview-popup";
-      popup.innerHTML = `<img src="${imagePath}" alt="Card preview">`;
+  function setupCardPreviews() {
+    const cards = qsAll(".seealso-card, .sd-card").filter((card) => {
+      return Boolean(card.dataset.preview) ||
+        Array.from(card.classList).some((cls) => cls.startsWith("card--"));
+    });
 
-      // Inline styles so it works even if CSS isn’t present
-      popup.style.position = "absolute";
-      popup.style.left = "50%";
-      popup.style.transform = "translateX(-50%)";
-      popup.style.bottom = "95%";       // start below the target position
-      popup.style.opacity = "0";        // start transparent
-      popup.style.transition = "opacity .2s ease, bottom .2s ease";
-      popup.style.zIndex = "10";
-      popup.style.pointerEvents = "none";
-      popup.style.boxShadow = "0 10px 28px rgba(0,0,0,.18)";
-      popup.style.borderRadius = "10px";
-      popup.style.overflow = "hidden";
-      popup.style.background = "transparent";
-
-      const img = popup.querySelector("img");
-      img.style.display = "block";
-      img.style.maxWidth = "240px";
-      img.style.maxHeight = "240px";
-      img.style.width = "auto";
-      img.style.height = "auto";
-
-      card.appendChild(popup);
-
-      // animate in
-      requestAnimationFrame(() => {
-        popup.style.opacity = "1";
-        popup.style.bottom = "105%";
-      });
-    };
-
-    const hidePopup = () => {
-      const popup = card.querySelector(".card-preview-popup");
-      if (!popup) return;
-      popup.style.opacity = "0";
-      popup.style.bottom = "95%";
-      setTimeout(() => popup && popup.remove(), 200);
-    };
-
-    // Mouse + keyboard accessibility
-    card.addEventListener("mouseenter", showPopup);
-    card.addEventListener("mouseleave", hidePopup);
-    card.addEventListener("focusin", showPopup);
-    card.addEventListener("focusout", hidePopup);
-  });
-
-  /* ============================================================
-   * 3) Auto-class "Practical examples" admonitions
-   *    (also tolerates the "Pratical examples" typo)
-   * ========================================================== */
-  document.querySelectorAll(".admonition > .admonition-title").forEach(t => {
-    const raw = t.textContent.trim();
-    const txt = raw.toLowerCase();
-
-    // Normalize whitespace
-    const norm = txt.replace(/\s+/g, " ");
-
-    // Match Practical/Pratical Example(s)
-    // Accepts: "Practical example(s)", "Pratical example(s)" (any case)
-    if (/^pra(c)?tical example(s)?$/.test(norm)) {
-      const box = t.parentElement;
-      box.classList.add("practical-examples");
-      // ribbon text: EXAMPLE vs EXAMPLES
-      const plural = /examples$/.test(norm);
-      box.setAttribute("data-badge", plural ? "EXAMPLES" : "EXAMPLE");
+    if (!cards.length) {
       return;
     }
 
-    // Match Best practice(s)
-    if (/^best practice(s)?$/.test(norm)) {
-      const box = t.parentElement;
-      box.classList.add("best-practice");
-      const plural = /practices$/.test(norm);
-      box.setAttribute("data-badge", plural ? "BEST PRACTICES" : "BEST PRACTICE");
-      return;
-    }
+    const previewNames = new Set();
+    cards.forEach((card) => {
+      const preview = resolvePreviewImage(card);
+      if (preview) {
+        previewNames.add(preview);
+      }
+    });
+
+    previewNames.forEach((name) => {
+      const img = new Image();
+      img.src = buildPreviewPath(name);
+    });
+
+    cards.forEach((card) => {
+      if (window.getComputedStyle(card).position === "static") {
+        card.style.position = "relative";
+      }
+
+      const preview = resolvePreviewImage(card);
+      const imagePath = buildPreviewPath(preview);
+      if (!imagePath) {
+        return;
+      }
+
+      const cardLabel =
+        card.dataset.previewLabel ||
+        card.getAttribute("aria-label") ||
+        card.textContent.trim().slice(0, 80) ||
+        "GeoPrior preview";
+
+      let removalTimer = null;
+
+      const createPopup = () => {
+        if (card.querySelector(".card-preview-popup")) {
+          return;
+        }
+
+        const popup = document.createElement("div");
+        popup.className = "card-preview-popup";
+        popup.setAttribute("aria-hidden", "true");
+        popup.innerHTML = `
+          <figure class="card-preview-popup__figure">
+            <img src="${imagePath}" alt="Preview for ${cardLabel}">
+          </figure>
+        `;
+
+        popup.style.position = "absolute";
+        popup.style.left = "50%";
+        popup.style.bottom = "95%";
+        popup.style.transform = "translateX(-50%)";
+        popup.style.opacity = "0";
+        popup.style.transition = "opacity .18s ease, bottom .18s ease";
+        popup.style.zIndex = "30";
+        popup.style.pointerEvents = "none";
+
+        card.appendChild(popup);
+
+        requestAnimationFrame(() => {
+          popup.style.opacity = "1";
+          popup.style.bottom = "105%";
+        });
+      };
+
+      const removePopup = () => {
+        const popup = card.querySelector(".card-preview-popup");
+        if (!popup) {
+          return;
+        }
+
+        popup.style.opacity = "0";
+        popup.style.bottom = "95%";
+        window.setTimeout(() => {
+          if (popup.isConnected) {
+            popup.remove();
+          }
+        }, 180);
+      };
+
+      const scheduleHide = () => {
+        if (removalTimer) {
+          window.clearTimeout(removalTimer);
+        }
+        removalTimer = window.setTimeout(removePopup, 25);
+      };
+
+      const showPopup = () => {
+        if (removalTimer) {
+          window.clearTimeout(removalTimer);
+          removalTimer = null;
+        }
+        createPopup();
+      };
+
+      card.addEventListener("mouseenter", showPopup);
+      card.addEventListener("mouseleave", scheduleHide);
+      card.addEventListener("focusin", showPopup);
+      card.addEventListener("focusout", scheduleHide);
+    });
+  }
+
+  function classifyAdmonitions() {
+    const titles = qsAll(".admonition > .admonition-title");
+    titles.forEach((title) => {
+      const box = title.parentElement;
+      const normalized = normalizeText(
+        title.textContent || title.innerText || "",
+      );
+
+      if (/^pra(c)?tical example(s)?$/.test(normalized)) {
+        box.classList.add("practical-examples");
+        box.setAttribute(
+          "data-badge",
+          /examples$/.test(normalized) ? "EXAMPLES" : "EXAMPLE",
+        );
+        return;
+      }
+
+      if (/^best practice(s)?$/.test(normalized)) {
+        box.classList.add("best-practice");
+        box.setAttribute(
+          "data-badge",
+          /practices$/.test(normalized)
+            ? "BEST PRACTICES"
+            : "BEST PRACTICE",
+        );
+        return;
+      }
+
+      if (/^plot anatomy(?:$|[^a-z0-9_].*)/.test(normalized)) {
+        box.classList.add("plot-anatomy");
+        if (!box.hasAttribute("data-badge")) {
+          box.setAttribute("data-badge", "KEY");
+        }
+        return;
+      }
+
+      if (/^geoprior note(?:s)?$/.test(normalized)) {
+        box.classList.add("geoprior-note");
+        box.setAttribute(
+          "data-badge",
+          /notes$/.test(normalized) ? "GEOPRIOR NOTES" : "GEOPRIOR NOTE",
+        );
+      }
+    });
+  }
+
+  function annotateExternalLinks() {
+    qsAll("main a.reference.external").forEach((link) => {
+      if (link.querySelector(".gp-external-icon")) {
+        return;
+      }
+      const icon = document.createElement("span");
+      icon.className = "gp-external-icon";
+      icon.setAttribute("aria-hidden", "true");
+      icon.textContent = " ↗";
+      link.appendChild(icon);
+    });
+  }
+
+  function enhanceSearchPlaceholder() {
+    const inputs = qsAll(
+      'input[type="search"], input[name="q"], .bd-search input',
+    );
+    inputs.forEach((input) => {
+      if (!input.getAttribute("placeholder")) {
+        input.setAttribute(
+          "placeholder",
+          "Search GeoPrior models, physics, CLI, and configs...",
+        );
+      }
+    });
+  }
+
+  onReady(() => {
+    showRecentBadges();
+    setupCardPreviews();
+    classifyAdmonitions();
+    annotateExternalLinks();
+    enhanceSearchPlaceholder();
+    console.log("GeoPrior docs custom script loaded.");
   });
-
-  // Auto-class "Plot Anatomy" (allow suffixes like "(Radar Chart)")
-  document.querySelectorAll(".admonition > .admonition-title").forEach(t => {
-    const raw  = (t.textContent || t.innerText || "").trim();
-    const norm = raw.replace(/\s+/g, " ").toLowerCase();
-
-    // starts with "plot anatomy", then end or any non-alphanumeric punctuation/suffix
-    if (/^plot anatomy(?:$|[^a-z0-9_].*)/.test(norm)) {
-      const box = t.parentElement;
-      box.classList.add("plot-anatomy");
-      // if you want a ribbon text
-      if (!box.hasAttribute("data-badge")) box.setAttribute("data-badge", "KEY");
-    }
-  });
-});
-
-
+})();

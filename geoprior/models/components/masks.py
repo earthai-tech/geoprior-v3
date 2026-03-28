@@ -12,6 +12,7 @@ Mask helpers for attention / sequence ops.
 
 from __future__ import annotations
 
+from ...compat.types import TensorLike
 from ._config import (
     Tensor,
     tf_bool,
@@ -75,8 +76,8 @@ def pad_mask_from_lengths(
 def sequence_mask_3d(
     data: Tensor,
     *,
-    lengths: Tensor | None = None,
-    mask_2d: Tensor | None = None,
+    lengths: TensorLike | None = None,
+    mask_2d: TensorLike | None = None,
     time_axis: int = 1,
     invert: bool = False,
     dtype: Tensor = tf_bool,

@@ -22,10 +22,7 @@ import warnings
 from collections.abc import Callable, Sequence
 from numbers import Integral, Real
 from textwrap import dedent
-from typing import (
-    Any,
-    Optional,
-)
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -40,6 +37,7 @@ from ...compat.sklearn import (
     StrOptions,
     validate_params,
 )
+from ...compat.types import TensorLike
 from ...core.checks import (
     ParamsValidator,
     are_all_frames_valid,
@@ -145,7 +143,7 @@ def get_tensor_from(
     default: Any | None = None,
     check_type: bool = True,
     auto_convert: bool = True,
-) -> Tensor | None:
+) -> TensorLike | None:
     r"""
     Safely retrieves the first available tensor from a dictionary
     using a list of possible keys.
@@ -725,15 +723,16 @@ def _aggregate_component(parts: list[Any]) -> Any:
 
 
 def format_predictions(
-    predictions: np.ndarray | Tensor | None = None,
+    predictions: np.ndarray | TensorLike | None = None,
     model: Model | None = None,
-    inputs: list[np.ndarray | Tensor | None] | None = None,
-    y_true_sequences: np.ndarray | Tensor | None = None,
+    inputs: list[np.ndarray | TensorLike | None]
+    | None = None,
+    y_true_sequences: np.ndarray | TensorLike | None = None,
     target_name: str | None = "target",
     quantiles: list[float] | None = None,
     forecast_horizon: int | None = None,
     output_dim: int | None = None,
-    spatial_data_array: np.ndarray | Tensor | None = None,
+    spatial_data_array: np.ndarray | TensorLike | None = None,
     spatial_cols: list[str] | None = None,
     spatial_cols_indices: list[int] | None = None,
     evaluate_coverage: bool = False,
@@ -891,14 +890,14 @@ def format_predictions(
 
     See Also
     --------
-    geoprior.nn.utils.forecast_multi_step : Higher-level forecasting utility.
+    geoprior.models.utils.forecast_multi_step : Higher-level forecasting utility.
     geoprior.metrics.coverage_score : For evaluating quantile forecast intervals.
 
     Examples
     --------
     >>> import tensorflow as tf
     >>> import numpy as np
-    >>> from geoprior.nn.utils import format_predictions_to_dataframe
+    >>> from geoprior.models.utils import format_predictions_to_dataframe
 
     >>> B, H, O = 4, 3, 1 # Batch, Horizon, OutputDim
     >>> Q = [0.1, 0.5, 0.9]
@@ -1635,13 +1634,13 @@ def format_predictions(
 )
 def prepare_model_inputs(
     dynamic_input: np.ndarray | Tensor,
-    static_input: np.ndarray | Tensor | None = None,
-    future_input: np.ndarray | Tensor | None = None,
+    static_input: np.ndarray | TensorLike | None = None,
+    future_input: np.ndarray | TensorLike | None = None,
     model_type: str = "strict",
     forecast_horizon: int | None = None,
     verbose: int = 0,
     **kwargs,
-) -> list[Tensor | None]:
+) -> list[TensorLike | None]:
     r"""Prepares a list of input tensors for a model's call method.
 
     This function standardizes the creation of the input list
@@ -1720,7 +1719,7 @@ def prepare_model_inputs(
     --------
     >>> import tensorflow as tf
     >>> import numpy as np
-    >>> from geoprior.nn.utils import prepare_model_inputs
+    >>> from geoprior.models.utils import prepare_model_inputs
     >>> B, T, H = 2, 10, 3
     >>> D_s, D_d, D_f = 2, 4, 1
     >>> dyn_in = tf.random.normal((B, T, D_d))
@@ -1752,8 +1751,8 @@ def prepare_model_inputs(
         )
 
     def _to_tensor_float32(
-        data: np.ndarray | Tensor | None, name: str
-    ) -> Tensor | None:
+        data: np.ndarray | TensorLike | None, name: str
+    ) -> TensorLike | None:
         # Helper to convert to tf.Tensor and tf.float32 if not None.
         if data is None:
             return None
@@ -1837,11 +1836,11 @@ def prepare_model_inputs(
         )
 
     # --- Handle based on model_type ---
-    s_to_pass: Tensor | None = processed_static_input
+    s_to_pass: TensorLike | None = processed_static_input
     d_to_pass: Tensor = (
         processed_dynamic_input  # Always present
     )
-    f_to_pass: Tensor | None = processed_future_input
+    f_to_pass: TensorLike | None = processed_future_input
 
     if model_type == "strict":
         if s_to_pass is None:
@@ -1951,13 +1950,13 @@ def prepare_model_inputs(
 # @optional_tf_function
 def prepare_model_inputs_in(
     dynamic_input: np.ndarray | Tensor,
-    static_input: np.ndarray | Tensor | None = None,
-    future_input: np.ndarray | Tensor | None = None,
+    static_input: np.ndarray | TensorLike | None = None,
+    future_input: np.ndarray | TensorLike | None = None,
     model_type: str = "strict",
     forecast_horizon: int | None = None,
     verbose: int = 0,
     # **kwargs # Removed if not used
-) -> list[Tensor | None]:
+) -> list[TensorLike | None]:
     """Prepares a list of input tensors for a model's call method in graph
     compatible mode.
     """
@@ -1973,8 +1972,8 @@ def prepare_model_inputs_in(
         )
 
     def _to_tensor_float32(
-        data: np.ndarray | Tensor | None, name: str
-    ) -> Tensor | None:
+        data: np.ndarray | TensorLike | None, name: str
+    ) -> TensorLike | None:
         if data is None:
             return None
         try:
@@ -2085,8 +2084,8 @@ def prepare_model_inputs_in(
     # ------------------ START: GRAPH-COMPATIBLE OPTIMIZATION --------------------
 
     d_to_pass: Tensor = processed_dynamic_input
-    s_to_pass: Tensor | None = processed_static_input
-    f_to_pass: Tensor | None = processed_future_input
+    s_to_pass: TensorLike | None = processed_static_input
+    f_to_pass: TensorLike | None = processed_future_input
 
     # Use tf.cond for conditional logic on tensors
     past_time_steps = tf_cond(
@@ -2386,7 +2385,7 @@ def compute_anomaly_scores(
     
     Examples
     --------
-    >>> from geoprior.nn.losses import compute_anomaly_scores
+    >>> from geoprior.models.losses import compute_anomaly_scores
     >>> import numpy as np
     
     >>> # Statistical method example
@@ -2412,9 +2411,7 @@ def compute_anomaly_scores(
     
     See Also
     --------
-    geoprior.nn.losses.compute_quantile_loss` : 
-        For computing quantile losses.
-    geoprior.nn.losses.objective_loss :
+    geoprior.models.losses.objective_loss :
         For integrating anomaly scores into a multi-objective loss.
     
     References
@@ -2620,7 +2617,7 @@ def split_static_dynamic(
     Examples
     --------
     >>> import numpy as np
-    >>> from geoprior.nn.utils import split_static_dynamic
+    >>> from geoprior.models.utils import split_static_dynamic
     >>> 
     >>> # Create a dummy sequence array
     >>> sequences = np.random.rand(100, 10, 5)  # (
@@ -2658,8 +2655,9 @@ def split_static_dynamic(
 
     See Also
     --------
-    `create_sequences` : Function to create input sequences and targets for 
-    time series forecasting.
+    geoprior.models.utils.create_sequences :
+        Function to create input sequences and targets for 
+        time series forecasting.
 
     References
     ----------
@@ -2793,7 +2791,7 @@ def create_sequences(
     --------
     >>> import pandas as pd
     >>> import numpy as np
-    >>> from geoprior.nn.utils import create_sequences
+    >>> from geoprior.models.utils import create_sequences
 
     >>> # Create a dummy DataFrame
     >>> data = pd.DataFrame({
@@ -2885,7 +2883,7 @@ def create_sequences(
 
     See Also
     --------
-    geoprior.nn.utils.split_static_dynamic :
+    geoprior.models.utils.split_static_dynamic :
         Function to split sequences into static and dynamic inputs.
 
     References
@@ -3092,7 +3090,7 @@ def compute_forecast_horizon(
 
     Examples
     --------
-    >>> from geoprior.nn.utils import compute_forecast_horizon
+    >>> from geoprior.models.utils import compute_forecast_horizon
     >>> import pandas as pd
     >>> import numpy as np
     >>> from datetime import datetime, timedelta
@@ -3437,7 +3435,7 @@ def extract_callbacks_from(
 
     Examples
     --------
-    >>> from geoprior.nn.utils import extract_callbacks_from
+    >>> from geoprior.models.utils import extract_callbacks_from
     >>> from tensorflow.keras.callbacks import EarlyStopping
     >>> fit_params = {
     ...     'epochs': 100,
@@ -3620,7 +3618,7 @@ def prepare_spatial_future_data(
 
     Examples
     --------
-    >>> from geoprior.nn.utils import prepare_spatial_future_data
+    >>> from geoprior.models.utils import prepare_spatial_future_data
     >>> import pandas as pd
     >>> data = pd.DataFrame({
     ...     'location_id': [1, 1, 1, 2, 2, 2],
@@ -4476,9 +4474,9 @@ def generate_forecast(
     >>> import os
     >>> import pandas as pd
     >>> import numpy as np
-    >>> from geoprior.nn.transformers import XTFT
-    >>> from geoprior.nn.losses import combined_quantile_loss
-    >>> from geoprior.nn.utils import generate_forecast
+    >>> from geoprior.models.transformers import XTFT
+    >>> from geoprior.models.losses import combined_quantile_loss
+    >>> from geoprior.models.utils import generate_forecast
     >>>
     >>> # Create a dummy training DataFrame with a date column,
     >>> # dynamic features "feat1", "feat2", static feature "stat1",
@@ -4710,7 +4708,7 @@ def generate_forecast(
 
     See Also
     --------
-    geoprior.nn.utils.reshape_xtft_data:
+    geoprior.models.utils.reshape_xtft_data:
         Function to reshape data for XTFT models.
     geoprior.utils.validator.validate_keras_model:
         Function to validate Keras model compatibility.
@@ -5399,8 +5397,8 @@ def forecast_single_step(
     Examples
     --------
 
-    >>> from geoprior.nn.transformers import XTFT
-    >>> from geoprior.nn.utils import forecast_single_step
+    >>> from geoprior.models.transformers import XTFT
+    >>> from geoprior.models.utils import forecast_single_step
     >>> import pandas as pd
     >>> import numpy as np
     >>>
@@ -5784,9 +5782,9 @@ def forecast_multi_step(
     Examples
     --------
 
-    >>> from geoprior.nn.transformers import XTFT
-    >>> from geoprior.nn.utils import forecast_multi_step
-    >>> from geoprior.nn.losses import combined_quantile_loss
+    >>> from geoprior.models.transformers import XTFT
+    >>> from geoprior.models.utils import forecast_multi_step
+    >>> from geoprior.models.losses import combined_quantile_loss
     >>> import pandas as pd
     >>> import numpy as np
     >>>
@@ -6962,15 +6960,16 @@ def squeeze_last_dim_if(tensors, output_dims):
     alternative="format_predictions",
 )
 def format_predictions_to_dataframe(
-    predictions: np.ndarray | Tensor | None = None,
+    predictions: np.ndarray | TensorLike | None = None,
     model: Model | None = None,
-    inputs: list[np.ndarray | Tensor | None] | None = None,
-    y_true_sequences: np.ndarray | Tensor | None = None,
+    inputs: list[np.ndarray | TensorLike | None]
+    | None = None,
+    y_true_sequences: np.ndarray | TensorLike | None = None,
     target_name: str | None = "target",
     quantiles: list[float] | None = None,
     forecast_horizon: int | None = None,
     output_dim: int | None = None,
-    spatial_data_array: np.ndarray | Tensor | None = None,
+    spatial_data_array: np.ndarray | TensorLike | None = None,
     spatial_cols: list[str] | None = None,
     spatial_cols_indices: list[int] | None = None,
     evaluate_coverage: bool = False,
@@ -7089,7 +7088,7 @@ def make_dict_to_tuple_fn(
         targets: Tensor | dict[str, Tensor] | None = None,
     ):
         # Build positional feature tuple
-        positional: list[Tensor | None] = []
+        positional: list[TensorLike | None] = []
         for k in feature_keys:
             if k in features:
                 positional.append(features[k])
@@ -7191,7 +7190,7 @@ pandas.DataFrame
 
 Examples
 --------
->>> from geoprior.nn.utils import step_to_long
+>>> from geoprior.models.utils import step_to_long
 >>> # Given a DataFrame `forecast_df` with columns like:
 >>> # ['longitude', 'latitude', 'year', 'subsidence_actual',
 >>> #  'subsidence_q10_step1', 'subsidence_q50_step1', 'subsidence_q89_step1',
@@ -7342,8 +7341,8 @@ pandas.DataFrame
 Examples
 --------
 
->>> from geoprior.nn.transformers import XTFT
->>> from geoprior.nn.utils import generate_forecast_with
+>>> from geoprior.models.transformers import XTFT
+>>> from geoprior.models.utils import generate_forecast_with
 >>> import numpy as np
 >>> 
 >>> # Prepare a dummy XTFT model with example parameters.

@@ -1,78 +1,101 @@
-# MANIFEST.in for k-diagram project
+# MANIFEST.in for GeoPrior-v3 project
 
-# Include essential root files
+# ---------------------------------------------------------
+# Essential root files
+# ---------------------------------------------------------
 include LICENSE
 include README.md
-# include CITATION.cff  
-include pyproject.toml 
+include pyproject.toml
 include MANIFEST.in
 include setup.py
-# include setup.cfg     
 
-# --- Include files needed for PyPI description (README rendering) ---
-# Include everything in the _static directory (contains logo)
+# ---------------------------------------------------------
+# PyPI / long-description assets
+# ---------------------------------------------------------
 recursive-include docs/source/_static *
-# Include specific images referenced in README.md 
-# This looks for files like 'readme_*.png' directly inside 'docs/source/images/'
-# include docs/source/images/readme_*.png
-
-# --- Include documentation source files  ---
 recursive-include docs/source *.rst
 recursive-include docs/source *.py
-# Note: _static is already included above
 recursive-include docs/source/_templates *
+
+# Exclude docs images unless explicitly needed
 recursive-exclude docs/source/images *
 
 include docs/Makefile
 include docs/make.bat
-include docs/requirements.txt # Include requirements needed to build docs
+include docs/requirements.txt
 
-# --- Include package data ---
-# Include the dataset bundled with the package
-include kdiagram/datasets/data/min_zhongshan.csv
+# ---------------------------------------------------------
+# Package data
+# ---------------------------------------------------------
+include geoprior/datasets/data/min_zhongshan.csv
+recursive-include geoprior/resources *.py *.json *.yaml
+recursive-include geoprior/resources *.yml *.txt
 
-# --- Include examples directory (if it exists) ---
+# ---------------------------------------------------------
+# Compatibility scripts package
+# ---------------------------------------------------------
+recursive-include scripts *.py
+
+# Keep legacy artifact folders out of source releases
+recursive-exclude scripts/fig *
+recursive-exclude scripts/out *
+
+# ---------------------------------------------------------
+# Optional examples
+# ---------------------------------------------------------
 # recursive-include examples *.py *.ipynb *.csv *.md
 
-# --- Exclusions ---
+# ---------------------------------------------------------
+# Exclusions: caches, binaries, build artifacts
+# ---------------------------------------------------------
+global-exclude *.py[cod]
+global-exclude __pycache__/*
+global-exclude *.so
+global-exclude *.dylib
+global-exclude *.o
+global-exclude *.a
+global-exclude *.dll
+global-exclude *.lib
 
-# Exclude compiled Python files, caches, compiled extensions
-global-exclude *.py[cod] __pycache__/* *.so *.dylib *.o *.a *.dll *.lib
-
-# Exclude the test suite from the source distribution
+# ---------------------------------------------------------
+# Exclude tests and coverage artifacts
+# ---------------------------------------------------------
 recursive-exclude tests *
 exclude .coverage
 exclude coverage.xml
 exclude .pytest_cache
 
-# Exclude development / CI / environment files
+# ---------------------------------------------------------
+# Exclude development / CI files
+# ---------------------------------------------------------
 exclude .gitignore
 exclude .gitattributes
-# exclude .readthedocs.yml
-# exclude environment.yml  
 recursive-exclude .github *
 
-# Exclude common virtual environment directories
+# ---------------------------------------------------------
+# Exclude local environments
+# ---------------------------------------------------------
 recursive-exclude venv *
 recursive-exclude .venv *
 
-# Exclude common IDE directories and other hidden files/dirs like .git
-recursive-exclude .*
-
-# Exclude build artifacts explicitly
+# ---------------------------------------------------------
+# Exclude hidden files / dirs and build outputs
+# ---------------------------------------------------------
+recursive-exclude .* *
 recursive-exclude build *
 recursive-exclude dist *
 recursive-exclude *.egg-info *
 recursive-exclude docs/_build *
 
-# Exclude benchmark or maintenance tool directories if they exist
-# recursive-exclude benchmarks *
-# recursive-exclude maint_tools *
-
-# Prune empty directories resulting from exclusions
+# ---------------------------------------------------------
+# Prune empty or generated directories
+# ---------------------------------------------------------
 prune docs/_build
-# prune tests/__pycache__ # Example
+prune scripts/fig
+prune scripts/out
 
-# remove the JOSS paper artefact 
+# ---------------------------------------------------------
+# Optional paper artefacts
+# ---------------------------------------------------------
 # exclude paper.md
 # exclude paper.bib

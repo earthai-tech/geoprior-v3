@@ -14,6 +14,7 @@ import warnings
 from numbers import Real
 
 from ..compat.sklearn import Interval
+from ..compat.types import TensorLike
 from ..core.checks import ParamsValidator, check_params
 from ..core.diagnose_q import validate_quantiles_in
 from ..logging import get_logger
@@ -138,7 +139,7 @@ def make_weighted_pinball(qs, weights):
 
     Examples
     --------
-    >>> from geoprior.nn.losses import make_weighted_pinball
+    >>> from geoprior.models.losses import make_weighted_pinball
     >>> qs = [0.1, 0.5, 0.9]
     >>> w  = {0.1: 3.0, 0.5: 1.0, 0.9: 3.0}
     >>> subs_loss = make_weighted_pinball(qs, w)
@@ -177,7 +178,7 @@ def make_weighted_pinball(qs, weights):
     w_tf = w_tf / tf_reduce_sum(w_tf)
 
     @register_keras_serializable(
-        "geoprior.nn.losses", name="make_weighted_pinball"
+        "geoprior.models.losses", name="make_weighted_pinball"
     )
     def loss_fn(y_true, y_pred):
         y_true = tf_convert_to_tensor(y_true)
@@ -292,7 +293,7 @@ def pinball_loss(qs: list[float]):
 
     Examples
     --------
-    >>> from geoprior.nn.losses import pinball_loss
+    >>> from geoprior.models.losses import pinball_loss
     >>> qloss = pinball_loss([0.1, 0.5, 0.9])
     >>> model.compile(optimizer="adam",
     ...               loss={"subs_pred": qloss, "gwl_pred": "mse"})
@@ -311,7 +312,7 @@ def pinball_loss(qs: list[float]):
     q_base = tf_constant(qs, dtype=tf_float32)  # shape (Q,)
 
     @register_keras_serializable(
-        "geoprior.nn.losses", name="pinball_loss"
+        "geoprior.models.losses", name="pinball_loss"
     )
     def loss(y_true, y_pred):
         yt = tf_cast(y_true, tf_float32)
@@ -354,7 +355,7 @@ def pinball_loss(qs: list[float]):
 @ensure_pkg(KERAS_BACKEND or "keras", extra=DEP_MSG)
 def objective_loss(
     multi_obj_loss: Loss,
-    anomaly_scores: Tensor | None = None,
+    anomaly_scores: TensorLike | None = None,
 ):
     """
     Create a multi-objective Keras loss function that wraps
@@ -390,7 +391,7 @@ def objective_loss(
 
     Examples
     --------
-    >>> from geoprior.nn.components import (
+    >>> from geoprior.models.components import (
     ...    MultiObjectiveLoss, AdaptiveQuantileLoss, AnomalyLoss
     ... )
     >>> mo_loss = MultiObjectiveLoss(
@@ -409,7 +410,7 @@ def objective_loss(
 
     See Also
     --------
-    geoprior.nn.losses.MultiObjectiveLoss :
+    geoprior.models.losses.MultiObjectiveLoss :
         The layer combining quantile + anomaly losses.
     """
     from .components import MultiObjectiveLoss
@@ -428,7 +429,8 @@ def objective_loss(
         )
 
     @register_keras_serializable(
-        package="geoprior.nn.losses", name="objective_loss"
+        package="geoprior.models.losses",
+        name="objective_loss",
     )
     @ParamsValidator(
         {
@@ -493,7 +495,7 @@ def prediction_based_loss(
         logger.debug(f"Using quantiles: {quantiles}")
 
     @register_keras_serializable(
-        "geoprior.nn.losses",
+        "geoprior.models.losses",
         name=f"prediction_based_loss_q{quantiles}_w{anomaly_loss_weight}",
     )
     def _pb_loss(y_true, y_pred):
@@ -564,7 +566,8 @@ def combined_quantile_loss_(quantiles: list[float]):
     quantiles = validate_quantiles_in(quantiles)
 
     @register_keras_serializable(
-        "geoprior.nn.losses", name="combined_quantile_loss_"
+        "geoprior.models.losses",
+        name="combined_quantile_loss_",
     )
     def _cqloss(y_true, y_pred):
         def case_rank3():
@@ -616,14 +619,15 @@ def combined_quantile_loss_(quantiles: list[float]):
 
 
 @register_keras_serializable(
-    "geoprior.nn.losses", name="combined_quantile_loss"
+    "geoprior.models.losses", name="combined_quantile_loss"
 )
 def combined_quantile_loss(quantiles):
     # Validate & store quantiles
     quantiles = validate_quantiles_in(quantiles)
 
     @register_keras_serializable(
-        "geoprior.nn.losses", name="combined_quantile_loss"
+        "geoprior.models.losses",
+        name="combined_quantile_loss",
     )
     def _cqloss(y_true, y_pred):
         # y_true original shape: (batch_size, horizon, output_dim), e.g., (20, 3, 1)
@@ -697,7 +701,7 @@ def combined_quantile_loss(quantiles):
 
 
 @register_keras_serializable(
-    "geoprior.nn.losses", name="combined_quantile_loss__"
+    "geoprior.models.losses", name="combined_quantile_loss__"
 )
 def combined_quantile_loss__(quantiles):
     quantiles = validate_quantiles_in(quantiles)
@@ -783,7 +787,7 @@ def combined_total_loss(
         )
 
     @register_keras_serializable(
-        package="geoprior.nn.losses",
+        package="geoprior.models.losses",
         name="combined_total_loss",
     )
     def _total_loss(y_true, y_pred):
@@ -841,7 +845,7 @@ def quantile_loss(q):
 
     Examples
     --------
-    >>> from geoprior.nn.losses import quantile_loss
+    >>> from geoprior.models.losses import quantile_loss
     >>> import tensorflow as tf
     >>> from tensorflow.keras.models import Sequential
     >>> from tensorflow.keras.layers import Dense
@@ -907,7 +911,7 @@ def quantile_loss(q):
     """
 
     @register_keras_serializable(
-        "geoprior.nn.losses", name="quantile_loss"
+        "geoprior.models.losses", name="quantile_loss"
     )
     def _q_loss(y_true, y_pred):
         """
@@ -996,7 +1000,7 @@ def quantile_loss_multi(quantiles=None):
 
     Examples
     --------
-    >>> from geoprior.nn.loss import quantile_loss_multi
+    >>> from geoprior.models.loss import quantile_loss_multi
     >>> import tensorflow as tf
     >>> from tensorflow.keras.models import Sequential
     >>> from tensorflow.keras.layers import Dense
@@ -1072,7 +1076,7 @@ def quantile_loss_multi(quantiles=None):
     quantiles = validate_quantiles_in(quantiles)
 
     @register_keras_serializable(
-        "geoprior.nn.losses", name="quantile_loss_multi"
+        "geoprior.models.losses", name="quantile_loss_multi"
     )
     def _q_loss_multi(y_true, y_pred):
         """
@@ -1172,7 +1176,7 @@ def anomaly_loss(anomaly_scores, anomaly_loss_weight=1.0):
 
     Examples
     --------
-    >>> from geoprior.nn.losses import anomaly_loss
+    >>> from geoprior.models.losses import anomaly_loss
     >>> import tensorflow as tf
     >>> anomaly_scores = tf.constant([0.1, 0.5, 2.0], dtype=tf.float32)
     >>> loss_fn = anomaly_loss(anomaly_scores, anomaly_loss_weight=0.5)
@@ -1219,7 +1223,7 @@ def anomaly_loss(anomaly_scores, anomaly_loss_weight=1.0):
     )
 
     @register_keras_serializable(
-        "geoprior.nn.losses", name="anomaly_loss"
+        "geoprior.models.losses", name="anomaly_loss"
     )
     def _a_loss(y_true, y_pred):
         return anomaly_loss_weight * tf_reduce_mean(

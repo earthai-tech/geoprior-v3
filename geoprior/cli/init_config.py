@@ -9,7 +9,7 @@ import argparse
 from pathlib import Path
 from string import Template
 
-from geoprior.utils.nat_utils import (
+from ..utils.nat_utils import (
     ensure_config_json,
     get_config_paths,
     get_natcom_dir,

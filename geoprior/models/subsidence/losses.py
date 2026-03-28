@@ -22,6 +22,7 @@ from ...compat.keras_fit import (
 from ...compat.keras_fit import (
     update_compiled_metrics as _update_compiled_metrics,
 )
+from ...compat.types import TensorLike
 from .. import KERAS_DEPS
 
 # from ..._shapes import _as_BHO
@@ -219,7 +220,7 @@ def assemble_physics_loss(
     Notes
     -----
     Offset-aware scaling policy
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     The global multiplier ``phys_mult`` is intended as a single knob to
     warm up or damp all PDE-style physics terms together. By default:
     
@@ -234,7 +235,7 @@ def assemble_physics_loss(
     when physics warmup is used.
     
     Logging and gradient debugging
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Returning both ``physics_raw`` and ``physics_scaled`` helps debug
     training stability:
     
@@ -395,8 +396,8 @@ def build_physics_bundle(
     eps_prior: Tensor,
     eps_cons: Tensor,
     eps_gw: Tensor,
-    eps_cons_raw: Tensor | None = None,
-    eps_gw_raw: Tensor | None = None,
+    eps_cons_raw: TensorLike | None = None,
+    eps_gw_raw: TensorLike | None = None,
 ) -> dict[str, Tensor]:
     """
     Canonical physics bundle used by train/test/eval packers.

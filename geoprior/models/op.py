@@ -21,6 +21,7 @@ import numpy as np
 import pandas as pd
 
 from ..compat.tf import optional_tf_function
+from ..compat.types import TensorLike
 from ..logging import OncePerMessageFilter, get_logger
 from ..utils.deps_utils import ensure_pkg
 from . import KERAS_BACKEND, KERAS_DEPS, dependency_message
@@ -187,9 +188,9 @@ def default_scales(
     s: Tensor,
     h: Tensor,
     dt: Tensor,
-    K: Tensor | None = None,
-    Ss: Tensor | None = None,
-    Q: Tensor | None = None,
+    K: TensorLike | None = None,
+    Ss: TensorLike | None = None,
+    Q: TensorLike | None = None,
     time_units: str | None = "yr",
     eps: float = 1e-12,
     *,
@@ -382,14 +383,14 @@ def extract_physical_parameters(
 
     See Also
     --------
-    geoprior.nn.pinn.TransFlowSubsNet : A fully coupled PINN for
+    geoprior.models.pinn.TransFlowSubsNet : A fully coupled PINN for
         subsidence and groundwater flow.
-    geoprior.nn.pinn.PIHALNet : A PINN focused on the consolidation
+    geoprior.models.pinn.PIHALNet : A PINN focused on the consolidation
         equation.
 
     Examples
     --------
-    >>> from geoprior.nn.pinn.op import extract_physical_parameters
+    >>> from geoprior.models.pinn.op import extract_physical_parameters
     >>> # learned_params = extract_physical_parameters(
     ... #     model=my_model,
     ... #     to_csv=True,
@@ -667,7 +668,7 @@ def compute_consolidation_residual(
     Examples
     --------
     >>> import tensorflow as tf
-    >>> from geoprior.nn.pinn.op import compute_consolidation_residual
+    >>> from geoprior.models.pinn.op import compute_consolidation_residual
     >>> B, T, F = 4, 10, 1
     >>> s_sequence = tf.random.normal((B, T, F))
     >>> h_sequence = tf.random.normal((B, T, F))
@@ -712,7 +713,7 @@ def compute_gw_flow_residual(
     K: float | Tensor = 1.0,
     Ss: float | Tensor = 1e-4,
     Q: float | Tensor = 0.0,
-    h_pred: Tensor | None = None,
+    h_pred: TensorLike | None = None,
 ) -> Tensor:
     r"""
     Compute the residual of the 2D transient groundwater
@@ -750,7 +751,7 @@ def compute_gw_flow_residual(
 
     Examples
     --------
-    >>> from geoprior.nn.pinn.op import compute_gw_flow_residual
+    >>> from geoprior.models.pinn.op import compute_gw_flow_residual
     >>> # Assume `net` is a tf.keras.Model and t,x,y are tf.Variables
     >>> res = compute_gw_flow_residual(
     ...     model=net,
@@ -827,7 +828,8 @@ def compute_gw_flow_residual(
 
 
 def process_pinn_inputs(
-    inputs: dict[str, Tensor | None] | list[Tensor | None],
+    inputs: dict[str, TensorLike | None]
+    | list[TensorLike | None],
     mode: str = "as_dict",
     coord_keys: tuple[str, str, str] = ("t", "x", "y"),
     coord_slice_map: dict[str, int] = None,
@@ -837,10 +839,10 @@ def process_pinn_inputs(
     Tensor,
     Tensor,
     Tensor,
-    Tensor | None,
-    Tensor | None,
+    TensorLike | None,
+    TensorLike | None,
     Tensor,
-    Tensor | None,
+    TensorLike | None,
 ]:
     r"""
     Processes and unpacks model inputs for PINN applications.
@@ -903,7 +905,7 @@ def process_pinn_inputs(
     Examples
     --------
     >>> import tensorflow as tf
-    >>> from geoprior.nn.pinn.op import process_pinn_inputs
+    >>> from geoprior.models.pinn.op import process_pinn_inputs
     >>> # ---- Dictionary Mode ----
     >>> B, T, S_D, D_D, F_D = 4, 10, 2, 5, 3
     >>> inputs_dict = {
@@ -927,11 +929,11 @@ def process_pinn_inputs(
     """
     if coord_slice_map is None:
         coord_slice_map = {"t": 0, "x": 1, "y": 2}
-    coords_tensor: Tensor | None = None
-    static_features: Tensor | None = None
-    dynamic_features: Tensor | None = None
-    future_features: Tensor | None = None
-    H_field: Tensor | None = None
+    coords_tensor: TensorLike | None = None
+    static_features: TensorLike | None = None
+    dynamic_features: TensorLike | None = None
+    future_features: TensorLike | None = None
+    H_field: TensorLike | None = None
 
     # --- NEW: Check model type ---
     is_geoprior = str(model_name).lower().strip() in (
@@ -1169,7 +1171,7 @@ def calculate_gw_flow_pde_residual_from_derivs(
     Examples
     --------
     >>> import tensorflow as tf
-    >>> from geoprior.nn.pinn.op import calculate_gw_flow_pde_residual_from_derivs
+    >>> from geoprior.models.pinn.op import calculate_gw_flow_pde_residual_from_derivs
     >>> B, N_points = 4, 100 # Batch size, number of collocation points
     >>> dh_dt_vals = tf.random.normal((B, N_points, 1))
     >>> d2h_dx2_vals = tf.random.normal((B, N_points, 1))
@@ -1232,7 +1234,9 @@ def compute_gw_flow_derivatives(
     t: Tensor,
     x: Tensor,
     y: Tensor,
-) -> tuple[Tensor | None, Tensor | None, Tensor | None]:
+) -> tuple[
+    TensorLike | None, TensorLike | None, TensorLike | None
+]:
     r"""
     Computes first and second order derivatives of predicted hydraulic
     head :math:`h` for the groundwater flow PDE using `tf.GradientTape`.
@@ -1331,9 +1335,9 @@ def _default_scales(
     h: Tensor,
     s: Tensor,
     dt: Tensor,
-    K: Tensor | None = None,
-    Ss: Tensor | None = None,
-    Q: float | Tensor | None = None,
+    K: TensorLike | None = None,
+    Ss: TensorLike | None = None,
+    Q: float | TensorLike | None = None,
     time_units: str | None = None,
     **kws,
 ) -> dict[str, Tensor]:

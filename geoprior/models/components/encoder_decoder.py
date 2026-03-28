@@ -10,6 +10,7 @@ Encoder/Decoder building blocks (Transformer-style + generic decoders).
 from __future__ import annotations
 
 from ...api.property import NNLearner
+from ...compat.types import TensorLike
 from ...utils.deps_utils import ensure_pkg
 from ._config import (
     DEP_MSG,
@@ -49,7 +50,8 @@ _EPSILON = 1e-6
 
 
 @register_keras_serializable(
-    "geoprior.nn.components", name="TransformerEncoderBlock"
+    "geoprior.models.components",
+    name="TransformerEncoderBlock",
 )
 class TransformerEncoderBlock(Layer):
     """
@@ -104,7 +106,7 @@ class TransformerEncoderBlock(Layer):
         self,
         inputs: Tensor,
         training: bool = False,
-        mask: Tensor | None = None,
+        mask: TensorLike | None = None,
     ) -> Tensor:
         """
         Forward pass through the encoder block.
@@ -253,8 +255,8 @@ class TransformerDecoderBlock(Layer):
         inputs: Tensor,
         enc_output: Tensor,
         training: bool = False,
-        look_ahead_mask: Tensor | None = None,
-        padding_mask: Tensor | None = None,
+        look_ahead_mask: TensorLike | None = None,
+        padding_mask: TensorLike | None = None,
     ) -> Tensor:
         """
         Forward pass through the decoder block.
@@ -420,7 +422,7 @@ class TransformerEncoderLayer(Layer, NNLearner):
         self,
         x: Tensor,
         training: bool = False,
-        attention_mask: Tensor | None = None,
+        attention_mask: TensorLike | None = None,
     ) -> Tensor:
         attn_output = self.mha(
             query=x,
@@ -520,9 +522,9 @@ class TransformerDecoderLayer(Layer, NNLearner):
         x: Tensor,
         enc_output: Tensor,
         training: bool = False,
-        look_ahead_mask: Tensor | None = None,
+        look_ahead_mask: TensorLike | None = None,
         # For encoder output in cross-attention
-        padding_mask: Tensor | None = None,
+        padding_mask: TensorLike | None = None,
     ) -> Tensor:
         # Masked Multi-Head Self-Attention (for decoder inputs)
         attn1_output = self.mha1_self_attn(

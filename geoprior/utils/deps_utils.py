@@ -8,6 +8,8 @@ Dependency utilities providing functions to handle package installation,
 checking, and ensuring that optional dependencies are available.
 """
 
+from __future__ import annotations
+
 import functools
 import inspect
 import subprocess

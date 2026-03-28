@@ -67,8 +67,7 @@ def compute_head_pde_derivatives_raw(
         Gradient tape that recorded operations connecting ``h_si``,
         ``K_field``, and ``Ss_field`` to ``coords``.
 
-        Notes
-        -----
+
         The tape must watch ``coords``. A common pattern is:
 
         .. code-block:: python
@@ -84,8 +83,7 @@ def compute_head_pde_derivatives_raw(
         coordinates ordered as ``['t', 'x', 'y']``. The order must be
         consistent with how ``dh_dcoords[..., i]`` is interpreted.
 
-        Notes
-        -----
+
         * ``coords`` may be normalized or unnormalized.
         * Units may be dataset units or degrees/meters. This function
           does not apply any unit conversion.
@@ -132,8 +130,6 @@ def compute_head_pde_derivatives_raw(
         ``'dSs_dx_raw'``, ``'dSs_dy_raw'``
             Raw spatial gradients of :math:`S_s` w.r.t. x and y.
 
-        Notes
-        -----
         All tensors are expected to have shape ``(B, H, 1)``. No scaling
         by coordinate ranges is applied here.
 
@@ -147,8 +143,7 @@ def compute_head_pde_derivatives_raw(
         If any second-order gradients required for the divergence form
         are None.
 
-    Notes
-    -----
+
     Groundwater-flow residual context
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     This function provides building blocks for the divergence form used
@@ -376,8 +371,7 @@ def ensure_si_derivative_frame(
             If True, spatial axes are in degrees and must be converted
             to meters if SI spans were not already provided.
 
-        Notes
-        -----
+
         The payload is treated as an audit-friendly source-of-truth.
         When residual magnitudes look inconsistent across sites, inspect
         the resolved coordinate spans first.
@@ -414,8 +408,6 @@ def ensure_si_derivative_frame(
         ``'dK_dx'``, ``'dK_dy'``, ``'dSs_dx'``, ``'dSs_dy'``
             Spatial gradients converted to per-meter scaling.
 
-        Notes
-        -----
         The exact physical units of the returned tensors depend on the
         units of ``h_si`` and the representation of ``K`` and ``S_s``.
         The purpose of this function is to enforce correct coordinate
@@ -438,6 +430,7 @@ def ensure_si_derivative_frame(
 
     Notes
     -----
+
     Chain-rule scaling for normalized coordinates
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     If normalized coordinates are defined as:

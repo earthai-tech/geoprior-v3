@@ -1,6 +1,9 @@
 from .nat_utils import (
     build_censor_mask,
+    ensure_config_json,
     ensure_input_shapes,
+    get_config_paths,
+    get_natcom_dir,
     load_nat_config,
     load_nat_config_payload,
     load_scaler_info,
@@ -15,6 +18,7 @@ from .nat_utils import (
 from .natutils import (
     best_epoch_and_metrics,
     compile_for_eval,
+    compile_geoprior_for_eval,
     extract_preds,
     load_best_hps_near_model,
     load_hps_auto_near_model,
@@ -52,4 +56,8 @@ __all__ = [
     "compile_for_eval",
     "load_best_hps_near_model",
     "pick_npz_for_dataset",
+    "ensure_config_json",
+    "get_natcom_dir",
+    "get_config_paths",
+    "compile_geoprior_for_eval",
 ]

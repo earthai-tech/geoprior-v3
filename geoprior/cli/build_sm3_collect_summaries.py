@@ -31,7 +31,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from ._config import (
+from .config import (
     add_city_arg,
     add_config_args,
     add_model_arg,

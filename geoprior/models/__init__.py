@@ -78,89 +78,91 @@ def dependency_message(module_name):
 __all__ = []
 
 
-if KERAS_BACKEND:
-    from ._shapes import (
-        _logs_to_py,
-        debug_quantile_crossing_np,
-        debug_tensor_interval,
-        debug_val_interval,
-    )
-    from .calibration import (
-        apply_calibrator_to_subs,
-        fit_interval_calibrator_on_val,
-    )
-    from .callbacks import (
-        FrozenValQuantileLogger,
-        FrozenValQuantileMonitor,
-        LambdaOffsetScheduler,
-    )
-    from .keras_metrics import (
-        MAEQ50,
-        MSEQ50,
-        Coverage80,
-        Sharpness80,
-        _to_py,
-        coverage80_fn,
-        sharpness80_fn,
-    )
-    from .losses import make_weighted_pinball
-    from .op import extract_physical_parameters
-    from .plotting import plot_history_in
-    from .subsidence import (
-        GeoPriorSubsNet,
-        PoroElasticSubsNet,
-        autoplot_geoprior_history,
-        debug_model_reload,
-        finalize_scaling_kwargs,
-        load_physics_payload,
-        override_scaling_kwargs,
-        plot_physics_values_in,
-    )
-    from .subsidence.identifiability import (
-        derive_K_from_tau_np,
-        ident_audit_dict,
-    )
-    from .subsidence.payloads import (
-        identifiability_diagnostics_from_payload,
-        summarise_effective_params,
-    )
+# if KERAS_BACKEND:
+from ._shapes import (
+    _logs_to_py,
+    debug_quantile_crossing_np,
+    debug_tensor_interval,
+    debug_val_interval,
+)
+from .calibration import (
+    apply_calibrator_to_subs,
+    fit_interval_calibrator_on_val,
+)
+from .callbacks import (
+    FrozenValQuantileLogger,
+    FrozenValQuantileMonitor,
+    LambdaOffsetScheduler,
+)
+from .keras_metrics import (
+    MAEQ50,
+    MSEQ50,
+    Coverage80,
+    Sharpness80,
+    _to_py,
+    coverage80_fn,
+    sharpness80_fn,
+)
+from .losses import make_weighted_pinball
+from .op import extract_physical_parameters
+from .plotting import plot_history_in
+from .subsidence import (
+    GeoPriorSubsNet,
+    PoroElasticSubsNet,
+    autoplot_geoprior_history,
+    debug_model_reload,
+    finalize_scaling_kwargs,
+    load_physics_payload,
+    override_scaling_kwargs,
+    plot_physics_values_in,
+)
+from .subsidence.identifiability import (
+    derive_K_from_tau_np,
+    ident_audit_dict,
+)
+from .subsidence.payloads import (
+    identifiability_diagnostics_from_payload,
+    summarise_effective_params,
+)
+from .tuners import SubsNetTuner
 
-    __all__ = [
-        "KERAS_DEPS",
-        "KERAS_BACKEND",
-        "GeoPriorSubsNet",
-        "PoroElasticSubsNet",
-        "_logs_to_py",
-        "debug_quantile_crossing_np",
-        "debug_tensor_interval",
-        "debug_val_interval",
-        "make_weighted_pinball",
-        "Coverage80",
-        "MAEQ50",
-        "MSEQ50",
-        "Sharpness80",
-        "_to_py",
-        "coverage80_fn",
-        "sharpness80_fn",
-        "apply_calibrator_to_subs",
-        "fit_interval_calibrator_on_val",
-        "LambdaOffsetScheduler",
-        "plot_history_in",
-        "extract_physical_parameters",
-        "finalize_scaling_kwargs",
-        "debug_model_reload",
-        "autoplot_geoprior_history",
-        "plot_physics_values_in",
-        "load_physics_payload",
-        "override_scaling_kwargs",
-        "identifiability_diagnostics_from_payload",
-        "load_physics_payload",
-        "summarise_effective_params",
-        "FrozenValQuantileMonitor",
-        "FrozenValQuantileLogger",
-        "make_weighted_pinball",
-        "FrozenValQuantileMonitor",
-        "FrozenValQuantileLogger",
-        "derive_K_from_tau_np",
-        "ident_audit_dict",
-    ]
+__all__ = [
+    "KERAS_DEPS",
+    "KERAS_BACKEND",
+    "GeoPriorSubsNet",
+    "PoroElasticSubsNet",
+    "_logs_to_py",
+    "debug_quantile_crossing_np",
+    "debug_tensor_interval",
+    "debug_val_interval",
+    "make_weighted_pinball",
+    "Coverage80",
+    "MAEQ50",
+    "MSEQ50",
+    "Sharpness80",
+    "_to_py",
+    "coverage80_fn",
+    "sharpness80_fn",
+    "apply_calibrator_to_subs",
+    "fit_interval_calibrator_on_val",
+    "LambdaOffsetScheduler",
+    "plot_history_in",
+    "extract_physical_parameters",
+    "finalize_scaling_kwargs",
+    "debug_model_reload",
+    "autoplot_geoprior_history",
+    "plot_physics_values_in",
+    "load_physics_payload",
+    "override_scaling_kwargs",
+    "identifiability_diagnostics_from_payload",
+    "load_physics_payload",
+    "summarise_effective_params",
+    "FrozenValQuantileMonitor",
+    "FrozenValQuantileLogger",
+    "make_weighted_pinball",
+    "FrozenValQuantileMonitor",
+    "FrozenValQuantileLogger",
+    "derive_K_from_tau_np",
+    "ident_audit_dict",
+    "SubsNetTuner",
+]

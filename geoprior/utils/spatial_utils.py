@@ -2315,7 +2315,7 @@ def extract_zones_from(
 
     See Also
     --------
-    geoprior.core.array_manager.extract_array_from`` :
+    geoprior.core.array_manager.extract_array_from:
         The array extraction utility used for retrieving
         arrays from DataFrame columns.
 

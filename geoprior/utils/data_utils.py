@@ -7,6 +7,8 @@
 Data utilities.
 """
 
+from __future__ import annotations
+
 import re
 import warnings
 from typing import Any
@@ -593,13 +595,13 @@ def nan_ops(
 
     See Also
     --------
-    gofast.utils.base_utils.fill_NaN` :
+    geoprior.utils.base_utils.fill_NaN:
         Fills `NaN` values in numeric data structures using specified methods.
-    gofast.core.array_manager.drop_nan_in:
+    geoprior.core.array_manager.drop_nan_in:
         Drops `NaN` values from data structures, optionally alongside witness data.
-    gofast.core.utils.error_policy:
+    geoprior.core.utils.error_policy:
         Determines how errors are handled based on user-specified policies.
-    gofast.core.array_manager.array_preserver:
+    geoprior.core.array_manager.array_preserver:
         Preserves and restores the original structure of array-like data.
 
     """
@@ -1325,7 +1327,7 @@ def pop_labels_in(
     Examples:
     ---------
     >>> import pandas as pd
-    >>> from gofast.utils.data_utils import pop_labels_in
+    >>> from geoprior.utils.data_utils import pop_labels_in
     >>> df = pd.DataFrame({'category': ['A', 'B', 'C', 'A', 'D']})
     >>> df_result = pop_labels_in(df, 'category', 'A')
     >>> print(df_result)

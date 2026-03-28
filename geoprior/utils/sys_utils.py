@@ -517,13 +517,13 @@ class WorkflowOptimizer:
     - Memory cleanup is particularly useful in long-running workflows to prevent
       memory leaks and manage resource usage efficiently.
     - CPU affinity optimization can lead to performance improvements by limiting
-      the process to specific cores, reducing context switching and cache misses.
+      the process to specific cores, reducing context switching and cache misses
+       (see `Python Logging <https://docs.python.org/3/library/logging.html>`_)
 
     See Also
     --------
-    - :class:`multiprocessing.Pool` : Provides a pool of worker processes.
-    - :class:`psutil.Process` : Allows manipulation of system processes.
-    - `Python Logging <https://docs.python.org/3/library/logging.html>`_
+    multiprocessing.Pool: Provides a pool of worker processes.
+    psutil.Process: Allows manipulation of system processes.
 
     References
     ----------

@@ -262,7 +262,7 @@ def _cli_overrides(
 
 def _legacy_module_name() -> str:
     pkg = __package__ or "geoprior.cli"
-    return f"{pkg}.stage4_legacy"
+    return f"{pkg}._stage4"
 
 
 def _print_help() -> None:

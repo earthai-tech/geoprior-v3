@@ -31,7 +31,6 @@ classifiers = [
   "Operating System :: OS Independent",
 ]
 
-# Dependencies mirrored from fusionlab-learn init list (plus PyYAML fix).
 dependencies = [
   "numpy>=1.22",
   "pandas>=1.0",
@@ -42,6 +41,7 @@ dependencies = [
   "joblib",
   "tensorflow>=2.20",
   "keras>=3.0",
+  "keras-tuner>=0.1.2", 
   "statsmodels",
   "PyYAML",
   "platformdirs",
@@ -50,7 +50,7 @@ dependencies = [
 ]
 
 [project.urls]
-"Website" = "https://lkouadio.com"
+"Website" = "https://geoprior-v3.reathedocs.io"
 "Source" = "https://github.com/earthai-tech/geoprior-v3"
 "Bug Tracker" = "https://github.com/earthai-tech/geoprior-v3/issues"
 
@@ -60,13 +60,14 @@ geoprior-run = "geoprior.cli:run_main"
 geoprior-build = "geoprior.cli:build_main"
 geoprior-plot = "geoprior.cli:plot_main"
 geoprior-init = "geoprior.cli.init_config:main"
+geoprior-check-imports = "tools.check_imports:main"
 
 [project.optional-dependencies]
 kdiagram = ["k-diagram>=1.3.0"]
 
 docs = [
   "sphinx>=7.0,<8.0",
-  "furo",
+  "pydata-sphinx-theme>=0.16",
   "sphinx-copybutton",
   "myst-parser",
   "sphinx-design",
@@ -77,6 +78,7 @@ docs = [
   "sphinx-prompt",
   "sphinxcontrib-bibtex",
   "numpydoc>=1.6",
+
 ]
 
 dev = [
@@ -88,10 +90,23 @@ dev = [
   "ruff>=0.4",
   "coverage[toml]>=7.0",
   "requests",
+  "seaborn"
 ]
 
 [tool.setuptools.packages.find]
-include = ["geoprior*"]
+include = [
+  "geoprior",
+  "geoprior.*",
+  "scripts",
+  "scripts.*",
+  "tools"
+]
+exclude = [
+  "tests",
+  "tests.*",
+  "docs",
+  "docs.*",
+]
 
 [tool.setuptools.package-data]
 geoprior = [
