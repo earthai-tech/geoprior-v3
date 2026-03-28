@@ -58,3 +58,41 @@ docs/source/
 ¦   +-- v3.2.0.rst
 +-- references.rst
 +-- references.bib
+
+
+docs/
+  source/
+    examples/
+      index.rst
+      subsidence_forecasting/
+        GALLERY_HEADER.rst
+        plot_stage4_basic_forecast.py
+        plot_future_quantiles_map.py
+        plot_holdout_vs_forecast.py
+      calibration_uncertainty/
+        GALLERY_HEADER.rst
+        plot_interval_calibration.py
+        plot_coverage_vs_sharpness.py
+        plot_brier_exceedance.py
+      workflow_diagnostics/
+        GALLERY_HEADER.rst
+        plot_stage1_data_checks.py
+        plot_stage2_training_curves.py
+        plot_stage3_tuning_summary.py
+      figure_generation/
+        GALLERY_HEADER.rst
+        plot_physics_fields.py
+        plot_spatial_forecasts.py
+        plot_transfer_analysis.py
+
+#The one we use is 
+examples/
+  README.rst
+  forecasting/
+    README.rst
+  diagnostics/
+    README.rst
+  uncertainty/
+    README.rst
+  figures/
+    README.rst

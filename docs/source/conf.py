@@ -279,3 +279,29 @@ copybutton_prompt_text = (
     r" {2,5}\.\.\.: | {5,8}: "
 )
 copybutton_prompt_is_regexp = True
+
+from sphinx_gallery.sorting import FileNameSortKey
+
+extensions += [
+    "sphinx_gallery.gen_gallery",
+]
+
+sphinx_gallery_conf = {
+    "examples_dirs": ["examples"],
+    "gallery_dirs": ["auto_examples"],
+    "filename_pattern": r"plot_",
+    "ignore_pattern": r"__init__\.py",
+    "nested_sections": True,
+    "within_subsection_order": FileNameSortKey,
+    "download_all_examples": True,
+    "remove_config_comments": True,
+    "backreferences_dir": "generated/backreferences",
+    "doc_module": ("geoprior",),
+    "reference_url": {
+        "geoprior": None,
+    },
+    "image_scrapers": ("matplotlib",),
+    "matplotlib_animations": True,
+    "capture_repr": ("_repr_html_", "__repr__"),
+    "show_memory": False,
+}
