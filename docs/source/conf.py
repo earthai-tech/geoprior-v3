@@ -144,7 +144,7 @@ autodoc_typehints = "description"
 autoclass_content = "class"
 autosummary_generate = True
 autosummary_imported_members = False
-autodoc_mock_imports = ["tensorflow", "keras", "seaborn"]
+autodoc_mock_imports = ["tensorflow", "keras", "seaborn", "contextily"]
 
 myst_enable_extensions = [
     "colon_fence",
@@ -196,7 +196,7 @@ html_theme_options = {
     },
 
     # keep disabled until the JSON is actually deployed
-    "check_switcher": False,
+    "check_switcher": True,
 
     "navbar_start": [
         "navbar-logo",
