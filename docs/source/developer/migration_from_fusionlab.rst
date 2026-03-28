@@ -634,7 +634,7 @@ The surrounding developer pages explain:
 - :doc:`contributing`
   how to contribute cleanly to the current project;
 
-- :doc:`release_notes`
+- :doc:`../release_notes`
   how to record changes once the migration becomes part of a
   released docs history.
 
@@ -645,7 +645,7 @@ See also
 
    - :doc:`package_structure`
    - :doc:`contributing`
-   - :doc:`release_notes`
+   - :doc:`../release_notes`
    - :doc:`../user_guide/configuration`
    - :doc:`../api/cli`
    - :doc:`../api/subsidence`

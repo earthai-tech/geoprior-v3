@@ -425,6 +425,10 @@ def fill_NaN(arr, method="ff"):
     This ensures that non-numeric data remains unaltered while NaN values in
     numeric columns are appropriately filled.
 
+    The function preserves the original structure of the input array by utilizing
+    ``array_preserver``. Numeric columns are filled using the specified method,
+    while non-numeric columns remain unchanged.
+
     Examples
     --------
     >>> from geoprior.utils.base_utils import fill_NaN
@@ -440,11 +444,6 @@ def fill_NaN(arr, method="ff"):
     2  2.0    y
     3  4.0    z
 
-    Notes
-    -----
-    The function preserves the original structure of the input array by utilizing
-    ``array_preserver``. Numeric columns are filled using the specified method,
-    while non-numeric columns remain unchanged.
 
     See Also
     --------
@@ -1149,11 +1148,11 @@ def fancier_downloader(
 
     See Also
     --------
-    - :func:`requests.get` : Function to perform HTTP GET requests.
-    - :func:`tqdm` : A library for creating progress bars.
-    - :func:`os.makedirs` : Function to create directories.
-    - :func:`geoprior.utils.base_utils.check_file_exists` : Utility to check file
-      existence.
+    requests.get : Function to perform HTTP GET requests.
+    tqdm : A library for creating progress bars.
+    os.makedirs: Function to create directories.
+    geoprior.utils.base_utils.check_file_exists:
+        Utility to check file existence.
 
     References
     ----------

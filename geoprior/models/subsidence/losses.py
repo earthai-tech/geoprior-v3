@@ -220,7 +220,7 @@ def assemble_physics_loss(
     Notes
     -----
     Offset-aware scaling policy
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     The global multiplier ``phys_mult`` is intended as a single knob to
     warm up or damp all PDE-style physics terms together. By default:
     
@@ -235,7 +235,7 @@ def assemble_physics_loss(
     when physics warmup is used.
     
     Logging and gradient debugging
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Returning both ``physics_raw`` and ``physics_scaled`` helps debug
     training stability:
     

@@ -4553,7 +4553,7 @@ def plot_hydraulic_head(
 
     See Also
     --------
-    geoprior.nn.pinn.PiTGWFlow : The PINN model this function is
+    geoprior.models.pinn.PiTGWFlow : The PINN model this function is
                                  designed to visualize.
 
     Notes

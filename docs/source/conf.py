@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Sphinx configuration for GeoPrior-v3 docs."""
+"""Sphinx configuration for GeoPrior docs."""
 
 from __future__ import annotations
 
 import datetime
+import importlib
 import re
 import sys
 import warnings
@@ -14,44 +15,64 @@ from importlib.metadata import (
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-
 sys.path.insert(0, str(ROOT))
 
 
 def _read_release() -> str:
-    """Resolve the package version without importing geoprior."""
+    """
+    Resolve the package version with a safe fallback chain.
+
+    Resolution order
+    ----------------
+    1. Import ``geoprior`` and read ``__version__``.
+    2. Read installed package metadata for ``geoprior-v3``.
+    3. Read version from ``pyproject.toml``.
+    4. Fallback to ``0+unknown``.
+    """
+    try:
+        gp = importlib.import_module("geoprior")
+        ver = getattr(gp, "__version__", None)
+        if isinstance(ver, str) and ver.strip():
+            return ver.strip()
+    except Exception:
+        pass
+
     try:
         return pkg_version("geoprior-v3")
     except PackageNotFoundError:
-        pyproject = ROOT / "pyproject.toml"
-        if pyproject.exists():
-            text = pyproject.read_text(encoding="utf-8")
-            match = re.search(
-                r'^version\s*=\s*"([^"]+)"',
-                text,
-                flags=re.MULTILINE,
-            )
-            if match:
-                return match.group(1)
+        pass
 
-        warnings.warn(
-            (
-                "Could not resolve GeoPrior-v3 version from "
-                "installed metadata or pyproject.toml; "
-                "using 0+unknown."
-            ),
-            stacklevel=2,
+    pyproject = ROOT / "pyproject.toml"
+    if pyproject.exists():
+        text = pyproject.read_text(encoding="utf-8")
+        match = re.search(
+            r'^version\s*=\s*"([^"]+)"',
+            text,
+            flags=re.MULTILINE,
         )
-        return "0+unknown"
+        if match:
+            return match.group(1)
+
+    warnings.warn(
+        (
+            "Could not resolve GeoPrior version from import, "
+            "installed metadata, or pyproject.toml; using "
+            "0+unknown."
+        ),
+        stacklevel=2,
+    )
+    return "0+unknown"
 
 
 release = _read_release()
 version = ".".join(release.split(".")[:2])
 
-project = "GeoPrior-v3"
+project = "GeoPrior"
 author = "Laurent Kouadio"
 current_year = datetime.datetime.now().year
-copyright = f"{current_year}, {author}"
+copyright = f"{current_year}"
+
+html_title = f"{project} v{release}"
 
 extensions = [
     "sphinx.ext.autodoc",
@@ -134,47 +155,83 @@ intersphinx_timeout = 10
 html_theme = "pydata_sphinx_theme"
 html_title = f"{project} v{release}"
 html_static_path = ["_static"]
+templates_path = ["_templates"]
 html_css_files = ["css/custom.css"]
 html_js_files = ["js/custom.js"]
 html_logo = "_static/gp.logo.png"
 html_favicon = "_static/gp.logo.ico"
 
+
 html_theme_options = {
     "logo": {
         "image_light": "_static/geoprior-svg.svg",
         "image_dark": "_static/geoprior-svg.svg",
-        "text": "GeoPrior-v3",
+        "text": "",
         "alt_text": "GeoPrior-v3 documentation - Home",
         "link": "index",
     },
-    "icon_links_label": "External links",
-    "icon_links": [
-        {
-            "name": "GitHub",
-            "url": (
-                "https://github.com/earthai-tech/"
-                "geoprior-v3"
-            ),
-            "icon": "fab fa-github",
-            "type": "fontawesome",
-        },
-        {
-            "name": "Website",
-            "url": "https://geoprior-v3.readthedocs.io",
-            "icon": "fas fa-globe",
-            "type": "fontawesome",
-        },
+
+    "switcher": {
+        "json_url": (
+            "https://geoprior-v3.readthedocs.io/en/latest/"
+            "_static/switcher.json"
+        ),
+        "version_match": release,
+    },
+
+    # keep disabled until the JSON is actually deployed
+    "check_switcher": False,
+
+    "navbar_start": [
+        "navbar-logo",
+        "version-switcher",
     ],
-    "use_edit_page_button": True,
-    "navbar_start": ["navbar-logo"],
     "navbar_center": ["navbar-nav"],
     "navbar_end": [
         "theme-switcher",
         "navbar-icon-links",
     ],
-    "navbar_persistent": ["search-button-field"],
-    "navbar_align": "content",
-    "header_links_before_dropdown": 6,
+    "navbar_persistent": ["search-button"],
+
+    "icon_links_label": "External links",
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/earthai-tech/geoprior-v3",
+            "icon": "fa-brands fa-square-github",
+            "type": "fontawesome",
+        },
+        {
+            "name": "Website",
+            "url": "https://geoprior-v3.readthedocs.io",
+            "icon": "fa-solid fa-globe",
+            "type": "fontawesome",
+        },
+        {
+            "name": "PyPI",
+            "url": "https://pypi.org/project/geoprior-v3/",
+            "icon": "_static/icons/pypi.svg",
+            "type": "local",
+        },
+        {
+            "name": "Stack Overflow",
+            "url": "https://stackoverflow.com/questions/tagged/geoprior",
+            "icon": "_static/icons/stackoverflow.svg",
+            "type": "local",
+
+        },
+    ],
+
+    "footer_start": [
+        "author-copyright",
+    ],
+    "footer_center": [],
+    "footer_end": [
+        "theme-version",
+    ],
+
+    "use_edit_page_button": True,
+    "header_links_before_dropdown": 5,
     "search_bar_text": "Search the GeoPrior docs ...",
     "navigation_with_keys": True,
     "show_prev_next": True,
@@ -187,9 +244,6 @@ html_theme_options = {
         "edit-this-page",
         "sourcelink",
     ],
-    "footer_start": ["copyright"],
-    "footer_center": [],
-    "footer_end": ["theme-version"],
     "back_to_top_button": True,
 }
 
@@ -199,6 +253,9 @@ html_context = {
     "github_version": "main",
     "doc_path": "docs/source",
     "default_mode": "auto",
+    "author_name": "Laurent Kouadio",
+    "author_portfolio_url": "https://lkouadio.com",
+    "current_year": current_year,
 }
 
 rst_epilog = """

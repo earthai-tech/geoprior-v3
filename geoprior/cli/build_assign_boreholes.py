@@ -32,7 +32,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from ._config import (
+from .config import (
     add_config_args,
     add_model_arg,
     add_outdir_arg,

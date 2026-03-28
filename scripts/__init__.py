@@ -1,7 +1,7 @@
-"""
-Paper scripts package (v3.2).
+"""Compatibility launcher for legacy paper scripts.
 
-Run:
+Run::
+
   python -m scripts <command> [args]
 """
 

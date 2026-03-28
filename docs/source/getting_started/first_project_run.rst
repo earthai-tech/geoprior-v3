@@ -1,4 +1,4 @@
-First project run
+First run
 =================
 
 This page walks through a **first real GeoPrior-v3 run**.

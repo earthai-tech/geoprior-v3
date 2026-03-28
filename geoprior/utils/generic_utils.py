@@ -353,7 +353,7 @@ def check_group_column_validity(
 
     Examples
     --------
-    >>> from gofast.utils.generic_utils import check_group_column_validity
+    >>> from geoprior.utils.generic_utils import check_group_column_validity
     >>> import pandas as pd
     >>> data = {
     ...     "value": [10.5, 11.2, 9.8, 15.6, 12.0],
@@ -498,8 +498,8 @@ def find_id_column(
     df : pandas.DataFrame
         The input DataFrame in which to search for
         potential ID columns.
-    strategy : {'naive', 'exact', 'dtype', 'regex',
-                'prefix_suffix'}, default 'naive'
+    strategy : {'naive', 'exact', 'dtype', 'regex','prefix_suffix'},\
+        default 'naive'
         Defines the logic for detecting ID columns:
         - `exact`: Checks for a column name that exactly
           matches `id` (case sensitivity controlled by
@@ -593,7 +593,7 @@ def find_id_column(
 
     Examples
     --------
-    >>> from gofast.utils.generic_utils import find_id_column
+    >>> from geoprior.utils.generic_utils import find_id_column
     >>> import pandas as pd
     >>> data = pd.DataFrame({
     ...     'ID_code': [101, 102, 103],
@@ -904,7 +904,7 @@ def verify_identical_items(
 
     Examples
     --------
-    >>> from gofast.utils.generic_utils import verify_identical_items
+    >>> from geoprior.utils.generic_utils import verify_identical_items
     >>> list1 = [0.1, 0.5, 0.9]
     >>> list2 = [0.1, 0.5, 0.9]
     >>> verify_identical_items(list1, list2, mode="unique", ops="validate")
@@ -1087,7 +1087,7 @@ def vlog(
 
     Examples
     --------
-    >>> from gofast.utils.generic_utils import vlog
+    >>> from geoprior.utils.generic_utils import vlog
     >>> # Example with mode='log'
     >>> # This prints only if global or passed-in
     >>> # verbose >= 4.
@@ -1240,7 +1240,7 @@ def get_actual_column_name(
 
     Examples
     --------
-    >>> from gofast.utils.generic_utils import get_actual_column_name
+    >>> from geoprior.utils.generic_utils import get_actual_column_name
     >>> df = pd.DataFrame({'subsidence_actual': [1, 2, 3]})
     >>> get_actual_column_name(df, tname="subsidence")
     'subsidence_actual'
@@ -1317,7 +1317,7 @@ def detect_dt_format(series: pd.Series) -> str:
 
     Examples
     --------
-    >>> from gofast.utils.generic_utils import detect_dt_format
+    >>> from geoprior.utils.generic_utils import detect_dt_format
     >>> import pandas as pd
     >>> dates = pd.to_datetime(['2023-01-01', '2024-01-01', '2025-01-01'])
     >>> fmt = detect_dt_format(pd.Series(dates))
@@ -1470,7 +1470,7 @@ def transform_contributions(
 
     Examples
     --------
-    >>> from gofast.utils.generic_utils import transform_contributions
+    >>> from geoprior.utils.generic_utils import transform_contributions
     >>> contributions = {
     >>>     'GWL': 2.226836617133828,
     >>>     'rainfall_mm': 12.398293851061492,
@@ -1486,8 +1486,8 @@ def transform_contributions(
 
     See Also
     --------
-    `numpy.mean`: Compute the arithmetic mean of an array.
-    `numpy.std`: Compute the standard deviation of an array.
+    numpy.mean: Compute the arithmetic mean of an array.
+    numpy.std: Compute the standard deviation of an array.
 
     References
     ----------
@@ -1621,7 +1621,7 @@ def exclude_duplicate_kwargs(
 
     Examples
     --------
-    >>> from gofast.utils.generic_utils import exclude_duplicate_kwargs
+    >>> from geoprior.utils.generic_utils import exclude_duplicate_kwargs
     >>> import seaborn as sns
     >>> # Developer has some base kwargs
     ... base_kwargs = {
@@ -1781,7 +1781,7 @@ def reorder_columns(
 
     Examples
     --------
-    >>> from gofast.utils.generic_utils import reorder_columns
+    >>> from geoprior.utils.generic_utils import reorder_columns
     >>> import pandas as pd
     >>> data = pd.DataFrame({
     ...     'id': [1, 2, 3],

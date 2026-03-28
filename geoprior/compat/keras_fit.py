@@ -25,6 +25,7 @@ from typing import Any
 import numpy as np
 
 from ._config import import_keras_dependencies
+from .types import TensorLike
 
 # Custom message for missing dependencies
 EXTRA_MSG = (

@@ -1,11 +1,15 @@
+docs/build
 docs/source/
++-- _static/
 +-- index.rst
 +-- getting_started/
+¦   +-- index.rst
 ¦   +-- overview.rst
 ¦   +-- installation.rst
 ¦   +-- quickstart.rst
 ¦   +-- first_project_run.rst
 +-- user_guide/
+¦   +-- index.rst
 ¦   +-- workflow_overview.rst
 ¦   +-- stage1.rst
 ¦   +-- stage2.rst
@@ -18,6 +22,7 @@ docs/source/
 ¦   +-- inference_and_export.rst
 ¦   +-- faq.rst
 +-- scientific_foundations/
+¦   +-- index.rst
 ¦   +-- models_overview.rst
 ¦   +-- geoprior_subsnet.rst
 ¦   +-- physics_formulation.rst
@@ -30,18 +35,21 @@ docs/source/
 ¦   +-- identifiability.rst
 ¦   +-- stability_and_constraints.rst
 +-- applications/
+¦   +-- index.rst
 ¦   +-- subsidence_forecasting.rst
 ¦   +-- tuner_workflow.rst
 ¦   +-- calibration_and_uncertainty.rst
 ¦   +-- reproducibility_scripts.rst
 ¦   +-- figure_generation.rst
 +-- api/
+¦   +-- index.rst
 ¦   +-- cli.rst
 ¦   +-- subsidence.rst
 ¦   +-- tuner.rst
 ¦   +-- utils.rst
 ¦   +-- resources.rst
 +-- developer/
+¦   +-- index.rst
 ¦   +-- package_structure.rst
 ¦   +-- migration_from_fusionlab.rst
 ¦   +-- contributing.rst
@@ -49,3 +57,4 @@ docs/source/
 +-- release_notes/
 ¦   +-- v3.2.0.rst
 +-- references.rst
++-- references.bib

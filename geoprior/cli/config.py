@@ -64,7 +64,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from geoprior.utils.nat_utils import (
+from ..utils.nat_utils import (
     ensure_config_json,
     get_config_paths,
     load_nat_config,

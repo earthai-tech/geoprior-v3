@@ -15,15 +15,15 @@ from typing import Any
 import numpy as np
 import tensorflow as tf
 
-from geoprior.models import GeoPriorSubsNet
-from geoprior.utils.nat_utils import (
+from ..models import GeoPriorSubsNet
+from ..utils.nat_utils import (
     ensure_config_json,
     get_config_paths,
     make_tf_dataset,
 )
 
 try:  # pragma: no cover
-    from geoprior.params import (
+    from ..params import (
         FixedGammaW,
         FixedHRef,
         LearnableKappa,

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from ..compat.types import TensorLike
+from ..compat.types import TensorLike  # noqa
 from . import KERAS_DEPS, dependency_message
 from ._shapes import (
     _as_BHO,
@@ -217,7 +217,7 @@ class _BaseScalarMetric(Metric):
         return tf_math.divide_no_nan(self.total, self.count)
 
 
-@register_keras_serializable("geoprior.nn.keras_metrics")
+@register_keras_serializable("geoprior.models.keras_metrics")
 class MAEQ50(_BaseScalarMetric):
     """MAE on q50 point forecast."""
 
@@ -279,7 +279,7 @@ class MAEQ50(_BaseScalarMetric):
         return cfg
 
 
-@register_keras_serializable("geoprior.nn.keras_metrics")
+@register_keras_serializable("geoprior.models.keras_metrics")
 class MSEQ50(_BaseScalarMetric):
     """MSE on q50 point forecast."""
 
@@ -343,7 +343,7 @@ class MSEQ50(_BaseScalarMetric):
         return cfg
 
 
-@register_keras_serializable("geoprior.nn.keras_metrics")
+@register_keras_serializable("geoprior.models.keras_metrics")
 class Coverage80(_BaseScalarMetric):
     """Empirical coverage of q10..q90 interval."""
 
@@ -399,7 +399,7 @@ class Coverage80(_BaseScalarMetric):
         return cfg
 
 
-@register_keras_serializable("geoprior.nn.keras_metrics")
+@register_keras_serializable("geoprior.models.keras_metrics")
 class Sharpness80(_BaseScalarMetric):
     """Mean width of q10..q90 interval."""
 
@@ -783,7 +783,7 @@ def infer_quantile_axis(t, n_q=3):
 
 
 @register_keras_serializable(
-    "geoprior.nn.keras_metrics", name="coverage80_fn"
+    "geoprior.models.keras_metrics", name="coverage80_fn"
 )
 def coverage80_fn(y_true, y_pred):
     """
@@ -879,7 +879,7 @@ coverage80_fn.__name__ = "coverage80"
 
 
 @register_keras_serializable(
-    "geoprior.nn.keras_metrics", name="sharpness80_fn"
+    "geoprior.models.keras_metrics", name="sharpness80_fn"
 )
 def sharpness80_fn(y_true, y_pred):
     """
@@ -1043,7 +1043,7 @@ def make_coverage80(q_axis):
 
 
 @register_keras_serializable(
-    "geoprior.nn.keras_metrics",
+    "geoprior.models.keras_metrics",
     name="mae_q50_fn",
 )
 def mae_q50_fn(y_true, y_pred):
@@ -1089,7 +1089,7 @@ def mae_q50_fn(y_true, y_pred):
     Notes
     -----
     * Quantile axis detection is delegated to
-      :func:`~geoprior.nn.keras_metrics`
+      :func:`~geoprior.models.keras_metrics`
       ``._infer_quantile_axis``.
     * If you want the progress-bar name to be exactly
       "mae", set ``mae_q50_fn.__name__ = "mae"`` before
@@ -1156,7 +1156,7 @@ mae_q50_fn.__name__ = "mae_q50"
 
 
 @register_keras_serializable(
-    "geoprior.nn.keras_metrics",
+    "geoprior.models.keras_metrics",
     name="mse_q50_fn",
 )
 def mse_q50_fn(y_true, y_pred):

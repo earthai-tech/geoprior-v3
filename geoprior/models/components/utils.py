@@ -6,7 +6,7 @@
 import warnings
 from typing import Any
 
-from ..._fusionlog import fusionlog
+from ...logging import get_logger
 from ...utils.generic_utils import select_mode
 
 DEFAULT_ARCHITECTURE = {
@@ -19,7 +19,7 @@ DEFAULT_ARCHITECTURE = {
     "feature_processing": "vsn",
 }
 
-logger = fusionlog().get_fusionlab_logger(__name__)
+logger = get_logger(__name__)
 
 __all__ = ["resolve_attn_levels", "configure_architecture"]
 

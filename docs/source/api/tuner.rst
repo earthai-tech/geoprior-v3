@@ -1,81 +1,114 @@
 Tuner API reference
 ===================
 
-The GeoPrior-v3 tuning stack provides a structured
-hyperparameter-search interface for the flagship
-subsidence-forecasting models.
+The GeoPrior-v3 tuning stack provides the hyperparameter-search
+interface used to adapt ``GeoPriorSubsNet`` to a concrete training
+setup. It is not just a thin wrapper around keras-tuner. The tuning
+layer separates architecture hyperparameters from compile-only
+hyperparameters, validates the scientific input contract expected by the
+subsidence model, and persists search artifacts in a predictable project
+layout.
 
-This API layer is centered on:
+This page documents the tuner stack at two complementary levels:
 
-- a **public tuner entry point**
-  :class:`~geoprior.models.forecast_tuner.SubsNetTuner`,
-- a **shared base tuner**
-  :class:`~geoprior.models.forecast_tuner._base_tuner.PINNTunerBase`,
-- and the GeoPrior-specific specialization implemented in the
-  forecast-tuner package.
+- the **public package surface** that application workflows use;
+- the **implementation modules** that explain how the tuning system is
+  organized internally.
 
-This page documents the tuning API at both levels:
-
-- the **public tuning surface** used by application workflows;
-- the **supporting base classes and source modules** that
-  explain how the tuning system is structured internally.
+The page also uses **fully qualified module names** throughout so that
+Sphinx autosummary resolves modules directly, without relying on package
+attribute lookup.
 
 Overview
 --------
 
-The forecast-tuner package is organized around the following
-pieces:
+The tuning code is split across a small public package and a lightweight
+compatibility shim:
 
 .. code-block:: text
 
-   geoprior.models.forecast_tuner
-      ├── __init__.py
-      ├── tuners.py
-      ├── _base_tuner.py
-      └── _geoprior_tuner.py
+   geoprior.models
+   ├── tuners.py                       # public compatibility shim
+   └── forecast_tuner/
+       ├── __init__.py                 # public package surface
+       ├── _base_tuner.py             # reusable tuner base class
+       └── _geoprior_tuner.py         # GeoPrior-specific specialization
 
-A useful mental model is:
+A useful mental model is the following:
 
-- ``SubsNetTuner`` is the main public tuner you instantiate;
-- ``PINNTunerBase`` provides the reusable keras-tuner
-  integration and search loop;
-- ``_geoprior_tuner.py`` implements the GeoPrior-specific
-  tuning logic for ``GeoPriorSubsNet``.
+- :class:`~geoprior.models.forecast_tuner.SubsNetTuner` is the main
+  public tuner class exposed by the forecast-tuner package;
+- :class:`~geoprior.models.forecast_tuner._base_tuner.PINNTunerBase`
+  provides the reusable keras-tuner integration and generic search
+  orchestration;
+- :mod:`geoprior.models.tuners` is a compact compatibility shim that
+  re-exports :class:`~geoprior.models.forecast_tuner.SubsNetTuner` from
+  the public models namespace;
+- :mod:`geoprior.models.forecast_tuner._geoprior_tuner` implements the
+  GeoPrior-specific tuning logic that binds the search flow to
+  :class:`~geoprior.models.GeoPriorSubsNet`.
+
+This structure is reflected in the code you uploaded: the
+``forecast_tuner`` package exports both ``SubsNetTuner`` and
+``PINNTunerBase`` from its ``__init__.py``, while the top-level
+``geoprior.models.tuners`` module simply re-exports
+``SubsNetTuner`` as a compatibility surface. 
+
+Module index
+------------
+
+The targets below are intentionally written as **fully qualified module
+names**. This avoids the package-relative lookup behavior that often
+causes autosummary to build malformed paths.
+
+.. autosummary::
+   :toctree: generated/
+   :nosignatures:
+
+   ~geoprior.models.forecast_tuner
+   ~geoprior.models.tuners
+   ~geoprior.models.forecast_tuner._base_tuner
+   ~geoprior.models.forecast_tuner._geoprior_tuner
 
 Public package surface
 ----------------------
+
+The main public package is :mod:`geoprior.models.forecast_tuner`. Its
+``__init__.py`` exposes the tuning-availability flags together with the
+public tuner classes, including ``SubsNetTuner`` and
+``PINNTunerBase``.
 
 .. automodule:: geoprior.models.forecast_tuner
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module index
-------------
+Compatibility shim
+------------------
 
-.. autosummary::
-   :toctree: generated/
+The top-level module :mod:`geoprior.models.tuners` exists as a compact
+compatibility layer. Rather than implementing the tuning logic itself,
+it simply re-exports :class:`~geoprior.models.forecast_tuner.SubsNetTuner`
+from the public models namespace. This is useful when existing code or
+older imports expect a shorter path under ``geoprior.models``. 
 
-
-   geoprior.models.forecast_tuner
-   geoprior.models.forecast_tuner.tuners
-   geoprior.models.forecast_tuner._base_tuner
-   geoprior.models.forecast_tuner._geoprior_tuner
+.. automodule:: geoprior.models.tuners
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Public tuner entry point
 ------------------------
 
-The main public entry point is
+The primary user-facing entry point is
 :class:`~geoprior.models.forecast_tuner.SubsNetTuner`.
 
-This is the tuner documented in the application pages as the
-recommended hyperparameter-search interface for
-:class:`~geoprior.models.GeoPriorSubsNet`.
-
-.. automodule:: geoprior.models.forecast_tuner.tuners
-   :members:
-   :undoc-members:
-   :show-inheritance:
+This class specializes the generic tuner workflow for
+:class:`~geoprior.models.GeoPriorSubsNet`. Its class docstring explains
+that it is designed for physics-informed hyperparameter search, that it
+separates data-dependent fixed parameters from the search space, and
+that ``create(...)`` is the recommended constructor when arrays are
+already available in memory. 
 
 .. automodule:: geoprior.models.forecast_tuner._geoprior_tuner
    :members:
@@ -90,8 +123,8 @@ Key public class
    :undoc-members:
    :show-inheritance:
 
-Important entry methods
-~~~~~~~~~~~~~~~~~~~~~~~
+Important public methods
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automethod:: geoprior.models.forecast_tuner._geoprior_tuner.SubsNetTuner.create
 
@@ -102,38 +135,56 @@ Important entry methods
 What ``SubsNetTuner`` is responsible for
 ----------------------------------------
 
-The GeoPrior-specific tuner is responsible for:
+The GeoPrior-specific tuner is responsible for the application-facing
+part of the search pipeline. In particular, it:
 
-- binding the search workflow to
+- binds the tuning workflow to
   :class:`~geoprior.models.GeoPriorSubsNet`;
-- inferring fixed input and output dimensions from arrays;
-- canonicalizing GeoPrior input keys and target names;
-- separating **model-init hyperparameters** from
+- infers and merges fixed data-shape parameters from array inputs when
+  ``create(...)`` is used;
+- canonicalizes target names such as ``subsidence`` and ``gwl`` to the
+  model-facing names ``subs_pred`` and ``gwl_pred``;
+- separates **model-init hyperparameters** from
   **compile-only hyperparameters**;
-- building datasets and delegating the actual search to the
-  base tuner logic.
+- constructs the per-trial model and compiles it with losses, metrics,
+  and physics weights;
+- validates GeoPrior input requirements before delegating the actual
+  search loop to the shared base class.
 
-This makes it more than a thin keras-tuner wrapper. It is the
-main application-facing tuning layer for GeoPrior
-subsidence models.
+These responsibilities are visible in the implementation itself. The
+module defines explicit compile-only hyperparameter keys such as
+``learning_rate``, ``lambda_gw``, ``lambda_cons``, ``lambda_prior``,
+``lambda_smooth``, ``lambda_mv``, ``lambda_bounds``, ``lambda_q``, and
+``lambda_offset``; it also binds ``GeoPriorSubsNet`` as the target model
+class and provides a ``create(...)`` constructor that canonicalizes
+training targets before inferring fixed parameters. 
+
+This is why the tuner should be read as a model-aware scientific
+component rather than as a generic high-level helper.
 
 Shared base tuner
 -----------------
 
-The tuning package also provides a reusable base class:
+The tuning stack also includes a reusable generic base class:
+:class:`~geoprior.models.forecast_tuner._base_tuner.PINNTunerBase`.
 
-:class:`~geoprior.models.forecast_tuner._base_tuner.PINNTunerBase`
+This base class handles the broader search orchestration shared by PINN
+or physics-aware tuning workflows. Its implementation includes:
 
-This class handles the generic search orchestration,
-including:
+- objective normalization;
+- tuner backend validation;
+- keras-tuner backend selection;
+- project and directory management;
+- repeated executions per trial;
+- callback plumbing;
+- validation-data handling;
+- best-hyperparameter and best-model recovery.
 
-- keras-tuner backend selection,
-- objective normalization,
-- project/directory layout,
-- trial execution,
-- callback handling,
-- best-model recovery,
-- tuning summary persistence.
+The uploaded source shows that ``PINNTunerBase`` subclasses both
+``HyperModel`` and ``BaseClass`` and centralizes the keras-tuner classes
+through the ``KT_DEPS`` dependency container. It also normalizes tuner
+backend names such as ``randomsearch``, ``bayesianoptimization``, and
+``hyperband`` inside its validation logic. 
 
 .. automodule:: geoprior.models.forecast_tuner._base_tuner
    :members:
@@ -165,52 +216,59 @@ A useful design map is:
 .. code-block:: text
 
    PINNTunerBase
-      ├── generic keras-tuner search loop
-      ├── backend selection
-      ├── project persistence
-      └── best-trial recovery
+      ├── objective normalization
+      ├── keras-tuner backend selection
+      ├── trial orchestration
+      ├── callback / validation wiring
+      └── best-model recovery
 
    SubsNetTuner
       ├── binds GeoPriorSubsNet
       ├── infers data dimensions
-      ├── checks GeoPrior input keys
+      ├── checks required GeoPrior inputs
       ├── canonicalizes targets
       ├── separates init vs compile HPs
       └── builds the tuned GeoPrior model
 
-This layering is one of the strengths of the current tuner
-design.
+This layering is one of the strengths of the current design. The base
+class remains reusable and backend-oriented, while the specialized class
+keeps the scientific contract of the subsidence model close to the
+search logic.
 
 GeoPrior-specific tuning logic
 ------------------------------
 
-The ``SubsNetTuner`` specialization encodes several
-GeoPrior-specific assumptions.
+The specialization implemented in
+:mod:`geoprior.models.forecast_tuner._geoprior_tuner` encodes several
+assumptions that are specific to GeoPrior subsidence forecasting.
 
 These include:
 
-- required inputs such as
-  ``coords``, ``dynamic_features``, and ``H_field``;
-- canonical target names
-  ``subs_pred`` and ``gwl_pred``;
-- GeoPrior architecture defaults;
-- physics-aware compile defaults;
-- and search-space routing for compile-only keys such as
-  learning rate or physics lambdas.
+- required model inputs such as ``coords``, ``dynamic_features``, and
+  ``H_field``;
+- canonical target names ``subs_pred`` and ``gwl_pred``;
+- GeoPrior architecture defaults and default physics settings;
+- compile-time routing for loss weights and physics penalties;
+- direct coupling to the ``GeoPriorSubsNet`` constructor and compile
+  stage.
 
-This is what makes the tuner scientifically aligned with the
-model, rather than being a generic high-level tuning wrapper.
+The class docstring also explains that the tuner is aware of the model's
+physics objectives and loss balance, and not just its neural-network
+shape. It explicitly describes the residual structure used during
+training, including groundwater and consolidation residuals.
 
 Compile-only hyperparameters
 ----------------------------
 
-One especially important API concept in the tuner stack is
-the distinction between:
+One especially important API concept in the tuner stack is the
+separation between:
 
-- **model-init hyperparameters**,
-- and **compile-only hyperparameters**.
+- **model-init hyperparameters**, which alter the instantiated model;
+- **compile-only hyperparameters**, which alter the optimizer and loss
+  weighting behavior without changing the instantiated architecture.
 
-The GeoPrior-specific tuner explicitly treats keys such as:
+In the current implementation, keys such as the following are treated as
+compile-only search parameters:
 
 - ``learning_rate``
 - ``lambda_gw``
@@ -226,28 +284,30 @@ The GeoPrior-specific tuner explicitly treats keys such as:
 - ``mv_lr_mult``
 - ``kappa_lr_mult``
 
-as compile-only search keys.
-
-That separation is important because it keeps the tuned model
-definition conceptually distinct from the tuned optimization
-and physics-loss balance.
+This split matters because it keeps the model definition conceptually
+separate from the optimization regime and from the weighting of physics
+terms. The implementation lists these keys explicitly in the
+``_COMPILE_ONLY`` collection, which makes the behavior easy to trace in
+the source. 
 
 Supported tuner backends
 ------------------------
 
-The base tuner currently supports several keras-tuner
-backends, including:
+The shared base class currently normalizes and supports several
+keras-tuner backends, including:
 
 - random search,
 - Bayesian optimization,
 - Hyperband.
 
-These are selected through the ``tuner_type`` argument and
-normalized inside the base class.
+These are selected through the ``tuner_type`` argument and normalized by
+``PINNTunerBase`` before the actual tuner object is instantiated.
 
 Typical usage therefore looks like:
 
 .. code-block:: python
+
+   from geoprior.models.forecast_tuner import SubsNetTuner
 
    tuner = SubsNetTuner.create(
        inputs_data=inputs_np,
@@ -256,6 +316,9 @@ Typical usage therefore looks like:
        tuner_type="randomsearch",
        max_trials=20,
    )
+
+The example above matches the intended usage pattern described in the
+``SubsNetTuner`` class documentation. 
 
 Practical read order
 --------------------
@@ -266,22 +329,24 @@ If you are new to the tuning code, a good order is:
 2. :meth:`~geoprior.models.forecast_tuner._geoprior_tuner.SubsNetTuner.create`
 3. :meth:`~geoprior.models.forecast_tuner._base_tuner.PINNTunerBase.search`
 4. :meth:`~geoprior.models.forecast_tuner._geoprior_tuner.SubsNetTuner.build`
+5. :mod:`geoprior.models.tuners`
 
-This gives the clearest path from public application API to
-the underlying search engine.
+This order moves from the public entry point to the specialized build
+logic, then back to the generic search engine and the compatibility
+surface.
 
 Source listings with comments
 -----------------------------
 
-These source listings are included intentionally so the
-inline implementation comments remain visible.
+These source listings are included intentionally so that the inline
+implementation comments remain visible during HTML rendering.
 
-Public tuner shim
-~~~~~~~~~~~~~~~~~
+Public compatibility shim
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../geoprior/models/forecast_tuner/tuners.py
+.. literalinclude:: ../../geoprior/models/tuners.py
    :language: python
-   :caption: geoprior/models/forecast_tuner/tuners.py
+   :caption: geoprior/models/tuners.py
 
 Shared base tuner
 ~~~~~~~~~~~~~~~~~
@@ -300,19 +365,22 @@ GeoPrior-specific tuner
 API notes
 ---------
 
-A few design details are worth keeping in mind when reading
-this API:
+A few design details are worth keeping in mind while reading this API
+page:
 
-- ``SubsNetTuner.create(...)`` is the recommended user entry
-  point because it infers dimensions from data arrays and
-  applies GeoPrior-aware canonicalization.
-- ``PINNTunerBase`` is abstract in spirit: subclasses are
-  expected to implement the actual ``build(hp)`` method.
-- The tuning stack is intentionally aware of the GeoPrior
-  physics contract, not only the neural architecture.
-- Target canonicalization and required-key checking are part
-  of the tuning API because tuning must still respect the
-  same scientific contract as ordinary training.
+- ``SubsNetTuner.create(...)`` is the recommended user entry point when
+  input and target arrays are already available, because it infers fixed
+  dimensions and applies GeoPrior-aware canonicalization. 
+- ``PINNTunerBase`` is generic in role, while
+  ``SubsNetTuner`` provides the model-aware specialization. This is what
+  keeps the tuning stack reusable without losing the scientific contract
+  of GeoPrior. 
+- The compatibility shim ``geoprior.models.tuners`` is a public import
+  convenience, not a second implementation of the tuning logic.
+
+- The tuning layer is tightly coupled to the GeoPrior forecasting and
+  physics assumptions, so it should be read together with the subsidence
+  model API and with the Stage-3 tuning workflow. 
 
 See also
 --------

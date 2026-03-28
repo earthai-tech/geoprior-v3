@@ -217,7 +217,7 @@ Notes
 
 Examples
 --------
->>> from geoprior.nn.comp_utils import resolve_gw_coeffs
+>>> from geoprior.models.comp_utils import resolve_gw_coeffs
 >>> resolve_gw_coeffs(None, K=1e-4, Ss=1e-5, Q=0.0)
 (1e-4, 1e-5, 0.0)
 

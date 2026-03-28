@@ -23,7 +23,7 @@ def _legacy_registry() -> dict[str, CommandSpec]:
     items: dict[str, CommandSpec] = {}
     for legacy_name, spec in SCRIPT_COMMANDS.items():
         items[legacy_name] = CommandSpec(
-            package="scripts",
+            package="geoprior._scripts",
             mod=spec.mod,
             fn=spec.fn,
             desc=spec.desc,

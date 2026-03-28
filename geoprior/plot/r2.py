@@ -10,19 +10,13 @@ r2 plots
 from __future__ import annotations
 
 import warnings
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import r2_score
 
-from ..api.types import (
-    Any,
-    ArrayLike,
-    Dict,
-    List,
-    Optional,
-    Tuple,
-)
+from ..api.types import ArrayLike
 from ..core.array_manager import drop_nan_in
 from ..core.checks import is_iterable
 from ..metrics import get_scorer
@@ -36,17 +30,17 @@ __all__ = [
 
 def plot_r2_in(
     *ys: ArrayLike,
-    titles: Optional[List[str]] = None,
-    xlabel: Optional[str] = None,
-    ylabel: Optional[str] = None,
-    fig_size: Optional[Tuple[int, int]] = None,
-    scatter_colors: Optional[List[str]] = None,
-    line_colors: Optional[List[str]] = None,
-    line_styles: Optional[List[str]] = None,
-    other_metrics: Optional[List[str]] = None,
+    titles: list[str] | None = None,
+    xlabel: str | None = None,
+    ylabel: str | None = None,
+    fig_size: tuple[int, int] | None = None,
+    scatter_colors: list[str] | None = None,
+    line_colors: list[str] | None = None,
+    line_styles: list[str] | None = None,
+    other_metrics: list[str] | None = None,
     annotate: bool = True,
     show_grid: bool = True,
-    grid_props: Dict[str, Any] = None,
+    grid_props: dict[str, Any] = None,
     max_cols: int = 3,
     fit_eq: bool = True,
     fit_line_color: str = "k",
@@ -402,17 +396,17 @@ def plot_r2_in(
 def plot_r2(
     y_true: ArrayLike,
     *y_preds: ArrayLike,
-    titles: Optional[str] = None,
-    xlabel: Optional[str] = None,
-    ylabel: Optional[str] = None,
-    fig_size: Optional[Tuple[int, int]] = None,
-    scatter_colors: Optional[List[str]] = None,
-    line_colors: Optional[List[str]] = None,
-    line_styles: Optional[List[str]] = None,
-    other_metrics: List[str] = None,
+    titles: str | None = None,
+    xlabel: str | None = None,
+    ylabel: str | None = None,
+    fig_size: tuple[int, int] | None = None,
+    scatter_colors: list[str] | None = None,
+    line_colors: list[str] | None = None,
+    line_styles: list[str] | None = None,
+    other_metrics: list[str] = None,
     annotate: bool = True,
     show_grid: bool = True,
-    grid_props: Dict[str, Any] = None,
+    grid_props: dict[str, Any] = None,
     max_cols: int = 3,
     **r2_score_kws: Any,
 ) -> plt.Figure:

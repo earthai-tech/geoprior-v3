@@ -274,7 +274,7 @@ def _cli_overrides(
 
 def _legacy_module_name() -> str:
     pkg = __package__ or "geoprior.cli"
-    return f"{pkg}.sm3_log_offsets_diagnostics_legacy"
+    return f"{pkg}._sm3_log_offsets_diagnostics"
 
 
 def _print_help() -> None:

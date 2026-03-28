@@ -24,6 +24,7 @@ https://github.com/pypa/packaging/blob/main/packaging/version.py
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+from __future__ import annotations
 
 import collections
 import itertools
@@ -82,7 +83,7 @@ _Version = collections.namedtuple(
 )
 
 
-def parse(version: str) -> "LegacyVersion | Version":
+def parse(version: str) -> LegacyVersion | Version:
     """Parse the given version from a string to an appropriate class.
     Parameters
     ----------
@@ -115,13 +116,13 @@ class _BaseVersion:
     # Please keep the duplicated `isinstance` check
     # in the six comparisons hereunder
     # unless you find a way to avoid adding overhead function calls.
-    def __lt__(self, other: "_BaseVersion") -> bool:
+    def __lt__(self, other: _BaseVersion) -> bool:
         if not isinstance(other, _BaseVersion):
             return NotImplemented
 
         return self._key < other._key
 
-    def __le__(self, other: "_BaseVersion") -> bool:
+    def __le__(self, other: _BaseVersion) -> bool:
         if not isinstance(other, _BaseVersion):
             return NotImplemented
 
@@ -133,13 +134,13 @@ class _BaseVersion:
 
         return self._key == other._key
 
-    def __ge__(self, other: "_BaseVersion") -> bool:
+    def __ge__(self, other: _BaseVersion) -> bool:
         if not isinstance(other, _BaseVersion):
             return NotImplemented
 
         return self._key >= other._key
 
-    def __gt__(self, other: "_BaseVersion") -> bool:
+    def __gt__(self, other: _BaseVersion) -> bool:
         if not isinstance(other, _BaseVersion):
             return NotImplemented
 

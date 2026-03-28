@@ -13,7 +13,7 @@ General questions
 -----------------
 
 What is GeoPrior-v3 meant to do?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 GeoPrior-v3 is a workflow-oriented scientific framework for
 **physics-guided geohazard modeling, forecasting, and risk
@@ -31,7 +31,7 @@ It is designed as:
 - and a reproducible scientific software platform.
 
 Where should I start if I am new?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Start in this order:
 
@@ -45,7 +45,7 @@ That sequence gives the cleanest path from installation to a
 real stage-based workflow run.
 
 Is GeoPrior-v3 only a Python library?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 No.
 
@@ -79,9 +79,8 @@ first:
 
    python --version
 
-Why does installation feel heavier than a small utility
-package?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Why does installation feel heavier than a small utility package?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Because GeoPrior-v3 is not a lightweight pure-Python tool.
 
@@ -124,9 +123,8 @@ as a fully working workflow environment.
 CLI questions
 -------------
 
-What is the difference between ``geoprior`` and
-``geoprior-run``?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+What is the difference between ``geoprior`` and ``geoprior-run``?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``geoprior`` is the root dispatcher.
 
@@ -166,9 +164,8 @@ If you are not sure where to begin, start here:
 
    geoprior-init --help
 
-Why does ``geoprior-plot`` exist if there are no plot
-commands yet?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Why does ``geoprior-plot`` exist if there are no plot commands yet?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The plot family already exists as part of the public CLI
 shape, but the current command registry may not yet expose
@@ -198,9 +195,8 @@ especially while the CLI is still evolving.
 Configuration questions
 -----------------------
 
-What is the difference between ``config.py`` and
-``config.json``?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+What is the difference between ``config.py`` and ``config.json``?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A useful rule is:
 
@@ -449,9 +445,8 @@ was calibrated.
 Calibrated and uncalibrated outputs answer different
 questions, and both can be useful in analysis.
 
-Why do point metrics look good while interval behavior looks
-poor?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Why do point metrics look good while interval behavior looks poor?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Because those are different diagnostic layers.
 
@@ -517,9 +512,8 @@ They answer different questions.
 
 These should not be interpreted as equivalent.
 
-What is the difference between ``as_is`` and ``strict``
-rescale modes?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+What is the difference between ``as_is`` and ``strict`` rescale modes?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Very roughly:
 
@@ -532,7 +526,7 @@ This matters because transfer differences can come from model
 limitations, domain shift, or scaling mismatch.
 
 Why does Stage-5 care so much about schema alignment?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Because cross-city transfer is not trustworthy if the source
 and target contracts do not align.

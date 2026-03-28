@@ -208,8 +208,6 @@ def physics_core(
         * Optional gates: ``_q_gate()``, ``_subs_resid_gate()``.
         * Optional physics switch: ``_physics_off()``.
 
-        Notes
-        -----
         The function is tolerant to partial capabilities and will
         short-circuit when physics is disabled, but missing mandatory
         signals (e.g., thickness) raise errors.
@@ -233,11 +231,11 @@ def physics_core(
         * ``s0_si`` : Tensor (optional state injection)
             Used by settlement-state formatting utilities.
 
-        Notes
-        -----
+
         The exact batch layout depends on your Stage-1 export. This
         function relies on ``_get_coords(inputs)`` and ``get_tensor_from``
         to locate inputs robustly.
+
     training : bool
         Forward-pass training flag passed to ``model._forward_all`` and
         downstream field composition. Use True during training and
@@ -247,16 +245,14 @@ def physics_core(
         maps, including (K, Ss, tau, tau_prior, Q), SI thickness, SI head
         and reference head, and both raw and scaled residual fields.
 
-        Notes
-        -----
+
         Enabling ``return_maps`` increases memory usage and is intended
         for debugging, diagnostics, and research analysis.
     for_train : bool, default False
         If True, apply training-time gating schedules for physics loss
         activation (warmup and ramp) based on optimizer step.
 
-        Notes
-        -----
+
         This flag is separate from ``training`` to allow evaluation-style
         forward passes with training-time schedules when needed.
 
@@ -316,6 +312,7 @@ def physics_core(
 
     Notes
     -----
+
     Physics switch behavior
     ~~~~~~~~~~~~~~~~~~~~~~~
     If the model indicates physics is disabled (via ``_physics_off``),
@@ -412,19 +409,19 @@ def physics_core(
 
     See Also
     --------
-    geoprior.nn.pinn.geoprior.derivatives.compute_head_pde_derivatives_raw
+    geoprior.models.subsidence.derivatives.compute_head_pde_derivatives_raw
         Compute raw autodiff PDE derivatives w.r.t. coords.
 
-    geoprior.nn.pinn.geoprior.derivatives.ensure_si_derivative_frame
+    geoprior.models.subsidence.derivatives.ensure_si_derivative_frame
         Convert raw derivatives to SI-consistent derivatives.
 
-    geoprior.nn.pinn.geoprior.losses.assemble_physics_loss
+    geoprior.models.subsidence.losses.assemble_physics_loss
         Assemble physics loss scalars and term dictionaries.
 
-    geoprior.nn.pinn.geoprior.losses.build_physics_bundle
+    geoprior.models.subsidence.losses.build_physics_bundle
         Build a packed physics bundle used for logging and metrics.
 
-    geoprior.nn.pinn.geoprior.maths.compose_physics_fields
+    geoprior.models.subsidence.maths.compose_physics_fields
         Map logits to bounded physical fields and tau prior.
 
     References

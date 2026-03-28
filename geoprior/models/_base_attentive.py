@@ -1295,7 +1295,7 @@ num_encoder_layers : int, default=2
     
 quantiles : list[float] or None, default None  
     Optional quantile levels :math:`0 < q_1 < \dots < q_Q < 1`. When supplied, 
-    a :class:`geoprior.nn.components.QuantileDistributionModeling` head scales 
+    a :class:`geoprior.models.components.QuantileDistributionModeling` head scales 
     the point forecast :math:`\hat{{y}}` into quantile estimates  
 
     .. math::  
@@ -1435,7 +1435,7 @@ any settings provided in ``architecture_config``.
 
 See Also  
 --------
-* :class:`geoprior.nn.pinn.PIHALNet` – physics-informed extension.  
+* :class:`geoprior.models.pinn.PIHALNet` – physics-informed extension.  
 * :func:`geoprior.utils.data_utils.widen_temporal_columns` – prepares 
   wide data frames for plotting forecasts.
   

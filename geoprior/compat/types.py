@@ -46,9 +46,9 @@ except ImportError:
 
 
 if TYPE_CHECKING:
-    # Keep this conservative and lightweight.
-    # If you later settle on one canonical backend type,
-    # you can refine this.
+    # Keep conservative and lightweight.
+    # we later settle on one canonical backend type,
+    # we can refine this.
     TensorLike = Any
     DatasetLike = Any
 else:

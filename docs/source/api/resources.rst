@@ -17,6 +17,11 @@ visible in the built documentation.
 Overview
 --------
 
+This page is intentionally file-oriented rather than
+package-recursive, because the packaged resource
+contract is defined by a small number of concrete
+template files.
+
 At the moment, the most important packaged resource is:
 
 - ``geoprior/resources/natcom_config_template.py``

@@ -1,6 +1,7 @@
 # License: Apache-2.0
 # Copyright (c) 2026-present
 # Author: LKouadio <etanoyau@gmail.com>
+"""Tuner for GeoPriorSubsNet."""
 
 from __future__ import annotations
 

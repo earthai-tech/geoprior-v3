@@ -20,19 +20,19 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 
-from geoprior.compat import load_inference_model
-from geoprior.models import (
+from ..compat import load_inference_model
+from ..models import (
     GeoPriorSubsNet,
     PoroElasticSubsNet,
     make_weighted_pinball,
 )
-from geoprior.params import (
+from ..params import (
     FixedGammaW,
     FixedHRef,
     LearnableKappa,
     LearnableMV,
 )
-from geoprior.utils.nat_utils import (
+from ..utils.nat_utils import (
     ensure_config_json,
     get_config_paths,
     make_tf_dataset,

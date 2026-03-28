@@ -749,7 +749,7 @@ def validate_tft_inputs(
 
     Examples
     --------
-    >>> from geoprior.nn._tensor_validation import validate_tft_inputs
+    >>> from geoprior.models._tensor_validation import validate_tft_inputs
     >>> import tensorflow as tf
     >>> # Example with only past (dynamic) inputs
     >>> single_input = tf_random.normal([8, 24, 10])  # batch=8, time=24
@@ -1555,7 +1555,7 @@ def validate_xtft_inputs_in(
     ---------
     >>> # Example without future covariates
     >>> import tensorflow as tf
-    >>> from geoprior.nn._tensor_validation import validate_xtft_inputs
+    >>> from geoprior.models._tensor_validation import validate_xtft_inputs
     >>> static_input = tf.random.normal((32, 10))
     >>> dynamic_input = tf.random.normal((32, 20, 45))
     >>> inputs = [static_input, dynamic_input, None]
@@ -2745,7 +2745,7 @@ def validate_minimal_inputs_in(
 
     Examples
     --------
-    >>> from geoprior.nn._tensor_validation import validate_minimal_inputs
+    >>> from geoprior.models._tensor_validation import validate_minimal_inputs
     >>> import numpy as np
     >>> X_static0  = np.random.rand(100, 5)
     >>> X_dynamic0 = np.random.rand(100, 10, 3)
@@ -2907,7 +2907,7 @@ def validate_minimal_inputs_in(
             f"Batch sizes do not match: X_static ({B_sta}), "
             f"X_dynamic ({B_dyn}), X_future ({B_fut}). "
             "Ensure data is correctly shaped using "
-            "`geoprior.nn.utils.reshape_xft_data`."
+            "`geoprior.models.utils.reshape_xft_data`."
         )
 
     # Validate forecast horizon consistency.
@@ -3241,7 +3241,7 @@ def _get_batch_size_for_validation(
 def _validate_tft_flexible_inputs_soft_mode(
     inputs_raw: Tensor
     | np.ndarray
-    | list[Tensor | np.ndarray | None],
+    | list[TensorLike | np.ndarray | None],
     verbose: int = 0,
 ) -> tuple[
     TensorLike | None, TensorLike | None, TensorLike | None
@@ -3464,7 +3464,7 @@ def validate_model_inputs(
     r"""
     Validate and homogenise the triplet of tensors that acts as
     input to Temporal‑Fusion‑Transformer‑type models.
-    (e.g. :pyfunc:`~geoprior.nn._xtft.XTFT.call`).
+    (e.g. :pyfunc:`~geoprior.models._xtft.XTFT.call`).
 
     The helper inspects the list/tuple *inputs* and verifies
     fundamental structural constraints:
@@ -3562,7 +3562,7 @@ def validate_model_inputs(
     Examples
     --------
     >>> import numpy as np
-    >>> from geoprior.nn._tensor_validation import validate_model_inputs
+    >>> from geoprior.models._tensor_validation import validate_model_inputs
     >>> B, Tpast, Tfuture = 16, 12, 18
     >>> static  = np.random.rand(B, 5).astype("float32")
     >>> dynamic = np.random.rand(B, Tpast, 7).astype("float32")
@@ -3904,7 +3904,7 @@ def check_inputs(
       ``2+`` – progressively more fine‑grained diagnostics.
     Examples
     --------
-    >>> from geoprior.nn._tensor_validation import check_inputs
+    >>> from geoprior.models._tensor_validation import check_inputs
     >>> batch, t, h = 32, 24, 12
     >>> dyn = np.random.rand(batch, t, 8)
     >>> fut = np.random.rand(batch, h, 4)

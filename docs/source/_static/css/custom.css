@@ -229,6 +229,22 @@ html[data-theme="dark"] .bd-header {
   border-radius: 999px;
 }
 
+.hero-tagline {
+  color: var(--pst-color-text-muted);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  margin-top: -0.25rem;
+  margin-bottom: 1.35rem;
+}
+
+html[data-theme="light"] .hero-tagline {
+  background: transparent;
+}
+
+html[data-theme="dark"] .hero-tagline {
+  background: transparent;
+}
 /* --------------------------------------------------------------------------
  * Sidebars and TOC
  * -------------------------------------------------------------------------- */
@@ -908,26 +924,6 @@ div.admonition > .admonition-title {
   background: var(--pst-color-background);
 }
 
-.cta-tiles .sd-card:hover {
-  background: linear-gradient(
-    135deg,
-    var(--pst-color-primary),
-    color-mix(in srgb, var(--pst-color-primary) 72%, var(--gp-slate))
-  ) !important;
-  border-color: var(--pst-color-primary) !important;
-}
-
-.cta-tiles .sd-card:hover,
-.cta-tiles .sd-card:hover .sd-card-header,
-.cta-tiles .sd-card:hover .sd-card-body,
-.cta-tiles .sd-card:hover p,
-.cta-tiles .sd-card:hover a {
-  color: #fff !important;
-}
-
-.cta-tiles .sd-card:hover .sd-card-header {
-  border-bottom-color: rgba(255, 255, 255, 0.2);
-}
 
 /* Keep stretched links clickable across full card */
 a.sd-stretched-link {
@@ -943,16 +939,16 @@ a.sd-stretched-link::after {
 }
 
 .see-also-tiles .sd-card {
-  background: transparent !important;
+  background: var(--pst-color-surface) !important;
   overflow: hidden;
 }
 
-.see-also-tiles .sd-card .sd-card-header,
+/*.see-also-tiles .sd-card .sd-card-header,
 .see-also-tiles .sd-card .sd-card-body {
   background: transparent !important;
   position: relative;
   z-index: 2;
-}
+*/
 
 .see-also-tiles .sd-card::before {
   background-image: var(--card-preview);
@@ -992,13 +988,13 @@ a.sd-stretched-link::after {
   transform: scale(1);
 }
 
-.see-also-tiles .sd-card:hover,
+/*.see-also-tiles .sd-card:hover,
 .see-also-tiles .sd-card:hover .sd-card-header,
 .see-also-tiles .sd-card:hover .sd-card-body,
 .see-also-tiles .sd-card:hover p,
 .see-also-tiles .sd-card:hover a {
   color: #fff !important;
-}
+}*/
 
 .see-also-tiles .see-also-accent {
   background: color-mix(
@@ -1247,4 +1243,258 @@ hr.hr-spacer {
   .admonition.plot-anatomy::after {
     display: none;
   }
+}
+
+/* --------------------------------------------------------------------------
+ * Readability fixes for admonitions and cards
+ * -------------------------------------------------------------------------- */
+
+/* Generic admonition body readability */
+.admonition,
+div.admonition {
+  color: var(--pst-color-text-base);
+}
+
+.admonition > *:not(.admonition-title),
+div.admonition > *:not(.admonition-title) {
+  color: var(--pst-color-text-base);
+}
+
+.admonition p,
+.admonition li,
+.admonition dd,
+.admonition dt,
+.admonition .admonition-title + * {
+  color: var(--pst-color-text-base);
+}
+
+.admonition a:not(.headerlink),
+div.admonition a:not(.headerlink) {
+  color: var(--pst-color-link);
+}
+
+html[data-theme="light"] .admonition,
+html[data-theme="light"] div.admonition {
+  background: #ffffff;
+}
+
+html[data-theme="dark"] .admonition,
+html[data-theme="dark"] div.admonition {
+  background: var(--pst-color-surface);
+}
+
+/* Make note/info bodies readable in both themes */
+html[data-theme="light"] .admonition.note,
+html[data-theme="light"] .admonition.seealso,
+html[data-theme="light"] .admonition.info {
+  background: linear-gradient(
+    180deg,
+    rgba(4, 146, 194, 0.06) 0%,
+    #ffffff 38%
+  );
+}
+
+html[data-theme="dark"] .admonition.note,
+html[data-theme="dark"] .admonition.seealso,
+html[data-theme="dark"] .admonition.info {
+  background: linear-gradient(
+    180deg,
+    rgba(62, 185, 223, 0.10) 0%,
+    var(--pst-color-surface) 42%
+  );
+}
+
+/* Generic card readability */
+.sd-card,
+.sd-card .sd-card-header,
+.sd-card .sd-card-body {
+  color: var(--pst-color-text-base);
+}
+
+.sd-card p,
+.sd-card li,
+.sd-card .sd-card-text,
+.sd-card .sd-card-title,
+.sd-card .sd-card-header {
+  color: var(--pst-color-text-base);
+}
+
+.sd-card a:not(.sd-stretched-link):not(.sd-btn):not(.sd-button-link) {
+  color: var(--pst-color-link);
+}
+
+html[data-theme="light"] .sd-card {
+  background: #ffffff;
+}
+
+html[data-theme="dark"] .sd-card {
+  background: var(--pst-color-surface);
+}
+
+/* Homepage / tile cards must not be transparent in resting state */
+.cta-tiles .sd-card,
+.see-also-tiles .sd-card {
+  background: var(--pst-color-surface) !important;
+}
+
+.cta-tiles .sd-card .sd-card-header,
+.cta-tiles .sd-card .sd-card-body,
+.see-also-tiles .sd-card .sd-card-header,
+.see-also-tiles .sd-card .sd-card-body {
+  color: var(--pst-color-text-base) !important;
+}
+
+html[data-theme="light"] .cta-tiles .sd-card,
+html[data-theme="light"] .see-also-tiles .sd-card {
+  background: #ffffff !important;
+}
+
+html[data-theme="dark"] .cta-tiles .sd-card,
+html[data-theme="dark"] .see-also-tiles .sd-card {
+  background: var(--pst-color-surface) !important;
+}
+
+
+/* --------------------------------------------------------------------------
+ * Final homepage/grid card theme fix
+ * -------------------------------------------------------------------------- */
+
+html[data-theme="light"] {
+  --gp-card-bg: #ffffff;
+  --gp-card-header-bg: #f2f8fc;
+  --gp-card-text: #17384d;
+  --gp-card-muted: #4f6474;
+  --gp-card-border: #d7e4ec;
+}
+
+html[data-theme="dark"] {
+  --gp-card-bg: #12202b;
+  --gp-card-header-bg: #1a2c38;
+  --gp-card-text: #e8f1f7;
+  --gp-card-muted: #bfd0db;
+  --gp-card-border: #274154;
+}
+
+/* Force a single readable palette for all grid cards */
+.sd-card,
+.cta-tiles .sd-card,
+.see-also-tiles .sd-card {
+  background: var(--gp-card-bg) !important;
+  border-color: var(--gp-card-border) !important;
+  color: var(--gp-card-text) !important;
+}
+
+/* Header/body must also follow the same palette */
+.sd-card .sd-card-header,
+.cta-tiles .sd-card .sd-card-header,
+.see-also-tiles .sd-card .sd-card-header {
+  background: var(--gp-card-header-bg) !important;
+  color: var(--gp-card-text) !important;
+  border-bottom: 1px solid var(--gp-card-border) !important;
+}
+
+.sd-card .sd-card-body,
+.cta-tiles .sd-card .sd-card-body,
+.see-also-tiles .sd-card .sd-card-body {
+  background: var(--gp-card-bg) !important;
+  color: var(--gp-card-text) !important;
+}
+
+/* Text inside cards */
+.sd-card .sd-card-title,
+.sd-card .sd-card-text,
+.sd-card p,
+.sd-card li,
+.sd-card strong,
+.sd-card em,
+.sd-card .sd-stretched-link,
+.sd-card a:not(.sd-btn):not(.sd-button-link) {
+  color: var(--gp-card-text) !important;
+}
+
+/* Slightly softer paragraph tone if needed */
+.sd-card p + p,
+.sd-card li,
+.sd-card .sd-card-text {
+  color: var(--gp-card-muted) !important;
+}
+
+/* Neutralize common Sphinx Design utility clashes */
+.sd-card.sd-bg-light,
+.sd-card.sd-bg-dark,
+.sd-card.sd-bg-muted,
+.sd-card[class*="sd-bg-"] {
+  background: var(--gp-card-bg) !important;
+  color: var(--gp-card-text) !important;
+}
+
+.sd-card .sd-text-light,
+.sd-card .sd-text-dark,
+.sd-card .sd-text-muted,
+.sd-card [class*="sd-text-"] {
+  color: inherit !important;
+}
+
+
+/* --------------------------------------------------------------------------
+ * Canonical hover styling for homepage/grid cards
+ * -------------------------------------------------------------------------- */
+
+/* Light mode: use a darker GeoPrior hover surface so white text stays readable */
+html[data-theme="light"] .cta-tiles .sd-card:hover,
+html[data-theme="light"] .see-also-tiles .sd-card:hover {
+  background: linear-gradient(
+    135deg,
+    var(--gp-blue-deep),
+    var(--gp-slate)
+  ) !important;
+  border-color: var(--gp-blue-deep) !important;
+}
+
+/* Dark mode: keep the brighter accent hover */
+html[data-theme="dark"] .cta-tiles .sd-card:hover,
+html[data-theme="dark"] .see-also-tiles .sd-card:hover {
+  background: linear-gradient(
+    135deg,
+    var(--pst-color-primary),
+    color-mix(
+      in srgb,
+      var(--pst-color-primary) 72%,
+      var(--gp-slate)
+    )
+  ) !important;
+  border-color: var(--pst-color-primary) !important;
+}
+
+/* Let the hover gradient show through the inner card regions */
+.cta-tiles .sd-card:hover .sd-card-header,
+.cta-tiles .sd-card:hover .sd-card-body,
+.see-also-tiles .sd-card:hover .sd-card-header,
+.see-also-tiles .sd-card:hover .sd-card-body {
+  background: transparent !important;
+  color: #ffffff !important;
+}
+
+/* Keep all hover text readable */
+.cta-tiles .sd-card:hover .sd-card-title,
+.cta-tiles .sd-card:hover .sd-card-text,
+.cta-tiles .sd-card:hover p,
+.cta-tiles .sd-card:hover li,
+.cta-tiles .sd-card:hover strong,
+.cta-tiles .sd-card:hover em,
+.cta-tiles .sd-card:hover a,
+.see-also-tiles .sd-card:hover .sd-card-title,
+.see-also-tiles .sd-card:hover .sd-card-text,
+.see-also-tiles .sd-card:hover p,
+.see-also-tiles .sd-card:hover li,
+.see-also-tiles .sd-card:hover strong,
+.see-also-tiles .sd-card:hover em,
+.see-also-tiles .sd-card:hover a {
+  color: #ffffff !important;
+}
+
+/* Slightly softer divider on hover */
+.cta-tiles .sd-card:hover .sd-card-header,
+.see-also-tiles .sd-card:hover .sd-card-header {
+  border-bottom-color: rgba(255, 255, 255, 0.18) !important;
 }

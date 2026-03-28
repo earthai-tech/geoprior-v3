@@ -1,4 +1,4 @@
-Workflow overview
+Workflow 
 =================
 
 GeoPrior-v3 is designed as a **staged scientific workflow**

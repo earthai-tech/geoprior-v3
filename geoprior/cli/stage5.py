@@ -7,7 +7,7 @@
 
 This wrapper aligns Stage-5 with the package CLI used by the
 other stages while preserving the existing transfer
-implementation in ``stage5_legacy.py``.
+implementation in ``_stage5.py``.
 
 Supported flows
 ---------------
@@ -277,7 +277,7 @@ def _cli_overrides(
 
 def _legacy_module_name() -> str:
     pkg = __package__ or "geoprior.cli"
-    return f"{pkg}.stage5_legacy"
+    return f"{pkg}._stage5"
 
 
 def _print_help() -> None:

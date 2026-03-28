@@ -1,4 +1,4 @@
-Project overview
+Overview
 ================
 
 GeoPrior-v3 is a scientific Python framework for

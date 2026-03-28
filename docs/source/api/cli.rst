@@ -1,364 +1,666 @@
-CLI API reference
-=================
+CLI and command registry
+========================
 
-The GeoPrior-v3 command-line interface is organized as a
-**family-based dispatcher** with dedicated stage wrappers and
-shared dispatch utilities.
+GeoPrior-v3 exposes a staged command-line interface for
+pipeline execution, artifact materialization, and figure
+rendering. The refactored layout uses
+``geoprior._scripts`` as the authoritative home for
+reproducibility commands, while the top-level
+``scripts`` package remains a backward-compatible launcher.
 
-This page documents the CLI package at two levels:
+The practical rule is simple:
 
-- the **public entry points** used by users and workflow
-  automation;
-- the **internal dispatcher and command registry** that make
-  the CLI extensible and maintainable.
+- ``geoprior`` and its family entry points are the modern
+  public interface.
+- ``geoprior._scripts`` owns the real script registry and
+  artifact-path policy.
+- ``scripts`` mirrors that registry for legacy invocations
+  such as ``python -m scripts ...``.
 
-It also includes selected **source listings** so the inline
-implementation comments remain visible in the documentation.
+.. note::
 
-Overview
---------
+   The root dispatcher no longer depends on the legacy
+   ``scripts`` package as its source of truth. Instead,
+   both the modern CLI and the compatibility launcher read
+   from ``geoprior._scripts.registry``.
 
-The CLI package currently provides:
+Architecture overview
+---------------------
 
-- a **root dispatcher** through ``geoprior``;
-- family-specific entry points:
-  ``geoprior-run``, ``geoprior-build``, ``geoprior-plot``;
-- a dedicated bootstrap entry point:
-  ``geoprior-init``;
-- stage wrappers for:
-  Stage-1 through Stage-5;
-- shared dispatch utilities for command loading, alias
-  handling, help rendering, and delegated execution.
+The command stack is split into three layers.
 
-A useful conceptual map is:
+1. **Public entry points**
+
+   - ``geoprior``
+   - ``geoprior-run``
+   - ``geoprior-build``
+   - ``geoprior-plot``
+   - ``geoprior-init``
+
+2. **Internal implementation**
+
+   - ``geoprior.__main__``
+   - ``geoprior.cli``
+   - ``geoprior.cli._dispatch``
+   - ``geoprior._scripts.registry``
+   - ``geoprior._scripts.config``
+
+3. **Compatibility layer**
+
+   - ``scripts.__main__``
+   - ``scripts.registry``
+   - ``python -m scripts <command>``
+
+A compact conceptual map is shown below.
 
 .. code-block:: text
 
-   geoprior.cli
-      ├── __init__.py
-      ├── __main__.py
-      ├── _dispatch.py
-      ├── init_config.py
-      ├── stage1.py
-      ├── stage2.py
-      ├── stage3.py
-      ├── stage4.py
-      └── stage5.py
+   geoprior/
+   ├── __main__.py
+   ├── cli/
+   │   ├── __init__.py
+   │   ├── __main__.py
+   │   ├── _dispatch.py
+   │   ├── _presets.py
+   │   ├── config.py
+   │   ├── init_config.py
+   │   ├── run_sensitivity.py
+   │   ├── run_sm3_suite.py
+   │   ├── stage1.py
+   │   ├── stage2.py
+   │   ├── stage3.py
+   │   ├── stage4.py
+   │   ├── stage5.py
+   │   └── build_*.py / sm3_*.py / ...
+   ├── _scripts/
+   │   ├── registry.py
+   │   ├── config.py
+   │   └── plot_*.py / build_*.py / ...
+   └── ...
 
-The root dispatcher uses command families such as
-``run``, ``build``, and ``plot`` to route subcommands to the
-correct module entry point.
+   scripts/
+   ├── __init__.py
+   ├── __main__.py
+   └── registry.py
 
-Module index
-------------
 
-.. autosummary::
-   :toctree: generated/
-
-   geoprior.cli
-   geoprior.cli.__main__
-   geoprior.cli._dispatch
-   geoprior.cli.init_config
-   geoprior.cli.stage1
-   geoprior.cli.stage2
-   geoprior.cli.stage3
-   geoprior.cli.stage4
-   geoprior.cli.stage5
-
-Public CLI package
-------------------
-
-.. automodule:: geoprior.cli
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Root dispatcher
----------------
-
-The root dispatcher provides:
-
-- the main ``geoprior`` entry point;
-- family-specific wrappers:
-  ``run_main()``, ``build_main()``, ``plot_main()``;
-- the grouped help surface;
-- command-family enforcement;
-- alias resolution.
-
-.. automodule:: geoprior.cli.__main__
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Important public callables
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: geoprior.cli.__main__.main
-
-.. autofunction:: geoprior.cli.__main__.run_main
-
-.. autofunction:: geoprior.cli.__main__.build_main
-
-.. autofunction:: geoprior.cli.__main__.plot_main
-
-Shared dispatch utilities
--------------------------
-
-The dispatcher helper module centralizes the reusable command
-machinery.
-
-Its responsibilities include:
-
-- command specification through :class:`CommandSpec`;
-- module and callable loading;
-- delegated module execution;
-- entrypoint calling conventions;
-- alias-map creation;
-- compact help-table rendering.
-
-.. automodule:: geoprior.cli._dispatch
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Key dispatcher objects
-~~~~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: geoprior.cli._dispatch.CommandSpec
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. autofunction:: geoprior.cli._dispatch.load_module
-
-.. autofunction:: geoprior.cli._dispatch.load_callable
-
-.. autofunction:: geoprior.cli._dispatch.run_module
-
-.. autofunction:: geoprior.cli._dispatch.call_entry
-
-.. autofunction:: geoprior.cli._dispatch.public_items
-
-.. autofunction:: geoprior.cli._dispatch.alias_map
-
-.. autofunction:: geoprior.cli._dispatch.print_help_table
-
-Stage and bootstrap wrappers
+Entry points and usage model
 ----------------------------
 
-The stage modules provide thin CLI-facing wrappers around the
-actual workflow stages. They are important because they keep
-the public command surface stable even when the underlying
-scientific pipeline evolves.
+The modern CLI supports two complementary styles.
 
-Configuration bootstrap
-~~~~~~~~~~~~~~~~~~~~~~~
+Root entry point
+~~~~~~~~~~~~~~~~
 
-.. automodule:: geoprior.cli.init_config
-   :members:
-   :undoc-members:
-   :show-inheritance:
+The root command uses explicit families:
 
-Stage-1 wrapper
-~~~~~~~~~~~~~~~
+.. code-block:: bash
 
-.. automodule:: geoprior.cli.stage1
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   geoprior run <command> [args]
+   geoprior build <command> [args]
+   geoprior plot <command> [args]
 
-Stage-2 wrapper
-~~~~~~~~~~~~~~~
+Examples:
 
-.. automodule:: geoprior.cli.stage2
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Stage-3 wrapper
-~~~~~~~~~~~~~~~
-
-.. automodule:: geoprior.cli.stage3
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Stage-4 wrapper
-~~~~~~~~~~~~~~~
-
-.. automodule:: geoprior.cli.stage4
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Stage-5 wrapper
-~~~~~~~~~~~~~~~
-
-.. automodule:: geoprior.cli.stage5
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Related command registry
-------------------------
-
-The modern CLI also bridges to the paper- and figure-facing
-``scripts`` registry so that plot and build commands can be
-surfaced through the same family-based dispatcher.
-
-If you want that relationship documented explicitly in the
-API docs, include the registry modules here as well.
-
-.. autosummary::
-   :toctree: generated/
-
-   scripts.__main__
-   scripts.registry
-
-.. automodule:: scripts.registry
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: scripts.__main__
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Command families and entry points
----------------------------------
-
-The public CLI surface is organized around these entry points:
-
-+------------------+---------------------------------------------+
-| Entry point      | Purpose                                     |
-+==================+=============================================+
-| ``geoprior``     | Root dispatcher with explicit family token  |
-+------------------+---------------------------------------------+
-| ``geoprior-run`` | Workflow and stage execution                |
-+------------------+---------------------------------------------+
-| ``geoprior-build`` | Deterministic artifact builders          |
-+------------------+---------------------------------------------+
-| ``geoprior-plot`` | Figure and map rendering                  |
-+------------------+---------------------------------------------+
-| ``geoprior-init`` | Config bootstrap                          |
-+------------------+---------------------------------------------+
-
-The root dispatcher expects a family token first, for example:
-
-.. code-block:: text
+.. code-block:: bash
 
    geoprior run stage1-preprocess
-   geoprior build full-inputs-npz
-   geoprior plot physics-fields
+   geoprior build exposure --help
+   geoprior plot physics-fields --help
 
-The family-specific entry points remove the explicit family
-token:
+Family-specific entry points
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Dedicated entry points remove the family prefix:
+
+.. code-block:: bash
+
+   geoprior-run <command> [args]
+   geoprior-build <command> [args]
+   geoprior-plot <command> [args]
+   geoprior-init [args]
+
+Examples:
+
+.. code-block:: bash
+
+   geoprior-run stage4-infer --help
+   geoprior-build model-metrics
+   geoprior-plot transfer-impact
+   geoprior-init --yes
+
+Backward compatibility launcher
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The legacy launcher remains available:
+
+.. code-block:: bash
+
+   python -m scripts <command> [args]
+
+Examples:
+
+.. code-block:: bash
+
+   python -m scripts plot-physics-fields --help
+   python -m scripts make-exposure --help
+
+This compatibility surface is intentionally thin. It
+re-exports the registry and dispatches to modules stored in
+``geoprior._scripts``.
+
+Command families
+----------------
+
+GeoPrior-v3 groups commands into three public families.
+
+Run family
+~~~~~~~~~~
+
+The ``run`` family executes staged workflows and related
+experiment drivers.
+
+Typical commands include:
+
+- ``init-config``
+- ``stage1-preprocess``
+- ``stage2-train``
+- ``stage3-tune``
+- ``stage4-infer``
+- ``stage5-transfer``
+- ``sensitivity``
+- ``sm3-identifiability``
+- ``sm3-offset-diagnostics``
+- ``sm3-suite``
+
+Build family
+~~~~~~~~~~~~
+
+The ``build`` family materializes derived artifacts, helper
+products, and summary tables.
+
+Typical commands include:
+
+- ``full-inputs-npz``
+- ``physics-payload-npz``
+- ``external-validation-fullcity``
+- ``sm3-collect-summaries``
+- ``assign-boreholes``
+- ``add-zsurf-from-coords``
+- ``external-validation-metrics``
+- ``brier-exceedance``
+- ``hotspots``
+- ``hotspots-summary``
+- ``extend-forecast``
+- ``update-ablation-records``
+- ``model-metrics``
+- ``ablation-table``
+- ``boundary``
+- ``exposure``
+- ``district-grid``
+- ``clusters-with-zones``
+
+Plot family
+~~~~~~~~~~~
+
+The ``plot`` family renders publication-facing figures,
+appendix panels, maps, and transfer-analysis visuals.
+
+Typical commands include:
+
+- ``driver-response``
+- ``core-ablation``
+- ``litho-parity``
+- ``uncertainty``
+- ``spatial-forecasts``
+- ``physics-sanity``
+- ``physics-maps``
+- ``physics-fields``
+- ``physics-profiles``
+- ``uncertainty-extras``
+- ``ablations-sensitivity``
+- ``physics-sensitivity``
+- ``sm3-identifiability``
+- ``sm3-bounds-ridge-summary``
+- ``sm3-log-offsets``
+- ``xfer-transferability``
+- ``xfer-impact``
+- ``transfer``
+- ``transfer-impact``
+- ``geo-cumulative``
+- ``hotspot-analytics``
+- ``external-validation``
+
+.. note::
+
+   The exact command list is defined in the registry. The
+   examples above reflect the current public surface exposed
+   by the dispatcher and the script registry.
+
+Registry ownership
+------------------
+
+The central design change in the refactor is the ownership
+model for reproducibility commands.
+
+Before the refactor, the modern CLI treated ``scripts`` as a
+registry bridge. After the refactor, the authoritative
+registry lives in ``geoprior._scripts.registry``.
+
+That yields a cleaner dependency direction:
+
+- ``geoprior.cli`` → ``geoprior._scripts``
+- ``scripts`` → ``geoprior._scripts``
+
+and avoids making the main package depend on a legacy shim.
+
+Registry structure
+~~~~~~~~~~~~~~~~~~
+
+The registry stores command metadata such as:
+
+- module name
+- callable name
+- human-readable description
+- family
+- aliases
+- public command name
+
+This information is consumed by the dispatcher in
+``geoprior.cli.__main__`` and mirrored by the compatibility
+launcher.
+
+Dispatch model
+--------------
+
+The modern CLI resolves commands through the registry and
+then imports the target module lazily.
+
+This keeps the root entry point compact and makes each script
+module independently testable.
+
+A simplified execution path is:
 
 .. code-block:: text
 
-   geoprior-run stage1-preprocess
-   geoprior-build full-inputs-npz
-   geoprior-plot physics-fields
+   user command
+      ↓
+   geoprior / geoprior-run / geoprior-build / geoprior-plot
+      ↓
+   geoprior.cli.__main__
+      ↓
+   registry lookup
+      ↓
+   import target module
+      ↓
+   call exported main function
 
-Dispatcher conventions
+Artifact-root policy
+--------------------
+
+The CLI also standardizes artifact-path resolution through
+shared environment-variable and config helpers.
+
+In practice this means that figures, tables, and helper
+artifacts can be redirected consistently without forcing
+script-specific path rewrites.
+
+Typical environment variables include:
+
+- ``GEOPRIOR_ARTIFACT_ROOT``
+- ``GEOPRIOR_FIG_DIR``
+- ``GEOPRIOR_OUT_DIR``
+
+The conceptual layout is:
+
+.. code-block:: text
+
+   <artifact root>/
+   ├── results/
+   ├── fig/
+   └── out/
+
+This keeps compatibility with the historical folder layout
+while allowing explicit relocation of generated outputs.
+
+Examples:
+
+.. code-block:: bash
+
+   export GEOPRIOR_ARTIFACT_ROOT=/tmp/geoprior_artifacts
+   export GEOPRIOR_FIG_DIR=/tmp/geoprior_figures
+   export GEOPRIOR_OUT_DIR=/tmp/geoprior_tables
+
+On Windows PowerShell:
+
+.. code-block:: powershell
+
+   $env:GEOPRIOR_ARTIFACT_ROOT = "D:\\geoprior\\artifacts"
+   $env:GEOPRIOR_FIG_DIR = "D:\\geoprior\\figures"
+   $env:GEOPRIOR_OUT_DIR = "D:\\geoprior\\tables"
+
+Why ``geoprior.__main__`` matters
+---------------------------------
+
+Adding ``geoprior.__main__`` allows direct execution with:
+
+.. code-block:: bash
+
+   python -m geoprior --help
+
+This complements installed console scripts and gives one more
+stable execution path for development, testing, and package
+verification.
+
+
+API reference strategy
 ----------------------
 
-The dispatcher follows a few important design rules:
+Top-level entry points
+----------------------
 
-- command families are enforced explicitly;
-- aliases resolve to one canonical public command name;
-- unknown commands print grouped help and exit non-zero;
-- family-specific entry points reject repeated family tokens;
-- command entrypoints can be called in one of three styles:
-  ``fn(argv, prog=...)``, ``fn(argv)``, or ``fn()`` with a
-  patched ``sys.argv``.
+.. autosummary::
+   :toctree: ../generated/api/cli
+   :nosignatures:
 
-That last point is especially important for backward
-compatibility with older command modules.
+   ~geoprior.__main__
+   ~geoprior.cli
+   ~geoprior.cli.__main__
+   ~scripts.__main__
+   ~scripts.registry
 
-Why the private dispatcher is documented
+Dispatcher and shared CLI helpers
+---------------------------------
+
+.. autosummary::
+   :toctree: ../generated/api/cli
+   :nosignatures:
+
+   ~geoprior.cli._dispatch
+   ~geoprior.cli._presets
+   ~geoprior.cli.config
+
+Run wrappers and workflow drivers
+---------------------------------
+
+.. autosummary::
+   :toctree: ../generated/api/cli
+   :nosignatures:
+
+   ~geoprior.cli.init_config
+   ~geoprior.cli.stage1
+   ~geoprior.cli.stage2
+   ~geoprior.cli.stage3
+   ~geoprior.cli.stage4
+   ~geoprior.cli.stage5
+   ~geoprior.cli.run_sensitivity
+   ~geoprior.cli.run_sm3_suite
+   ~geoprior.cli.sensitivity_lib
+   ~geoprior.cli.sm3_collect_summaries
+   ~geoprior.cli.sm3_log_offsets_diagnostics
+   ~geoprior.cli.sm3_synthetic_identifiability
+
+Build wrappers under ``geoprior.cli``
+-------------------------------------
+
+.. autosummary::
+   :toctree: ../generated/api/cli
+   :nosignatures:
+
+   ~geoprior.cli.build_add_zsurf_from_coords
+   ~geoprior.cli.build_assign_boreholes
+   ~geoprior.cli.build_external_validation_fullcity
+   ~geoprior.cli.build_external_validation_metrics
+   ~geoprior.cli.build_full_inputs_npz
+   ~geoprior.cli.build_physics_payload_npz
+   ~geoprior.cli.build_sm3_collect_summaries
+
+Private workflow backends excluded from autosummary
+---------------------------------------------------
+
+The modules below are intentionally not imported by the API
+reference because they depend on workflow state such as
+manifests or runtime environment setup.
+
+- ``geoprior.cli._sensitivity``
+- ``geoprior.cli._stage2``
+- ``geoprior.cli._stage3``
+- ``geoprior.cli._stage4``
+- ``geoprior.cli._stage5``
+
+Reproducibility registry and shared helpers
+-------------------------------------------
+
+.. autosummary::
+   :toctree: ../generated/api/cli
+   :nosignatures:
+
+   ~geoprior._scripts.config
+   ~geoprior._scripts.registry
+   ~geoprior._scripts.utils
+   ~geoprior._scripts.extend_utils
+
+Build and compute scripts under ``geoprior._scripts``
+-----------------------------------------------------
+
+.. autosummary::
+   :toctree: ../generated/api/cli
+   :nosignatures:
+
+   ~geoprior._scripts.build_ablation_table
+   ~geoprior._scripts.build_model_metrics
+   ~geoprior._scripts.compute_brier_exceedance
+   ~geoprior._scripts.compute_hotspots
+   ~geoprior._scripts.extend_forecast
+   ~geoprior._scripts.make_boundary
+   ~geoprior._scripts.make_district_grid
+   ~geoprior._scripts.make_exposure
+   ~geoprior._scripts.rebuild_confusion_tables
+   ~geoprior._scripts.summarize_hotspots
+   ~geoprior._scripts.tag_clusters_with_zones
+   ~geoprior._scripts.update_ablation_record_posthoc
+   ~geoprior._scripts.update_ablation_records
+
+Plot scripts under ``geoprior._scripts``
 ----------------------------------------
 
-Normally, a module named ``_dispatch`` might be omitted from
-public API docs. Here, it is worth documenting because it is
-the core architectural piece that explains:
+.. autosummary::
+   :toctree: ../generated/api/cli
+   :nosignatures:
 
-- how command specs are represented;
-- how the same command family can support both modern CLI
-  wrappers and legacy script entry points;
-- how help tables and aliases are generated consistently;
-- how delegated module execution preserves command identity.
+   ~geoprior._scripts.plot_ablations_sensitivity
+   ~geoprior._scripts.plot_core_ablation
+   ~geoprior._scripts.plot_driver_response
+   ~geoprior._scripts.plot_external_validation
+   ~geoprior._scripts.plot_geo_cumulative
+   ~geoprior._scripts.plot_hotspot_analytics
+   ~geoprior._scripts.plot_litho_parity
+   ~geoprior._scripts.plot_physics_fields
+   ~geoprior._scripts.plot_physics_maps
+   ~geoprior._scripts.plot_physics_profiles
+   ~geoprior._scripts.plot_physics_sanity
+   ~geoprior._scripts.plot_physics_sensitivity
+   ~geoprior._scripts.plot_sm3_bounds_ridge_summary
+   ~geoprior._scripts.plot_sm3_identifiability
+   ~geoprior._scripts.plot_sm3_log_offsets
+   ~geoprior._scripts.plot_spatial_forecasts
+   ~geoprior._scripts.plot_transfer
+   ~geoprior._scripts.plot_uncertainty
+   ~geoprior._scripts.plot_uncertainty_extras
+   ~geoprior._scripts.plot_xfer_impact
+   ~geoprior._scripts.plot_xfer_transferability
 
-So even though it is “private” by naming convention, it is
-important enough to deserve full API documentation.
+Registry ownership
+------------------
 
-Source listings with comments
------------------------------
+The authoritative command registry lives under
+``geoprior._scripts.registry``. The modern CLI and the
+compatibility launcher both read from that registry rather
+than maintaining separate command maps.
 
-The following source listings are included intentionally so
-that inline comments remain visible in the documentation.
+The dependency direction is therefore:
 
-CLI package ``__init__.py``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- ``geoprior.cli`` → ``geoprior._scripts``
+- ``scripts`` → ``geoprior._scripts``
+
+This keeps the compatibility layer thin and avoids making the
+main package depend on legacy launch code.
+
+Dispatch model
+--------------
+
+The modern CLI resolves a command through the registry,
+imports the target module lazily, and calls the exported main
+function.
+
+.. code-block:: text
+
+   user command
+      ↓
+   geoprior / geoprior-run / geoprior-build / geoprior-plot
+      ↓
+   geoprior.cli.__main__
+      ↓
+   registry lookup
+      ↓
+   import target module
+      ↓
+   call exported main function
+
+Artifact-root policy
+--------------------
+
+The CLI standardizes artifact-path resolution through shared
+configuration and environment-variable helpers. In practice,
+this allows figures, tables, and helper artifacts to be
+redirected without rewriting each script individually.
+
+Typical environment variables include:
+
+- ``GEOPRIOR_ARTIFACT_ROOT``
+- ``GEOPRIOR_FIG_DIR``
+- ``GEOPRIOR_OUT_DIR``
+
+Conceptually:
+
+.. code-block:: text
+
+   <artifact root>/
+   ├── results/
+   ├── fig/
+   └── out/
+
+Examples:
+
+.. code-block:: bash
+
+   export GEOPRIOR_ARTIFACT_ROOT=/tmp/geoprior_artifacts
+   export GEOPRIOR_FIG_DIR=/tmp/geoprior_figures
+   export GEOPRIOR_OUT_DIR=/tmp/geoprior_tables
+
+On Windows PowerShell:
+
+.. code-block:: powershell
+
+   $env:GEOPRIOR_ARTIFACT_ROOT = "D:\\geoprior\\artifacts"
+   $env:GEOPRIOR_FIG_DIR = "D:\\geoprior\\figures"
+   $env:GEOPRIOR_OUT_DIR = "D:\\geoprior\\tables"
+
+Source listings
+---------------
+
+Source listings
+---------------
+
+The most important source files for the CLI stack are listed
+below. These listings are useful when the API reference is
+read together with the developer notes.
+
+Package entry point
+~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../../geoprior/__main__.py
+   :language: python
+   :caption: ``geoprior/__main__.py``
+
+Modern CLI package
+~~~~~~~~~~~~~~~~~~
 
 .. literalinclude:: ../../geoprior/cli/__init__.py
    :language: python
-   :caption: geoprior/cli/__init__.py
-
-Root dispatcher ``__main__.py``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   :caption: ``geoprior/cli/__init__.py``
 
 .. literalinclude:: ../../geoprior/cli/__main__.py
    :language: python
-   :caption: geoprior/cli/__main__.py
-
-Shared dispatcher ``_dispatch.py``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   :caption: ``geoprior/cli/__main__.py``
 
 .. literalinclude:: ../../geoprior/cli/_dispatch.py
    :language: python
-   :caption: geoprior/cli/_dispatch.py
+   :caption: ``geoprior/cli/_dispatch.py``
 
-Optional: scripts registry bridge
+Script registry and shared config
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../scripts/registry.py
+.. literalinclude:: ../../geoprior/_scripts/registry.py
    :language: python
-   :caption: scripts/registry.py
+   :caption: ``geoprior/_scripts/registry.py``
 
-Optional: legacy paper-scripts entry point
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. literalinclude:: ../../geoprior/_scripts/config.py
+   :language: python
+   :caption: ``geoprior/_scripts/config.py``
+
+Compatibility package
+~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../../scripts/__init__.py
+   :language: python
+   :caption: ``scripts/__init__.py``
 
 .. literalinclude:: ../../scripts/__main__.py
    :language: python
-   :caption: scripts/__main__.py
+   :caption: ``scripts/__main__.py``
 
-API notes
----------
+.. literalinclude:: ../../scripts/registry.py
+   :language: python
+   :caption: ``scripts/registry.py``
 
-A few implementation details are worth keeping in mind when
-reading the CLI API:
+Design notes
+------------
 
-- ``CommandSpec`` is the shared normalized representation used
-  by the dispatcher layer.
-- The root CLI registry mixes native GeoPrior commands with
-  bridged commands from the ``scripts`` package.
-- The dispatcher distinguishes between ``argv`` call style,
-  ``sysargv``-style compatibility, and module-style
-  execution.
-- The help system is grouped by command family so the root
-  entry point remains readable even as the command surface
-  grows.
+A few design choices are intentional.
+
+Single source of truth
+~~~~~~~~~~~~~~~~~~~~~~
+
+The real registry now lives under ``geoprior._scripts``.
+This avoids circular dependency pressure and makes the main
+package self-contained.
+
+Thin compatibility layer
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The top-level ``scripts`` package should stay small. Its role
+is to preserve historical commands, not to own the actual
+implementation.
+
+Separated artifact policy
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Artifact-path logic belongs in configuration rather than in
+individual plotting or build scripts. That keeps export
+behavior consistent and easier to override.
+
+Shared dispatcher helpers
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Both the modern CLI and the legacy launcher reuse the same
+helpers from ``geoprior.cli._dispatch``. This keeps help
+formatting, callable loading, alias handling, and module
+execution consistent across entry points.
 
 See also
 --------
 
-.. seealso::
-
-   - :doc:`../user_guide/cli`
-   - :doc:`../user_guide/configuration`
-   - :doc:`subsidence`
-   - :doc:`tuner`
-   - :doc:`utils`
-   - :doc:`resources`
+- :doc:`../user_guide/cli`
+- :doc:`../developer/package_structure`
+- :doc:`../applications/reproducibility_scripts`

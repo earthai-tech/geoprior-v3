@@ -383,14 +383,14 @@ def extract_physical_parameters(
 
     See Also
     --------
-    geoprior.nn.pinn.TransFlowSubsNet : A fully coupled PINN for
+    geoprior.models.pinn.TransFlowSubsNet : A fully coupled PINN for
         subsidence and groundwater flow.
-    geoprior.nn.pinn.PIHALNet : A PINN focused on the consolidation
+    geoprior.models.pinn.PIHALNet : A PINN focused on the consolidation
         equation.
 
     Examples
     --------
-    >>> from geoprior.nn.pinn.op import extract_physical_parameters
+    >>> from geoprior.models.pinn.op import extract_physical_parameters
     >>> # learned_params = extract_physical_parameters(
     ... #     model=my_model,
     ... #     to_csv=True,
@@ -668,7 +668,7 @@ def compute_consolidation_residual(
     Examples
     --------
     >>> import tensorflow as tf
-    >>> from geoprior.nn.pinn.op import compute_consolidation_residual
+    >>> from geoprior.models.pinn.op import compute_consolidation_residual
     >>> B, T, F = 4, 10, 1
     >>> s_sequence = tf.random.normal((B, T, F))
     >>> h_sequence = tf.random.normal((B, T, F))
@@ -751,7 +751,7 @@ def compute_gw_flow_residual(
 
     Examples
     --------
-    >>> from geoprior.nn.pinn.op import compute_gw_flow_residual
+    >>> from geoprior.models.pinn.op import compute_gw_flow_residual
     >>> # Assume `net` is a tf.keras.Model and t,x,y are tf.Variables
     >>> res = compute_gw_flow_residual(
     ...     model=net,
@@ -905,7 +905,7 @@ def process_pinn_inputs(
     Examples
     --------
     >>> import tensorflow as tf
-    >>> from geoprior.nn.pinn.op import process_pinn_inputs
+    >>> from geoprior.models.pinn.op import process_pinn_inputs
     >>> # ---- Dictionary Mode ----
     >>> B, T, S_D, D_D, F_D = 4, 10, 2, 5, 3
     >>> inputs_dict = {
@@ -1171,7 +1171,7 @@ def calculate_gw_flow_pde_residual_from_derivs(
     Examples
     --------
     >>> import tensorflow as tf
-    >>> from geoprior.nn.pinn.op import calculate_gw_flow_pde_residual_from_derivs
+    >>> from geoprior.models.pinn.op import calculate_gw_flow_pde_residual_from_derivs
     >>> B, N_points = 4, 100 # Batch size, number of collocation points
     >>> dh_dt_vals = tf.random.normal((B, N_points, 1))
     >>> d2h_dx2_vals = tf.random.normal((B, N_points, 1))

@@ -20,10 +20,13 @@ else:
     KT_DEPS = DummyKT()
 
 if HAS_KT:
+    from ._base_tuner import PINNTunerBase
     from ._geoprior_tuner import SubsNetTuner
 
     __all__ = [
         "HAS_KT",
         "KT_DEPS",
         "SubsNetTuner",
+        "check_keras_tuner_is_available",
+        "PINNTunerBase",
     ]

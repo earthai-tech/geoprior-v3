@@ -5575,8 +5575,6 @@ def compute_bounds_residual(
         bounds policy (typically K/Ss and optionally tau). This is the
         *barrier component only*.
 
-        Notes
-        -----
         Any *residual-style* bound penalty (range-normalized violation
         residuals for H/K/Ss/tau) is computed separately (e.g. via
         ``compute_bounds_residual``) and can be combined downstream

@@ -248,7 +248,7 @@ def _cli_overrides(
 
 def _legacy_module_name() -> str:
     pkg = __package__ or "geoprior.cli"
-    return f"{pkg}.sm3_synthetic_identifiability_legacy"
+    return f"{pkg}._sm3_synthetic_identifiability"
 
 
 def _print_help() -> None:

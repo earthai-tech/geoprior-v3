@@ -3,17 +3,18 @@
 GeoPrior-v3
 ===========
 
+.. rst-class:: hero-tagline
+
 Physics-guided AI for geohazards and risk analytics.
 
 GeoPrior-v3 is a scientific Python framework for building
-physics-guided models for geohazard analysis, forecasting,
-and risk-oriented interpretation. The current generation
-focuses on **land subsidence** through **GeoPriorSubsNet v3.x**,
-while the broader roadmap extends toward **landslides and
-other geohazard modeling tasks**. The project combines
-scientific modeling, configuration-driven workflows, staged
-CLI execution, and reproducible figure generation in a
-single documentation space.
+physics-guided models for geohazard analysis, forecasting, and
+risk-oriented interpretation. The current generation focuses on
+**land subsidence** through **GeoPriorSubsNet v3.x**, while the broader
+roadmap extends toward **landslides and other geohazard modeling
+tasks**. The project combines scientific modeling,
+configuration-driven workflows, staged CLI execution, and
+reproducible figure generation in a single documentation space.
 
 .. note::
 
@@ -25,55 +26,57 @@ single documentation space.
    ``geoprior-init``. See :doc:`user_guide/cli` for the full
    command reference.
 
-.. grid:: 1 2 2 4
+Start here
+----------
+
+.. grid:: 1 1 2 4
    :gutter: 3
+   :class-container: cta-tiles
 
    .. grid-item-card:: Getting started
-      :link: getting_started/overview
+      :link: getting_started/index
       :link-type: doc
-      :class-card: sd-shadow-sm
+      :class-card: card--workflow
 
-      Start with the project overview, installation steps,
-      and a minimal first run.
+      Begin with the project overview, installation guidance,
+      quickstart usage, and a first end-to-end run.
 
    .. grid-item-card:: Scientific foundations
-      :link: scientific_foundations/models_overview
+      :link: scientific_foundations/index
       :link-type: doc
-      :class-card: sd-shadow-sm
+      :class-card: card--physics
 
-      Understand the model family, the physics formulation,
-      residual construction, scaling strategy, and
-      identifiability assumptions.
+      Understand the model family, the physical formulation,
+      residual construction, scaling strategy, and the main
+      scientific assumptions.
 
    .. grid-item-card:: User guide
-      :link: user_guide/workflow_overview
+      :link: user_guide/index
       :link-type: doc
-      :class-card: sd-shadow-sm
+      :class-card: card--configuration
 
-      Follow the staged workflow, configuration logic,
-      diagnostics, inference, and export paths.
+      Follow the staged workflow, command-line logic,
+      diagnostics, inference paths, and export-oriented use.
 
    .. grid-item-card:: Applications
-      :link: applications/subsidence_forecasting
+      :link: applications/index
       :link-type: doc
-      :class-card: sd-shadow-sm
 
-      Explore land subsidence forecasting, tuning workflows,
+      Explore forecasting workflows, tuning, calibration,
       uncertainty handling, and reproducibility scripts.
 
    .. grid-item-card:: API reference
-      :link: api/cli
+      :link: api/index
       :link-type: doc
-      :class-card: sd-shadow-sm
+      :class-card: card--cli
 
-      Browse the documented Python interfaces for CLI,
-      subsidence models, tuner components, utilities,
-      and resources.
+      Browse the documented Python interfaces for parameters,
+      CLI modules, subsidence components, tuners, utilities,
+      and packaged resources.
 
    .. grid-item-card:: Developer notes
-      :link: developer/package_structure
+      :link: developer/index
       :link-type: doc
-      :class-card: sd-shadow-sm
 
       See package layout, migration notes, and contribution
       guidance for maintaining and extending GeoPrior-v3.
@@ -81,7 +84,6 @@ single documentation space.
    .. grid-item-card:: Release notes
       :link: release_notes
       :link-type: doc
-      :class-card: sd-shadow-sm
 
       Track user-visible changes across versions, including
       workflow, API, scientific, and documentation updates.
@@ -96,9 +98,9 @@ Why GeoPrior-v3?
       :class-card: sd-border-1 sd-shadow-sm
 
       GeoPrior-v3 is built around physics-aware modeling
-      rather than purely black-box forecasting. The current
-      platform emphasizes physically informed learning for
-      subsidence analysis and related geohazard settings.
+      rather than purely black-box forecasting. The platform
+      emphasizes scientifically interpretable learning for
+      subsidence analysis and broader geohazard settings.
 
    .. grid-item-card:: Workflow-oriented
       :class-card: sd-border-1 sd-shadow-sm
@@ -121,8 +123,8 @@ Why GeoPrior-v3?
 
       The current flagship application is land subsidence,
       but the framework is positioned to expand toward broader
-      geohazard workflows, including future landslide-related
-      modeling directions.
+      geohazard workflows and future physics-guided hazard
+      modeling tasks.
 
 Quick start
 -----------
@@ -145,19 +147,18 @@ Install the package and start from either Python or the CLI.
    geoprior-build --help
    geoprior-plot --help
 
-The package metadata defines GeoPrior-v3 as a Python package
-for physics-guided geohazard modeling and registers dedicated
-console commands for the staged application workflow. The
-package namespace also presents GeoPrior-v3 as
-``Physics-guided AI for geohazards & risk analytics`` with
-land subsidence as the current core application area.
+The package metadata presents GeoPrior-v3 as a Python package
+for physics-guided geohazard modeling with land subsidence as
+its current flagship application area. The command-line
+workflow complements the Python API so the same project can be
+used both programmatically and operationally.
 
 .. seealso::
 
-   - :doc:`getting_started/quickstart`
-   - :doc:`user_guide/cli`
-   - :doc:`user_guide/configuration`
-   - :doc:`applications/reproducibility_scripts`
+   - :doc:`getting_started/index`
+   - :doc:`user_guide/index`
+   - :doc:`applications/index`
+   - :doc:`api/index`
 
 Documentation map
 -----------------
@@ -169,14 +170,14 @@ plus a shared bibliography.
    introduces the project, installation, quickstart usage,
    and the first practical run.
 
-2. **User guide**
-   explains the staged workflow, command-line usage,
-   configuration system, diagnostics, and export logic.
-
-3. **Scientific foundations**
+2. **Scientific foundations**
    presents the model family, physical formulation,
    poroelastic background, residual construction, losses,
    scaling, mathematics, and identifiability assumptions.
+
+3. **User guide**
+   explains the staged workflow, command-line usage,
+   configuration system, diagnostics, and export logic.
 
 4. **Applications**
    focuses on subsidence forecasting, tuning workflows,
@@ -184,9 +185,9 @@ plus a shared bibliography.
    reproducibility.
 
 5. **API reference**
-   documents the importable interfaces for the CLI,
-   subsidence modules, tuner components, utilities,
-   and packaged resources.
+   documents the importable interfaces for parameters, the
+   CLI, subsidence modules, tuner components, utilities, and
+   packaged resources.
 
 6. **Developer notes**
    collects package structure, migration notes, and
@@ -203,37 +204,44 @@ documentation.
 Navigate directly
 -----------------
 
-.. button-ref:: getting_started/overview
+.. button-ref:: getting_started/index
    :ref-type: doc
    :color: primary
    :expand:
 
-   Read the overview
+   Begin with getting started
 
-.. button-ref:: scientific_foundations/models_overview
+.. button-ref:: scientific_foundations/index
    :ref-type: doc
    :color: secondary
    :expand:
 
    Explore the models and physics
 
-.. button-ref:: user_guide/cli
+.. button-ref:: user_guide/index
    :ref-type: doc
    :color: primary
    :expand:
 
-   Go to the CLI guide
+   Open the user guide
 
-.. button-ref:: applications/subsidence_forecasting
+.. button-ref:: applications/index
    :ref-type: doc
    :color: secondary
    :expand:
 
-   See the main application workflow
+   See the application workflows
+
+.. button-ref:: api/index
+   :ref-type: doc
+   :color: primary
+   :expand:
+
+   Browse the API reference
 
 .. button-ref:: release_notes
    :ref-type: doc
-   :color: primary
+   :color: secondary
    :expand:
 
    View release notes
@@ -241,88 +249,12 @@ Navigate directly
 .. toctree::
    :hidden:
    :maxdepth: 2
-   :caption: Getting started
 
-   getting_started/overview
-   getting_started/installation
-   getting_started/quickstart
-   getting_started/first_project_run
-
-.. toctree::
-   :hidden:
-   :maxdepth: 2
-   :caption: User guide
-
-   user_guide/workflow_overview
-   user_guide/stage1
-   user_guide/stage2
-   user_guide/stage3
-   user_guide/stage4
-   user_guide/stage5
-   user_guide/cli
-   user_guide/configuration
-   user_guide/diagnostics
-   user_guide/inference_and_export
-   user_guide/faq
-
-.. toctree::
-   :hidden:
-   :maxdepth: 2
-   :caption: Scientific foundations
-
-   scientific_foundations/models_overview
-   scientific_foundations/geoprior_subsnet
-   scientific_foundations/physics_formulation
-   scientific_foundations/poroelastic_background
-   scientific_foundations/residual_assembly
-   scientific_foundations/losses_and_training
-   scientific_foundations/data_and_units
-   scientific_foundations/scaling
-   scientific_foundations/maths
-   scientific_foundations/identifiability
-   scientific_foundations/stability_and_constraints
-
-.. toctree::
-   :hidden:
-   :maxdepth: 2
-   :caption: Applications
-
-   applications/subsidence_forecasting
-   applications/tuner_workflow
-   applications/calibration_and_uncertainty
-   applications/reproducibility_scripts
-   applications/figure_generation
-
-.. toctree::
-   :hidden:
-   :maxdepth: 2
-   :caption: API reference
-
-   api/cli
-   api/subsidence
-   api/tuner
-   api/utils
-   api/resources
-
-.. toctree::
-   :hidden:
-   :maxdepth: 2
-   :caption: Developer notes
-
-   developer/package_structure
-   developer/migration_from_fusionlab
-   developer/contributing
-
-.. toctree::
-   :hidden:
-   :maxdepth: 1
-   :caption: Release notes
-
+   getting_started/index
+   scientific_foundations/index
+   user_guide/index
+   applications/index
+   api/index
+   developer/index
    release_notes
-
-.. toctree::
-   :hidden:
-   :maxdepth: 1
-   :caption: References
-
    references

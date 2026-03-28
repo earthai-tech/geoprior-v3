@@ -92,7 +92,7 @@ def validate_keras_loss(
     --------
     >>> import tensorflow as tf
     >>> from tensorflow.keras.losses import MeanSquaredError
-    >>> from geoprior.nn.keras_validator import validate_keras_loss
+    >>> from geoprior.models.keras_validator import validate_keras_loss
     >>> mse = MeanSquaredError()
     >>> validate_keras_loss(mse)
     True
@@ -267,7 +267,7 @@ def validate_keras_layer(
     Examples
     --------
     >>> import tensorflow as tf
-    >>> from geoprior.nn.keras_validator import validate_keras_layer
+    >>> from geoprior.models.keras_validator import validate_keras_layer
     >>> layer = tf.keras.layers.Dense(10)
     >>> validate_keras_layer(layer)
     True
@@ -470,7 +470,7 @@ def validate_keras_model(
     --------
     >>> from tensorflow.keras.layers import Dense
     >>> from tensorflow.keras.models import Sequential
-    >>> from geoprior.nn.keras_validator import validate_keras_model
+    >>> from geoprior.models.keras_validator import validate_keras_model
     >>> # Suppose we have:
     ... model = Sequential([Dense(2)])
     >>> # Basic validation:
@@ -591,7 +591,7 @@ def check_keras_model_status(
     --------
     >>> import tensorflow as tf
     >>> from tensorflow.keras import layers
-    >>> from geoprior.nn.keras_validator import check_keras_model_status
+    >>> from geoprior.models.keras_validator import check_keras_model_status
     >>> # Minimal model
     ... model = tf.keras.Sequential([
     ...     layers.Dense(1, input_shape=(3,))

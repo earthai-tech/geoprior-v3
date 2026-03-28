@@ -12,7 +12,7 @@ Utility helpers for attention masks.
 
 from __future__ import annotations
 
-from ..compat.types import TensorLike
+from ...compat.types import TensorLike
 from ._config import (
     Tensor,
     tf_bool,

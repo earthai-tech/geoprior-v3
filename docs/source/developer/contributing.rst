@@ -698,7 +698,7 @@ The surrounding developer pages explain:
   how to handle older documentation context and stale
   references;
 
-- :doc:`release_notes`
+- :doc:`../release_notes`
   how to record changes cleanly in project history.
 
 See also
