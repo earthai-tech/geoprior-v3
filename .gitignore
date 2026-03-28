@@ -209,6 +209,7 @@ docs/source/_autosummary/
 docs/source/generated/
 docs/source/api/_autosummary/
 docs/source/api/generated/
+docs/source/auto_examples/
 
 # Optional generated static files
 docs/source/_static/switcher.json
@@ -217,3 +218,5 @@ docs/source/_static/switcher.json
 # Local secrets / keys
 # ------------------------------
 geoprior/api/gimini_key.py
+
+# 

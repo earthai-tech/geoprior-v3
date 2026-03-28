@@ -60,7 +60,7 @@ geoprior-run = "geoprior.cli:run_main"
 geoprior-build = "geoprior.cli:build_main"
 geoprior-plot = "geoprior.cli:plot_main"
 geoprior-init = "geoprior.cli.init_config:main"
-geoprior-check-imports = "tools.check_imports:main"
+# geoprior-check-imports = "tools.check_imports:main"
 
 [project.optional-dependencies]
 kdiagram = ["k-diagram>=1.3.0"]
@@ -99,7 +99,7 @@ include = [
   "geoprior.*",
   "scripts",
   "scripts.*",
-  "tools"
+#  "tools"
 ]
 exclude = [
   "tests",
