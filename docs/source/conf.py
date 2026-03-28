@@ -63,25 +63,25 @@ def _read_release() -> str:
     )
     return "0+unknown"
 
-# -- Version Handling -------------------------------------------------------
-try:
-    import geoprior as gp
+# # -- Version Handling -------------------------------------------------------
+# try:
+#     import geoprior as gp
 
-    version = ".".join(
-        gp.__version__.split(".")[:2]
-    )  # Use the major.minor version
-    release = gp.__version__
-except Exception:
-    # Fallback: package not importable (e.g., building docs from source)
-    version = "0.0"
-    release = "0+unknown"
-    warnings.warn(
-        "GeoPrior not importable in docs environment; using 0+unknown"
-    )
+#     version = ".".join(
+#         gp.__version__.split(".")[:2]
+#     )  # Use the major.minor version
+#     release = gp.__version__
+# except Exception:
+#     # Fallback: package not importable (e.g., building docs from source)
+#     version = "0.0"
+#     release = "0+unknown"
+#     warnings.warn(
+#         "GeoPrior not importable in docs environment; using 0+unknown"
+#     )
 
 
-# release = _read_release()
-# version = ".".join(release.split(".")[:2])
+release = _read_release()
+version = ".".join(release.split(".")[:2])
 
 project = "GeoPrior"
 author = "Laurent Kouadio"
@@ -144,7 +144,7 @@ autodoc_typehints = "description"
 autoclass_content = "class"
 autosummary_generate = True
 autosummary_imported_members = False
-autodoc_mock_imports = ["tensorflow", "keras"]
+autodoc_mock_imports = ["tensorflow", "keras", "seaborn"]
 
 myst_enable_extensions = [
     "colon_fence",
