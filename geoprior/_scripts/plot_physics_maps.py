@@ -587,10 +587,10 @@ def plot_physics_maps(
 
     tau_sym = _tau_prior_symbol(meta)
     top = [
-        ("log10_K", r"$\\log_{10} K$", zK, cmap, k_lo, k_hi),
+        ("log10_K", r"$\log_{10} K$", zK, cmap, k_lo, k_hi),
         (
             "log10_Ss",
-            r"$\\log_{10} S_s$",
+            r"$\log_{10} S_s$",
             zSs,
             cmap,
             ss_lo,
@@ -601,7 +601,7 @@ def plot_physics_maps(
     bot = [
         (
             "log10_tau",
-            r"$\\log_{10} \\tau$",
+            r"$\log_{10} \tau$",
             zt,
             cmap,
             t_lo,
@@ -609,7 +609,7 @@ def plot_physics_maps(
         ),
         (
             "log10_tau_p",
-            rf"$\\log_{{10}} {tau_sym}$",
+            rf"$\log_{{10}} {tau_sym}$",
             ztp,
             cmap,
             tp_lo,
@@ -617,7 +617,7 @@ def plot_physics_maps(
         ),
         (
             "delta_log10_tau",
-            r"$\\Delta \\log_{10} \\tau$",
+            r"$\Delta \log_{10} \tau$",
             zD,
             cmap_div,
             d_lo,
