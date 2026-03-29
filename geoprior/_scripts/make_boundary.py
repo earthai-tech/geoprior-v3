@@ -11,7 +11,7 @@ from . import config as cfg
 from . import utils
 
 if TYPE_CHECKING:
-    import geopandas as gpd # noqa
+    import geopandas as gpd  # noqa
 
 
 _CITY_A = cfg.CITY_CANON.get("ns", "Nansha")
@@ -20,7 +20,7 @@ _CITY_B = cfg.CITY_CANON.get("zh", "Zhongshan")
 
 def _require_geopandas():
     try:
-        import geopandas as gpd # noqa
+        import geopandas as gpd  # noqa
     except Exception as e:
         raise SystemExit(
             "Need geopandas installed for boundary export. "
@@ -99,8 +99,7 @@ def _resolve_city(
 
     if not src:
         raise ValueError(
-            f"{city}: provide --*-src or "
-            "--*-eval/--*-future"
+            f"{city}: provide --*-src or --*-eval/--*-future"
         )
 
     art = utils.detect_artifacts(src)
@@ -132,9 +131,7 @@ def _poly_from_points(
         return pts.convex_hull
 
     try:
-        return concave_hull(
-            pts, ratio=float(alpha)
-        )
+        return concave_hull(pts, ratio=float(alpha))
     except Exception:
         return pts.convex_hull
 
@@ -144,7 +141,7 @@ def _make_boundary_gdf(
     city: str,
     poly: Any,
 ):
-    gpd = _require_geopandas() # noqa
+    gpd = _require_geopandas()  # noqa
     return gpd.GeoDataFrame(
         [{"city": city, "geometry": poly}],
         geometry="geometry",
@@ -166,9 +163,7 @@ def _out_stem(
     if base.suffix:
         base = base.with_suffix("")
 
-    stem = base.parent / (
-        f"{base.name}_{_slug_city(city)}"
-    )
+    stem = base.parent / (f"{base.name}_{_slug_city(city)}")
     stem.parent.mkdir(
         parents=True,
         exist_ok=True,
@@ -209,8 +204,7 @@ def make_boundary_main(
     ap = argparse.ArgumentParser(
         prog=prog or "make-boundary",
         description=(
-            "Create a boundary polygon from "
-            "forecast points."
+            "Create a boundary polygon from forecast points."
         ),
     )
     utils.add_city_flags(ap, default_both=True)
@@ -219,12 +213,8 @@ def make_boundary_main(
     ap.add_argument("--zh-src", type=str, default=None)
     ap.add_argument("--ns-eval", type=str, default=None)
     ap.add_argument("--zh-eval", type=str, default=None)
-    ap.add_argument(
-        "--ns-future", type=str, default=None
-    )
-    ap.add_argument(
-        "--zh-future", type=str, default=None
-    )
+    ap.add_argument("--ns-future", type=str, default=None)
+    ap.add_argument("--zh-future", type=str, default=None)
 
     ap.add_argument(
         "--split",

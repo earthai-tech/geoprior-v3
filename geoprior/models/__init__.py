@@ -115,13 +115,7 @@ from .subsidence import (
     load_physics_payload,
     override_scaling_kwargs,
     plot_physics_values_in,
-) 
-from .subsidence.plot import ( 
-    plot_epsilons_in, 
-    plot_physics_losses_in, 
-    plot_history_in as plot_history, 
-    gather_coords_flat,
-   )
+)
 from .subsidence.identifiability import (
     derive_K_from_tau_np,
     ident_audit_dict,
@@ -129,6 +123,14 @@ from .subsidence.identifiability import (
 from .subsidence.payloads import (
     identifiability_diagnostics_from_payload,
     summarise_effective_params,
+)
+from .subsidence.plot import (
+    gather_coords_flat,
+    plot_epsilons_in,
+    plot_physics_losses_in,
+)
+from .subsidence.plot import (
+    plot_history_in as plot_history,
 )
 from .tuners import SubsNetTuner
 
@@ -171,9 +173,9 @@ __all__ = [
     "derive_K_from_tau_np",
     "ident_audit_dict",
     "SubsNetTuner",
-    "plot_epsilons_in", 
-    "plot_physics_losses_in", 
-    "plot_history", 
-    "plot_physics_values_in", 
-    "gather_coords_flat"
+    "plot_epsilons_in",
+    "plot_physics_losses_in",
+    "plot_history",
+    "plot_physics_values_in",
+    "gather_coords_flat",
 ]
