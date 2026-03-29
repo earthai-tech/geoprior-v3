@@ -2658,18 +2658,40 @@ def plot_reliability_diagram(
             logger=_logger,
         )
 
+        # Allow a mixed mapping where one entry is a DataFrame
+        if isinstance(data, pd.DataFrame):
+            data = {"forecasts": data}
+
+        # Resolve plotting style for both branches
+        style_line = data.get("style", "-")
+        marker = data.get(
+            "marker",
+            markers[i % len(markers)],
+        )
+        color = data.get(
+            "color",
+            colors[i % len(colors)],
+        )
+
         # Use precomputed points if available
         if (
             "observed_probs" in data
             and "nominal_probs" in data
         ):
-            nominal = data["nominal_probs"]
-            observed = data["observed_probs"]
+            nominal = list(data["nominal_probs"])
+            observed = list(data["observed_probs"])
+
+            if len(nominal) != len(observed):
+                raise ValueError(
+                    "nominal_probs and observed_probs "
+                    "must have the same length."
+                )
+
         else:
             # Require forecasts key
             if "forecasts" not in data:
                 vlog(
-                    f"Skip {model_name}: missing forecasts",  # noqa
+                    f"Skip {model_name}: missing forecasts",
                     verbose,
                     level=2,
                     logger=_logger,
@@ -2677,12 +2699,12 @@ def plot_reliability_diagram(
                 continue
 
             forecasts = data["forecasts"]
-            style_line = data.get("style", "-")
-            marker = data.get("marker", markers[i])
-            color = data.get("color", colors[i])
 
             # Compute reliability points
-            nominal = sorted(intervals.keys(), reverse=True)
+            nominal = sorted(
+                intervals.keys(),
+                reverse=True,
+            )
             observed = []
 
             for prob in nominal:
@@ -2699,7 +2721,7 @@ def plot_reliability_diagram(
                 covered = (y_true >= forecasts[low_c]) & (
                     y_true <= forecasts[up_c]
                 )
-                observed.append(np.mean(covered))
+                observed.append(float(np.mean(covered)))
 
             # Trim nominal to match observed length
             nominal = nominal[: len(observed)]
@@ -2720,14 +2742,25 @@ def plot_reliability_diagram(
 
     # Finalize labels and layout
     ax.set_xlabel(
-        "Forecast Probability (Nominal)", fontsize=14
+        "Forecast Probability (Nominal)",
+        fontsize=14,
     )
     ax.set_ylabel(
-        "Observed Frequency (Empirical)", fontsize=14
+        "Observed Frequency (Empirical)",
+        fontsize=14,
     )
-    ax.set_title(title, fontsize=18, fontweight="bold")
+    ax.set_title(
+        title,
+        fontsize=18,
+        fontweight="bold",
+    )
     ax.legend(fontsize=12, loc="upper left")
-    ax.grid(True, which="both", linestyle=":", linewidth=0.7)
+    ax.grid(
+        True,
+        which="both",
+        linestyle=":",
+        linewidth=0.7,
+    )
     ax.set_aspect("equal", adjustable="box")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)

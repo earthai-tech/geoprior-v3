@@ -604,10 +604,90 @@ div.admonition > .admonition-title {
   color: #fff;
   display: flex;
   font-weight: 800;
-  gap: 0.75rem;
+  gap: 0.55rem;
   letter-spacing: 0.01em;
+  line-height: 1.2;
   margin: 0;
-  padding: 0.85rem 1.15rem;
+  min-height: 3.1rem;
+  padding: 0.9rem 1.15rem;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.18);
+}
+
+html[data-theme="light"] .admonition.tip,
+html[data-theme="light"] .admonition.hint {
+  background: linear-gradient(
+    180deg,
+    rgba(25, 135, 84, 0.06) 0%,
+    #ffffff 38%
+  );
+}
+
+html[data-theme="light"] .admonition.warning,
+html[data-theme="light"] .admonition.caution {
+  background: linear-gradient(
+    180deg,
+    rgba(217, 119, 6, 0.07) 0%,
+    #ffffff 38%
+  );
+}
+
+html[data-theme="light"] .admonition.error,
+html[data-theme="light"] .admonition.danger,
+html[data-theme="light"] .admonition.important {
+  background: linear-gradient(
+    180deg,
+    rgba(180, 35, 24, 0.06) 0%,
+    #ffffff 38%
+  );
+}
+
+html[data-theme="dark"] .admonition.tip,
+html[data-theme="dark"] .admonition.hint {
+  background: linear-gradient(
+    180deg,
+    rgba(55, 182, 121, 0.10) 0%,
+    var(--pst-color-surface) 42%
+  );
+}
+
+html[data-theme="dark"] .admonition.warning,
+html[data-theme="dark"] .admonition.caution {
+  background: linear-gradient(
+    180deg,
+    rgba(247, 168, 75, 0.11) 0%,
+    var(--pst-color-surface) 42%
+  );
+}
+
+html[data-theme="dark"] .admonition.error,
+html[data-theme="dark"] .admonition.danger,
+html[data-theme="dark"] .admonition.important {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 120, 103, 0.10) 0%,
+    var(--pst-color-surface) 42%
+  );
+}
+
+
+/* Clean admonition icon reset for PyData theme */
+.admonition .admonition-title::before,
+div.admonition > .admonition-title::before {
+  color: #ffffff !important;
+  background: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  opacity: 1 !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 0.55rem 0 0 !important;
+  padding: 0 !important;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.18));
+  position: static !important;
+  transform: none !important;
+  flex: 0 0 auto;
+  display: inline-block;
+  line-height: 1;
 }
 
 .admonition > *:not(.admonition-title) {

@@ -1,88 +1,223 @@
 Diagnostics
 ===========
 
-This gallery focuses on **workflow-stage diagnostics** in GeoPrior.
+This gallery focuses on **workflow diagnostics, split credibility,
+training behavior, tuning interpretation, and physics-consistency
+checks** in GeoPrior.
 
-The examples in this section explain how to inspect the major staged
-parts of the workflow before moving on to forecasting, uncertainty, or
-final figure generation. They are designed to help readers understand:
+Unlike the forecasting gallery, which explains how forecast outputs are
+built and read, and unlike the uncertainty gallery, which explains how
+probabilistic forecasts are calibrated and interpreted, the pages
+collected here are organized around a different practical question:
 
-- whether the inputs look sane,
-- how training evolves,
-- and how tuning results should be read.
+**How should a user check whether the workflow itself is behaving
+sensibly before trusting later forecast and physics results?**
 
-In other words, these pages teach how to diagnose the GeoPrior
-workflow across its main operational stages.
+The emphasis is therefore on **diagnostic credibility**. These examples
+show how GeoPrior turns preprocessing logic, training histories, tuning
+artifacts, and physics summaries into readable workflow diagnostics such
+as:
 
-What this section teaches
+- group-validity masks,
+- holdout split designs,
+- training-curve summaries,
+- hyperparameter tuning summaries,
+- bridge diagnostics from training to physics inspection.
+
+In other words, this gallery is about **checking the workflow**:
+not training the final model itself, and not yet producing the final
+forecast or physics figures.
+
+What this gallery teaches
 -------------------------
 
-The examples in this folder are designed as **diagnostic lessons**.
+Most pages in this section follow the same broad pattern:
 
-Each page usually does four things:
+#. create a compact synthetic workflow artifact,
+#. call the real GeoPrior helper or mimic its output contract,
+#. inspect the returned tables, splits, curves, or summaries,
+#. explain how to read and interpret the diagnostic result.
 
-1. create or load a compact synthetic stage-oriented input,
-2. call the relevant GeoPrior diagnostic plotting helper,
-3. inspect the produced diagnostic output,
-4. explain what a healthy or unhealthy result looks like.
+Even when a page prints small tables or summaries, the main goal
+remains the same: to explain the **diagnostic artifact and its
+interpretation**.
 
-The main goal is to make stage-level workflow behavior easy to check
-before readers move on to deeper modeling interpretation.
+Module guide
+------------
 
-How to read this gallery
-------------------------
+.. list-table::
+   :header-rows: 1
+   :widths: 30 22 48
 
-A good way to use this section is to move from:
+   * - Module
+     - Main output
+     - Purpose
+   * - ``holdout_group_masks.py``
+     - Group-validity masks
+     - Compute which spatial groups are valid for training and which
+       remain usable only for forecasting, then filter the raw table
+       accordingly.
+   * - ``spatial_block_holdout.py``
+     - Holdout split design
+     - Compare random and spatial-block train/validation/test group
+       splits and explain why spatial-block holdout is often more
+       credible for geospatial forecasting.
+   * - ``plot_stage2_training_curves.py``
+     - Training-history diagnostics
+     - Read Stage-2 loss curves, physics-loss components, epsilon-style
+       residual diagnostics, and warmup / scaling controls.
+   * - ``plot_stage3_tuning_summary.py``
+     - Tuning-summary diagnostics
+     - Inspect Stage-3 hyperparameter search results, top trials,
+       search progression, and parameter-versus-score structure.
+   * - ``physics_diagnostic_bridge.py``
+     - Physics bridge diagnostics
+     - Connect training diagnostics to later physics inspection using
+       timescale consistency, field distributions, residual summaries,
+       and payload-based diagnostics.
 
-- stage-1 data checks,
-- to stage-2 training behavior,
-- to stage-3 tuning summaries.
+Reading path
+------------
 
-That order mirrors the normal operational sequence of the workflow and
-helps users diagnose problems early rather than late.
+A useful way to move through this gallery is to follow the logic of a
+complete workflow check:
 
-Examples in this section
-------------------------
+#. begin by checking whether the data groups are valid,
+#. confirm that the holdout split is credible,
+#. inspect Stage-2 training behavior,
+#. inspect Stage-3 tuning behavior,
+#. finish with the bridge from optimization diagnostics to physics
+   diagnostics.
 
-``plot_stage1_data_checks.py``
-    Inspect the early data-processing outputs and check that the main
-    stage-1 artifacts look consistent before training begins.
+That is why the examples are grouped by **workflow-diagnostic purpose**
+rather than only by utility or plotting function.
 
-``plot_stage2_training_curves.py``
-    Examine stage-2 training curves to understand optimization
-    behavior, stability, and possible training pathologies.
+Gallery organization
+--------------------
 
-``plot_stage3_tuning_summary.py``
-    Summarize stage-3 tuning outputs and help interpret which
-    hyperparameter settings or trial families performed best.
+Stage-1 validity checks
+~~~~~~~~~~~~~~~~~~~~~~~
 
-Practical workflow
-------------------
+These examples are the best place to start when you want to know
+whether the data are even usable for the intended workflow.
 
-A common workflow through this section is:
+They focus on questions such as:
 
-1. inspect stage-1 data outputs,
-2. inspect stage-2 training curves,
-3. inspect stage-3 tuning summaries,
-4. then proceed to forecasting, uncertainty, or final reporting.
+- which groups contain all required training years,
+- which groups contain enough years only for forecasting,
+- how much of the dataset survives early filtering.
 
-This separation is deliberate. It helps keep:
+The main page in this group is:
 
-- workflow validation,
-- model interpretation,
-- and final presentation
+- ``holdout_group_masks.py``
 
-cleanly distinct.
+Holdout-split credibility
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These examples focus on the design of the train/validation/test split.
+
+They are most useful when you want to inspect:
+
+- whether train, validation, and test groups are disjoint,
+- how random splitting differs from spatial-block splitting,
+- whether the chosen split strategy is too optimistic for a spatial
+  forecasting problem.
+
+The main page in this group is:
+
+- ``spatial_block_holdout.py``
+
+Stage-2 training diagnostics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These examples focus on optimization behavior during model fitting.
+
+They are especially useful when you want to inspect:
+
+- whether training and validation loss behave sensibly,
+- whether the supervised and physics losses are balanced,
+- whether epsilon-style residual diagnostics improve,
+- whether warmup or scaling controls are shaping the run.
+
+The main page in this group is:
+
+- ``plot_stage2_training_curves.py``
+
+Stage-3 tuning diagnostics
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These examples focus on hyperparameter search behavior.
+
+They are most useful when you want to inspect:
+
+- whether the search kept improving,
+- whether the best trial is clearly better than the rest,
+- which hyperparameters seem associated with better performance,
+- whether the winning trial is also stable and practical.
+
+The main page in this group is:
+
+- ``plot_stage3_tuning_summary.py``
+
+Physics diagnostic bridge
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These examples focus on the transition from workflow diagnostics to
+physics interpretation.
+
+They are particularly useful when you want to inspect:
+
+- whether learned and closure-implied timescales agree,
+- whether physics fields have plausible distributions,
+- whether residual-like quantities are centered and stable,
+- how to move from training diagnostics to flat payload-based physics
+  analysis.
+
+The main page in this group is:
+
+- ``physics_diagnostic_bridge.py``
+
+Why this separation matters
+---------------------------
+
+This gallery deliberately keeps four concerns distinct:
+
+- **Stage-1 data and split checks**,
+- **Stage-2 optimization diagnostics**,
+- **Stage-3 tuning diagnostics**,
+- **bridge diagnostics into physics inspection**.
+
+That separation makes the workflow easier to understand. It also helps
+users distinguish between:
+
+- helpers that validate which groups are usable,
+- helpers that define the credibility of the holdout split,
+- diagnostic summaries that explain how training and tuning behaved,
+- and bridge artifacts that prepare later physics inspection.
 
 Notes
 -----
 
 - These examples are intentionally compact and lesson-oriented.
-- The pages in this section are stage-first: they explain how to
-  validate the workflow as it runs.
-- A good rule of thumb is:
+- The pages in this section are diagnostics-first: they may print
+  tables, split summaries, or metric summaries, but their main purpose
+  is to explain how the workflow should be checked before later
+  forecasts or physics figures are trusted.
+- A useful rule of thumb is:
 
-  - ``diagnostics/`` checks workflow health,
-  - ``forecasting/`` explains prediction outputs,
-  - ``uncertainty/`` explains forecast reliability,
-  - ``figure_generation/`` builds final communication figures.
+  - ``forecasting/`` explains how forecast outputs are built, read,
+    and evaluated,
+  - ``uncertainty/`` explains calibration, reliability, and event-risk
+    interpretation,
+  - ``diagnostics/`` explains workflow validity, training behavior,
+    tuning behavior, and the bridge into physics diagnostics,
+  - ``tables_and_summaries/`` builds reusable analysis artifacts.
+
+- A practical reading sequence is:
+
+  - first validate the groups,
+  - then inspect the holdout strategy,
+  - then inspect Stage-2 training curves,
+  - then inspect Stage-3 tuning summaries,
+  - then move to the physics diagnostic bridge before reading later
+    model-inspection or figure-generation pages.

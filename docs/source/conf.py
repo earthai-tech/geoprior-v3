@@ -6,6 +6,7 @@ from __future__ import annotations
 import datetime
 import importlib
 import re
+import os 
 import sys
 import warnings
 from importlib.metadata import (
@@ -179,9 +180,11 @@ html_theme_options = {
             "https://geoprior-v3.readthedocs.io/en/latest/"
             "_static/switcher.json"
         ),
-        "version_match": release,
+        "version_match": os.environ.get(
+            "READTHEDOCS_VERSION",
+            "latest",
+        ),
     },
-
     "check_switcher": True,
 
     "navbar_start": [

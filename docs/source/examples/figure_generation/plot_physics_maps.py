@@ -69,10 +69,10 @@ is fully executable during the documentation build.
 # We import the real plotting backend from the project script.
 # This page teaches the actual function used by the CLI.
 
-from __future__ import annotations
-
 import tempfile
 from pathlib import Path
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
 
 import numpy as np
 
@@ -244,9 +244,28 @@ out_paths = plot_physics_maps(
     out_json=None,
 )
 
+
+
 print("Written files:")
 for path in out_paths:
     print(" -", path)
+
+# %%
+# Show the saved figure inside the gallery page
+# ---------------------------------------------
+# The backend writes PNG/SVG outputs. We load the PNG back into a
+# small display figure so Sphinx-Gallery always shows the rendered
+# result on the page.
+
+png_path = next(
+    path for path in out_paths
+    if str(path).lower().endswith(".png")
+)
+
+img = mpimg.imread(str(png_path))
+fig, ax = plt.subplots(figsize=(8.0, 5.4))
+ax.imshow(img)
+ax.axis("off")
 
 # %%
 # Step 7 - Quantify the strongest tension location

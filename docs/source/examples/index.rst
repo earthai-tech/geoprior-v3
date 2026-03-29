@@ -64,6 +64,8 @@ Start here
          trends, payload values, coordinates, and learned
          parameters.
 
+
+   
 How this gallery is organized
 -----------------------------
 
@@ -97,6 +99,19 @@ A typical page will help you:
 That means the gallery is not only for copying code. It is
 also a practical guide to reading outputs with confidence.
 
+See also
+--------
+
+.. grid:: 1 1 2 2
+   :gutter: 2
+
+   .. grid-item-card:: Gallery execution times
+      :link: ../sg_execution_times
+      :link-type: doc
+
+      Review execution-time summaries for the generated
+      gallery examples.
+      
 .. toctree::
    :hidden:
 
@@ -106,3 +121,4 @@ also a practical guide to reading outputs with confidence.
    ../auto_examples/figure_generation/index
    ../auto_examples/tables_and_summaries/index
    ../auto_examples/model_inspection/index
+   ../sg_execution_times
