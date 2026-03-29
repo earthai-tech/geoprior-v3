@@ -21,15 +21,15 @@ from .. import KERAS_DEPS
 History = KERAS_DEPS.History
 
 
-__all__= [ 
-    "plot_history_in", 
-    "gather_coords_flat", 
-    "plot_physics_values_in", 
+__all__ = [
+    "plot_history_in",
+    "gather_coords_flat",
+    "plot_physics_values_in",
     "plot_epsilons_in",
     "plot_physics_losses_in",
-    "autoplot_geoprior_history"
-    
-    ]
+    "autoplot_geoprior_history",
+]
+
 
 def _as_history_dict(history: Any) -> dict[str, list[float]]:
     # Accept History or dict-like.
