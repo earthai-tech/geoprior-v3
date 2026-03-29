@@ -1,108 +1,125 @@
 API reference
 =============
 
-The API reference documents the public Python surfaces that support the
-GeoPrior workflow, from configuration-driven CLI execution to model
-construction, tuning, utilities, and parameter wrappers. This section is
-intended for users who want a stable view of the documented import
-surface, along with contextual notes explaining how the pieces fit
-within the broader subsidence-forecasting stack.
+The API reference collects the documented public Python surface of
+GeoPrior. It is designed for users who want to move from the narrative
+workflow pages into the actual modules, classes, helper layers, and
+configuration surfaces that support reproducible forecasting runs.
 
-Unlike a flat module dump, this reference is organized around the major
-interfaces that users are expected to touch directly:
+This section is not just a flat module listing. It is organized around
+the main interfaces that users are most likely to touch directly during
+normal work:
 
-- command-line entry points and wrapper modules,
-- the subsidence model family and its supporting components,
-- tuning interfaces for search and experimentation,
-- utility layers used for preprocessing, calibration, diagnostics,
-  and data handling,
-- resource and configuration modules that support reproducible runs,
-- parameter wrappers used to represent physical constants and
-  learnable scalar coefficients.
+- command-line wrappers and staged workflow entry points,
+- subsidence-model interfaces and supporting model components,
+- tuning interfaces for calibration and structured experimentation,
+- utility modules for preprocessing, diagnostics, geospatial handling,
+  and forecast support,
+- packaged resources and configuration-driven assets,
+- parameter helpers used to represent physical constants and learnable
+  scalar coefficients.
 
-For a higher-level overview of the scientific workflow, start with the
-:doc:`../scientific_foundations/geoprior_subsnet` page and the
-:doc:`../user_guide/workflow_overview` guide. For end-to-end usage
-examples, see the :doc:`../applications/subsidence_forecasting` and
-:doc:`../applications/tuner_workflow` application pages.
+For a scientific overview of the modeling stack, start with
+:doc:`../scientific_foundations/geoprior_subsnet` and
+:doc:`../scientific_foundations/models_overview`. For workflow-oriented
+usage, see :doc:`../user_guide/workflow_overview` and the examples
+gallery under :doc:`../examples/index`.
 
 .. note::
 
-   The pages collected here focus on the **documented public surface** of
-   GeoPrior. Internal compatibility shims or private implementation files
-   may exist underneath the package, but the API reference is designed to
-   emphasize the modules that users are expected to import, inspect, and
-   extend in normal workflows.
+   The pages collected here emphasize the **documented public surface**
+   of GeoPrior. Internal helpers and compatibility layers may exist
+   underneath the package, but this reference focuses on the parts of
+   the codebase that users are expected to import, inspect, extend, or
+   call through normal workflows.
 
-.. grid:: 1 2 2 3
-   :gutter: 3
+.. container:: cta-tiles
 
-   .. grid-item-card:: CLI and workflow surface
-      :class-card: sd-shadow-sm
+   .. grid:: 1 2 2 3
+      :gutter: 3
 
-      Browse the documented command-line wrappers, staged execution
-      modules, and resource pages that support initialization, runs,
-      diagnostics, and exports.
+      .. grid-item-card:: CLI and workflow surface
+         :class-card: sd-shadow-sm
+         :link: cli
+         :link-type: doc
 
-      :doc:`cli`
+         Browse the documented command-line wrappers, staged execution
+         modules, and resource pages that support initialization, runs,
+         diagnostics, and exports.
 
-   .. grid-item-card:: Subsidence models
-      :class-card: sd-shadow-sm
+      .. grid-item-card:: Subsidence models
+         :class-card: sd-shadow-sm
+         :link: subsidence
+         :link-type: doc
 
-      Explore the subsidence model family, supporting mathematical and
-      diagnostic modules, and the interfaces that structure the main
-      GeoPrior forecasting workflow.
+         Explore the subsidence model family, supporting mathematical and
+         diagnostic modules, and the interfaces that structure the main
+         GeoPrior forecasting workflow.
 
-      :doc:`subsidence`
+      .. grid-item-card:: Tuning components
+         :class-card: sd-shadow-sm
+         :link: tuner
+         :link-type: doc
 
-   .. grid-item-card:: Tuning components
-      :class-card: sd-shadow-sm
+         Review the documented tuner interfaces used for calibration,
+         configuration search, and structured experimentation.
 
-      Review the documented tuner interfaces used for calibration,
-      configuration search, and structured experimentation.
+      .. grid-item-card:: Utility layers
+         :class-card: sd-shadow-sm
+         :link: utils
+         :link-type: doc
 
-      :doc:`tuner`
+         Understand the utility stack spanning preprocessing,
+         calibration, geospatial handling, forecasting helpers, and
+         supporting model utilities.
 
-   .. grid-item-card:: Utility layers
-      :class-card: sd-shadow-sm
+      .. grid-item-card:: Resources and packaged data
+         :class-card: sd-shadow-sm
+         :link: resources
+         :link-type: doc
 
-      Understand the utility stack spanning preprocessing, calibration,
-      geospatial handling, forecasting helpers, and supporting model
-      utilities.
+         Inspect packaged resources, templates, and supporting files
+         that help keep GeoPrior workflows reproducible and
+         configuration-driven.
 
-      :doc:`utils`
+      .. grid-item-card:: Physical parameter wrappers
+         :class-card: sd-shadow-sm
+         :link: params
+         :link-type: doc
 
-   .. grid-item-card:: Resources and packaged data
-      :class-card: sd-shadow-sm
+         Learn how scalar physical constants and learnable coefficients
+         are represented through the documented parameter helper layer.
 
-      Inspect packaged resources, templates, and supporting files that
-      help keep GeoPrior workflows reproducible and configuration-driven.
+How to read this section
+------------------------
 
-      :doc:`resources`
+This part of the documentation can be used in two complementary ways.
 
-   .. grid-item-card:: Physical parameter wrappers
-      :class-card: sd-shadow-sm
+First, it can be read as a practical reference. When you need a stable
+import path, a documented class, or a specific helper function, these
+pages show the intended public surface and help you locate the right
+module quickly.
 
-      Learn how scalar physical constants and learnable coefficients are
-      represented through the documented parameter helper layer.
+Second, it can be read as an architectural map. Several API layers are
+closely tied to the scientific workflow, so the reference pages also
+explain why a module exists, how it fits into the broader forecasting
+stack, and whether it is typically used directly or through higher-level
+orchestration.
 
-      :doc:`params`
+A good reading path is often:
 
-How to use this section
------------------------
+#. start with the workflow-facing CLI surface,
+#. move to the subsidence model pages,
+#. review tuner and utility layers as needed,
+#. consult resources and parameter wrappers for reproducibility and
+   physical configuration details.
 
-The API pages are designed to be read in two complementary ways.
+.. tip::
 
-First, users can treat them as a reference for concrete import paths,
-public classes, and helper functions. This is especially useful when
-building scripts, notebooks, or research pipelines around the documented
-GeoPrior interfaces.
-
-Second, the pages can be read as architectural notes. Several of the API
-modules are tightly connected to the scientific model design, so the
-reference also explains why a given layer exists, how it is positioned
-in the workflow, and when it should be used directly versus indirectly
-through the CLI or higher-level orchestration helpers.
+   If you are new to the package, begin with the workflow and model
+   pages first. If you are writing scripts, extending internals, or
+   building reproducible research pipelines, the utility, resource, and
+   parameter sections will usually become important next.
 
 .. toctree::
    :maxdepth: 1

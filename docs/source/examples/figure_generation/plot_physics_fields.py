@@ -75,6 +75,8 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
 
 import numpy as np
 
@@ -212,7 +214,11 @@ meta = {
 # - scalebar and north_arrow make the map feel like a real
 #   spatial scientific figure.
 #
-# Sphinx-Gallery will capture the matplotlib output automatically.
+#
+# The backend writes image files to disk. To make sure the figure is
+# always visible on the gallery page, we reload the PNG and display it
+# explicitly in a small matplotlib preview, just like the
+# physics-sanity lesson.
 
 tmp_dir = Path(
     tempfile.mkdtemp(prefix="gp_sg_phys_")
@@ -263,6 +269,21 @@ out_paths = plot_physics_fields(
 print("Written files:")
 for path in out_paths:
     print(" -", path)
+
+# The backend writes ``.png`` and ``.svg`` outputs. We load the PNG
+# back into a small display figure so Sphinx-Gallery always has a
+# visible rendered result on the page.
+
+png_path = next(
+    Path(path)
+    for path in out_paths
+    if str(path).lower().endswith(".png")
+)
+
+img = mpimg.imread(png_path)
+fig, ax = plt.subplots(figsize=(8.2, 5.8))
+ax.imshow(img)
+ax.axis("off")
 
 # %%
 # Step 7 - Locate the strongest physics-tension zone

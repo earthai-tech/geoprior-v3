@@ -290,13 +290,15 @@ def resolve_cities(args) -> list[str]:
 
 def resolve_fig_out(out: str) -> Path:
     """
-    If out is relative, write under scripts/figs/.
-    If out has no suffix, we treat it as a stem.
+    Resolve figure output with user-path semantics.
+
+    Bare relative names go to scripts/figs/.
+    Relative paths with an explicit parent are kept.
     """
-    p = Path(out).expanduser()
-    if not p.is_absolute():
-        p = cfg.FIG_DIR / p
-    return p
+    return cfg.resolve_user_artifact_path(
+        out,
+        kind="fig",
+    )
 
 
 def _norm_fig_formats(
@@ -1248,12 +1250,15 @@ def to_float(x: Any) -> float:
 
 def resolve_out_out(out: str) -> Path:
     """
-    If out is relative, write under scripts/out/.
+    Resolve tabular output with user-path semantics.
+
+    Bare relative names go to scripts/out/.
+    Relative paths with an explicit parent are kept.
     """
-    p = Path(out).expanduser()
-    if not p.is_absolute():
-        p = cfg.OUT_DIR / p
-    return p
+    return cfg.resolve_user_artifact_path(
+        out,
+        kind="out",
+    )
 
 
 def find_phys_json(src: Any) -> Path | None:

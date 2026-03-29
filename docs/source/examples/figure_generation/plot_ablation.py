@@ -45,7 +45,7 @@ In the default modern configuration:
 
 The script also supports a legacy-style arrangement where the
 core metric can be switched back to **R²**, and the error panel
-can use **RMSE** instead of **MSE**. :contentReference[oaicite:3]{index=3}
+can use **RMSE** instead of **MSE**. 
 
 Why this matters
 ----------------

@@ -1,7 +1,6 @@
 """
-Driver-response plots: learning how the response moves with
-the drivers
-===========================================================
+Driver-response plots: learning how the response moves with the drivers
+==========================================================================
 
 This example teaches you how to read the GeoPrior
 driver-response figure.

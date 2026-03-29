@@ -61,6 +61,7 @@ Module reference
    :no-members:
    :no-inherited-members:
    :show-inheritance:
+   :no-index:
 
 Legacy coefficient descriptors
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -72,6 +73,7 @@ configurations still rely on the original coefficient-based interface.
 .. autosummary::
    :toctree: _autosummary/params/legacy
    :nosignatures:
+   :no-index:
 
    ~geoprior.params.LearnableC
    ~geoprior.params.FixedC
@@ -103,6 +105,7 @@ while the recovered physical parameter stays positive.
 .. autosummary::
    :toctree: _autosummary/params/learnable
    :nosignatures:
+   :no-index:
 
    ~geoprior.params.LearnableK
    ~geoprior.params.LearnableSs
@@ -121,6 +124,7 @@ to integrate into model construction and serialization logic.
 .. autosummary::
    :toctree: _autosummary/params/fixed
    :nosignatures:
+   :no-index:
 
    ~geoprior.params.FixedGammaW
    ~geoprior.params.FixedHRef
@@ -136,6 +140,7 @@ to accept both simple user input and explicit descriptor objects.
 .. autosummary::
    :toctree: _autosummary/params/helpers
    :nosignatures:
+   :no-index:
 
    ~geoprior.params.resolve_physical_param
 

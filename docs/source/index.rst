@@ -65,6 +65,15 @@ Start here
       Explore forecasting workflows, tuning, calibration,
       uncertainty handling, and reproducibility scripts.
 
+   .. grid-item-card:: Gallery
+      :link: examples/index
+      :link-type: doc
+      :class-card: card--workflow
+
+      Browse lesson-style examples for forecasting, uncertainty,
+      diagnostics, figure generation, table builders, and
+      model-inspection utilities.
+      
    .. grid-item-card:: API reference
       :link: api/index
       :link-type: doc
@@ -158,6 +167,7 @@ used both programmatically and operationally.
    - :doc:`getting_started/index`
    - :doc:`user_guide/index`
    - :doc:`applications/index`
+   - :doc:`examples/index`
    - :doc:`api/index`
 
 Documentation map
@@ -254,6 +264,7 @@ Navigate directly
    scientific_foundations/index
    user_guide/index
    applications/index
+   examples/index
    api/index
    developer/index
    release_notes

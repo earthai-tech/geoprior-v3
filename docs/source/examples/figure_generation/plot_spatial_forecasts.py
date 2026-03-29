@@ -156,7 +156,7 @@ def make_pattern(
 #
 # For the future frame, the required fields are the same except
 # that ``subsidence_actual`` is not needed. That is how the
-# project loader prepares the tables before plotting. :contentReference[oaicite:6]{index=6}
+# project loader prepares the tables before plotting.
 
 year_val = 2022
 years_fore = [2025, 2027, 2030]

@@ -1,7 +1,6 @@
 """
-Physics profiles: reducing a 2D lambda landscape into
-readable 1D lessons
-===============================================
+Physics profiles: reducing a 2D lambda landscape into readable 1D lessons
+==========================================================================
 
 This example teaches you how to read the GeoPrior
 physics-profiles figure.
@@ -285,8 +284,6 @@ figA1_phys_profiles_main(
         "--show-title",
         "true",
         "--show-panel-titles",
-        "true",
-        "--show-panel-labels",
         "true",
         "--show-legend",
         "false",

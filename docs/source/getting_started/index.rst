@@ -1,96 +1,104 @@
 Getting started
 ===============
 
-This section is the best entry point for readers who are new to
-GeoPrior-v3 and want to move from orientation to a first working run.
-It gathers the introductory pages that explain what the project is,
-how to install it, how to navigate the documentation, and how to launch
-a minimal configuration-driven workflow without first studying the full
-scientific or API layers.
+This section is the main entry point for readers who are new to
+GeoPrior-v3 and want to move from initial orientation to a first
+successful run. It brings together the core introductory pages that
+explain what the project is, how to install it, how to navigate the
+documentation, and how to launch a minimal configuration-driven
+workflow before diving into the deeper scientific or API layers.
 
-GeoPrior is designed as more than a standalone model class. The project
-combines a Python package interface, a staged command-line workflow,
-packaged resources, and a documentation structure that mirrors the way
-real subsidence studies are executed. Because of that, the getting
-started material is organized around the practical questions most users
-have at the beginning:
+GeoPrior is designed as more than a single model implementation. The
+project combines a Python package, a staged command-line workflow,
+packaged resources, and documentation that mirrors the structure of
+real subsidence-forecasting studies. For that reason, the getting
+started material is organized around the questions most users have at
+the beginning:
 
-- what the package is for and where it fits scientifically,
-- how to install it in a reproducible environment,
-- how to obtain a first successful run quickly,
+- what the package is for and how it is positioned scientifically,
+- how to install it in a stable and reproducible environment,
+- how to obtain a first working run quickly,
 - where to go next for workflow, scientific, or API details.
 
-If you are already familiar with the project goals and want the larger
-workflow picture, continue afterward to the
-:doc:`../user_guide/workflow_overview` guide. If you want the model-side
+If you already understand the overall project goals and want the
+larger execution picture, continue afterward to
+:doc:`../user_guide/workflow_overview`. If you want the scientific
 background behind the flagship subsidence workflow, see
 :doc:`../scientific_foundations/models_overview`.
 
 .. note::
 
-   The goal of this section is to reduce startup friction. It focuses on
-   the minimum conceptual and practical material required to begin using
-   GeoPrior productively, while leaving the deeper physics, tuning, and
-   API details to later sections of the documentation.
+   The purpose of this section is to reduce startup friction. It focuses
+   on the minimum practical and conceptual material needed to begin
+   using GeoPrior productively, while leaving deeper physics, tuning,
+   and API details to later parts of the documentation.
 
-.. grid:: 1 2 2 3
-   :gutter: 3
+.. container:: cta-tiles
 
-   .. grid-item-card:: Project overview
-      :class-card: sd-shadow-sm card--workflow
+   .. grid:: 1 1 2 2
+      :gutter: 3
 
-      Start with the broad project narrative, including the scientific
-      problem, the role of GeoPriorSubsNet, and the documentation map.
+      .. grid-item-card:: Overview
+         :link: overview
+         :link-type: doc
 
-      :doc:`overview`
+         Understand what GeoPrior-v3 is built for, how the workflow is
+         organized, and which stages matter most before you run the
+         package.
 
-   .. grid-item-card:: Installation
-      :class-card: sd-shadow-sm card--configuration
+      .. grid-item-card:: Installation
+         :link: installation
+         :link-type: doc
 
-      Set up a working Python environment, review the baseline
-      requirements, and prepare the package for command-line or Python
-      use.
+         Install the package, optional dependencies, and documentation
+         tooling required for local use and reproducible builds.
 
-      :doc:`installation`
+      .. grid-item-card:: Quickstart
+         :link: quickstart
+         :link-type: doc
 
-   .. grid-item-card:: Quickstart
-      :class-card: sd-shadow-sm card--cli
+         Run the shortest practical path through the project so you can
+         see the data flow, outputs, and expected artifacts.
 
-      Follow the fastest route from installation to a minimal working
-      interaction with the package and its staged workflow.
+      .. grid-item-card:: First project run
+         :link: first_project_run
+         :link-type: doc
 
-      :doc:`quickstart`
+         Walk through a more complete first execution, including the
+         expected inputs, stage behavior, and exported results.
 
-   .. grid-item-card:: First project run
-      :class-card: sd-shadow-sm card--physics
-
-      Walk through a first structured execution path and understand what
-      the main stages produce, save, and expose.
-
-      :doc:`first_project_run`
-
-Recommended reading path
+How to read this section
 ------------------------
 
-A natural reading order is:
+These pages are meant to be read as a guided ramp into the project.
 
-1. :doc:`overview`
-2. :doc:`installation`
-3. :doc:`quickstart`
-4. :doc:`first_project_run`
+A natural path is:
 
-That sequence moves from project context to environment setup, then to a
-minimal successful interaction, and finally to a slightly fuller
-workflow picture. After that, most users should continue with
-:doc:`../user_guide/workflow_overview` and the staged guides in the user
-section.
+#. start with :doc:`overview`,
+#. continue to :doc:`installation`,
+#. run through :doc:`quickstart`,
+#. then follow :doc:`first_project_run`.
 
-For readers coming primarily from research rather than software, the
-:doc:`overview` page is especially important because it clarifies how
-GeoPrior relates the subsidence forecasting problem to the package
-structure. For readers coming primarily from engineering or code use,
-:doc:`quickstart` and :doc:`first_project_run` provide the most direct
-path to hands-on use.
+That sequence moves from project context to environment setup, then to
+a minimal successful interaction, and finally to a slightly fuller
+view of the workflow. After that, most readers should continue into
+:doc:`../user_guide/workflow_overview` and the staged guides in the
+user guide.
+
+Different readers may enter from different directions. Readers coming
+primarily from research often benefit from starting with
+:doc:`overview`, because it explains how the forecasting problem maps
+onto the package structure. Readers coming primarily from engineering
+or code usage may want to move more quickly into :doc:`quickstart` and
+:doc:`first_project_run`, where the practical execution path is more
+immediate.
+
+.. tip::
+
+   If your goal is simply to get GeoPrior running as quickly as
+   possible, focus first on installation and quickstart. If your goal
+   is to understand how the package is organized before you run it,
+   begin with the overview page and then move forward in order.
 
 .. toctree::
    :maxdepth: 1
