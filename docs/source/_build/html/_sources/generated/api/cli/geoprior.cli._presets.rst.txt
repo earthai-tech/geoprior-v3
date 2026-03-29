@@ -1,0 +1,35 @@
+﻿geoprior.cli.\_presets
+======================
+
+.. automodule:: geoprior.cli._presets
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      get_sm3_preset
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      SM3Preset
+   
+   
+
+   
+   
+   
+
+
+

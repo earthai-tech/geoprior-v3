@@ -1,0 +1,39 @@
+﻿geoprior.\_scripts.plot\_hotspot\_analytics
+===========================================
+
+.. automodule:: geoprior._scripts.plot_hotspot_analytics
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      build_hotspot_tables
+      exceed_prob_from_quantiles
+      main
+      plot_hotspot_analytics
+      plot_hotspot_analytics_main
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      CityHotspotData
+   
+   
+
+   
+   
+   
+
+
+

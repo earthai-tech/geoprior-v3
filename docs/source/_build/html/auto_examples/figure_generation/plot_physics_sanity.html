@@ -1,0 +1,1200 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Physics sanity: checking closure agreement and residual behavior &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=404c0980"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/figure_generation/plot_physics_sanity';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Physics sensitivity: learning how lambda choices reshape the physics diagnostics" href="plot_physics_sensitivity.html" />
+    <link rel="prev" title="Physics profiles: reducing a 2D lambda landscape into readable 1D lessons" href="plot_physics_profiles.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../forecasting/index.html">Forecasting</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_forecast.html">Forecast quick-look with <code class="docutils literal notranslate"><span class="pre">plot_forecasts</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_forecast_by_step.html">Forecast by horizon step with <code class="docutils literal notranslate"><span class="pre">plot_forecast_by_step</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_future_quantiles_map.html">Future quantile maps with <code class="docutils literal notranslate"><span class="pre">forecast_view</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_holdout_vs_forecast.html">Holdout versus future forecast with <code class="docutils literal notranslate"><span class="pre">plot_eval_future</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../uncertainty/index.html">Uncertainty</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../diagnostics/index.html">Diagnostics</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Figure generation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="plot_ablation.html">Core ablation: learning what physics adds to the workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_core_ablation.html">Ablations and sensitivities: learning where the model behaves well in lambda space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_driver_response.html">Driver-response plots: learning how the response moves with the drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_external_validation.html">External validation: comparing inferred effective fields against independent site evidence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_geo_cumulative.html">Cumulative subsidence on a satellite-style map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_hotspot_analytics.html">Hotspot analytics: turning future forecasts into decision-ready priority maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_litho_parity.html">Lithology parity: comparing the geological composition of the two cities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_fields.html">Physics fields: learning to read the physical story in a map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_maps.html">Physics maps: turning pointwise payloads into readable spatial fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_profiles.html">Physics profiles: reducing a 2D lambda landscape into readable 1D lessons</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Physics sanity: checking closure agreement and residual behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_sensitivity.html">Physics sensitivity: learning how lambda choices reshape the physics diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_sm3_bounds_ridge_summary.html">SM3 bounds versus ridge: learning the two main failure modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_sm3_identifiability.html">SM3 identifiability: learning when recovery is accurate and when parameters slide along a ridge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_sm3_log_offsets.html">SM3 log offsets: learning where the inferred fields drift from their priors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_spatial_forecasts.html">Spatial forecasts: how to read observed maps, fitted maps, and future forecast maps together</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_transfer.html">Cross-city transferability: learning what survives transfer between cities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_uncertainty.html">Forecast uncertainty: learning how calibration behaves across cities and horizons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_uncertainty_extras.html">Expanded uncertainty diagnostics: learning what the main uncertainty figure still hides</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_xfer_impact.html">Transfer impact: what transfer changes for retention, risk, and hotspot stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_xfer_transferability.html">Cross-city transferability (v3.2): what survives when a workflow moves to the other city</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tables_and_summaries/index.html">Tables and summaries</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/build_ablation_table.html">Build ablation tables from sensitivity records</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/build_model_metrics.html">Build unified model-metrics tables from GeoPrior runs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/compute_brier_exceedance.html">Compute exceedance Brier scores from calibrated forecasts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/compute_hotspots.html">Compute hotspot summary tables from forecast CSVs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/extend_forecast.html">Extend forecast CSVs to later years</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/make_boundary.html">Build city boundary polygons from forecast points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/make_district_grid.html">Create district grid layers from forecast points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/make_exposure.html">Create exposure weights from forecast point density</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/summarize_hotspots.html">Summarize hotspot point clouds into tidy group tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/tag_clusters_with_zones.html">Tag hotspot clusters with district Zone IDs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../model_inspection/index.html">Model inspection</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/autoplot_geoprior_history.html">Automatically save the standard GeoPrior history diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/extract_physical_parameters.html">Extract learned physical parameters from a trained model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/gather_coords_flat.html">Flatten (t, x, y) coordinates from dataset batches</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/plot_epsilons_in.html">Plot epsilon diagnostics from a GeoPrior training history</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/plot_history_in.html">Plot training history with robust grouping and scale handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/plot_physics_losses_in.html">Plot physics loss terms from a GeoPrior training history</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/plot_physics_values_in.html">Plot physics payload values as maps and histograms</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../examples/index.html" class="nav-link">Gallery</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Figure generation</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Physics sanity: checking closure agreement and residual behavior</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-figure-generation-plot-physics-sanity-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="physics-sanity-checking-closure-agreement-and-residual-behavior">
+<span id="sphx-glr-auto-examples-figure-generation-plot-physics-sanity-py"></span><h1>Physics sanity: checking closure agreement and residual behavior<a class="headerlink" href="#physics-sanity-checking-closure-agreement-and-residual-behavior" title="Link to this heading">#</a></h1>
+<p>This example teaches you how to read the GeoPrior physics-sanity
+figure.</p>
+<p>Unlike a map-based figure, this page is not mainly about <em>where</em>
+things happen in space. It is about whether the inferred physics
+looks self-consistent.</p>
+<p>The figure asks two practical questions for each city:</p>
+<ol class="arabic simple">
+<li><p>Does the learned relaxation timescale <span class="math notranslate nohighlight">\(\tau\)</span> broadly
+agree with the prior or closure timescale?</p></li>
+<li><p>Are the consolidation residuals <span class="math notranslate nohighlight">\(R_{\mathrm{cons}}\)</span>
+centered and reasonably controlled, or do they show strong
+drift and spread?</p></li>
+</ol>
+<p>This makes the figure useful as a compact <em>sanity check</em> between
+field inference and residual behavior.</p>
+<section id="what-the-figure-contains">
+<h2>What the figure contains<a class="headerlink" href="#what-the-figure-contains" title="Link to this heading">#</a></h2>
+<p>The plotting backend builds a 2×2 layout for exactly two cases.</p>
+<p>For each city:</p>
+<ul class="simple">
+<li><p>the left panel compares <span class="math notranslate nohighlight">\(\tau\)</span> and
+<span class="math notranslate nohighlight">\(\tau_{\mathrm{prior}}\)</span>
+(or <span class="math notranslate nohighlight">\(\tau_{\mathrm{closure}}\)</span> depending on metadata),</p></li>
+<li><p>the right panel shows the distribution of the consolidation
+residual <span class="math notranslate nohighlight">\(R_{\mathrm{cons}}\)</span>.</p></li>
+</ul>
+<p>The backend also computes summary metrics such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">r2_logtau</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eps_prior_rms</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eps_cons_rms</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tau_ratio_median</span></code></p></li>
+</ul>
+</section>
+<section id="why-this-matters">
+<h2>Why this matters<a class="headerlink" href="#why-this-matters" title="Link to this heading">#</a></h2>
+<p>A model can produce plausible-looking forecasts while still
+learning a physically awkward internal state.</p>
+<p>This figure helps you answer questions like:</p>
+<ul class="simple">
+<li><p>Is the learned <span class="math notranslate nohighlight">\(\tau\)</span> mostly tracking the closure-based
+timescale, or drifting away from it?</p></li>
+<li><p>Are the consolidation residuals tightly concentrated near zero,
+or broad and biased?</p></li>
+<li><p>Is one city physically cleaner than the other?</p></li>
+</ul>
+<p>In other words, this is a figure for <em>trust calibration</em>.</p>
+<p>This gallery page uses two synthetic cities so the lesson is
+fully executable during the documentation build.</p>
+</section>
+<section id="imports">
+<h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
+<p>We use the real physics-sanity backend from the project code.
+The gallery page therefore teaches the real plotting engine.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.image</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpimg</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">geoprior._scripts.plot_physics_sanity</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <a href="../../generated/api/cli/geoprior._scripts.plot_physics_sanity.html#geoprior._scripts.plot_physics_sanity.render_physics_sanity" title="geoprior._scripts.plot_physics_sanity.render_physics_sanity" class="sphx-glr-backref-module-geoprior-_scripts-plot_physics_sanity sphx-glr-backref-type-py-function"><span class="n">render_physics_sanity</span></a><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="step-1-build-a-synthetic-domain">
+<h2>Step 1 - Build a synthetic domain<a class="headerlink" href="#step-1-build-a-synthetic-domain" title="Link to this heading">#</a></h2>
+<p>Even though this figure is not a map, we still synthesize
+physically meaningful arrays for two city-scale cases.</p>
+<p>Each case needs:</p>
+<ul class="simple">
+<li><p>tau</p></li>
+<li><p>tau_prior</p></li>
+<li><p>K</p></li>
+<li><p>Ss</p></li>
+<li><p>Hd</p></li>
+<li><p>cons</p></li>
+</ul>
+<p>where <code class="docutils literal notranslate"><span class="pre">cons</span></code> is the consolidation residual series used for
+the histogram panel.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n</span></a> <span class="o">=</span> <span class="mi">6000</span>
+<a href="https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.Generator" title="numpy.random.Generator" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rng</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.default_rng" title="numpy.random.default_rng" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span></a><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-create-the-first-city">
+<h2>Step 2 - Create the first city<a class="headerlink" href="#step-2-create-the-first-city" title="Link to this heading">#</a></h2>
+<p>City A is designed to be the “better behaved” case:</p>
+<ul class="simple">
+<li><p>tau is close to tau_prior,</p></li>
+<li><p>the log-space agreement is strong,</p></li>
+<li><p>and residuals are narrow and centered near zero.</p></li>
+</ul>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lp_a</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-method"><span class="n">rng</span><span class="o">.</span><span class="n">normal</span></a><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.18</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.18</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n</span></a><span class="p">)</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tau_prior_a</span></a> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">**</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lp_a</span></a>
+
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tau_a</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tau_prior_a</span></a> <span class="o">*</span> <span class="p">(</span>
+    <span class="mf">10.0</span> <span class="o">**</span> <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-method"><span class="n">rng</span><span class="o">.</span><span class="n">normal</span></a><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.015</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.055</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n</span></a><span class="p">)</span>
+<span class="p">)</span>
+
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">K_a</span></a> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">**</span> <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-method"><span class="n">rng</span><span class="o">.</span><span class="n">normal</span></a><span class="p">(</span><span class="n">loc</span><span class="o">=-</span><span class="mf">5.8</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.18</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n</span></a><span class="p">)</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Ss_a</span></a> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">**</span> <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-method"><span class="n">rng</span><span class="o">.</span><span class="n">normal</span></a><span class="p">(</span><span class="n">loc</span><span class="o">=-</span><span class="mf">4.7</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n</span></a><span class="p">)</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Hd_a</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.clip.html#numpy.clip" title="numpy.clip" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">clip</span></a><span class="p">(</span>
+    <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-method"><span class="n">rng</span><span class="o">.</span><span class="n">normal</span></a><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n</span></a><span class="p">),</span>
+    <span class="mf">12.0</span><span class="p">,</span>
+    <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cons_a</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-method"><span class="n">rng</span><span class="o">.</span><span class="n">normal</span></a><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">2.5e-6</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n</span></a><span class="p">)</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">meta_a</span></a> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;K&quot;</span><span class="p">:</span> <span class="s2">&quot;m/s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Ss&quot;</span><span class="p">:</span> <span class="s2">&quot;1/m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Hd&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tau&quot;</span><span class="p">:</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tau_prior&quot;</span><span class="p">:</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cons_res_vals&quot;</span><span class="p">:</span> <span class="s2">&quot;m/s&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;tau_prior_human_name&quot;</span><span class="p">:</span> <span class="s2">&quot;tau_closure&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tau_closure_formula&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="sa">r</span><span class="s2">&quot;\frac{H_d^2\,S_s}{\pi^2\,\kappa_b\,K}&quot;</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">case_a</span></a> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;city&quot;</span><span class="p">:</span> <span class="s2">&quot;Nansha&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#2a6f97&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;path&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s2">&quot;synthetic_nansha_physics_payload.npz&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">meta_a</span></a><span class="p">,</span>
+    <span class="s2">&quot;payload&quot;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="s2">&quot;tau&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tau_a</span></a><span class="p">,</span>
+    <span class="s2">&quot;tau_prior&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tau_prior_a</span></a><span class="p">,</span>
+    <span class="s2">&quot;K&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">K_a</span></a><span class="p">,</span>
+    <span class="s2">&quot;Ss&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Ss_a</span></a><span class="p">,</span>
+    <span class="s2">&quot;Hd&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Hd_a</span></a><span class="p">,</span>
+    <span class="s2">&quot;cons&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cons_a</span></a><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-create-the-second-city">
+<h2>Step 3 - Create the second city<a class="headerlink" href="#step-3-create-the-second-city" title="Link to this heading">#</a></h2>
+<p>City B is intentionally less aligned:</p>
+<ul class="simple">
+<li><p>tau departs more strongly from tau_prior,</p></li>
+<li><p>the agreement cloud is broader,</p></li>
+<li><p>and the consolidation residuals are wider and slightly biased.</p></li>
+</ul>
+<p>This gives the lesson a useful contrast.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lp_b</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-method"><span class="n">rng</span><span class="o">.</span><span class="n">normal</span></a><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.28</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.24</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n</span></a><span class="p">)</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tau_prior_b</span></a> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">**</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lp_b</span></a>
+
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tau_b</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tau_prior_b</span></a> <span class="o">*</span> <span class="p">(</span>
+    <span class="mf">10.0</span> <span class="o">**</span> <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-method"><span class="n">rng</span><span class="o">.</span><span class="n">normal</span></a><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.11</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.11</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n</span></a><span class="p">)</span>
+<span class="p">)</span>
+
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">K_b</span></a> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">**</span> <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-method"><span class="n">rng</span><span class="o">.</span><span class="n">normal</span></a><span class="p">(</span><span class="n">loc</span><span class="o">=-</span><span class="mf">5.5</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.24</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n</span></a><span class="p">)</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Ss_b</span></a> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">**</span> <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-method"><span class="n">rng</span><span class="o">.</span><span class="n">normal</span></a><span class="p">(</span><span class="n">loc</span><span class="o">=-</span><span class="mf">4.5</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.16</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n</span></a><span class="p">)</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Hd_b</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.clip.html#numpy.clip" title="numpy.clip" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">clip</span></a><span class="p">(</span>
+    <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-method"><span class="n">rng</span><span class="o">.</span><span class="n">normal</span></a><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">24.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n</span></a><span class="p">),</span>
+    <span class="mf">12.0</span><span class="p">,</span>
+    <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cons_b</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-method"><span class="n">rng</span><span class="o">.</span><span class="n">normal</span></a><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">1.2e-6</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">5.5e-6</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n</span></a><span class="p">)</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">meta_b</span></a> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;K&quot;</span><span class="p">:</span> <span class="s2">&quot;m/s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Ss&quot;</span><span class="p">:</span> <span class="s2">&quot;1/m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Hd&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tau&quot;</span><span class="p">:</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tau_prior&quot;</span><span class="p">:</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cons_res_vals&quot;</span><span class="p">:</span> <span class="s2">&quot;m/s&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;tau_prior_human_name&quot;</span><span class="p">:</span> <span class="s2">&quot;tau_closure&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tau_closure_formula&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="sa">r</span><span class="s2">&quot;\frac{H_d^2\,S_s}{\pi^2\,\kappa_b\,K}&quot;</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">case_b</span></a> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;city&quot;</span><span class="p">:</span> <span class="s2">&quot;Zhongshan&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#c26d3d&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;path&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s2">&quot;synthetic_zhongshan_physics_payload.npz&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">meta_b</span></a><span class="p">,</span>
+    <span class="s2">&quot;payload&quot;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="s2">&quot;tau&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tau_b</span></a><span class="p">,</span>
+    <span class="s2">&quot;tau_prior&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tau_prior_b</span></a><span class="p">,</span>
+    <span class="s2">&quot;K&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">K_b</span></a><span class="p">,</span>
+    <span class="s2">&quot;Ss&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Ss_b</span></a><span class="p">,</span>
+    <span class="s2">&quot;Hd&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Hd_b</span></a><span class="p">,</span>
+    <span class="s2">&quot;cons&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cons_b</span></a><span class="p">,</span>
+<span class="p">}</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cases</span></a> <span class="o">=</span> <span class="p">[</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">case_a</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">case_b</span></a><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="step-4-render-the-figure">
+<h2>Step 4 - Render the figure<a class="headerlink" href="#step-4-render-the-figure" title="Link to this heading">#</a></h2>
+<p>We use the real plotting backend. In <code class="docutils literal notranslate"><span class="pre">plot_mode=&quot;joint&quot;</span></code>,
+the left panels compare tau and tau_prior directly. The right
+panels show the distribution of <code class="docutils literal notranslate"><span class="pre">R_cons</span></code>.</p>
+<p>The helper saves the figure and returns the summary statistics.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tmp_dir</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span>
+    <a href="https://docs.python.org/3/library/tempfile.html#tempfile.mkdtemp" title="tempfile.mkdtemp" class="sphx-glr-backref-module-tempfile sphx-glr-backref-type-py-function"><span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span></a><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;gp_sg_sanity_&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_base</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tmp_dir</span></a> <span class="o">/</span> <span class="s2">&quot;physics_sanity_gallery&quot;</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stats</span></a> <span class="o">=</span> <a href="../../generated/api/cli/geoprior._scripts.plot_physics_sanity.html#geoprior._scripts.plot_physics_sanity.render_physics_sanity" title="geoprior._scripts.plot_physics_sanity.render_physics_sanity" class="sphx-glr-backref-module-geoprior-_scripts-plot_physics_sanity sphx-glr-backref-type-py-function"><span class="n">render_physics_sanity</span></a><span class="p">(</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cases</span></a><span class="p">,</span>
+    <span class="n">outbase</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_base</span></a><span class="p">,</span>
+    <span class="n">dpi</span><span class="o">=</span><span class="mi">160</span><span class="p">,</span>
+    <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+    <span class="n">gridsize</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span>
+    <span class="n">hist_bins</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+    <span class="n">clip_q</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">99.0</span><span class="p">),</span>
+    <span class="n">plot_mode</span><span class="o">=</span><span class="s2">&quot;joint&quot;</span><span class="p">,</span>
+    <span class="n">tau_scale</span><span class="o">=</span><span class="s2">&quot;log10&quot;</span><span class="p">,</span>
+    <span class="n">show_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">show_title</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">show_panel_titles</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">show_panel_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">show_ticklabels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">show_legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;Synthetic physics sanity: closure agreement and &quot;</span>
+        <span class="s2">&quot;consolidation residual distribution&quot;</span>
+    <span class="p">),</span>
+    <span class="n">paper_format</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">paper_no_offset</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[OK] wrote C:\Users\Daniel\AppData\Local\Temp\gp_sg_sanity_0f04q6uv\physics_sanity_gallery (eps,pdf,png,svg)
+</pre></div>
+</div>
+</section>
+<section id="step-5-show-the-saved-figure-inside-the-gallery-page">
+<h2>Step 5 - Show the saved figure inside the gallery page<a class="headerlink" href="#step-5-show-the-saved-figure-inside-the-gallery-page" title="Link to this heading">#</a></h2>
+<p>The backend writes <code class="docutils literal notranslate"><span class="pre">.png</span></code> and <code class="docutils literal notranslate"><span class="pre">.svg</span></code> outputs. We load the
+PNG back into a small display figure so Sphinx-Gallery always
+has a visible rendered result on the page.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">img</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/image_api.html#matplotlib.image.imread" title="matplotlib.image.imread" class="sphx-glr-backref-module-matplotlib-image sphx-glr-backref-type-py-function"><span class="n">mpimg</span><span class="o">.</span><span class="n">imread</span></a><span class="p">(</span><span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_base</span></a><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.png&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">7.0</span><span class="p">,</span> <span class="mf">4.4</span><span class="p">))</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.imshow.html#matplotlib.axes.Axes.imshow" title="matplotlib.axes.Axes.imshow" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">imshow</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">img</span></a><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.axis.html#matplotlib.axes.Axes.axis" title="matplotlib.axes.Axes.axis" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">axis</span></a><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_physics_sanity_001.png" srcset="../../_images/sphx_glr_plot_physics_sanity_001.png" alt="plot physics sanity" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(np.float64(-0.5), np.float64(1002.5), np.float64(664.5), np.float64(-0.5))
+</pre></div>
+</div>
+</section>
+<section id="step-6-inspect-the-numerical-summary">
+<h2>Step 6 - Inspect the numerical summary<a class="headerlink" href="#step-6-inspect-the-numerical-summary" title="Link to this heading">#</a></h2>
+<p>The backend returns one dictionary per city. These values help
+turn the visual impression into a more explicit diagnostic.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Summary statistics&quot;</span><span class="p">)</span>
+<span class="k">for</span> <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">city</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rec</span></a> <span class="ow">in</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stats</span></a><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">city</span></a><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  r2_logtau      = </span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rec</span></a><span class="p">[</span><span class="s1">&#39;r2_logtau&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  eps_prior_rms  = </span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rec</span></a><span class="p">[</span><span class="s1">&#39;eps_prior_rms&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  eps_cons_rms   = </span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rec</span></a><span class="p">[</span><span class="s1">&#39;eps_cons_rms&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  tau_ratio_med  = </span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rec</span></a><span class="p">[</span><span class="s1">&#39;tau_ratio_median&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Summary statistics
+
+Nansha
+  r2_logtau      = 0.9135
+  eps_prior_rms  = 1.3165e-01
+  eps_cons_rms   = 2.5058e-06
+  tau_ratio_med  = 1.0296
+
+Zhongshan
+  r2_logtau      = 0.8339
+  eps_prior_rms  = 3.5445e-01
+  eps_cons_rms   = 5.6771e-06
+  tau_ratio_med  = 1.2799
+</pre></div>
+</div>
+</section>
+<section id="step-7-add-one-simple-interpretation-helper">
+<h2>Step 7 - Add one simple interpretation helper<a class="headerlink" href="#step-7-add-one-simple-interpretation-helper" title="Link to this heading">#</a></h2>
+<p>A useful teaching trick is to compare the two cities directly.
+We summarize which city is more closure-aligned and which one
+has the tighter residual distribution.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">city_names</span></a> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stats</span></a><span class="p">)</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">best_r2_city</span></a> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">city_names</span></a><span class="p">,</span>
+    <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stats</span></a><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="s2">&quot;r2_logtau&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">best_cons_city</span></a> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">city_names</span></a><span class="p">,</span>
+    <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stats</span></a><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="s2">&quot;eps_cons_rms&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Interpretation helper&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;  Stronger tau/tau_prior agreement: </span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">best_r2_city</span></a><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;  Tighter consolidation residuals: </span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">best_cons_city</span></a><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Interpretation helper
+  Stronger tau/tau_prior agreement: Nansha
+  Tighter consolidation residuals: Nansha
+</pre></div>
+</div>
+</section>
+<section id="how-to-read-the-figure">
+<h2>How to read the figure<a class="headerlink" href="#how-to-read-the-figure" title="Link to this heading">#</a></h2>
+<p>Let us read the page like a scientific user.</p>
+<section id="left-panels">
+<h3>Left panels<a class="headerlink" href="#left-panels" title="Link to this heading">#</a></h3>
+<p>These panels compare the learned timescale against the closure
+timescale. In joint mode, points clustering near the 1:1 line
+indicate broad agreement.</p>
+<p>A high <code class="docutils literal notranslate"><span class="pre">r2_logtau</span></code> means the model is preserving the rank
+structure of the closure-based timescale rather well. A median
+tau ratio near 1 means the learned field is not strongly biased
+upward or downward relative to the prior.</p>
+</section>
+<section id="right-panels">
+<h3>Right panels<a class="headerlink" href="#right-panels" title="Link to this heading">#</a></h3>
+<p>These panels show the distribution of
+<span class="math notranslate nohighlight">\(R_{\\mathrm{cons}}\)</span>.</p>
+<p>Ideally, the distribution should be fairly concentrated and not
+strongly shifted away from zero. A broader distribution usually
+means the consolidation closure is under more strain. The
+reported <code class="docutils literal notranslate"><span class="pre">eps_cons_rms</span></code> gives a compact measure of that spread.</p>
+</section>
+<section id="what-this-synthetic-example-teaches">
+<h3>What this synthetic example teaches<a class="headerlink" href="#what-this-synthetic-example-teaches" title="Link to this heading">#</a></h3>
+<p>In this lesson, Nansha was built to be the more physically
+consistent case, while Zhongshan was built to be noisier and
+slightly biased.</p>
+<p>You should therefore see:</p>
+<ul class="simple">
+<li><p>a tighter left-panel agreement cloud for Nansha,</p></li>
+<li><p>a narrower residual histogram for Nansha,</p></li>
+<li><p>and larger prior / residual error metrics for Zhongshan.</p></li>
+</ul>
+<p>In a real run, this kind of contrast helps you decide whether a
+city-level physics payload looks credible enough to support
+stronger scientific interpretation.</p>
+</section>
+</section>
+<section id="practical-takeaway">
+<h2>Practical takeaway<a class="headerlink" href="#practical-takeaway" title="Link to this heading">#</a></h2>
+<p>This figure is most valuable when you use it early, not only at
+the end of a paper workflow.</p>
+<p>It helps answer:</p>
+<ul class="simple">
+<li><p>Are my learned timescales staying close to the closure?</p></li>
+<li><p>Are my consolidation residuals under control?</p></li>
+<li><p>Is one city behaving much worse than another?</p></li>
+</ul>
+<p>That is why this is a “sanity” figure: it is compact, fast to
+inspect, and highly diagnostic.</p>
+</section>
+<section id="command-line-version">
+<h2>Command-line version<a class="headerlink" href="#command-line-version" title="Link to this heading">#</a></h2>
+<p>The same plotting backend can be used from the CLI with two
+payload sources. The current script expects exactly two cases,
+accepts <code class="docutils literal notranslate"><span class="pre">--src</span></code> twice, and supports options such as
+<code class="docutils literal notranslate"><span class="pre">--plot-mode</span></code>, <code class="docutils literal notranslate"><span class="pre">--tau-scale</span></code>, <code class="docutils literal notranslate"><span class="pre">--cons-kind</span></code>,
+<code class="docutils literal notranslate"><span class="pre">--gridsize</span></code>, <code class="docutils literal notranslate"><span class="pre">--hist-bins</span></code>, <code class="docutils literal notranslate"><span class="pre">--clip-q</span></code>,
+<code class="docutils literal notranslate"><span class="pre">--subsample-frac</span></code>, <code class="docutils literal notranslate"><span class="pre">--max-points</span></code>, <code class="docutils literal notranslate"><span class="pre">--out-json</span></code>, and
+optional extras like <code class="docutils literal notranslate"><span class="pre">k-from-tau</span></code> and <code class="docutils literal notranslate"><span class="pre">closure</span></code>.</p>
+<p>Through the current legacy dispatcher:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>scripts<span class="w"> </span>plot-physics-sanity<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--src<span class="w"> </span>results/ns_run_dir<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--src<span class="w"> </span>results/zh_run_dir<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--plot-mode<span class="w"> </span>joint<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--tau-scale<span class="w"> </span>log10<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--cons-kind<span class="w"> </span>raw<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--clip-q<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">99</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out<span class="w"> </span>fig4_physics_sanity<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out-json<span class="w"> </span>fig4_physics_sanity.json
+</pre></div>
+</div>
+<p>If city names are not inferable from the paths:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>scripts<span class="w"> </span>plot-physics-sanity<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--src<span class="w"> </span>some/runA<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--src<span class="w"> </span>some/runB<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--city<span class="w"> </span>Nansha<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--city<span class="w"> </span>Zhongshan<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--extra<span class="w"> </span>k-from-tau,closure<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out<span class="w"> </span>fig4_physics_sanity
+</pre></div>
+</div>
+<p>And through the modern command family:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior<span class="w"> </span>plot<span class="w"> </span>physics-sanity<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--src<span class="w"> </span>results/ns_run_dir<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--src<span class="w"> </span>results/zh_run_dir<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out<span class="w"> </span>fig4_physics_sanity
+</pre></div>
+</div>
+<p>The gallery page teaches the figure.
+The CLI reproduces it in a workflow.</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 20.262 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-figure-generation-plot-physics-sanity-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/85c85760852cf8119310d567e7f1a77f/plot_physics_sanity.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_physics_sanity.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/98e8a991ca38271526550d17bb3c9eb6/plot_physics_sanity.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_physics_sanity.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/82a913558439c5d237d73e47e8542d5b/plot_physics_sanity.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_physics_sanity.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="plot_physics_profiles.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Physics profiles: reducing a 2D lambda landscape into readable 1D lessons</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="plot_physics_sensitivity.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Physics sensitivity: learning how lambda choices reshape the physics diagnostics</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-figure-contains">What the figure contains</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-matters">Why this matters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-build-a-synthetic-domain">Step 1 - Build a synthetic domain</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-create-the-first-city">Step 2 - Create the first city</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-create-the-second-city">Step 3 - Create the second city</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-render-the-figure">Step 4 - Render the figure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-show-the-saved-figure-inside-the-gallery-page">Step 5 - Show the saved figure inside the gallery page</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-inspect-the-numerical-summary">Step 6 - Inspect the numerical summary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-add-one-simple-interpretation-helper">Step 7 - Add one simple interpretation helper</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-read-the-figure">How to read the figure</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#left-panels">Left panels</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#right-panels">Right panels</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-this-synthetic-example-teaches">What this synthetic example teaches</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#practical-takeaway">Practical takeaway</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#command-line-version">Command-line version</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/earthai-tech/geoprior-v3/edit/main/docs/source/auto_examples/figure_generation/plot_physics_sanity.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/auto_examples/figure_generation/plot_physics_sanity.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

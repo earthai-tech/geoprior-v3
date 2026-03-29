@@ -1,0 +1,1246 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>CLI guide &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=404c0980"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/cli';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Configuration" href="configuration.html" />
+    <link rel="prev" title="Stage-5" href="stage5.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="workflow_overview.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stage1.html">Stage-1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stage2.html">Stage-2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stage3.html">Stage-3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stage4.html">Stage-4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stage5.html">Stage-5</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">CLI guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="diagnostics.html">Diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference_and_export.html">Inference and export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">CLI guide</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="cli-guide">
+<h1>CLI guide<a class="headerlink" href="#cli-guide" title="Link to this heading">#</a></h1>
+<p>GeoPrior-v3 provides a <strong>family-based command-line
+interface</strong> for staged workflows, deterministic build steps,
+and configuration bootstrapping.</p>
+<p>The CLI is one of the main public interfaces of the project.
+It is not an afterthought layered on top of the Python API.
+The package metadata registers dedicated console scripts for:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior-run</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior-build</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior-plot</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior-init</span></code></p></li>
+</ul>
+<p>These entry points are part of the intended workflow surface
+for GeoPrior-v3. The documentation homepage and overview
+already present the project as a workflow-oriented framework
+with staged CLI execution as a first-class capability.</p>
+<section id="what-the-cli-is-designed-to-do">
+<h2>What the CLI is designed to do<a class="headerlink" href="#what-the-cli-is-designed-to-do" title="Link to this heading">#</a></h2>
+<p>The CLI is designed around three ideas:</p>
+<ul class="simple">
+<li><p><strong>family-based dispatch</strong>, so run, build, and plot tasks
+remain clearly separated;</p></li>
+<li><p><strong>configuration-driven execution</strong>, so commands can install
+a config, apply one-off overrides, and persist the
+effective runtime settings;</p></li>
+<li><p><strong>stable aliases</strong>, so users can work with intuitive names
+such as <code class="docutils literal notranslate"><span class="pre">train</span></code>, <code class="docutils literal notranslate"><span class="pre">tune</span></code>, <code class="docutils literal notranslate"><span class="pre">infer</span></code>, or <code class="docutils literal notranslate"><span class="pre">transfer</span></code>
+without losing the canonical command names underneath.</p></li>
+</ul>
+<p>The CLI layer is intentionally thin. Shared parser behavior
+is centralized in reusable helpers, while each command keeps
+its own domain-specific artifact logic and validation.</p>
+</section>
+<section id="cli-structure-at-a-glance">
+<h2>CLI structure at a glance<a class="headerlink" href="#cli-structure-at-a-glance" title="Link to this heading">#</a></h2>
+<p>GeoPrior-v3 supports two closely related ways to access the
+CLI.</p>
+<p><strong>1. Root entry point</strong></p>
+<p>The root entry point requires a <strong>family token</strong> first:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>geoprior run &lt;command&gt; [args]
+geoprior build &lt;command&gt; [args]
+geoprior plot &lt;command&gt; [args]
+</pre></div>
+</div>
+<p>The dispatcher treats <code class="docutils literal notranslate"><span class="pre">make</span></code> as an alias of <code class="docutils literal notranslate"><span class="pre">build</span></code>. If a
+family token is missing, the root CLI raises an error and
+prints help.</p>
+<p><strong>2. Family-scoped entry points</strong></p>
+<p>You can also call the family directly:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>geoprior-run &lt;command&gt; [args]
+geoprior-build &lt;command&gt; [args]
+geoprior-plot &lt;command&gt; [args]
+</pre></div>
+</div>
+<p>These are convenience entry points bound to a single family.
+They are usually the most convenient way to work once you
+already know which family you need.</p>
+<p>There is also a dedicated initialization entry point:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>geoprior-init
+</pre></div>
+</div>
+<p>which maps directly to the config bootstrap command.</p>
+</section>
+<section id="the-main-command-families">
+<h2>The main command families<a class="headerlink" href="#the-main-command-families" title="Link to this heading">#</a></h2>
+<p>GeoPrior-v3 currently organizes commands into three
+families.</p>
+<section id="run-family">
+<h3>Run family<a class="headerlink" href="#run-family" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">run</span></code> family is the main staged workflow surface.</p>
+<p>Its registered commands include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">init-config</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stage1-preprocess</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stage2-train</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stage3-tune</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stage4-infer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stage5-transfer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sensitivity</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm3-identifiability</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm3-offset-diagnostics</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm3-suite</span></code></p></li>
+</ul>
+</section>
+<section id="build-family">
+<h3>Build family<a class="headerlink" href="#build-family" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">build</span></code> family is for deterministic artifact-generation
+steps that operate on existing workflow outputs.</p>
+<p>Its registered commands include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">full-inputs-npz</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">physics-payload-npz</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">external-validation-fullcity</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm3-collect-summaries</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">assign-boreholes</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">add-zsurf-from-coords</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">external-validation-metrics</span></code></p></li>
+</ul>
+</section>
+<section id="plot-family">
+<h3>Plot family<a class="headerlink" href="#plot-family" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">plot</span></code> family exists in the dispatcher and has its own
+entry point, but the current CLI registry does <strong>not yet</strong>
+list any plot commands. The help printer explicitly reports
+that no plot commands are registered yet. So the family is
+already part of the public CLI design, but it is not yet
+populated in the current command registry.</p>
+</section>
+</section>
+<section id="canonical-commands-and-aliases">
+<h2>Canonical commands and aliases<a class="headerlink" href="#canonical-commands-and-aliases" title="Link to this heading">#</a></h2>
+<p>GeoPrior-v3 supports a large alias layer so that users can
+work with intuitive names while the dispatcher still resolves
+everything to canonical commands.</p>
+<p>Examples include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">preprocess</span></code> or <code class="docutils literal notranslate"><span class="pre">stage1</span></code> → <code class="docutils literal notranslate"><span class="pre">stage1-preprocess</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">train</span></code> or <code class="docutils literal notranslate"><span class="pre">fit</span></code> → <code class="docutils literal notranslate"><span class="pre">stage2-train</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tune</span></code> or <code class="docutils literal notranslate"><span class="pre">search</span></code> → <code class="docutils literal notranslate"><span class="pre">stage3-tune</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">infer</span></code> or <code class="docutils literal notranslate"><span class="pre">predict</span></code> → <code class="docutils literal notranslate"><span class="pre">stage4-infer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">transfer</span></code> or <code class="docutils literal notranslate"><span class="pre">xfer</span></code> → <code class="docutils literal notranslate"><span class="pre">stage5-transfer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">init</span></code> or <code class="docutils literal notranslate"><span class="pre">bootstrap</span></code> → <code class="docutils literal notranslate"><span class="pre">init-config</span></code></p></li>
+</ul>
+<p>The build family also has practical aliases such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">full-inputs</span></code> → <code class="docutils literal notranslate"><span class="pre">full-inputs-npz</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">physics-payload</span></code> → <code class="docutils literal notranslate"><span class="pre">physics-payload-npz</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">external-validation</span></code> → <code class="docutils literal notranslate"><span class="pre">external-validation-fullcity</span></code></p></li>
+</ul>
+<p>This means the CLI is friendly to both exact command names
+and shorter workflow-oriented names.</p>
+</section>
+<section id="a-good-mental-model">
+<h2>A good mental model<a class="headerlink" href="#a-good-mental-model" title="Link to this heading">#</a></h2>
+<p>A useful way to think about the CLI is:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior</span></code> is the <strong>root dispatcher</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior-run</span></code> is the <strong>workflow runner</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior-build</span></code> is the <strong>artifact builder</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior-plot</span></code> is the <strong>plot family entry point</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior-init</span></code> is the <strong>config bootstrapper</strong></p></li>
+</ul>
+<p>If you already know what family you want, the family-scoped
+entry points are usually cleaner. If you want the whole CLI
+from one root entry point, use <code class="docutils literal notranslate"><span class="pre">geoprior</span></code> with a family
+token.</p>
+</section>
+<section id="basic-usage-patterns">
+<h2>Basic usage patterns<a class="headerlink" href="#basic-usage-patterns" title="Link to this heading">#</a></h2>
+<p>Inspect the main help pages first:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior<span class="w"> </span>--help
+geoprior-run<span class="w"> </span>--help
+geoprior-build<span class="w"> </span>--help
+geoprior-plot<span class="w"> </span>--help
+geoprior-init<span class="w"> </span>--help
+</pre></div>
+</div>
+<p>Typical root-entry usage looks like:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior<span class="w"> </span>run<span class="w"> </span>stage1-preprocess
+geoprior<span class="w"> </span>run<span class="w"> </span>stage2-train
+geoprior<span class="w"> </span>build<span class="w"> </span>full-inputs-npz
+</pre></div>
+</div>
+<p>The same actions through family entry points look like:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-run<span class="w"> </span>stage1-preprocess
+geoprior-run<span class="w"> </span>train
+geoprior-run<span class="w"> </span>tune
+geoprior-build<span class="w"> </span>full-inputs-npz
+</pre></div>
+</div>
+<p>The help text itself prints examples such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior</span> <span class="pre">run</span> <span class="pre">stage1-preprocess</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior</span> <span class="pre">run</span> <span class="pre">sensitivity</span> <span class="pre">--epochs</span> <span class="pre">10</span> <span class="pre">--gold</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior</span> <span class="pre">build</span> <span class="pre">full-inputs-npz</span> <span class="pre">--stage1-dir</span> <span class="pre">results/foo_stage1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior</span> <span class="pre">make</span> <span class="pre">full-inputs</span></code></p></li>
+</ul>
+</section>
+<section id="initialization-and-config-bootstrap">
+<h2>Initialization and config bootstrap<a class="headerlink" href="#initialization-and-config-bootstrap" title="Link to this heading">#</a></h2>
+<p>GeoPrior-v3 provides a dedicated initialization command for
+creating <code class="docutils literal notranslate"><span class="pre">nat.com/config.py</span></code> interactively. The template it
+writes is an auto-generated NATCOM config for GeoPrior-v3,
+and the command also refreshes <code class="docutils literal notranslate"><span class="pre">config.json</span></code>. The built-in
+template covers dataset identity, file naming, time layout,
+required columns, physical interpretation of groundwater,
+feature groups, training defaults, and scaling settings.</p>
+<p>Typical usage:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-init
+geoprior-init<span class="w"> </span>--yes
+geoprior-init<span class="w"> </span>--city<span class="w"> </span>zhongshan<span class="w"> </span>--time-steps<span class="w"> </span><span class="m">6</span>
+</pre></div>
+</div>
+<p>The initializer itself prints practical next commands such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior-run</span> <span class="pre">preprocess</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior-run</span> <span class="pre">train</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior-run</span> <span class="pre">tune</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior-run</span> <span class="pre">infer</span> <span class="pre">--help</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior-run</span> <span class="pre">transfer</span> <span class="pre">--help</span></code></p></li>
+</ul>
+<p>You can also access the same bootstrap logic through the run
+family:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-run<span class="w"> </span>init-config
+</pre></div>
+</div>
+<p>or through the module form shown by the initializer comments:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>geoprior.cli<span class="w"> </span>init-config
+</pre></div>
+</div>
+<p>The dispatcher logic is written so that module-style use also
+remains supported.</p>
+</section>
+<section id="shared-configuration-behavior">
+<h2>Shared configuration behavior<a class="headerlink" href="#shared-configuration-behavior" title="Link to this heading">#</a></h2>
+<p>Many GeoPrior commands share a common configuration pattern.
+The shared CLI config helpers support:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--config</span></code> to install a user-supplied <code class="docutils literal notranslate"><span class="pre">config.py</span></code> into
+the active config root before running;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--config-root</span></code> to choose the config root directory;</p></li>
+<li><p>repeated <code class="docutils literal notranslate"><span class="pre">--set</span> <span class="pre">KEY=VALUE</span></code> overrides to patch the active
+runtime config for one command;</p></li>
+<li><p>mapping selected parsed fields such as <code class="docutils literal notranslate"><span class="pre">--city</span></code> or
+<code class="docutils literal notranslate"><span class="pre">--model</span></code> back onto config keys;</p></li>
+<li><p>persisting the effective runtime config into
+<code class="docutils literal notranslate"><span class="pre">config.json</span></code>.</p></li>
+</ul>
+<p>This means a command can be launched in a reproducible way
+without manual code edits.</p>
+<p>Typical pattern:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-run<span class="w"> </span>stage1-preprocess<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--config<span class="w"> </span>my_config.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span><span class="nv">TIME_STEPS</span><span class="o">=</span><span class="m">6</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span><span class="nv">FORECAST_HORIZON_YEARS</span><span class="o">=</span><span class="m">3</span>
+</pre></div>
+</div>
+<p>The helper layer parses booleans, <code class="docutils literal notranslate"><span class="pre">None</span></code>, numbers, and even
+literal containers conservatively from <code class="docutils literal notranslate"><span class="pre">--set</span></code> values, then
+writes the effective merged config to <code class="docutils literal notranslate"><span class="pre">config.json</span></code>.</p>
+</section>
+<section id="common-shared-arguments">
+<h2>Common shared arguments<a class="headerlink" href="#common-shared-arguments" title="Link to this heading">#</a></h2>
+<p>Not every command exposes every option, but the shared helper
+layer defines reusable arguments that many commands draw on.</p>
+<p>Common examples include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--config</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--config-root</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--set</span> <span class="pre">KEY=VALUE</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--city</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--model</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--results-dir</span></code> or <code class="docutils literal notranslate"><span class="pre">--results-root</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--manifest</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--stage1-dir</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--stage2-manifest</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--split</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--outdir</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--format</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--output-stem</span></code></p></li>
+</ul>
+<p>In practice, the most important ones to remember are the
+config-related flags and the manifest or stage-directory
+arguments used for artifact-driven commands.</p>
+</section>
+<section id="run-family-workflow-commands">
+<h2>Run-family workflow commands<a class="headerlink" href="#run-family-workflow-commands" title="Link to this heading">#</a></h2>
+<p>The run family is the main pipeline surface for GeoPrior-v3.
+Its canonical stage commands map directly onto the staged
+workflow documented elsewhere in this guide:</p>
+<ul class="simple">
+<li><p>Stage-1 preprocessing → <code class="docutils literal notranslate"><span class="pre">stage1-preprocess</span></code></p></li>
+<li><p>Stage-2 training → <code class="docutils literal notranslate"><span class="pre">stage2-train</span></code></p></li>
+<li><p>Stage-3 tuning → <code class="docutils literal notranslate"><span class="pre">stage3-tune</span></code></p></li>
+<li><p>Stage-4 inference → <code class="docutils literal notranslate"><span class="pre">stage4-infer</span></code></p></li>
+<li><p>Stage-5 transfer evaluation → <code class="docutils literal notranslate"><span class="pre">stage5-transfer</span></code></p></li>
+</ul>
+<p>Typical examples:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-run<span class="w"> </span>stage1-preprocess
+geoprior-run<span class="w"> </span>stage2-train
+geoprior-run<span class="w"> </span>stage3-tune
+geoprior-run<span class="w"> </span>stage4-infer<span class="w"> </span>--help
+geoprior-run<span class="w"> </span>stage5-transfer<span class="w"> </span>--help
+</pre></div>
+</div>
+<p>The same commands can be called through aliases:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-run<span class="w"> </span>preprocess
+geoprior-run<span class="w"> </span>train
+geoprior-run<span class="w"> </span>tune
+geoprior-run<span class="w"> </span>infer
+geoprior-run<span class="w"> </span>transfer
+</pre></div>
+</div>
+<p>These aliases are resolved internally to the canonical stage
+commands.</p>
+</section>
+<section id="supplementary-run-commands">
+<h2>Supplementary run commands<a class="headerlink" href="#supplementary-run-commands" title="Link to this heading">#</a></h2>
+<p>The run family also includes supplementary diagnostic and
+sensitivity workflows:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sensitivity</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm3-identifiability</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm3-offset-diagnostics</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sm3-suite</span></code></p></li>
+</ul>
+<p>These sit outside the main Stage-1 → Stage-5 sequence but
+still belong to the run family because they execute workflow
+logic rather than deterministic build materialization.</p>
+</section>
+<section id="build-family-commands">
+<h2>Build-family commands<a class="headerlink" href="#build-family-commands" title="Link to this heading">#</a></h2>
+<p>The build family is for deterministic artifact assembly and
+post-processing from existing workflow outputs. In other
+words, these commands generally consume artifacts that
+already exist, rather than running the whole model-training
+pipeline again. The dispatcher groups them under a dedicated
+build family, and the helper layer includes manifest and
+stage-directory arguments specifically for this kind of
+artifact-driven work.</p>
+<p>Typical examples:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-build<span class="w"> </span>full-inputs-npz<span class="w"> </span>--stage1-dir<span class="w"> </span>results/foo_stage1
+geoprior-build<span class="w"> </span>physics-payload-npz<span class="w"> </span>--help
+geoprior-build<span class="w"> </span>external-validation-fullcity<span class="w"> </span>--help
+</pre></div>
+</div>
+<p>There is also a root alias for the family:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior<span class="w"> </span>make<span class="w"> </span>full-inputs
+</pre></div>
+</div>
+<p>because <code class="docutils literal notranslate"><span class="pre">make</span></code> is treated as a family alias for
+<code class="docutils literal notranslate"><span class="pre">build</span></code>.</p>
+</section>
+<section id="current-plot-family-status">
+<h2>Current plot-family status<a class="headerlink" href="#current-plot-family-status" title="Link to this heading">#</a></h2>
+<p>The CLI surface already reserves a plot family through both
+the project scripts and the dispatcher. However, the current
+registry does not yet expose concrete plot commands. The help
+printer explicitly reports that no plot commands are
+registered yet. So it is best to describe <code class="docutils literal notranslate"><span class="pre">geoprior-plot</span></code>
+as an <strong>available family entry point with future expansion
+room</strong>, not as a currently populated plotting surface.</p>
+</section>
+<section id="command-family-rules-and-errors">
+<h2>Command family rules and errors<a class="headerlink" href="#command-family-rules-and-errors" title="Link to this heading">#</a></h2>
+<p>The dispatcher enforces command-family boundaries.</p>
+<p>For example:</p>
+<ul class="simple">
+<li><p>the root entry point requires a family token first;</p></li>
+<li><p>a command that belongs to <code class="docutils literal notranslate"><span class="pre">build</span></code> cannot be dispatched as
+part of <code class="docutils literal notranslate"><span class="pre">run</span></code>;</p></li>
+<li><p>family-scoped entry points reject repeated family tokens,
+such as <code class="docutils literal notranslate"><span class="pre">geoprior-run</span> <span class="pre">run</span> <span class="pre">...</span></code>;</p></li>
+<li><p>unknown commands trigger help output and exit with an
+error.</p></li>
+</ul>
+<p>This is useful because it prevents ambiguous or misleading
+command dispatch.</p>
+</section>
+<section id="a-few-important-examples">
+<h2>A few important examples<a class="headerlink" href="#a-few-important-examples" title="Link to this heading">#</a></h2>
+<p><strong>Bootstrap a config</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-init<span class="w"> </span>--yes<span class="w"> </span>--city<span class="w"> </span>zhongshan
+</pre></div>
+</div>
+<p><strong>Run Stage-1 with overrides</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-run<span class="w"> </span>preprocess<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--config<span class="w"> </span>my_config.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span><span class="nv">TIME_STEPS</span><span class="o">=</span><span class="m">6</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span><span class="nv">FORECAST_HORIZON_YEARS</span><span class="o">=</span><span class="m">3</span>
+</pre></div>
+</div>
+<p><strong>Train the model</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-run<span class="w"> </span>train
+</pre></div>
+</div>
+<p><strong>Tune hyperparameters</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-run<span class="w"> </span>tune
+</pre></div>
+</div>
+<p><strong>Run inference help</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-run<span class="w"> </span>infer<span class="w"> </span>--help
+</pre></div>
+</div>
+<p><strong>Run transfer help</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-run<span class="w"> </span>transfer<span class="w"> </span>--help
+</pre></div>
+</div>
+<p><strong>Build merged inputs from Stage-1 outputs</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-build<span class="w"> </span>full-inputs-npz<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--stage1-dir<span class="w"> </span>results/foo_stage1
+</pre></div>
+</div>
+<p>These examples follow the actual registered entry points,
+family aliases, and helper-layer argument design in the
+current code.</p>
+</section>
+<section id="cli-and-the-broader-project-design">
+<h2>CLI and the broader project design<a class="headerlink" href="#cli-and-the-broader-project-design" title="Link to this heading">#</a></h2>
+<p>The CLI matches the broader identity of GeoPrior-v3 as a
+workflow-oriented scientific framework rather than only an
+importable model package. The top-level package docstring
+describes GeoPrior-v3 as <strong>Physics-guided AI for geohazards
+&amp; risk analytics</strong>, with land subsidence as the current main
+focus and broader geohazard expansion next. The CLI is part
+of that application-facing posture.</p>
+</section>
+<section id="one-practical-note">
+<h2>One practical note<a class="headerlink" href="#one-practical-note" title="Link to this heading">#</a></h2>
+<p>There is a small packaging inconsistency worth fixing later:
+the top-level package lists <code class="docutils literal notranslate"><span class="pre">click</span></code> among its expected
+dependencies during import-time checks, but the declared
+runtime dependencies in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> do not currently
+include <code class="docutils literal notranslate"><span class="pre">click</span></code>. The current CLI implementation shown here
+is built around <code class="docutils literal notranslate"><span class="pre">argparse</span></code> and custom dispatch helpers, so
+this does not block the docs page, but it is worth cleaning
+up in the package metadata for consistency.</p>
+</section>
+<section id="best-practices">
+<h2>Best practices<a class="headerlink" href="#best-practices" title="Link to this heading">#</a></h2>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Start with <code class="docutils literal notranslate"><span class="pre">--help</span></code> before guessing subcommand syntax.</p>
+<p>The dispatcher and wrapper layer are explicit, and the
+installed help text is the most reliable source for the
+exact current command form.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Prefer <code class="docutils literal notranslate"><span class="pre">geoprior-run</span></code> and <code class="docutils literal notranslate"><span class="pre">geoprior-build</span></code> once you
+know the family you need.</p>
+<p>They are simpler to read and avoid the extra root-family
+token.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">--config</span></code> and <code class="docutils literal notranslate"><span class="pre">--set</span> <span class="pre">KEY=VALUE</span></code> instead of making
+ad hoc code edits for one-off runs.</p>
+<p>The shared helper layer is specifically designed to
+install, merge, and persist runtime config cleanly.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Keep stage commands and build commands conceptually
+separate.</p>
+<p>Run commands execute workflow logic. Build commands
+materialize deterministic artifacts from existing outputs.</p>
+</div>
+</section>
+<section id="a-compact-cli-map">
+<h2>A compact CLI map<a class="headerlink" href="#a-compact-cli-map" title="Link to this heading">#</a></h2>
+<p>The GeoPrior-v3 CLI can be summarized like this:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>geoprior
+  ├── run
+  │    ├── init-config
+  │    ├── stage1-preprocess
+  │    ├── stage2-train
+  │    ├── stage3-tune
+  │    ├── stage4-infer
+  │    ├── stage5-transfer
+  │    └── supplementary diagnostics
+  │
+  ├── build
+  │    └── deterministic artifact builders
+  │
+  └── plot
+       └── family reserved; no commands registered yet
+
+family shortcuts:
+  geoprior-run
+  geoprior-build
+  geoprior-plot
+  geoprior-init
+</pre></div>
+</div>
+</section>
+<section id="read-next">
+<h2>Read next<a class="headerlink" href="#read-next" title="Link to this heading">#</a></h2>
+<p>The best next pages after this one are:</p>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-1 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Stage-1</div>
+<p class="sd-card-text">Move from the CLI overview into the first real workflow
+stage.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="stage1.html"><span class="doc">Stage-1</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Inference and export</div>
+<p class="sd-card-text">See how saved artifacts and CLI-driven outputs are
+reused downstream.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="inference_and_export.html"><span class="doc">Inference and export</span></a></div>
+</div>
+</div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="workflow_overview.html"><span class="doc">Workflow</span></a></p></li>
+<li><p><a class="reference internal" href="configuration.html"><span class="doc">Configuration</span></a></p></li>
+<li><p><a class="reference internal" href="stage1.html"><span class="doc">Stage-1</span></a></p></li>
+<li><p><a class="reference internal" href="stage2.html"><span class="doc">Stage-2</span></a></p></li>
+<li><p><a class="reference internal" href="stage3.html"><span class="doc">Stage-3</span></a></p></li>
+<li><p><a class="reference internal" href="stage4.html"><span class="doc">Stage-4</span></a></p></li>
+<li><p><a class="reference internal" href="stage5.html"><span class="doc">Stage-5</span></a></p></li>
+<li><p><a class="reference internal" href="inference_and_export.html"><span class="doc">Inference and export</span></a></p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="stage5.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Stage-5</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="configuration.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Configuration</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-cli-is-designed-to-do">What the CLI is designed to do</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-structure-at-a-glance">CLI structure at a glance</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-main-command-families">The main command families</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-family">Run family</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#build-family">Build family</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plot-family">Plot family</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#canonical-commands-and-aliases">Canonical commands and aliases</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-good-mental-model">A good mental model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage-patterns">Basic usage patterns</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#initialization-and-config-bootstrap">Initialization and config bootstrap</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#shared-configuration-behavior">Shared configuration behavior</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-shared-arguments">Common shared arguments</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-family-workflow-commands">Run-family workflow commands</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#supplementary-run-commands">Supplementary run commands</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#build-family-commands">Build-family commands</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#current-plot-family-status">Current plot-family status</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#command-family-rules-and-errors">Command family rules and errors</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-few-important-examples">A few important examples</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-and-the-broader-project-design">CLI and the broader project design</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#one-practical-note">One practical note</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">Best practices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-compact-cli-map">A compact CLI map</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#read-next">Read next</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/earthai-tech/geoprior-v3/edit/main/docs/source/user_guide/cli.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/user_guide/cli.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

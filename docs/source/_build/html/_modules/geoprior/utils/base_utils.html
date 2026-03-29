@@ -1,0 +1,2308 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>geoprior.utils.base_utils &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=404c0980"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geoprior/utils/base_utils';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../../../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../../../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geoprior.utils.base_utils</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for geoprior.utils.base_utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+<span class="c1"># Author: LKouadio &lt;etanoyau@gmail.com&gt;</span>
+<span class="c1"># Adapted from: earthai-tech/gofast — https://github.com/earthai-tech/gofast</span>
+<span class="c1"># Modified for GeoPrior-v3 API conventions.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Essential utilities for data processing and analysis in FusionLab,</span>
+<span class="sd">offering functions for normalization, interpolation, feature selection,</span>
+<span class="sd">outlier removal, and various data manipulation tasks.</span>
+
+<span class="sd">Adapted for FusionLab from the original geoprior.utils.base_utils.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">re</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pattern</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..api.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">Series</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..compat.pandas</span><span class="w"> </span><span class="kn">import</span> <span class="n">select_dtypes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.array_manager</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">array_preserver</span><span class="p">,</span>
+    <span class="n">drop_nan_in</span><span class="p">,</span>
+    <span class="n">reshape</span><span class="p">,</span>
+    <span class="n">to_array</span><span class="p">,</span>
+    <span class="n">to_numeric_dtypes</span><span class="p">,</span>
+    <span class="n">to_series</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.checks</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">check_datetime</span><span class="p">,</span>
+    <span class="n">is_iterable</span><span class="p">,</span>
+    <span class="n">is_numeric_dtype</span><span class="p">,</span>
+    <span class="n">validate_feature</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_data_readable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">smart_format</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.deps_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">import_optional_dependency</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.validator</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">build_data_if</span><span class="p">,</span>
+    <span class="n">check_consistent_length</span><span class="p">,</span>
+    <span class="n">is_frame</span><span class="p">,</span>
+    <span class="n">parameter_validator</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;detect_categorical_columns&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;extract_target&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fancier_downloader&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fillNaN&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;select_features&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fill_NaN&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;validate_target_in&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="detect_categorical_columns">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.base_utils.detect_categorical_columns">[docs]</a>
+<span class="nd">@is_data_readable</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_categorical_columns</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">integer_as_cat</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">float0_as_cat</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">min_unique_values</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_unique_values</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">handle_nan</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">return_frame</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">consider_dt_as</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Detect categorical columns in a dataset by examining column</span>
+<span class="sd">    types and user-defined criteria. Columns with integer type</span>
+<span class="sd">    or float values ending with .0 can be categorized as</span>
+<span class="sd">    categorical, depending on settings. Also handles user-defined</span>
+<span class="sd">    thresholds for minimum and maximum unique values.</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">       \forall x \in X,\; x = \lfloor x \rfloor</span>
+
+<span class="sd">    Above equation indicates that for float columns to be treated</span>
+<span class="sd">    as categorical, each value :math:`x` must be an integer when</span>
+<span class="sd">    cast from float. This function leverages the inline methods</span>
+<span class="sd">    `build_data_if`, `drop_nan_in`, `fill_NaN`, `parameter_validator`,</span>
+<span class="sd">    and `smart_format` (excluding those prefixed with `_`).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : DataFrame or array-like</span>
+<span class="sd">        The input data to analyze. If not a DataFrame,</span>
+<span class="sd">        it will be converted internally.</span>
+<span class="sd">    integer_as_cat : bool, optional</span>
+<span class="sd">        If ``True``, integer-type columns are considered</span>
+<span class="sd">        categorical. Default is ``True``.</span>
+<span class="sd">    float0_as_cat : bool, optional</span>
+<span class="sd">        If ``True``, float columns whose values can be</span>
+<span class="sd">        cast to integer without remainder are considered</span>
+<span class="sd">        categorical. Default is ``True``.</span>
+<span class="sd">    min_unique_values : int or None, optional</span>
+<span class="sd">        Minimum number of unique values in a column to</span>
+<span class="sd">        qualify as categorical. If ``None``, no minimum</span>
+<span class="sd">        check is applied.</span>
+<span class="sd">    max_unique_values : int or ``&#39;auto&#39;`` or None, optional</span>
+<span class="sd">        Maximum number of unique values allowed for a</span>
+<span class="sd">        column to be considered categorical. If ``&#39;auto&#39;``,</span>
+<span class="sd">        set the limit to the column&#39;s own unique count.</span>
+<span class="sd">        If ``None``, no maximum check is applied.</span>
+<span class="sd">    handle_nan : str or None, optional</span>
+<span class="sd">        Handling method for missing data. Can be ``&#39;drop&#39;``</span>
+<span class="sd">        to remove rows with NaNs, ``&#39;fill&#39;`` to impute</span>
+<span class="sd">        them via forward/backward fill, or ``None`` for</span>
+<span class="sd">        no change.</span>
+<span class="sd">    return_frame : bool, optional</span>
+<span class="sd">        If ``True``, returns a DataFrame of detected</span>
+<span class="sd">        categorical columns; otherwise returns a list of</span>
+<span class="sd">        column names. Default is ``False``.</span>
+<span class="sd">    consider_dt_as : str, optional</span>
+<span class="sd">        Indicates how to handle or convert datetime columns when</span>
+<span class="sd">        ``ops=&#39;validate&#39;``:</span>
+<span class="sd">        - `None`: Do not convert; if datetime is not accepted,</span>
+<span class="sd">          handle according to `accept_dt` and `error`.</span>
+<span class="sd">        - `&#39;numeric&#39;`: Convert date columns to a numeric format</span>
+<span class="sd">          (like timestamps).</span>
+<span class="sd">        - `&#39;float&#39;`, `&#39;float32&#39;`, `&#39;float64&#39;`: Convert date columns</span>
+<span class="sd">          to float representation.</span>
+<span class="sd">        - `&#39;int&#39;`, `&#39;int32&#39;`, `&#39;int64&#39;`: Convert date columns to</span>
+<span class="sd">          integer representation.</span>
+<span class="sd">        - `&#39;object&#39;` or `&#39;category&#39;`: Convert date columns to Python</span>
+<span class="sd">          objects (strings, etc.). If conversion fails, raise or warn</span>
+<span class="sd">          per `error` policy.</span>
+<span class="sd">    verbose : int, optional</span>
+<span class="sd">        Verbosity level. If greater than 0, a summary of</span>
+<span class="sd">        detected columns is printed.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list or DataFrame</span>
+<span class="sd">        Either a list of column names or a DataFrame</span>
+<span class="sd">        containing the categorical columns, depending on</span>
+<span class="sd">        the value of ``return_frame``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from geoprior.utils.base_utils import detect_categorical_columns</span>
+<span class="sd">    &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">    &gt;&gt;&gt; df = pd.DataFrame({</span>
+<span class="sd">    ...     &#39;A&#39;: [1, 2, 3],</span>
+<span class="sd">    ...     &#39;B&#39;: [1.0, 2.0, 3.0],</span>
+<span class="sd">    ...     &#39;C&#39;: [&#39;cat&#39;, &#39;dog&#39;, &#39;mouse&#39;]</span>
+<span class="sd">    ... })</span>
+<span class="sd">    &gt;&gt;&gt; detect_categorical_columns(df)</span>
+<span class="sd">    [&#39;A&#39;, &#39;B&#39;, &#39;C&#39;]</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - This function focuses on flexible treatment of</span>
+<span class="sd">      integer and float columns. Combined with</span>
+<span class="sd">      `&lt;verbose&gt;` settings, it can provide detailed</span>
+<span class="sd">      feedback.</span>
+<span class="sd">    - Utilizing ``&#39;drop&#39;`` or ``&#39;fill&#39;`` in</span>
+<span class="sd">      ``handle_nan`` ensures minimal disruptions due</span>
+<span class="sd">      to missing data.</span>
+
+<span class="sd">    The function uses flexible criteria for determining whether a column should</span>
+<span class="sd">    be treated as categorical, allowing for detection of columns with integer</span>
+<span class="sd">    values or float values ending in `.0` as categorical columns. The method is</span>
+<span class="sd">    useful when preparing data for machine learning algorithms that expect</span>
+<span class="sd">    categorical inputs, such as decision trees or classification models.</span>
+
+<span class="sd">    This method uses the helper function `build_data_if` from</span>
+<span class="sd">    `geoprior.utils.validator` to ensure that the input `data` is a DataFrame.</span>
+<span class="sd">    If the input is not a DataFrame, it creates one, giving column names that</span>
+<span class="sd">    start with `input_name`.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    build_data_if : Validates and converts input into a</span>
+<span class="sd">        DataFrame if needed.</span>
+<span class="sd">    drop_nan_in : Drops NaN values from a DataFrame along</span>
+<span class="sd">        axis=0.</span>
+<span class="sd">    fill_NaN : Fills missing data in a DataFrame using</span>
+<span class="sd">        forward and backward fill.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] Harris, C.R., et al. &quot;Array Programming</span>
+<span class="sd">       with NumPy.&quot; *Nature*, 585(7825), 357–362 (2020).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># ensure input data is a DataFrame or convert it to one</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">build_data_if</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span>
+        <span class="n">to_frame</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">input_name</span><span class="o">=</span><span class="s2">&quot;col&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># validate handle_nan parameter</span>
+    <span class="n">handle_nan</span> <span class="o">=</span> <span class="n">parameter_validator</span><span class="p">(</span>
+        <span class="s2">&quot;handle_nan&quot;</span><span class="p">,</span> <span class="n">target_strs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;fill&quot;</span><span class="p">,</span> <span class="s2">&quot;drop&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">}</span>
+    <span class="p">)(</span><span class="n">handle_nan</span><span class="p">)</span>
+
+    <span class="c1"># optionally drop or fill NaN values</span>
+    <span class="k">if</span> <span class="n">handle_nan</span> <span class="o">==</span> <span class="s2">&quot;drop&quot;</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">drop_nan_in</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">solo_return</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">handle_nan</span> <span class="o">==</span> <span class="s2">&quot;fill&quot;</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">fill_NaN</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Check if datetime columns exist in the data.</span>
+    <span class="n">has_dt_cols</span> <span class="o">=</span> <span class="n">check_datetime</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">has_dt_cols</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">consider_dt_as</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># If no explicit instruction is provided</span>
+            <span class="c1"># via `consider_dt_as`, warn the user</span>
+            <span class="c1"># that datetime columns will be treated</span>
+            <span class="c1"># as numeric by default.</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Datetime columns detected. Defaulting&quot;</span>
+                <span class="s2">&quot; to treating datetime columns as numeric.&quot;</span>
+                <span class="s2">&quot; If this behavior is not desired, please &quot;</span>
+                <span class="s2">&quot;specify the `consider_dt_as` parameter&quot;</span>
+                <span class="s2">&quot; accordingly.&quot;</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># If `consider_dt_as` is provided and True,</span>
+            <span class="c1"># validate datetime columns</span>
+            <span class="c1"># according to the specified handling.</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">check_datetime</span><span class="p">(</span>
+                <span class="n">data</span><span class="p">,</span>
+                <span class="n">ops</span><span class="o">=</span><span class="s2">&quot;validate&quot;</span><span class="p">,</span>
+                <span class="n">accept_dt</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">consider_dt_as</span><span class="o">=</span><span class="n">consider_dt_as</span><span class="p">,</span>
+                <span class="n">error</span><span class="o">=</span><span class="s2">&quot;warn&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="c1"># user-specified limit might be set to &#39;auto&#39; or a numeric value</span>
+    <span class="c1"># store the original for reference</span>
+    <span class="n">original_max_unique</span> <span class="o">=</span> <span class="n">max_unique_values</span>
+
+    <span class="c1"># prepare list to store detected categorical columns</span>
+    <span class="n">categorical_columns</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># iterate over the columns to determine if</span>
+    <span class="c1"># they meet conditions to be categorical</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">unique_values</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
+
+        <span class="c1"># if the user set max_unique_values to &#39;auto&#39;,</span>
+        <span class="c1"># just use the column&#39;s own unique count</span>
+        <span class="k">if</span> <span class="n">original_max_unique</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+            <span class="n">max_unique_values</span> <span class="o">=</span> <span class="n">unique_values</span>
+
+        <span class="c1"># always consider object dtype as categorical</span>
+        <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_object_dtype</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]):</span>
+            <span class="c1"># check optional unique-value thresholds</span>
+            <span class="c1"># no need, so go straight for collection.</span>
+            <span class="c1"># if (</span>
+            <span class="c1">#     (min_unique_values is None or unique_values &gt;= min_unique_values)</span>
+            <span class="c1">#     and (max_unique_values is None or unique_values &lt;= max_unique_values)</span>
+            <span class="c1"># ):</span>
+            <span class="n">categorical_columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+        <span class="c1"># also consider boolean dtype columns as categorical</span>
+        <span class="k">elif</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_bool_dtype</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]):</span>
+            <span class="c1"># no need to apply condition, usually consider as a</span>
+            <span class="c1"># binary so categorical col.</span>
+            <span class="c1"># if (</span>
+            <span class="c1">#     (min_unique_values is None or unique_values &gt;= min_unique_values)</span>
+            <span class="c1">#     and (max_unique_values is None or unique_values &lt;= max_unique_values)</span>
+            <span class="c1"># ):</span>
+            <span class="n">categorical_columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+        <span class="c1"># consider integer columns as categorical if flagged</span>
+        <span class="k">elif</span> <span class="n">integer_as_cat</span> <span class="ow">and</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_integer_dtype</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">min_unique_values</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="ow">or</span> <span class="n">unique_values</span> <span class="o">&gt;=</span> <span class="n">min_unique_values</span>
+            <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="n">max_unique_values</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="ow">or</span> <span class="n">unique_values</span> <span class="o">&lt;=</span> <span class="n">max_unique_values</span>
+            <span class="p">):</span>
+                <span class="n">categorical_columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+        <span class="c1"># consider float columns with all .0 values as categorical if flagged</span>
+        <span class="k">elif</span> <span class="n">float0_as_cat</span> <span class="ow">and</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_float_dtype</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># check if all float values can be cast to int without remainder</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">min_unique_values</span> <span class="ow">is</span> <span class="kc">None</span>
+                        <span class="ow">or</span> <span class="n">unique_values</span> <span class="o">&gt;=</span> <span class="n">min_unique_values</span>
+                    <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+                        <span class="n">max_unique_values</span> <span class="ow">is</span> <span class="kc">None</span>
+                        <span class="ow">or</span> <span class="n">unique_values</span> <span class="o">&lt;=</span> <span class="n">max_unique_values</span>
+                    <span class="p">):</span>
+                        <span class="n">categorical_columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">pd</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">IntCastingNaNError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;NaN detected in the data: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. Consider resetting &quot;</span>
+                    <span class="s2">&quot;integer_as_cat=False or float0_as_cat=False, or handle NaN &quot;</span>
+                    <span class="s2">&quot;via &#39;drop&#39; or &#39;fill&#39;.&quot;</span>
+                <span class="p">)</span>
+
+    <span class="c1"># optionally print a summary of what was found or not found</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">categorical_columns</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;No categorical columns detected based on conditions. &quot;</span>
+                <span class="s2">&quot;Consider adjusting min_unique_values or max_unique_values.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Categorical columns detected (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">categorical_columns</span><span class="p">)</span><span class="si">}</span><span class="s2">): &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">smart_format</span><span class="p">(</span><span class="n">categorical_columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># return either the DataFrame subset of just</span>
+    <span class="c1"># the categorical columns or the list of names</span>
+    <span class="k">if</span> <span class="n">return_frame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="n">categorical_columns</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">categorical_columns</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_select_fill_method</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function to standardize the fill method input.</span>
+<span class="sd">    Maps various user-provided method aliases to standardized method keys.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    method : str</span>
+<span class="sd">        The fill method specified by the user. Can be one of the following:</span>
+<span class="sd">        - Forward fill: &#39;forward&#39;, &#39;ff&#39;, &#39;fwd&#39;</span>
+<span class="sd">        - Backward fill: &#39;backward&#39;, &#39;bf&#39;, &#39;bwd&#39;</span>
+<span class="sd">        - Both: &#39;both&#39;, &#39;ffbf&#39;, &#39;fbwf&#39;, &#39;bff&#39;, &#39;full&#39;</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Standardized fill method key: &#39;ff&#39;, &#39;bf&#39;, or &#39;both&#39;.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the provided method is not recognized.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Convert method to lowercase to ensure case-insensitive matching</span>
+    <span class="n">method_lower</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="c1"># Define mappings for forward fill aliases</span>
+    <span class="n">forward_aliases</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;forward&quot;</span><span class="p">,</span> <span class="s2">&quot;ff&quot;</span><span class="p">,</span> <span class="s2">&quot;fwd&quot;</span><span class="p">}</span>
+    <span class="c1"># Define mappings for backward fill aliases</span>
+    <span class="n">backward_aliases</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;backward&quot;</span><span class="p">,</span> <span class="s2">&quot;bf&quot;</span><span class="p">,</span> <span class="s2">&quot;bwd&quot;</span><span class="p">}</span>
+    <span class="c1"># Define mappings for both forward and backward fill aliases</span>
+    <span class="n">both_aliases</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="s2">&quot;ffbf&quot;</span><span class="p">,</span> <span class="s2">&quot;fbwf&quot;</span><span class="p">,</span> <span class="s2">&quot;bff&quot;</span><span class="p">,</span> <span class="s2">&quot;full&quot;</span><span class="p">}</span>
+
+    <span class="c1"># Determine the standardized method based on aliases</span>
+    <span class="k">if</span> <span class="n">method_lower</span> <span class="ow">in</span> <span class="n">forward_aliases</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;ff&quot;</span>  <span class="c1"># Forward fill</span>
+    <span class="k">elif</span> <span class="n">method_lower</span> <span class="ow">in</span> <span class="n">backward_aliases</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;bf&quot;</span>  <span class="c1"># Backward fill</span>
+    <span class="k">elif</span> <span class="n">method_lower</span> <span class="ow">in</span> <span class="n">both_aliases</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;both&quot;</span>  <span class="c1"># Both forward and backward fill</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Raise an error if the method is not recognized</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid fill method &#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
+            <span class="s2">&quot;Choose from &#39;forward&#39;, &#39;ff&#39;, &#39;fwd&#39;, &#39;backward&#39;, &#39;bf&#39;, &#39;bwd&#39;, &quot;</span>
+            <span class="s2">&quot;&#39;both&#39;, &#39;ffbf&#39;, &#39;fbwf&#39;, &#39;bff&#39;, or &#39;full&#39;.&quot;</span>
+        <span class="p">)</span>
+
+
+<div class="viewcode-block" id="fill_NaN">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.base_utils.fill_NaN">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fill_NaN</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;ff&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fill NaN values in an array-like structure using specified methods.</span>
+<span class="sd">    Handles numeric and non-numeric data separately to preserve data</span>
+<span class="sd">    integrity.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    arr : array-like, pandas.DataFrame, or pandas.Series</span>
+<span class="sd">        The input data structure containing NaN values to be filled.</span>
+<span class="sd">    method : str, default ``&#39;ff&#39;``</span>
+<span class="sd">        The method to use for filling NaN values. Accepted values:</span>
+
+<span class="sd">        - Forward fill: ``&#39;forward&#39;``, ``&#39;ff&#39;``, ``&#39;fwd&#39;``</span>
+<span class="sd">        - Backward fill: ``&#39;backward&#39;``, ``&#39;bf&#39;``, ``&#39;bwd&#39;``</span>
+<span class="sd">        - Both: ``&#39;both&#39;``, ``&#39;ffbf&#39;``, ``&#39;fbwf&#39;``, ``&#39;bff&#39;``, ``&#39;full&#39;``</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    array-like, pandas.DataFrame, or pandas.Series</span>
+<span class="sd">        The input data structure with NaN values filled according to the specified</span>
+<span class="sd">        method.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the provided fill method is not recognized.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Mathematically, the function performs:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \text{Filled\_array} =</span>
+<span class="sd">        \begin{cases}</span>
+<span class="sd">            \text{fillNaN(arr, method)} &amp; \text{if arr is numeric} \\</span>
+<span class="sd">            \text{concat(fillNaN(numeric\_parts, method), non\_numeric\_parts)} &amp;</span>
+<span class="sd">            \text{otherwise}</span>
+<span class="sd">        \end{cases}</span>
+
+<span class="sd">    This ensures that non-numeric data remains unaltered while NaN values in</span>
+<span class="sd">    numeric columns are appropriately filled.</span>
+
+<span class="sd">    The function preserves the original structure of the input array by utilizing</span>
+<span class="sd">    ``array_preserver``. Numeric columns are filled using the specified method,</span>
+<span class="sd">    while non-numeric columns remain unchanged.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from geoprior.utils.base_utils import fill_NaN</span>
+<span class="sd">    &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">    &gt;&gt;&gt; df = pd.DataFrame({</span>
+<span class="sd">    ...     &#39;A&#39;: [1, 2, np.nan, 4],</span>
+<span class="sd">    ...     &#39;B&#39;: [&#39;x&#39;, np.nan, &#39;y&#39;, &#39;z&#39;]</span>
+<span class="sd">    ... })</span>
+<span class="sd">    &gt;&gt;&gt; fill_NaN(df, method=&#39;ff&#39;)</span>
+<span class="sd">         A    B</span>
+<span class="sd">    0  1.0    x</span>
+<span class="sd">    1  2.0    x</span>
+<span class="sd">    2  2.0    y</span>
+<span class="sd">    3  4.0    z</span>
+
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    geoprior.core.array_manager.array_preserver:</span>
+<span class="sd">        Preserves and restores array structures.</span>
+<span class="sd">    geoprior.core.array_manager.to_array:</span>
+<span class="sd">        Converts input to a pandas-compatible array-like structure.</span>
+<span class="sd">    geoprior.core.checks.is_numeric_dtype:</span>
+<span class="sd">        Checks if the array has numeric data types.</span>
+<span class="sd">    geoprior.utils.base_utils.fillNaN :</span>
+<span class="sd">        Core function to fill NaN values in numeric data.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Step 1: Standardize the fill method using the helper function</span>
+    <span class="n">standardized_method</span> <span class="o">=</span> <span class="n">_select_fill_method</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+
+    <span class="c1"># Step 2: Collect the original array&#39;s properties to preserve its structure</span>
+    <span class="n">collected</span> <span class="o">=</span> <span class="n">array_preserver</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;collect&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Step 3: Convert the input to a pandas-compatible array-like structure</span>
+    <span class="c1"># This ensures consistent handling across different input types</span>
+    <span class="n">arr_converted</span> <span class="o">=</span> <span class="n">to_array</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+    <span class="n">arr_converted</span> <span class="o">=</span> <span class="n">to_numeric_dtypes</span><span class="p">(</span><span class="n">arr_converted</span><span class="p">)</span>
+    <span class="c1"># Step 4: Check if the entire array has a numeric dtype</span>
+    <span class="k">if</span> <span class="n">is_numeric_dtype</span><span class="p">(</span><span class="n">arr_converted</span><span class="p">):</span>
+        <span class="c1"># If all data is numeric, apply the fillNaN function directly</span>
+        <span class="n">array_filled</span> <span class="o">=</span> <span class="n">fillNaN</span><span class="p">(</span>
+            <span class="n">arr_converted</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">standardized_method</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">arr_converted</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+        <span class="p">):</span>
+            <span class="c1"># For other array-like types (e.g., lists, tuples),</span>
+            <span class="c1"># convert to pandas Series</span>
+            <span class="c1"># to leverage pandas&#39; fill capabilities</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">arr_converted</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+                    <span class="n">arr_converted</span>
+                <span class="p">)</span>  <span class="c1"># expert one1d</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">arr_converted</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                    <span class="n">arr_converted</span>
+                <span class="p">)</span>  <span class="c1"># two dimensional</span>
+
+        <span class="c1"># If there are non-numeric data types, handle numeric</span>
+        <span class="c1"># and non-numeric separately</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arr_converted</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="c1"># Identify numeric columns</span>
+            <span class="n">numeric_cols</span> <span class="o">=</span> <span class="n">select_dtypes</span><span class="p">(</span>
+                <span class="n">arr_converted</span><span class="p">,</span>
+                <span class="n">incl</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">],</span>
+                <span class="n">return_columns</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># numeric_cols = arr_converted.select_dtypes(</span>
+            <span class="c1">#     include=[np.number]).columns</span>
+            <span class="c1"># Identify non-numeric columns</span>
+            <span class="n">non_numeric_cols</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">arr_converted</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">numeric_cols</span><span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Apply fillNaN to numeric columns</span>
+            <span class="k">if</span> <span class="n">numeric_cols</span><span class="p">:</span>
+                <span class="n">filled_numeric</span> <span class="o">=</span> <span class="n">fillNaN</span><span class="p">(</span>
+                    <span class="n">arr_converted</span><span class="p">[</span><span class="n">numeric_cols</span><span class="p">],</span>
+                    <span class="n">method</span><span class="o">=</span><span class="n">standardized_method</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">filled_numeric</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+            <span class="c1"># Fill non-numeric columns with forward and backward fill (if requested)</span>
+            <span class="n">filled_non_numeric</span> <span class="o">=</span> <span class="n">arr_converted</span><span class="p">[</span>
+                <span class="n">non_numeric_cols</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="n">non_numeric_cols</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                <span class="k">if</span> <span class="s2">&quot;ff&quot;</span> <span class="ow">in</span> <span class="n">standardized_method</span><span class="p">:</span>
+                    <span class="n">filled_non_numeric</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">filled_non_numeric</span><span class="o">.</span><span class="n">ffill</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="s2">&quot;bf&quot;</span> <span class="ow">in</span> <span class="n">standardized_method</span><span class="p">:</span>
+                    <span class="n">filled_non_numeric</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">filled_non_numeric</span><span class="o">.</span><span class="n">bfill</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># both</span>
+                    <span class="n">filled_non_numeric</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">filled_non_numeric</span><span class="o">.</span><span class="n">ffill</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">filled_non_numeric</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">filled_non_numeric</span><span class="o">.</span><span class="n">bfill</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="p">)</span>
+
+            <span class="c1"># Combine the filled numeric data with the untouched non-numeric data</span>
+            <span class="n">array_filled</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">filled_numeric</span><span class="p">,</span> <span class="n">filled_non_numeric</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+            <span class="p">)</span>
+            <span class="c1"># Ensure the original column order is preserved</span>
+            <span class="n">array_filled</span> <span class="o">=</span> <span class="n">array_filled</span><span class="p">[</span><span class="n">arr_converted</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arr_converted</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">is_numeric_dtype</span><span class="p">(</span><span class="n">arr_converted</span><span class="p">):</span>
+                <span class="c1"># If the Series is numeric, apply fillNaN</span>
+                <span class="n">array_filled</span> <span class="o">=</span> <span class="n">fillNaN</span><span class="p">(</span>
+                    <span class="n">arr_converted</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">standardized_method</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># If the Series is not numeric</span>
+                <span class="c1"># Fill non-numeric Series with forward</span>
+                <span class="c1"># and backward fill (if requested)</span>
+                <span class="n">array_filled</span> <span class="o">=</span> <span class="n">arr_converted</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="k">if</span> <span class="s2">&quot;ff&quot;</span> <span class="ow">in</span> <span class="n">standardized_method</span><span class="p">:</span>
+                    <span class="n">array_filled</span> <span class="o">=</span> <span class="n">array_filled</span><span class="o">.</span><span class="n">ffill</span><span class="p">()</span>
+                <span class="k">elif</span> <span class="s2">&quot;bf&quot;</span> <span class="ow">in</span> <span class="n">standardized_method</span><span class="p">:</span>
+                    <span class="n">array_filled</span> <span class="o">=</span> <span class="n">array_filled</span><span class="o">.</span><span class="n">bfill</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">array_filled</span> <span class="o">=</span> <span class="n">array_filled</span><span class="o">.</span><span class="n">ffill</span><span class="p">()</span>
+                    <span class="n">array_filled</span> <span class="o">=</span> <span class="n">array_filled</span><span class="o">.</span><span class="n">bffill</span><span class="p">()</span>
+
+    <span class="c1"># Step 5: Attempt to restore the original array</span>
+    <span class="c1"># structure using the collected properties</span>
+    <span class="n">collected</span><span class="p">[</span><span class="s2">&quot;processed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">array_filled</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Restore the original structure</span>
+        <span class="c1"># (e.g., DataFrame, Series) with filled data</span>
+        <span class="n">array_restored</span> <span class="o">=</span> <span class="n">array_preserver</span><span class="p">(</span>
+            <span class="n">collected</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;restore&quot;</span><span class="p">,</span> <span class="n">solo_return</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="c1"># If restoration fails, return the filled</span>
+        <span class="c1"># array without structure preservation</span>
+        <span class="n">array_restored</span> <span class="o">=</span> <span class="n">array_filled</span>
+
+    <span class="c1"># Step 6: Return the filled and structure-preserved array</span>
+    <span class="k">return</span> <span class="n">array_restored</span></div>
+
+
+
+<div class="viewcode-block" id="fillNaN">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.base_utils.fillNaN">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fillNaN</span><span class="p">(</span>
+    <span class="n">arr</span><span class="p">:</span> <span class="n">ArrayLike</span> <span class="o">|</span> <span class="n">Series</span> <span class="o">|</span> <span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ff&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArrayLike</span> <span class="o">|</span> <span class="n">Series</span> <span class="o">|</span> <span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fill NaN values in a numpy array, pandas Series, or pandas DataFrame</span>
+<span class="sd">    using specified methods for forward filling, backward filling, or both.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    arr : Union[np.ndarray, pd.Series, pd.DataFrame]</span>
+<span class="sd">        The input data containing NaN values to be filled. This can be a numpy</span>
+<span class="sd">        array, pandas Series, or DataFrame expected to contain numeric data.</span>
+
+<span class="sd">    method : str, optional</span>
+<span class="sd">        The method used for filling NaN values. Valid options are:</span>
+<span class="sd">        - &#39;ff&#39;: forward fill (default)</span>
+<span class="sd">        - &#39;bf&#39;: backward fill</span>
+<span class="sd">        - &#39;both&#39;: applies both forward and backward fill sequentially</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Union[np.ndarray, pd.Series, pd.DataFrame]</span>
+<span class="sd">        The array with NaN values filled according to the specified method.</span>
+<span class="sd">        The return type matches the input type (numpy array, Series, or DataFrame).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name_or_columns</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># Convert to numpy array if it doesn&#39;t have numpy-like methods</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="s2">&quot;__array__&quot;</span><span class="p">):</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+
+    <span class="n">arr</span> <span class="o">=</span> <span class="n">to_array</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+    <span class="n">has_numeric_dtype</span> <span class="o">=</span> <span class="n">is_numeric_dtype</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">to_array</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Handle non-numeric data and issue a warning if necessary</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">has_numeric_dtype</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Non-numeric data detected. Note `fillNaN`&quot;</span>
+            <span class="s2">&quot; operates only with numeric data. &quot;</span>
+            <span class="s2">&quot;To deal with non-numeric data or both,&quot;</span>
+            <span class="s2">&quot; use &#39;fill_NaN&#39; instead.&quot;</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">arr</span> <span class="o">=</span> <span class="n">_handle_non_numeric</span><span class="p">(</span>
+        <span class="n">arr</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;fill missing values NaN&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="c1"># Preserve column names for restoration</span>
+        <span class="c1"># if it&#39;s a pandas Series or DataFrame</span>
+        <span class="n">name_or_columns</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">arr</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">arr</span><span class="o">.</span><span class="n">columns</span>
+        <span class="p">)</span>
+        <span class="c1"># Convert to numpy array for easier manipulation</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+    <span class="c1"># Forward fill function</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ffill</span><span class="p">(</span><span class="n">arr</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply forward fill.&quot;&quot;&quot;</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">mask</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="o">.</span><span class="n">accumulate</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">idx</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">arr</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">idx</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">idx</span><span class="p">]</span>
+
+    <span class="c1"># Backward fill function</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bfill</span><span class="p">(</span><span class="n">arr</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply backward fill.&quot;&quot;&quot;</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="o">~</span><span class="n">mask</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="o">.</span><span class="n">accumulate</span><span class="p">(</span><span class="n">idx</span><span class="p">[:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span>
+            <span class="p">:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">arr</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">idx</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">idx</span><span class="p">]</span>
+
+    <span class="c1"># Standardize method (ensure lowercase and stripped of extra spaces)</span>
+    <span class="n">method</span> <span class="o">=</span> <span class="n">_select_fill_method</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">method</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+    <span class="c1"># Reshape if array is one-dimensional</span>
+    <span class="k">if</span> <span class="n">arr</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="n">reshape</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Create a mask identifying NaN values</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+
+    <span class="c1"># Apply both forward and backward fill if requested</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;both&quot;</span><span class="p">:</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="n">ffill</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="n">bfill</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+
+    <span class="c1"># Apply forward or backward fill depending on the method</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;bf&quot;</span><span class="p">,</span> <span class="s2">&quot;ff&quot;</span><span class="p">):</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="n">ffill</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span> <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;ff&quot;</span> <span class="k">else</span> <span class="n">bfill</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+
+    <span class="c1"># Handle DataFrame/Series restoration</span>
+    <span class="k">if</span> <span class="n">name_or_columns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name_or_columns</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">arr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+                <span class="n">arr</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="n">name_or_columns</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">arr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">name_or_columns</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">arr</span></div>
+
+
+
+<div class="viewcode-block" id="select_features">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.base_utils.select_features">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">select_features</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">dict</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">features</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="o">|</span> <span class="n">Pattern</span>
+    <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dtypes_inc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dtypes_exc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">coerce</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">verify_integrity</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">parse_features</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">include_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">exclude_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">transform</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">regex</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Pattern</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">callable_selector</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">astype_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Selects features from a dataset based on various criteria and returns</span>
+<span class="sd">    a new DataFrame.</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \text{Selected Columns} =</span>
+<span class="sd">        \text{Features Selection Criteria Applied to } C</span>
+
+<span class="sd">    Where:</span>
+<span class="sd">    - \( C = \{c_1, c_2, \dots, c_n\} \) is the set of columns in the data.</span>
+<span class="sd">    - Features Selection Criteria include feature names, data types, regex patterns,</span>
+<span class="sd">      callable selectors, and missing data conditions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : Union[pd.DataFrame, dict, np.ndarray, list]</span>
+<span class="sd">        The dataset from which to select features. Can be a pandas DataFrame, a</span>
+<span class="sd">        dictionary, a NumPy array, or a list of dictionaries/lists.</span>
+<span class="sd">    features : Optional[Union[List[str], Pattern, Callable[[str], bool]]], default=None</span>
+<span class="sd">        Specific feature names to select. Can also be a regex pattern or a callable</span>
+<span class="sd">        that takes a column name and returns ``True`` if the column should be selected.</span>
+<span class="sd">    dtypes_inc : Optional[Union[str, List[str]]], default=None</span>
+<span class="sd">        The data type(s) to include in the selection. Possible values are the same</span>
+<span class="sd">        as for the pandas ``include`` parameter in ``select_dtypes``.</span>
+<span class="sd">    dtypes_exc : Optional[Union[str, List[str]]], default=None</span>
+<span class="sd">        The data type(s) to exclude from the selection. Possible values are the same</span>
+<span class="sd">        as for the pandas ``exclude`` parameter in ``select_dtypes``.</span>
+<span class="sd">    coerce : bool, default=False</span>
+<span class="sd">        If ``True``, numeric columns are coerced to the appropriate types without</span>
+<span class="sd">        selection, ignoring ``features``, ``dtypes_inc``, and ``dtypes_exc`` parameters.</span>
+<span class="sd">    columns : Optional[List[str]], default=None</span>
+<span class="sd">        Column names to use if ``data`` is a NumPy array or a list without column</span>
+<span class="sd">        names.</span>
+<span class="sd">    verify_integrity : bool, default=False</span>
+<span class="sd">        Verifies the data type integrity and converts data to the correct types if</span>
+<span class="sd">        necessary.</span>
+<span class="sd">    parse_features : bool, default=False</span>
+<span class="sd">        Parses string features and converts them to an iterable object (e.g., lists).</span>
+<span class="sd">    include_missing : Optional[bool], default=None</span>
+<span class="sd">        If ``True``, includes only columns with missing values.</span>
+<span class="sd">        If ``False``, excludes columns with missing values.</span>
+<span class="sd">    exclude_missing : Optional[bool], default=None</span>
+<span class="sd">        If ``True``, excludes columns with any missing values.</span>
+<span class="sd">    transform : Optional, default=None</span>
+<span class="sd">        Function or dictionary of functions to apply to the selected columns.</span>
+<span class="sd">        If a dictionary is provided, keys should correspond to column names.</span>
+<span class="sd">    regex : Optional[Union[str, Pattern]], default=None</span>
+<span class="sd">        Regular expression pattern to select columns.</span>
+<span class="sd">    callable_selector : Optional[Callable[[str], bool]], default=None</span>
+<span class="sd">        A callable that takes a column name and returns ``True`` if the column should</span>
+<span class="sd">        be selected.</span>
+<span class="sd">    inplace : bool, default=False</span>
+<span class="sd">        If ``True``, modifies the data in place. Otherwise, returns a new DataFrame.</span>
+<span class="sd">    **astype_kwargs : Any</span>
+<span class="sd">        Additional keyword arguments for ``pandas.DataFrame.astype``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        A new DataFrame with the selected features.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If no columns match the selection criteria and ``coerce`` is ``False``.</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If ``regex`` is not a string or compiled regex pattern.</span>
+<span class="sd">        If ``callable_selector`` is not a callable.</span>
+<span class="sd">        If ``transform`` is not a callable or a dictionary of callables.</span>
+<span class="sd">        If provided parameters are of incorrect types.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from geoprior.utils.base_utils import select_features</span>
+<span class="sd">    &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">    &gt;&gt;&gt; import re</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; data = {</span>
+<span class="sd">    ...     &quot;Color&quot;: [&#39;Blue&#39;, &#39;Red&#39;, &#39;Green&#39;],</span>
+<span class="sd">    ...     &quot;Name&quot;: [&#39;Mary&#39;, &quot;Daniel&quot;, &quot;Augustine&quot;],</span>
+<span class="sd">    ...     &quot;Price ($)&quot;: [&#39;200&#39;, &quot;300&quot;, &quot;100&quot;],</span>
+<span class="sd">    ...     &quot;Discount&quot;: [20, 30, np.nan]</span>
+<span class="sd">    ... }</span>
+<span class="sd">    &gt;&gt;&gt; select_features(data, dtypes_inc=&#39;number&#39;, verify_integrity=True)</span>
+<span class="sd">       Price ($)  Discount</span>
+<span class="sd">    0      200.0      20.0</span>
+<span class="sd">    1      300.0      30.0</span>
+<span class="sd">    2      100.0       NaN</span>
+
+<span class="sd">    &gt;&gt;&gt; select_features(data, features=[&#39;Color&#39;, &#39;Price ($)&#39;])</span>
+<span class="sd">       Color Price ($)</span>
+<span class="sd">    0   Blue       200</span>
+<span class="sd">    1    Red       300</span>
+<span class="sd">    2  Green       100</span>
+
+<span class="sd">    &gt;&gt;&gt; select_features(</span>
+<span class="sd">    ...     data,</span>
+<span class="sd">    ...     regex=&#39;^Price|Discount$&#39;,</span>
+<span class="sd">    ...     transform={&#39;Price ($)&#39;: lambda x: x / 100}</span>
+<span class="sd">    ... )</span>
+<span class="sd">       Price ($)  Discount</span>
+<span class="sd">    0        2.0        20</span>
+<span class="sd">    1        3.0        30</span>
+<span class="sd">    2        1.0         NaN</span>
+
+<span class="sd">    &gt;&gt;&gt; select_features(</span>
+<span class="sd">    ...     data,</span>
+<span class="sd">    ...     callable_selector=lambda col: col.startswith(&#39;C&#39;)</span>
+<span class="sd">    ... )</span>
+<span class="sd">       Color</span>
+<span class="sd">    0   Blue</span>
+<span class="sd">    1    Red</span>
+<span class="sd">    2  Green</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - This function is particularly useful in data preprocessing pipelines</span>
+<span class="sd">      where the presence of certain features is critical for subsequent</span>
+<span class="sd">      analysis or modeling steps.</span>
+<span class="sd">    - When using regex patterns, ensure that the pattern accurately reflects</span>
+<span class="sd">      the intended column names to avoid unintended matches.</span>
+<span class="sd">    - The callable provided to ``callable_selector`` should accept a single string</span>
+<span class="sd">      argument (the column name) and return a boolean indicating whether the column</span>
+<span class="sd">      should be selected.</span>
+<span class="sd">    - Transformation functions should be designed to handle the data types of</span>
+<span class="sd">      the respective columns to avoid runtime errors.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    validate_feature : Validates the existence of specified features in data.</span>
+<span class="sd">    pandas.DataFrame.select_dtypes : For more information on how to use ``include`` and</span>
+<span class="sd">        ``exclude`` parameters.</span>
+<span class="sd">    pandas.DataFrame.astype : For information on data type conversion.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] Pandas Documentation. &quot;DataFrame.select_dtypes.&quot;</span>
+<span class="sd">       https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.select_dtypes.html</span>
+<span class="sd">    .. [2] Python `re` Module.</span>
+<span class="sd">       https://docs.python.org/3/library/re.html</span>
+<span class="sd">    .. [3] Pandas Documentation. &quot;DataFrame.astype.&quot;</span>
+<span class="sd">       https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.astype.html</span>
+<span class="sd">    .. [4] Pandas Documentation. &quot;DataFrame.&quot;</span>
+<span class="sd">       https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Convert input data to DataFrame if necessary</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">build_data_if</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span>
+        <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span>
+        <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Handle coercion</span>
+    <span class="k">if</span> <span class="n">coerce</span><span class="p">:</span>
+        <span class="n">numeric_cols</span> <span class="o">=</span> <span class="n">select_dtypes</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">,</span> <span class="n">dtypes</span><span class="o">=</span><span class="s2">&quot;number&quot;</span><span class="p">,</span> <span class="n">return_columns</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">numeric_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">numeric_cols</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="c1"># Handle verify_integrity</span>
+    <span class="k">if</span> <span class="n">verify_integrity</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">to_numeric_dtypes</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="c1"># Handle parse_features</span>
+    <span class="k">if</span> <span class="n">parse_features</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">([</span><span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="s2">&quot;string&quot;</span><span class="p">]):</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">x</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Initialize mask for column selection</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="kc">True</span><span class="p">]</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="c1"># Select features by names, regex, or callable</span>
+    <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">validate_feature</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">ops</span><span class="o">=</span><span class="s2">&quot;validate&quot;</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="s2">&quot;raise&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Select features by regex separately if provided</span>
+    <span class="k">if</span> <span class="n">regex</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">regex</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">):</span>
+            <span class="n">pattern</span> <span class="o">=</span> <span class="n">regex</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;`regex` must be a string or a compiled regex pattern.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">mask</span> <span class="o">&amp;=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+
+    <span class="c1"># Select features by callable_selector separately if provided</span>
+    <span class="k">if</span> <span class="n">callable_selector</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">callable_selector</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;`callable_selector` must be a callable.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">mask</span> <span class="o">&amp;=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="n">callable_selector</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Select features by data types to include</span>
+    <span class="k">if</span> <span class="n">dtypes_inc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">included</span> <span class="o">=</span> <span class="n">select_dtypes</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">,</span> <span class="n">dtypes</span><span class="o">=</span><span class="n">dtypes_inc</span><span class="p">,</span> <span class="n">return_columns</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="n">mask</span> <span class="o">&amp;=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">included</span><span class="p">)</span>
+
+    <span class="c1"># Select features by data types to exclude</span>
+    <span class="k">if</span> <span class="n">dtypes_exc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">excluded</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span>
+            <span class="n">exclude</span><span class="o">=</span><span class="n">dtypes_exc</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">mask</span> <span class="o">&amp;=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">excluded</span><span class="p">)</span>
+
+    <span class="c1"># Handle missing data inclusion/exclusion</span>
+    <span class="k">if</span> <span class="n">include_missing</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">cols_with_missing</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">()]</span>
+        <span class="n">mask</span> <span class="o">&amp;=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">cols_with_missing</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">exclude_missing</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">cols_without_missing</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">()]</span>
+        <span class="n">mask</span> <span class="o">&amp;=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">cols_without_missing</span><span class="p">)</span>
+
+    <span class="c1"># Apply the mask to select columns</span>
+    <span class="n">selected_columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">selected_columns</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">coerce</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">df</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;No columns match the selection criteria.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="n">df_selected</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">selected_columns</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Apply transformations if specified</span>
+    <span class="k">if</span> <span class="n">transform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">transform</span><span class="p">):</span>
+            <span class="n">df_selected</span> <span class="o">=</span> <span class="n">transform</span><span class="p">(</span><span class="n">df_selected</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">transform</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">transform</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df_selected</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">df_selected</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_selected</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                        <span class="n">func</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Column &#39;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">&#39; not found in the selected DataFrame.&quot;</span>
+                    <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;`transform` must be a callable or a dictionary of callables.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Change data types as specified</span>
+    <span class="k">if</span> <span class="n">astype_kwargs</span><span class="p">:</span>
+        <span class="n">df_selected</span> <span class="o">=</span> <span class="n">df_selected</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="o">**</span><span class="n">astype_kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df_selected</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">download_file</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">dstpath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;download a remote file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    url: str,</span>
+<span class="sd">      Url to where the file is stored.</span>
+<span class="sd">    loadl_filename: str,</span>
+<span class="sd">      Name of the local file</span>
+
+<span class="sd">    dstpath: Optional</span>
+<span class="sd">      The destination path to save the downloaded file.</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    --------</span>
+<span class="sd">    None, local_filename</span>
+<span class="sd">       None if the `dstpath` is supplied and `local_filename` otherwise.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    ---------</span>
+<span class="sd">    &gt;&gt;&gt; from geoprior.utils.base_utils import download_file</span>
+<span class="sd">    &gt;&gt;&gt; url = &#39;https://raw.githubusercontent.com/WEgeophysics/gofast/master/gofast/datasets/data/h.h5&#39;</span>
+<span class="sd">    &gt;&gt;&gt; local_filename = &#39;h.h5&#39;</span>
+<span class="sd">    &gt;&gt;&gt; download_file(url, local_filename, test_directory)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">import_optional_dependency</span><span class="p">(</span><span class="s2">&quot;requests&quot;</span><span class="p">)</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;</span><span class="si">{:-^70}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot; Please, Wait while </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="s2">&quot; is downloading. &quot;</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">with</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">r</span><span class="p">:</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">iter_content</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="mi">8192</span><span class="p">):</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">dstpath</span><span class="p">:</span>
+        <span class="n">move_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dstpath</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:-^70}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot; ok! &quot;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">dstpath</span> <span class="k">else</span> <span class="n">filename</span>
+
+
+<div class="viewcode-block" id="fancier_downloader">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.base_utils.fancier_downloader">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fancier_downloader</span><span class="p">(</span>
+    <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">dstpath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">check_size</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">error</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;raise&quot;</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Download a remote file with a progress bar and optional size verification.</span>
+
+<span class="sd">    This function downloads a file from the specified ``url`` and saves it locally</span>
+<span class="sd">    with the given ``filename``. It provides a visual progress bar during the</span>
+<span class="sd">    download process and offers an option to verify the downloaded file&#39;s size</span>
+<span class="sd">    against the expected size to ensure data integrity. Additionally, the function</span>
+<span class="sd">    allows for moving the downloaded file to a specified destination directory.</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        |S_{downloaded} - S_{expected}| &lt; \epsilon</span>
+
+<span class="sd">    where :math:`S_{downloaded}` is the size of the downloaded file,</span>
+<span class="sd">    :math:`S_{expected}` is the size specified by the server,</span>
+<span class="sd">    and :math:`\epsilon` is a small tolerance value.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    url : str</span>
+<span class="sd">        The URL from which to download the remote file.</span>
+
+<span class="sd">    filename : str</span>
+<span class="sd">        The desired name for the local file. This is the name under which the</span>
+<span class="sd">        file will be saved after downloading.</span>
+
+<span class="sd">    dstpath : Optional[str], default=None</span>
+<span class="sd">        The destination directory path where the downloaded file should be saved.</span>
+<span class="sd">        If ``None``, the file is saved in the current working directory.</span>
+
+<span class="sd">    check_size : bool, default=False</span>
+<span class="sd">        Whether to verify the size of the downloaded file against the expected</span>
+<span class="sd">        size obtained from the server. This is useful for ensuring the integrity</span>
+<span class="sd">        of the downloaded file. When ``True``, the function checks:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            |S_{downloaded} - S_{expected}| &lt; \epsilon</span>
+
+<span class="sd">        If the size check fails:</span>
+
+<span class="sd">        - If ``error=&#39;raise&#39;``, an exception is raised.</span>
+<span class="sd">        - If ``error=&#39;warn&#39;``, a warning is emitted.</span>
+<span class="sd">        - If ``error=&#39;ignore&#39;``, the discrepancy is ignored, and the function</span>
+<span class="sd">          continues.</span>
+
+<span class="sd">    error : str, default=&#39;raise&#39;</span>
+<span class="sd">        Specifies how to handle errors during the size verification process.</span>
+
+<span class="sd">        - ``&#39;raise&#39;``: Raises an exception if the file size does not match.</span>
+<span class="sd">        - ``&#39;warn&#39;``: Emits a warning and continues execution.</span>
+<span class="sd">        - ``&#39;ignore&#39;``: Silently ignores the size discrepancy and proceeds.</span>
+
+<span class="sd">    verbose : bool, default=True</span>
+<span class="sd">        Controls the verbosity of the function. If ``True``, the function will</span>
+<span class="sd">        print informative messages about the download status, including progress</span>
+<span class="sd">        updates and success or failure notifications.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Optional[str]</span>
+<span class="sd">        Returns ``None`` if ``dstpath`` is provided and the file is moved to the</span>
+<span class="sd">        destination. Otherwise, returns the local filename as a string.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    RuntimeError</span>
+<span class="sd">        If the download fails and ``error`` is set to ``&#39;raise&#39;``.</span>
+
+<span class="sd">    ValueError</span>
+<span class="sd">        If an invalid value is provided for the ``error`` parameter.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from geoprior.utils.base_utils import fancier_downloader</span>
+<span class="sd">    &gt;&gt;&gt; url = &#39;https://example.com/data/file.h5&#39;</span>
+<span class="sd">    &gt;&gt;&gt; local_filename = &#39;file.h5&#39;</span>
+<span class="sd">    &gt;&gt;&gt; # Download to current directory without size check</span>
+<span class="sd">    &gt;&gt;&gt; fancier_downloader(url, local_filename)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Download to a specific directory with size verification</span>
+<span class="sd">    &gt;&gt;&gt; fancier_downloader(</span>
+<span class="sd">    ...     url,</span>
+<span class="sd">    ...     local_filename,</span>
+<span class="sd">    ...     dstpath=&#39;/path/to/save/&#39;,</span>
+<span class="sd">    ...     check_size=True,</span>
+<span class="sd">    ...     error=&#39;warn&#39;,</span>
+<span class="sd">    ...     verbose=True</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Handle size mismatch by raising an exception</span>
+<span class="sd">    &gt;&gt;&gt; fancier_downloader(</span>
+<span class="sd">    ...     url,</span>
+<span class="sd">    ...     local_filename,</span>
+<span class="sd">    ...     check_size=True,</span>
+<span class="sd">    ...     error=&#39;raise&#39;</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - **Progress Bar**: The function uses the `tqdm` library to display a</span>
+<span class="sd">      progress bar during the download. If `tqdm` is not installed, it falls</span>
+<span class="sd">      back to a basic downloader without a progress bar.</span>
+<span class="sd">    - **Directory Creation**: If the specified ``dstpath`` does not exist,</span>
+<span class="sd">      the function will attempt to create it to ensure the file is saved</span>
+<span class="sd">      correctly.</span>
+<span class="sd">    - **File Integrity**: Enabling ``check_size`` helps in verifying that the</span>
+<span class="sd">      downloaded file is complete and uncorrupted. However, it does not perform</span>
+<span class="sd">      a checksum verification.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    requests.get : Function to perform HTTP GET requests.</span>
+<span class="sd">    tqdm : A library for creating progress bars.</span>
+<span class="sd">    os.makedirs: Function to create directories.</span>
+<span class="sd">    geoprior.utils.base_utils.check_file_exists:</span>
+<span class="sd">        Utility to check file existence.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B.,</span>
+<span class="sd">           Grisel, O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V.,</span>
+<span class="sd">           Vanderplas, J., Passos, A., Cournapeau, D., Brucher, M., Perrot, M.,</span>
+<span class="sd">           &amp; Duchesnay, E. (2011). Scikit-learn: Machine Learning in Python.</span>
+<span class="sd">           *Journal of Machine Learning Research*, 12, 2825-2830.</span>
+<span class="sd">    .. [2] tqdm documentation. https://tqdm.github.io/</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Import necessary dependencies</span>
+    <span class="n">import_optional_dependency</span><span class="p">(</span><span class="s2">&quot;requests&quot;</span><span class="p">)</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+
+    <span class="k">if</span> <span class="n">error</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="s2">&quot;warn&quot;</span><span class="p">,</span> <span class="s2">&quot;raise&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;`error` parameter must be &#39;raise&#39;, &#39;warn&#39;, or &#39;ignore&#39;.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>  <span class="c1"># NOQA</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="c1"># If tqdm is not installed, fallback to the basic download_file function</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;tqdm is not installed. Falling back&quot;</span>
+                <span class="s2">&quot; to basic downloader without progress bar.&quot;</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">download_file</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">dstpath</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Initiate the HTTP GET request with streaming enabled</span>
+        <span class="k">with</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>  <span class="c1"># Raise an error for bad status codes</span>
+
+            <span class="c1"># Retrieve the total size of the file from the &#39;Content-Length&#39; header</span>
+            <span class="n">total_size_in_bytes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;content-length&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">block_size</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="mi">1024</span>  <span class="c1"># Define the chunk size (1 Kibibyte)</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Initialize the progress bar with the total file size</span>
+            <span class="n">progress_bar</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span>
+                <span class="n">total</span><span class="o">=</span><span class="n">total_size_in_bytes</span><span class="p">,</span>
+                <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;iB&quot;</span><span class="p">,</span>
+                <span class="n">unit_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">ncols</span><span class="o">=</span><span class="mi">77</span><span class="p">,</span>
+                <span class="n">ascii</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Downloading </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Open the target file in binary write mode</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                <span class="c1"># Iterate over the response stream in chunks</span>
+                <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">iter_content</span><span class="p">(</span><span class="n">block_size</span><span class="p">):</span>
+                    <span class="n">progress_bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                        <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                    <span class="p">)</span>  <span class="c1"># Update the progress bar</span>
+                    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                        <span class="n">data</span>
+                    <span class="p">)</span>  <span class="c1"># Write the chunk to the file</span>
+            <span class="n">progress_bar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>  <span class="c1"># Close the progress bar once download is complete</span>
+
+        <span class="c1"># Optional: Verify the size of the downloaded file</span>
+        <span class="k">if</span> <span class="n">check_size</span><span class="p">:</span>
+            <span class="c1"># Get the actual size of the downloaded file</span>
+            <span class="n">downloaded_size</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="n">expected_size</span> <span class="o">=</span> <span class="n">total_size_in_bytes</span>
+
+            <span class="c1"># Define a tolerance level (e.g., 1%) for size discrepancy</span>
+            <span class="n">tolerance</span> <span class="o">=</span> <span class="n">expected_size</span> <span class="o">*</span> <span class="mf">0.01</span>
+            <span class="c1"># for consistency if</span>
+            <span class="k">if</span> <span class="n">downloaded_size</span> <span class="o">&gt;=</span> <span class="n">expected_size</span><span class="p">:</span>
+                <span class="n">expected_size</span> <span class="o">=</span> <span class="n">downloaded_size</span>
+
+            <span class="c1"># Check if the downloaded file size is within the acceptable range</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+                <span class="n">expected_size</span> <span class="o">-</span> <span class="n">tolerance</span>
+                <span class="o">&lt;=</span> <span class="n">downloaded_size</span>
+                <span class="o">&lt;=</span> <span class="n">expected_size</span> <span class="o">+</span> <span class="n">tolerance</span>
+            <span class="p">):</span>
+                <span class="c1"># Prepare an informative message about the size mismatch</span>
+                <span class="n">size_mismatch_msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Downloaded file size for &#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; (</span><span class="si">{</span><span class="n">downloaded_size</span><span class="si">}</span><span class="s2"> bytes) &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;does not match the expected size (</span><span class="si">{</span><span class="n">expected_size</span><span class="si">}</span><span class="s2"> bytes).&quot;</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Handle the discrepancy based on the &#39;error&#39; parameter</span>
+                <span class="k">if</span> <span class="n">error</span> <span class="o">==</span> <span class="s2">&quot;raise&quot;</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">size_mismatch_msg</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">error</span> <span class="o">==</span> <span class="s2">&quot;warn&quot;</span><span class="p">:</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                        <span class="n">size_mismatch_msg</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">error</span> <span class="o">==</span> <span class="s2">&quot;ignore&quot;</span><span class="p">:</span>
+                    <span class="k">pass</span>  <span class="c1"># Do nothing and continue</span>
+
+            <span class="k">elif</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;File size for &#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; verified successfully.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Move the file to the destination path if &#39;dstpath&#39; is provided</span>
+        <span class="k">if</span> <span class="n">dstpath</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Ensure the destination directory exists</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dstpath</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="c1"># Define the full destination path</span>
+                <span class="n">destination_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="n">dstpath</span><span class="p">,</span> <span class="n">filename</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Move the downloaded file to the destination directory</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">destination_file</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;File &#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; moved to &#39;</span><span class="si">{</span><span class="n">destination_file</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                    <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">move_error</span><span class="p">:</span>
+                <span class="c1"># Handle any errors that occur during the file move</span>
+                <span class="n">move_error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Failed to move &#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; to &#39;</span><span class="si">{</span><span class="n">dstpath</span><span class="si">}</span><span class="s2">&#39;. Error: </span><span class="si">{</span><span class="n">move_error</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">if</span> <span class="n">error</span> <span class="o">==</span> <span class="s2">&quot;raise&quot;</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="n">move_error_msg</span>
+                    <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">move_error</span>
+                <span class="k">elif</span> <span class="n">error</span> <span class="o">==</span> <span class="s2">&quot;warn&quot;</span><span class="p">:</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                        <span class="n">move_error_msg</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">error</span> <span class="o">==</span> <span class="s2">&quot;ignore&quot;</span><span class="p">:</span>
+                    <span class="k">pass</span>  <span class="c1"># Do nothing and continue</span>
+
+            <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># Return None since the file has been moved</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;File &#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; downloaded successfully.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">filename</span>  <span class="c1"># Return the filename if no destination path is provided</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">download_error</span><span class="p">:</span>
+        <span class="c1"># Handle any exceptions that occur during the download process</span>
+        <span class="n">download_error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Failed to download &#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; from &#39;</span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">&#39;. Error: </span><span class="si">{</span><span class="n">download_error</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">error</span> <span class="o">==</span> <span class="s2">&quot;raise&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="n">download_error_msg</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">download_error</span>
+        <span class="k">elif</span> <span class="n">error</span> <span class="o">==</span> <span class="s2">&quot;warn&quot;</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">download_error_msg</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">error</span> <span class="o">==</span> <span class="s2">&quot;ignore&quot;</span><span class="p">:</span>
+            <span class="k">pass</span>  <span class="c1"># Do nothing and continue</span>
+
+    <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># Return None as a fallback</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">move_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">directory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Move file to a directory.</span>
+
+<span class="sd">    Create a directory if not exists.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    file_path: str,</span>
+<span class="sd">       Path to the local file</span>
+<span class="sd">    directory: str,</span>
+<span class="sd">       Path to locate the directory.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    ---------</span>
+<span class="sd">    &gt;&gt;&gt; from geoprior.utils.base_utils import move_file</span>
+<span class="sd">    &gt;&gt;&gt; file_path = &#39;path/to/your/file.txt&#39;  # Replace with your file&#39;s path</span>
+<span class="sd">    &gt;&gt;&gt; directory = &#39;path/to/your/directory&#39;  # Replace with your directory&#39;s path</span>
+<span class="sd">    &gt;&gt;&gt; move_file(file_path, directory)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create the directory if it doesn&#39;t exist</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+    <span class="c1"># Move the file to the directory</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span>
+        <span class="n">file_path</span><span class="p">,</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file_path</span><span class="p">)),</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_file_exists</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if a file exists in a package&#39;s directory with</span>
+<span class="sd">    importlib.resources.</span>
+
+<span class="sd">    :param package: The package containing the resource.</span>
+<span class="sd">    :param resource: The resource (file) to check.</span>
+<span class="sd">    :return: Boolean indicating if the resource exists.</span>
+
+<span class="sd">    :example:</span>
+<span class="sd">        &gt;&gt;&gt; from geoprior.utils.base_utils import check_file_exists</span>
+<span class="sd">        &gt;&gt;&gt; package_name = &#39;geoprior.datasets.data&#39;  # Replace with your package name</span>
+<span class="sd">        &gt;&gt;&gt; file_name = &#39;h.h5&#39;    # Replace with your file name</span>
+
+<span class="sd">        &gt;&gt;&gt; file_exists = check_file_exists(package_name, file_name)</span>
+<span class="sd">        &gt;&gt;&gt; print(f&quot;File exists: {file_exists}&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pkg_resources</span>
+
+    <span class="k">return</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">is_resource</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">resource</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="extract_target">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.base_utils.extract_target">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_target</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">ArrayLike</span> <span class="o">|</span> <span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">target_names</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">drop</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">return_y_X</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span>
+    <span class="n">ArrayLike</span>
+    <span class="o">|</span> <span class="n">Series</span>
+    <span class="o">|</span> <span class="n">DataFrame</span>
+    <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ArrayLike</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts specified target column(s) from a multidimensional numpy array</span>
+<span class="sd">    or pandas DataFrame.</span>
+
+<span class="sd">    with options to rename columns in a DataFrame and control over whether the</span>
+<span class="sd">    extracted columns are dropped from the original data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : Union[np.ndarray, pd.DataFrame]</span>
+<span class="sd">        The input data from which target columns are to be extracted. Can be a</span>
+<span class="sd">        NumPy array or a pandas DataFrame.</span>
+<span class="sd">    target_names : Union[str, int, List[Union[str, int]]]</span>
+<span class="sd">        The name(s) or integer index/indices of the column(s) to extract.</span>
+<span class="sd">        If `data` is a DataFrame, this can be a mix of column names and indices.</span>
+<span class="sd">        If `data` is a NumPy array, only integer indices are allowed.</span>
+<span class="sd">    drop : bool, default True</span>
+<span class="sd">        If True, the extracted columns are removed from the original `data`.</span>
+<span class="sd">        If False, the original `data` remains unchanged.</span>
+<span class="sd">    columns : Optional[List[str]], default None</span>
+<span class="sd">        If provided and `data` is a DataFrame, specifies new names for the</span>
+<span class="sd">        columns in `data`. The length of `columns` must match the number of</span>
+<span class="sd">        columns in `data`. This parameter is ignored if `data` is a NumPy array.</span>
+<span class="sd">    return_y_X : bool, default False</span>
+<span class="sd">        If True, returns a tuple (y, X) where X is the data with the target columns</span>
+<span class="sd">        removed and y is the target columns. If False, returns only y.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Union[ArrayLike, pd.Series, pd.DataFrame, Tuple[ pd.DataFrame, ArrayLike]]</span>
+<span class="sd">        If return_X_y is True, returns a tuple (X, y) where X is the data with the</span>
+<span class="sd">        target columns removed and y is the target columns. If return_X_y is False,</span>
+<span class="sd">        returns only y.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If `columns` is provided and its length does not match the number of</span>
+<span class="sd">        columns in `data`.</span>
+<span class="sd">        If any of the specified `target_names` do not exist in `data`.</span>
+<span class="sd">        If `target_names` includes a mix of strings and integers for a NumPy</span>
+<span class="sd">        array input.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">    &gt;&gt;&gt; df = pd.DataFrame({</span>
+<span class="sd">    ...     &#39;A&#39;: [1, 2, 3],</span>
+<span class="sd">    ...     &#39;B&#39;: [4, 5, 6],</span>
+<span class="sd">    ...     &#39;C&#39;: [7, 8, 9]</span>
+<span class="sd">    ... })</span>
+<span class="sd">    &gt;&gt;&gt; target = extract_target(df, &#39;B&#39;, drop=True, return_y_X=False)</span>
+<span class="sd">    &gt;&gt;&gt; print(target)</span>
+<span class="sd">    0    4</span>
+<span class="sd">    1    5</span>
+<span class="sd">    2    6</span>
+<span class="sd">    Name: B, dtype: int64</span>
+<span class="sd">    &gt;&gt;&gt; target, remaining = extract_target(df, &#39;B&#39;, drop=True, return_y_X=True)</span>
+<span class="sd">    &gt;&gt;&gt; print(target)</span>
+<span class="sd">    0    4</span>
+<span class="sd">    1    5</span>
+<span class="sd">    2    6</span>
+<span class="sd">    Name: B, dtype: int64</span>
+<span class="sd">    &gt;&gt;&gt; print(remaining)</span>
+<span class="sd">       A  C</span>
+<span class="sd">    0  1  7</span>
+<span class="sd">    1  2  8</span>
+<span class="sd">    2  3  9</span>
+<span class="sd">    &gt;&gt;&gt; arr = np.random.rand(5, 3)</span>
+<span class="sd">    &gt;&gt;&gt; target, modified_arr = extract_target(arr, 2, return_X_y=True)</span>
+<span class="sd">    &gt;&gt;&gt; print(target)</span>
+<span class="sd">    &gt;&gt;&gt; print(modified_arr)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">is_frame</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_frame</span> <span class="ow">and</span> <span class="n">columns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="n">is_iterable</span><span class="p">(</span>
+            <span class="n">columns</span><span class="p">,</span> <span class="n">exclude_string</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span> <span class="o">!=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;`columns` must match the number of columns in&quot;</span>
+                <span class="s2">&quot; `data`.&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; Expected </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_names</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">target_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">target_names</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">target_names</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">target_names</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;All integer indices must be within the column range of the data.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">elif</span> <span class="p">(</span>
+        <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">target_names</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="n">is_frame</span>
+    <span class="p">):</span>
+        <span class="n">target_names</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">name</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">target_names</span>
+        <span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">is_frame</span><span class="p">:</span>
+        <span class="n">missing_cols</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">name</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">target_names</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">missing_cols</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Column names </span><span class="si">{</span><span class="n">missing_cols</span><span class="si">}</span><span class="s2"> do not match any&quot;</span>
+                <span class="s2">&quot; column in the DataFrame.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">target_names</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">drop</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">target_names</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">target_names</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;String names are not allowed for target names&quot;</span>
+                <span class="s2">&quot; when data is a NumPy array.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="n">target_names</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">drop</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">target_names</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+
+    <span class="n">target</span> <span class="o">=</span> <span class="n">to_series</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">handle_2d</span><span class="o">=</span><span class="s2">&quot;passthrough&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">return_y_X</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">target</span><span class="p">,</span> <span class="n">data</span>
+    <span class="k">return</span> <span class="n">target</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_handle_non_numeric</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;normalize&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Process input data (Series, DataFrame, or ndarray) to ensure</span>
+<span class="sd">    it contains only numeric data.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    data (pandas.Series, pandas.DataFrame, numpy.ndarray):</span>
+<span class="sd">        Input data to process.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    numpy.ndarray: An array containing only numeric data.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">    ValueError: If the processed data is empty after removing non-numeric types.</span>
+<span class="sd">    TypeError: If the input is not a Series, DataFrame, or ndarray.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+            <span class="c1"># Convert Series to DataFrame to use select_dtypes</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+            <span class="c1"># Convert back to Series if needed</span>
+            <span class="n">numeric_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">]</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="c1"># For DataFrame, use select_dtypes to filter numeric data.</span>
+            <span class="n">numeric_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">])</span>
+        <span class="c1"># For pandas data structures, select only numeric data types.</span>
+        <span class="k">if</span> <span class="n">numeric_data</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No numeric data to </span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="c1"># For numpy arrays, ensure the dtype is numeric.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">):</span>
+            <span class="c1"># Attempt to convert non-numeric numpy</span>
+            <span class="c1"># array to a numeric one by coercion</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">numeric_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Array contains non-numeric data that cannot&quot;</span>
+                    <span class="s2">&quot; be converted to numeric type.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">numeric_data</span> <span class="o">=</span> <span class="n">data</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="s2">&quot;Input must be a pandas Series,&quot;</span>
+            <span class="s2">&quot; DataFrame, or a numpy array.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Check if resulting numeric data is empty</span>
+    <span class="k">if</span> <span class="n">numeric_data</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;No numeric data available after processing.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">numeric_data</span>
+
+
+<div class="viewcode-block" id="validate_target_in">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.base_utils.validate_target_in">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_target_in</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="s2">&quot;raise&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate and process the target variable, ensuring it is consistent</span>
+<span class="sd">    with the features in the DataFrame.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - df: pandas DataFrame</span>
+<span class="sd">        The DataFrame containing the features (X) and possibly the target column.</span>
+<span class="sd">    - target: str, pandas Series, or pandas DataFrame</span>
+<span class="sd">        The target variable to validate and process.</span>
+<span class="sd">    - error: {&#39;raise&#39;, &#39;warn&#39;, &#39;ignore&#39;}, optional (default: &#39;raise&#39;)</span>
+<span class="sd">        Defines behavior if there are issues with target validation.</span>
+<span class="sd">        - &#39;raise&#39;: Raise an error if validation fails.</span>
+<span class="sd">        - &#39;warn&#39;: Issue a warning and continue.</span>
+<span class="sd">        - &#39;ignore&#39;: Ignore any issues.</span>
+<span class="sd">    - verbose: int, optional (default: 0)</span>
+<span class="sd">        Verbosity level for logging.</span>
+<span class="sd">        - 0: No output.</span>
+<span class="sd">        - 1: Basic info.</span>
+<span class="sd">        - 2: Detailed info.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - target: pandas Series</span>
+<span class="sd">        The processed target variable.</span>
+<span class="sd">    - df: pandas DataFrame</span>
+<span class="sd">        The DataFrame containing the features and target.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">is_frame</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">df_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">objname</span><span class="o">=</span><span class="s2">&quot;Data &#39;df&#39;&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># If target is a string, try to extract</span>
+    <span class="c1"># the corresponding column from the DataFrame</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Target is a string: Extracting &#39;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                <span class="s2">&quot; column from the DataFrame.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">target</span><span class="p">,</span> <span class="n">df</span> <span class="o">=</span> <span class="n">extract_target</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">,</span> <span class="n">target_names</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">return_y_X</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+    <span class="c1"># If target is a DataFrame, attempt to convert it</span>
+    <span class="c1"># to a pandas Series (if it has a single column)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;Target is a DataFrame with a single column.&quot;</span>
+                    <span class="s2">&quot; Converting to Series.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">to_series</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">error</span> <span class="o">==</span> <span class="s2">&quot;raise&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;If &#39;target&#39; is a DataFrame, it&quot;</span>
+                    <span class="s2">&quot; must have a single column.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">error</span> <span class="o">==</span> <span class="s2">&quot;warn&quot;</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;Target DataFrame has more than one column.&quot;</span>
+                    <span class="s2">&quot; Using the first column.&quot;</span><span class="p">,</span>
+                    <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">target</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span>
+                    <span class="p">:,</span> <span class="mi">0</span>
+                <span class="p">]</span>  <span class="c1"># Use the first column as the target</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Default behavior: use the&quot; first column if there are multiple columns</span>
+                <span class="n">target</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># If target is a pandas Series, just use it as-is</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;Target is a pandas Series. Proceeding with it directly.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Check that the length of the target matches the length of the DataFrame</span>
+    <span class="n">check_consistent_length</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">target</span><span class="p">,</span> <span class="n">df</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

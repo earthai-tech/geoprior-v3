@@ -1,0 +1,1010 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Flatten (t, x, y) coordinates from dataset batches &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=404c0980"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/model_inspection/gather_coords_flat';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Plot epsilon diagnostics from a GeoPrior training history" href="plot_epsilons_in.html" />
+    <link rel="prev" title="Extract learned physical parameters from a trained model" href="extract_physical_parameters.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../forecasting/index.html">Forecasting</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_forecast.html">Forecast quick-look with <code class="docutils literal notranslate"><span class="pre">plot_forecasts</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_forecast_by_step.html">Forecast by horizon step with <code class="docutils literal notranslate"><span class="pre">plot_forecast_by_step</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_future_quantiles_map.html">Future quantile maps with <code class="docutils literal notranslate"><span class="pre">forecast_view</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_holdout_vs_forecast.html">Holdout versus future forecast with <code class="docutils literal notranslate"><span class="pre">plot_eval_future</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../uncertainty/index.html">Uncertainty</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../diagnostics/index.html">Diagnostics</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../figure_generation/index.html">Figure generation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_ablation.html">Core ablation: learning what physics adds to the workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_core_ablation.html">Ablations and sensitivities: learning where the model behaves well in lambda space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_driver_response.html">Driver-response plots: learning how the response moves with the drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_external_validation.html">External validation: comparing inferred effective fields against independent site evidence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_geo_cumulative.html">Cumulative subsidence on a satellite-style map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_hotspot_analytics.html">Hotspot analytics: turning future forecasts into decision-ready priority maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_litho_parity.html">Lithology parity: comparing the geological composition of the two cities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_physics_fields.html">Physics fields: learning to read the physical story in a map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_physics_maps.html">Physics maps: turning pointwise payloads into readable spatial fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_physics_profiles.html">Physics profiles: reducing a 2D lambda landscape into readable 1D lessons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_physics_sanity.html">Physics sanity: checking closure agreement and residual behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_physics_sensitivity.html">Physics sensitivity: learning how lambda choices reshape the physics diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_sm3_bounds_ridge_summary.html">SM3 bounds versus ridge: learning the two main failure modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_sm3_identifiability.html">SM3 identifiability: learning when recovery is accurate and when parameters slide along a ridge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_sm3_log_offsets.html">SM3 log offsets: learning where the inferred fields drift from their priors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_spatial_forecasts.html">Spatial forecasts: how to read observed maps, fitted maps, and future forecast maps together</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_transfer.html">Cross-city transferability: learning what survives transfer between cities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_uncertainty.html">Forecast uncertainty: learning how calibration behaves across cities and horizons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_uncertainty_extras.html">Expanded uncertainty diagnostics: learning what the main uncertainty figure still hides</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_xfer_impact.html">Transfer impact: what transfer changes for retention, risk, and hotspot stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_xfer_transferability.html">Cross-city transferability (v3.2): what survives when a workflow moves to the other city</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tables_and_summaries/index.html">Tables and summaries</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/build_ablation_table.html">Build ablation tables from sensitivity records</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/build_model_metrics.html">Build unified model-metrics tables from GeoPrior runs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/compute_brier_exceedance.html">Compute exceedance Brier scores from calibrated forecasts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/compute_hotspots.html">Compute hotspot summary tables from forecast CSVs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/extend_forecast.html">Extend forecast CSVs to later years</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/make_boundary.html">Build city boundary polygons from forecast points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/make_district_grid.html">Create district grid layers from forecast points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/make_exposure.html">Create exposure weights from forecast point density</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/summarize_hotspots.html">Summarize hotspot point clouds into tidy group tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/tag_clusters_with_zones.html">Tag hotspot clusters with district Zone IDs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Model inspection</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autoplot_geoprior_history.html">Automatically save the standard GeoPrior history diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract_physical_parameters.html">Extract learned physical parameters from a trained model</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Flatten (t, x, y) coordinates from dataset batches</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_epsilons_in.html">Plot epsilon diagnostics from a GeoPrior training history</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_history_in.html">Plot training history with robust grouping and scale handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_losses_in.html">Plot physics loss terms from a GeoPrior training history</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_values_in.html">Plot physics payload values as maps and histograms</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../examples/index.html" class="nav-link">Gallery</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Model inspection</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Flatten (t, x, y) coordinates from dataset batches</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-model-inspection-gather-coords-flat-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="flatten-t-x-y-coordinates-from-dataset-batches">
+<span id="sphx-glr-auto-examples-model-inspection-gather-coords-flat-py"></span><h1>Flatten (t, x, y) coordinates from dataset batches<a class="headerlink" href="#flatten-t-x-y-coordinates-from-dataset-batches" title="Link to this heading">#</a></h1>
+<p>This example teaches you how to use GeoPrior’s
+<code class="docutils literal notranslate"><span class="pre">gather_coords_flat</span></code> helper.</p>
+<p>Unlike the plotting scripts in <code class="docutils literal notranslate"><span class="pre">figure_generation/</span></code>, this function
+is a small inspection utility. It extracts coordinate arrays from
+batched dataset-like objects and returns them in one flat, reusable
+form.</p>
+<section id="why-this-matters">
+<h2>Why this matters<a class="headerlink" href="#why-this-matters" title="Link to this heading">#</a></h2>
+<p>Several later inspection tools want coordinates in a very simple
+shape:</p>
+<ul class="simple">
+<li><p>one flat <code class="docutils literal notranslate"><span class="pre">t</span></code> array,</p></li>
+<li><p>one flat <code class="docutils literal notranslate"><span class="pre">x</span></code> array,</p></li>
+<li><p>one flat <code class="docutils literal notranslate"><span class="pre">y</span></code> array.</p></li>
+</ul>
+<p>But training datasets are usually batched and may package inputs in
+different ways. This helper normalizes those cases into one compact
+dictionary.</p>
+</section>
+<section id="imports">
+<h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
+<p>We call the real helper from the package and feed it small
+dataset-like iterables.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">gather_coords_flat</span>
+</pre></div>
+</div>
+</section>
+<section id="build-a-compact-dataset-in-dict-input-form">
+<h2>Build a compact dataset in dict-input form<a class="headerlink" href="#build-a-compact-dataset-in-dict-input-form" title="Link to this heading">#</a></h2>
+<p>The real helper accepts batches where:</p>
+<ul class="simple">
+<li><p>the batch itself is the inputs, or</p></li>
+<li><p>the batch is <code class="docutils literal notranslate"><span class="pre">(inputs,</span> <span class="pre">targets)</span></code>.</p></li>
+</ul>
+<p>When the inputs are a dict, the helper reads <code class="docutils literal notranslate"><span class="pre">inputs[coord_key]</span></code>.</p>
+<p>Here we create two batches with coordinates stored as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">(B,</span> <span class="pre">T,</span> <span class="pre">3)</span></code></p></li>
+</ul>
+<p>where the last axis is ordered as:</p>
+<ul class="simple">
+<li><p>t</p></li>
+<li><p>x</p></li>
+<li><p>y</p></li>
+</ul>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">coords_b1</span> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="numpy.array" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">array</span></a><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="p">[</span>
+            <span class="p">[</span><span class="mf">2021.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">35.0</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">2022.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">35.0</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">2023.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">35.0</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="p">[</span><span class="mf">2021.0</span><span class="p">,</span> <span class="mf">121.5</span><span class="p">,</span> <span class="mf">35.8</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">2022.0</span><span class="p">,</span> <span class="mf">121.5</span><span class="p">,</span> <span class="mf">35.8</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">2023.0</span><span class="p">,</span> <span class="mf">121.5</span><span class="p">,</span> <span class="mf">35.8</span><span class="p">],</span>
+        <span class="p">],</span>
+    <span class="p">],</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">coords_b2</span> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="numpy.array" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">array</span></a><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="p">[</span>
+            <span class="p">[</span><span class="mf">2021.0</span><span class="p">,</span> <span class="mf">123.0</span><span class="p">,</span> <span class="mf">36.1</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">2022.0</span><span class="p">,</span> <span class="mf">123.0</span><span class="p">,</span> <span class="mf">36.1</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">2023.0</span><span class="p">,</span> <span class="mf">123.0</span><span class="p">,</span> <span class="mf">36.1</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="p">[</span><span class="mf">2021.0</span><span class="p">,</span> <span class="mf">125.0</span><span class="p">,</span> <span class="mf">36.7</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">2022.0</span><span class="p">,</span> <span class="mf">125.0</span><span class="p">,</span> <span class="mf">36.7</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">2023.0</span><span class="p">,</span> <span class="mf">125.0</span><span class="p">,</span> <span class="mf">36.7</span><span class="p">],</span>
+        <span class="p">],</span>
+    <span class="p">],</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">dataset_dict</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">({</span><span class="s2">&quot;coords&quot;</span><span class="p">:</span> <span class="n">coords_b1</span><span class="p">,</span> <span class="s2">&quot;other&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ones.html#numpy.ones" title="numpy.ones" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">ones</span></a><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">))},</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">({</span><span class="s2">&quot;coords&quot;</span><span class="p">:</span> <span class="n">coords_b2</span><span class="p">,</span> <span class="s2">&quot;other&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ones.html#numpy.ones" title="numpy.ones" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">ones</span></a><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">))},</span> <span class="kc">None</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="n">flat_dict</span> <span class="o">=</span> <span class="n">gather_coords_flat</span><span class="p">(</span><span class="n">dataset_dict</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Flattened coords from dict-input dataset&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">flat_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="s2">&quot;-&gt;&quot;</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="build-a-compact-dataset-in-direct-input-form">
+<h2>Build a compact dataset in direct-input form<a class="headerlink" href="#build-a-compact-dataset-in-direct-input-form" title="Link to this heading">#</a></h2>
+<p>The helper also accepts cases where the batch directly <em>is</em> the
+coordinate tensor, without a dict wrapper.</p>
+<p>Here we use a simpler shape:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">(B,</span> <span class="pre">3)</span></code></p></li>
+</ul>
+<p>which is also supported.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">dataset_direct</span> <span class="o">=</span> <span class="p">[</span>
+    <a href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="numpy.array" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">array</span></a><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">[</span><span class="mf">2024.0</span><span class="p">,</span> <span class="mf">130.0</span><span class="p">,</span> <span class="mf">40.0</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">2024.0</span><span class="p">,</span> <span class="mf">131.0</span><span class="p">,</span> <span class="mf">40.5</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">2024.0</span><span class="p">,</span> <span class="mf">132.0</span><span class="p">,</span> <span class="mf">41.0</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+    <span class="p">),</span>
+    <a href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="numpy.array" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">array</span></a><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">[</span><span class="mf">2025.0</span><span class="p">,</span> <span class="mf">130.0</span><span class="p">,</span> <span class="mf">40.0</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">2025.0</span><span class="p">,</span> <span class="mf">131.0</span><span class="p">,</span> <span class="mf">40.5</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">2025.0</span><span class="p">,</span> <span class="mf">132.0</span><span class="p">,</span> <span class="mf">41.0</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">]</span>
+
+<span class="n">flat_direct</span> <span class="o">=</span> <span class="n">gather_coords_flat</span><span class="p">(</span><span class="n">dataset_direct</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Flattened coords from direct-input dataset&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">flat_direct</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="s2">&quot;-&gt;&quot;</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="use-a-non-default-coord-key">
+<h2>Use a non-default coord_key<a class="headerlink" href="#use-a-non-default-coord-key" title="Link to this heading">#</a></h2>
+<p>When the inputs dict stores coordinates under another field name,
+the helper can be pointed to it with <code class="docutils literal notranslate"><span class="pre">coord_key=...</span></code>.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">dataset_alt_key</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">({</span><span class="s2">&quot;txy&quot;</span><span class="p">:</span> <span class="n">coords_b1</span><span class="p">},</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">({</span><span class="s2">&quot;txy&quot;</span><span class="p">:</span> <span class="n">coords_b2</span><span class="p">},</span> <span class="kc">None</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="n">flat_alt</span> <span class="o">=</span> <span class="n">gather_coords_flat</span><span class="p">(</span>
+    <span class="n">dataset_alt_key</span><span class="p">,</span>
+    <span class="n">coord_key</span><span class="o">=</span><span class="s2">&quot;txy&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Flattened coords with coord_key=&#39;txy&#39;&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">flat_alt</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="s2">&quot;-&gt;&quot;</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="limit-the-number-of-processed-batches">
+<h2>Limit the number of processed batches<a class="headerlink" href="#limit-the-number-of-processed-batches" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">max_batches</span></code> is useful when you only want a quick preview rather
+than a full pass over a large dataset.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">flat_limited</span> <span class="o">=</span> <span class="n">gather_coords_flat</span><span class="p">(</span>
+    <span class="n">dataset_dict</span><span class="p">,</span>
+    <span class="n">max_batches</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Flattened coords with max_batches=1&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">flat_limited</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="s2">&quot;-&gt;&quot;</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="learn-how-to-read-the-output">
+<h2>Learn how to read the output<a class="headerlink" href="#learn-how-to-read-the-output" title="Link to this heading">#</a></h2>
+<p>The returned object is intentionally small:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">out[&quot;t&quot;]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">out[&quot;x&quot;]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">out[&quot;y&quot;]</span></code></p></li>
+</ul>
+<p>All three arrays are one-dimensional and have the same length.
+That makes them easy to:</p>
+<ul class="simple">
+<li><p>pass into plotting helpers,</p></li>
+<li><p>join with flattened payload values,</p></li>
+<li><p>or inspect directly.</p></li>
+</ul>
+</section>
+<section id="why-flattening-is-useful">
+<h2>Why flattening is useful<a class="headerlink" href="#why-flattening-is-useful" title="Link to this heading">#</a></h2>
+<p>Later plotting helpers usually want coordinates in a simple
+point-wise form.</p>
+<p>But datasets often store them as:</p>
+<ul class="simple">
+<li><p>batched samples,</p></li>
+<li><p>batched horizons,</p></li>
+<li><p>or nested <cite>(inputs, targets)</cite> tuples.</p></li>
+</ul>
+<p>This helper removes that packaging so downstream utilities do not
+have to care about batch structure.</p>
+</section>
+<section id="what-kinds-of-input-packaging-are-supported">
+<h2>What kinds of input packaging are supported<a class="headerlink" href="#what-kinds-of-input-packaging-are-supported" title="Link to this heading">#</a></h2>
+<p>The helper supports three common patterns:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">batch</span></code> is <code class="docutils literal notranslate"><span class="pre">(inputs,</span> <span class="pre">targets)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inputs</span></code> is a dict containing a coordinate key</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inputs</span></code> is the coordinate tensor directly</p></li>
+</ol>
+<p>It also accepts sequence-style inputs, where the first item is
+treated as the coordinate tensor.</p>
+<p>In all cases, the last axis must be exactly three values:</p>
+<ul class="simple">
+<li><p>t</p></li>
+<li><p>x</p></li>
+<li><p>y</p></li>
+</ul>
+</section>
+<section id="why-this-page-belongs-in-model-inspection">
+<h2>Why this page belongs in model_inspection<a class="headerlink" href="#why-this-page-belongs-in-model-inspection" title="Link to this heading">#</a></h2>
+<p>This helper does not produce a paper figure and it does not export a
+reusable table artifact.</p>
+<p>Its job is to normalize coordinate data for later inspection
+utilities.</p>
+<p>So it belongs naturally with the other model-inspection helpers.</p>
+</section>
+<section id="a-natural-next-lesson">
+<h2>A natural next lesson<a class="headerlink" href="#a-natural-next-lesson" title="Link to this heading">#</a></h2>
+<p>The clean next page after this is <code class="docutils literal notranslate"><span class="pre">plot_physics_values_in.py</span></code>,
+because that helper can either:</p>
+<ul class="simple">
+<li><p>consume an explicit <code class="docutils literal notranslate"><span class="pre">coords={&quot;x&quot;:</span> <span class="pre">...,</span> <span class="pre">&quot;y&quot;:</span> <span class="pre">...}</span></code> dict,</p></li>
+<li><p>or derive those coordinates from a dataset using this helper.</p></li>
+</ul>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-model-inspection-gather-coords-flat-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/d3508fe40ec50c7e0774f506d7def692/gather_coords_flat.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">gather_coords_flat.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/ab3a39282e0dd7e3190b2659a8b7bd99/gather_coords_flat.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">gather_coords_flat.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/91967f3c78b16844e1c5fb6d6e191a24/gather_coords_flat.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">gather_coords_flat.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="extract_physical_parameters.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Extract learned physical parameters from a trained model</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="plot_epsilons_in.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Plot epsilon diagnostics from a GeoPrior training history</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-matters">Why this matters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#build-a-compact-dataset-in-dict-input-form">Build a compact dataset in dict-input form</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#build-a-compact-dataset-in-direct-input-form">Build a compact dataset in direct-input form</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#use-a-non-default-coord-key">Use a non-default coord_key</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limit-the-number-of-processed-batches">Limit the number of processed batches</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#learn-how-to-read-the-output">Learn how to read the output</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-flattening-is-useful">Why flattening is useful</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-kinds-of-input-packaging-are-supported">What kinds of input packaging are supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-page-belongs-in-model-inspection">Why this page belongs in model_inspection</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-natural-next-lesson">A natural next lesson</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/earthai-tech/geoprior-v3/edit/main/docs/source/auto_examples/model_inspection/gather_coords_flat.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/auto_examples/model_inspection/gather_coords_flat.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,38 @@
+﻿geoprior.utils.base\_utils
+==========================
+
+.. automodule:: geoprior.utils.base_utils
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      check_file_exists
+      detect_categorical_columns
+      download_file
+      extract_target
+      fancier_downloader
+      fillNaN
+      fill_NaN
+      move_file
+      select_features
+      validate_target_in
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

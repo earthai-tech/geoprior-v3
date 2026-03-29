@@ -1,0 +1,1067 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Extract learned physical parameters from a trained model &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=404c0980"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/model_inspection/extract_physical_parameters';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Flatten (t, x, y) coordinates from dataset batches" href="gather_coords_flat.html" />
+    <link rel="prev" title="Automatically save the standard GeoPrior history diagnostics" href="autoplot_geoprior_history.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../forecasting/index.html">Forecasting</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_forecast.html">Forecast quick-look with <code class="docutils literal notranslate"><span class="pre">plot_forecasts</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_forecast_by_step.html">Forecast by horizon step with <code class="docutils literal notranslate"><span class="pre">plot_forecast_by_step</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_future_quantiles_map.html">Future quantile maps with <code class="docutils literal notranslate"><span class="pre">forecast_view</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_holdout_vs_forecast.html">Holdout versus future forecast with <code class="docutils literal notranslate"><span class="pre">plot_eval_future</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../uncertainty/index.html">Uncertainty</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../diagnostics/index.html">Diagnostics</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../figure_generation/index.html">Figure generation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_ablation.html">Core ablation: learning what physics adds to the workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_core_ablation.html">Ablations and sensitivities: learning where the model behaves well in lambda space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_driver_response.html">Driver-response plots: learning how the response moves with the drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_external_validation.html">External validation: comparing inferred effective fields against independent site evidence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_geo_cumulative.html">Cumulative subsidence on a satellite-style map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_hotspot_analytics.html">Hotspot analytics: turning future forecasts into decision-ready priority maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_litho_parity.html">Lithology parity: comparing the geological composition of the two cities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_physics_fields.html">Physics fields: learning to read the physical story in a map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_physics_maps.html">Physics maps: turning pointwise payloads into readable spatial fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_physics_profiles.html">Physics profiles: reducing a 2D lambda landscape into readable 1D lessons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_physics_sanity.html">Physics sanity: checking closure agreement and residual behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_physics_sensitivity.html">Physics sensitivity: learning how lambda choices reshape the physics diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_sm3_bounds_ridge_summary.html">SM3 bounds versus ridge: learning the two main failure modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_sm3_identifiability.html">SM3 identifiability: learning when recovery is accurate and when parameters slide along a ridge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_sm3_log_offsets.html">SM3 log offsets: learning where the inferred fields drift from their priors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_spatial_forecasts.html">Spatial forecasts: how to read observed maps, fitted maps, and future forecast maps together</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_transfer.html">Cross-city transferability: learning what survives transfer between cities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_uncertainty.html">Forecast uncertainty: learning how calibration behaves across cities and horizons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_uncertainty_extras.html">Expanded uncertainty diagnostics: learning what the main uncertainty figure still hides</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_xfer_impact.html">Transfer impact: what transfer changes for retention, risk, and hotspot stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../figure_generation/plot_xfer_transferability.html">Cross-city transferability (v3.2): what survives when a workflow moves to the other city</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tables_and_summaries/index.html">Tables and summaries</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/build_ablation_table.html">Build ablation tables from sensitivity records</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/build_model_metrics.html">Build unified model-metrics tables from GeoPrior runs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/compute_brier_exceedance.html">Compute exceedance Brier scores from calibrated forecasts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/compute_hotspots.html">Compute hotspot summary tables from forecast CSVs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/extend_forecast.html">Extend forecast CSVs to later years</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/make_boundary.html">Build city boundary polygons from forecast points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/make_district_grid.html">Create district grid layers from forecast points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/make_exposure.html">Create exposure weights from forecast point density</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/summarize_hotspots.html">Summarize hotspot point clouds into tidy group tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/tag_clusters_with_zones.html">Tag hotspot clusters with district Zone IDs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Model inspection</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autoplot_geoprior_history.html">Automatically save the standard GeoPrior history diagnostics</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Extract learned physical parameters from a trained model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gather_coords_flat.html">Flatten (t, x, y) coordinates from dataset batches</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_epsilons_in.html">Plot epsilon diagnostics from a GeoPrior training history</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_history_in.html">Plot training history with robust grouping and scale handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_losses_in.html">Plot physics loss terms from a GeoPrior training history</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_values_in.html">Plot physics payload values as maps and histograms</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../examples/index.html" class="nav-link">Gallery</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Model inspection</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Extract learned physical parameters from a trained model</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-model-inspection-extract-physical-parameters-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="extract-learned-physical-parameters-from-a-trained-model">
+<span id="sphx-glr-auto-examples-model-inspection-extract-physical-parameters-py"></span><h1>Extract learned physical parameters from a trained model<a class="headerlink" href="#extract-learned-physical-parameters-from-a-trained-model" title="Link to this heading">#</a></h1>
+<p>This example teaches you how to use GeoPrior’s
+<code class="docutils literal notranslate"><span class="pre">extract_physical_parameters</span></code> helper.</p>
+<p>Unlike the publication-oriented scripts in <code class="docutils literal notranslate"><span class="pre">figure_generation/</span></code>,
+this function is a compact model-inspection and export utility.
+It extracts the learned physical parameters from a trained PINN-style
+model and can optionally write them to CSV.</p>
+<section id="why-this-matters">
+<h2>Why this matters<a class="headerlink" href="#why-this-matters" title="Link to this heading">#</a></h2>
+<p>After training, you often want a compact answer to questions like:</p>
+<ul class="simple">
+<li><p>what value did the model learn for <code class="docutils literal notranslate"><span class="pre">mv</span></code>?</p></li>
+<li><p>what is the effective <code class="docutils literal notranslate"><span class="pre">kappa</span></code>?</p></li>
+<li><p>what fixed constants are active?</p></li>
+<li><p>what are the mean learned field values for <code class="docutils literal notranslate"><span class="pre">K</span></code>, <code class="docutils literal notranslate"><span class="pre">Ss</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">tau</span></code>?</p></li>
+</ul>
+<p>This helper turns those checks into one small inspection step.</p>
+</section>
+<section id="imports">
+<h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
+<p>We call the real helper from the package.
+For the lesson page, we use a lightweight mock GeoPrior-like model
+that exposes the same attributes and methods the extractor expects.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Path</span></a>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_physical_parameters</span>
+</pre></div>
+</div>
+</section>
+<section id="build-a-tiny-geoprior-like-inspection-model">
+<h2>Build a tiny GeoPrior-like inspection model<a class="headerlink" href="#build-a-tiny-geoprior-like-inspection-model" title="Link to this heading">#</a></h2>
+<p>The real helper looks for:</p>
+<ul class="simple">
+<li><p>current_mv() or log_mv / _mv_fixed</p></li>
+<li><p>current_kappa() or log_kappa / _kappa_fixed</p></li>
+<li><p>gamma_w</p></li>
+<li><p>h_ref</p></li>
+</ul>
+<p>and, for GeoPrior-style models with <code class="docutils literal notranslate"><span class="pre">inputs</span></code> provided:</p>
+<ul class="simple">
+<li><p>model(inputs, training=False)</p></li>
+<li><p>model.split_physics_predictions(outputs)</p></li>
+</ul>
+<p>So the lesson uses a tiny mock model that exposes exactly those
+pieces and returns small synthetic fields.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">DemoGeoPriorModel</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mv</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">2.5e-7</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_kappa</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">1.15</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gamma_w</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">9810.0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h_ref</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">current_mv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mv</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">current_kappa</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kappa</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="s2">&quot;coords&quot;</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+
+        <span class="c1"># Small synthetic mean-path outputs.</span>
+        <span class="n">s_mean</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">0.02</span> <span class="o">*</span> <span class="n">y</span>
+        <span class="n">h_mean</span> <span class="o">=</span> <span class="mf">0.03</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="n">y</span>
+
+        <span class="c1"># Small synthetic physics fields.</span>
+        <span class="n">K_field</span> <span class="o">=</span> <span class="mf">1e-4</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">0.02</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">Ss_field</span> <span class="o">=</span> <span class="mf">5e-6</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">0.01</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">tau_field</span> <span class="o">=</span> <span class="mf">2.0e7</span> <span class="o">+</span> <span class="mf">3.0e5</span> <span class="o">*</span> <span class="n">x</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;subs_mean&quot;</span><span class="p">:</span> <span class="n">s_mean</span><span class="p">,</span>
+            <span class="s2">&quot;head_mean&quot;</span><span class="p">:</span> <span class="n">h_mean</span><span class="p">,</span>
+            <span class="s2">&quot;K_field&quot;</span><span class="p">:</span> <span class="n">K_field</span><span class="p">,</span>
+            <span class="s2">&quot;Ss_field&quot;</span><span class="p">:</span> <span class="n">Ss_field</span><span class="p">,</span>
+            <span class="s2">&quot;tau_field&quot;</span><span class="p">:</span> <span class="n">tau_field</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">split_physics_predictions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;subs_mean&quot;</span><span class="p">],</span>
+            <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;head_mean&quot;</span><span class="p">],</span>
+            <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;K_field&quot;</span><span class="p">],</span>
+            <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;Ss_field&quot;</span><span class="p">],</span>
+            <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;tau_field&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">DemoGeoPriorModel</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="build-compact-synthetic-geoprior-inputs">
+<h2>Build compact synthetic GeoPrior inputs<a class="headerlink" href="#build-compact-synthetic-geoprior-inputs" title="Link to this heading">#</a></h2>
+<p>For GeoPrior-style field summaries, the extractor only needs inputs
+that the model’s forward pass can consume.</p>
+<p>Here we provide a tiny dict-input batch with:</p>
+<ul class="simple">
+<li><p>coords shaped (B, H, 3)</p></li>
+<li><p>and a placeholder H_field because GeoPrior-style batches often
+carry thickness as well.</p></li>
+</ul>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">coords</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="p">[</span>
+            <span class="p">[</span><span class="mf">2024.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">35.0</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">2025.0</span><span class="p">,</span> <span class="mf">101.0</span><span class="p">,</span> <span class="mf">35.2</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">2026.0</span><span class="p">,</span> <span class="mf">102.0</span><span class="p">,</span> <span class="mf">35.4</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="p">[</span><span class="mf">2024.0</span><span class="p">,</span> <span class="mf">104.0</span><span class="p">,</span> <span class="mf">36.0</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">2025.0</span><span class="p">,</span> <span class="mf">105.0</span><span class="p">,</span> <span class="mf">36.3</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">2026.0</span><span class="p">,</span> <span class="mf">106.0</span><span class="p">,</span> <span class="mf">36.5</span><span class="p">],</span>
+        <span class="p">],</span>
+    <span class="p">],</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;coords&quot;</span><span class="p">:</span> <span class="n">coords</span><span class="p">,</span>
+    <span class="s2">&quot;H_field&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">*</span> <span class="mf">18.0</span><span class="p">,</span>
+    <span class="s2">&quot;dynamic_features&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;coords shape:&quot;</span><span class="p">,</span> <span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="extract-the-compact-scalar-summary">
+<h2>Extract the compact scalar summary<a class="headerlink" href="#extract-the-compact-scalar-summary" title="Link to this heading">#</a></h2>
+<p>Because <code class="docutils literal notranslate"><span class="pre">model_name='geoprior'</span></code> and <code class="docutils literal notranslate"><span class="pre">inputs</span></code> are provided,
+the extractor will:</p>
+<ul class="simple">
+<li><p>read mv and kappa through their accessor methods,</p></li>
+<li><p>read gamma_w and h_ref directly,</p></li>
+<li><p>run a forward pass,</p></li>
+<li><p>summarize the K, Ss, and tau fields using the configured reducer.</p></li>
+</ul>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="n">extract_physical_parameters</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span>
+    <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;geoprior&quot;</span><span class="p">,</span>
+    <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Extracted parameter summary&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="request-the-full-fields-as-well">
+<h2>Request the full fields as well<a class="headerlink" href="#request-the-full-fields-as-well" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">return_fields=True</span></code> keeps the compact scalar summary but also
+returns the raw field arrays in the output dictionary.</p>
+<p>This is useful when you want both:</p>
+<ul class="simple">
+<li><p>a compact report,</p></li>
+<li><p>and a quick way to inspect or save the actual field tensors.</p></li>
+</ul>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">params_with_fields</span> <span class="o">=</span> <span class="n">extract_physical_parameters</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span>
+    <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;geoprior&quot;</span><span class="p">,</span>
+    <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
+    <span class="n">return_fields</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Field-bearing keys&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">params_with_fields</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_field&quot;</span><span class="p">):</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">params_with_fields</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="s2">&quot;shape -&gt;&quot;</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s2">&quot;shape&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="export-the-result-to-csv">
+<h2>Export the result to CSV<a class="headerlink" href="#export-the-result-to-csv" title="Link to this heading">#</a></h2>
+<p>The real helper can export the parameter summary directly to CSV.
+We demonstrate that with an explicit filename and output directory.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">tmp_dir</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Path</span></a><span class="p">(</span>
+    <a href="https://docs.python.org/3/library/tempfile.html#tempfile.mkdtemp" title="tempfile.mkdtemp" class="sphx-glr-backref-module-tempfile sphx-glr-backref-type-py-function"><span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span></a><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;gp_sg_extract_params_&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">csv_name</span> <span class="o">=</span> <span class="s2">&quot;geoprior_physical_parameters.csv&quot;</span>
+
+<span class="n">_</span> <span class="o">=</span> <span class="n">extract_physical_parameters</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span>
+    <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;geoprior&quot;</span><span class="p">,</span>
+    <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
+    <span class="n">to_csv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="n">csv_name</span><span class="p">,</span>
+    <span class="n">save_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">),</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">csv_path</span> <span class="o">=</span> <span class="n">tmp_dir</span> <span class="o">/</span> <span class="n">csv_name</span>
+<span class="n">csv_tab</span> <span class="o">=</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html#pandas.read_csv" title="pandas.read_csv" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-function"><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span></a><span class="p">(</span><span class="n">csv_path</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Written CSV&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot; -&quot;</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;CSV preview&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">csv_tab</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="learn-how-to-read-the-output">
+<h2>Learn how to read the output<a class="headerlink" href="#learn-how-to-read-the-output" title="Link to this heading">#</a></h2>
+<p>A useful reading order is:</p>
+<ol class="arabic simple">
+<li><p>inspect the scalar control parameters:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Compressibility_mv</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Consistency_Kappa</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Unit_Weight_Water_gamma_w</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reference_Head_h_ref</span></code></p></li>
+</ul>
+</li>
+<li><p>then inspect the summarized field parameters:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Hydraulic_Conductivity_K_mean</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Specific_Storage_Ss_mean</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Relaxation_Time_tau_mean</span></code></p></li>
+</ul>
+</li>
+</ol>
+<p>That gives a compact physical snapshot of the trained model.</p>
+</section>
+<section id="why-geoprior-uses-inputs-for-field-summaries">
+<h2>Why GeoPrior uses inputs for field summaries<a class="headerlink" href="#why-geoprior-uses-inputs-for-field-summaries" title="Link to this heading">#</a></h2>
+<p>For GeoPrior-style models, K, Ss, and tau are not stored as single
+global scalars. They are learned fields produced by the forward pass.</p>
+<p>That is why the extractor needs <code class="docutils literal notranslate"><span class="pre">inputs</span></code> when you want those field
+summaries:</p>
+<ul class="simple">
+<li><p>it runs the model,</p></li>
+<li><p>splits the physics predictions,</p></li>
+<li><p>and reduces the resulting fields.</p></li>
+</ul>
+</section>
+<section id="why-this-helper-is-still-inspection-not-evaluation">
+<h2>Why this helper is still inspection, not evaluation<a class="headerlink" href="#why-this-helper-is-still-inspection-not-evaluation" title="Link to this heading">#</a></h2>
+<p>This function does not compute residual maps, losses, or validation
+metrics.</p>
+<p>Its job is narrower:</p>
+<ul class="simple">
+<li><p>extract learned physical parameters,</p></li>
+<li><p>summarize learned fields,</p></li>
+<li><p>optionally export them.</p></li>
+</ul>
+<p>So it is the natural final page in the <code class="docutils literal notranslate"><span class="pre">model_inspection</span></code> section.</p>
+</section>
+<section id="practical-takeaway">
+<h2>Practical takeaway<a class="headerlink" href="#practical-takeaway" title="Link to this heading">#</a></h2>
+<p>A useful workflow after training is:</p>
+<ol class="arabic simple">
+<li><p>inspect history with:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_history_in(...)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_epsilons_in(...)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_physics_losses_in(...)</span></code></p></li>
+</ul>
+</li>
+<li><p>inspect payload values with:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_physics_values_in(...)</span></code></p></li>
+</ul>
+</li>
+<li><p>finish with:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">extract_physical_parameters(...)</span></code></p></li>
+</ul>
+</li>
+</ol>
+<p>That gives a compact end-to-end inspection path from optimization
+dynamics to learned physical meaning.</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-model-inspection-extract-physical-parameters-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/8c70b0828f183415fe7941c8f0d9b2c0/extract_physical_parameters.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">extract_physical_parameters.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/fa28445d575a145e0bab31539a2d111a/extract_physical_parameters.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">extract_physical_parameters.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/7d25ee875b0548f4a1c884f1e41600f8/extract_physical_parameters.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">extract_physical_parameters.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="autoplot_geoprior_history.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Automatically save the standard GeoPrior history diagnostics</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="gather_coords_flat.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Flatten (t, x, y) coordinates from dataset batches</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-matters">Why this matters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#build-a-tiny-geoprior-like-inspection-model">Build a tiny GeoPrior-like inspection model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#build-compact-synthetic-geoprior-inputs">Build compact synthetic GeoPrior inputs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extract-the-compact-scalar-summary">Extract the compact scalar summary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#request-the-full-fields-as-well">Request the full fields as well</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#export-the-result-to-csv">Export the result to CSV</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#learn-how-to-read-the-output">Learn how to read the output</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-geoprior-uses-inputs-for-field-summaries">Why GeoPrior uses inputs for field summaries</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-helper-is-still-inspection-not-evaluation">Why this helper is still inspection, not evaluation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#practical-takeaway">Practical takeaway</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/earthai-tech/geoprior-v3/edit/main/docs/source/auto_examples/model_inspection/extract_physical_parameters.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/auto_examples/model_inspection/extract_physical_parameters.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

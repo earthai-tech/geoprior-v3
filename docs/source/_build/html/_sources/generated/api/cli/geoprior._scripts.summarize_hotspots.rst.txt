@@ -1,0 +1,31 @@
+﻿geoprior.\_scripts.summarize\_hotspots
+======================================
+
+.. automodule:: geoprior._scripts.summarize_hotspots
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      main
+      summarize_hotspots
+      summarize_hotspots_main
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,1400 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Hotspot analytics: turning future forecasts into decision-ready priority maps &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=404c0980"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/figure_generation/plot_hotspot_analytics';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Lithology parity: comparing the geological composition of the two cities" href="plot_litho_parity.html" />
+    <link rel="prev" title="Cumulative subsidence on a satellite-style map" href="plot_geo_cumulative.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../forecasting/index.html">Forecasting</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_forecast.html">Forecast quick-look with <code class="docutils literal notranslate"><span class="pre">plot_forecasts</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_forecast_by_step.html">Forecast by horizon step with <code class="docutils literal notranslate"><span class="pre">plot_forecast_by_step</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_future_quantiles_map.html">Future quantile maps with <code class="docutils literal notranslate"><span class="pre">forecast_view</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_holdout_vs_forecast.html">Holdout versus future forecast with <code class="docutils literal notranslate"><span class="pre">plot_eval_future</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../uncertainty/index.html">Uncertainty</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../diagnostics/index.html">Diagnostics</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Figure generation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="plot_ablation.html">Core ablation: learning what physics adds to the workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_core_ablation.html">Ablations and sensitivities: learning where the model behaves well in lambda space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_driver_response.html">Driver-response plots: learning how the response moves with the drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_external_validation.html">External validation: comparing inferred effective fields against independent site evidence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_geo_cumulative.html">Cumulative subsidence on a satellite-style map</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Hotspot analytics: turning future forecasts into decision-ready priority maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_litho_parity.html">Lithology parity: comparing the geological composition of the two cities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_fields.html">Physics fields: learning to read the physical story in a map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_maps.html">Physics maps: turning pointwise payloads into readable spatial fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_profiles.html">Physics profiles: reducing a 2D lambda landscape into readable 1D lessons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_sanity.html">Physics sanity: checking closure agreement and residual behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_sensitivity.html">Physics sensitivity: learning how lambda choices reshape the physics diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_sm3_bounds_ridge_summary.html">SM3 bounds versus ridge: learning the two main failure modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_sm3_identifiability.html">SM3 identifiability: learning when recovery is accurate and when parameters slide along a ridge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_sm3_log_offsets.html">SM3 log offsets: learning where the inferred fields drift from their priors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_spatial_forecasts.html">Spatial forecasts: how to read observed maps, fitted maps, and future forecast maps together</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_transfer.html">Cross-city transferability: learning what survives transfer between cities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_uncertainty.html">Forecast uncertainty: learning how calibration behaves across cities and horizons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_uncertainty_extras.html">Expanded uncertainty diagnostics: learning what the main uncertainty figure still hides</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_xfer_impact.html">Transfer impact: what transfer changes for retention, risk, and hotspot stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_xfer_transferability.html">Cross-city transferability (v3.2): what survives when a workflow moves to the other city</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tables_and_summaries/index.html">Tables and summaries</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/build_ablation_table.html">Build ablation tables from sensitivity records</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/build_model_metrics.html">Build unified model-metrics tables from GeoPrior runs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/compute_brier_exceedance.html">Compute exceedance Brier scores from calibrated forecasts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/compute_hotspots.html">Compute hotspot summary tables from forecast CSVs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/extend_forecast.html">Extend forecast CSVs to later years</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/make_boundary.html">Build city boundary polygons from forecast points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/make_district_grid.html">Create district grid layers from forecast points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/make_exposure.html">Create exposure weights from forecast point density</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/summarize_hotspots.html">Summarize hotspot point clouds into tidy group tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/tag_clusters_with_zones.html">Tag hotspot clusters with district Zone IDs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../model_inspection/index.html">Model inspection</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/autoplot_geoprior_history.html">Automatically save the standard GeoPrior history diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/extract_physical_parameters.html">Extract learned physical parameters from a trained model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/gather_coords_flat.html">Flatten (t, x, y) coordinates from dataset batches</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/plot_epsilons_in.html">Plot epsilon diagnostics from a GeoPrior training history</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/plot_history_in.html">Plot training history with robust grouping and scale handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/plot_physics_losses_in.html">Plot physics loss terms from a GeoPrior training history</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/plot_physics_values_in.html">Plot physics payload values as maps and histograms</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../examples/index.html" class="nav-link">Gallery</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Figure generation</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Hotspot analytics: turning future forecasts into decision-ready priority maps</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-figure-generation-plot-hotspot-analytics-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="hotspot-analytics-turning-future-forecasts-into-decision-ready-priority-maps">
+<span id="sphx-glr-auto-examples-figure-generation-plot-hotspot-analytics-py"></span><h1>Hotspot analytics: turning future forecasts into decision-ready priority maps<a class="headerlink" href="#hotspot-analytics-turning-future-forecasts-into-decision-ready-priority-maps" title="Link to this heading">#</a></h1>
+<p>This example teaches you how to read the GeoPrior
+hotspot-analytics figure.</p>
+<p>Many forecast figures answer:</p>
+<ul class="simple">
+<li><p>where the model predicts large change,</p></li>
+<li><p>or how uncertainty behaves.</p></li>
+</ul>
+<p>This figure asks a more practical planning question:</p>
+<p><strong>Where are the most decision-relevant future hotspot areas, how
+persistent are they, and which clusters should be prioritized
+first?</strong></p>
+<p>That is why this figure is useful. It takes forecast outputs and
+turns them into a compact risk-and-priority summary.</p>
+<section id="what-the-figure-shows">
+<h2>What the figure shows<a class="headerlink" href="#what-the-figure-shows" title="Link to this heading">#</a></h2>
+<p>The real plotting backend builds one row per city and four main
+panels per row:</p>
+<ol class="arabic simple">
+<li><p>hotspot anomaly map
+<span class="math notranslate nohighlight">\(|\Delta s|\)</span> relative to the base year,</p></li>
+<li><p>exceedance-risk map
+<span class="math notranslate nohighlight">\(P(|s| \ge T)\)</span> from forecast quantiles,</p></li>
+<li><p>hotspot timeline
+hotspot counts together with
+<span class="math notranslate nohighlight">\(T_{0.9}\)</span> and maximum anomaly,</p></li>
+<li><p>priority clusters
+ranked hotspot clusters using either anomaly or risk.</p></li>
+</ol>
+<p>The script can also add an optional persistence panel and an
+optional scenario A-vs-B comparison panel. Here we keep the first
+lesson focused on the core 2×4 design.</p>
+</section>
+<section id="why-this-matters">
+<h2>Why this matters<a class="headerlink" href="#why-this-matters" title="Link to this heading">#</a></h2>
+<p>A spatial forecast can look impressive but still be hard to act
+on.</p>
+<p>Hotspot analytics makes the forecast easier to use by answering:</p>
+<ul class="simple">
+<li><p>where are the strongest anomaly zones,</p></li>
+<li><p>how likely are they to exceed a threshold,</p></li>
+<li><p>do those zones persist across years,</p></li>
+<li><p>and which clusters deserve first attention?</p></li>
+</ul>
+<p>This gallery page builds a compact synthetic workflow so the
+lesson is fully executable during the docs build.</p>
+</section>
+<section id="imports">
+<h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
+<p>We use the real hotspot table builder and the real plotting
+backend from the project script.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.image</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpimg</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">geoprior._scripts.plot_hotspot_analytics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <a href="../../generated/api/cli/geoprior._scripts.plot_hotspot_analytics.html#geoprior._scripts.plot_hotspot_analytics.build_hotspot_tables" title="geoprior._scripts.plot_hotspot_analytics.build_hotspot_tables" class="sphx-glr-backref-module-geoprior-_scripts-plot_hotspot_analytics sphx-glr-backref-type-py-function"><span class="n">build_hotspot_tables</span></a><span class="p">,</span>
+    <a href="../../generated/api/cli/geoprior._scripts.plot_hotspot_analytics.html#geoprior._scripts.plot_hotspot_analytics.plot_hotspot_analytics" title="geoprior._scripts.plot_hotspot_analytics.plot_hotspot_analytics" class="sphx-glr-backref-module-geoprior-_scripts-plot_hotspot_analytics sphx-glr-backref-type-py-function"><span class="n">plot_hotspot_analytics</span></a><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="step-1-build-compact-synthetic-city-tables">
+<h2>Step 1 - Build compact synthetic city tables<a class="headerlink" href="#step-1-build-compact-synthetic-city-tables" title="Link to this heading">#</a></h2>
+<p>The real script needs, for each city:</p>
+<ul class="simple">
+<li><p>one evaluation table with
+sample_idx, coord_t, coord_x, coord_y,
+subsidence_actual, subsidence_q50</p></li>
+<li><p>one future table with
+sample_idx, coord_t, coord_x, coord_y,
+subsidence_q10, subsidence_q50, subsidence_q90</p></li>
+</ul>
+<p>For the lesson, we create two synthetic cities with:</p>
+<ul class="simple">
+<li><p>a baseline hotspot zone,</p></li>
+<li><p>a future intensification pattern,</p></li>
+<li><p>and slightly different city behavior.</p></li>
+</ul>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.Generator" title="numpy.random.Generator" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rng</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.default_rng" title="numpy.random.default_rng" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span></a><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">make_city_tables</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">city</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">x0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">y0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">amp</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">shift_x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">shift_y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">,</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">]:</span>
+    <span class="n">rr</span> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.default_rng" title="numpy.random.default_rng" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span></a><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+    <span class="n">nx</span> <span class="o">=</span> <span class="mi">20</span>
+    <span class="n">ny</span> <span class="o">=</span> <span class="mi">14</span>
+
+    <span class="n">xs</span> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.linspace.html#numpy.linspace" title="numpy.linspace" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">linspace</span></a><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x0</span> <span class="o">+</span> <span class="mf">12000.0</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span>
+    <span class="n">ys</span> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.linspace.html#numpy.linspace" title="numpy.linspace" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">linspace</span></a><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">y0</span> <span class="o">+</span> <span class="mf">8000.0</span><span class="p">,</span> <span class="n">ny</span><span class="p">)</span>
+
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.meshgrid.html#numpy.meshgrid" title="numpy.meshgrid" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span></a><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">)</span>
+    <span class="n">xn</span> <span class="o">=</span> <span class="p">(</span><span class="n">X</span> <span class="o">-</span> <span class="n">X</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">X</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+    <span class="n">yn</span> <span class="o">=</span> <span class="p">(</span><span class="n">Y</span> <span class="o">-</span> <span class="n">Y</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">Y</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">Y</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+
+    <span class="c1"># Main anomaly basin + one shoulder.</span>
+    <span class="n">bowl1</span> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ufunc.html#numpy.ufunc" title="numpy.ufunc" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">np</span><span class="o">.</span><span class="n">exp</span></a><span class="p">(</span>
+        <span class="o">-</span><span class="p">(</span>
+            <span class="p">((</span><span class="n">xn</span> <span class="o">-</span> <span class="p">(</span><span class="mf">0.62</span> <span class="o">+</span> <span class="n">shift_x</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.030</span>
+            <span class="o">+</span> <span class="p">((</span><span class="n">yn</span> <span class="o">-</span> <span class="p">(</span><span class="mf">0.38</span> <span class="o">+</span> <span class="n">shift_y</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.050</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">bowl2</span> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ufunc.html#numpy.ufunc" title="numpy.ufunc" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">np</span><span class="o">.</span><span class="n">exp</span></a><span class="p">(</span>
+        <span class="o">-</span><span class="p">(</span>
+            <span class="p">((</span><span class="n">xn</span> <span class="o">-</span> <span class="mf">0.30</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.020</span>
+            <span class="o">+</span> <span class="p">((</span><span class="n">yn</span> <span class="o">-</span> <span class="mf">0.72</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.035</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">signal</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">amp</span> <span class="o">*</span> <span class="n">bowl1</span>
+        <span class="o">+</span> <span class="mf">0.45</span> <span class="o">*</span> <span class="n">amp</span> <span class="o">*</span> <span class="n">bowl2</span>
+        <span class="o">+</span> <span class="mf">5.0</span> <span class="o">*</span> <span class="n">xn</span>
+        <span class="o">+</span> <span class="mf">2.5</span> <span class="o">*</span> <span class="n">yn</span>
+    <span class="p">)</span>
+
+    <span class="n">sample_idx</span> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.arange.html#numpy.arange" title="numpy.arange" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">arange</span></a><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="c1"># Evaluation year for the base comparison.</span>
+    <span class="n">eval_year</span> <span class="o">=</span> <span class="mi">2022</span>
+
+    <span class="n">actual_eval</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="mf">0.70</span> <span class="o">*</span> <span class="n">signal</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">rr</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">signal</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">pred_eval</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="mf">0.68</span> <span class="o">*</span> <span class="n">signal</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="o">+</span> <span class="mf">0.4</span>
+        <span class="o">+</span> <span class="n">rr</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">signal</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">eval_df</span> <span class="o">=</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;sample_idx&quot;</span><span class="p">:</span> <span class="n">sample_idx</span><span class="p">,</span>
+            <span class="s2">&quot;coord_t&quot;</span><span class="p">:</span> <span class="n">eval_year</span><span class="p">,</span>
+            <span class="s2">&quot;coord_x&quot;</span><span class="p">:</span> <span class="n">X</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+            <span class="s2">&quot;coord_y&quot;</span><span class="p">:</span> <span class="n">Y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+            <span class="s2">&quot;subsidence_actual&quot;</span><span class="p">:</span> <span class="n">actual_eval</span><span class="p">,</span>
+            <span class="s2">&quot;subsidence_q50&quot;</span><span class="p">:</span> <span class="n">pred_eval</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Future forecasts for three years.</span>
+    <span class="n">fut_rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">scales</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">2023</span><span class="p">:</span> <span class="mf">0.92</span><span class="p">,</span>
+        <span class="mi">2024</span><span class="p">:</span> <span class="mf">1.10</span><span class="p">,</span>
+        <span class="mi">2025</span><span class="p">:</span> <span class="mf">1.34</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">yy</span><span class="p">,</span> <span class="n">mult</span> <span class="ow">in</span> <span class="n">scales</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">q50</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">mult</span> <span class="o">*</span> <span class="n">signal</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+            <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ufunc.html#numpy.ufunc" title="numpy.ufunc" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">np</span><span class="o">.</span><span class="n">sin</span></a><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">np</span><span class="o">.</span><span class="n">pi</span></a> <span class="o">*</span> <span class="n">xn</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+            <span class="o">+</span> <span class="n">rr</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">signal</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">spread</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mf">2.0</span>
+            <span class="o">+</span> <span class="mf">0.06</span> <span class="o">*</span> <span class="n">q50</span>
+            <span class="o">+</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ufunc.html#numpy.ufunc" title="numpy.ufunc" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">np</span><span class="o">.</span><span class="n">maximum</span></a><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">q50</span> <span class="o">-</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.median.html#numpy.median" title="numpy.median" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">median</span></a><span class="p">(</span><span class="n">q50</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.03</span>
+        <span class="p">)</span>
+
+        <span class="n">fut_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;sample_idx&quot;</span><span class="p">:</span> <span class="n">sample_idx</span><span class="p">,</span>
+                    <span class="s2">&quot;coord_t&quot;</span><span class="p">:</span> <span class="n">yy</span><span class="p">,</span>
+                    <span class="s2">&quot;coord_x&quot;</span><span class="p">:</span> <span class="n">X</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+                    <span class="s2">&quot;coord_y&quot;</span><span class="p">:</span> <span class="n">Y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+                    <span class="s2">&quot;subsidence_q10&quot;</span><span class="p">:</span> <span class="n">q50</span> <span class="o">-</span> <span class="n">spread</span><span class="p">,</span>
+                    <span class="s2">&quot;subsidence_q50&quot;</span><span class="p">:</span> <span class="n">q50</span><span class="p">,</span>
+                    <span class="s2">&quot;subsidence_q90&quot;</span><span class="p">:</span> <span class="n">q50</span> <span class="o">+</span> <span class="n">spread</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="n">fut_df</span> <span class="o">=</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.concat.html#pandas.concat" title="pandas.concat" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-function"><span class="n">pd</span><span class="o">.</span><span class="n">concat</span></a><span class="p">(</span><span class="n">fut_rows</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">eval_df</span><span class="p">,</span> <span class="n">fut_df</span>
+
+
+<a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ns_eval</span></a><span class="p">,</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ns_future</span></a> <span class="o">=</span> <span class="n">make_city_tables</span><span class="p">(</span>
+    <span class="n">city</span><span class="o">=</span><span class="s2">&quot;Nansha&quot;</span><span class="p">,</span>
+    <span class="n">x0</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">y0</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">amp</span><span class="o">=</span><span class="mf">36.0</span><span class="p">,</span>
+    <span class="n">shift_x</span><span class="o">=</span><span class="mf">0.00</span><span class="p">,</span>
+    <span class="n">shift_y</span><span class="o">=</span><span class="mf">0.00</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+<span class="p">)</span>
+
+<a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zh_eval</span></a><span class="p">,</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zh_future</span></a> <span class="o">=</span> <span class="n">make_city_tables</span><span class="p">(</span>
+    <span class="n">city</span><span class="o">=</span><span class="s2">&quot;Zhongshan&quot;</span><span class="p">,</span>
+    <span class="n">x0</span><span class="o">=</span><span class="mf">18000.0</span><span class="p">,</span>
+    <span class="n">y0</span><span class="o">=</span><span class="mf">5000.0</span><span class="p">,</span>
+    <span class="n">amp</span><span class="o">=</span><span class="mf">31.0</span><span class="p">,</span>
+    <span class="n">shift_x</span><span class="o">=-</span><span class="mf">0.06</span><span class="p">,</span>
+    <span class="n">shift_y</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">27</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Rows&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Nansha eval:    </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ns_eval</span></a><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Nansha future:  </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ns_future</span></a><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Zhongshan eval: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zh_eval</span></a><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Zhongshan future: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zh_future</span></a><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Rows
+  Nansha eval:    280
+  Nansha future:  840
+  Zhongshan eval: 280
+  Zhongshan future: 840
+</pre></div>
+</div>
+</section>
+<section id="step-2-add-a-simple-exposure-layer">
+<h2>Step 2 - Add a simple exposure layer<a class="headerlink" href="#step-2-add-a-simple-exposure-layer" title="Link to this heading">#</a></h2>
+<p>The real script can weight hotspot risk by an exposure table
+keyed on <code class="docutils literal notranslate"><span class="pre">sample_idx</span></code>. This is useful because the same
+physical anomaly may matter more in places with greater assets,
+population, or infrastructure.</p>
+<p>Here we create a simple synthetic exposure table for each city.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">expo_ns</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;sample_idx&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.arange.html#numpy.arange" title="numpy.arange" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">arange</span></a><span class="p">(</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ns_eval</span></a><span class="p">[</span><span class="s2">&quot;sample_idx&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()),</span>
+        <span class="s2">&quot;exposure&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.linspace.html#numpy.linspace" title="numpy.linspace" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">linspace</span></a><span class="p">(</span>
+            <span class="mf">0.9</span><span class="p">,</span>
+            <span class="mf">1.8</span><span class="p">,</span>
+            <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ns_eval</span></a><span class="p">[</span><span class="s2">&quot;sample_idx&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">(),</span>
+        <span class="p">),</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">expo_zh</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;sample_idx&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.arange.html#numpy.arange" title="numpy.arange" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">arange</span></a><span class="p">(</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zh_eval</span></a><span class="p">[</span><span class="s2">&quot;sample_idx&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()),</span>
+        <span class="s2">&quot;exposure&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.linspace.html#numpy.linspace" title="numpy.linspace" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">linspace</span></a><span class="p">(</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="mf">1.6</span><span class="p">,</span>
+            <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zh_eval</span></a><span class="p">[</span><span class="s2">&quot;sample_idx&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">(),</span>
+        <span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-build-the-real-hotspot-tables">
+<h2>Step 3 - Build the real hotspot tables<a class="headerlink" href="#step-3-build-the-real-hotspot-tables" title="Link to this heading">#</a></h2>
+<p>This is the key data-preparation step.</p>
+<p>The script converts the forecast quantiles into:</p>
+<ul class="simple">
+<li><p>annual anomaly magnitude <code class="docutils literal notranslate"><span class="pre">delta_abs</span></code>,</p></li>
+<li><p>exceedance probability <code class="docutils literal notranslate"><span class="pre">p_exceed</span></code>,</p></li>
+<li><p>exposure-weighted <code class="docutils literal notranslate"><span class="pre">risk_score</span></code>,</p></li>
+<li><p>per-year threshold <code class="docutils literal notranslate"><span class="pre">T_q</span></code>,</p></li>
+<li><p>hotspot flags,</p></li>
+<li><p>and ranked cluster summaries.</p></li>
+</ul>
+<p>We keep the lesson on the default “percentile” hotspot rule.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">years</span></a> <span class="o">=</span> <span class="p">[</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">2024</span><span class="p">,</span> <span class="mi">2025</span><span class="p">]</span>
+<a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">base_year</span></a> <span class="o">=</span> <span class="mi">2022</span>
+
+<a href="../../generated/api/cli/geoprior._scripts.plot_hotspot_analytics.html#geoprior._scripts.plot_hotspot_analytics.CityHotspotData" title="geoprior._scripts.plot_hotspot_analytics.CityHotspotData" class="sphx-glr-backref-module-geoprior-_scripts-plot_hotspot_analytics sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">city_ns</span></a> <span class="o">=</span> <a href="../../generated/api/cli/geoprior._scripts.plot_hotspot_analytics.html#geoprior._scripts.plot_hotspot_analytics.build_hotspot_tables" title="geoprior._scripts.plot_hotspot_analytics.build_hotspot_tables" class="sphx-glr-backref-module-geoprior-_scripts-plot_hotspot_analytics sphx-glr-backref-type-py-function"><span class="n">build_hotspot_tables</span></a><span class="p">(</span>
+    <span class="n">city</span><span class="o">=</span><span class="s2">&quot;Nansha&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#2a6f97&quot;</span><span class="p">,</span>
+    <span class="n">eval_df</span><span class="o">=</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ns_eval</span></a><span class="p">,</span>
+    <span class="n">fut_df</span><span class="o">=</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ns_future</span></a><span class="p">,</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">years</span></a><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">years</span></a><span class="p">,</span>
+    <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">base_year</span></a><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">base_year</span></a><span class="p">,</span>
+    <span class="n">subsidence_kind</span><span class="o">=</span><span class="s2">&quot;increment&quot;</span><span class="p">,</span>
+    <span class="n">hotspot_q</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span>
+    <span class="n">risk_threshold</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span>
+    <span class="n">use_abs_risk</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">hotspot_rule</span><span class="o">=</span><span class="s2">&quot;percentile&quot;</span><span class="p">,</span>
+    <span class="n">hotspot_abs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">risk_min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">exposure_df</span><span class="o">=</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">expo_ns</span></a><span class="p">,</span>
+    <span class="n">exposure_col</span><span class="o">=</span><span class="s2">&quot;exposure&quot;</span><span class="p">,</span>
+    <span class="n">exposure_default</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="p">)</span>
+
+<a href="../../generated/api/cli/geoprior._scripts.plot_hotspot_analytics.html#geoprior._scripts.plot_hotspot_analytics.CityHotspotData" title="geoprior._scripts.plot_hotspot_analytics.CityHotspotData" class="sphx-glr-backref-module-geoprior-_scripts-plot_hotspot_analytics sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">city_zh</span></a> <span class="o">=</span> <a href="../../generated/api/cli/geoprior._scripts.plot_hotspot_analytics.html#geoprior._scripts.plot_hotspot_analytics.build_hotspot_tables" title="geoprior._scripts.plot_hotspot_analytics.build_hotspot_tables" class="sphx-glr-backref-module-geoprior-_scripts-plot_hotspot_analytics sphx-glr-backref-type-py-function"><span class="n">build_hotspot_tables</span></a><span class="p">(</span>
+    <span class="n">city</span><span class="o">=</span><span class="s2">&quot;Zhongshan&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#c26d3d&quot;</span><span class="p">,</span>
+    <span class="n">eval_df</span><span class="o">=</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zh_eval</span></a><span class="p">,</span>
+    <span class="n">fut_df</span><span class="o">=</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zh_future</span></a><span class="p">,</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">years</span></a><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">years</span></a><span class="p">,</span>
+    <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">base_year</span></a><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">base_year</span></a><span class="p">,</span>
+    <span class="n">subsidence_kind</span><span class="o">=</span><span class="s2">&quot;increment&quot;</span><span class="p">,</span>
+    <span class="n">hotspot_q</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span>
+    <span class="n">risk_threshold</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span>
+    <span class="n">use_abs_risk</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">hotspot_rule</span><span class="o">=</span><span class="s2">&quot;percentile&quot;</span><span class="p">,</span>
+    <span class="n">hotspot_abs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">risk_min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">exposure_df</span><span class="o">=</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">expo_zh</span></a><span class="p">,</span>
+    <span class="n">exposure_col</span><span class="o">=</span><span class="s2">&quot;exposure&quot;</span><span class="p">,</span>
+    <span class="n">exposure_default</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Year summaries&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_string.html#pandas.DataFrame.to_string" title="pandas.DataFrame.to_string" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">city_ns</span><span class="o">.</span><span class="n">df_years</span><span class="o">.</span><span class="n">to_string</span></a><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_string.html#pandas.DataFrame.to_string" title="pandas.DataFrame.to_string" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">city_zh</span><span class="o">.</span><span class="n">df_years</span><span class="o">.</span><span class="n">to_string</span></a><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Year summaries
+  city  year       T_q  n_hotspots  n_hotspots_ever  n_hotspots_new  n_hotspots_pct  n_hotspots_abs  n_hotspots_risk  delta_mean  delta_max   p_mean   risk_sum
+Nansha  2023  4.510224          28               28              28              28              -1               -1    2.145937  11.286709 0.174852 222.116272
+Nansha  2024  7.582256          28               36               8              28              -1               -1    3.585133  16.151670 0.193940 470.604481
+Nansha  2025 12.558343          28               38               2              28              -1               -1    5.588311  23.778802 0.233140 893.569208
+
+     city  year       T_q  n_hotspots  n_hotspots_ever  n_hotspots_new  n_hotspots_pct  n_hotspots_abs  n_hotspots_risk  delta_mean  delta_max   p_mean   risk_sum
+Zhongshan  2023  4.633184          28               28              28              28              -1               -1    2.095478  10.544812 0.168913 210.408668
+Zhongshan  2024  7.422571          28               35               7              28              -1               -1    3.399951  14.901438 0.186512 424.515044
+Zhongshan  2025 10.994437          28               36               1              28              -1               -1    5.317009  22.042327 0.225046 796.416301
+</pre></div>
+</div>
+</section>
+<section id="step-4-render-the-real-hotspot-figure">
+<h2>Step 4 - Render the real hotspot figure<a class="headerlink" href="#step-4-render-the-real-hotspot-figure" title="Link to this heading">#</a></h2>
+<p>We now call the actual plotting backend.</p>
+<p>Important note:
+for this script we only pass arguments that the real function
+actually supports:</p>
+<ul class="simple">
+<li><p>show_legend</p></li>
+<li><p>show_title</p></li>
+<li><p>show_panel_titles</p></li>
+</ul>
+<p>and not the panel-label or generic text flags used by some
+other figures.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tmp_dir</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span>
+    <a href="https://docs.python.org/3/library/tempfile.html#tempfile.mkdtemp" title="tempfile.mkdtemp" class="sphx-glr-backref-module-tempfile sphx-glr-backref-type-py-function"><span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span></a><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;gp_sg_hotspot_&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_base</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tmp_dir</span></a> <span class="o">/</span> <span class="s2">&quot;hotspot_analytics_gallery&quot;</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_points</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tmp_dir</span></a> <span class="o">/</span> <span class="s2">&quot;hotspot_points.csv&quot;</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_years</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tmp_dir</span></a> <span class="o">/</span> <span class="s2">&quot;hotspot_years.csv&quot;</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_clusters</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tmp_dir</span></a> <span class="o">/</span> <span class="s2">&quot;hotspot_clusters.csv&quot;</span>
+
+<a href="../../generated/api/cli/geoprior._scripts.plot_hotspot_analytics.html#geoprior._scripts.plot_hotspot_analytics.plot_hotspot_analytics" title="geoprior._scripts.plot_hotspot_analytics.plot_hotspot_analytics" class="sphx-glr-backref-module-geoprior-_scripts-plot_hotspot_analytics sphx-glr-backref-type-py-function"><span class="n">plot_hotspot_analytics</span></a><span class="p">(</span>
+    <span class="n">cities</span><span class="o">=</span><span class="p">[</span><a href="../../generated/api/cli/geoprior._scripts.plot_hotspot_analytics.html#geoprior._scripts.plot_hotspot_analytics.CityHotspotData" title="geoprior._scripts.plot_hotspot_analytics.CityHotspotData" class="sphx-glr-backref-module-geoprior-_scripts-plot_hotspot_analytics sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">city_ns</span></a><span class="p">,</span> <a href="../../generated/api/cli/geoprior._scripts.plot_hotspot_analytics.html#geoprior._scripts.plot_hotspot_analytics.CityHotspotData" title="geoprior._scripts.plot_hotspot_analytics.CityHotspotData" class="sphx-glr-backref-module-geoprior-_scripts-plot_hotspot_analytics sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">city_zh</span></a><span class="p">],</span>
+    <span class="n">focus_year</span><span class="o">=</span><span class="mi">2025</span><span class="p">,</span>
+    <span class="n">grid_res</span><span class="o">=</span><span class="mi">160</span><span class="p">,</span>
+    <span class="n">clip</span><span class="o">=</span><span class="mf">98.0</span><span class="p">,</span>
+    <span class="n">cmap_metric</span><span class="o">=</span><span class="s2">&quot;magma&quot;</span><span class="p">,</span>
+    <span class="n">cmap_prob</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">,</span>
+    <span class="n">persistence_mode</span><span class="o">=</span><span class="s2">&quot;fraction&quot;</span><span class="p">,</span>
+    <span class="n">cluster_top</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">risk_threshold</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span>
+    <span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">show_title</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">show_panel_titles</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;Synthetic hotspot analytics: anomaly, risk, &quot;</span>
+        <span class="s2">&quot;timeline, and priority clusters&quot;</span>
+    <span class="p">),</span>
+    <span class="n">out</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_base</span></a><span class="p">),</span>
+    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_points</span></a><span class="o">=</span><span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_points</span></a><span class="p">),</span>
+    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_years</span></a><span class="o">=</span><span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_years</span></a><span class="p">),</span>
+    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_clusters</span></a><span class="o">=</span><span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_clusters</span></a><span class="p">),</span>
+    <span class="n">timeline_mode</span><span class="o">=</span><span class="s2">&quot;current&quot;</span><span class="p">,</span>
+    <span class="n">timeline_overlay_current</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">dpi</span><span class="o">=</span><span class="mi">160</span><span class="p">,</span>
+    <span class="n">font</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+    <span class="n">cluster_rank</span><span class="o">=</span><span class="s2">&quot;risk&quot;</span><span class="p">,</span>
+    <span class="n">add_persistence</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">add_compare</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">compare_metric</span><span class="o">=</span><span class="s2">&quot;risk&quot;</span><span class="p">,</span>
+    <span class="n">hotspot_rule</span><span class="o">=</span><span class="s2">&quot;percentile&quot;</span><span class="p">,</span>
+    <span class="n">hotspot_abs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">risk_min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ns_future_b</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">zh_future_b</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">gdf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[OK] wrote C:\Users\Daniel\AppData\Local\Temp\gp_sg_hotspot_nru9k161\hotspot_analytics_gallery (eps,pdf,png,svg)
+[OK] wrote C:\Users\Daniel\AppData\Local\Temp\gp_sg_hotspot_nru9k161\hotspot_points.csv
+[OK] wrote C:\Users\Daniel\AppData\Local\Temp\gp_sg_hotspot_nru9k161\hotspot_years.csv
+[OK] wrote C:\Users\Daniel\AppData\Local\Temp\gp_sg_hotspot_nru9k161\hotspot_clusters.csv
+</pre></div>
+</div>
+</section>
+<section id="step-5-show-the-png-produced-by-the-backend">
+<h2>Step 5 - Show the PNG produced by the backend<a class="headerlink" href="#step-5-show-the-png-produced-by-the-backend" title="Link to this heading">#</a></h2>
+<p>The plotting backend writes the figure to disk. For the gallery
+lesson, we surface the PNG directly on the page.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">img</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/image_api.html#matplotlib.image.imread" title="matplotlib.image.imread" class="sphx-glr-backref-module-matplotlib-image sphx-glr-backref-type-py-function"><span class="n">mpimg</span><span class="o">.</span><span class="n">imread</span></a><span class="p">(</span><span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_base</span></a><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.png&quot;</span><span class="p">)</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">10.6</span><span class="p">,</span> <span class="mf">5.8</span><span class="p">))</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.imshow.html#matplotlib.axes.Axes.imshow" title="matplotlib.axes.Axes.imshow" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">imshow</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">img</span></a><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.axis.html#matplotlib.axes.Axes.axis" title="matplotlib.axes.Axes.axis" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">axis</span></a><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_hotspot_analytics_001.png" srcset="../../_images/sphx_glr_plot_hotspot_analytics_001.png" alt="plot hotspot analytics" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(np.float64(-0.5), np.float64(1727.5), np.float64(940.5), np.float64(-0.5))
+</pre></div>
+</div>
+</section>
+<section id="step-6-read-the-exported-hotspot-tables">
+<h2>Step 6 - Read the exported hotspot tables<a class="headerlink" href="#step-6-read-the-exported-hotspot-tables" title="Link to this heading">#</a></h2>
+<p>The real script exports three audit-friendly tables:</p>
+<ul class="simple">
+<li><p>per-point hotspot values</p></li>
+<li><p>per-year hotspot summaries</p></li>
+<li><p>per-cluster ranked priorities</p></li>
+</ul>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pts_df</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html#pandas.read_csv" title="pandas.read_csv" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-function"><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_points</span></a><span class="p">)</span>
+<a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">yrs_df</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html#pandas.read_csv" title="pandas.read_csv" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-function"><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_years</span></a><span class="p">)</span>
+<a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">clu_df</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html#pandas.read_csv" title="pandas.read_csv" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-function"><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_clusters</span></a><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Per-year summary&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_string.html#pandas.DataFrame.to_string" title="pandas.DataFrame.to_string" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">yrs_df</span><span class="o">.</span><span class="n">to_string</span></a><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Top priority clusters&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.sort_values.html#pandas.DataFrame.sort_values" title="pandas.DataFrame.sort_values" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">clu_df</span><span class="o">.</span><span class="n">sort_values</span></a><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;city&quot;</span><span class="p">,</span> <span class="s2">&quot;priority_rank&quot;</span><span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;city&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Per-year summary
+     city  year       T_q  n_hotspots  n_hotspots_ever  n_hotspots_new  n_hotspots_pct  n_hotspots_abs  n_hotspots_risk  delta_mean  delta_max   p_mean   risk_sum
+   Nansha  2023  4.510224          28               28              28              28              -1               -1    2.145937  11.286709 0.174852 222.116272
+   Nansha  2024  7.582256          28               36               8              28              -1               -1    3.585133  16.151670 0.193940 470.604481
+   Nansha  2025 12.558343          28               38               2              28              -1               -1    5.588311  23.778802 0.233140 893.569208
+Zhongshan  2023  4.633184          28               28              28              28              -1               -1    2.095478  10.544812 0.168913 210.408668
+Zhongshan  2024  7.422571          28               35               7              28              -1               -1    3.399951  14.901438 0.186512 424.515044
+Zhongshan  2025 10.994437          28               36               1              28              -1               -1    5.317009  22.042327 0.225046 796.416301
+
+Top priority clusters
+     city  year  cluster_id  n_cells  metric_mean  metric_max  risk_mean  risk_max  centroid_x  centroid_y  priority_rank
+   Nansha  2025          18        1    22.790336   22.790336  27.127852 27.127852      6937.5      3675.0              1
+   Nansha  2025          11        1    23.325558   23.325558  26.410551 26.410551      6937.5      3075.0              2
+   Nansha  2025          13        1    23.011016   23.011016  26.188021 26.188021      8212.5      3075.0              3
+   Nansha  2025           5        1    23.778802   23.778802  25.543036 25.543036      6937.5      2475.0              4
+   Nansha  2025          20        1    21.186109   21.186109  25.341320 25.341320      8212.5      3675.0              5
+Zhongshan  2025          10        1    22.042327   22.042327  27.005405 27.005405     24937.5      8075.0              1
+Zhongshan  2025          16        1    22.032836   22.032836  26.140894 26.140894     24937.5      8675.0              2
+Zhongshan  2025           9        1    20.790421   20.790421  25.511858 25.511858     24337.5      8075.0              3
+Zhongshan  2025          15        1    21.457603   21.457603  25.499939 25.499939     24337.5      8675.0              4
+Zhongshan  2025          14        1    20.224569   20.224569  24.073762 24.073762     23662.5      8675.0              5
+</pre></div>
+</div>
+</section>
+<section id="step-7-learn-how-to-read-panel-1">
+<h2>Step 7 - Learn how to read panel 1<a class="headerlink" href="#step-7-learn-how-to-read-panel-1" title="Link to this heading">#</a></h2>
+<p>The first panel is the anomaly map:</p>
+<blockquote>
+<div><p><a href="#id1"><span class="problematic" id="id2">|Δs|</span></a> relative to the base year</p>
+</div></blockquote>
+<p>This panel tells you where the forecast differs most strongly
+from the baseline state.</p>
+<p>It is often the fastest visual answer to:</p>
+<p>“Where is the physical change largest?”</p>
+<p>The contour outlines and cluster labels make the panel more
+useful than a plain heatmap, because they turn a continuous map
+into discrete priority regions.</p>
+</section>
+<section id="step-8-learn-how-to-read-panel-2">
+<h2>Step 8 - Learn how to read panel 2<a class="headerlink" href="#step-8-learn-how-to-read-panel-2" title="Link to this heading">#</a></h2>
+<p>The second panel is the exceedance-risk map:</p>
+<blockquote>
+<div><p>P(<a href="#id3"><span class="problematic" id="id4">|s|</span></a> &gt;= threshold)</p>
+</div></blockquote>
+<p>This is not the same thing as anomaly magnitude.</p>
+<p>A point may have a large median anomaly but still lower
+exceedance confidence, or vice versa. That is why the anomaly
+panel and the probability panel belong together.</p>
+<p>In practice:</p>
+<ul class="simple">
+<li><p>panel 1 shows where change is large,</p></li>
+<li><p>panel 2 shows where threshold exceedance is credible.</p></li>
+</ul>
+</section>
+<section id="step-9-learn-how-to-read-panel-3">
+<h2>Step 9 - Learn how to read panel 3<a class="headerlink" href="#step-9-learn-how-to-read-panel-3" title="Link to this heading">#</a></h2>
+<p>The timeline panel is especially useful for planning.</p>
+<p>It shows three kinds of information together:</p>
+<ul class="simple">
+<li><p>hotspot counts,</p></li>
+<li><p>the hotspot threshold T_q,</p></li>
+<li><p>and the maximum anomaly in each year.</p></li>
+</ul>
+<p>This helps the reader see not only where hotspots appear, but
+whether they are expanding, intensifying, or stabilizing over
+time.</p>
+<p>The script can also switch the count logic between:</p>
+<ul class="simple">
+<li><p>current hotspots,</p></li>
+<li><p>ever hotspots,</p></li>
+<li><p>new hotspots.</p></li>
+</ul>
+<p>That is useful because persistence and emergence are different
+policy questions.</p>
+</section>
+<section id="step-10-learn-how-to-read-panel-4">
+<h2>Step 10 - Learn how to read panel 4<a class="headerlink" href="#step-10-learn-how-to-read-panel-4" title="Link to this heading">#</a></h2>
+<p>The priority panel translates hotspot geometry into an action
+list.</p>
+<p>Each bar is one hotspot cluster, ranked either by:</p>
+<ul class="simple">
+<li><p>mean anomaly, or</p></li>
+<li><p>mean risk score.</p></li>
+</ul>
+<p>This is often the most decision-facing panel in the whole
+figure, because it moves from:</p>
+<p>“interesting map”</p>
+<p>to:</p>
+<p>“which clusters should be inspected first?”</p>
+<p>In this lesson we ranked by risk.</p>
+</section>
+<section id="step-11-practical-takeaway">
+<h2>Step 11 - Practical takeaway<a class="headerlink" href="#step-11-practical-takeaway" title="Link to this heading">#</a></h2>
+<p>This figure is useful because it compresses several layers of
+forecast interpretation into one page:</p>
+<ul class="simple">
+<li><p>anomaly magnitude,</p></li>
+<li><p>threshold risk,</p></li>
+<li><p>temporal evolution,</p></li>
+<li><p>and cluster prioritization.</p></li>
+</ul>
+<p>That makes it one of the strongest “decision-maker” figures in
+the whole gallery.</p>
+</section>
+<section id="command-line-version">
+<h2>Command-line version<a class="headerlink" href="#command-line-version" title="Link to this heading">#</a></h2>
+<p>The same figure can be produced from the command line.</p>
+<p>The real script supports:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--ns-src</span></code> / <code class="docutils literal notranslate"><span class="pre">--zh-src</span></code> for artifact discovery, or</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--ns-eval</span></code> / <code class="docutils literal notranslate"><span class="pre">--ns-future</span></code> and
+<code class="docutils literal notranslate"><span class="pre">--zh-eval</span></code> / <code class="docutils literal notranslate"><span class="pre">--zh-future</span></code> for direct CSV inputs,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--split</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--years</span></code> and <code class="docutils literal notranslate"><span class="pre">--base-year</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--focus-year</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--subsidence-kind</span></code> with
+<code class="docutils literal notranslate"><span class="pre">increment</span> <span class="pre">|</span> <span class="pre">rate</span> <span class="pre">|</span> <span class="pre">cumulative</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--hotspot-quantile</span></code> and <code class="docutils literal notranslate"><span class="pre">--risk-threshold</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--hotspot-rule</span></code> with
+<code class="docutils literal notranslate"><span class="pre">percentile</span> <span class="pre">|</span> <span class="pre">abs</span> <span class="pre">|</span> <span class="pre">risk</span> <span class="pre">|</span> <span class="pre">combo</span></code>,</p></li>
+<li><p>optional exposure with
+<code class="docutils literal notranslate"><span class="pre">--exposure</span></code>, <code class="docutils literal notranslate"><span class="pre">--exposure-col</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">--exposure-default</span></code>,</p></li>
+<li><p>timeline controls, cluster ranking, persistence,
+boundaries, and optional scenario comparison,</p></li>
+<li><p>plus the shared plot text arguments added by
+<code class="docutils literal notranslate"><span class="pre">utils.add_plot_text_args(...,</span> <span class="pre">default_out=&quot;hotspot_analytics&quot;)</span></code>.</p></li>
+</ul>
+<p>Legacy dispatcher:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>scripts<span class="w"> </span>plot-hotspot-analytics<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--ns-src<span class="w"> </span>results/nansha_run<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--zh-src<span class="w"> </span>results/zhongshan_run<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--split<span class="w"> </span>auto<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--years<span class="w"> </span><span class="m">2023</span><span class="w"> </span><span class="m">2024</span><span class="w"> </span><span class="m">2025</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--base-year<span class="w"> </span><span class="m">2022</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--focus-year<span class="w"> </span><span class="m">2025</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--subsidence-kind<span class="w"> </span>increment<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--hotspot-quantile<span class="w"> </span><span class="m">0</span>.90<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--risk-threshold<span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--hotspot-rule<span class="w"> </span>percentile<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--timeline-mode<span class="w"> </span>current<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--cluster-rank<span class="w"> </span>risk<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out<span class="w"> </span>hotspot_analytics
+</pre></div>
+</div>
+<p>With exposure and persistence:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>scripts<span class="w"> </span>plot-hotspot-analytics<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--ns-src<span class="w"> </span>results/nansha_run<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--zh-src<span class="w"> </span>results/zhongshan_run<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--years<span class="w"> </span><span class="m">2023</span><span class="w"> </span><span class="m">2024</span><span class="w"> </span><span class="m">2025</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--base-year<span class="w"> </span><span class="m">2022</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--focus-year<span class="w"> </span><span class="m">2025</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--exposure<span class="w"> </span>data/exposure.csv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--exposure-col<span class="w"> </span>exposure<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--add-persistence<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--persistence-mode<span class="w"> </span>fraction<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out<span class="w"> </span>hotspot_analytics
+</pre></div>
+</div>
+<p>Modern CLI:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior<span class="w"> </span>plot<span class="w"> </span>hotspot-analytics<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--ns-src<span class="w"> </span>results/nansha_run<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--zh-src<span class="w"> </span>results/zhongshan_run<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--years<span class="w"> </span><span class="m">2023</span><span class="w"> </span><span class="m">2024</span><span class="w"> </span><span class="m">2025</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--base-year<span class="w"> </span><span class="m">2022</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--focus-year<span class="w"> </span><span class="m">2025</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out<span class="w"> </span>hotspot_analytics
+</pre></div>
+</div>
+<p>The gallery page teaches the figure.
+The command line reproduces it in a workflow.</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 19.429 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-figure-generation-plot-hotspot-analytics-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/64c8784b3a924e67afa0b806cfba60cd/plot_hotspot_analytics.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_hotspot_analytics.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/c3eb1a24a50abf3f3d19e9b795b370a3/plot_hotspot_analytics.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_hotspot_analytics.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/e2abd306e04760e8bb4941ba2177cced/plot_hotspot_analytics.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_hotspot_analytics.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="plot_geo_cumulative.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Cumulative subsidence on a satellite-style map</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="plot_litho_parity.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Lithology parity: comparing the geological composition of the two cities</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-figure-shows">What the figure shows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-matters">Why this matters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-build-compact-synthetic-city-tables">Step 1 - Build compact synthetic city tables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-add-a-simple-exposure-layer">Step 2 - Add a simple exposure layer</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-build-the-real-hotspot-tables">Step 3 - Build the real hotspot tables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-render-the-real-hotspot-figure">Step 4 - Render the real hotspot figure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-show-the-png-produced-by-the-backend">Step 5 - Show the PNG produced by the backend</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-read-the-exported-hotspot-tables">Step 6 - Read the exported hotspot tables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-learn-how-to-read-panel-1">Step 7 - Learn how to read panel 1</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-8-learn-how-to-read-panel-2">Step 8 - Learn how to read panel 2</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-9-learn-how-to-read-panel-3">Step 9 - Learn how to read panel 3</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-10-learn-how-to-read-panel-4">Step 10 - Learn how to read panel 4</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-11-practical-takeaway">Step 11 - Practical takeaway</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#command-line-version">Command-line version</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/earthai-tech/geoprior-v3/edit/main/docs/source/auto_examples/figure_generation/plot_hotspot_analytics.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/auto_examples/figure_generation/plot_hotspot_analytics.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

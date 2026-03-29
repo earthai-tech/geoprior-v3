@@ -1,0 +1,37 @@
+﻿geoprior.\_scripts.compute\_hotspots
+====================================
+
+.. automodule:: geoprior._scripts.compute_hotspots
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      build_parser
+      compute_hotspots_main
+      parse_args
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      CityInputs
+   
+   
+
+   
+   
+   
+
+
+

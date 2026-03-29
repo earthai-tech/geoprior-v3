@@ -84,6 +84,51 @@ def out_dir(*, create: bool = True) -> Path:
     return path
 
 
+def _has_explicit_parent(path: Path) -> bool:
+    """Return True when path includes a parent part."""
+
+    return path.parent != Path(".")
+
+
+def resolve_user_artifact_path(
+    value: str | os.PathLike[str],
+    *,
+    kind: str,
+    create_parent: bool = False,
+) -> Path:
+    """
+    Resolve a user-provided export path.
+
+    Rules
+    -----
+    - absolute path: use as given
+    - relative path with parent: respect that folder
+    - bare filename/stem: place under scripts/figs or
+      scripts/out
+    """
+
+    path = Path(value).expanduser()
+    kind_norm = kind.strip().lower()
+
+    if path.is_absolute():
+        out = path
+    elif _has_explicit_parent(path):
+        out = path.resolve()
+    elif kind_norm in {"fig", "figs", "figure", "figures"}:
+        out = fig_dir(create=False) / path
+    elif kind_norm == "out":
+        out = out_dir(create=False) / path
+    else:
+        raise ValueError(
+            "kind must be 'fig', 'figs', or 'out'"
+        )
+
+    if create_parent:
+        out.parent.mkdir(parents=True, exist_ok=True)
+
+    return out
+
+
 def resolve_export_path(
     kind: str,
     *parts: str | os.PathLike[str],
@@ -91,22 +136,11 @@ def resolve_export_path(
 ) -> Path:
     """Resolve a path under fig/ or out/."""
 
-    kind_norm = kind.strip().lower()
-
-    if kind_norm in {"fig", "figs", "figure", "figures"}:
-        base = fig_dir()
-    elif kind_norm == "out":
-        base = out_dir()
-    else:
-        raise ValueError(
-            "kind must be 'fig', 'figs', or 'out'"
-        )
-
-    path = base.joinpath(*map(str, parts))
-
-    if create_parent:
-        path.parent.mkdir(parents=True, exist_ok=True)
-
+    path = resolve_user_artifact_path(
+        Path(*map(str, parts)),
+        kind=kind,
+        create_parent=create_parent,
+    )
     return path
 
 

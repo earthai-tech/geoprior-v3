@@ -1,0 +1,30 @@
+﻿geoprior.models.subsidence.derivatives
+======================================
+
+.. automodule:: geoprior.models.subsidence.derivatives
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      compute_head_pde_derivatives_raw
+      ensure_si_derivative_frame
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

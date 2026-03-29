@@ -1,0 +1,1252 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>GeoPriorSubsNet &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=404c0980"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'scientific_foundations/geoprior_subsnet';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Physics formulation" href="physics_formulation.html" />
+    <link rel="prev" title="Models overview" href="models_overview.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="models_overview.html">Models overview</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">GeoPriorSubsNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics_formulation.html">Physics formulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="poroelastic_background.html">Poroelastic background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="residual_assembly.html">Residual assembly</a></li>
+<li class="toctree-l1"><a class="reference internal" href="losses_and_training.html">Losses and training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_and_units.html">Data, units, and conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scaling.html">Scaling and conventions (<code class="docutils literal notranslate"><span class="pre">scaling_kwargs</span></code>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maths.html">GeoPrior maths: definitions and conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="identifiability.html">Identifiability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability_and_constraints.html">Stability and constraints</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Scientific foundations</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">GeoPriorSubsNet</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="geopriorsubsnet">
+<span id="geoprior-subsnet"></span><h1>GeoPriorSubsNet<a class="headerlink" href="#geopriorsubsnet" title="Link to this heading">#</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">GeoPriorSubsNet</span></code> is the flagship model of GeoPrior-v3.</p>
+<p>It is a <strong>prior-regularized, physics-informed, multi-horizon
+forecasting model</strong> for land subsidence with groundwater
+coupling. Architecturally, it combines an attentive
+encoder-decoder forecasting backbone with a physics head that
+learns effective hydrogeological fields and penalizes
+violations of groundwater-flow and consolidation physics.</p>
+<p>At a high level, GeoPriorSubsNet is designed to answer two
+questions at once:</p>
+<ol class="arabic simple">
+<li><p><strong>Can we forecast future subsidence and groundwater
+behavior over a horizon?</strong></p></li>
+<li><p><strong>Can we do so while keeping the learned dynamics
+physically interpretable and regularized?</strong></p></li>
+</ol>
+<p>This makes the model suitable not only for prediction, but
+also for parameter-oriented scientific analysis, transfer
+studies, and physics-aware uncertainty workflows.</p>
+<section id="scientific-role-in-geoprior-v3">
+<h2>Scientific role in GeoPrior-v3<a class="headerlink" href="#scientific-role-in-geoprior-v3" title="Link to this heading">#</a></h2>
+<p>GeoPriorSubsNet is the <strong>general coupled model</strong> in the
+current GeoPrior family.</p>
+<p>It is the default choice when you want:</p>
+<ul class="simple">
+<li><p>groundwater-aware subsidence forecasting,</p></li>
+<li><p>physically constrained multi-horizon prediction,</p></li>
+<li><p>learned effective fields such as <span class="math notranslate nohighlight">\(K\)</span>, <span class="math notranslate nohighlight">\(S_s\)</span>,
+<span class="math notranslate nohighlight">\(\tau\)</span>, and <span class="math notranslate nohighlight">\(Q\)</span>,</p></li>
+<li><p>explicit physics residuals inside training,</p></li>
+<li><p>and uncertainty outputs organized around a physics-guided
+mean forecast.</p></li>
+</ul>
+<p>Within the broader model family, it plays the role of the
+most expressive current model, while
+<code class="xref py py-class docutils literal notranslate"><span class="pre">PoroElasticSubsNet</span></code> acts as a
+consolidation-first preset with stronger prior-oriented
+defaults.</p>
+</section>
+<section id="what-geopriorsubsnet-combines">
+<h2>What GeoPriorSubsNet combines<a class="headerlink" href="#what-geopriorsubsnet-combines" title="Link to this heading">#</a></h2>
+<p>GeoPriorSubsNet combines three layers of modeling logic.</p>
+<p><strong>1. Multi-horizon forecasting</strong></p>
+<p>The model predicts over a future horizon rather than at only
+one next step. It uses an attentive sequence backbone with
+static, dynamic, and future-known inputs, making it closer to
+modern interpretable time-series forecasting architectures
+than to a simple feedforward PINN.</p>
+<p><strong>2. Physics-guided latent structure</strong></p>
+<p>The model does not only predict observed targets. It also
+learns effective physical fields and uses them inside
+groundwater and consolidation residuals.</p>
+<p><strong>3. Prior-regularized scientific training</strong></p>
+<p>The learned fields are constrained by priors, smoothness, and
+bounds logic, so the physics branch behaves as a structured
+scientific regularizer rather than as a free latent head.</p>
+</section>
+<section id="a-concise-model-summary">
+<h2>A concise model summary<a class="headerlink" href="#a-concise-model-summary" title="Link to this heading">#</a></h2>
+<p>A useful summary is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>attentive encoder-decoder
+      +
+supervised forecasting heads
+      +
+learned physics fields
+      +
+residual-based physical constraints
+      +
+explicit scaling and identifiability control
+</pre></div>
+</div>
+<p>This combination is what distinguishes GeoPriorSubsNet from a
+standard black-box forecaster.</p>
+</section>
+<section id="conceptual-architecture">
+<h2>Conceptual architecture<a class="headerlink" href="#conceptual-architecture" title="Link to this heading">#</a></h2>
+<p>GeoPriorSubsNet builds on a shared attentive forecasting
+backbone inherited from the GeoPrior neural stack.</p>
+<p>The model processes:</p>
+<ul class="simple">
+<li><p>static features,</p></li>
+<li><p>dynamic historical features,</p></li>
+<li><p>future-known features,</p></li>
+<li><p>and coordinate-aware forecast positions.</p></li>
+</ul>
+<p>The core encoder-decoder path may include:</p>
+<ul class="simple">
+<li><p>variable selection logic,</p></li>
+<li><p>dense preprocessing paths,</p></li>
+<li><p>hybrid LSTM or transformer-like sequence encoding,</p></li>
+<li><p>multi-scale temporal aggregation,</p></li>
+<li><p>attention-based decoding over the forecast horizon.</p></li>
+</ul>
+<p>The forecasting backbone then supports two logically separate
+heads:</p>
+<ul class="simple">
+<li><p>a <strong>data head</strong> for supervised outputs,</p></li>
+<li><p>a <strong>physics head</strong> for effective hydrogeological fields.</p></li>
+</ul>
+<p>The resulting design keeps forecasting and physical
+regularization tightly coupled without forcing them to be the
+same computation.</p>
+</section>
+<section id="inputs">
+<h2>Inputs<a class="headerlink" href="#inputs" title="Link to this heading">#</a></h2>
+<p>GeoPriorSubsNet follows the GeoPrior <strong>dict-input</strong> contract.</p>
+<p>A typical batch contains:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">static_features</span></code> with shape <code class="docutils literal notranslate"><span class="pre">(B,</span> <span class="pre">S)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dynamic_features</span></code> with shape <code class="docutils literal notranslate"><span class="pre">(B,</span> <span class="pre">T_in,</span> <span class="pre">D)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">future_features</span></code> with shape <code class="docutils literal notranslate"><span class="pre">(B,</span> <span class="pre">T_out,</span> <span class="pre">F)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coords</span></code> with shape <code class="docutils literal notranslate"><span class="pre">(B,</span> <span class="pre">T_out,</span> <span class="pre">3)</span></code></p></li>
+</ul>
+<p>and, when required by the closure:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">H_field</span></code> or a compatible thickness field.</p></li>
+</ul>
+<p>The default coordinate order is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[&#39;t&#39;, &#39;x&#39;, &#39;y&#39;]
+</pre></div>
+</div>
+<p>unless explicitly overridden through the scaling
+configuration.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The coordinate tensor is not auxiliary decoration. It is
+part of the physics contract. The physics pathway computes
+derivatives with respect to these coordinates and then
+converts them into SI-consistent derivatives through the
+scaling machinery.</p>
+</div>
+</section>
+<section id="outputs">
+<h2>Outputs<a class="headerlink" href="#outputs" title="Link to this heading">#</a></h2>
+<p>The public supervised outputs are intentionally simple:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">subs_pred</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gwl_pred</span></code></p></li>
+</ul>
+<p>These are the model’s two user-facing output families.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">subs_pred</span></code></dt><dd><p>Multi-horizon subsidence forecast.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">gwl_pred</span></code></dt><dd><p>Multi-horizon groundwater-level forecast.</p>
+</dd>
+</dl>
+<p>When quantiles are enabled, these outputs may carry a
+quantile axis rather than only a single central prediction.</p>
+<p>One important design detail is that the quantile head is
+<strong>centered on the physics-driven mean</strong>, so uncertainty is
+modeled around a physically informed baseline rather than
+around a purely unconstrained neural forecast.</p>
+</section>
+<section id="learned-physical-fields">
+<h2>Learned physical fields<a class="headerlink" href="#learned-physical-fields" title="Link to this heading">#</a></h2>
+<p>A defining feature of GeoPriorSubsNet is that it learns
+effective physical fields in addition to the supervised
+targets.</p>
+<p>The core learned fields are:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(K(x,y)\)</span> — hydraulic conductivity</p></li>
+<li><p><span class="math notranslate nohighlight">\(S_s(x,y)\)</span> — specific storage</p></li>
+<li><p><span class="math notranslate nohighlight">\(\tau(x,y)\)</span> — effective relaxation / consolidation
+timescale</p></li>
+<li><p><span class="math notranslate nohighlight">\(Q(t,x,y)\)</span> — source / forcing term for the
+groundwater residual</p></li>
+</ul>
+<p>These are effective grid-scale fields, not literal laboratory
+parameters. They are produced by the physics head and then
+mapped into physically meaningful ranges through scaling,
+bounded transforms, and optional constraint logic.</p>
+</section>
+<section id="the-groundwater-flow-residual">
+<h2>The groundwater-flow residual<a class="headerlink" href="#the-groundwater-flow-residual" title="Link to this heading">#</a></h2>
+<p>When groundwater physics is active, GeoPriorSubsNet enforces
+a groundwater-flow residual of the form:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-geoprior-subsnet-0">
+<span class="eqno">(1)<a class="headerlink" href="#equation-scientific-foundations-geoprior-subsnet-0" title="Link to this equation">#</a></span>\[R_{gw}
+=
+S_s \, \partial_t h
+-
+\nabla \cdot (K \nabla h)
+-
+Q\]</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(h\)</span> is hydraulic head,</p></li>
+<li><p><span class="math notranslate nohighlight">\(K\)</span> is hydraulic conductivity,</p></li>
+<li><p><span class="math notranslate nohighlight">\(S_s\)</span> is specific storage,</p></li>
+<li><p><span class="math notranslate nohighlight">\(Q\)</span> is the groundwater forcing term.</p></li>
+</ul>
+<p>The implementation uses automatic differentiation with
+respect to the same coordinate tensor seen by the forward
+pass, then converts those derivatives into SI-consistent
+forms before assembling the residual.</p>
+</section>
+<section id="the-consolidation-residual">
+<h2>The consolidation residual<a class="headerlink" href="#the-consolidation-residual" title="Link to this heading">#</a></h2>
+<p>The subsidence pathway is governed by a relaxation-style
+consolidation closure:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-geoprior-subsnet-1">
+<span class="eqno">(2)<a class="headerlink" href="#equation-scientific-foundations-geoprior-subsnet-1" title="Link to this equation">#</a></span>\[R_{cons}
+=
+\partial_t s
+-
+\frac{s_{eq}(h) - s}{\tau}\]</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(s\)</span> is subsidence,</p></li>
+<li><p><span class="math notranslate nohighlight">\(\tau\)</span> is an effective relaxation time,</p></li>
+<li><p><span class="math notranslate nohighlight">\(s_{eq}(h)\)</span> is an equilibrium settlement proxy.</p></li>
+</ul>
+<p>A common approximation used by GeoPrior is:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-geoprior-subsnet-2">
+<span class="eqno">(3)<a class="headerlink" href="#equation-scientific-foundations-geoprior-subsnet-2" title="Link to this equation">#</a></span>\[s_{eq}(h)
+\approx
+S_s \, \Delta h \, H\]</div>
+<p>with drawdown:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-geoprior-subsnet-3">
+<span class="eqno">(4)<a class="headerlink" href="#equation-scientific-foundations-geoprior-subsnet-3" title="Link to this equation">#</a></span>\[\Delta h = [h_{ref} - h]_+\]</div>
+<p>and effective thickness <span class="math notranslate nohighlight">\(H\)</span>.</p>
+<p>In practice, the implementation prefers a step-consistent
+consolidation update rather than a naive noisy finite
+difference of <span class="math notranslate nohighlight">\(\partial_t s\)</span>, which makes the approach
+more stable at coarse temporal resolution.</p>
+</section>
+<section id="the-timescale-prior">
+<h2>The timescale prior<a class="headerlink" href="#the-timescale-prior" title="Link to this heading">#</a></h2>
+<p>One of the most important scientific ideas in GeoPriorSubsNet
+is the prior linking learned <span class="math notranslate nohighlight">\(\tau\)</span> to the learned
+hydrogeological fields.</p>
+<p>Conceptually, the model uses a closure of the form:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-geoprior-subsnet-4">
+<span class="eqno">(5)<a class="headerlink" href="#equation-scientific-foundations-geoprior-subsnet-4" title="Link to this equation">#</a></span>\[\tau_{prior}
+\approx
+\frac{H_d^2 \, S_s}{\pi^2 \, \kappa \, K}\]</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(H_d\)</span> is an effective drainage thickness,</p></li>
+<li><p><span class="math notranslate nohighlight">\(K\)</span> is hydraulic conductivity,</p></li>
+<li><p><span class="math notranslate nohighlight">\(S_s\)</span> is specific storage,</p></li>
+<li><p><span class="math notranslate nohighlight">\(\kappa\)</span> is a consistency factor,</p></li>
+<li><p><span class="math notranslate nohighlight">\(\tau\)</span> is the learned timescale.</p></li>
+</ul>
+<p>The model then measures a prior mismatch in log space, which
+helps stabilize training across large timescale ranges and
+makes the penalty behave more like a relative error than an
+absolute one.</p>
+</section>
+<section id="additional-physics-oriented-regularization">
+<h2>Additional physics-oriented regularization<a class="headerlink" href="#additional-physics-oriented-regularization" title="Link to this heading">#</a></h2>
+<p>GeoPriorSubsNet is not limited to two PDE-style residuals.</p>
+<p>It also supports additional scientific regularization terms,
+including:</p>
+<ul class="simple">
+<li><p>a <strong>timescale prior</strong> on <span class="math notranslate nohighlight">\(\tau\)</span>,</p></li>
+<li><p>a <strong>smoothness prior</strong> on learned fields,</p></li>
+<li><p>a <strong>bounds residual</strong> for plausible physical envelopes,</p></li>
+<li><p>an optional <strong>:math:`m_v` prior</strong> linking storage to
+compressibility and water unit weight,</p></li>
+<li><p>and optional regularization on the forcing term
+<span class="math notranslate nohighlight">\(Q\)</span>.</p></li>
+</ul>
+<p>This makes the model best understood as a <strong>structured
+physics-regularized forecaster</strong>, not just as a PINN with one
+equation.</p>
+</section>
+<section id="pde-modes">
+<h2>PDE modes<a class="headerlink" href="#pde-modes" title="Link to this heading">#</a></h2>
+<p>GeoPriorSubsNet supports several physics regimes through
+<code class="docutils literal notranslate"><span class="pre">pde_mode</span></code>.</p>
+<p>The main conceptual settings are:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">'both'</span></code></dt><dd><p>Activate both groundwater-flow and consolidation physics.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">'consolidation'</span></code></dt><dd><p>Use only the consolidation residual.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">'gw_flow'</span></code></dt><dd><p>Use only the groundwater-flow residual.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">'none'</span></code></dt><dd><p>Disable PDE residuals and behave as a data-driven
+encoder-decoder.</p>
+</dd>
+</dl>
+<p>This is useful because not every dataset can support the same
+physical regime. In some cases, a consolidation-first regime
+is more trustworthy than a fully coupled groundwater-flow
+setup.</p>
+</section>
+<section id="scaling-is-part-of-the-model-definition">
+<h2>Scaling is part of the model definition<a class="headerlink" href="#scaling-is-part-of-the-model-definition" title="Link to this heading">#</a></h2>
+<p>Scaling in GeoPriorSubsNet is not a secondary preprocessing
+choice. It is part of the model contract itself.</p>
+<p>The model accepts scaling configuration through
+<code class="docutils literal notranslate"><span class="pre">scaling_kwargs</span></code>, which are wrapped and resolved by a
+Keras-serializable
+<a class="reference internal" href="../api/subsidence.html#id59" title="geoprior.models.subsidence.scaling.GeoPriorScalingConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeoPriorScalingConfig</span></code></a>.</p>
+<p>This scaling layer governs, among other things:</p>
+<ul class="simple">
+<li><p>time-unit interpretation,</p></li>
+<li><p>coordinate normalization,</p></li>
+<li><p>degree-to-meter handling,</p></li>
+<li><p>groundwater semantics,</p></li>
+<li><p>SI conversion,</p></li>
+<li><p>alias consistency,</p></li>
+<li><p>bounds structure,</p></li>
+<li><p>feature naming consistency.</p></li>
+</ul>
+<p>This is why a saved GeoPrior model should always be
+interpreted together with its scaling context.</p>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Save the resolved scaling payload alongside the model
+artifacts.</p>
+<p>If two runs differ unexpectedly across cities or sites,
+compare the resolved scaling configuration first.</p>
+</div>
+</section>
+<section id="identifiability-regimes">
+<h2>Identifiability regimes<a class="headerlink" href="#identifiability-regimes" title="Link to this heading">#</a></h2>
+<p>GeoPriorSubsNet exposes <strong>identifiability control</strong> as a
+first-class part of the public model design.</p>
+<p>The current identifiability profiles include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">base</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">anchored</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">closure_locked</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data_relaxed</span></code></p></li>
+</ul>
+<p>These profiles exist because the poroelastic closure contains
+ridge-like parameter trade-offs. Multiple combinations of
+<span class="math notranslate nohighlight">\(K\)</span>, <span class="math notranslate nohighlight">\(S_s\)</span>, <span class="math notranslate nohighlight">\(H_d\)</span>, and <span class="math notranslate nohighlight">\(\tau\)</span> can
+produce similar behavior unless the problem is constrained
+carefully.</p>
+<p>Different regimes change defaults such as:</p>
+<ul class="simple">
+<li><p>whether physics fields are frozen over time,</p></li>
+<li><p>whether subsidence residual freedom is allowed,</p></li>
+<li><p>bounds behavior,</p></li>
+<li><p>prior strength,</p></li>
+<li><p>warmup schedules,</p></li>
+<li><p>and optional locks on heads such as <code class="docutils literal notranslate"><span class="pre">tau_head</span></code>.</p></li>
+</ul>
+<p>This makes GeoPriorSubsNet useful not only for prediction,
+but also for controlled scientific ablation and inverse-style
+experiments.</p>
+</section>
+<section id="compile-time-loss-structure">
+<h2>Compile-time loss structure<a class="headerlink" href="#compile-time-loss-structure" title="Link to this heading">#</a></h2>
+<p>GeoPriorSubsNet uses a custom training structure that blends
+supervised and physics-aware losses.</p>
+<p>The main compile-time scalar weights include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_cons</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_gw</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_prior</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_smooth</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_mv</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_bounds</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_q</span></code></p></li>
+</ul>
+<p>These are assembled into a physics objective together with a
+global physics multiplier controlled by <code class="docutils literal notranslate"><span class="pre">lambda_offset</span></code> and
+<code class="docutils literal notranslate"><span class="pre">offset_mode</span></code>.</p>
+<p>A useful conceptual split is:</p>
+<ul class="simple">
+<li><p><strong>data loss</strong> for supervised forecast accuracy,</p></li>
+<li><p><strong>physics loss</strong> for physical consistency,</p></li>
+<li><p><strong>global physics multiplier</strong> for schedule-aware balancing.</p></li>
+</ul>
+<p>This is one reason GeoPriorSubsNet can be trained in a more
+controlled way than a monolithic single-objective network.</p>
+</section>
+<section id="numerical-stability-design">
+<h2>Numerical stability design<a class="headerlink" href="#numerical-stability-design" title="Link to this heading">#</a></h2>
+<p>Because GeoPriorSubsNet learns positive physical fields and
+differentiates through coordinate-sensitive residuals, it
+includes explicit stability mechanisms.</p>
+<p>Examples include:</p>
+<ul class="simple">
+<li><p>clipping physics logits,</p></li>
+<li><p>sanitizing residual scales,</p></li>
+<li><p>warmup and ramp schedules for physics enforcement,</p></li>
+<li><p>NaN-safe clipping constraints for log-parameters,</p></li>
+<li><p>filtered gradients for bad batches,</p></li>
+<li><p>soft vs hard bounds logic,</p></li>
+<li><p>finite-safe logging and diagnostics helpers.</p></li>
+</ul>
+<p>These mechanisms are not incidental engineering details.
+They are part of the scientific usability of the model.</p>
+</section>
+<section id="quantiles-and-uncertainty">
+<h2>Quantiles and uncertainty<a class="headerlink" href="#quantiles-and-uncertainty" title="Link to this heading">#</a></h2>
+<p>GeoPriorSubsNet can operate in deterministic or probabilistic
+mode.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">quantiles</span></code> are provided, the model emits quantile
+forecasts across the horizon. The uncertainty structure is
+built around the physics-informed mean path rather than
+around a detached uncertainty head.</p>
+<p>This design has two advantages:</p>
+<ul class="simple">
+<li><p>the central forecast remains tied to the physics branch,</p></li>
+<li><p>the uncertainty export can be calibrated later without
+detaching it from the model’s scientific interpretation.</p></li>
+</ul>
+<p>This is one of the reasons the model integrates naturally
+with later interval calibration and forecast-export stages.</p>
+</section>
+<section id="diagnostics-and-payload-export">
+<h2>Diagnostics and payload export<a class="headerlink" href="#diagnostics-and-payload-export" title="Link to this heading">#</a></h2>
+<p>GeoPriorSubsNet is designed to emit diagnostics, not only
+predictions.</p>
+<p>The model supports:</p>
+<ul class="simple">
+<li><p>forward passes with auxiliary outputs,</p></li>
+<li><p>epsilon-style physics summaries,</p></li>
+<li><p>physics payload export,</p></li>
+<li><p>physical-parameter extraction,</p></li>
+<li><p>identifiability audits,</p></li>
+<li><p>plot-oriented diagnostics.</p></li>
+</ul>
+<p>In particular, the exported physics payload typically
+contains arrays such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tau</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tau_prior</span></code> or <code class="docutils literal notranslate"><span class="pre">tau_closure</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">K</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Ss</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Hd</span></code></p></li>
+<li><p>consolidation residual values</p></li>
+<li><p>summary metrics</p></li>
+</ul>
+<p>This makes GeoPriorSubsNet especially suitable for
+publication-grade and audit-oriented workflows.</p>
+</section>
+<section id="serialization-and-reconstruction">
+<h2>Serialization and reconstruction<a class="headerlink" href="#serialization-and-reconstruction" title="Link to this heading">#</a></h2>
+<p>GeoPriorSubsNet is designed to be reconstructable.</p>
+<p>The class is Keras-serializable and supports reconstruction
+through:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">get_config()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">from_config(...)</span></code></p></li>
+<li><p>and explicit <code class="docutils literal notranslate"><span class="pre">custom_objects</span></code> handling for the wrapped
+physics parameters and scaling configuration.</p></li>
+</ul>
+<p>This matters because model reuse in GeoPrior is not only
+about loading weights. It is also about reconstructing the
+scientific configuration faithfully.</p>
+</section>
+<section id="a-minimal-usage-example">
+<h2>A minimal usage example<a class="headerlink" href="#a-minimal-usage-example" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoPriorSubsNet</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">GeoPriorSubsNet</span><span class="p">(</span>
+    <span class="n">static_input_dim</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">dynamic_input_dim</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">future_input_dim</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">output_subsidence_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">output_gwl_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">forecast_horizon</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">],</span>
+    <span class="n">pde_mode</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span>
+    <span class="n">scaling_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;time_units&quot;</span><span class="p">:</span> <span class="s2">&quot;year&quot;</span><span class="p">},</span>
+<span class="p">)</span>
+
+<span class="n">batch</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;static_features&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+    <span class="s2">&quot;dynamic_features&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">8</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">]),</span>
+    <span class="s2">&quot;future_features&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]),</span>
+    <span class="s2">&quot;coords&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+<span class="p">}</span>
+
+<span class="n">y</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+</pre></div>
+</div>
+<p>A second useful debugging pattern is to inspect both the
+supervised outputs and the auxiliary physics outputs:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">y_pred</span><span class="p">,</span> <span class="n">aux</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">forward_with_aux</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">y_pred</span><span class="p">[</span><span class="s2">&quot;subs_pred&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">aux</span><span class="p">[</span><span class="s2">&quot;phys_mean_raw&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="when-to-use-geopriorsubsnet">
+<h2>When to use GeoPriorSubsNet<a class="headerlink" href="#when-to-use-geopriorsubsnet" title="Link to this heading">#</a></h2>
+<p>GeoPriorSubsNet is the best default when:</p>
+<ul class="simple">
+<li><p>you want the most general current GeoPrior model,</p></li>
+<li><p>you want coupled groundwater and consolidation behavior,</p></li>
+<li><p>you have a reasonable scaling and coordinate setup,</p></li>
+<li><p>you want a physics-aware probabilistic forecast model,</p></li>
+<li><p>you want later access to physics payloads and diagnostics.</p></li>
+</ul>
+</section>
+<section id="when-not-to-use-it-first">
+<h2>When not to use it first<a class="headerlink" href="#when-not-to-use-it-first" title="Link to this heading">#</a></h2>
+<p>You may prefer
+<code class="xref py py-class docutils literal notranslate"><span class="pre">PoroElasticSubsNet</span></code> first when:</p>
+<ul class="simple">
+<li><p>the groundwater PDE is poorly constrained,</p></li>
+<li><p>forcing proxies are weak or unavailable,</p></li>
+<li><p>you want a stronger prior-driven consolidation baseline,</p></li>
+<li><p>you are debugging units, bounds, or identifiability,</p></li>
+<li><p>you want a consolidation-first ablation.</p></li>
+</ul>
+<p>That variant keeps the same general contract but changes the
+default scientific posture.</p>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="models_overview.html"><span class="doc">Models overview</span></a></p></li>
+<li><p><a class="reference internal" href="physics_formulation.html"><span class="doc">Physics formulation</span></a></p></li>
+<li><p><a class="reference internal" href="poroelastic_background.html"><span class="doc">Poroelastic background</span></a></p></li>
+<li><p><a class="reference internal" href="residual_assembly.html"><span class="doc">Residual assembly</span></a></p></li>
+<li><p><a class="reference internal" href="losses_and_training.html"><span class="doc">Losses and training</span></a></p></li>
+<li><p><a class="reference internal" href="data_and_units.html"><span class="doc">Data, units, and conventions</span></a></p></li>
+<li><p><a class="reference internal" href="scaling.html"><span class="doc">Scaling and conventions (scaling_kwargs)</span></a></p></li>
+<li><p><a class="reference internal" href="identifiability.html"><span class="doc">Identifiability</span></a></p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="models_overview.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Models overview</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="physics_formulation.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Physics formulation</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scientific-role-in-geoprior-v3">Scientific role in GeoPrior-v3</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-geopriorsubsnet-combines">What GeoPriorSubsNet combines</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-concise-model-summary">A concise model summary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conceptual-architecture">Conceptual architecture</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inputs">Inputs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#outputs">Outputs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#learned-physical-fields">Learned physical fields</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-groundwater-flow-residual">The groundwater-flow residual</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-consolidation-residual">The consolidation residual</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-timescale-prior">The timescale prior</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-physics-oriented-regularization">Additional physics-oriented regularization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pde-modes">PDE modes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scaling-is-part-of-the-model-definition">Scaling is part of the model definition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#identifiability-regimes">Identifiability regimes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compile-time-loss-structure">Compile-time loss structure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#numerical-stability-design">Numerical stability design</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quantiles-and-uncertainty">Quantiles and uncertainty</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#diagnostics-and-payload-export">Diagnostics and payload export</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#serialization-and-reconstruction">Serialization and reconstruction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-minimal-usage-example">A minimal usage example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-use-geopriorsubsnet">When to use GeoPriorSubsNet</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-not-to-use-it-first">When not to use it first</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See also</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/earthai-tech/geoprior-v3/edit/main/docs/source/scientific_foundations/geoprior_subsnet.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/scientific_foundations/geoprior_subsnet.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

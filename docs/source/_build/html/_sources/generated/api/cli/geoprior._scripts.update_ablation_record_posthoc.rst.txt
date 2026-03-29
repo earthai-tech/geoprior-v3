@@ -1,0 +1,29 @@
+﻿geoprior.\_scripts.update\_ablation\_record\_posthoc
+====================================================
+
+.. automodule:: geoprior._scripts.update_ablation_record_posthoc
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      main
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

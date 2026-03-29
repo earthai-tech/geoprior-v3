@@ -1,0 +1,25 @@
+﻿geoprior.params.FixedGammaW
+===========================
+
+.. currentmodule:: geoprior.params
+
+.. autoclass:: FixedGammaW
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FixedGammaW.__init__
+      ~FixedGammaW.from_config
+      ~FixedGammaW.get_config
+      ~FixedGammaW.get_value
+   
+   
+
+   
+   
+   

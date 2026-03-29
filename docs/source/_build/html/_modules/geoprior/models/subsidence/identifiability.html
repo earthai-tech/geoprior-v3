@@ -1,0 +1,1138 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>geoprior.models.subsidence.identifiability &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=404c0980"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geoprior/models/subsidence/identifiability';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../../../../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../../../../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geoprior.models.subsidence.identifiability</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for geoprior.models.subsidence.identifiability</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+<span class="c1"># GeoPrior-v3  https://github.com/earthai-tech/geoprior-v3</span>
+<span class="c1"># Copyright (c) 2026-present</span>
+<span class="c1"># Author: LKouadio &lt;https://lkouadio.com&gt;</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Identifiability scenarios for GeoPrior-style models.</span>
+
+<span class="sd">Goal:</span>
+<span class="sd">- break non-identifiability ridges by construction.</span>
+
+<span class="sd">Option A:</span>
+<span class="sd">- learn tau only</span>
+<span class="sd">- derive K from tau via closure</span>
+<span class="sd">- freeze (or fix) Ss and Hd</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">...compat.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">TensorLike</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">KERAS_DEPS</span>
+
+<span class="n">K</span> <span class="o">=</span> <span class="n">KERAS_DEPS</span>
+
+<span class="n">Tensor</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">Tensor</span>
+
+<span class="n">tf_cast</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">cast</span>
+<span class="n">tf_constant</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">constant</span>
+<span class="n">tf_maximum</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">maximum</span>
+<span class="n">tf_reduce_mean</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">reduce_mean</span>
+<span class="n">tf_square</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">square</span>
+<span class="n">tf_stop_gradient</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">stop_gradient</span>
+
+<span class="n">tf_math</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">math</span>
+
+
+<span class="n">_PI2</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">_IDENTIFIABILITY_PROFILES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;base&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;sk&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;freeze_physics_fields_over_time&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;bounds_loss_kind&quot;</span><span class="p">:</span> <span class="s2">&quot;barrier&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;physics_warmup_steps&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+            <span class="s2">&quot;physics_ramp_steps&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;compile&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;lambda_bounds&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="s2">&quot;lambda_prior&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="s2">&quot;lambda_q&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="s2">&quot;lambda_mv&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;locks&quot;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;anchored&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;sk&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;freeze_physics_fields_over_time&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;allow_subs_residual&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;bounds_loss_kind&quot;</span><span class="p">:</span> <span class="s2">&quot;barrier&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;bounds_beta&quot;</span><span class="p">:</span> <span class="mf">30.0</span><span class="p">,</span>
+            <span class="s2">&quot;bounds_guard&quot;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span>
+            <span class="s2">&quot;bounds_w&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+            <span class="s2">&quot;bounds_include_tau&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;bounds_tau_w&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+            <span class="s2">&quot;stop_grad_ref&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;drawdown_zero_at_origin&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;physics_warmup_steps&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+            <span class="s2">&quot;physics_ramp_steps&quot;</span><span class="p">:</span> <span class="mi">800</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;compile&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;lambda_bounds&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
+            <span class="s2">&quot;lambda_prior&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
+            <span class="s2">&quot;lambda_cons&quot;</span><span class="p">:</span> <span class="mf">50.0</span><span class="p">,</span>
+            <span class="s2">&quot;lambda_q&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="s2">&quot;lambda_mv&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;locks&quot;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;closure_locked&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;sk&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;freeze_physics_fields_over_time&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;allow_subs_residual&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;bounds_loss_kind&quot;</span><span class="p">:</span> <span class="s2">&quot;barrier&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;bounds_beta&quot;</span><span class="p">:</span> <span class="mf">30.0</span><span class="p">,</span>
+            <span class="s2">&quot;bounds_w&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+            <span class="s2">&quot;bounds_include_tau&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;bounds_tau_w&quot;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>
+            <span class="s2">&quot;stop_grad_ref&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;drawdown_zero_at_origin&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;physics_warmup_steps&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;physics_ramp_steps&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;compile&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;lambda_bounds&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
+            <span class="s2">&quot;lambda_prior&quot;</span><span class="p">:</span> <span class="mf">100.0</span><span class="p">,</span>
+            <span class="s2">&quot;lambda_cons&quot;</span><span class="p">:</span> <span class="mf">50.0</span><span class="p">,</span>
+            <span class="s2">&quot;lambda_q&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="s2">&quot;lambda_mv&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;locks&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;tau_head&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;data_relaxed&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;sk&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;freeze_physics_fields_over_time&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;allow_subs_residual&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;bounds_loss_kind&quot;</span><span class="p">:</span> <span class="s2">&quot;residual&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;bounds_beta&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
+            <span class="s2">&quot;bounds_w&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="s2">&quot;bounds_include_tau&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;bounds_tau_w&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="s2">&quot;stop_grad_ref&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;drawdown_zero_at_origin&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;physics_warmup_steps&quot;</span><span class="p">:</span> <span class="mi">1500</span><span class="p">,</span>
+            <span class="s2">&quot;physics_ramp_steps&quot;</span><span class="p">:</span> <span class="mi">1500</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;compile&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;lambda_bounds&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="s2">&quot;lambda_prior&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="s2">&quot;lambda_cons&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="s2">&quot;lambda_gw&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="s2">&quot;lambda_q&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="s2">&quot;lambda_mv&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;locks&quot;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;init_identifiability&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;apply_ident_locks&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;resolve_compile_weights&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_ident_profile&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ident_audit_dict&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">_AUDIT_SK_KEYS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;freeze_physics_fields_over_time&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;allow_subs_residual&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bounds_loss_kind&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bounds_beta&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bounds_guard&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bounds_w&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bounds_include_tau&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bounds_tau_w&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;stop_grad_ref&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;drawdown_zero_at_origin&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;physics_warmup_steps&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;physics_ramp_steps&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_pick_keys</span><span class="p">(</span>
+    <span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">keys</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_head_state</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="n">layer</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">layer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;exists&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;exists&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;trainable&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="s2">&quot;trainable&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)),</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span>
+    <span class="p">}</span>
+
+
+<div class="viewcode-block" id="ident_audit_dict">
+<a class="viewcode-back" href="../../../../api/subsidence.html#geoprior.models.subsidence.identifiability.ident_audit_dict">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ident_audit_dict</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">extra_sk_keys</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Small, JSON-safe audit of identifiability configuration.</span>
+
+<span class="sd">    Intended for experiment logs / manifests / eval JSON.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reg</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;identifiability_regime&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">prof</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;_ident_profile&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">sk_prof</span> <span class="o">=</span> <span class="n">prof</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sk&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">sk_now</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;scaling_kwargs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+
+    <span class="n">enabled</span> <span class="o">=</span> <span class="p">(</span><span class="n">reg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="n">prof</span><span class="p">)</span>
+
+    <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_AUDIT_SK_KEYS</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">extra_sk_keys</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">extra_sk_keys</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+                <span class="n">keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+
+    <span class="n">locks</span> <span class="o">=</span> <span class="n">prof</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;locks&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">lock_keys</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;tau_head&quot;</span><span class="p">,</span> <span class="s2">&quot;K_head&quot;</span><span class="p">,</span> <span class="s2">&quot;Ss_head&quot;</span><span class="p">)</span>
+
+    <span class="n">lam</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;lambda_cons&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;lambda_cons&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;lambda_gw&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;lambda_gw&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
+        <span class="s2">&quot;lambda_prior&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;lambda_prior&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;lambda_smooth&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;lambda_smooth&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;lambda_bounds&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;lambda_bounds&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;lambda_mv&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;lambda_mv&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
+        <span class="s2">&quot;lambda_q&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;lambda_q&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
+    <span class="p">}</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;regime&quot;</span><span class="p">:</span> <span class="n">reg</span><span class="p">,</span>  <span class="c1"># JSON-safe: None or str,</span>
+        <span class="s2">&quot;profile_keys&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;sk&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">sk_prof</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span>
+            <span class="s2">&quot;compile&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="nb">list</span><span class="p">((</span><span class="n">prof</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;compile&quot;</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;locks&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">locks</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;locks&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="n">k</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">locks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">lock_keys</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;heads&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;tau_head&quot;</span><span class="p">:</span> <span class="n">_head_state</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;tau_head&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;K_head&quot;</span><span class="p">:</span> <span class="n">_head_state</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;K_head&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;Ss_head&quot;</span><span class="p">:</span> <span class="n">_head_state</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;Ss_head&quot;</span><span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;lambdas&quot;</span><span class="p">:</span> <span class="n">lam</span><span class="p">,</span>
+        <span class="s2">&quot;sk_from_profile&quot;</span><span class="p">:</span> <span class="n">_pick_keys</span><span class="p">(</span><span class="n">sk_prof</span><span class="p">,</span> <span class="n">keys</span><span class="p">),</span>
+        <span class="s2">&quot;sk_effective&quot;</span><span class="p">:</span> <span class="n">_pick_keys</span><span class="p">(</span><span class="n">sk_now</span><span class="p">,</span> <span class="n">keys</span><span class="p">),</span>
+        <span class="s2">&quot;bounds_loss&quot;</span><span class="p">:</span> <span class="n">sk_now</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bounds_loss&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">enabled</span><span class="p">),</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_norm_regime</span><span class="p">(</span><span class="n">regime</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">regime</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">regime</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;off&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;disabled&quot;</span><span class="p">}:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">s</span>
+
+
+<div class="viewcode-block" id="get_ident_profile">
+<a class="viewcode-back" href="../../../../api/subsidence.html#geoprior.models.subsidence.identifiability.get_ident_profile">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_ident_profile</span><span class="p">(</span>
+    <span class="n">regime</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">_norm_regime</span><span class="p">(</span><span class="n">regime</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+    <span class="n">prof</span> <span class="o">=</span> <span class="n">_IDENTIFIABILITY_PROFILES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">prof</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;base&quot;</span><span class="p">,</span> <span class="n">_IDENTIFIABILITY_PROFILES</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">r</span><span class="p">,</span> <span class="n">prof</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ensure_bounds_loss_dict</span><span class="p">(</span><span class="n">sk</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">sk</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bounds_loss&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">sk</span>
+
+    <span class="n">kind</span> <span class="o">=</span> <span class="n">sk</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bounds_loss_kind&quot;</span><span class="p">,</span> <span class="s2">&quot;barrier&quot;</span><span class="p">)</span>
+    <span class="n">sk</span><span class="p">[</span><span class="s2">&quot;bounds_loss&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">)}</span>
+    <span class="k">return</span> <span class="n">sk</span>
+
+
+<div class="viewcode-block" id="init_identifiability">
+<a class="viewcode-back" href="../../../../api/subsidence.html#geoprior.models.subsidence.identifiability.init_identifiability">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">init_identifiability</span><span class="p">(</span>
+    <span class="n">regime</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">scaling_kwargs</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply identifiability profile to scaling kwargs.</span>
+
+<span class="sd">    - does NOT override user-provided keys</span>
+<span class="sd">    - ensures sk[&quot;bounds_loss&quot;] exists (dict form)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r</span><span class="p">,</span> <span class="n">prof</span> <span class="o">=</span> <span class="n">get_ident_profile</span><span class="p">(</span><span class="n">regime</span><span class="p">)</span>
+
+    <span class="n">sk0</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">scaling_kwargs</span> <span class="ow">or</span> <span class="p">{})</span>
+
+    <span class="c1"># Disabled: do not merge defaults.</span>
+    <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">prof</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sk0</span>
+
+    <span class="n">sk1</span> <span class="o">=</span> <span class="n">_merge_defaults</span><span class="p">(</span><span class="n">sk0</span><span class="p">,</span> <span class="n">prof</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sk&quot;</span><span class="p">,</span> <span class="p">{}))</span>
+    <span class="n">sk1</span> <span class="o">=</span> <span class="n">_ensure_bounds_loss_dict</span><span class="p">(</span><span class="n">sk1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">r</span><span class="p">,</span> <span class="n">prof</span><span class="p">,</span> <span class="n">sk1</span></div>
+
+
+
+<div class="viewcode-block" id="apply_ident_locks">
+<a class="viewcode-back" href="../../../../api/subsidence.html#geoprior.models.subsidence.identifiability.apply_ident_locks">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_ident_locks</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">profile</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">prof</span> <span class="o">=</span> <span class="n">profile</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;_ident_profile&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">prof</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">locks</span> <span class="o">=</span> <span class="n">prof</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;locks&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">locks</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;tau_head&quot;</span><span class="p">,</span> <span class="s2">&quot;K_head&quot;</span><span class="p">,</span> <span class="s2">&quot;Ss_head&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">locks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">layer</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">layer</span><span class="o">.</span><span class="n">trainable</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="resolve_compile_weights">
+<a class="viewcode-back" href="../../../../api/subsidence.html#geoprior.models.subsidence.identifiability.resolve_compile_weights">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_compile_weights</span><span class="p">(</span>
+    <span class="n">profile</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">lambda_cons</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lambda_gw</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lambda_prior</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lambda_smooth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lambda_mv</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lambda_bounds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lambda_q</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">(</span><span class="n">profile</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;compile&quot;</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_pick</span><span class="p">(</span><span class="n">val</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fb</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">d</span> <span class="ow">and</span> <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">fb</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;lambda_cons&quot;</span><span class="p">:</span> <span class="n">_pick</span><span class="p">(</span><span class="n">lambda_cons</span><span class="p">,</span> <span class="s2">&quot;lambda_cons&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+        <span class="s2">&quot;lambda_gw&quot;</span><span class="p">:</span> <span class="n">_pick</span><span class="p">(</span><span class="n">lambda_gw</span><span class="p">,</span> <span class="s2">&quot;lambda_gw&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+        <span class="s2">&quot;lambda_prior&quot;</span><span class="p">:</span> <span class="n">_pick</span><span class="p">(</span>
+            <span class="n">lambda_prior</span><span class="p">,</span> <span class="s2">&quot;lambda_prior&quot;</span><span class="p">,</span> <span class="mf">1.0</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;lambda_smooth&quot;</span><span class="p">:</span> <span class="n">_pick</span><span class="p">(</span>
+            <span class="n">lambda_smooth</span><span class="p">,</span> <span class="s2">&quot;lambda_smooth&quot;</span><span class="p">,</span> <span class="mf">1.0</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;lambda_mv&quot;</span><span class="p">:</span> <span class="n">_pick</span><span class="p">(</span><span class="n">lambda_mv</span><span class="p">,</span> <span class="s2">&quot;lambda_mv&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+        <span class="s2">&quot;lambda_bounds&quot;</span><span class="p">:</span> <span class="n">_pick</span><span class="p">(</span>
+            <span class="n">lambda_bounds</span><span class="p">,</span> <span class="s2">&quot;lambda_bounds&quot;</span><span class="p">,</span> <span class="mf">0.0</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;lambda_q&quot;</span><span class="p">:</span> <span class="n">_pick</span><span class="p">(</span><span class="n">lambda_q</span><span class="p">,</span> <span class="s2">&quot;lambda_q&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+    <span class="p">}</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_merge_defaults</span><span class="p">(</span><span class="n">dst</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span><span class="n">src</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">out</span> <span class="ow">or</span> <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_stop</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">tf_stop_gradient</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_safe_log</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">tf_maximum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">tf_constant</span><span class="p">(</span><span class="n">eps</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">tf_math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">derive_K_from_tau_tf</span><span class="p">(</span>
+    <span class="n">tau_sec</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">Ss</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">Hd</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">kappa_b</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Closure:</span>
+<span class="sd">      tau = Hd^2 * Ss / (pi^2 * kappa_b * K)</span>
+<span class="sd">    =&gt; K = Hd^2 * Ss / (pi^2 * kappa_b * tau)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tau_sec</span> <span class="o">=</span> <span class="n">tf_maximum</span><span class="p">(</span>
+        <span class="n">tau_sec</span><span class="p">,</span>
+        <span class="n">tf_constant</span><span class="p">(</span><span class="n">eps</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tau_sec</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">kappa_b</span> <span class="o">=</span> <span class="n">tf_maximum</span><span class="p">(</span>
+        <span class="n">kappa_b</span><span class="p">,</span>
+        <span class="n">tf_constant</span><span class="p">(</span><span class="n">eps</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">kappa_b</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">num</span> <span class="o">=</span> <span class="p">(</span><span class="n">Hd</span> <span class="o">*</span> <span class="n">Hd</span><span class="p">)</span> <span class="o">*</span> <span class="n">Ss</span>
+    <span class="n">pi2</span> <span class="o">=</span> <span class="n">tf_constant</span><span class="p">(</span><span class="n">_PI2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">num</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">den</span> <span class="o">=</span> <span class="n">pi2</span> <span class="o">*</span> <span class="n">kappa_b</span> <span class="o">*</span> <span class="n">tau_sec</span>
+    <span class="k">return</span> <span class="n">num</span> <span class="o">/</span> <span class="n">den</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">derive_K_from_tau_np</span><span class="p">(</span>
+    <span class="n">tau_sec</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">Ss</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">Hd</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">kappa_b</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="n">tau_sec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">tau_sec</span><span class="p">),</span> <span class="n">eps</span><span class="p">)</span>
+    <span class="n">kappa_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">kappa_b</span><span class="p">),</span> <span class="n">eps</span><span class="p">)</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Hd</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Ss</span><span class="p">)</span>
+    <span class="n">den</span> <span class="o">=</span> <span class="n">_PI2</span> <span class="o">*</span> <span class="n">kappa_b</span> <span class="o">*</span> <span class="n">tau_sec</span>
+    <span class="k">return</span> <span class="n">num</span> <span class="o">/</span> <span class="n">den</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ScenarioOut</span><span class="p">:</span>
+    <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]</span>
+    <span class="n">extra_loss</span><span class="p">:</span> <span class="n">Tensor</span>
+    <span class="n">diag</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">scenario_tau_only_derive_K</span><span class="p">(</span>
+    <span class="n">params</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">kappa_b</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">tau_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;tau_sec&quot;</span><span class="p">,</span>
+    <span class="n">K_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;K_mps&quot;</span><span class="p">,</span>
+    <span class="n">Ss_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Ss&quot;</span><span class="p">,</span>
+    <span class="n">Hd_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Hd&quot;</span><span class="p">,</span>
+    <span class="n">Ss_fixed</span><span class="p">:</span> <span class="n">TensorLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">Hd_fixed</span><span class="p">:</span> <span class="n">TensorLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">freeze_Ss</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">freeze_Hd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">add_soft_anchor</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">anchor_w</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">Ss_prior</span><span class="p">:</span> <span class="n">TensorLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">Hd_prior</span><span class="p">:</span> <span class="n">TensorLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScenarioOut</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Option A:</span>
+<span class="sd">    - keep tau free</span>
+<span class="sd">    - freeze/fix Ss and Hd</span>
+<span class="sd">    - derive K from tau by closure</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      ScenarioOut(params, extra_loss, diag)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="n">tau</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="n">tau_key</span><span class="p">]</span>
+    <span class="n">Ss</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="n">Ss_key</span><span class="p">]</span>
+    <span class="n">Hd</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="n">Hd_key</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">Ss_fixed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">Ss</span> <span class="o">=</span> <span class="n">Ss_fixed</span>
+    <span class="k">elif</span> <span class="n">freeze_Ss</span><span class="p">:</span>
+        <span class="n">Ss</span> <span class="o">=</span> <span class="n">_stop</span><span class="p">(</span><span class="n">Ss</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">Hd_fixed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">Hd</span> <span class="o">=</span> <span class="n">Hd_fixed</span>
+    <span class="k">elif</span> <span class="n">freeze_Hd</span><span class="p">:</span>
+        <span class="n">Hd</span> <span class="o">=</span> <span class="n">_stop</span><span class="p">(</span><span class="n">Hd</span><span class="p">)</span>
+
+    <span class="n">p</span><span class="p">[</span><span class="n">Ss_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">Ss</span>
+    <span class="n">p</span><span class="p">[</span><span class="n">Hd_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">Hd</span>
+
+    <span class="n">K_val</span> <span class="o">=</span> <span class="n">derive_K_from_tau_tf</span><span class="p">(</span>
+        <span class="n">tau_sec</span><span class="o">=</span><span class="n">tau</span><span class="p">,</span>
+        <span class="n">Ss</span><span class="o">=</span><span class="n">Ss</span><span class="p">,</span>
+        <span class="n">Hd</span><span class="o">=</span><span class="n">Hd</span><span class="p">,</span>
+        <span class="n">kappa_b</span><span class="o">=</span><span class="n">kappa_b</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">p</span><span class="p">[</span><span class="n">K_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">K_val</span>
+
+    <span class="n">extra</span> <span class="o">=</span> <span class="n">tf_constant</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tau</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">add_soft_anchor</span> <span class="ow">and</span> <span class="p">(</span><span class="n">anchor_w</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">tf_cast</span><span class="p">(</span><span class="n">anchor_w</span><span class="p">,</span> <span class="n">tau</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">Ss_prior</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">freeze_Ss</span><span class="p">):</span>
+            <span class="n">extra</span> <span class="o">+=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">tf_reduce_mean</span><span class="p">(</span>
+                <span class="n">tf_square</span><span class="p">(</span><span class="n">_safe_log</span><span class="p">(</span><span class="n">Ss</span><span class="p">)</span> <span class="o">-</span> <span class="n">_safe_log</span><span class="p">(</span><span class="n">Ss_prior</span><span class="p">))</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">Hd_prior</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">freeze_Hd</span><span class="p">):</span>
+            <span class="n">extra</span> <span class="o">+=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">tf_reduce_mean</span><span class="p">(</span>
+                <span class="n">tf_square</span><span class="p">(</span><span class="n">Hd</span> <span class="o">-</span> <span class="n">Hd_prior</span><span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="n">diag</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;scenario_tau_only&quot;</span><span class="p">:</span> <span class="n">tf_constant</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">tau</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
+        <span class="s2">&quot;K_from_tau_mean&quot;</span><span class="p">:</span> <span class="n">tf_reduce_mean</span><span class="p">(</span><span class="n">K_val</span><span class="p">),</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">ScenarioOut</span><span class="p">(</span>
+        <span class="n">params</span><span class="o">=</span><span class="n">p</span><span class="p">,</span>
+        <span class="n">extra_loss</span><span class="o">=</span><span class="n">extra</span><span class="p">,</span>
+        <span class="n">diag</span><span class="o">=</span><span class="n">diag</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

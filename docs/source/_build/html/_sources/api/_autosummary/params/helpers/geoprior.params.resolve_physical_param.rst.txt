@@ -1,0 +1,6 @@
+﻿geoprior.params.resolve\_physical\_param
+========================================
+
+.. currentmodule:: geoprior.params
+
+.. autofunction:: resolve_physical_param

@@ -1,0 +1,1273 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>geoprior.models.subsidence.derivatives &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=404c0980"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geoprior/models/subsidence/derivatives';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../../../../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../../../../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geoprior.models.subsidence.derivatives</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for geoprior.models.subsidence.derivatives</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+<span class="c1"># GeoPrior-v3  https://github.com/earthai-tech/geoprior-v3</span>
+<span class="c1"># Copyright (c) 2026-present</span>
+<span class="c1"># Author: LKouadio &lt;https://lkouadio.com&gt;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Derivative helpers for GeoPrior PINN blocks.</span>
+
+<span class="sd">Goal: keep train_step() and _evaluate_physics_on_batch() consistent and DRY</span>
+<span class="sd">for coordinate chain-rule conversions.</span>
+
+<span class="sd">Conventions</span>
+<span class="sd">-----------</span>
+<span class="sd">- Raw autodiff derivatives are w.r.t. the coordinates tensor fed to call().</span>
+<span class="sd">- This module converts those derivatives to **SI-consistent** forms:</span>
+<span class="sd">  - time derivatives -&gt; per-second</span>
+<span class="sd">  - spatial derivatives -&gt; per-meter (and per-meter^2 for second derivatives)</span>
+
+<span class="sd">The helper is &quot;conversion-aware&quot;:</span>
+<span class="sd">- If coords are normalized and `scaling_kwargs` provides `coord_ranges_si`,</span>
+<span class="sd">  those SI spans are used directly (t in seconds, x/y in meters).</span>
+<span class="sd">- Otherwise, it falls back to `coord_ranges()` plus optional `deg_to_m()`</span>
+<span class="sd">  and finally `rate_to_per_second()` for time.</span>
+
+<span class="sd">It also returns `t_range_units_tf` (the *original* time span in `time_units`)</span>
+<span class="sd">for Q conversion (because Q scaling typically expects the span in the same</span>
+<span class="sd">time units used by the dataset, not seconds).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">KERAS_DEPS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.maths</span><span class="w"> </span><span class="kn">import</span> <span class="n">rate_to_per_second</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">coord_ranges</span><span class="p">,</span> <span class="n">deg_to_m</span><span class="p">,</span> <span class="n">get_sk</span>
+
+<span class="n">Tensor</span> <span class="o">=</span> <span class="n">KERAS_DEPS</span><span class="o">.</span><span class="n">Tensor</span>
+<span class="n">tf_constant</span> <span class="o">=</span> <span class="n">KERAS_DEPS</span><span class="o">.</span><span class="n">constant</span>
+<span class="n">tf_float32</span> <span class="o">=</span> <span class="n">KERAS_DEPS</span><span class="o">.</span><span class="n">float32</span>
+
+
+<div class="viewcode-block" id="compute_head_pde_derivatives_raw">
+<a class="viewcode-back" href="../../../../api/subsidence.html#geoprior.models.subsidence.derivatives.compute_head_pde_derivatives_raw">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_head_pde_derivatives_raw</span><span class="p">(</span>
+    <span class="n">tape</span><span class="p">,</span>
+    <span class="n">coords</span><span class="p">,</span>
+    <span class="n">h_si</span><span class="p">,</span>
+    <span class="n">K_field</span><span class="p">,</span>
+    <span class="n">Ss_field</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute raw autodiff derivatives for the groundwater-flow PDE.</span>
+
+<span class="sd">    This helper computes first- and second-order derivatives needed by</span>
+<span class="sd">    the GeoPrior groundwater-flow residual using automatic</span>
+<span class="sd">    differentiation (AD). All derivatives returned by this function are</span>
+<span class="sd">    in the &quot;raw&quot; coordinate units of the ``coords`` tensor supplied to</span>
+<span class="sd">    the model, without chain-rule rescaling to SI units.</span>
+
+<span class="sd">    The returned tensors are intended to be passed to</span>
+<span class="sd">    :func:`ensure_si_derivative_frame` to obtain SI-consistent forms</span>
+<span class="sd">    (per-second time derivatives and per-meter spatial derivatives).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tape : tf.GradientTape</span>
+<span class="sd">        Gradient tape that recorded operations connecting ``h_si``,</span>
+<span class="sd">        ``K_field``, and ``Ss_field`` to ``coords``.</span>
+
+
+<span class="sd">        The tape must watch ``coords``. A common pattern is:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">           with tf.GradientTape(persistent=True) as tape:</span>
+<span class="sd">               tape.watch(coords)</span>
+<span class="sd">               # compute h_si, K_field, Ss_field from model forward pass</span>
+
+<span class="sd">    coords : Tensor</span>
+<span class="sd">        Coordinate tensor used as the differentiation variable.</span>
+
+<span class="sd">        Expected shape is ``(B, H, 3)`` where the last axis stores</span>
+<span class="sd">        coordinates ordered as ``[&#39;t&#39;, &#39;x&#39;, &#39;y&#39;]``. The order must be</span>
+<span class="sd">        consistent with how ``dh_dcoords[..., i]`` is interpreted.</span>
+
+
+<span class="sd">        * ``coords`` may be normalized or unnormalized.</span>
+<span class="sd">        * Units may be dataset units or degrees/meters. This function</span>
+<span class="sd">          does not apply any unit conversion.</span>
+<span class="sd">    h_si : Tensor</span>
+<span class="sd">        Hydraulic head in SI-consistent units (or the internal head unit</span>
+<span class="sd">        chosen by the pipeline).</span>
+
+<span class="sd">        Expected shape is ``(B, H, 1)``. The tensor must be connected to</span>
+<span class="sd">        ``coords`` through the computation graph, otherwise AD gradients</span>
+<span class="sd">        will be None.</span>
+<span class="sd">    K_field : Tensor</span>
+<span class="sd">        Hydraulic conductivity field :math:`K` evaluated on the same</span>
+<span class="sd">        batch and horizon grid.</span>
+
+<span class="sd">        Expected shape is ``(B, H, 1)``. The tensor must be connected to</span>
+<span class="sd">        ``coords`` for spatial gradients to be defined.</span>
+<span class="sd">    Ss_field : Tensor</span>
+<span class="sd">        Specific storage field :math:`S_s` evaluated on the same batch</span>
+<span class="sd">        and horizon grid.</span>
+
+<span class="sd">        Expected shape is ``(B, H, 1)``. The tensor must be connected to</span>
+<span class="sd">        ``coords`` for spatial gradients to be defined.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    grads : dict of str to Tensor</span>
+<span class="sd">        Dictionary containing raw derivatives in the coordinate units</span>
+<span class="sd">        of ``coords``. Keys include:</span>
+
+<span class="sd">        ``&#39;dh_dt_raw&#39;``</span>
+<span class="sd">            Raw time derivative :math:`\partial h / \partial t_{raw}`.</span>
+
+<span class="sd">        ``&#39;d_K_dh_dx_dx_raw&#39;``</span>
+<span class="sd">            Raw x-direction divergence term:</span>
+<span class="sd">            :math:`\partial_x (K \partial_x h)` in raw coord units.</span>
+
+<span class="sd">        ``&#39;d_K_dh_dy_dy_raw&#39;``</span>
+<span class="sd">            Raw y-direction divergence term:</span>
+<span class="sd">            :math:`\partial_y (K \partial_y h)` in raw coord units.</span>
+
+<span class="sd">        ``&#39;dK_dx_raw&#39;``, ``&#39;dK_dy_raw&#39;``</span>
+<span class="sd">            Raw spatial gradients of :math:`K` w.r.t. x and y.</span>
+
+<span class="sd">        ``&#39;dSs_dx_raw&#39;``, ``&#39;dSs_dy_raw&#39;``</span>
+<span class="sd">            Raw spatial gradients of :math:`S_s` w.r.t. x and y.</span>
+
+<span class="sd">        All tensors are expected to have shape ``(B, H, 1)``. No scaling</span>
+<span class="sd">        by coordinate ranges is applied here.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If any required gradient is None, indicating the computation</span>
+<span class="sd">        graph is not connected to ``coords`` or the tape did not watch</span>
+<span class="sd">        ``coords``.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If any second-order gradients required for the divergence form</span>
+<span class="sd">        are None.</span>
+
+
+<span class="sd">    Groundwater-flow residual context</span>
+<span class="sd">    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="sd">    This function provides building blocks for the divergence form used</span>
+<span class="sd">    in the groundwater-flow residual:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">       R_{gw} = S_s \\, \partial_t h</span>
+<span class="sd">                - \nabla \cdot (K \\, \nabla h) - Q</span>
+
+<span class="sd">    The divergence term in 2D can be expressed as:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">       \nabla \cdot (K \nabla h)</span>
+<span class="sd">       = \partial_x (K \partial_x h)</span>
+<span class="sd">         + \partial_y (K \partial_y h)</span>
+
+<span class="sd">    This helper returns the two directional components separately so</span>
+<span class="sd">    that downstream code can apply unit conversions and scaling</span>
+<span class="sd">    consistently.</span>
+
+<span class="sd">    Implementation details</span>
+<span class="sd">    ~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="sd">    * First-order gradients are computed as:</span>
+
+<span class="sd">      .. math::</span>
+
+<span class="sd">         \nabla_{coords} h = \frac{\partial h}{\partial coords}</span>
+
+<span class="sd">      and then split by coordinate axis index.</span>
+<span class="sd">    * Second-order divergence terms are computed by differentiating the</span>
+<span class="sd">      products ``K_field * dh_dx_raw`` and ``K_field * dh_dy_raw`` with</span>
+<span class="sd">      respect to ``coords`` and extracting the x and y components.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Compute raw derivatives and then convert to SI:</span>
+
+<span class="sd">    &gt;&gt;&gt; from geoprior.nn.pinn.geoprior.derivatives import (</span>
+<span class="sd">    ...     compute_head_pde_derivatives_raw</span>
+<span class="sd">    ...     )</span>
+<span class="sd">    &gt;&gt;&gt; with tf.GradientTape(persistent=True) as tape:</span>
+<span class="sd">    ...     tape.watch(coords)</span>
+<span class="sd">    ...     # forward pass returns h_si, K_field, Ss_field</span>
+<span class="sd">    ...     raw = compute_head_pde_derivatives_raw(</span>
+<span class="sd">    ...         tape=tape,</span>
+<span class="sd">    ...         coords=coords,</span>
+<span class="sd">    ...         h_si=h_si,</span>
+<span class="sd">    ...         K_field=K_field,</span>
+<span class="sd">    ...         Ss_field=Ss_field,</span>
+<span class="sd">    ...     )</span>
+<span class="sd">    &gt;&gt;&gt; deriv, meta = ensure_si_derivative_frame(</span>
+<span class="sd">    ...     dh_dt_raw=raw[&quot;dh_dt_raw&quot;],</span>
+<span class="sd">    ...     d_K_dh_dx_dx_raw=raw[&quot;d_K_dh_dx_dx_raw&quot;],</span>
+<span class="sd">    ...     d_K_dh_dy_dy_raw=raw[&quot;d_K_dh_dy_dy_raw&quot;],</span>
+<span class="sd">    ...     dK_dx_raw=raw[&quot;dK_dx_raw&quot;],</span>
+<span class="sd">    ...     dK_dy_raw=raw[&quot;dK_dy_raw&quot;],</span>
+<span class="sd">    ...     dSs_dx_raw=raw[&quot;dSs_dx_raw&quot;],</span>
+<span class="sd">    ...     dSs_dy_raw=raw[&quot;dSs_dy_raw&quot;],</span>
+<span class="sd">    ...     scaling_kwargs=scaling_kwargs,</span>
+<span class="sd">    ...     time_units=time_units,</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    ensure_si_derivative_frame</span>
+<span class="sd">        Convert raw derivatives to SI-consistent derivatives.</span>
+
+<span class="sd">    geoprior.nn.pinn.geoprior.losses</span>
+<span class="sd">        Physics losses that consume SI-consistent PDE derivatives.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] Bear, J. Dynamics of Fluids in Porous Media. Dover</span>
+<span class="sd">       Publications, 1988.</span>
+
+<span class="sd">    .. [2] Raissi, M., Perdikaris, P., and Karniadakis, G. E.</span>
+<span class="sd">       Physics-informed neural networks: A deep learning framework</span>
+<span class="sd">       for solving forward and inverse problems involving nonlinear</span>
+<span class="sd">       partial differential equations. Journal of Computational</span>
+<span class="sd">       Physics, 2019.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">dh_dcoords</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">h_si</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dh_dcoords</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;dh_dcoords is None: graph not connected &quot;</span>
+            <span class="s2">&quot;to coords.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">dh_dt_raw</span> <span class="o">=</span> <span class="n">dh_dcoords</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">dh_dx_raw</span> <span class="o">=</span> <span class="n">dh_dcoords</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">dh_dy_raw</span> <span class="o">=</span> <span class="n">dh_dcoords</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+
+    <span class="n">K_dh_dx</span> <span class="o">=</span> <span class="n">K_field</span> <span class="o">*</span> <span class="n">dh_dx_raw</span>
+    <span class="n">K_dh_dy</span> <span class="o">=</span> <span class="n">K_field</span> <span class="o">*</span> <span class="n">dh_dy_raw</span>
+
+    <span class="n">dKdhx_dcoords</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">K_dh_dx</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span>
+    <span class="n">dKdhy_dcoords</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">K_dh_dy</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">dKdhx_dcoords</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">dKdhy_dcoords</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Second-order PDE gradients are None.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">d_K_dh_dx_dx_raw</span> <span class="o">=</span> <span class="n">dKdhx_dcoords</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">d_K_dh_dy_dy_raw</span> <span class="o">=</span> <span class="n">dKdhy_dcoords</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+
+    <span class="n">dK_dcoords</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">K_field</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span>
+    <span class="n">dSs_dcoords</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">Ss_field</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">dK_dcoords</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">dSs_dcoords</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;K/Ss spatial grads are None.&quot;</span><span class="p">)</span>
+
+    <span class="n">dK_dx_raw</span> <span class="o">=</span> <span class="n">dK_dcoords</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">dK_dy_raw</span> <span class="o">=</span> <span class="n">dK_dcoords</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">dSs_dx_raw</span> <span class="o">=</span> <span class="n">dSs_dcoords</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">dSs_dy_raw</span> <span class="o">=</span> <span class="n">dSs_dcoords</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;dh_dt_raw&quot;</span><span class="p">:</span> <span class="n">dh_dt_raw</span><span class="p">,</span>
+        <span class="s2">&quot;d_K_dh_dx_dx_raw&quot;</span><span class="p">:</span> <span class="n">d_K_dh_dx_dx_raw</span><span class="p">,</span>
+        <span class="s2">&quot;d_K_dh_dy_dy_raw&quot;</span><span class="p">:</span> <span class="n">d_K_dh_dy_dy_raw</span><span class="p">,</span>
+        <span class="s2">&quot;dK_dx_raw&quot;</span><span class="p">:</span> <span class="n">dK_dx_raw</span><span class="p">,</span>
+        <span class="s2">&quot;dK_dy_raw&quot;</span><span class="p">:</span> <span class="n">dK_dy_raw</span><span class="p">,</span>
+        <span class="s2">&quot;dSs_dx_raw&quot;</span><span class="p">:</span> <span class="n">dSs_dx_raw</span><span class="p">,</span>
+        <span class="s2">&quot;dSs_dy_raw&quot;</span><span class="p">:</span> <span class="n">dSs_dy_raw</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="ensure_si_derivative_frame">
+<a class="viewcode-back" href="../../../../api/subsidence.html#geoprior.models.subsidence.derivatives.ensure_si_derivative_frame">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ensure_si_derivative_frame</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">dh_dt_raw</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">d_K_dh_dx_dx_raw</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">d_K_dh_dy_dy_raw</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">dK_dx_raw</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">dK_dy_raw</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">dSs_dx_raw</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">dSs_dy_raw</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">scaling_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">time_units</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">coords_normalized</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">coords_in_degrees</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert autodiff derivative tensors into SI-consistent derivatives.</span>
+
+<span class="sd">    This helper is the canonical &quot;chain-rule bridge&quot; between raw</span>
+<span class="sd">    autodiff gradients taken with respect to the model input</span>
+<span class="sd">    ``coords`` tensor and the SI-consistent derivatives required by</span>
+<span class="sd">    GeoPrior physics losses.</span>
+
+<span class="sd">    It is designed to keep ``train_step()`` and</span>
+<span class="sd">    ``_evaluate_physics_on_batch()`` consistent and DRY:</span>
+
+<span class="sd">    * Raw derivatives are w.r.t. the coords tensor passed to ``call()``.</span>
+<span class="sd">    * If coords are normalized, derivatives are rescaled by coordinate</span>
+<span class="sd">      spans (and spans squared for second derivatives).</span>
+<span class="sd">    * If spatial coords are degrees, spatial derivatives are converted</span>
+<span class="sd">      to per-meter forms using a degrees-to-meters factor.</span>
+<span class="sd">    * Time derivatives are converted to per-second using ``time_units``</span>
+<span class="sd">      unless SI time spans are already supplied.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dh_dt_raw : Tensor</span>
+<span class="sd">        Raw autodiff time derivative of head w.r.t. the first coord</span>
+<span class="sd">        axis, i.e. :math:`\partial h / \partial t_{raw}`.</span>
+
+<span class="sd">        Expected shape is ``(B, H, 1)``. The tensor is assumed to be</span>
+<span class="sd">        computed w.r.t. the coords tensor fed to ``call()``.</span>
+<span class="sd">    d_K_dh_dx_dx_raw : Tensor</span>
+<span class="sd">        Raw second-order x-direction PDE term computed as the x</span>
+<span class="sd">        component of :math:`\nabla \cdot (K \nabla h)` in raw coord</span>
+<span class="sd">        units. Conceptually:</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">           \partial_x (K \partial_x h)</span>
+
+<span class="sd">        Expected shape is ``(B, H, 1)``.</span>
+<span class="sd">    d_K_dh_dy_dy_raw : Tensor</span>
+<span class="sd">        Raw second-order y-direction PDE term in raw coord units:</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">           \partial_y (K \partial_y h)</span>
+
+<span class="sd">        Expected shape is ``(B, H, 1)``.</span>
+<span class="sd">    dK_dx_raw : Tensor</span>
+<span class="sd">        Raw spatial gradient of :math:`K` in the x direction in raw</span>
+<span class="sd">        coord units.</span>
+
+<span class="sd">        Expected shape is ``(B, H, 1)``.</span>
+<span class="sd">    dK_dy_raw : Tensor</span>
+<span class="sd">        Raw spatial gradient of :math:`K` in the y direction in raw</span>
+<span class="sd">        coord units.</span>
+
+<span class="sd">        Expected shape is ``(B, H, 1)``.</span>
+<span class="sd">    dSs_dx_raw : Tensor</span>
+<span class="sd">        Raw spatial gradient of :math:`S_s` in the x direction in raw</span>
+<span class="sd">        coord units.</span>
+
+<span class="sd">        Expected shape is ``(B, H, 1)``.</span>
+<span class="sd">    dSs_dy_raw : Tensor</span>
+<span class="sd">        Raw spatial gradient of :math:`S_s` in the y direction in raw</span>
+<span class="sd">        coord units.</span>
+
+<span class="sd">        Expected shape is ``(B, H, 1)``.</span>
+<span class="sd">    scaling_kwargs : dict or None</span>
+<span class="sd">        Scaling and convention payload (resolved config) that</span>
+<span class="sd">        describes coordinate normalization and units.</span>
+
+<span class="sd">        This function primarily consults the following keys:</span>
+
+<span class="sd">        * ``coords_normalized`` : bool</span>
+<span class="sd">            If True, apply span-based chain-rule scaling.</span>
+<span class="sd">        * ``coord_ranges`` : dict with keys {&#39;t&#39;,&#39;x&#39;,&#39;y&#39;}</span>
+<span class="sd">            Original coordinate spans in dataset units.</span>
+<span class="sd">            Required when ``coords_normalized=True``.</span>
+<span class="sd">        * ``coord_ranges_si`` : dict with keys {&#39;t&#39;,&#39;x&#39;,&#39;y&#39;}</span>
+<span class="sd">            Coordinate spans in SI units (t in seconds, x/y in meters).</span>
+<span class="sd">            If present, this is preferred over ``coord_ranges``.</span>
+<span class="sd">        * ``coords_in_degrees`` : bool</span>
+<span class="sd">            If True, spatial axes are in degrees and must be converted</span>
+<span class="sd">            to meters if SI spans were not already provided.</span>
+
+
+<span class="sd">        The payload is treated as an audit-friendly source-of-truth.</span>
+<span class="sd">        When residual magnitudes look inconsistent across sites, inspect</span>
+<span class="sd">        the resolved coordinate spans first.</span>
+<span class="sd">    time_units : str or None</span>
+<span class="sd">        Dataset time unit name for the t axis, used to convert the time</span>
+<span class="sd">        derivative to per-second when SI time spans are not already</span>
+<span class="sd">        provided.</span>
+
+<span class="sd">        Typical values include ``&#39;year&#39;``, ``&#39;day&#39;``, or ``&#39;second&#39;``.</span>
+<span class="sd">    coords_normalized : bool, optional</span>
+<span class="sd">        Optional override for ``scaling_kwargs[&#39;coords_normalized&#39;]``.</span>
+<span class="sd">        If provided, this value takes precedence over the payload.</span>
+<span class="sd">    coords_in_degrees : bool, optional</span>
+<span class="sd">        Optional override for ``scaling_kwargs[&#39;coords_in_degrees&#39;]``.</span>
+<span class="sd">        If provided, this value takes precedence over the payload.</span>
+<span class="sd">    eps : float, default 1e-12</span>
+<span class="sd">        Numerical stabilizer added to denominators to avoid division by</span>
+<span class="sd">        zero when spans are extremely small or missing.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    deriv : dict of str to Tensor</span>
+<span class="sd">        Dictionary of SI-consistent derivative tensors. Keys include:</span>
+
+<span class="sd">        ``&#39;dh_dt&#39;``</span>
+<span class="sd">            Time derivative converted to per-second:</span>
+<span class="sd">            :math:`\partial h / \partial t` in SI time.</span>
+
+<span class="sd">        ``&#39;d_K_dh_dx_dx&#39;`` and ``&#39;d_K_dh_dy_dy&#39;``</span>
+<span class="sd">            Spatial second-derivative PDE terms converted to per-meter</span>
+<span class="sd">            squared scaling (via span squared), consistent with the</span>
+<span class="sd">            divergence form.</span>
+
+<span class="sd">        ``&#39;dK_dx&#39;``, ``&#39;dK_dy&#39;``, ``&#39;dSs_dx&#39;``, ``&#39;dSs_dy&#39;``</span>
+<span class="sd">            Spatial gradients converted to per-meter scaling.</span>
+
+<span class="sd">        The exact physical units of the returned tensors depend on the</span>
+<span class="sd">        units of ``h_si`` and the representation of ``K`` and ``S_s``.</span>
+<span class="sd">        The purpose of this function is to enforce correct coordinate</span>
+<span class="sd">        scaling (per-second, per-meter, per-meter squared).</span>
+<span class="sd">    meta : dict of str to Any</span>
+<span class="sd">        Metadata describing which conversion path was used:</span>
+
+<span class="sd">        ``&#39;used_coord_ranges_si&#39;`` : bool</span>
+<span class="sd">            True if SI spans were taken from ``coord_ranges_si``.</span>
+<span class="sd">        ``&#39;time_already_si&#39;`` : bool</span>
+<span class="sd">            True if SI time span (seconds) was provided.</span>
+<span class="sd">        ``&#39;deg_already_applied&#39;`` : bool</span>
+<span class="sd">            True if x/y spans were already in meters and no degree-to-</span>
+<span class="sd">            meter correction was applied.</span>
+<span class="sd">        ``&#39;t_range_units_tf&#39;`` : Tensor or None</span>
+<span class="sd">            The original time span in dataset time units (not seconds).</span>
+<span class="sd">            This is returned for downstream Q scaling logic, where some</span>
+<span class="sd">            conversions are defined in dataset time units rather than</span>
+<span class="sd">            SI seconds.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+
+<span class="sd">    Chain-rule scaling for normalized coordinates</span>
+<span class="sd">    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="sd">    If normalized coordinates are defined as:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">       u&#39; = (u - u_0) / \Delta u</span>
+
+<span class="sd">    then derivatives transform as:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">       \frac{\partial}{\partial u}</span>
+<span class="sd">       = \frac{1}{\Delta u} \frac{\partial}{\partial u&#39;}</span>
+
+<span class="sd">    and second derivatives as:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">       \frac{\partial^2}{\partial u^2}</span>
+<span class="sd">       = \frac{1}{(\Delta u)^2} \frac{\partial^2}{\partial (u&#39;)^2}</span>
+
+<span class="sd">    This function applies these rules using either ``coord_ranges_si``</span>
+<span class="sd">    (preferred) or ``coord_ranges`` plus unit conversion.</span>
+
+<span class="sd">    Degrees to meters conversion</span>
+<span class="sd">    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="sd">    If spatial coords are degrees (longitude/latitude), the function</span>
+<span class="sd">    converts spatial derivative scaling using a degrees-to-meters factor</span>
+<span class="sd">    derived from the scaling payload. This is only applied when SI spans</span>
+<span class="sd">    were not already provided.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Convert derivatives for normalized coords with SI spans:</span>
+
+<span class="sd">    &gt;&gt;&gt; from geoprior.nn.pinn.geoprior.derivatives import (</span>
+<span class="sd">    ...    ensure_si_derivative_frame</span>
+<span class="sd">    ...    )</span>
+<span class="sd">    &gt;&gt;&gt; deriv, meta = ensure_si_derivative_frame(</span>
+<span class="sd">    ...     dh_dt_raw=dh_dt_raw,</span>
+<span class="sd">    ...     d_K_dh_dx_dx_raw=dKdhx_dx_raw,</span>
+<span class="sd">    ...     d_K_dh_dy_dy_raw=dKdhy_dy_raw,</span>
+<span class="sd">    ...     dK_dx_raw=dK_dx_raw,</span>
+<span class="sd">    ...     dK_dy_raw=dK_dy_raw,</span>
+<span class="sd">    ...     dSs_dx_raw=dSs_dx_raw,</span>
+<span class="sd">    ...     dSs_dy_raw=dSs_dy_raw,</span>
+<span class="sd">    ...     scaling_kwargs={</span>
+<span class="sd">    ...         &quot;coords_normalized&quot;: True,</span>
+<span class="sd">    ...         &quot;coord_ranges&quot;: {&quot;t&quot;: 7.0, &quot;x&quot;: 4.4e4, &quot;y&quot;: 3.9e4},</span>
+<span class="sd">    ...         &quot;coord_ranges_si&quot;: {</span>
+<span class="sd">    ...             &quot;t&quot;: 2.2e8, &quot;x&quot;: 4.4e4, &quot;y&quot;: 3.9e4</span>
+<span class="sd">    ...         },</span>
+<span class="sd">    ...     },</span>
+<span class="sd">    ...     time_units=&quot;year&quot;,</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; bool(meta[&quot;used_coord_ranges_si&quot;])</span>
+<span class="sd">    True</span>
+
+<span class="sd">    Fallback when SI spans are absent (time converted using time_units):</span>
+
+<span class="sd">    &gt;&gt;&gt; deriv, meta = ensure_si_derivative_frame(</span>
+<span class="sd">    ...     dh_dt_raw=dh_dt_raw,</span>
+<span class="sd">    ...     d_K_dh_dx_dx_raw=dKdhx_dx_raw,</span>
+<span class="sd">    ...     d_K_dh_dy_dy_raw=dKdhy_dy_raw,</span>
+<span class="sd">    ...     dK_dx_raw=dK_dx_raw,</span>
+<span class="sd">    ...     dK_dy_raw=dK_dy_raw,</span>
+<span class="sd">    ...     dSs_dx_raw=dSs_dx_raw,</span>
+<span class="sd">    ...     dSs_dy_raw=dSs_dy_raw,</span>
+<span class="sd">    ...     scaling_kwargs={</span>
+<span class="sd">    ...         &quot;coords_normalized&quot;: True,</span>
+<span class="sd">    ...         &quot;coord_ranges&quot;: {&quot;t&quot;: 7.0, &quot;x&quot;: 4.4e4, &quot;y&quot;: 3.9e4},</span>
+<span class="sd">    ...     },</span>
+<span class="sd">    ...     time_units=&quot;year&quot;,</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; bool(meta[&quot;time_already_si&quot;])</span>
+<span class="sd">    False</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    compute_head_pde_derivatives_raw</span>
+<span class="sd">        Compute raw autodiff derivatives w.r.t. input coords.</span>
+
+<span class="sd">    geoprior.nn.pinn.geoprior.maths.rate_to_per_second</span>
+<span class="sd">        Convert a time rate from dataset units to per-second.</span>
+
+<span class="sd">    geoprior.nn.pinn.geoprior.utils.coord_ranges</span>
+<span class="sd">        Extract coordinate spans from a scaling payload.</span>
+
+<span class="sd">    geoprior.nn.pinn.geoprior.utils.deg_to_m</span>
+<span class="sd">        Convert degrees to meters scaling for spatial axes.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] Raissi, M., Perdikaris, P., and Karniadakis, G. E.</span>
+<span class="sd">       Physics-informed neural networks: A deep learning framework</span>
+<span class="sd">       for solving forward and inverse problems involving nonlinear</span>
+<span class="sd">       partial differential equations. Journal of Computational</span>
+<span class="sd">       Physics, 2019.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">sk</span> <span class="o">=</span> <span class="n">scaling_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+
+    <span class="n">coords_norm</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">bool</span><span class="p">(</span><span class="n">get_sk</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="s2">&quot;coords_normalized&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">coords_normalized</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="nb">bool</span><span class="p">(</span><span class="n">coords_normalized</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">coords_deg</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">bool</span><span class="p">(</span><span class="n">get_sk</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="s2">&quot;coords_in_degrees&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">coords_in_degrees</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="nb">bool</span><span class="p">(</span><span class="n">coords_in_degrees</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">dtype</span> <span class="o">=</span> <span class="n">dh_dt_raw</span><span class="o">.</span><span class="n">dtype</span>
+    <span class="n">eps_tf</span> <span class="o">=</span> <span class="n">tf_constant</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">eps</span><span class="p">),</span> <span class="n">dtype</span><span class="p">)</span>
+
+    <span class="c1"># Start from raw tensors.</span>
+    <span class="n">dh_dt</span> <span class="o">=</span> <span class="n">dh_dt_raw</span>
+    <span class="n">d_K_dh_dx_dx</span> <span class="o">=</span> <span class="n">d_K_dh_dx_dx_raw</span>
+    <span class="n">d_K_dh_dy_dy</span> <span class="o">=</span> <span class="n">d_K_dh_dy_dy_raw</span>
+    <span class="n">dK_dx</span><span class="p">,</span> <span class="n">dK_dy</span> <span class="o">=</span> <span class="n">dK_dx_raw</span><span class="p">,</span> <span class="n">dK_dy_raw</span>
+    <span class="n">dSs_dx</span><span class="p">,</span> <span class="n">dSs_dy</span> <span class="o">=</span> <span class="n">dSs_dx_raw</span><span class="p">,</span> <span class="n">dSs_dy_raw</span>
+
+    <span class="n">used_coord_ranges_si</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">time_already_si</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">deg_already_applied</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># For Q scaling, we still want t_range in the *original* time units.</span>
+    <span class="n">t_range_units_tf</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">coords_norm</span><span class="p">:</span>
+        <span class="c1"># Always compute the original unit spans (for Q scaling).</span>
+        <span class="n">tR_u</span><span class="p">,</span> <span class="n">xR_u</span><span class="p">,</span> <span class="n">yR_u</span> <span class="o">=</span> <span class="n">coord_ranges</span><span class="p">(</span><span class="n">sk</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tR_u</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">xR_u</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">yR_u</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;coords_normalized=True but coord_ranges missing.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">t_range_units_tf</span> <span class="o">=</span> <span class="n">tf_constant</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">tR_u</span><span class="p">),</span> <span class="n">dtype</span><span class="p">)</span>
+
+        <span class="c1"># Prefer precomputed SI spans (t seconds; x/y meters).</span>
+        <span class="n">cr_si</span> <span class="o">=</span> <span class="n">get_sk</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="s2">&quot;coord_ranges_si&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cr_si</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span>
+            <span class="n">k</span> <span class="ow">in</span> <span class="n">cr_si</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;t&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">used_coord_ranges_si</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">time_already_si</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">deg_already_applied</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># x/y already meters if coord_ranges_si exists</span>
+
+            <span class="n">tR</span> <span class="o">=</span> <span class="n">tf_constant</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cr_si</span><span class="p">[</span><span class="s2">&quot;t&quot;</span><span class="p">]),</span> <span class="n">dtype</span><span class="p">)</span>
+            <span class="n">xR</span> <span class="o">=</span> <span class="n">tf_constant</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cr_si</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]),</span> <span class="n">dtype</span><span class="p">)</span>
+            <span class="n">yR</span> <span class="o">=</span> <span class="n">tf_constant</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cr_si</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]),</span> <span class="n">dtype</span><span class="p">)</span>
+
+            <span class="c1"># First derivative: /range</span>
+            <span class="n">dh_dt</span> <span class="o">=</span> <span class="n">dh_dt</span> <span class="o">/</span> <span class="p">(</span><span class="n">tR</span> <span class="o">+</span> <span class="n">eps_tf</span><span class="p">)</span>
+
+            <span class="c1"># Second derivative: /range^2</span>
+            <span class="n">d_K_dh_dx_dx</span> <span class="o">=</span> <span class="n">d_K_dh_dx_dx</span> <span class="o">/</span> <span class="p">(</span><span class="n">xR</span> <span class="o">*</span> <span class="n">xR</span> <span class="o">+</span> <span class="n">eps_tf</span><span class="p">)</span>
+            <span class="n">d_K_dh_dy_dy</span> <span class="o">=</span> <span class="n">d_K_dh_dy_dy</span> <span class="o">/</span> <span class="p">(</span><span class="n">yR</span> <span class="o">*</span> <span class="n">yR</span> <span class="o">+</span> <span class="n">eps_tf</span><span class="p">)</span>
+
+            <span class="c1"># Smoothness: /range</span>
+            <span class="n">dK_dx</span> <span class="o">=</span> <span class="n">dK_dx</span> <span class="o">/</span> <span class="p">(</span><span class="n">xR</span> <span class="o">+</span> <span class="n">eps_tf</span><span class="p">)</span>
+            <span class="n">dK_dy</span> <span class="o">=</span> <span class="n">dK_dy</span> <span class="o">/</span> <span class="p">(</span><span class="n">yR</span> <span class="o">+</span> <span class="n">eps_tf</span><span class="p">)</span>
+            <span class="n">dSs_dx</span> <span class="o">=</span> <span class="n">dSs_dx</span> <span class="o">/</span> <span class="p">(</span><span class="n">xR</span> <span class="o">+</span> <span class="n">eps_tf</span><span class="p">)</span>
+            <span class="n">dSs_dy</span> <span class="o">=</span> <span class="n">dSs_dy</span> <span class="o">/</span> <span class="p">(</span><span class="n">yR</span> <span class="o">+</span> <span class="n">eps_tf</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Fallback: use raw spans (in original coordinate units).</span>
+            <span class="n">tR</span> <span class="o">=</span> <span class="n">tf_constant</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">tR_u</span><span class="p">),</span> <span class="n">dtype</span><span class="p">)</span>
+            <span class="n">xR</span> <span class="o">=</span> <span class="n">tf_constant</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">xR_u</span><span class="p">),</span> <span class="n">dtype</span><span class="p">)</span>
+            <span class="n">yR</span> <span class="o">=</span> <span class="n">tf_constant</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">yR_u</span><span class="p">),</span> <span class="n">dtype</span><span class="p">)</span>
+
+            <span class="n">dh_dt</span> <span class="o">=</span> <span class="n">dh_dt</span> <span class="o">/</span> <span class="p">(</span><span class="n">tR</span> <span class="o">+</span> <span class="n">eps_tf</span><span class="p">)</span>
+            <span class="n">d_K_dh_dx_dx</span> <span class="o">=</span> <span class="n">d_K_dh_dx_dx</span> <span class="o">/</span> <span class="p">(</span><span class="n">xR</span> <span class="o">*</span> <span class="n">xR</span> <span class="o">+</span> <span class="n">eps_tf</span><span class="p">)</span>
+            <span class="n">d_K_dh_dy_dy</span> <span class="o">=</span> <span class="n">d_K_dh_dy_dy</span> <span class="o">/</span> <span class="p">(</span><span class="n">yR</span> <span class="o">*</span> <span class="n">yR</span> <span class="o">+</span> <span class="n">eps_tf</span><span class="p">)</span>
+
+            <span class="n">dK_dx</span> <span class="o">=</span> <span class="n">dK_dx</span> <span class="o">/</span> <span class="p">(</span><span class="n">xR</span> <span class="o">+</span> <span class="n">eps_tf</span><span class="p">)</span>
+            <span class="n">dK_dy</span> <span class="o">=</span> <span class="n">dK_dy</span> <span class="o">/</span> <span class="p">(</span><span class="n">yR</span> <span class="o">+</span> <span class="n">eps_tf</span><span class="p">)</span>
+            <span class="n">dSs_dx</span> <span class="o">=</span> <span class="n">dSs_dx</span> <span class="o">/</span> <span class="p">(</span><span class="n">xR</span> <span class="o">+</span> <span class="n">eps_tf</span><span class="p">)</span>
+            <span class="n">dSs_dy</span> <span class="o">=</span> <span class="n">dSs_dy</span> <span class="o">/</span> <span class="p">(</span><span class="n">yR</span> <span class="o">+</span> <span class="n">eps_tf</span><span class="p">)</span>
+
+    <span class="c1"># Degrees -&gt; meters conversion (only if ranges were NOT already meters)</span>
+    <span class="k">if</span> <span class="n">coords_deg</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">deg_already_applied</span><span class="p">):</span>
+        <span class="n">deg2m_x</span> <span class="o">=</span> <span class="n">deg_to_m</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">sk</span><span class="p">)</span>  <span class="c1"># m/deg</span>
+        <span class="n">deg2m_y</span> <span class="o">=</span> <span class="n">deg_to_m</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">sk</span><span class="p">)</span>
+
+        <span class="n">d_K_dh_dx_dx</span> <span class="o">=</span> <span class="n">d_K_dh_dx_dx</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="n">deg2m_x</span> <span class="o">*</span> <span class="n">deg2m_x</span> <span class="o">+</span> <span class="n">eps_tf</span>
+        <span class="p">)</span>
+        <span class="n">d_K_dh_dy_dy</span> <span class="o">=</span> <span class="n">d_K_dh_dy_dy</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="n">deg2m_y</span> <span class="o">*</span> <span class="n">deg2m_y</span> <span class="o">+</span> <span class="n">eps_tf</span>
+        <span class="p">)</span>
+
+        <span class="n">dK_dx</span> <span class="o">=</span> <span class="n">dK_dx</span> <span class="o">/</span> <span class="p">(</span><span class="n">deg2m_x</span> <span class="o">+</span> <span class="n">eps_tf</span><span class="p">)</span>
+        <span class="n">dK_dy</span> <span class="o">=</span> <span class="n">dK_dy</span> <span class="o">/</span> <span class="p">(</span><span class="n">deg2m_y</span> <span class="o">+</span> <span class="n">eps_tf</span><span class="p">)</span>
+        <span class="n">dSs_dx</span> <span class="o">=</span> <span class="n">dSs_dx</span> <span class="o">/</span> <span class="p">(</span><span class="n">deg2m_x</span> <span class="o">+</span> <span class="n">eps_tf</span><span class="p">)</span>
+        <span class="n">dSs_dy</span> <span class="o">=</span> <span class="n">dSs_dy</span> <span class="o">/</span> <span class="p">(</span><span class="n">deg2m_y</span> <span class="o">+</span> <span class="n">eps_tf</span><span class="p">)</span>
+
+    <span class="c1"># Time derivative must be per-second for SI PDE.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">time_already_si</span><span class="p">:</span>
+        <span class="n">dh_dt</span> <span class="o">=</span> <span class="n">rate_to_per_second</span><span class="p">(</span>
+            <span class="n">dh_dt</span><span class="p">,</span> <span class="n">time_units</span><span class="o">=</span><span class="n">time_units</span>
+        <span class="p">)</span>
+
+    <span class="n">deriv</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;dh_dt&quot;</span><span class="p">:</span> <span class="n">dh_dt</span><span class="p">,</span>
+        <span class="s2">&quot;d_K_dh_dx_dx&quot;</span><span class="p">:</span> <span class="n">d_K_dh_dx_dx</span><span class="p">,</span>
+        <span class="s2">&quot;d_K_dh_dy_dy&quot;</span><span class="p">:</span> <span class="n">d_K_dh_dy_dy</span><span class="p">,</span>
+        <span class="s2">&quot;dK_dx&quot;</span><span class="p">:</span> <span class="n">dK_dx</span><span class="p">,</span>
+        <span class="s2">&quot;dK_dy&quot;</span><span class="p">:</span> <span class="n">dK_dy</span><span class="p">,</span>
+        <span class="s2">&quot;dSs_dx&quot;</span><span class="p">:</span> <span class="n">dSs_dx</span><span class="p">,</span>
+        <span class="s2">&quot;dSs_dy&quot;</span><span class="p">:</span> <span class="n">dSs_dy</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;used_coord_ranges_si&quot;</span><span class="p">:</span> <span class="n">used_coord_ranges_si</span><span class="p">,</span>
+        <span class="s2">&quot;time_already_si&quot;</span><span class="p">:</span> <span class="n">time_already_si</span><span class="p">,</span>
+        <span class="s2">&quot;deg_already_applied&quot;</span><span class="p">:</span> <span class="n">deg_already_applied</span><span class="p">,</span>
+        <span class="s2">&quot;t_range_units_tf&quot;</span><span class="p">:</span> <span class="n">t_range_units_tf</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">deriv</span><span class="p">,</span> <span class="n">meta</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

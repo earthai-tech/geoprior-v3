@@ -1,0 +1,38 @@
+﻿geoprior.\_scripts.plot\_transfer
+=================================
+
+.. automodule:: geoprior._scripts.plot_transfer
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      figSx_xfer_transferability_main
+      main
+      parse_args
+      render
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      TextFlags
+   
+   
+
+   
+   
+   
+
+
+

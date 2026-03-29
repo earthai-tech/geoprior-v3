@@ -1,0 +1,1641 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>geoprior.utils.geo_utils &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=404c0980"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/utils_workflow/geoprior.utils.geo_utils';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../../../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="geoprior.utils.holdout_utils" href="geoprior.utils.holdout_utils.html" />
+    <link rel="prev" title="geoprior.utils.generic_utils" href="geoprior.utils.generic_utils.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../../../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="../../index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../cli.html">CLI and command registry</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.__main__.html">geoprior.__main__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.html">geoprior.cli</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.__main__.html">geoprior.cli.__main__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/scripts.__main__.html">scripts.__main__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/scripts.registry.html">scripts.registry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli._dispatch.html">geoprior.cli._dispatch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli._presets.html">geoprior.cli._presets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.config.html">geoprior.cli.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.init_config.html">geoprior.cli.init_config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.stage1.html">geoprior.cli.stage1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.stage2.html">geoprior.cli.stage2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.stage3.html">geoprior.cli.stage3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.stage4.html">geoprior.cli.stage4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.stage5.html">geoprior.cli.stage5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.run_sensitivity.html">geoprior.cli.run_sensitivity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.run_sm3_suite.html">geoprior.cli.run_sm3_suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.sensitivity_lib.html">geoprior.cli.sensitivity_lib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.sm3_collect_summaries.html">geoprior.cli.sm3_collect_summaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.sm3_log_offsets_diagnostics.html">geoprior.cli.sm3_log_offsets_diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.sm3_synthetic_identifiability.html">geoprior.cli.sm3_synthetic_identifiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.build_add_zsurf_from_coords.html">geoprior.cli.build_add_zsurf_from_coords</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.build_assign_boreholes.html">geoprior.cli.build_assign_boreholes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.build_external_validation_fullcity.html">geoprior.cli.build_external_validation_fullcity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.build_external_validation_metrics.html">geoprior.cli.build_external_validation_metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.build_full_inputs_npz.html">geoprior.cli.build_full_inputs_npz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.build_physics_payload_npz.html">geoprior.cli.build_physics_payload_npz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.build_sm3_collect_summaries.html">geoprior.cli.build_sm3_collect_summaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.config.html">geoprior._scripts.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.registry.html">geoprior._scripts.registry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.utils.html">geoprior._scripts.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.extend_utils.html">geoprior._scripts.extend_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.build_ablation_table.html">geoprior._scripts.build_ablation_table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.build_model_metrics.html">geoprior._scripts.build_model_metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.compute_brier_exceedance.html">geoprior._scripts.compute_brier_exceedance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.compute_hotspots.html">geoprior._scripts.compute_hotspots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.extend_forecast.html">geoprior._scripts.extend_forecast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.make_boundary.html">geoprior._scripts.make_boundary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.make_district_grid.html">geoprior._scripts.make_district_grid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.make_exposure.html">geoprior._scripts.make_exposure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.rebuild_confusion_tables.html">geoprior._scripts.rebuild_confusion_tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.summarize_hotspots.html">geoprior._scripts.summarize_hotspots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.tag_clusters_with_zones.html">geoprior._scripts.tag_clusters_with_zones</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.update_ablation_record_posthoc.html">geoprior._scripts.update_ablation_record_posthoc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.update_ablation_records.html">geoprior._scripts.update_ablation_records</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_ablations_sensitivity.html">geoprior._scripts.plot_ablations_sensitivity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_core_ablation.html">geoprior._scripts.plot_core_ablation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_driver_response.html">geoprior._scripts.plot_driver_response</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_external_validation.html">geoprior._scripts.plot_external_validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_geo_cumulative.html">geoprior._scripts.plot_geo_cumulative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_hotspot_analytics.html">geoprior._scripts.plot_hotspot_analytics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_litho_parity.html">geoprior._scripts.plot_litho_parity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_physics_fields.html">geoprior._scripts.plot_physics_fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_physics_maps.html">geoprior._scripts.plot_physics_maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_physics_profiles.html">geoprior._scripts.plot_physics_profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_physics_sanity.html">geoprior._scripts.plot_physics_sanity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_physics_sensitivity.html">geoprior._scripts.plot_physics_sensitivity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_sm3_bounds_ridge_summary.html">geoprior._scripts.plot_sm3_bounds_ridge_summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_sm3_identifiability.html">geoprior._scripts.plot_sm3_identifiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_sm3_log_offsets.html">geoprior._scripts.plot_sm3_log_offsets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_spatial_forecasts.html">geoprior._scripts.plot_spatial_forecasts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_transfer.html">geoprior._scripts.plot_transfer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_uncertainty.html">geoprior._scripts.plot_uncertainty</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_uncertainty_extras.html">geoprior._scripts.plot_uncertainty_extras</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_xfer_impact.html">geoprior._scripts.plot_xfer_impact</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_xfer_transferability.html">geoprior._scripts.plot_xfer_transferability</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../subsidence.html">Subsidence API reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/core/geoprior.models.subsidence.models.html">geoprior.models.subsidence.models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/core/geoprior.models.subsidence.maths.html">geoprior.models.subsidence.maths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/core/geoprior.models.subsidence.scaling.html">geoprior.models.subsidence.scaling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/core/geoprior.models.subsidence.losses.html">geoprior.models.subsidence.losses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/core/geoprior.models.subsidence.identifiability.html">geoprior.models.subsidence.identifiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/core/geoprior.models.subsidence.payloads.html">geoprior.models.subsidence.payloads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/core/geoprior.models.subsidence.utils.html">geoprior.models.subsidence.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/core/geoprior.models.subsidence.stability.html">geoprior.models.subsidence.stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/core/geoprior.models.subsidence.step_core.html">geoprior.models.subsidence.step_core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/support/geoprior.models.subsidence.batch_io.html">geoprior.models.subsidence.batch_io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/support/geoprior.models.subsidence.debugs.html">geoprior.models.subsidence.debugs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/support/geoprior.models.subsidence.derivatives.html">geoprior.models.subsidence.derivatives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/support/geoprior.models.subsidence.doc.html">geoprior.models.subsidence.doc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/support/geoprior.models.subsidence.log_offsets_diagnostics.html">geoprior.models.subsidence.log_offsets_diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/support/geoprior.models.subsidence.plot.html">geoprior.models.subsidence.plot</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../tuner.html">Tuner API reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../geoprior.models.forecast_tuner.html">geoprior.models.forecast_tuner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../geoprior.models.tuners.html">geoprior.models.tuners</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../geoprior.models.forecast_tuner._base_tuner.html">geoprior.models.forecast_tuner._base_tuner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../geoprior.models.forecast_tuner._geoprior_tuner.html">geoprior.models.forecast_tuner._geoprior_tuner</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../utils.html">Utility API reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.audit_utils.html">geoprior.utils.audit_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.base_utils.html">geoprior.utils.base_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.calibrate.html">geoprior.utils.calibrate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.data_utils.html">geoprior.utils.data_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.deps_utils.html">geoprior.utils.deps_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.forecast_utils.html">geoprior.utils.forecast_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.generic_utils.html">geoprior.utils.generic_utils</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">geoprior.utils.geo_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.holdout_utils.html">geoprior.utils.holdout_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.io_utils.html">geoprior.utils.io_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.nat_utils.html">geoprior.utils.nat_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.parallel_utils.html">geoprior.utils.parallel_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.scale_metrics.html">geoprior.utils.scale_metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.sequence_utils.html">geoprior.utils.sequence_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.shapes.html">geoprior.utils.shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.spatial_utils.html">geoprior.utils.spatial_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.split.html">geoprior.utils.split</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.subsidence_utils.html">geoprior.utils.subsidence_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.sys_utils.html">geoprior.utils.sys_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.target_utils.html">geoprior.utils.target_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.validator.html">geoprior.utils.validator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.version.html">geoprior.utils.version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils_models/geoprior.models.utils._utils.html">geoprior.models.utils._utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils_models/geoprior.models.utils.pinn.html">geoprior.models.utils.pinn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils_subsidence/geoprior.models.subsidence.utils.html">geoprior.models.subsidence.utils</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources.html">Packaged resources reference</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../params.html">Parameters API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/params/bases/geoprior.params.BaseLearnable.html">geoprior.params.BaseLearnable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/params/bases/geoprior.params.BaseFixed.html">geoprior.params.BaseFixed</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">API reference</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../utils.html" class="nav-link">Utility API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geoprior.utils.geo_utils</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-geoprior.utils.geo_utils">
+<span id="geoprior-utils-geo-utils"></span><h1>geoprior.utils.geo_utils<a class="headerlink" href="#module-geoprior.utils.geo_utils" title="Link to this heading">#</a></h1>
+<p class="rubric">Functions</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.geo_utils.augment_city_spatiotemporal_data" title="geoprior.utils.geo_utils.augment_city_spatiotemporal_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">augment_city_spatiotemporal_data</span></code></a>(df, city[, ...])</p></td>
+<td><p>A robust and versatile function to augment spatiotemporal data for Nansha or Zhongshan, with control over coordinate precision and augmentation parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.geo_utils.augment_series_features" title="geoprior.utils.geo_utils.augment_series_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">augment_series_features</span></code></a>(series_df, feature_cols)</p></td>
+<td><p>Augments specified feature columns in a time series DataFrame by adding noise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.geo_utils.augment_spatiotemporal_data" title="geoprior.utils.geo_utils.augment_spatiotemporal_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">augment_spatiotemporal_data</span></code></a>(df, mode[, ...])</p></td>
+<td><p>Applies temporal interpolation and/or feature augmentation to a spatiotemporal DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.geo_utils.generate_dummy_pinn_data" title="geoprior.utils.geo_utils.generate_dummy_pinn_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_dummy_pinn_data</span></code></a>(n_samples, *[, ...])</p></td>
+<td><p>Generate dummy PINN data dictionary with specified or default ranges.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.geo_utils.interpolate_temporal_gaps" title="geoprior.utils.geo_utils.interpolate_temporal_gaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_temporal_gaps</span></code></a>(series_df, ...[, ...])</p></td>
+<td><p>Interpolates missing values in specified columns of a time series DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.geo_utils.merge_frames_to_file" title="geoprior.utils.geo_utils.merge_frames_to_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_frames_to_file</span></code></a>(sources, output_path, *)</p></td>
+<td><p>Merge multiple NATCOM city datasets into a single compressed file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.geo_utils.resolve_spatial_columns" title="geoprior.utils.geo_utils.resolve_spatial_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resolve_spatial_columns</span></code></a>(df[, spatial_cols, ...])</p></td>
+<td><p>Helper to validate and resolve spatial columns.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.geo_utils.unpack_frames_from_file" title="geoprior.utils.geo_utils.unpack_frames_from_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unpack_frames_from_file</span></code></a>(merged, *[, ...])</p></td>
+<td><p>Reverse of <cite>merge_city_frames_to_file</cite>: split an aggregated NATCOM dataset into per-city frames (and optionally write them to disk).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.geo_utils.augment_city_spatiotemporal_data">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.geo_utils.</span></span><span class="sig-name descname"><span class="pre">augment_city_spatiotemporal_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">city</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'interpolate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_by_cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_cols_interpolate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_cols_augment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolation_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augmentation_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolate_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinate_precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savefile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/geo_utils.html#augment_city_spatiotemporal_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.geo_utils.augment_city_spatiotemporal_data" title="Link to this definition">#</a></dt>
+<dd><p>A robust and versatile function to augment spatiotemporal data for
+Nansha or Zhongshan, with control over coordinate precision and
+augmentation parameters.</p>
+<p>This wrapper calls <cite>augment_spatiotemporal_data</cite> to apply temporal
+interpolation and/or feature augmentation. Let <span class="math notranslate nohighlight">\(G\)</span> be groups
+defined by <code class="code docutils literal notranslate"><span class="pre">group_by_cols</span></code> and let each group <span class="math notranslate nohighlight">\(g \in G\)</span>
+have its own sequence <span class="math notranslate nohighlight">\(\{(t_i, \mathbf{x}_i)\}\)</span>. Then:</p>
+<ol class="arabic">
+<li><p>If mode includes ‘interpolate’, for each group <span class="math notranslate nohighlight">\(g\)</span>:
+.. math:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">text</span><span class="p">{</span><span class="n">interp</span><span class="p">}</span><span class="n">_g</span> <span class="o">=</span> \<span class="n">texttt</span><span class="p">{</span><span class="n">interpolate</span>\<span class="n">_temporal</span>\<span class="n">_gaps</span><span class="p">}</span>\<span class="n">bigl</span><span class="p">(</span>
+  \<span class="n">text</span><span class="p">{</span><span class="n">series</span>\<span class="n">_df</span><span class="p">}</span><span class="n">_g</span><span class="p">,</span>\<span class="p">;</span>\<span class="n">dots</span>\<span class="n">bigr</span><span class="p">)</span><span class="o">.</span>
+</pre></div>
+</div>
+</li>
+<li><p>If mode includes ‘augment_features’, for each group <span class="math notranslate nohighlight">\(g\)</span>:
+.. math:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">text</span><span class="p">{</span><span class="n">aug</span><span class="p">}</span><span class="n">_g</span> <span class="o">=</span> \<span class="n">texttt</span><span class="p">{</span><span class="n">augment</span>\<span class="n">_series</span>\<span class="n">_features</span><span class="p">}</span>\<span class="n">bigl</span><span class="p">(</span>
+  \<span class="n">text</span><span class="p">{</span><span class="n">interp</span><span class="p">}</span><span class="n">_g</span>\ <span class="p">{</span>\<span class="n">text</span><span class="p">{</span><span class="ow">or</span><span class="p">}}</span>\ \<span class="n">text</span><span class="p">{</span><span class="n">series</span>\<span class="n">_df</span><span class="p">}</span><span class="n">_g</span><span class="p">,</span>\<span class="p">;</span>\<span class="n">dots</span>\<span class="n">bigr</span><span class="p">)</span><span class="o">.</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>Finally, all processed groups are concatenated:
+.. math:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">text</span><span class="p">{</span><span class="n">result</span><span class="p">}</span> <span class="o">=</span> \<span class="n">bigcup_</span><span class="p">{</span><span class="n">g</span> \<span class="ow">in</span> <span class="n">G</span><span class="p">}</span> \<span class="n">text</span><span class="p">{</span><span class="n">processed</span>\<span class="n">_df</span><span class="p">}</span><span class="n">_g</span><span class="o">.</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>) – Input DataFrame. Must include ‘longitude’, ‘latitude’, ‘year’,
+and relevant value/feature columns.</p></li>
+<li><p><strong>city</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – City identifier: ‘nansha’ or ‘zhongshan’. Used for potential
+city-specific default logic in the future, currently for validation.</p></li>
+<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">'interpolate'</span></code>) – Augmentation mode. Options:
+- ‘interpolate’: Applies only <cite>interpolate_temporal_gaps</cite>.
+- ‘augment_features’: Applies only <cite>augment_series_features</cite>.
+- ‘both’: Applies interpolation first, then feature augmentation.</p></li>
+<li><p><strong>group_by_cols</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">[``</span></code>’longitude’<code class="docutils literal notranslate"><span class="pre">,</span> <span class="pre">``'latitude'</span></code><code class="xref py py-class docutils literal notranslate"><span class="pre">]</span></code>) – Columns to group by for interpolation.</p></li>
+<li><p><strong>time_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">'year'</span></code>) – Time column name for interpolation.</p></li>
+<li><p><strong>value_cols_interpolate</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – Columns to interpolate. If None, defaults are determined based on
+numeric columns, excluding IDs, target (unless
+<code class="code docutils literal notranslate"><span class="pre">interpolate_target</span></code> is True), and common non-driver
+categorical-like columns.</p></li>
+<li><p><strong>feature_cols_augment</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – Columns to augment with noise. If None, defaults are determined
+based on numeric columns, excluding IDs and the target.</p></li>
+<li><p><strong>interpolation_config</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">{'freq':</span> <span class="pre">'AS',</span></code>) – ‘method’: ‘linear’}
+Keyword arguments for <cite>interpolate_temporal_gaps</cite>.</p></li>
+<li><p><strong>augmentation_config</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">{'noise_level':</span> <span class="pre">0.01,</span></code>) – ‘noise_type’: ‘gaussian’}
+Keyword arguments for <cite>augment_series_features</cite>.</p></li>
+<li><p><strong>target_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – Name of the target variable column (e.g., ‘subsidence’). Used to
+conditionally include/exclude it from default interpolation/
+augmentation.</p></li>
+<li><p><strong>interpolate_target</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#False" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code></a>) – If True and <code class="code docutils literal notranslate"><span class="pre">target_name</span></code> is provided, the target variable
+will be included in the default list for
+<code class="code docutils literal notranslate"><span class="pre">value_cols_interpolate</span></code>.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#False" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code></a>) – If True, prints progress messages from
+<cite>augment_spatiotemporal_data</cite>.</p></li>
+<li><p><strong>coordinate_precision</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – Number of decimal places to round longitude/latitude before
+grouping. If None, no rounding.</p></li>
+<li><p><strong>savefile</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – If a path is provided, the augmented DataFrame is saved as a CSV.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The augmented DataFrame.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">pd.DataFrame</span></code></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="code docutils literal notranslate"><span class="pre">city</span></code> is invalid, <code class="code docutils literal notranslate"><span class="pre">mode</span></code> is invalid, or required
+parameters for the selected <code class="code docutils literal notranslate"><span class="pre">mode</span></code> are missing.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – If <code class="code docutils literal notranslate"><span class="pre">df</span></code> is not a DataFrame or other inputs have incorrect
+types.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.utils.geo_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">augment_city_spatiotemporal_data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df_zh</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s1">&#39;longitude&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">113.38</span><span class="p">,</span> <span class="mf">113.38</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;latitude&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">22.77</span><span class="p">,</span> <span class="mf">22.77</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2018</span><span class="p">,</span> <span class="mi">2020</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;GWL&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">5.5</span><span class="p">,</span> <span class="mf">39.4</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;rainfall_mm&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">311</span><span class="p">,</span> <span class="mi">177</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;subsidence&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">12.5</span><span class="p">,</span> <span class="mf">12.8</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">augmented</span> <span class="o">=</span> <span class="n">augment_city_spatiotemporal_data</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">df</span><span class="o">=</span><span class="n">df_zh</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">city</span><span class="o">=</span><span class="s1">&#39;zhongshan&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">target_name</span><span class="o">=</span><span class="s1">&#39;subsidence&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">interpolate_target</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">interpolation_config</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;freq&#39;</span><span class="p">:</span> <span class="s1">&#39;AS&#39;</span><span class="p">,</span> <span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;linear&#39;</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="n">augmentation_config</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;noise_level&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+<span class="gp">... </span>                         <span class="s1">&#39;noise_type&#39;</span><span class="p">:</span> <span class="s1">&#39;gaussian&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                         <span class="s1">&#39;random_seed&#39;</span><span class="p">:</span> <span class="mi">42</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="n">coordinate_precision</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">savefile</span><span class="o">=</span><span class="kc">None</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">augmented</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(2, 6)</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<ul class="simple">
+<li><p>Ensure <code class="code docutils literal notranslate"><span class="pre">df</span></code> contains ‘longitude’, ‘latitude’, and
+<code class="code docutils literal notranslate"><span class="pre">time_col</span></code> columns.</p></li>
+<li><p>If <code class="code docutils literal notranslate"><span class="pre">coordinate_precision</span></code> is set, longitude/latitude are
+rounded to avoid overly granular groups.</p></li>
+<li><p>Default interpolation columns exclude categorical or target
+columns unless specified by <code class="code docutils literal notranslate"><span class="pre">interpolate_target</span></code>.</p></li>
+<li><p>Default augmentation columns exclude the target column.</p></li>
+</ul>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="../../utils.html#geoprior.utils.geo_utils.interpolate_temporal_gaps" title="geoprior.utils.geo_utils.interpolate_temporal_gaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_temporal_gaps</span></code></a></dt><dd><p>Fill temporal gaps per group.</p>
+</dd>
+<dt><a class="reference internal" href="../../utils.html#geoprior.utils.geo_utils.augment_spatiotemporal_data" title="geoprior.utils.geo_utils.augment_spatiotemporal_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">augment_spatiotemporal_data</span></code></a></dt><dd><p>Core function for group-level spatiotemporal augmentation.</p>
+</dd>
+<dt><a class="reference internal" href="../../utils.html#geoprior.utils.geo_utils.augment_series_features" title="geoprior.utils.geo_utils.augment_series_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">augment_series_features</span></code></a></dt><dd><p>Add noise to numeric features.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.geo_utils.augment_series_features">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.geo_utils.</span></span><span class="sig-name descname"><span class="pre">augment_series_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gaussian'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savefile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/geo_utils.html#augment_series_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.geo_utils.augment_series_features" title="Link to this definition">#</a></dt>
+<dd><p>Augments specified feature columns in a time series DataFrame by adding noise.</p>
+<p>This function is typically applied to sequences that are already long
+enough, to create more training examples and improve model robustness.</p>
+<p>Suppose <span class="math notranslate nohighlight">\(x_i\)</span> are original feature values for one column. Then:</p>
+<ul>
+<li><p>For Gaussian noise:
+.. math:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">text</span><span class="p">{</span><span class="n">noise</span><span class="p">}</span><span class="n">_i</span> \<span class="n">sim</span> \<span class="n">mathcal</span><span class="p">{</span><span class="n">N</span><span class="p">}</span>\<span class="n">bigl</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span>\<span class="p">;</span> \<span class="n">sigma_x</span> \<span class="n">times</span>
+\<span class="n">text</span><span class="p">{</span><span class="n">noise</span>\<span class="n">_level</span><span class="p">}</span>\<span class="n">bigr</span><span class="p">),</span>
+\<span class="n">quad</span> \<span class="n">sigma_x</span> <span class="o">=</span> \<span class="n">mathrm</span><span class="p">{</span><span class="n">std</span><span class="p">}(</span><span class="n">x_i</span><span class="p">)</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>The augmented values are <span class="math notranslate nohighlight">\(x_i + \text{noise}_i\)</span>.</p>
+</li>
+<li><p>For Uniform noise:
+.. math:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">text</span><span class="p">{</span><span class="nb">range</span><span class="p">}</span><span class="n">_x</span> <span class="o">=</span> \<span class="nb">max</span><span class="p">(</span><span class="n">x_i</span><span class="p">)</span> <span class="o">-</span> \<span class="nb">min</span><span class="p">(</span><span class="n">x_i</span><span class="p">),</span> \<span class="n">quad</span>
+\<span class="n">text</span><span class="p">{</span><span class="n">noise</span><span class="p">}</span><span class="n">_i</span> \<span class="n">sim</span> \<span class="n">mathcal</span><span class="p">{</span><span class="n">U</span><span class="p">}</span>\<span class="n">Bigl</span><span class="p">(</span>
+<span class="o">-</span>\<span class="n">tfrac</span><span class="p">{</span>\<span class="n">text</span><span class="p">{</span><span class="nb">range</span><span class="p">}</span><span class="n">_x</span> \<span class="n">times</span> \<span class="n">text</span><span class="p">{</span><span class="n">noise</span>\<span class="n">_level</span><span class="p">}}{</span><span class="mi">2</span><span class="p">},</span>\<span class="p">;</span>
+\<span class="n">tfrac</span><span class="p">{</span>\<span class="n">text</span><span class="p">{</span><span class="nb">range</span><span class="p">}</span><span class="n">_x</span> \<span class="n">times</span> \<span class="n">text</span><span class="p">{</span><span class="n">noise</span>\<span class="n">_level</span><span class="p">}}{</span><span class="mi">2</span><span class="p">}</span>\<span class="n">Bigr</span><span class="p">)</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>The augmented values are <span class="math notranslate nohighlight">\(x_i + \text{noise}_i\)</span>.</p>
+</li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>series_df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>) – Input DataFrame representing one or more time series.</p></li>
+<li><p><strong>feature_cols</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List[str]</span></code>) – List of column names (features) to which noise will be added.</p></li>
+<li><p><strong>noise_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">0.01</span></code>) – <p>Magnitude of the noise.
+- For ‘gaussian’: standard deviation of the noise relative to</p>
+<blockquote>
+<div><p>feature’s std.</p>
+</div></blockquote>
+<ul>
+<li><p>For ‘uniform’: half-width of the uniform distribution relative
+to feature’s range.</p></li>
+</ul>
+</p></li>
+<li><p><strong>noise_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">'gaussian'</span></code>) – Type of noise to add. Options: ‘gaussian’, ‘uniform’.</p></li>
+<li><p><strong>random_seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – Seed for the random number generator for reproducible results.</p></li>
+<li><p><strong>savefile</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame with noise added to the specified feature columns.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">pd.DataFrame</span></code></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <cite>feature_cols</cite> are not in <cite>series_df</cite> or <cite>noise_type</cite> is invalid.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – If inputs are not of the expected type.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.utils.geo_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">augment_series_features</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">12.0</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">,</span> <span class="mf">13.0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">115</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Add Gaussian noise at 5% level to column &#39;x&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df_aug</span> <span class="o">=</span> <span class="n">augment_series_features</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">],</span> <span class="n">noise_level</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+<span class="gp">... </span>                                 <span class="n">noise_type</span><span class="o">=</span><span class="s1">&#39;gaussian&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                                 <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df_aug</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
+<span class="go">0    10.248357</span>
+<span class="go">1    11.930868</span>
+<span class="go">2    15.323844</span>
+<span class="go">3    12.761515</span>
+<span class="go">Name: x, dtype: float64</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<ul class="simple">
+<li><p>If a feature column has zero variance or NaN range, no noise is added
+and a debug log is emitted.</p></li>
+<li><p>Non-numeric columns are skipped with a warning.</p></li>
+</ul>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.sample.html#pandas.DataFrame.sample" title="(in pandas v3.0.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pandas.DataFrame.sample</span></code></a></dt><dd><p>Random sampling methods.</p>
+</dd>
+<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.utils.resample.html#sklearn.utils.resample" title="(in scikit-learn v1.8)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.utils.resample</span></code></a></dt><dd><p>Resampling utilities for data augmentation.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.geo_utils.augment_spatiotemporal_data">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.geo_utils.</span></span><span class="sig-name descname"><span class="pre">augment_spatiotemporal_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_by_cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_cols_interpolate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_cols_augment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolation_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augmentation_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savefile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/geo_utils.html#augment_spatiotemporal_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.geo_utils.augment_spatiotemporal_data" title="Link to this definition">#</a></dt>
+<dd><p>Applies temporal interpolation and/or feature augmentation to a
+spatiotemporal DataFrame.</p>
+<p>This function can perform one of three operations on each group of
+the DataFrame:</p>
+<ol class="arabic simple">
+<li><p><span class="math notranslate nohighlight">\(\text{interpolate}\)</span> only: fill temporal gaps via
+<cite>interpolate_temporal_gaps</cite>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\text{augment\_features}\)</span> only: add noise to features via
+<cite>augment_series_features</cite>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\text{both}\)</span>: first interpolate, then augment features.</p></li>
+</ol>
+<p>Let <span class="math notranslate nohighlight">\(G\)</span> be the set of groups defined by
+<code class="code docutils literal notranslate"><span class="pre">group_by_cols</span></code>. For each group <span class="math notranslate nohighlight">\(g \in G\)</span>, if mode
+includes interpolation, we compute:</p>
+<div class="math notranslate nohighlight" id="equation-api-generated-utils-workflow-geoprior-utils-geo-utils-0">
+<span class="eqno">(1)<a class="headerlink" href="#equation-api-generated-utils-workflow-geoprior-utils-geo-utils-0" title="Link to this equation">#</a></span>\[\text{interpolated\_df}_g =
+\text{interpolate\_temporal\_gaps}(
+  \text{series\_df}_g,\;\dots
+)\]</div>
+<p>Then if mode includes augmentation, we compute:</p>
+<div class="math notranslate nohighlight" id="equation-api-generated-utils-workflow-geoprior-utils-geo-utils-1">
+<span class="eqno">(2)<a class="headerlink" href="#equation-api-generated-utils-workflow-geoprior-utils-geo-utils-1" title="Link to this equation">#</a></span>\[\text{augmented\_df}_g =
+\text{augment\_series\_features}(
+  \text{interpolated\_df}_g,\;\dots
+)\]</div>
+<p>Finally, all processed groups are concatenated:</p>
+<div class="math notranslate nohighlight" id="equation-api-generated-utils-workflow-geoprior-utils-geo-utils-2">
+<span class="eqno">(3)<a class="headerlink" href="#equation-api-generated-utils-workflow-geoprior-utils-geo-utils-2" title="Link to this equation">#</a></span>\[\text{result} = \bigcup_{g \in G} \text{processed\_df}_g.\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>) – The input DataFrame (e.g., Zhongshan data).</p></li>
+<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – <p>The augmentation mode. Options:
+- ‘interpolate’: Applies only</p>
+<blockquote>
+<div><p><a class="reference internal" href="../../utils.html#geoprior.utils.geo_utils.interpolate_temporal_gaps" title="geoprior.utils.geo_utils.interpolate_temporal_gaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">interpolate_temporal_gaps()</span></code></a>.</p>
+</div></blockquote>
+<ul>
+<li><p>’augment_features’: Applies only
+<a class="reference internal" href="../../utils.html#geoprior.utils.geo_utils.augment_series_features" title="geoprior.utils.geo_utils.augment_series_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">augment_series_features()</span></code></a>.</p></li>
+<li><p>’both’: Applies <cite>interpolate_temporal_gaps</cite> first, then
+<cite>augment_series_features</cite>.</p></li>
+</ul>
+</p></li>
+<li><p><strong>group_by_cols</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – Columns to group by for temporal interpolation (e.g.,
+[‘longitude’, ‘latitude’]). Required if mode includes
+interpolation.</p></li>
+<li><p><strong>time_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – Name of the time column. Required if mode includes
+interpolation.</p></li>
+<li><p><strong>value_cols_interpolate</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – Columns to interpolate. Required if mode includes
+interpolation.</p></li>
+<li><p><strong>feature_cols_augment</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – Columns for noise augmentation. Required if mode includes
+augmentation.</p></li>
+<li><p><strong>interpolation_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – Keyword arguments passed to
+<a class="reference internal" href="../../utils.html#geoprior.utils.geo_utils.interpolate_temporal_gaps" title="geoprior.utils.geo_utils.interpolate_temporal_gaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">interpolate_temporal_gaps()</span></code></a> (e.g., {‘freq’: ‘AS’}).</p></li>
+<li><p><strong>augmentation_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – Keyword arguments passed to
+<a class="reference internal" href="../../utils.html#geoprior.utils.geo_utils.augment_series_features" title="geoprior.utils.geo_utils.augment_series_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">augment_series_features()</span></code></a> (e.g., {‘noise_level’: 0.02}).</p></li>
+<li><p><strong>savefile</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">optional,</span></code>) – Save the dataframe into the csv format by default.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#False" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code></a>) – If True, prints progress messages (via print). Otherwise,
+relies on logger.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The processed DataFrame. Groups are reassembled in original
+order of grouping and then concatenated.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">pd.DataFrame</span></code></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <cite>mode</cite> is invalid or required parameters for the selected
+mode are missing.</p>
+</dd>
+</dl>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.utils.geo_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">augment_spatiotemporal_data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s1">&#39;lon&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;lat&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-01-03&#39;</span><span class="p">,</span>
+<span class="gp">... </span>             <span class="s1">&#39;2020-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-01-04&#39;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">augment_spatiotemporal_data</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">df</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">group_by_cols</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span> <span class="s1">&#39;lat&#39;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">time_col</span><span class="o">=</span><span class="s1">&#39;date&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">value_cols_interpolate</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">feature_cols_augment</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">interpolation_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;freq&#39;</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="n">augmentation_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;noise_level&#39;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+<span class="gp">... </span>                         <span class="s1">&#39;noise_type&#39;</span><span class="p">:</span> <span class="s1">&#39;gaussian&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                         <span class="s1">&#39;random_seed&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;value&#39;</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">columns</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<ul class="simple">
+<li><p>Ensure <cite>df</cite> contains all columns in <cite>group_by_cols</cite> if mode
+includes interpolation.</p></li>
+<li><p>Date column must be convertible to datetime.</p></li>
+<li><p>Groups are processed independently, then concatenated.</p></li>
+</ul>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="../../utils.html#geoprior.utils.geo_utils.interpolate_temporal_gaps" title="geoprior.utils.geo_utils.interpolate_temporal_gaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_temporal_gaps</span></code></a></dt><dd><p>Fill temporal gaps per group.</p>
+</dd>
+<dt><a class="reference internal" href="../../utils.html#geoprior.utils.geo_utils.augment_series_features" title="geoprior.utils.geo_utils.augment_series_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">augment_series_features</span></code></a></dt><dd><p>Add noise to feature columns.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.geo_utils.generate_dummy_pinn_data">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.geo_utils.</span></span><span class="sig-name descname"><span class="pre">generate_dummy_pinn_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_samples</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subs_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gwl_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rainfall_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vars_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/geo_utils.html#generate_dummy_pinn_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.geo_utils.generate_dummy_pinn_data" title="Link to this definition">#</a></dt>
+<dd><p>Generate dummy PINN data dictionary with specified or default ranges.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_samples</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Number of samples to generate.</p></li>
+<li><p><strong>year_range</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple[float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float]</span></code>, <em>optional</em>) – (min_year, max_year) for integer years. Default (2000, 2025).</p></li>
+<li><p><strong>coords_range</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple[tuple[float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float]</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple[float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float]]</span></code>, <em>optional</em>) – ((lon_min, lon_max), (lat_min, lat_max)). Default ((113.0, 113.8),
+(22.3, 22.8)).</p></li>
+<li><p><strong>subs_range</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple[float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float]</span></code>, <em>optional</em>) – (mean_subsidence, std_subsidence) for normal distribution. Default
+(-20, 15).</p></li>
+<li><p><strong>gwl_range</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple[float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float]</span></code>, <em>optional</em>) – (mean_gwl, std_gwl) for normal distribution. Default (2.5, 1.0).</p></li>
+<li><p><strong>rainfall_range</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple[float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float]</span></code>, <em>optional</em>) – (min_rain, max_rain) for uniform distribution. Default (500, 2500).</p></li>
+<li><p><strong>vars_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>, <em>optional</em>) – Dictionary that may contain any of the keys:
+‘year_range’, ‘coords_range’, ‘subs_range’, ‘gwl_range’,
+‘rainfall_range’. Missing keys will fall back to defaults or to
+explicitly passed arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p><strong>dummy_data_dict</strong> –</p>
+<dl class="simple">
+<dt>Dictionary with keys:</dt><dd><ul class="simple">
+<li><p>”year” : integer years array</p></li>
+<li><p>”longitude” : float longitudes array</p></li>
+<li><p>”latitude” : float latitudes array</p></li>
+<li><p>”subsidence” : float subsidence values array</p></li>
+<li><p>”GWL” : float groundwater level values array</p></li>
+<li><p>”rainfall_mm” : float rainfall values array</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.geo_utils.interpolate_temporal_gaps">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.geo_utils.</span></span><span class="sig-name descname"><span class="pre">interpolate_temporal_gaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_col</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_limit_direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'forward'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savefile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/geo_utils.html#interpolate_temporal_gaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.geo_utils.interpolate_temporal_gaps" title="Link to this definition">#</a></dt>
+<dd><p>Interpolates missing values in specified columns of a time series
+DataFrame.</p>
+<p>This function is designed to work on a DataFrame representing a time
+series for a single spatial group (e.g., one monitoring location),
+sorted by time. If <code class="code docutils literal notranslate"><span class="pre">freq</span></code> is provided, the DataFrame’s index is
+first reindexed to that frequency, which can create NaN values for
+missing time steps. These NaNs, along with any pre-existing NaNs in
+<code class="code docutils literal notranslate"><span class="pre">value_cols</span></code>, are then interpolated.</p>
+<p>Let <span class="math notranslate nohighlight">\(t_1 &lt; t_2 &lt; \dots &lt; t_n\)</span> be the original timestamps. If
+<code class="code docutils literal notranslate"><span class="pre">freq</span></code> yields a new index <span class="math notranslate nohighlight">\(\{t_i'\}\)</span> that includes times
+not in the original, NaNs appear at those <span class="math notranslate nohighlight">\(t_i'\)</span>. Then for each
+column <span class="math notranslate nohighlight">\(v\)</span> in <span class="math notranslate nohighlight">\(\{\text{value\_cols}\}\)</span>, we perform:</p>
+<div class="math notranslate nohighlight" id="equation-api-generated-utils-workflow-geoprior-utils-geo-utils-3">
+<span class="eqno">(4)<a class="headerlink" href="#equation-api-generated-utils-workflow-geoprior-utils-geo-utils-3" title="Link to this equation">#</a></span>\[\begin{split}v(t) \;=\;
+\begin{cases}
+  \text{interpolate}(v,\;t;\;\text{method},\;\dots)
+  &amp; \text{for } t \in \{t_i'\}\,,\\
+  v(t) &amp; \text{if } t \in \{t_1,\dots,t_n\}\text{ and not NaN.}
+\end{cases}\end{split}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>series_df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>) – Input DataFrame for a single time series, ideally sorted by
+<code class="code docutils literal notranslate"><span class="pre">time_col</span></code>. The <code class="code docutils literal notranslate"><span class="pre">time_col</span></code> should be convertible to
+datetime.</p></li>
+<li><p><strong>time_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Name of the column containing datetime information.</p></li>
+<li><p><strong>value_cols</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List[str]</span></code>) – List of column names whose missing values (NaNs) should be
+interpolated.</p></li>
+<li><p><strong>freq</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – The desired frequency for the time series (e.g., ‘D’ for daily,
+‘MS’ for month start, ‘AS’ for year start). If provided, the
+DataFrame is reindexed to this frequency before interpolation.
+This helps identify and fill gaps where entire time steps are
+missing.</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">'linear'</span></code>) – Interpolation method to use. Passed to
+<cite>pandas.DataFrame.interpolate()</cite>. Common methods: ‘linear’,
+‘time’, ‘polynomial’, ‘spline’. If ‘polynomial’ or ‘spline’,
+<code class="code docutils literal notranslate"><span class="pre">order</span></code> must be specified.</p></li>
+<li><p><strong>order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – Order for polynomial or spline interpolation. Required if
+<code class="code docutils literal notranslate"><span class="pre">method</span></code> is ‘polynomial’ or ‘spline’.</p></li>
+<li><p><strong>fill_limit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – Maximum number of consecutive NaNs to fill. Passed to
+<cite>pandas.DataFrame.interpolate()</cite>.</p></li>
+<li><p><strong>fill_limit_direction</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">'forward'</span></code>) – Direction for <code class="code docutils literal notranslate"><span class="pre">fill_limit</span></code> (‘forward’, ‘backward’,
+‘both’). Passed to <cite>pandas.DataFrame.interpolate()</cite>.</p></li>
+<li><p><strong>savefile</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame with specified columns interpolated. If <code class="code docutils literal notranslate"><span class="pre">freq</span></code>
+was used, the DataFrame will have a DatetimeIndex. Other columns
+not in <code class="code docutils literal notranslate"><span class="pre">value_cols</span></code> will be forward-filled after reindexing
+if <code class="code docutils literal notranslate"><span class="pre">freq</span></code> is set, to propagate their last known values into
+new empty rows.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">pd.DataFrame</span></code></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – If <code class="code docutils literal notranslate"><span class="pre">series_df</span></code> is not a DataFrame or if
+<code class="code docutils literal notranslate"><span class="pre">value_cols</span></code> is not a list of strings.
+Also if <code class="code docutils literal notranslate"><span class="pre">time_col</span></code> is missing from the DataFrame.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="code docutils literal notranslate"><span class="pre">order</span></code> is required but not provided for ‘polynomial’
+or ‘spline’.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.utils.geo_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">interpolate_temporal_gaps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Sample time series with missing dates</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-01-03&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-01-06&#39;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span>
+<span class="go">         date  value</span>
+<span class="go">0 2020-01-01    1.0</span>
+<span class="go">1 2020-01-03    NaN</span>
+<span class="go">2 2020-01-06    4.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">interpolate_temporal_gaps</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">df</span><span class="p">,</span> <span class="n">time_col</span><span class="o">=</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="n">value_cols</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;D&#39;</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="go">         date  value</span>
+<span class="go">0 2020-01-01    1.0</span>
+<span class="go">1 2020-01-02    2.0</span>
+<span class="go">2 2020-01-03    3.0</span>
+<span class="go">3 2020-01-04    3.0</span>
+<span class="go">4 2020-01-05    3.5</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<ul class="simple">
+<li><p>Ensure <code class="code docutils literal notranslate"><span class="pre">series_df</span></code> pertains to a single spatial group and is
+sorted by time for meaningful interpolation.</p></li>
+<li><p>The ‘time’ method for interpolation requires the index to be a
+DatetimeIndex.</p></li>
+<li><p>Polynomial or spline methods require <code class="code docutils literal notranslate"><span class="pre">order</span></code> to be specified.</p></li>
+</ul>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.interpolate.html#pandas.DataFrame.interpolate" title="(in pandas v3.0.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pandas.DataFrame.interpolate</span></code></a></dt><dd><p>Core interpolation method.</p>
+</dd>
+<dt><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.asfreq.html#pandas.DataFrame.asfreq" title="(in pandas v3.0.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pandas.DataFrame.asfreq</span></code></a></dt><dd><p>Reindex DataFrame to fixed frequency.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.geo_utils.resolve_spatial_columns">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.geo_utils.</span></span><span class="sig-name descname"><span class="pre">resolve_spatial_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/geo_utils.html#resolve_spatial_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.geo_utils.resolve_spatial_columns" title="Link to this definition">#</a></dt>
+<dd><p>Helper to validate and resolve spatial columns.</p>
+<p>Accepts either explicit lon/lat columns or a
+list of spatial_cols. Returns (lon_col, lat_col).</p>
+<ul class="simple">
+<li><p>If lon_col and lat_col are both provided, they
+take precedence (warn if spatial_cols also set).</p></li>
+<li><p>Else if spatial_cols is provided, it must yield
+exactly two column names.</p></li>
+<li><p>Otherwise, error is raised.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>) – Input DataFrame for feature checks.</p></li>
+<li><p><strong>spatial_cols</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list[str]</span></code> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – Two-element list of [lon_col, lat_col].</p></li>
+<li><p><strong>lon_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – Name of longitude column.</p></li>
+<li><p><strong>lat_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – Name of latitude column.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>(lon_col, lat_col)</strong> – Validated column names for longitude and
+latitude.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If neither lon/lat nor valid spatial_cols is
+provided, or if spatial_cols len != 2.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.geo_utils.merge_frames_to_file">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.geo_utils.</span></span><span class="sig-name descname"><span class="pre">merge_frames_to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'parquet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'snappy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'strict'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excel_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all_sheets'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sheet_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_source_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'source'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_duplicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/geo_utils.html#merge_frames_to_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.geo_utils.merge_frames_to_file" title="Link to this definition">#</a></dt>
+<dd><p>Merge multiple NATCOM city datasets into a single compressed file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sources</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">iterable</span></code> of <code class="docutils literal notranslate"><span class="pre">{path-like,</span> <span class="pre">DataFrame}</span></code>) – <p>Input sources. Each element can be:</p>
+<ul>
+<li><p>A path to a CSV file (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;nansha_final...csv&quot;</span></code>),</p></li>
+<li><p>A path to an Excel workbook (one or many sheets per city),</p></li>
+<li><p>A pre-loaded <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p></li>
+</ul>
+</p></li>
+<li><p><strong>output_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">path-like</span></code>) – Destination file path. If <code class="docutils literal notranslate"><span class="pre">output_format='parquet'</span></code> and
+the suffix is missing, <code class="docutils literal notranslate"><span class="pre">'.parquet'</span></code> is appended.</p></li>
+<li><p><strong>output_format</strong> (<code class="docutils literal notranslate"><span class="pre">{'parquet',</span> <span class="pre">'csv',</span> <span class="pre">'feather',</span> <span class="pre">'pickle'}</span></code>, <em>optional</em>) – Output format. Default is <code class="docutils literal notranslate"><span class="pre">'parquet'</span></code> for compact,
+columnar storage (recommended for Code Ocean).</p></li>
+<li><p><strong>compression</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>optional</em>) – <p>Compression to use for the chosen format.</p>
+<ul>
+<li><p>For <code class="docutils literal notranslate"><span class="pre">'parquet'</span></code> this is passed to
+<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_parquet.html#pandas.DataFrame.to_parquet" title="(in pandas v3.0.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.DataFrame.to_parquet()</span></code></a> (e.g. <code class="docutils literal notranslate"><span class="pre">'snappy'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'gzip'</span></code>, <code class="docutils literal notranslate"><span class="pre">'brotli'</span></code>).</p></li>
+<li><p>For <code class="docutils literal notranslate"><span class="pre">'csv'</span></code> it is passed to
+<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_csv.html#pandas.DataFrame.to_csv" title="(in pandas v3.0.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.DataFrame.to_csv()</span></code></a> via the <code class="docutils literal notranslate"><span class="pre">compression</span></code>
+keyword if non-<code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p>Ignored for <code class="docutils literal notranslate"><span class="pre">'feather'</span></code> and <code class="docutils literal notranslate"><span class="pre">'pickle'</span></code> (Feather uses
+its own defaults; pickle rarely benefits from extra
+compression at this layer).</p></li>
+</ul>
+</p></li>
+<li><p><strong>check_columns</strong> (<code class="docutils literal notranslate"><span class="pre">{'strict',</span> <span class="pre">'subset',</span> <span class="pre">'union'}</span></code>, <em>optional</em>) – <p>How to handle column consistency across sources:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">'strict'</span></code> (default): all sources must have exactly the
+same set of columns (order may differ). Columns are then
+aligned to the order of the first DataFrame. A mismatch
+raises <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'subset'</span></code>: all columns in the <em>first</em> DataFrame must
+exist in each subsequent DataFrame. Extra columns in later
+sources are dropped. Missing required columns raise
+<a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'union'</span></code>: columns are unioned across all sources. Any
+missing column in a particular source is added and filled
+with <code class="docutils literal notranslate"><span class="pre">NaN</span></code> before concatenation.</p></li>
+</ul>
+</p></li>
+<li><p><strong>excel_mode</strong> (<code class="docutils literal notranslate"><span class="pre">{'all_sheets',</span> <span class="pre">'first_sheet'}</span></code>, <em>optional</em>) – <p>Behaviour when a source is an Excel workbook:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">'all_sheets'</span></code> (default): read <em>all</em> sheets and treat
+each sheet as a separate DataFrame to merge.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'first_sheet'</span></code>: read only the first sheet.</p></li>
+</ul>
+<p>If <code class="docutils literal notranslate"><span class="pre">sheet_names</span></code> is provided, it takes precedence.</p>
+</p></li>
+<li><p><strong>sheet_names</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">iterable</span></code> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <em>optional</em>) – Explicit sheet names to read from Excel workbooks. If
+provided, only these sheets are read.</p></li>
+<li><p><strong>add_source_label</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> (default), add a column named <code class="docutils literal notranslate"><span class="pre">source_col</span></code> to
+each chunk before concatenation. For path-like inputs, the
+label is derived from the file name and, when applicable,
+sheet name (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;nansha_final_main_std.harmonized.csv&quot;</span></code> or
+<code class="docutils literal notranslate"><span class="pre">&quot;zhongshan.xlsx:Sheet1&quot;</span></code>). For pre-loaded DataFrames, the
+label is <code class="docutils literal notranslate"><span class="pre">'&lt;in_memory&gt;'</span></code>.</p></li>
+<li><p><strong>source_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <em>optional</em>) – Name of the column storing the source label when
+<code class="docutils literal notranslate"><span class="pre">add_source_label=True</span></code>.</p></li>
+<li><p><strong>sort_by</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">iterable</span></code> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <em>optional</em>) – Optional column(s) to sort the merged DataFrame by at the
+end (e.g. <code class="docutils literal notranslate"><span class="pre">['city',</span> <span class="pre">'year',</span> <span class="pre">'longitude',</span> <span class="pre">'latitude']</span></code>).</p></li>
+<li><p><strong>drop_duplicates</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, drop duplicate rows at the end (after sorting).</p></li>
+<li><p><strong>reset_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> (default), reset index after concatenation.</p></li>
+<li><p><strong>save_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>, <em>optional</em>) – Extra keyword arguments forwarded to the corresponding
+<code class="docutils literal notranslate"><span class="pre">to_*</span></code> writer (e.g. <code class="docutils literal notranslate"><span class="pre">to_parquet</span></code>, <code class="docutils literal notranslate"><span class="pre">to_csv</span></code>,
+<code class="docutils literal notranslate"><span class="pre">to_feather</span></code>, <code class="docutils literal notranslate"><span class="pre">to_pickle</span></code>).</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <em>optional</em>) – Verbosity level. <code class="docutils literal notranslate"><span class="pre">0</span></code> = silent, <code class="docutils literal notranslate"><span class="pre">&gt;=1</span></code> prints basic
+progress information.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>merged</strong> – The merged DataFrame (also written to disk).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">check_columns='strict'</span></code> or <code class="docutils literal notranslate"><span class="pre">'subset'</span></code> and a column
+mismatch is detected.</p>
+</dd>
+</dl>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.utils.geo_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">merge_frames_to_file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">merge_frames_to_file</span><span class="p">(</span>
+<span class="gp">... </span>   <span class="n">sources</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>       <span class="s2">&quot;nansha_final_main_std.harmonized.csv&quot;</span><span class="p">,</span>
+<span class="gp">... </span>       <span class="s2">&quot;zhongshan_final_main_std.harmonized.csv&quot;</span><span class="p">,</span>
+<span class="gp">... </span>   <span class="p">],</span>
+<span class="gp">... </span>   <span class="n">output_path</span><span class="o">=</span><span class="s2">&quot;natcom_all_cities&quot;</span><span class="p">,</span>
+<span class="gp">... </span>   <span class="n">output_format</span><span class="o">=</span><span class="s2">&quot;parquet&quot;</span><span class="p">,</span>
+<span class="gp">... </span>   <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;snappy&quot;</span><span class="p">,</span>
+<span class="gp">... </span>   <span class="n">sort_by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;city&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<ul class="simple">
+<li><p>All inputs are read fully into memory before concatenation.
+This is acceptable for the NATCOM subsidence datasets
+(<code class="docutils literal notranslate"><span class="pre">O(10^6</span> <span class="pre">-</span> <span class="pre">10^7)</span></code> rows) but can be refactored to a
+streaming/row-group approach if needed later.</p></li>
+<li><p>Using <code class="docutils literal notranslate"><span class="pre">output_format='parquet'</span></code> with compression (e.g.
+<code class="docutils literal notranslate"><span class="pre">'snappy'</span></code>) is recommended for Code Ocean to minimise disk
+usage while keeping I/O efficient.</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.geo_utils.unpack_frames_from_file">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.geo_utils.</span></span><span class="sig-name descname"><span class="pre">unpack_frames_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">merged</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'city'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_source_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'source'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename_pattern</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'{group_value}_split'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/geo_utils.html#unpack_frames_from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.geo_utils.unpack_frames_from_file" title="Link to this definition">#</a></dt>
+<dd><p>Reverse of <cite>merge_city_frames_to_file</cite>: split an aggregated NATCOM
+dataset into per-city frames (and optionally write them to disk).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>merged</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">path-like</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – <p>Aggregated dataset. If path-like, the format is inferred from
+the file suffix:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">.parquet</span></code> → <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_parquet.html#pandas.read_parquet" title="(in pandas v3.0.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">pandas.read_parquet()</span></code></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.csv</span></code>     → <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html#pandas.read_csv" title="(in pandas v3.0.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">pandas.read_csv()</span></code></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.feather</span></code> → <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_feather.html#pandas.read_feather" title="(in pandas v3.0.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">pandas.read_feather()</span></code></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.pkl</span></code>/<code class="docutils literal notranslate"><span class="pre">.pickle</span></code> → <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_pickle.html#pandas.read_pickle" title="(in pandas v3.0.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">pandas.read_pickle()</span></code></a></p></li>
+</ul>
+<p>If a <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> is passed, it is used directly.</p>
+</p></li>
+<li><p><strong>group_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <em>optional</em>) – Column used to split the dataset (default: <code class="docutils literal notranslate"><span class="pre">'city'</span></code>). Each
+unique value defines one output chunk.</p></li>
+<li><p><strong>output_dir</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">path-like</span></code>, <em>optional</em>) – Directory where per-group files are written. If <code class="docutils literal notranslate"><span class="pre">None</span></code> and
+<code class="docutils literal notranslate"><span class="pre">merged</span></code> is a path, the directory of <code class="docutils literal notranslate"><span class="pre">merged</span></code> is used.
+If <code class="docutils literal notranslate"><span class="pre">merged</span></code> is a DataFrame and <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+the current working directory is used.</p></li>
+<li><p><strong>output_format</strong> (<code class="docutils literal notranslate"><span class="pre">{'csv',</span> <span class="pre">'parquet',</span> <span class="pre">'feather',</span> <span class="pre">'pickle'}</span></code>, <em>optional</em>) – Output format for per-group files. Default is <code class="docutils literal notranslate"><span class="pre">'csv'</span></code>.</p></li>
+<li><p><strong>compression</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>optional</em>) – <p>Compression to use when writing:</p>
+<ul>
+<li><p>For <code class="docutils literal notranslate"><span class="pre">'csv'</span></code>, forwarded to <code class="xref py py-meth docutils literal notranslate"><span class="pre">DataFrame.to_csv()</span></code> as the
+<code class="docutils literal notranslate"><span class="pre">compression</span></code> argument (e.g. <code class="docutils literal notranslate"><span class="pre">'gzip'</span></code>).</p></li>
+<li><p>For <code class="docutils literal notranslate"><span class="pre">'parquet'</span></code>, forwarded to <code class="xref py py-meth docutils literal notranslate"><span class="pre">DataFrame.to_parquet()</span></code>
+(e.g. <code class="docutils literal notranslate"><span class="pre">'snappy'</span></code>, <code class="docutils literal notranslate"><span class="pre">'gzip'</span></code>).</p></li>
+<li><p>Ignored for <code class="docutils literal notranslate"><span class="pre">'feather'</span></code> and <code class="docutils literal notranslate"><span class="pre">'pickle'</span></code> (these use their
+own defaults).</p></li>
+</ul>
+</p></li>
+<li><p><strong>use_source_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – <p>If <code class="docutils literal notranslate"><span class="pre">True</span></code> (default) and a column named <code class="docutils literal notranslate"><span class="pre">source_col</span></code> exists,
+the helper tries to reconstruct the <em>original</em> file name for
+each group:</p>
+<ul>
+<li><p>If a group has a single unique, non-null <cite>source</cite> value that
+looks like a filename (e.g. <code class="docutils literal notranslate"><span class="pre">'nansha_final_main_std.harmonized.csv'</span></code>),
+that base name is used for the output (with its suffix
+adjusted to match <code class="docutils literal notranslate"><span class="pre">output_format</span></code> if needed).</p></li>
+<li><p>If there are multiple unique <cite>source</cite> labels within a group,
+it falls back to <code class="docutils literal notranslate"><span class="pre">filename_pattern</span></code>.</p></li>
+</ul>
+</p></li>
+<li><p><strong>source_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <em>optional</em>) – Name of the column containing the source label (default:
+<code class="docutils literal notranslate"><span class="pre">'source'</span></code>). This should match the column created in
+<a class="reference internal" href="../../utils.html#geoprior.utils.geo_utils.merge_frames_to_file" title="geoprior.utils.geo_utils.merge_frames_to_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">merge_frames_to_file()</span></code></a> when <code class="docutils literal notranslate"><span class="pre">add_source_label=True</span></code>.</p></li>
+<li><p><strong>filename_pattern</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <em>optional</em>) – <p>Pattern used when no suitable <cite>source</cite> label is available.
+The following placeholders are supported:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">{group_value}</span></code> : the group value as a string</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{group_col}</span></code>   : the name of the grouping column</p></li>
+</ul>
+<p>Example:
+<code class="docutils literal notranslate"><span class="pre">filename_pattern=&quot;{group_col}_{group_value}_data&quot;</span></code> →
+<code class="docutils literal notranslate"><span class="pre">&quot;city_Nansha_data.csv&quot;</span></code>.</p>
+</p></li>
+<li><p><strong>drop_columns</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">iterable</span></code> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <em>optional</em>) – Columns to drop from each group before saving/returning
+(e.g. <code class="docutils literal notranslate"><span class="pre">['source']</span></code> if you don’t want the bookkeeping column).</p></li>
+<li><p><strong>keep_columns</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">iterable</span></code> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <em>optional</em>) – If provided, only these columns are kept (all others are
+dropped <em>after</em> any <code class="docutils literal notranslate"><span class="pre">drop_columns</span></code> processing is applied).</p></li>
+<li><p><strong>save</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> (default), write each group to disk as a separate
+file. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, no files are written; only the dict of
+DataFrames is returned (if <code class="docutils literal notranslate"><span class="pre">return_dict=True</span></code>).</p></li>
+<li><p><strong>return_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> (default), return a mapping
+<code class="docutils literal notranslate"><span class="pre">{group_value:</span> <span class="pre">group_df}</span></code>. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, an empty dict is
+returned (useful when you only care about side-effect files).</p></li>
+<li><p><strong>save_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>, <em>optional</em>) – Extra keyword arguments forwarded to the respective writer:
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">DataFrame.to_csv()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">DataFrame.to_parquet()</span></code>,
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">DataFrame.to_feather()</span></code>, or <code class="xref py py-meth docutils literal notranslate"><span class="pre">DataFrame.to_pickle()</span></code>.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <em>optional</em>) – Verbosity level. <code class="docutils literal notranslate"><span class="pre">0</span></code> = silent, <code class="docutils literal notranslate"><span class="pre">&gt;=1</span></code> prints progress
+information.</p></li>
+<li><p><strong>logger</strong> (<em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>out</strong> – Dictionary mapping each group value to the corresponding
+<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>. Empty if <code class="docutils literal notranslate"><span class="pre">return_dict=False</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">group_col</span></code> is not present in the merged dataset.</p>
+</dd>
+</dl>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.utils.geo_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">unpack_frames_from_file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">unpack_frames_from_file</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">&quot;natcom_all_cities.parquet&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">group_col</span><span class="o">=</span><span class="s2">&quot;city&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">output_format</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go"># -&gt; writes e.g. &#39;nansha_final_main_std.harmonized.csv&#39;,</span>
+<span class="go">#    &#39;zhongshan_final_main_std.harmonized.csv&#39; (if `source` labels exist),</span>
+<span class="go">#    and returns a dict: {&#39;Nansha&#39;: df_nansha, &#39;Zhongshan&#39;: df_zhongshan}</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="geoprior.utils.generic_utils.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">geoprior.utils.generic_utils</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="geoprior.utils.holdout_utils.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">geoprior.utils.holdout_utils</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.geo_utils.augment_city_spatiotemporal_data"><code class="docutils literal notranslate"><span class="pre">augment_city_spatiotemporal_data()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.geo_utils.augment_series_features"><code class="docutils literal notranslate"><span class="pre">augment_series_features()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.geo_utils.augment_spatiotemporal_data"><code class="docutils literal notranslate"><span class="pre">augment_spatiotemporal_data()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.geo_utils.generate_dummy_pinn_data"><code class="docutils literal notranslate"><span class="pre">generate_dummy_pinn_data()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.geo_utils.interpolate_temporal_gaps"><code class="docutils literal notranslate"><span class="pre">interpolate_temporal_gaps()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.geo_utils.resolve_spatial_columns"><code class="docutils literal notranslate"><span class="pre">resolve_spatial_columns()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.geo_utils.merge_frames_to_file"><code class="docutils literal notranslate"><span class="pre">merge_frames_to_file()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.geo_utils.unpack_frames_from_file"><code class="docutils literal notranslate"><span class="pre">unpack_frames_from_file()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/earthai-tech/geoprior-v3/edit/main/docs/source/api/generated/utils_workflow/geoprior.utils.geo_utils.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/api/generated/utils_workflow/geoprior.utils.geo_utils.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

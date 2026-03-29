@@ -1,0 +1,1297 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Migration from FusionLab &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=404c0980"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'developer/migration_from_fusionlab';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Contributing" href="contributing.html" />
+    <link rel="prev" title="Package structure" href="package_structure.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="package_structure.html">Package structure</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Migration from FusionLab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Developer notes</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Migration from FusionLab</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="migration-from-fusionlab">
+<h1>Migration from FusionLab<a class="headerlink" href="#migration-from-fusionlab" title="Link to this heading">#</a></h1>
+<p>GeoPrior-v3 documentation was previously hosted inside a
+broader <strong>FusionLab-oriented documentation context</strong>.</p>
+<p>That older arrangement was useful during early development,
+but it is no longer the right long-term structure for the
+project. GeoPrior-v3 now has its <strong>own documentation space</strong>
+and its own package identity, with a documentation target
+aligned to the GeoPrior repository and workflow rather than
+to a parent package or mixed project context.</p>
+<p>This page explains what changed, why the migration matters,
+and how developers should update older references, imports,
+and documentation links.</p>
+<section id="why-the-migration-happened">
+<h2>Why the migration happened<a class="headerlink" href="#why-the-migration-happened" title="Link to this heading">#</a></h2>
+<p>GeoPrior-v3 has grown into a distinct scientific software
+project with its own:</p>
+<ul class="simple">
+<li><p>model family,</p></li>
+<li><p>CLI surface,</p></li>
+<li><p>staged workflow,</p></li>
+<li><p>application layer,</p></li>
+<li><p>and documentation structure.</p></li>
+</ul>
+<p>At that point, keeping the docs embedded in a FusionLab-style
+context created several problems:</p>
+<ul class="simple">
+<li><p>project identity became blurred;</p></li>
+<li><p>API links could point to the wrong namespace;</p></li>
+<li><p>docs could imply dependencies or ownership that were no
+longer accurate;</p></li>
+<li><p>and contributors had to mentally translate between an old
+hosting context and the current repository structure.</p></li>
+</ul>
+<p>A useful summary is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>early phase:
+   GeoPrior lived inside a broader documentation context
+
+current phase:
+   GeoPrior-v3 is documented as its own package and project
+</pre></div>
+</div>
+<p>That transition is the core meaning of this migration page.</p>
+</section>
+<section id="what-changed">
+<h2>What changed<a class="headerlink" href="#what-changed" title="Link to this heading">#</a></h2>
+<p>The migration is not only about moving pages to a new docs
+site. It also changes the expected documentation reference
+model.</p>
+<section id="before">
+<h3>Before<a class="headerlink" href="#before" title="Link to this heading">#</a></h3>
+<p>The old documentation context tended to assume a broader
+FusionLab-style identity, where GeoPrior-related material
+could be treated as part of a larger package ecosystem.</p>
+<p>Typical consequences included:</p>
+<ul class="simple">
+<li><p>stale inter-page links,</p></li>
+<li><p>wrong module paths in API references,</p></li>
+<li><p>references to old package locations,</p></li>
+<li><p>mixed narrative language about which project owned the
+workflow.</p></li>
+</ul>
+</section>
+<section id="now">
+<h3>Now<a class="headerlink" href="#now" title="Link to this heading">#</a></h3>
+<p>GeoPrior-v3 documentation is structured around the current
+repository and package layout:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../generated/api/cli/geoprior.cli.html#module-geoprior.cli" title="geoprior.cli"><code class="xref py py-mod docutils literal notranslate"><span class="pre">geoprior.cli</span></code></a></p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">geoprior.models</span></code></p></li>
+<li><p><a class="reference internal" href="../api/utils.html#module-geoprior.utils" title="geoprior.utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">geoprior.utils</span></code></a></p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">geoprior.resources</span></code></p></li>
+</ul>
+<p>with the flagship model family now clearly documented through
+the GeoPrior model surface, including
+<code class="xref py py-class docutils literal notranslate"><span class="pre">GeoPriorSubsNet</span></code> and
+<code class="xref py py-class docutils literal notranslate"><span class="pre">PoroElasticSubsNet</span></code>, which are
+publicly exported from the model package.</p>
+<p>This means that documentation should now describe GeoPrior as
+its own project, not as a feature nested inside a different
+package identity.</p>
+</section>
+</section>
+<section id="what-did-not-change">
+<h2>What did <strong>not</strong> change<a class="headerlink" href="#what-did-not-change" title="Link to this heading">#</a></h2>
+<p>The migration does <strong>not</strong> mean the scientific ideas were
+discarded.</p>
+<p>The following remain continuous across the transition:</p>
+<ul class="simple">
+<li><p>the subsidence-forecasting model family,</p></li>
+<li><p>the staged workflow philosophy,</p></li>
+<li><p>the physics-guided forecasting logic,</p></li>
+<li><p>the tuner-based search workflow,</p></li>
+<li><p>the reproducibility and figure-generation layer.</p></li>
+</ul>
+<p>What changed is mainly:</p>
+<ul class="simple">
+<li><p>ownership of the documentation surface,</p></li>
+<li><p>correctness of module paths and links,</p></li>
+<li><p>and clarity of the project boundary.</p></li>
+</ul>
+</section>
+<section id="why-this-matters-for-developers">
+<h2>Why this matters for developers<a class="headerlink" href="#why-this-matters-for-developers" title="Link to this heading">#</a></h2>
+<p>A documentation migration can leave behind subtle problems
+even after the new site builds successfully.</p>
+<p>For example:</p>
+<ul class="simple">
+<li><p>a page may still mention an old package path;</p></li>
+<li><p>an <code class="docutils literal notranslate"><span class="pre">:mod:</span></code> or <code class="docutils literal notranslate"><span class="pre">:class:</span></code> link may resolve to the wrong
+object;</p></li>
+<li><p>prose may still refer to FusionLab instead of GeoPrior-v3;</p></li>
+<li><p>examples may import from a deprecated or indirect location.</p></li>
+</ul>
+<p>These problems are easy to miss because the text may still
+<em>sound</em> correct even while the technical reference path is
+wrong.</p>
+<p>So the goal of this page is not only historical explanation.
+It is also a <strong>maintenance guide</strong> for keeping the migrated
+docs consistent.</p>
+</section>
+<section id="main-migration-principles">
+<h2>Main migration principles<a class="headerlink" href="#main-migration-principles" title="Link to this heading">#</a></h2>
+<p>When updating old documentation, follow these rules.</p>
+<p><strong>1. Prefer the GeoPrior namespace</strong></p>
+<p>Pages should refer to <code class="docutils literal notranslate"><span class="pre">geoprior</span></code> modules and objects unless
+there is a very specific reason to mention historical context.</p>
+<p><strong>2. Treat FusionLab references as legacy context</strong></p>
+<p>FusionLab can be mentioned to explain old links or migration
+history, but it should not be presented as the current home
+of GeoPrior-v3 docs.</p>
+<p><strong>3. Update both prose and cross-references</strong></p>
+<p>It is not enough to replace words in paragraphs. Sphinx
+cross-references, import examples, API paths, and
+<code class="docutils literal notranslate"><span class="pre">literalinclude</span></code> paths also need to be updated.</p>
+<p><strong>4. Keep current public exports authoritative</strong></p>
+<p>Documentation should prefer the public import surfaces that
+the package intentionally exposes today.</p>
+<p>A compact migration view is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>old FusionLab-oriented wording
+     ↓
+replace with GeoPrior-v3 project wording
+
+old module path
+     ↓
+replace with current geoprior.* path
+
+old inter-doc link
+     ↓
+replace with local page or current API target
+</pre></div>
+</div>
+</section>
+<section id="what-to-update-in-old-pages">
+<h2>What to update in old pages<a class="headerlink" href="#what-to-update-in-old-pages" title="Link to this heading">#</a></h2>
+<p>When migrating an older page, check the following layers.</p>
+<section id="project-naming">
+<h3>Project naming<a class="headerlink" href="#project-naming" title="Link to this heading">#</a></h3>
+<p>Look for wording like:</p>
+<ul class="simple">
+<li><p>“FusionLab package”</p></li>
+<li><p>“FusionLab docs”</p></li>
+<li><p>“the parent package”</p></li>
+<li><p>or language that treats GeoPrior as only a subsection of
+another project</p></li>
+</ul>
+<p>and replace it with wording appropriate for GeoPrior-v3 as an
+independent project.</p>
+</section>
+<section id="imports-and-api-paths">
+<h3>Imports and API paths<a class="headerlink" href="#imports-and-api-paths" title="Link to this heading">#</a></h3>
+<p>Check all examples such as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">fusionlab...</span>
+</pre></div>
+</div>
+<p>and replace them with the correct GeoPrior import surface.</p>
+<p>For example, current public exports already include
+GeoPrior-v3 model-facing objects directly from the model
+package surface, such as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoPriorSubsNet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">PoroElasticSubsNet</span>
+</pre></div>
+</div>
+<p>which reflects the current top-level model package exports.</p>
+</section>
+<section id="cross-references">
+<h3>Cross-references<a class="headerlink" href="#cross-references" title="Link to this heading">#</a></h3>
+<p>Check Sphinx roles such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">:mod:`...</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">:class:`...</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">:func:`...</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">:doc:`...</span></code></p></li>
+</ul>
+<p>A page can build while still pointing to a stale or wrong
+target if the old reference pattern remains in place.</p>
+</section>
+<section id="literal-include-paths">
+<h3>Literal include paths<a class="headerlink" href="#literal-include-paths" title="Link to this heading">#</a></h3>
+<p>Any <code class="docutils literal notranslate"><span class="pre">literalinclude</span></code> blocks copied from older docs should be
+checked carefully.</p>
+<p>A path that was valid inside the old documentation layout may
+now be wrong relative to:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>docs/source/...
+</pre></div>
+</div>
+<p>This is one of the most common migration breakpoints.</p>
+</section>
+<section id="narrative-assumptions">
+<h3>Narrative assumptions<a class="headerlink" href="#narrative-assumptions" title="Link to this heading">#</a></h3>
+<p>Check whether the page assumes:</p>
+<ul class="simple">
+<li><p>a different package layout,</p></li>
+<li><p>a different documentation site root,</p></li>
+<li><p>a different CLI entry strategy,</p></li>
+<li><p>or a different public API boundary.</p></li>
+</ul>
+<p>These assumptions often survive even after links are fixed.</p>
+</section>
+</section>
+<section id="typical-old-to-new-mapping-patterns">
+<h2>Typical old-to-new mapping patterns<a class="headerlink" href="#typical-old-to-new-mapping-patterns" title="Link to this heading">#</a></h2>
+<p>The migration is easiest when contributors follow a small set
+of standard replacement patterns.</p>
+<section id="project-identity">
+<h3>Project identity<a class="headerlink" href="#project-identity" title="Link to this heading">#</a></h3>
+<p>Old pattern:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>FusionLab documentation / package context
+</pre></div>
+</div>
+<p>New pattern:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>GeoPrior-v3 documentation / project context
+</pre></div>
+</div>
+</section>
+<section id="model-imports">
+<h3>Model imports<a class="headerlink" href="#model-imports" title="Link to this heading">#</a></h3>
+<p>Old style:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">fusionlab....</span>
+</pre></div>
+</div>
+<p>New preferred style:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoPriorSubsNet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">PoroElasticSubsNet</span>
+</pre></div>
+</div>
+<p>Current model exports also include uncertainty and diagnostic
+helpers through the same GeoPrior model surface, such as
+interval calibration helpers and identifiability/payload
+utilities.</p>
+</section>
+<section id="utility-imports">
+<h3>Utility imports<a class="headerlink" href="#utility-imports" title="Link to this heading">#</a></h3>
+<p>Old style:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">fusionlab.utils....</span>
+</pre></div>
+</div>
+<p>New style:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_nat_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_tf_dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">evaluate_forecast</span>
+</pre></div>
+</div>
+<p>These names are currently re-exported from the top-level
+GeoPrior utility surface.</p>
+</section>
+<section id="tuner-imports">
+<h3>Tuner imports<a class="headerlink" href="#tuner-imports" title="Link to this heading">#</a></h3>
+<p>Old style:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">fusionlab....</span><span class="w"> </span><span class="kn">import</span> <span class="n">some</span> <span class="n">tuner</span>
+</pre></div>
+</div>
+<p>New style:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.models.forecast_tuner</span><span class="w"> </span><span class="kn">import</span> <span class="n">SubsNetTuner</span>
+</pre></div>
+</div>
+<p>which matches the current public tuner export surface
+.</p>
+</section>
+<section id="config-template-references">
+<h3>Config/template references<a class="headerlink" href="#config-template-references" title="Link to this heading">#</a></h3>
+<p>Old style:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>configuration template in previous doc context
+</pre></div>
+</div>
+<p>New style:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>geoprior/resources/natcom_config_template.py
+</pre></div>
+</div>
+<p>The current template explicitly identifies itself as the
+GeoPrior-v3 NATCOM config template and documents its intended
+placement and bootstrap role.</p>
+</section>
+</section>
+<section id="how-to-rewrite-migrated-prose">
+<h2>How to rewrite migrated prose<a class="headerlink" href="#how-to-rewrite-migrated-prose" title="Link to this heading">#</a></h2>
+<p>A good migration does more than replace import paths. It also
+updates the voice of the documentation.</p>
+<p>Old migrated prose often sounds like:</p>
+<ul class="simple">
+<li><p>“inside FusionLab we provide…”</p></li>
+<li><p>“this module belongs to the broader parent framework…”</p></li>
+<li><p>“the package extension used here is…”</p></li>
+</ul>
+<p>A better GeoPrior-v3 style is:</p>
+<ul class="simple">
+<li><p>“GeoPrior-v3 provides…”</p></li>
+<li><p>“the GeoPrior workflow uses…”</p></li>
+<li><p>“the package exposes…”</p></li>
+<li><p>“the staged workflow writes…”</p></li>
+</ul>
+<p>This makes the docs feel coherent rather than patched.</p>
+</section>
+<section id="when-to-mention-fusionlab-explicitly">
+<h2>When to mention FusionLab explicitly<a class="headerlink" href="#when-to-mention-fusionlab-explicitly" title="Link to this heading">#</a></h2>
+<p>FusionLab should still be mentioned in a few cases.</p>
+<p>It is useful when:</p>
+<ul class="simple">
+<li><p>explaining why old links or imports may still appear in
+notebooks or draft docs;</p></li>
+<li><p>documenting a migration decision for contributors;</p></li>
+<li><p>clarifying that some historical text came from an earlier
+host documentation context.</p></li>
+</ul>
+<p>It is <strong>not</strong> useful to mention FusionLab repeatedly inside
+normal user-guide or API pages once the page has already been
+fully migrated.</p>
+<p>A good rule is:</p>
+<ul class="simple">
+<li><p>mention FusionLab for <strong>history or migration</strong>;</p></li>
+<li><p>use GeoPrior-v3 everywhere else.</p></li>
+</ul>
+</section>
+<section id="migration-checklist-for-contributors">
+<h2>Migration checklist for contributors<a class="headerlink" href="#migration-checklist-for-contributors" title="Link to this heading">#</a></h2>
+<p>When updating an older page, use this checklist.</p>
+<section id="id1">
+<h3>Project identity<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>replace FusionLab-oriented project wording with GeoPrior-v3
+wording where appropriate</p></li>
+<li><p>keep historical references only when they help explain the
+migration</p></li>
+</ul>
+</section>
+<section id="imports-and-examples">
+<h3>Imports and examples<a class="headerlink" href="#imports-and-examples" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>update old imports to current <code class="docutils literal notranslate"><span class="pre">geoprior</span></code> imports</p></li>
+<li><p>prefer public re-export surfaces when they exist</p></li>
+<li><p>avoid documenting stale internal paths if a stable public
+path is available</p></li>
+</ul>
+</section>
+<section id="id2">
+<h3>Cross-references<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>check <code class="docutils literal notranslate"><span class="pre">:mod:</span></code>, <code class="docutils literal notranslate"><span class="pre">:class:</span></code>, <code class="docutils literal notranslate"><span class="pre">:func:</span></code>, and <code class="docutils literal notranslate"><span class="pre">:doc:</span></code>
+roles</p></li>
+<li><p>rebuild the docs and confirm references resolve correctly</p></li>
+</ul>
+</section>
+<section id="paths-and-includes">
+<h3>Paths and includes<a class="headerlink" href="#paths-and-includes" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>check all <code class="docutils literal notranslate"><span class="pre">literalinclude</span></code> paths</p></li>
+<li><p>check local page links relative to <code class="docutils literal notranslate"><span class="pre">docs/source/</span></code></p></li>
+</ul>
+</section>
+<section id="narrative-consistency">
+<h3>Narrative consistency<a class="headerlink" href="#narrative-consistency" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>remove prose that assumes the old package boundary</p></li>
+<li><p>confirm the page now reads like a GeoPrior-v3 document,
+not like a migrated appendix</p></li>
+</ul>
+</section>
+</section>
+<section id="api-surfaces-to-prefer-after-migration">
+<h2>API surfaces to prefer after migration<a class="headerlink" href="#api-surfaces-to-prefer-after-migration" title="Link to this heading">#</a></h2>
+<p>As the docs migrate, contributors should prefer the current
+public surfaces that GeoPrior intentionally exports.</p>
+<section id="models">
+<h3>Models<a class="headerlink" href="#models" title="Link to this heading">#</a></h3>
+<p>Use:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoPriorSubsNet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">PoroElasticSubsNet</span>
+</pre></div>
+</div>
+</section>
+<section id="utilities">
+<h3>Utilities<a class="headerlink" href="#utilities" title="Link to this heading">#</a></h3>
+<p>Use top-level GeoPrior utility exports when they are
+available, for example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_nat_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">evaluate_forecast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_txy_coords</span>
+</pre></div>
+</div>
+<p>The top-level utility package already re-exports many of the
+workflow-facing helpers needed in documentation examples.</p>
+</section>
+<section id="tuner">
+<h3>Tuner<a class="headerlink" href="#tuner" title="Link to this heading">#</a></h3>
+<p>Use:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.models.forecast_tuner</span><span class="w"> </span><span class="kn">import</span> <span class="n">SubsNetTuner</span>
+</pre></div>
+</div>
+<p>which matches the current forecast-tuner package export
+surface .</p>
+</section>
+<section id="resources">
+<h3>Resources<a class="headerlink" href="#resources" title="Link to this heading">#</a></h3>
+<p>Treat packaged resources as GeoPrior resources, especially:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>geoprior/resources/natcom_config_template.py
+</pre></div>
+</div>
+<p>which is the packaged NATCOM template for config bootstrap.</p>
+</section>
+</section>
+<section id="common-migration-mistakes">
+<h2>Common migration mistakes<a class="headerlink" href="#common-migration-mistakes" title="Link to this heading">#</a></h2>
+<p><strong>Replacing wording but not links</strong></p>
+<p>The prose may look updated while Sphinx roles still point to
+stale targets.</p>
+<p><strong>Keeping historical imports in examples</strong></p>
+<p>Users then copy code that no longer reflects the intended
+public API.</p>
+<p><strong>Mixing old and new project identities on one page</strong></p>
+<p>This makes the documentation feel unstable and confuses new
+contributors.</p>
+<p><strong>Treating migrated pages as “good enough” once they build</strong></p>
+<p>A successful build does not guarantee the page is correct,
+coherent, or aligned with the new package boundary.</p>
+<p><strong>Documenting old private paths instead of new public exports</strong></p>
+<p>This makes future refactors harder.</p>
+</section>
+<section id="a-practical-migration-workflow">
+<h2>A practical migration workflow<a class="headerlink" href="#a-practical-migration-workflow" title="Link to this heading">#</a></h2>
+<p>A good page-migration workflow is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>identify page with old FusionLab context
+     ↓
+update prose to GeoPrior-v3 wording
+     ↓
+replace stale imports with current geoprior imports
+     ↓
+fix Sphinx refs and literalinclude paths
+     ↓
+rebuild docs
+     ↓
+verify rendered links and API targets
+     ↓
+do one final prose pass for consistency
+</pre></div>
+</div>
+<p>That order works better than only doing search-and-replace.</p>
+</section>
+<section id="how-to-think-about-backward-compatibility">
+<h2>How to think about backward compatibility<a class="headerlink" href="#how-to-think-about-backward-compatibility" title="Link to this heading">#</a></h2>
+<p>Migration does not require pretending the old context never
+existed.</p>
+<p>Instead, contributors should aim for:</p>
+<ul class="simple">
+<li><p><strong>historical honesty</strong></p></li>
+<li><p>plus</p></li>
+<li><p><strong>current technical correctness</strong></p></li>
+</ul>
+<p>That means it is fine to say:</p>
+<ul class="simple">
+<li><p>“this page was migrated from an earlier FusionLab-hosted
+docs context”</p></li>
+</ul>
+<p>but the page should still teach the user the <strong>current</strong>
+GeoPrior-v3 names, APIs, and navigation paths.</p>
+</section>
+<section id="best-practices">
+<h2>Best practices<a class="headerlink" href="#best-practices" title="Link to this heading">#</a></h2>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Prefer current public GeoPrior import surfaces in examples.</p>
+<p>This makes the docs more stable and easier for users to
+follow.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Mention FusionLab only where historical explanation is
+helpful.</p>
+<p>Do not let old hosting context dominate current docs.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Check prose, refs, and includes together.</p>
+<p>A page is not fully migrated until all three are aligned.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Keep migration edits explicit in pull requests.</p>
+<p>Reviewers should be able to see whether a change is a
+namespace fix, a wording fix, or a real behavior change.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Use the current packaged template and utility surfaces as
+anchors when rewriting old setup pages.</p>
+<p>They are part of the clearest current GeoPrior-v3 contract
+.</p>
+</div>
+</section>
+<section id="a-compact-migration-map">
+<h2>A compact migration map<a class="headerlink" href="#a-compact-migration-map" title="Link to this heading">#</a></h2>
+<p>The migration from FusionLab can be summarized as:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>old docs host/context
+     ↓
+GeoPrior-v3 gets its own documentation space
+     ↓
+old wording, refs, and imports become stale
+     ↓
+migrate to current geoprior namespace and package boundary
+     ↓
+rebuild links, examples, and API pages around GeoPrior-v3
+</pre></div>
+</div>
+</section>
+<section id="relationship-to-the-rest-of-the-developer-docs">
+<h2>Relationship to the rest of the developer docs<a class="headerlink" href="#relationship-to-the-rest-of-the-developer-docs" title="Link to this heading">#</a></h2>
+<p>This page explains <strong>how to update old documentation context
+into the new project boundary</strong>.</p>
+<p>The surrounding developer pages explain:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="package_structure.html"><span class="doc">Package structure</span></a>
+where the current code and docs now live;</p></li>
+<li><p><a class="reference internal" href="contributing.html"><span class="doc">Contributing</span></a>
+how to contribute cleanly to the current project;</p></li>
+<li><p><a class="reference internal" href="../release_notes.html"><span class="doc">Release Notes</span></a>
+how to record changes once the migration becomes part of a
+released docs history.</p></li>
+</ul>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="package_structure.html"><span class="doc">Package structure</span></a></p></li>
+<li><p><a class="reference internal" href="contributing.html"><span class="doc">Contributing</span></a></p></li>
+<li><p><a class="reference internal" href="../release_notes.html"><span class="doc">Release Notes</span></a></p></li>
+<li><p><a class="reference internal" href="../user_guide/configuration.html"><span class="doc">Configuration</span></a></p></li>
+<li><p><a class="reference internal" href="../api/cli.html"><span class="doc">CLI and command registry</span></a></p></li>
+<li><p><a class="reference internal" href="../api/subsidence.html"><span class="doc">Subsidence API reference</span></a></p></li>
+<li><p><a class="reference internal" href="../api/tuner.html"><span class="doc">Tuner API reference</span></a></p></li>
+<li><p><a class="reference internal" href="../api/utils.html"><span class="doc">Utility API reference</span></a></p></li>
+<li><p><a class="reference internal" href="../api/resources.html"><span class="doc">Packaged resources reference</span></a></p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="package_structure.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Package structure</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="contributing.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Contributing</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-the-migration-happened">Why the migration happened</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-changed">What changed</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#before">Before</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#now">Now</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-did-not-change">What did <strong>not</strong> change</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-matters-for-developers">Why this matters for developers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#main-migration-principles">Main migration principles</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-to-update-in-old-pages">What to update in old pages</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#project-naming">Project naming</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imports-and-api-paths">Imports and API paths</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cross-references">Cross-references</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#literal-include-paths">Literal include paths</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#narrative-assumptions">Narrative assumptions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-old-to-new-mapping-patterns">Typical old-to-new mapping patterns</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#project-identity">Project identity</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-imports">Model imports</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#utility-imports">Utility imports</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tuner-imports">Tuner imports</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#config-template-references">Config/template references</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-rewrite-migrated-prose">How to rewrite migrated prose</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-mention-fusionlab-explicitly">When to mention FusionLab explicitly</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#migration-checklist-for-contributors">Migration checklist for contributors</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Project identity</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imports-and-examples">Imports and examples</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Cross-references</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#paths-and-includes">Paths and includes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#narrative-consistency">Narrative consistency</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-surfaces-to-prefer-after-migration">API surfaces to prefer after migration</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#models">Models</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#utilities">Utilities</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tuner">Tuner</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#resources">Resources</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-migration-mistakes">Common migration mistakes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-practical-migration-workflow">A practical migration workflow</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-think-about-backward-compatibility">How to think about backward compatibility</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">Best practices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-compact-migration-map">A compact migration map</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#relationship-to-the-rest-of-the-developer-docs">Relationship to the rest of the developer docs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See also</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/earthai-tech/geoprior-v3/edit/main/docs/source/developer/migration_from_fusionlab.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/developer/migration_from_fusionlab.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

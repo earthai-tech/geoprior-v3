@@ -1,0 +1,1275 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Diagnostics &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=404c0980"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/diagnostics';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Inference and export" href="inference_and_export.html" />
+    <link rel="prev" title="Configuration" href="configuration.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="workflow_overview.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stage1.html">Stage-1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stage2.html">Stage-2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stage3.html">Stage-3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stage4.html">Stage-4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stage5.html">Stage-5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference_and_export.html">Inference and export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Diagnostics</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="diagnostics">
+<h1>Diagnostics<a class="headerlink" href="#diagnostics" title="Link to this heading">#</a></h1>
+<p>Diagnostics are a first-class part of GeoPrior-v3.</p>
+<p>In a physics-guided workflow, a run is not trustworthy merely
+because it finished. A useful diagnostic workflow must help
+you answer questions such as:</p>
+<ul class="simple">
+<li><p>Did the stage use the intended inputs and configuration?</p></li>
+<li><p>Did the tensors, feature lists, and manifests agree?</p></li>
+<li><p>Did training remain numerically stable?</p></li>
+<li><p>Did forecast quality improve after calibration?</p></li>
+<li><p>Did the physics-facing diagnostics remain plausible?</p></li>
+<li><p>Are transfer or inference results being interpreted under
+the correct target-domain contract?</p></li>
+</ul>
+<p>This page explains how to read diagnostics across the staged
+GeoPrior-v3 workflow and how to connect them back to the
+artifacts each stage produces.</p>
+<section id="why-diagnostics-matter">
+<h2>Why diagnostics matter<a class="headerlink" href="#why-diagnostics-matter" title="Link to this heading">#</a></h2>
+<p>GeoPrior-v3 is explicitly organized as a staged scientific
+workflow in which diagnostics, artifact inspection, and
+audits are part of the normal execution model rather than an
+optional extra. The workflow guide already emphasizes
+progressive validation and warns that a numerically
+successful run is not automatically a scientifically
+trustworthy one.</p>
+<p>That is why diagnostics appear throughout the workflow:</p>
+<ul class="simple">
+<li><p>Stage-1 validates the preprocessing and sequence-export
+contract.</p></li>
+<li><p>Stage-2 validates training-time handoff, optimization, and
+forecast export.</p></li>
+<li><p>Stage-3 validates tuning outcomes and tuned forecast
+behavior.</p></li>
+<li><p>Stage-4 validates saved-model reuse, calibration policy,
+and inference outputs.</p></li>
+<li><p>Later workflow steps continue this pattern through export,
+reporting, and downstream interpretation.</p></li>
+</ul>
+<p>A useful way to think about the diagnostics system is:
+<strong>contract diagnostics + optimization diagnostics +
+forecast diagnostics + physics diagnostics</strong>.</p>
+</section>
+<section id="diagnostic-layers-in-geoprior-v3">
+<h2>Diagnostic layers in GeoPrior-v3<a class="headerlink" href="#diagnostic-layers-in-geoprior-v3" title="Link to this heading">#</a></h2>
+<p>GeoPrior-v3 diagnostics naturally fall into four layers.</p>
+<p><strong>1. Contract diagnostics</strong></p>
+<p>These diagnose whether a stage received the right inputs and
+whether the workflow contract remains internally consistent.</p>
+<p>Typical examples include:</p>
+<ul class="simple">
+<li><p>manifest presence and correctness,</p></li>
+<li><p>feature-list agreement,</p></li>
+<li><p>tensor shape agreement,</p></li>
+<li><p>split and holdout summaries,</p></li>
+<li><p>city or run mismatch detection,</p></li>
+<li><p>scaling and coordinate metadata consistency.</p></li>
+</ul>
+<p><strong>2. Optimization diagnostics</strong></p>
+<p>These diagnose training or tuning behavior.</p>
+<p>Typical examples include:</p>
+<ul class="simple">
+<li><p>training history curves,</p></li>
+<li><p>early stopping behavior,</p></li>
+<li><p>NaN termination,</p></li>
+<li><p>best-epoch selection,</p></li>
+<li><p>tuning-summary comparison,</p></li>
+<li><p>trial instability during hyperparameter search.</p></li>
+</ul>
+<p><strong>3. Forecast diagnostics</strong></p>
+<p>These diagnose the quality and usability of outputs.</p>
+<p>Typical examples include:</p>
+<ul class="simple">
+<li><p>point metrics such as MAE or RMSE,</p></li>
+<li><p>interval metrics such as coverage and sharpness,</p></li>
+<li><p>calibrated vs uncalibrated forecast comparison,</p></li>
+<li><p>per-horizon metrics,</p></li>
+<li><p>evaluation and future CSV inspection.</p></li>
+</ul>
+<p><strong>4. Physics diagnostics</strong></p>
+<p>These diagnose whether the model remains physically
+interpretable.</p>
+<p>Typical examples include:</p>
+<ul class="simple">
+<li><p>epsilon-style residual summaries,</p></li>
+<li><p>physics payload exports,</p></li>
+<li><p>physical-parameter summaries,</p></li>
+<li><p>identifiability-oriented summaries,</p></li>
+<li><p>scaled vs raw residual interpretation.</p></li>
+</ul>
+</section>
+<section id="a-compact-mental-model">
+<h2>A compact mental model<a class="headerlink" href="#a-compact-mental-model" title="Link to this heading">#</a></h2>
+<p>A practical mental model is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>contract checks
+     ↓
+optimization stability
+     ↓
+forecast quality
+     ↓
+physics consistency
+     ↓
+transfer / inference interpretation
+</pre></div>
+</div>
+<p>If any early layer is wrong, later layers become harder to
+trust.</p>
+</section>
+<section id="stage-1-diagnostics">
+<h2>Stage-1 diagnostics<a class="headerlink" href="#stage-1-diagnostics" title="Link to this heading">#</a></h2>
+<p>Stage-1 diagnostics are mostly about the <strong>data contract</strong>.</p>
+<p>Stage-1 writes the manifest, train/validation/test NPZ
+bundles, and related CSV snapshots. The manifest records
+artifact paths, tensor shapes, sequence dimensions, feature
+lists, column roles, configuration snapshot, split details,
+and software metadata. It is also the place where you can
+inspect the canonical naming block for subsidence,
+groundwater, thickness, surface-elevation, and coordinate
+roles.</p>
+<p>After Stage-1, the first things to inspect are:</p>
+<ul class="simple">
+<li><p>the run directory,</p></li>
+<li><p>saved raw / cleaned / scaled CSV snapshots,</p></li>
+<li><p>exported NPZ bundles,</p></li>
+<li><p>the manifest,</p></li>
+<li><p>recorded feature lists,</p></li>
+<li><p>recorded shapes,</p></li>
+<li><p>holdout summaries,</p></li>
+<li><p>and scaling or censoring metadata.</p></li>
+</ul>
+<p>A Stage-1 run is not trustworthy if the manifest and the NPZ
+artifacts disagree, if feature ordering drifted, or if the
+city / model identity in the artifacts does not match the
+intended run.</p>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Inspect the Stage-1 manifest before moving to Stage-2.</p>
+<p>It is the main handshake artifact for the rest of the
+workflow.</p>
+</div>
+</section>
+<section id="stage-2-diagnostics">
+<h2>Stage-2 diagnostics<a class="headerlink" href="#stage-2-diagnostics" title="Link to this heading">#</a></h2>
+<p>Stage-2 is where diagnostics become much richer.</p>
+<p>The training stage already performs a Stage-1 → Stage-2
+handoff audit, checking items such as manifest identity, city
+match, required NPZ existence, tensor last-dimension
+agreement with recorded feature lists, horizon / time-step
+consistency, scaling metadata availability, and coordinate
+compatibility.</p>
+<p>During and after training, typical Stage-2 artifacts include:</p>
+<ul class="simple">
+<li><p>training log CSV,</p></li>
+<li><p>training summary JSON,</p></li>
+<li><p>Stage-2 run manifest,</p></li>
+<li><p>model checkpoint artifacts,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scaling_kwargs.json</span></code>,</p></li>
+<li><p>evaluation forecast CSVs,</p></li>
+<li><p>calibrated forecast CSVs,</p></li>
+<li><p>evaluation diagnostics JSON,</p></li>
+<li><p>physics payload NPZ,</p></li>
+<li><p>extracted physical parameter tables.</p></li>
+</ul>
+<p>This is why Stage-2 should not be interpreted only as
+<code class="docutils literal notranslate"><span class="pre">model.fit()</span></code>. It is also a diagnostics and export stage.</p>
+<p>The first things to inspect after Stage-2 are:</p>
+<ul class="simple">
+<li><p>the training summary,</p></li>
+<li><p>the run manifest,</p></li>
+<li><p>the CSV history log,</p></li>
+<li><p>the best-model bundle,</p></li>
+<li><p>the saved scaling snapshot,</p></li>
+<li><p>evaluation diagnostics,</p></li>
+<li><p>calibrated forecast outputs,</p></li>
+<li><p>and the physics payload.</p></li>
+</ul>
+</section>
+<section id="stage-3-diagnostics">
+<h2>Stage-3 diagnostics<a class="headerlink" href="#stage-3-diagnostics" title="Link to this heading">#</a></h2>
+<p>Stage-3 diagnostics focus on <strong>selection quality</strong> and
+<strong>tuned-model trustworthiness</strong>.</p>
+<p>The tuning stage records:</p>
+<ul class="simple">
+<li><p>tuner logs,</p></li>
+<li><p>best hyperparameters JSON,</p></li>
+<li><p>tuned model manifest,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tuning_summary.json</span></code>,</p></li>
+<li><p>tuned evaluation forecast CSVs,</p></li>
+<li><p>tuned future forecast CSVs,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eval_diagnostics_tuned.json</span></code>,</p></li>
+<li><p>tuned physics payloads,</p></li>
+<li><p>and optional Stage-3 audit outputs.</p></li>
+</ul>
+<p>These diagnostics matter because Stage-3 is not only search.
+It is also a tuned evaluation and export stage.</p>
+<p>A tuned winner should therefore be reviewed along at least
+three axes:</p>
+<ul class="simple">
+<li><p>did the search remain stable?</p></li>
+<li><p>did the chosen hyperparameters actually improve the run?</p></li>
+<li><p>did the physics-facing diagnostics remain interpretable?</p></li>
+</ul>
+<p>A lower validation loss alone is not enough in a
+physics-guided setting.</p>
+</section>
+<section id="stage-4-diagnostics">
+<h2>Stage-4 diagnostics<a class="headerlink" href="#stage-4-diagnostics" title="Link to this heading">#</a></h2>
+<p>Stage-4 diagnostics are about <strong>saved-model reuse</strong> and
+<strong>target-contract-aware inference</strong>.</p>
+<p>The inference stage writes its outputs under a target-domain
+inference directory and can produce:</p>
+<ul class="simple">
+<li><p>evaluation CSVs,</p></li>
+<li><p>future forecast CSVs,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inference_summary.json</span></code>,</p></li>
+<li><p>and, when optional evaluation flags are enabled,
+<code class="docutils literal notranslate"><span class="pre">transfer_eval.json</span></code>.</p></li>
+</ul>
+<p>The summary JSON records items such as:</p>
+<ul class="simple">
+<li><p>dataset name,</p></li>
+<li><p>city,</p></li>
+<li><p>model,</p></li>
+<li><p>horizon,</p></li>
+<li><p>mode,</p></li>
+<li><p>whether the run was calibrated,</p></li>
+<li><p>output CSV paths,</p></li>
+<li><p>and, when targets and scaler information are available,
+physical-unit point and interval metrics.</p></li>
+</ul>
+<p>The optional <code class="docutils literal notranslate"><span class="pre">transfer_eval.json</span></code> extends this with
+scaled-space loss information, approximate physics
+diagnostics, and debug details about the rebuild path.</p>
+<p>This stage is especially important in same-domain reuse,
+zero-shot transfer, source-calibrator reuse, and
+target-validation recalibration settings, where you must
+distinguish carefully between source-model artifacts and the
+target-domain contract.</p>
+</section>
+<section id="what-to-read-first-in-a-diagnostic-review">
+<h2>What to read first in a diagnostic review<a class="headerlink" href="#what-to-read-first-in-a-diagnostic-review" title="Link to this heading">#</a></h2>
+<p>A good diagnostic review sequence is:</p>
+<p><strong>After Stage-1</strong></p>
+<ol class="arabic simple">
+<li><p>manifest</p></li>
+<li><p>feature lists</p></li>
+<li><p>shapes</p></li>
+<li><p>split summary</p></li>
+</ol>
+<p><strong>After Stage-2</strong></p>
+<ol class="arabic simple">
+<li><p>training summary JSON</p></li>
+<li><p>history log</p></li>
+<li><p>evaluation diagnostics JSON</p></li>
+<li><p>calibrated forecast CSVs</p></li>
+<li><p>physics payload</p></li>
+</ol>
+<p><strong>After Stage-3</strong></p>
+<ol class="arabic simple">
+<li><p>tuning summary</p></li>
+<li><p>best hyperparameters JSON</p></li>
+<li><p>tuned diagnostics JSON</p></li>
+<li><p>tuned forecast CSVs</p></li>
+<li><p>tuned physics payload</p></li>
+</ol>
+<p><strong>After Stage-4</strong></p>
+<ol class="arabic simple">
+<li><p>inference summary JSON</p></li>
+<li><p>transfer-eval JSON, if present</p></li>
+<li><p>evaluation CSV</p></li>
+<li><p>future CSV</p></li>
+<li><p>calibration policy</p></li>
+</ol>
+<p>This order makes it easier to separate contract problems from
+optimization problems and optimization problems from physics
+problems.</p>
+</section>
+<section id="interpreting-forecast-metrics">
+<h2>Interpreting forecast metrics<a class="headerlink" href="#interpreting-forecast-metrics" title="Link to this heading">#</a></h2>
+<p>GeoPrior-v3 diagnostics span both point forecasts and
+interval forecasts.</p>
+<p>Common point-facing metrics include:</p>
+<ul class="simple">
+<li><p>MAE,</p></li>
+<li><p>MSE,</p></li>
+<li><p>RMSE,</p></li>
+<li><p>and, in some summaries, <span class="math notranslate nohighlight">\(R^2\)</span>.</p></li>
+</ul>
+<p>Common interval-facing metrics include:</p>
+<ul class="simple">
+<li><p>coverage,</p></li>
+<li><p>sharpness,</p></li>
+<li><p>and per-horizon variants of the same ideas.</p></li>
+</ul>
+<p>A good mental model is:</p>
+<ul class="simple">
+<li><p><strong>point metrics</strong> tell you how close the central forecast
+is;</p></li>
+<li><p><strong>interval metrics</strong> tell you whether the uncertainty band
+is both useful and honest.</p></li>
+</ul>
+<p>When calibrated and uncalibrated forecast outputs both
+exist, compare them explicitly rather than reading only one
+set of CSVs.</p>
+</section>
+<section id="interpreting-calibration">
+<h2>Interpreting calibration<a class="headerlink" href="#interpreting-calibration" title="Link to this heading">#</a></h2>
+<p>Calibration is an explicit part of later GeoPrior stages.</p>
+<p>Stage-2 fits interval calibration after training.
+Stage-3 can calibrate tuned quantile outputs before export.
+Stage-4 can reuse a source calibrator, load a calibrator
+explicitly, or fit a new one on target validation data.</p>
+<p>That means calibration should be treated as a visible part of
+interpretation, not as a hidden post-processing detail.</p>
+<p>Ask these questions:</p>
+<ul class="simple">
+<li><p>Was the output calibrated or not?</p></li>
+<li><p>Which calibrator policy was used?</p></li>
+<li><p>Was the calibrator source-side or target-side?</p></li>
+<li><p>Are you comparing calibrated and uncalibrated outputs
+fairly?</p></li>
+</ul>
+<p>If those questions are ignored, interval comparisons become
+harder to trust.</p>
+</section>
+<section id="interpreting-physics-diagnostics">
+<h2>Interpreting physics diagnostics<a class="headerlink" href="#interpreting-physics-diagnostics" title="Link to this heading">#</a></h2>
+<p>The physics side has its own diagnostic language.</p>
+<p>The math page already distinguishes two important families of
+epsilon diagnostics:</p>
+<ul class="simple">
+<li><p><strong>raw epsilons</strong>, which still carry the original residual
+scale;</p></li>
+<li><p><strong>scaled epsilons</strong>, which are unitless and correspond more
+directly to the optimization view.</p></li>
+</ul>
+<p>Typical keys include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">epsilon_cons_raw</span></code> and <code class="docutils literal notranslate"><span class="pre">epsilon_cons</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">epsilon_gw_raw</span></code> and <code class="docutils literal notranslate"><span class="pre">epsilon_gw</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">epsilon_prior</span></code></p></li>
+</ul>
+<p>A useful interpretation rule is:</p>
+<ul class="simple">
+<li><p>if raw epsilons are very large but scaled epsilons are
+moderate, scaling may be doing its job;</p></li>
+<li><p>if both are unstable or exploding, you likely need to
+inspect units, coordinate spans, or scaling assumptions.</p></li>
+</ul>
+<p>The same math page also emphasizes that GeoPrior uses
+SI-consistent physics internally, with head-like quantities
+treated in meters, time converted to seconds for physics, and
+positive SI fields such as <span class="math notranslate nohighlight">\(K\)</span>, <span class="math notranslate nohighlight">\(S_s\)</span>,
+<span class="math notranslate nohighlight">\(H\)</span>, and <span class="math notranslate nohighlight">\(\\tau\)</span>. This is why diagnostics should
+always be interpreted together with the data-and-units and
+scaling pages.</p>
+</section>
+<section id="a-practical-physics-diagnostics-checklist">
+<h2>A practical physics-diagnostics checklist<a class="headerlink" href="#a-practical-physics-diagnostics-checklist" title="Link to this heading">#</a></h2>
+<p>When reviewing a physics-aware run, ask:</p>
+<ul class="simple">
+<li><p>Are epsilon curves finite?</p></li>
+<li><p>Are raw and scaled epsilons telling a consistent story?</p></li>
+<li><p>Does <code class="docutils literal notranslate"><span class="pre">epsilon_prior</span></code> suggest a severe timescale mismatch?</p></li>
+<li><p>Were physics payloads exported successfully?</p></li>
+<li><p>Do extracted physical-parameter tables look plausible?</p></li>
+<li><p>Are unit assumptions and coordinate conventions still the
+same as those recorded by Stage-1 and Stage-2?</p></li>
+</ul>
+<p>If the answer to any of these is “not sure,” pause before
+making a scientific interpretation.</p>
+</section>
+<section id="programmatic-diagnostics-helpers">
+<h2>Programmatic diagnostics helpers<a class="headerlink" href="#programmatic-diagnostics-helpers" title="Link to this heading">#</a></h2>
+<p>The public model-facing namespace also exposes several helper
+utilities that are useful when diagnostics are inspected from
+Python rather than only from files.</p>
+<p>Examples include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">debug_tensor_interval</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">debug_val_interval</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">debug_quantile_crossing_np</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_history_in</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fit_interval_calibrator_on_val</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">apply_calibrator_to_subs</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">extract_physical_parameters</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">load_physics_payload</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_physics_values_in</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">identifiability_diagnostics_from_payload</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">summarise_effective_params</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ident_audit_dict</span></code></p></li>
+</ul>
+<p>These tools are worth documenting here because they give the
+user a path from stage-level artifact inspection to
+programmatic post hoc diagnosis.</p>
+</section>
+<section id="common-diagnostic-patterns">
+<h2>Common diagnostic patterns<a class="headerlink" href="#common-diagnostic-patterns" title="Link to this heading">#</a></h2>
+<p><strong>Pattern 1: Good training loss, poor forecast CSVs</strong></p>
+<p>This often means the optimization loop was stable, but the
+forecast interpretation step still needs inspection. Check:</p>
+<ul class="simple">
+<li><p>calibration policy,</p></li>
+<li><p>quantile layout handling,</p></li>
+<li><p>output formatting,</p></li>
+<li><p>and the specific split being evaluated.</p></li>
+</ul>
+<p><strong>Pattern 2: Good point metrics, poor interval behavior</strong></p>
+<p>This often means the central prediction is fine, but the
+uncertainty bands are too narrow, too wide, or poorly
+calibrated. Compare calibrated and uncalibrated outputs.</p>
+<p><strong>Pattern 3: Good supervised metrics, unstable physics
+diagnostics</strong></p>
+<p>This often points to unit, scaling, coordinate, or physics
+weight problems rather than a pure forecast-quality issue.</p>
+<p><strong>Pattern 4: Good tuned result, poor transfer or inference
+reuse</strong></p>
+<p>This often means the saved model is fine, but the target
+contract, calibration policy, or bundle reconstruction path
+needs inspection.</p>
+<p><strong>Pattern 5: Strange behavior very early in the workflow</strong></p>
+<p>This often goes back to Stage-1. Recheck the manifest,
+feature lists, split summaries, and exported tensors before
+debugging later stages.</p>
+</section>
+<section id="common-mistakes">
+<h2>Common mistakes<a class="headerlink" href="#common-mistakes" title="Link to this heading">#</a></h2>
+<p><strong>Reading only one summary file</strong></p>
+<p>A training summary without the forecast diagnostics, or an
+inference summary without the target contract, gives only a
+partial picture.</p>
+<p><strong>Ignoring manifests</strong></p>
+<p>The manifest is not bookkeeping clutter. It is how the
+workflow records meaning.</p>
+<p><strong>Treating calibration as invisible</strong></p>
+<p>Later-stage diagnostics must be interpreted in light of the
+calibration policy.</p>
+<p><strong>Reading physics metrics without checking units</strong></p>
+<p>Residual diagnostics can look alarming or reassuring for the
+wrong reason if unit assumptions are wrong.</p>
+<p><strong>Comparing runs with different contracts</strong></p>
+<p>Two runs are not automatically comparable if their Stage-1
+feature order, target semantics, or scaling conventions
+differ.</p>
+</section>
+<section id="best-practices">
+<h2>Best practices<a class="headerlink" href="#best-practices" title="Link to this heading">#</a></h2>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Review diagnostics in layers.</p>
+<p>Start with contract checks, then optimization, then
+forecast quality, then physics interpretation.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Keep summary JSONs, manifests, and forecast CSVs together.</p>
+<p>A single artifact rarely explains the full story.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Compare calibrated and uncalibrated outputs explicitly.</p>
+<p>This is especially important when interval behavior is part
+of the scientific claim.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Treat physics diagnostics as scientific evidence, not only
+as debugging metadata.</p>
+<p>They are part of the model’s interpretability contract.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>When in doubt, go back one stage earlier.</p>
+<p>Many late-stage diagnostic surprises originate in earlier
+artifact or semantics drift.</p>
+</div>
+</section>
+<section id="a-compact-diagnostics-map">
+<h2>A compact diagnostics map<a class="headerlink" href="#a-compact-diagnostics-map" title="Link to this heading">#</a></h2>
+<p>The GeoPrior-v3 diagnostics story can be summarized like
+this:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Stage-1
+  manifest + shapes + feature lists + split summaries
+     ↓
+Stage-2
+  history logs + training summary + eval diagnostics
+  + calibrated forecasts + physics payload
+     ↓
+Stage-3
+  tuning summary + best_hps + tuned diagnostics
+  + tuned forecasts + tuned physics payload
+     ↓
+Stage-4
+  inference_summary + transfer_eval + eval/future CSVs
+  + calibration-policy interpretation
+     ↓
+scientific review
+  point metrics + interval metrics + physics diagnostics
+  + transfer / reuse interpretation
+</pre></div>
+</div>
+</section>
+<section id="read-next">
+<h2>Read next<a class="headerlink" href="#read-next" title="Link to this heading">#</a></h2>
+<p>The best next pages after this one are:</p>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-1 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Inference and export</div>
+<p class="sd-card-text">See how diagnostic artifacts relate to the reusable
+inference and export workflow.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="inference_and_export.html"><span class="doc">Inference and export</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Data and units</div>
+<p class="sd-card-text">Revisit the unit and coordinate assumptions that affect
+physics-facing diagnostics.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="../scientific_foundations/data_and_units.html"><span class="doc">Data, units, and conventions</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Scaling</div>
+<p class="sd-card-text">Review the scaling rules that shape both optimization
+and physics residual interpretation.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="../scientific_foundations/scaling.html"><span class="doc">Scaling and conventions (scaling_kwargs)</span></a></div>
+</div>
+</div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="workflow_overview.html"><span class="doc">Workflow</span></a></p></li>
+<li><p><a class="reference internal" href="stage1.html"><span class="doc">Stage-1</span></a></p></li>
+<li><p><a class="reference internal" href="stage2.html"><span class="doc">Stage-2</span></a></p></li>
+<li><p><a class="reference internal" href="stage3.html"><span class="doc">Stage-3</span></a></p></li>
+<li><p><a class="reference internal" href="stage4.html"><span class="doc">Stage-4</span></a></p></li>
+<li><p><a class="reference internal" href="inference_and_export.html"><span class="doc">Inference and export</span></a></p></li>
+<li><p><a class="reference internal" href="../scientific_foundations/data_and_units.html"><span class="doc">Data, units, and conventions</span></a></p></li>
+<li><p><a class="reference internal" href="../scientific_foundations/scaling.html"><span class="doc">Scaling and conventions (scaling_kwargs)</span></a></p></li>
+<li><p><a class="reference internal" href="../scientific_foundations/maths.html"><span class="doc">GeoPrior maths: definitions and conventions</span></a></p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="configuration.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Configuration</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="inference_and_export.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Inference and export</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-diagnostics-matter">Why diagnostics matter</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#diagnostic-layers-in-geoprior-v3">Diagnostic layers in GeoPrior-v3</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-compact-mental-model">A compact mental model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-1-diagnostics">Stage-1 diagnostics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-2-diagnostics">Stage-2 diagnostics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-3-diagnostics">Stage-3 diagnostics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-4-diagnostics">Stage-4 diagnostics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-to-read-first-in-a-diagnostic-review">What to read first in a diagnostic review</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interpreting-forecast-metrics">Interpreting forecast metrics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interpreting-calibration">Interpreting calibration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interpreting-physics-diagnostics">Interpreting physics diagnostics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-practical-physics-diagnostics-checklist">A practical physics-diagnostics checklist</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#programmatic-diagnostics-helpers">Programmatic diagnostics helpers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-diagnostic-patterns">Common diagnostic patterns</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-mistakes">Common mistakes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">Best practices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-compact-diagnostics-map">A compact diagnostics map</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#read-next">Read next</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/earthai-tech/geoprior-v3/edit/main/docs/source/user_guide/diagnostics.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/user_guide/diagnostics.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

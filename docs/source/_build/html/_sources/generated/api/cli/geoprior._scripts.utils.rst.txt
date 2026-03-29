@@ -1,0 +1,68 @@
+﻿geoprior.\_scripts.utils
+========================
+
+.. automodule:: geoprior._scripts.utils
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      add_city_flags
+      add_plot_text_args
+      add_render_args
+      as_path
+      canonical_city
+      detect_artifacts
+      ensure_columns
+      ensure_dir
+      ensure_script_dirs
+      filter_year
+      find_all
+      find_eval_diag_json
+      find_latest
+      find_phys_json
+      find_preferred
+      flatten_eval_diag
+      label
+      load_dataset_any
+      load_forecast_csv
+      phys_json_to_mm
+      phys_label
+      pick_interval_metrics
+      pick_point_metrics
+      resolve_cities
+      resolve_fig_out
+      resolve_fig_stem
+      resolve_out_out
+      resolve_title
+      safe_load_json
+      sample_df
+      save_figure
+      set_paper_style
+      str_to_bool
+      to_float
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Artifacts
+   
+   
+
+   
+   
+   
+
+
+

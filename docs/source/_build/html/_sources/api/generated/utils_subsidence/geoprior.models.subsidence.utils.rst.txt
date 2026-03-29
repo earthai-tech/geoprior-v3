@@ -1,0 +1,54 @@
+﻿geoprior.models.subsidence.utils
+================================
+
+.. automodule:: geoprior.models.subsidence.utils
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      affine_from_cfg
+      assert_dynamic_names_match_tensor
+      canonicalize_scaling_kwargs
+      coord_ranges
+      coord_ranges_si
+      deg_to_m
+      enforce_scaling_alias_consistency
+      finalize_scaling_kwargs
+      from_si_subsidence
+      get_gwl_dyn_index_cached
+      get_h_hist_si
+      get_h_ref_si
+      get_s_init_si
+      get_sk
+      get_subs_dyn_index_cached
+      gwl_to_head_m
+      infer_dt_units_from_t
+      load_scaling_kwargs
+      policy_gate
+      resolve_gwl_dyn_index
+      resolve_subs_dyn_index
+      slice_dynamic_channel
+      to_si_head
+      to_si_subsidence
+      to_si_thickness
+      validate_scaling_kwargs
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

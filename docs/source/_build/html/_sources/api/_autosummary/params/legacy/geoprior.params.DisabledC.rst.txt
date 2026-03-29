@@ -1,0 +1,30 @@
+﻿geoprior.params.DisabledC
+=========================
+
+.. currentmodule:: geoprior.params
+
+.. autoclass:: DisabledC
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DisabledC.__init__
+      ~DisabledC.from_config
+      ~DisabledC.get_config
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DisabledC.trainable
+   
+   

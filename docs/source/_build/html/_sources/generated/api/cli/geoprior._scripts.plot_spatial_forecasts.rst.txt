@@ -1,0 +1,31 @@
+﻿geoprior.\_scripts.plot\_spatial\_forecasts
+===========================================
+
+.. automodule:: geoprior._scripts.plot_spatial_forecasts
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      main
+      plot_fig6_spatial_forecasts
+      plot_fig6_spatial_forecasts_main
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,29 @@
+﻿geoprior.\_scripts.registry
+===========================
+
+.. automodule:: geoprior._scripts.registry
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      ScriptSpec
+   
+   
+
+   
+   
+   
+
+
+

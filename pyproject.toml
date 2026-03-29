@@ -80,7 +80,8 @@ docs = [
   "sphinxcontrib-bibtex",
   "numpydoc>=1.6",
   "contextily",
-  "geopandas"
+  "geopandas", 
+  "shapely"
 
 ]
 

@@ -25,7 +25,7 @@
 
   <p>
     <em>GeoPrior-v3</em> is an open, reproducible research codebase for
-    <strong>physics-guided machine learning</strong> in <strong>geohazard forecasting</strong>
+    <strong>physics-guided machine learning</strong> in <st3rong>geohazard forecasting</strong>
     and <strong>risk assessment</strong>. Today, it focuses on land subsidence via
     <strong>GeoPriorSubsNet</strong>; next, it expands toward landslides and broader
     geohazard regimes.

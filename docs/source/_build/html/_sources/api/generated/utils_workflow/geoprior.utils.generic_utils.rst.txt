@@ -1,0 +1,64 @@
+﻿geoprior.utils.generic\_utils
+=============================
+
+.. automodule:: geoprior.utils.generic_utils
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      apply_affix
+      are_all_values_in_bounds
+      as_tuple
+      cast_hp_to_bool
+      cast_multiple_bool_params
+      check_group_column_validity
+      default_results_dir
+      detect_dt_format
+      ensure_cols_exist
+      ensure_directory_exists
+      exclude_duplicate_kwargs
+      find_id_column
+      get_actual_column_name
+      getenv_stripped
+      handle_emptiness
+      insert_affix_in
+      map_scales_choice
+      normalize_model_inputs
+      normalize_time_column
+      print_box
+      print_config_table
+      rename_dict_keys
+      reorder_columns
+      save_all_figures
+      save_figure
+      select_mode
+      split_train_test_by_time
+      transform_contributions
+      verify_identical_items
+      vlog
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      ExistenceChecker
+   
+   
+
+   
+   
+   
+
+
+

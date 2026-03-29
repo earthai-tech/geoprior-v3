@@ -1,0 +1,30 @@
+﻿geoprior.cli.build\_assign\_boreholes
+=====================================
+
+.. automodule:: geoprior.cli.build_assign_boreholes
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      build_assign_boreholes_main
+      main
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

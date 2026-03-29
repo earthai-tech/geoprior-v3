@@ -1,0 +1,1298 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>SM3 bounds versus ridge: learning the two main failure modes &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=404c0980"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/figure_generation/plot_sm3_bounds_ridge_summary';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="SM3 identifiability: learning when recovery is accurate and when parameters slide along a ridge" href="plot_sm3_identifiability.html" />
+    <link rel="prev" title="Physics sensitivity: learning how lambda choices reshape the physics diagnostics" href="plot_physics_sensitivity.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../forecasting/index.html">Forecasting</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_forecast.html">Forecast quick-look with <code class="docutils literal notranslate"><span class="pre">plot_forecasts</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_forecast_by_step.html">Forecast by horizon step with <code class="docutils literal notranslate"><span class="pre">plot_forecast_by_step</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_future_quantiles_map.html">Future quantile maps with <code class="docutils literal notranslate"><span class="pre">forecast_view</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_holdout_vs_forecast.html">Holdout versus future forecast with <code class="docutils literal notranslate"><span class="pre">plot_eval_future</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../uncertainty/index.html">Uncertainty</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../diagnostics/index.html">Diagnostics</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Figure generation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="plot_ablation.html">Core ablation: learning what physics adds to the workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_core_ablation.html">Ablations and sensitivities: learning where the model behaves well in lambda space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_driver_response.html">Driver-response plots: learning how the response moves with the drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_external_validation.html">External validation: comparing inferred effective fields against independent site evidence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_geo_cumulative.html">Cumulative subsidence on a satellite-style map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_hotspot_analytics.html">Hotspot analytics: turning future forecasts into decision-ready priority maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_litho_parity.html">Lithology parity: comparing the geological composition of the two cities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_fields.html">Physics fields: learning to read the physical story in a map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_maps.html">Physics maps: turning pointwise payloads into readable spatial fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_profiles.html">Physics profiles: reducing a 2D lambda landscape into readable 1D lessons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_sanity.html">Physics sanity: checking closure agreement and residual behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_sensitivity.html">Physics sensitivity: learning how lambda choices reshape the physics diagnostics</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">SM3 bounds versus ridge: learning the two main failure modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_sm3_identifiability.html">SM3 identifiability: learning when recovery is accurate and when parameters slide along a ridge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_sm3_log_offsets.html">SM3 log offsets: learning where the inferred fields drift from their priors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_spatial_forecasts.html">Spatial forecasts: how to read observed maps, fitted maps, and future forecast maps together</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_transfer.html">Cross-city transferability: learning what survives transfer between cities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_uncertainty.html">Forecast uncertainty: learning how calibration behaves across cities and horizons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_uncertainty_extras.html">Expanded uncertainty diagnostics: learning what the main uncertainty figure still hides</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_xfer_impact.html">Transfer impact: what transfer changes for retention, risk, and hotspot stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_xfer_transferability.html">Cross-city transferability (v3.2): what survives when a workflow moves to the other city</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tables_and_summaries/index.html">Tables and summaries</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/build_ablation_table.html">Build ablation tables from sensitivity records</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/build_model_metrics.html">Build unified model-metrics tables from GeoPrior runs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/compute_brier_exceedance.html">Compute exceedance Brier scores from calibrated forecasts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/compute_hotspots.html">Compute hotspot summary tables from forecast CSVs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/extend_forecast.html">Extend forecast CSVs to later years</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/make_boundary.html">Build city boundary polygons from forecast points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/make_district_grid.html">Create district grid layers from forecast points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/make_exposure.html">Create exposure weights from forecast point density</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/summarize_hotspots.html">Summarize hotspot point clouds into tidy group tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/tag_clusters_with_zones.html">Tag hotspot clusters with district Zone IDs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../model_inspection/index.html">Model inspection</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/autoplot_geoprior_history.html">Automatically save the standard GeoPrior history diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/extract_physical_parameters.html">Extract learned physical parameters from a trained model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/gather_coords_flat.html">Flatten (t, x, y) coordinates from dataset batches</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/plot_epsilons_in.html">Plot epsilon diagnostics from a GeoPrior training history</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/plot_history_in.html">Plot training history with robust grouping and scale handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/plot_physics_losses_in.html">Plot physics loss terms from a GeoPrior training history</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/plot_physics_values_in.html">Plot physics payload values as maps and histograms</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../examples/index.html" class="nav-link">Gallery</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Figure generation</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">SM3 bounds versus ridge: learning the two main failure modes</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-figure-generation-plot-sm3-bounds-ridge-summary-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="sm3-bounds-versus-ridge-learning-the-two-main-failure-modes">
+<span id="sphx-glr-auto-examples-figure-generation-plot-sm3-bounds-ridge-summary-py"></span><h1>SM3 bounds versus ridge: learning the two main failure modes<a class="headerlink" href="#sm3-bounds-versus-ridge-learning-the-two-main-failure-modes" title="Link to this heading">#</a></h1>
+<p>This example teaches you how to read the GeoPrior
+SM3 bounds-versus-ridge summary figure.</p>
+<p>In Supplementary Methods 3, two failure modes matter a lot:</p>
+<ol class="arabic simple">
+<li><p><strong>clipping to bounds</strong></p></li>
+<li><p><strong>ridge non-identifiability</strong></p></li>
+</ol>
+<p>These are not the same thing.</p>
+<p>A run can hit a hard or effective bound without necessarily
+showing a strong ridge. And a run can show a strong ridge
+without obviously clipping to a bound. This figure is useful
+because it puts both failure modes into one compact page.</p>
+<section id="what-the-four-panels-mean">
+<h2>What the four panels mean<a class="headerlink" href="#what-the-four-panels-mean" title="Link to this heading">#</a></h2>
+<p>The plotting backend builds four panels:</p>
+<ol class="loweralpha simple">
+<li><p>bound hits
+counts and percentages for hits at the inferred extrema of
+<span class="math notranslate nohighlight">\(K\)</span>, <span class="math notranslate nohighlight">\(\tau\)</span>, and <span class="math notranslate nohighlight">\(H_d\)</span>.</p></li>
+<li><p>ridge distribution
+histogram of <code class="docutils literal notranslate"><span class="pre">ridge_resid_q50</span></code> together with a threshold
+marking what the script calls “strong ridge”.</p></li>
+<li><p>clipping versus ridge matrix
+a 2×2 count table showing:
+- not clipped / no ridge,
+- not clipped / strong ridge,
+- clipped / no ridge,
+- clipped / strong ridge.</p></li>
+<li><p>category fractions
+either overall category fractions or, when <code class="docutils literal notranslate"><span class="pre">lith_idx</span></code> is
+available, stacked fractions by lithology.</p></li>
+</ol>
+</section>
+<section id="why-this-matters">
+<h2>Why this matters<a class="headerlink" href="#why-this-matters" title="Link to this heading">#</a></h2>
+<p>This figure does not ask whether recovery was accurate.
+It asks <strong>why recovery may have failed</strong>.</p>
+<p>That is a different question.</p>
+<p>A model can miss the true parameters because it is pushed to the
+edge of the feasible region. Or it can miss them because the
+inverse problem is sliding along a ridge. These two situations
+require different scientific responses.</p>
+<p>This gallery page builds a compact synthetic SM3-style table so
+the figure is fully executable during documentation builds.</p>
+</section>
+<section id="imports">
+<h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
+<p>We use the real plotting function and its real helper routines
+from the project script.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.image</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpimg</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">geoprior._scripts.plot_sm3_bounds_ridge_summary</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <a href="../../generated/api/cli/geoprior._scripts.plot_sm3_bounds_ridge_summary.html#geoprior._scripts.plot_sm3_bounds_ridge_summary.compute_flags" title="geoprior._scripts.plot_sm3_bounds_ridge_summary.compute_flags" class="sphx-glr-backref-module-geoprior-_scripts-plot_sm3_bounds_ridge_summary sphx-glr-backref-type-py-function"><span class="n">compute_flags</span></a><span class="p">,</span>
+    <a href="../../generated/api/cli/geoprior._scripts.plot_sm3_bounds_ridge_summary.html#geoprior._scripts.plot_sm3_bounds_ridge_summary.infer_bounds" title="geoprior._scripts.plot_sm3_bounds_ridge_summary.infer_bounds" class="sphx-glr-backref-module-geoprior-_scripts-plot_sm3_bounds_ridge_summary sphx-glr-backref-type-py-function"><span class="n">infer_bounds</span></a><span class="p">,</span>
+    <a href="../../generated/api/cli/geoprior._scripts.plot_sm3_bounds_ridge_summary.html#geoprior._scripts.plot_sm3_bounds_ridge_summary.plot_sm3_bounds_ridge_summary" title="geoprior._scripts.plot_sm3_bounds_ridge_summary.plot_sm3_bounds_ridge_summary" class="sphx-glr-backref-module-geoprior-_scripts-plot_sm3_bounds_ridge_summary sphx-glr-backref-type-py-function"><span class="n">plot_sm3_bounds_ridge_summary</span></a><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="step-1-build-a-compact-synthetic-sm3-summary-table">
+<h2>Step 1 - Build a compact synthetic SM3 summary table<a class="headerlink" href="#step-1-build-a-compact-synthetic-sm3-summary-table" title="Link to this heading">#</a></h2>
+<p>The real plotting script needs, at minimum:</p>
+<ul class="simple">
+<li><p>K_est_med_mps</p></li>
+<li><p>tau_est_med_sec</p></li>
+<li><p>Hd_est_med</p></li>
+<li><p>ridge_resid_q50</p></li>
+</ul>
+<p>It can also use:</p>
+<ul class="simple">
+<li><p>lith_idx</p></li>
+<li><p>identify</p></li>
+<li><p>nx</p></li>
+</ul>
+<p>to enrich the summary and filtering logic.</p>
+<p>We therefore create a small synthetic table with four
+lithology groups. The idea is:</p>
+<ul class="simple">
+<li><p>some runs will be intentionally clipped at extrema,</p></li>
+<li><p>some runs will have strong ridge residuals,</p></li>
+<li><p>some will suffer both,</p></li>
+<li><p>and some will show neither failure mode.</p></li>
+</ul>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.Generator" title="numpy.random.Generator" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rng</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.default_rng" title="numpy.random.default_rng" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span></a><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+<a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_per_lith</span></a> <span class="o">=</span> <span class="mi">95</span>
+
+<span class="c1"># Synthetic extrema that some runs will hit exactly.</span>
+<a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">K_MIN</span></a> <span class="o">=</span> <span class="mf">8.0e-8</span>
+<a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">K_MAX</span></a> <span class="o">=</span> <span class="mf">3.5e-5</span>
+<a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">TAU_MIN</span></a> <span class="o">=</span> <span class="mf">8.0e6</span>
+<a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">TAU_MAX</span></a> <span class="o">=</span> <span class="mf">7.5e8</span>
+<a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">HD_MIN</span></a> <span class="o">=</span> <span class="mf">10.0</span>
+<a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">HD_MAX</span></a> <span class="o">=</span> <span class="mf">34.0</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lith_cfg</span></a> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">0</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Fine&quot;</span><span class="p">,</span> <span class="s2">&quot;K0&quot;</span><span class="p">:</span> <span class="mf">3.0e-7</span><span class="p">,</span> <span class="s2">&quot;tau0&quot;</span><span class="p">:</span> <span class="mf">1.8e8</span><span class="p">,</span> <span class="s2">&quot;Hd0&quot;</span><span class="p">:</span> <span class="mf">28.0</span><span class="p">},</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Mixed&quot;</span><span class="p">,</span> <span class="s2">&quot;K0&quot;</span><span class="p">:</span> <span class="mf">8.0e-7</span><span class="p">,</span> <span class="s2">&quot;tau0&quot;</span><span class="p">:</span> <span class="mf">9.5e7</span><span class="p">,</span> <span class="s2">&quot;Hd0&quot;</span><span class="p">:</span> <span class="mf">24.0</span><span class="p">},</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Coarse&quot;</span><span class="p">,</span> <span class="s2">&quot;K0&quot;</span><span class="p">:</span> <span class="mf">2.4e-6</span><span class="p">,</span> <span class="s2">&quot;tau0&quot;</span><span class="p">:</span> <span class="mf">3.8e7</span><span class="p">,</span> <span class="s2">&quot;Hd0&quot;</span><span class="p">:</span> <span class="mf">18.0</span><span class="p">},</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Rock&quot;</span><span class="p">,</span> <span class="s2">&quot;K0&quot;</span><span class="p">:</span> <span class="mf">8.0e-6</span><span class="p">,</span> <span class="s2">&quot;tau0&quot;</span><span class="p">:</span> <span class="mf">1.5e7</span><span class="p">,</span> <span class="s2">&quot;Hd0&quot;</span><span class="p">:</span> <span class="mf">13.0</span><span class="p">},</span>
+<span class="p">}</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rows</span></a><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lith_idx</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cfg0</span></a> <span class="ow">in</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lith_cfg</span></a><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">for</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_per_lith</span></a><span class="p">):</span>
+        <span class="c1"># Latent ridge coordinate.</span>
+        <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-method"><span class="n">rng</span><span class="o">.</span><span class="n">normal</span></a><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+        <span class="c1"># Start from a lithology-specific center.</span>
+        <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">K_est</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cfg0</span></a><span class="p">[</span><span class="s2">&quot;K0&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">10.0</span> <span class="o">**</span> <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-method"><span class="n">rng</span><span class="o">.</span><span class="n">normal</span></a><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">))</span>
+        <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tau_est</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cfg0</span></a><span class="p">[</span><span class="s2">&quot;tau0&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">10.0</span> <span class="o">**</span> <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-method"><span class="n">rng</span><span class="o">.</span><span class="n">normal</span></a><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.16</span><span class="p">))</span>
+        <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Hd_est</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cfg0</span></a><span class="p">[</span><span class="s2">&quot;Hd0&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">10.0</span> <span class="o">**</span> <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-method"><span class="n">rng</span><span class="o">.</span><span class="n">normal</span></a><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.07</span><span class="p">))</span>
+
+        <span class="c1"># Ridge residual magnitude.</span>
+        <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ridge_resid_q50</span></a> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span>
+            <span class="mf">0.55</span> <span class="o">*</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span></a> <span class="o">+</span> <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-method"><span class="n">rng</span><span class="o">.</span><span class="n">normal</span></a><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Controlled clipping rules to create all four categories.</span>
+        <span class="k">if</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span></a> <span class="o">&gt;</span> <span class="mf">1.2</span><span class="p">:</span>
+            <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">K_est</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">K_MAX</span></a>
+        <span class="k">elif</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span></a> <span class="o">&lt;</span> <span class="o">-</span><span class="mf">1.5</span><span class="p">:</span>
+            <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">K_est</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">K_MIN</span></a>
+
+        <span class="k">if</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span></a> <span class="o">&gt;</span> <span class="mf">0.9</span><span class="p">:</span>
+            <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tau_est</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">TAU_MIN</span></a>
+        <span class="k">elif</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span></a> <span class="o">&lt;</span> <span class="o">-</span><span class="mf">1.8</span><span class="p">:</span>
+            <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tau_est</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">TAU_MAX</span></a>
+
+        <span class="k">if</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span></a> <span class="o">&gt;</span> <span class="mf">1.6</span><span class="p">:</span>
+            <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Hd_est</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">HD_MAX</span></a>
+        <span class="k">elif</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span></a> <span class="o">&lt;</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">:</span>
+            <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Hd_est</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">HD_MIN</span></a>
+
+        <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rows</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;identify&quot;</span><span class="p">:</span> <span class="s2">&quot;both&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nx&quot;</span><span class="p">:</span> <span class="mi">21</span><span class="p">,</span>
+                <span class="s2">&quot;lith_idx&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lith_idx</span></a><span class="p">),</span>
+                <span class="s2">&quot;K_est_med_mps&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">K_est</span></a><span class="p">),</span>
+                <span class="s2">&quot;tau_est_med_sec&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tau_est</span></a><span class="p">),</span>
+                <span class="s2">&quot;Hd_est_med&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">Hd_est</span></a><span class="p">),</span>
+                <span class="s2">&quot;ridge_resid_q50&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ridge_resid_q50</span></a><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+<a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">df</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rows</span></a><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Synthetic SM3 summary table&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.head.html#pandas.DataFrame.head" title="pandas.DataFrame.head" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">df</span><span class="o">.</span><span class="n">head</span></a><span class="p">()</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Synthetic SM3 summary table
+identify  nx  lith_idx  K_est_med_mps  tau_est_med_sec  Hd_est_med  ridge_resid_q50
+    both  21         0   2.575845e-07     2.892947e+08   28.889248         0.378375
+    both  21         0   2.304400e-07     2.197783e+08   26.607027         0.259377
+    both  21         0   1.593873e-07     2.792667e+08   25.129379         0.233491
+    both  21         0   5.660922e-07     1.411489e+08   26.627623         0.135775
+    both  21         0   8.000000e-08     7.500000e+08   10.000000         1.078251
+</pre></div>
+</div>
+</section>
+<section id="step-2-infer-the-bounds-exactly-the-same-way-as-the-script">
+<h2>Step 2 - Infer the bounds exactly the same way as the script<a class="headerlink" href="#step-2-infer-the-bounds-exactly-the-same-way-as-the-script" title="Link to this heading">#</a></h2>
+<p>The figure does not take external bounds as inputs. Instead, it
+infers them from the observed extrema in the table itself.</p>
+<p>This is important because “clipped” here means:</p>
+<ul class="simple">
+<li><p>equal to the minimum or maximum values <em>present in the runs</em>,</p></li>
+<li><p>not equal to some unrelated theoretical limit.</p></li>
+</ul>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../../generated/api/cli/geoprior._scripts.plot_sm3_bounds_ridge_summary.html#geoprior._scripts.plot_sm3_bounds_ridge_summary.BoundInfo" title="geoprior._scripts.plot_sm3_bounds_ridge_summary.BoundInfo" class="sphx-glr-backref-module-geoprior-_scripts-plot_sm3_bounds_ridge_summary sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bounds</span></a> <span class="o">=</span> <a href="../../generated/api/cli/geoprior._scripts.plot_sm3_bounds_ridge_summary.html#geoprior._scripts.plot_sm3_bounds_ridge_summary.infer_bounds" title="geoprior._scripts.plot_sm3_bounds_ridge_summary.infer_bounds" class="sphx-glr-backref-module-geoprior-_scripts-plot_sm3_bounds_ridge_summary sphx-glr-backref-type-py-function"><span class="n">infer_bounds</span></a><span class="p">(</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">df</span></a><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Inferred bounds&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  K_min   = </span><span class="si">{</span><a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bounds</span><span class="o">.</span><span class="n">K_min</span></a><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  K_max   = </span><span class="si">{</span><a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bounds</span><span class="o">.</span><span class="n">K_max</span></a><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  tau_min = </span><span class="si">{</span><a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bounds</span><span class="o">.</span><span class="n">tau_min</span></a><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  tau_max = </span><span class="si">{</span><a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bounds</span><span class="o">.</span><span class="n">tau_max</span></a><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Hd_min  = </span><span class="si">{</span><a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bounds</span><span class="o">.</span><span class="n">Hd_min</span></a><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Hd_max  = </span><span class="si">{</span><a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bounds</span><span class="o">.</span><span class="n">Hd_max</span></a><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Inferred bounds
+  K_min   = 8.000e-08
+  K_max   = 3.500e-05
+  tau_min = 6.011e+06
+  tau_max = 7.500e+08
+  Hd_min  = 8.636
+  Hd_max  = 40.500
+</pre></div>
+</div>
+</section>
+<section id="step-3-compute-clipping-and-ridge-flags">
+<h2>Step 3 - Compute clipping and ridge flags<a class="headerlink" href="#step-3-compute-clipping-and-ridge-flags" title="Link to this heading">#</a></h2>
+<p>The real helper builds six primitive clipping flags plus two
+combined categories:</p>
+<ul class="simple">
+<li><p>clipped_primary</p></li>
+<li><p>clipped_any</p></li>
+</ul>
+<p>and one ridge flag:</p>
+<ul class="simple">
+<li><p>ridge_strong = ridge_resid_q50 &gt; ridge_thr</p></li>
+</ul>
+<p>For the lesson, we use the more inclusive “any” clipping mode.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ridge_thr</span></a> <span class="o">=</span> <span class="mf">0.65</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">flags</span></a> <span class="o">=</span> <a href="../../generated/api/cli/geoprior._scripts.plot_sm3_bounds_ridge_summary.html#geoprior._scripts.plot_sm3_bounds_ridge_summary.compute_flags" title="geoprior._scripts.plot_sm3_bounds_ridge_summary.compute_flags" class="sphx-glr-backref-module-geoprior-_scripts-plot_sm3_bounds_ridge_summary sphx-glr-backref-type-py-function"><span class="n">compute_flags</span></a><span class="p">(</span>
+    <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">df</span></a><span class="p">,</span>
+    <a href="../../generated/api/cli/geoprior._scripts.plot_sm3_bounds_ridge_summary.html#geoprior._scripts.plot_sm3_bounds_ridge_summary.BoundInfo" title="geoprior._scripts.plot_sm3_bounds_ridge_summary.BoundInfo" class="sphx-glr-backref-module-geoprior-_scripts-plot_sm3_bounds_ridge_summary sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bounds</span></a><span class="p">,</span>
+    <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">,</span>
+    <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ridge_thr</span></a><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ridge_thr</span></a><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Basic counts&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  clipped_any     = </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">flags</span></a><span class="p">[</span><span class="s1">&#39;clipped_any&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  clipped_primary = </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">flags</span></a><span class="p">[</span><span class="s1">&#39;clipped_primary&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  ridge_strong    = </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">flags</span></a><span class="p">[</span><span class="s1">&#39;ridge_strong&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Basic counts
+  clipped_any     = 84
+  clipped_primary = 54
+  ridge_strong    = 105
+</pre></div>
+</div>
+</section>
+<section id="step-4-render-the-real-summary-figure">
+<h2>Step 4 - Render the real summary figure<a class="headerlink" href="#step-4-render-the-real-summary-figure" title="Link to this heading">#</a></h2>
+<p>We now call the real plotting backend.</p>
+<p>This script really does accept:</p>
+<ul class="simple">
+<li><p>show_legend</p></li>
+<li><p>show_labels</p></li>
+<li><p>show_ticklabels</p></li>
+<li><p>show_title</p></li>
+<li><p>show_panel_titles</p></li>
+<li><p>show_panel_labels</p></li>
+<li><p>paper_format</p></li>
+</ul>
+<p>so we pass only those valid arguments.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tmp_dir</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span>
+    <a href="https://docs.python.org/3/library/tempfile.html#tempfile.mkdtemp" title="tempfile.mkdtemp" class="sphx-glr-backref-module-tempfile sphx-glr-backref-type-py-function"><span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span></a><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;gp_sg_sm3_bounds_&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_base</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tmp_dir</span></a> <span class="o">/</span> <span class="s2">&quot;sm3_bounds_ridge_gallery&quot;</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_json</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tmp_dir</span></a> <span class="o">/</span> <span class="s2">&quot;sm3_bounds_ridge_gallery.json&quot;</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_csv</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tmp_dir</span></a> <span class="o">/</span> <span class="s2">&quot;sm3_bounds_ridge_categories.csv&quot;</span>
+
+<a href="../../generated/api/cli/geoprior._scripts.plot_sm3_bounds_ridge_summary.html#geoprior._scripts.plot_sm3_bounds_ridge_summary.plot_sm3_bounds_ridge_summary" title="geoprior._scripts.plot_sm3_bounds_ridge_summary.plot_sm3_bounds_ridge_summary" class="sphx-glr-backref-module-geoprior-_scripts-plot_sm3_bounds_ridge_summary sphx-glr-backref-type-py-function"><span class="n">plot_sm3_bounds_ridge_summary</span></a><span class="p">(</span>
+    <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">df</span></a><span class="p">,</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">flags</span></a><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">flags</span></a><span class="p">,</span>
+    <a href="../../generated/api/cli/geoprior._scripts.plot_sm3_bounds_ridge_summary.html#geoprior._scripts.plot_sm3_bounds_ridge_summary.BoundInfo" title="geoprior._scripts.plot_sm3_bounds_ridge_summary.BoundInfo" class="sphx-glr-backref-module-geoprior-_scripts-plot_sm3_bounds_ridge_summary sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bounds</span></a><span class="o">=</span><a href="../../generated/api/cli/geoprior._scripts.plot_sm3_bounds_ridge_summary.html#geoprior._scripts.plot_sm3_bounds_ridge_summary.BoundInfo" title="geoprior._scripts.plot_sm3_bounds_ridge_summary.BoundInfo" class="sphx-glr-backref-module-geoprior-_scripts-plot_sm3_bounds_ridge_summary sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bounds</span></a><span class="p">,</span>
+    <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ridge_thr</span></a><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ridge_thr</span></a><span class="p">,</span>
+    <span class="n">use</span><span class="o">=</span><span class="s2">&quot;any&quot;</span><span class="p">,</span>
+    <span class="n">out</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_base</span></a><span class="p">),</span>
+    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_json</span></a><span class="o">=</span><span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_json</span></a><span class="p">),</span>
+    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_csv</span></a><span class="o">=</span><span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_csv</span></a><span class="p">),</span>
+    <span class="n">dpi</span><span class="o">=</span><span class="mi">160</span><span class="p">,</span>
+    <span class="n">font</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+    <span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">show_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">show_ticklabels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">show_title</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">show_panel_titles</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">show_panel_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">paper_format</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;Synthetic SM3 failure-mode summary: &quot;</span>
+        <span class="s2">&quot;bounds versus ridge non-identifiability&quot;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[OK] wrote C:\Users\Daniel\AppData\Local\Temp\gp_sg_sm3_bounds_y3gwbs4p\sm3_bounds_ridge_gallery (eps,pdf,png,svg)
+[OK] wrote C:\Users\Daniel\AppData\Local\Temp\gp_sg_sm3_bounds_y3gwbs4p\sm3_bounds_ridge_categories.csv
+[OK] wrote C:\Users\Daniel\AppData\Local\Temp\gp_sg_sm3_bounds_y3gwbs4p\sm3_bounds_ridge_gallery.json
+</pre></div>
+</div>
+</section>
+<section id="step-5-show-the-png-produced-by-the-backend">
+<h2>Step 5 - Show the PNG produced by the backend<a class="headerlink" href="#step-5-show-the-png-produced-by-the-backend" title="Link to this heading">#</a></h2>
+<p>For the gallery page, we surface the PNG result directly.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">img</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/image_api.html#matplotlib.image.imread" title="matplotlib.image.imread" class="sphx-glr-backref-module-matplotlib-image sphx-glr-backref-type-py-function"><span class="n">mpimg</span><span class="o">.</span><span class="n">imread</span></a><span class="p">(</span><span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_base</span></a><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.png&quot;</span><span class="p">)</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">8.2</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">))</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.imshow.html#matplotlib.axes.Axes.imshow" title="matplotlib.axes.Axes.imshow" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">imshow</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">img</span></a><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.axis.html#matplotlib.axes.Axes.axis" title="matplotlib.axes.Axes.axis" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">axis</span></a><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_sm3_bounds_ridge_summary_001.png" srcset="../../_images/sphx_glr_plot_sm3_bounds_ridge_summary_001.png" alt="plot sm3 bounds ridge summary" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(np.float64(-0.5), np.float64(1144.5), np.float64(664.5), np.float64(-0.5))
+</pre></div>
+</div>
+</section>
+<section id="step-6-read-the-exported-category-table">
+<h2>Step 6 - Read the exported category table<a class="headerlink" href="#step-6-read-the-exported-category-table" title="Link to this heading">#</a></h2>
+<p>The script exports a category table that records counts and
+fractions for:</p>
+<ul class="simple">
+<li><p>overall categories</p></li>
+<li><p>lithology-specific categories</p></li>
+</ul>
+<p>and for both clipping definitions:</p>
+<ul class="simple">
+<li><p>primary</p></li>
+<li><p>any</p></li>
+</ul>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cat_df</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html#pandas.read_csv" title="pandas.read_csv" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-function"><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_csv</span></a><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Category table preview&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.head.html#pandas.DataFrame.head" title="pandas.DataFrame.head" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">cat_df</span><span class="o">.</span><span class="n">head</span></a><span class="p">(</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Category table preview
+    use     group  lith_idx lithology      category  count  denom     frac
+primary   overall        -1   overall Clipped+Ridge     44    380 0.115789
+primary   overall        -1   overall  Clipped only     10    380 0.026316
+primary   overall        -1   overall    Ridge only     61    380 0.160526
+primary   overall        -1   overall       Neither    265    380 0.697368
+primary lithology         0      Fine Clipped+Ridge     12     95 0.126316
+primary lithology         0      Fine  Clipped only      2     95 0.021053
+primary lithology         0      Fine    Ridge only     11     95 0.115789
+primary lithology         0      Fine       Neither     70     95 0.736842
+primary lithology         1     Mixed Clipped+Ridge      8     95 0.084211
+primary lithology         1     Mixed  Clipped only      3     95 0.031579
+primary lithology         1     Mixed    Ridge only     19     95 0.200000
+primary lithology         1     Mixed       Neither     65     95 0.684211
+</pre></div>
+</div>
+</section>
+<section id="step-7-read-the-exported-json-summary">
+<h2>Step 7 - Read the exported JSON summary<a class="headerlink" href="#step-7-read-the-exported-json-summary" title="Link to this heading">#</a></h2>
+<p>The JSON export records the inferred bounds and the count
+summaries for the primary and any clipping definitions.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_json</span></a><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <a href="https://docs.python.org/3/library/io.html#io.TextIOWrapper" title="io.TextIOWrapper" class="sphx-glr-backref-module-io sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">f</span></a><span class="p">:</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">payload</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/json.html#json.load" title="json.load" class="sphx-glr-backref-module-json sphx-glr-backref-type-py-function"><span class="n">json</span><span class="o">.</span><span class="n">load</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/io.html#io.TextIOWrapper" title="io.TextIOWrapper" class="sphx-glr-backref-module-io sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">f</span></a><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;JSON summary keys&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">payload</span></a><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Summary (any clipping)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/3/library/json.html#json.dumps" title="json.dumps" class="sphx-glr-backref-module-json sphx-glr-backref-type-py-function"><span class="n">json</span><span class="o">.</span><span class="n">dumps</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">payload</span></a><span class="p">[</span><span class="s2">&quot;summary_any&quot;</span><span class="p">],</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>JSON summary keys
+[&#39;bounds_inferred&#39;, &#39;category_csv&#39;, &#39;csv&#39;, &#39;ridge_thr&#39;, &#39;summary_any&#39;, &#39;summary_primary&#39;]
+
+Summary (any clipping)
+{
+  &quot;both&quot;: 72,
+  &quot;both_frac&quot;: 0.18947368421052632,
+  &quot;clipped&quot;: 84,
+  &quot;clipped_frac&quot;: 0.22105263157894736,
+  &quot;clipped_only&quot;: 12,
+  &quot;clipped_only_frac&quot;: 0.031578947368421054,
+  &quot;n&quot;: 380,
+  &quot;neither&quot;: 263,
+  &quot;neither_frac&quot;: 0.6921052631578948,
+  &quot;ridge_only&quot;: 33,
+  &quot;ridge_only_frac&quot;: 0.0868421052631579,
+  &quot;ridge_strong&quot;: 105,
+  &quot;ridge_strong_frac&quot;: 0.27631578947368424
+}
+</pre></div>
+</div>
+</section>
+<section id="step-8-learn-how-to-read-panel-a">
+<h2>Step 8 - Learn how to read panel (a)<a class="headerlink" href="#step-8-learn-how-to-read-panel-a" title="Link to this heading">#</a></h2>
+<p>Panel (a) is the bound-hit summary.</p>
+<p>Each bar answers:</p>
+<ul class="simple">
+<li><p>how many runs sat exactly at the inferred minimum or maximum,</p></li>
+<li><p>and what fraction of all runs that count represents.</p></li>
+</ul>
+<p>This panel is useful because clipping is often invisible if you
+only inspect scatter plots. A fitted value on the boundary can
+look innocent unless you count how often it happens.</p>
+<p>If one bar is very large, it usually means the optimization is
+pushing that parameter to the edge of the explored feasible
+space.</p>
+</section>
+<section id="step-9-learn-how-to-read-panel-b">
+<h2>Step 9 - Learn how to read panel (b)<a class="headerlink" href="#step-9-learn-how-to-read-panel-b" title="Link to this heading">#</a></h2>
+<p>Panel (b) shows the distribution of ridge residuals.</p>
+<p>The dashed line is the threshold used to define:</p>
+<blockquote>
+<div><p>strong ridge</p>
+</div></blockquote>
+<p>If many runs lie to the right of that line, the model family is
+telling you that a substantial portion of the experiment space
+suffers from non-identifiability along the ridge direction.</p>
+<p>This panel is therefore not about “good” or “bad” runs in the
+ordinary predictive sense. It is about whether the inverse
+problem remains structurally ambiguous.</p>
+</section>
+<section id="step-10-learn-how-to-read-panel-c">
+<h2>Step 10 - Learn how to read panel (c)<a class="headerlink" href="#step-10-learn-how-to-read-panel-c" title="Link to this heading">#</a></h2>
+<p>Panel (c) is the most diagnostic panel on the page.</p>
+<p>It cross-tabulates the two failure modes:</p>
+<ul class="simple">
+<li><p>clipped vs not clipped</p></li>
+<li><p>strong ridge vs no strong ridge</p></li>
+</ul>
+<p>This is important because it tells you whether the two failure
+modes are mostly separate or mostly overlapping.</p>
+<p>A useful interpretation pattern is:</p>
+<ul class="simple">
+<li><p>top-left:
+no clipping and no strong ridge
+-&gt; the safest region</p></li>
+<li><p>top-right:
+no clipping but strong ridge
+-&gt; not boundary-driven, but still weakly identifiable</p></li>
+<li><p>bottom-left:
+clipped without strong ridge
+-&gt; a boundary problem more than a ridge problem</p></li>
+<li><p>bottom-right:
+clipped and strong ridge
+-&gt; the most problematic regime</p></li>
+</ul>
+</section>
+<section id="step-11-learn-how-to-read-panel-d">
+<h2>Step 11 - Learn how to read panel (d)<a class="headerlink" href="#step-11-learn-how-to-read-panel-d" title="Link to this heading">#</a></h2>
+<p>Panel (d) summarizes the fractions of the four categories.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">lith_idx</span></code> is absent, the panel shows one overall fraction
+bar for each category.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">lith_idx</span></code> is present, as in this lesson, the panel becomes
+more informative: it shows stacked fractions within each
+lithology.</p>
+<p>That helps answer:</p>
+<ul class="simple">
+<li><p>which lithologies are more vulnerable to clipping?</p></li>
+<li><p>which lithologies are more prone to ridge ambiguity?</p></li>
+<li><p>and whether the dominant failure mode changes by material type.</p></li>
+</ul>
+</section>
+<section id="step-12-practical-takeaway">
+<h2>Step 12 - Practical takeaway<a class="headerlink" href="#step-12-practical-takeaway" title="Link to this heading">#</a></h2>
+<p>This figure is useful because it separates two distinct reasons
+for poor identifiability:</p>
+<ul class="simple">
+<li><p>pushing into bounds,</p></li>
+<li><p>sliding along a ridge.</p></li>
+</ul>
+<p>Those are different scientific problems and usually call for
+different remedies.</p>
+<p>For example:</p>
+<ul class="simple">
+<li><p>heavy clipping suggests revisiting bounds, priors, or search
+ranges,</p></li>
+<li><p>strong ridge behaviour suggests revisiting the closure design,
+the experiment structure, or the identifiability regime.</p></li>
+</ul>
+<p>That is why this figure belongs next to the main SM3
+identifiability figure: together they explain both recovery and
+failure mode.</p>
+</section>
+<section id="command-line-version">
+<h2>Command-line version<a class="headerlink" href="#command-line-version" title="Link to this heading">#</a></h2>
+<p>The same figure can be produced from the command line.</p>
+<p>The real script supports:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--csv</span></code> for the SM3 runs summary table,</p></li>
+<li><p>optional filtering through <code class="docutils literal notranslate"><span class="pre">--only-identify</span></code> and
+<code class="docutils literal notranslate"><span class="pre">--nx-min</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--use</span></code> with <code class="docutils literal notranslate"><span class="pre">any</span></code> or <code class="docutils literal notranslate"><span class="pre">primary</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--ridge-thr</span></code> and <code class="docutils literal notranslate"><span class="pre">--rtol</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--paper-format</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--out-json</span></code> and <code class="docutils literal notranslate"><span class="pre">--out-csv</span></code>,</p></li>
+<li><p>and the shared plotting text options, including
+<code class="docutils literal notranslate"><span class="pre">--show-panel-labels</span></code> for this specific script.</p></li>
+</ul>
+<p>Legacy dispatcher:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>scripts<span class="w"> </span>plot-sm3-bounds-ridge-summary<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--csv<span class="w"> </span>results/sm3_synth_1d/sm3_synth_runs.csv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--use<span class="w"> </span>any<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--ridge-thr<span class="w"> </span><span class="m">2</span>.0<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out<span class="w"> </span>sm3-clip-vs-ridge
+</pre></div>
+</div>
+<p>Restrict to one identify mode:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>scripts<span class="w"> </span>plot-sm3-bounds-ridge-summary<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--csv<span class="w"> </span>results/sm3_synth_1d/sm3_synth_runs.csv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--only-identify<span class="w"> </span>both<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--nx-min<span class="w"> </span><span class="m">21</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--use<span class="w"> </span>primary<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--paper-format<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out<span class="w"> </span>sm3-clip-vs-ridge-both
+</pre></div>
+</div>
+<p>Modern CLI:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior<span class="w"> </span>plot<span class="w"> </span>sm3-bounds-ridge-summary<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--csv<span class="w"> </span>results/sm3_synth_1d/sm3_synth_runs.csv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--use<span class="w"> </span>any<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out<span class="w"> </span>sm3-clip-vs-ridge
+</pre></div>
+</div>
+<p>The gallery page teaches the figure.
+The command line reproduces it in a workflow.</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 14.322 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-figure-generation-plot-sm3-bounds-ridge-summary-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/2dfe591dca29257abee353ae0564536e/plot_sm3_bounds_ridge_summary.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_sm3_bounds_ridge_summary.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/edfbadf23400952a7c96277d77082a83/plot_sm3_bounds_ridge_summary.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_sm3_bounds_ridge_summary.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/2c1a504e18ca17d0f921c70ce460c623/plot_sm3_bounds_ridge_summary.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_sm3_bounds_ridge_summary.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="plot_physics_sensitivity.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Physics sensitivity: learning how lambda choices reshape the physics diagnostics</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="plot_sm3_identifiability.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">SM3 identifiability: learning when recovery is accurate and when parameters slide along a ridge</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-four-panels-mean">What the four panels mean</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-matters">Why this matters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-build-a-compact-synthetic-sm3-summary-table">Step 1 - Build a compact synthetic SM3 summary table</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-infer-the-bounds-exactly-the-same-way-as-the-script">Step 2 - Infer the bounds exactly the same way as the script</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-compute-clipping-and-ridge-flags">Step 3 - Compute clipping and ridge flags</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-render-the-real-summary-figure">Step 4 - Render the real summary figure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-show-the-png-produced-by-the-backend">Step 5 - Show the PNG produced by the backend</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-read-the-exported-category-table">Step 6 - Read the exported category table</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-read-the-exported-json-summary">Step 7 - Read the exported JSON summary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-8-learn-how-to-read-panel-a">Step 8 - Learn how to read panel (a)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-9-learn-how-to-read-panel-b">Step 9 - Learn how to read panel (b)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-10-learn-how-to-read-panel-c">Step 10 - Learn how to read panel (c)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-11-learn-how-to-read-panel-d">Step 11 - Learn how to read panel (d)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-12-practical-takeaway">Step 12 - Practical takeaway</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#command-line-version">Command-line version</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/earthai-tech/geoprior-v3/edit/main/docs/source/auto_examples/figure_generation/plot_sm3_bounds_ridge_summary.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/auto_examples/figure_generation/plot_sm3_bounds_ridge_summary.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

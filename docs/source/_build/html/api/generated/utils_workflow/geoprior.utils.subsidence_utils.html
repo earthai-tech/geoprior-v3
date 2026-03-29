@@ -1,0 +1,1488 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>geoprior.utils.subsidence_utils &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=404c0980"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/utils_workflow/geoprior.utils.subsidence_utils';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../../../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="geoprior.utils.sys_utils" href="geoprior.utils.sys_utils.html" />
+    <link rel="prev" title="geoprior.utils.split" href="geoprior.utils.split.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../../../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="../../index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../cli.html">CLI and command registry</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.__main__.html">geoprior.__main__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.html">geoprior.cli</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.__main__.html">geoprior.cli.__main__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/scripts.__main__.html">scripts.__main__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/scripts.registry.html">scripts.registry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli._dispatch.html">geoprior.cli._dispatch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli._presets.html">geoprior.cli._presets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.config.html">geoprior.cli.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.init_config.html">geoprior.cli.init_config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.stage1.html">geoprior.cli.stage1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.stage2.html">geoprior.cli.stage2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.stage3.html">geoprior.cli.stage3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.stage4.html">geoprior.cli.stage4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.stage5.html">geoprior.cli.stage5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.run_sensitivity.html">geoprior.cli.run_sensitivity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.run_sm3_suite.html">geoprior.cli.run_sm3_suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.sensitivity_lib.html">geoprior.cli.sensitivity_lib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.sm3_collect_summaries.html">geoprior.cli.sm3_collect_summaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.sm3_log_offsets_diagnostics.html">geoprior.cli.sm3_log_offsets_diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.sm3_synthetic_identifiability.html">geoprior.cli.sm3_synthetic_identifiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.build_add_zsurf_from_coords.html">geoprior.cli.build_add_zsurf_from_coords</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.build_assign_boreholes.html">geoprior.cli.build_assign_boreholes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.build_external_validation_fullcity.html">geoprior.cli.build_external_validation_fullcity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.build_external_validation_metrics.html">geoprior.cli.build_external_validation_metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.build_full_inputs_npz.html">geoprior.cli.build_full_inputs_npz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.build_physics_payload_npz.html">geoprior.cli.build_physics_payload_npz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior.cli.build_sm3_collect_summaries.html">geoprior.cli.build_sm3_collect_summaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.config.html">geoprior._scripts.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.registry.html">geoprior._scripts.registry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.utils.html">geoprior._scripts.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.extend_utils.html">geoprior._scripts.extend_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.build_ablation_table.html">geoprior._scripts.build_ablation_table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.build_model_metrics.html">geoprior._scripts.build_model_metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.compute_brier_exceedance.html">geoprior._scripts.compute_brier_exceedance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.compute_hotspots.html">geoprior._scripts.compute_hotspots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.extend_forecast.html">geoprior._scripts.extend_forecast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.make_boundary.html">geoprior._scripts.make_boundary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.make_district_grid.html">geoprior._scripts.make_district_grid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.make_exposure.html">geoprior._scripts.make_exposure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.rebuild_confusion_tables.html">geoprior._scripts.rebuild_confusion_tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.summarize_hotspots.html">geoprior._scripts.summarize_hotspots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.tag_clusters_with_zones.html">geoprior._scripts.tag_clusters_with_zones</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.update_ablation_record_posthoc.html">geoprior._scripts.update_ablation_record_posthoc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.update_ablation_records.html">geoprior._scripts.update_ablation_records</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_ablations_sensitivity.html">geoprior._scripts.plot_ablations_sensitivity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_core_ablation.html">geoprior._scripts.plot_core_ablation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_driver_response.html">geoprior._scripts.plot_driver_response</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_external_validation.html">geoprior._scripts.plot_external_validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_geo_cumulative.html">geoprior._scripts.plot_geo_cumulative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_hotspot_analytics.html">geoprior._scripts.plot_hotspot_analytics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_litho_parity.html">geoprior._scripts.plot_litho_parity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_physics_fields.html">geoprior._scripts.plot_physics_fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_physics_maps.html">geoprior._scripts.plot_physics_maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_physics_profiles.html">geoprior._scripts.plot_physics_profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_physics_sanity.html">geoprior._scripts.plot_physics_sanity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_physics_sensitivity.html">geoprior._scripts.plot_physics_sensitivity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_sm3_bounds_ridge_summary.html">geoprior._scripts.plot_sm3_bounds_ridge_summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_sm3_identifiability.html">geoprior._scripts.plot_sm3_identifiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_sm3_log_offsets.html">geoprior._scripts.plot_sm3_log_offsets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_spatial_forecasts.html">geoprior._scripts.plot_spatial_forecasts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_transfer.html">geoprior._scripts.plot_transfer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_uncertainty.html">geoprior._scripts.plot_uncertainty</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_uncertainty_extras.html">geoprior._scripts.plot_uncertainty_extras</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_xfer_impact.html">geoprior._scripts.plot_xfer_impact</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/api/cli/geoprior._scripts.plot_xfer_transferability.html">geoprior._scripts.plot_xfer_transferability</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../subsidence.html">Subsidence API reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/core/geoprior.models.subsidence.models.html">geoprior.models.subsidence.models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/core/geoprior.models.subsidence.maths.html">geoprior.models.subsidence.maths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/core/geoprior.models.subsidence.scaling.html">geoprior.models.subsidence.scaling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/core/geoprior.models.subsidence.losses.html">geoprior.models.subsidence.losses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/core/geoprior.models.subsidence.identifiability.html">geoprior.models.subsidence.identifiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/core/geoprior.models.subsidence.payloads.html">geoprior.models.subsidence.payloads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/core/geoprior.models.subsidence.utils.html">geoprior.models.subsidence.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/core/geoprior.models.subsidence.stability.html">geoprior.models.subsidence.stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/core/geoprior.models.subsidence.step_core.html">geoprior.models.subsidence.step_core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/support/geoprior.models.subsidence.batch_io.html">geoprior.models.subsidence.batch_io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/support/geoprior.models.subsidence.debugs.html">geoprior.models.subsidence.debugs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/support/geoprior.models.subsidence.derivatives.html">geoprior.models.subsidence.derivatives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/support/geoprior.models.subsidence.doc.html">geoprior.models.subsidence.doc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/support/geoprior.models.subsidence.log_offsets_diagnostics.html">geoprior.models.subsidence.log_offsets_diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/subsidence/support/geoprior.models.subsidence.plot.html">geoprior.models.subsidence.plot</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../tuner.html">Tuner API reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../geoprior.models.forecast_tuner.html">geoprior.models.forecast_tuner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../geoprior.models.tuners.html">geoprior.models.tuners</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../geoprior.models.forecast_tuner._base_tuner.html">geoprior.models.forecast_tuner._base_tuner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../geoprior.models.forecast_tuner._geoprior_tuner.html">geoprior.models.forecast_tuner._geoprior_tuner</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../utils.html">Utility API reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.audit_utils.html">geoprior.utils.audit_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.base_utils.html">geoprior.utils.base_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.calibrate.html">geoprior.utils.calibrate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.data_utils.html">geoprior.utils.data_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.deps_utils.html">geoprior.utils.deps_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.forecast_utils.html">geoprior.utils.forecast_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.generic_utils.html">geoprior.utils.generic_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.geo_utils.html">geoprior.utils.geo_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.holdout_utils.html">geoprior.utils.holdout_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.io_utils.html">geoprior.utils.io_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.nat_utils.html">geoprior.utils.nat_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.parallel_utils.html">geoprior.utils.parallel_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.scale_metrics.html">geoprior.utils.scale_metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.sequence_utils.html">geoprior.utils.sequence_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.shapes.html">geoprior.utils.shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.spatial_utils.html">geoprior.utils.spatial_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.split.html">geoprior.utils.split</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">geoprior.utils.subsidence_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.sys_utils.html">geoprior.utils.sys_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.target_utils.html">geoprior.utils.target_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.validator.html">geoprior.utils.validator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geoprior.utils.version.html">geoprior.utils.version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils_models/geoprior.models.utils._utils.html">geoprior.models.utils._utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils_models/geoprior.models.utils.pinn.html">geoprior.models.utils.pinn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils_subsidence/geoprior.models.subsidence.utils.html">geoprior.models.subsidence.utils</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources.html">Packaged resources reference</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../params.html">Parameters API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/params/bases/geoprior.params.BaseLearnable.html">geoprior.params.BaseLearnable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_autosummary/params/bases/geoprior.params.BaseFixed.html">geoprior.params.BaseFixed</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">API reference</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../utils.html" class="nav-link">Utility API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geoprior.utils.subsidence_utils</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-geoprior.utils.subsidence_utils">
+<span id="geoprior-utils-subsidence-utils"></span><h1>geoprior.utils.subsidence_utils<a class="headerlink" href="#module-geoprior.utils.subsidence_utils" title="Link to this heading">#</a></h1>
+<p class="rubric">Functions</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.add_subsidence_mm_columns" title="geoprior.utils.subsidence_utils.add_subsidence_mm_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_subsidence_mm_columns</span></code></a>(df[, cfg, base, ...])</p></td>
+<td><p>Add (or overwrite) subsidence columns in millimeters.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.add_subsidence_native_unit_columns" title="geoprior.utils.subsidence_utils.add_subsidence_native_unit_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_subsidence_native_unit_columns</span></code></a>(df[, ...])</p></td>
+<td><p>Add columns in the cfg-inferred native unit.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.clean_gwl_zsurf" title="geoprior.utils.subsidence_utils.clean_gwl_zsurf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_gwl_zsurf</span></code></a>(df, *[, lon_col, lat_col, ...])</p></td>
+<td><p>Fix GWL units + robust z_surf, then recompute head_m.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.convert_eval_payload_units" title="geoprior.utils.subsidence_utils.convert_eval_payload_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_eval_payload_units</span></code></a>(payload[, cfg, ...])</p></td>
+<td><p>Convert GeoPriorSubsNet evaluation-payload units for reporting.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.convert_target_units_df" title="geoprior.utils.subsidence_utils.convert_target_units_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_target_units_df</span></code></a>(df, *, base[, ...])</p></td>
+<td><p>Convert target-like columns between &quot;m&quot; and &quot;mm&quot;.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.cumulative_to_rate" title="geoprior.utils.subsidence_utils.cumulative_to_rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cumulative_to_rate</span></code></a>(df, *[, cum_col, ...])</p></td>
+<td><p>Recover a rate series from cumulative displacement.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.detect_subsidence_mode" title="geoprior.utils.subsidence_utils.detect_subsidence_mode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">detect_subsidence_mode</span></code></a>(df, *[, rate_col, ...])</p></td>
+<td><p>Infer whether subsidence columns represent 'rate', 'cumulative', or an inconsistent pair.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.finalize_si_affines_and_units" title="geoprior.utils.subsidence_utils.finalize_si_affines_and_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finalize_si_affines_and_units</span></code></a>(...[, ...])</p></td>
+<td><p>Prevent double SI conversion in GeoPrior scaling_kwargs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.finalize_si_scaling_kwargs" title="geoprior.utils.subsidence_utils.finalize_si_scaling_kwargs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finalize_si_scaling_kwargs</span></code></a>(scaling_kwargs, ...)</p></td>
+<td><p>Prevent double SI conversion in GeoPrior scaling_kwargs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.infer_utm_epsg_from_lonlat" title="geoprior.utils.subsidence_utils.infer_utm_epsg_from_lonlat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">infer_utm_epsg_from_lonlat</span></code></a>(lon_deg, lat_deg)</p></td>
+<td><p>Infer a UTM EPSG code from lon/lat (EPSG:4326).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.lonlat_to_utm_m" title="geoprior.utils.subsidence_utils.lonlat_to_utm_m"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lonlat_to_utm_m</span></code></a>(lon_deg, lat_deg, *[, ...])</p></td>
+<td><p>Convert lon/lat degrees to UTM meters using pyproj.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.make_txy_coords" title="geoprior.utils.subsidence_utils.make_txy_coords"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_txy_coords</span></code></a>(t, x, y, *[, time_shift, ...])</p></td>
+<td><p>Build coords tensor (t, x, y) with OPTIONAL shifting (translation only).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.normalize_gwl_alias" title="geoprior.utils.subsidence_utils.normalize_gwl_alias"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_gwl_alias</span></code></a>(df, gwl_col_user, *[, ...])</p></td>
+<td><p>Normalize common GWL naming aliases.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.postprocess_eval_json" title="geoprior.utils.subsidence_utils.postprocess_eval_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">postprocess_eval_json</span></code></a>(eval_json, *[, cfg, ...])</p></td>
+<td><p>Post-hoc convert a Stage-2 evaluation JSON from SI to interpretable units.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.rate_to_cumulative" title="geoprior.utils.subsidence_utils.rate_to_cumulative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rate_to_cumulative</span></code></a>(df, *[, rate_col, ...])</p></td>
+<td><p>Build cumulative displacement from a rate series.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.resolve_gwl_for_physics" title="geoprior.utils.subsidence_utils.resolve_gwl_for_physics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resolve_gwl_for_physics</span></code></a>(df, gwl_col_user, *)</p></td>
+<td><p>Pick meters GWL for physics; keep z-score ML-only.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.resolve_head_column" title="geoprior.utils.subsidence_utils.resolve_head_column"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resolve_head_column</span></code></a>(df, *, depth_col[, ...])</p></td>
+<td><p>Resolve a head column, creating one if needed.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.subs_native_unit" title="geoprior.utils.subsidence_utils.subs_native_unit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">subs_native_unit</span></code></a>([cfg, default])</p></td>
+<td><p>Infer the &quot;native&quot; subsidence unit from cfg.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.subs_unit_to_si" title="geoprior.utils.subsidence_utils.subs_unit_to_si"><code class="xref py py-obj docutils literal notranslate"><span class="pre">subs_unit_to_si</span></code></a>([cfg, default, ...])</p></td>
+<td><p>Subsidence unit-&gt;SI factor (to meters).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Classes</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.CoordsPack" title="geoprior.utils.subsidence_utils.CoordsPack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CoordsPack</span></code></a>(coords, coord_mins, coord_ranges, ...)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.normalize_gwl_alias">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.subsidence_utils.</span></span><span class="sig-name descname"><span class="pre">normalize_gwl_alias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gwl_col_user</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefer_depth_bgs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/subsidence_utils.html#normalize_gwl_alias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.subsidence_utils.normalize_gwl_alias" title="Link to this definition">#</a></dt>
+<dd><p>Normalize common GWL naming aliases.</p>
+<p>Naming-only: unit conversion happens later.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>DataFrame</em>)</p></li>
+<li><p><strong>gwl_col_user</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>prefer_depth_bgs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[<em>DataFrame</em>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> | None]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.resolve_gwl_for_physics">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.subsidence_utils.</span></span><span class="sig-name descname"><span class="pre">resolve_gwl_for_physics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gwl_col_user</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefer_depth_bgs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_keep_zscore_as_ml</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/subsidence_utils.html#resolve_gwl_for_physics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.subsidence_utils.resolve_gwl_for_physics" title="Link to this definition">#</a></dt>
+<dd><p>Pick meters GWL for physics; keep z-score ML-only.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>DataFrame</em>)</p></li>
+<li><p><strong>gwl_col_user</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>prefer_depth_bgs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>allow_keep_zscore_as_ml</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> | None]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.resolve_head_column">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.subsidence_utils.</span></span><span class="sig-name descname"><span class="pre">resolve_head_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth_col</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">head_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'head_m'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_surf_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_head_proxy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/subsidence_utils.html#resolve_head_column"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.subsidence_utils.resolve_head_column" title="Link to this definition">#</a></dt>
+<dd><p>Resolve a head column, creating one if needed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>DataFrame</em>)</p></li>
+<li><p><strong>depth_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>head_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>z_surf_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>use_head_proxy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> | None]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.convert_target_units_df">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.subsidence_utils.</span></span><span class="sig-name descname"><span class="pre">convert_target_units_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'m'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'overwrite'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_mm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/subsidence_utils.html#convert_target_units_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.subsidence_utils.convert_target_units_df" title="Link to this definition">#</a></dt>
+<dd><p>Convert target-like columns between “m” and “mm”.</p>
+<p>Selected columns:
+- <cite>base</cite>
+- <cite>base + “_*”</cite> (quantiles, intervals, …)</p>
+<p>If mode=”add”, new columns use <cite>suffix</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>DataFrame</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>base</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>from_unit</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>to_unit</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><em>Literal</em></a><em>[</em><em>'add'</em><em>, </em><em>'overwrite'</em><em>]</em>)</p></li>
+<li><p><strong>suffix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>columns</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.14)"><em>Iterable</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>unit_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>copy_df</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>overwrite_cols</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>strict</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>DataFrame</em> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.subs_unit_to_si">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.subsidence_utils.</span></span><span class="sig-name descname"><span class="pre">subs_unit_to_si</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units_prov_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'units_provenance'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage1_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'subs_unit_to_si_applied_stage1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SUBS_UNIT_TO_SI'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/subsidence_utils.html#subs_unit_to_si"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.subsidence_utils.subs_unit_to_si" title="Link to this definition">#</a></dt>
+<dd><p>Subsidence unit-&gt;SI factor (to meters).</p>
+<p>Priority:
+1) cfg[units_prov_key][stage1_key]
+2) cfg[cfg_key]
+3) default</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cfg</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.14)"><em>Mapping</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>default</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p></li>
+<li><p><strong>units_prov_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>stage1_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>cfg_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.subs_native_unit">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.subsidence_utils.</span></span><span class="sig-name descname"><span class="pre">subs_native_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mm'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/subsidence_utils.html#subs_native_unit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.subsidence_utils.subs_native_unit" title="Link to this definition">#</a></dt>
+<dd><p>Infer the “native” subsidence unit from cfg.</p>
+<ul class="simple">
+<li><p>unit_to_si ~= 1e-3 -&gt; “mm”</p></li>
+<li><p>unit_to_si ~= 1.0  -&gt; “m”</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cfg</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.14)"><em>Mapping</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>default</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.add_subsidence_mm_columns">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.subsidence_utils.</span></span><span class="sig-name descname"><span class="pre">add_subsidence_mm_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'subsidence'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_mm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/subsidence_utils.html#add_subsidence_mm_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.subsidence_utils.add_subsidence_mm_columns" title="Link to this definition">#</a></dt>
+<dd><p>Add (or overwrite) subsidence columns in millimeters.</p>
+<p>Always assumes the current values are in meters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>DataFrame</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cfg</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.14)"><em>Mapping</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>base</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>columns</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.14)"><em>Iterable</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>suffix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>unit_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>copy_df</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>DataFrame</em> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.add_subsidence_native_unit_columns">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.subsidence_utils.</span></span><span class="sig-name descname"><span class="pre">add_subsidence_native_unit_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'subsidence'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_native'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/subsidence_utils.html#add_subsidence_native_unit_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.subsidence_utils.add_subsidence_native_unit_columns" title="Link to this definition">#</a></dt>
+<dd><p>Add columns in the cfg-inferred native unit.</p>
+<p>If cfg says the native unit was meters, this becomes
+a no-op aside from optional unit_col.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>DataFrame</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cfg</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.14)"><em>Mapping</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>base</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>columns</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.14)"><em>Iterable</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>suffix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>unit_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>copy_df</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>DataFrame</em> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.finalize_si_scaling_kwargs">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.subsidence_utils.</span></span><span class="sig-name descname"><span class="pre">finalize_si_scaling_kwargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scaling_kwargs</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subs_in_si</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">head_in_si</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness_in_si</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_identity_affine_if_si</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/subsidence_utils.html#finalize_si_scaling_kwargs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.subsidence_utils.finalize_si_scaling_kwargs" title="Link to this definition">#</a></dt>
+<dd><p>Prevent double SI conversion in GeoPrior scaling_kwargs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scaling_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p></li>
+<li><p><strong>subs_in_si</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>head_in_si</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>thickness_in_si</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>force_identity_affine_if_si</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>warn</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.finalize_si_affines_and_units">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.subsidence_utils.</span></span><span class="sig-name descname"><span class="pre">finalize_si_affines_and_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scaling_kwargs</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subs_in_si</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">head_in_si</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness_in_si</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_identity_affine_if_si</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geoprior.utils.subsidence_utils.finalize_si_affines_and_units" title="Link to this definition">#</a></dt>
+<dd><p>Prevent double SI conversion in GeoPrior scaling_kwargs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scaling_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p></li>
+<li><p><strong>subs_in_si</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>head_in_si</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>thickness_in_si</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>force_identity_affine_if_si</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>warn</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.infer_utm_epsg_from_lonlat">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.subsidence_utils.</span></span><span class="sig-name descname"><span class="pre">infer_utm_epsg_from_lonlat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lon_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat_deg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/subsidence_utils.html#infer_utm_epsg_from_lonlat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.subsidence_utils.infer_utm_epsg_from_lonlat" title="Link to this definition">#</a></dt>
+<dd><p>Infer a UTM EPSG code from lon/lat (EPSG:4326).</p>
+<dl class="simple">
+<dt>Uses standard UTM zoning:</dt><dd><p>zone = floor((lon + 180)/6) + 1
+EPSG = 32600 + zone (north), 32700 + zone (south)</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lon_deg</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>)</p></li>
+<li><p><strong>lat_deg</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.lonlat_to_utm_m">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.subsidence_utils.</span></span><span class="sig-name descname"><span class="pre">lonlat_to_utm_m</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lon_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat_deg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_epsg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4326</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_epsg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/subsidence_utils.html#lonlat_to_utm_m"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.subsidence_utils.lonlat_to_utm_m" title="Link to this definition">#</a></dt>
+<dd><p>Convert lon/lat degrees to UTM meters using pyproj.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">x_m</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">y_m</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">target_epsg</span></code></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>lon_deg</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>)</p></li>
+<li><p><strong>lat_deg</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>)</p></li>
+<li><p><strong>src_epsg</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+<li><p><strong>target_epsg</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.CoordsPack">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">geoprior.utils.subsidence_utils.</span></span><span class="sig-name descname"><span class="pre">CoordsPack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'np.ndarray'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord_mins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'dict[str,</span> <span class="pre">float]'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord_ranges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'dict[str,</span> <span class="pre">float]'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'dict[str,</span> <span class="pre">Any]'</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/subsidence_utils.html#CoordsPack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.subsidence_utils.CoordsPack" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>)</p></li>
+<li><p><strong>coord_mins</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>]</em>)</p></li>
+<li><p><strong>coord_ranges</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>]</em>)</p></li>
+<li><p><strong>meta</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.CoordsPack.coords">
+<span class="sig-name descname"><span class="pre">coords</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#geoprior.utils.subsidence_utils.CoordsPack.coords" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.CoordsPack.coord_mins">
+<span class="sig-name descname"><span class="pre">coord_mins</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#geoprior.utils.subsidence_utils.CoordsPack.coord_mins" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.CoordsPack.coord_ranges">
+<span class="sig-name descname"><span class="pre">coord_ranges</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#geoprior.utils.subsidence_utils.CoordsPack.coord_ranges" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.CoordsPack.meta">
+<span class="sig-name descname"><span class="pre">meta</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#geoprior.utils.subsidence_utils.CoordsPack.meta" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.CoordsPack.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord_mins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord_ranges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geoprior.utils.subsidence_utils.CoordsPack.__init__" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>)</p></li>
+<li><p><strong>coord_mins</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>]</em>)</p></li>
+<li><p><strong>coord_ranges</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>]</em>)</p></li>
+<li><p><strong>meta</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.make_txy_coords">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.subsidence_utils.</span></span><span class="sig-name descname"><span class="pre">make_txy_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'min'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xy_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'min'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_shift_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_shift_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_shift_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float32'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/subsidence_utils.html#make_txy_coords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.subsidence_utils.make_txy_coords" title="Link to this definition">#</a></dt>
+<dd><p>Build coords tensor (t, x, y) with OPTIONAL shifting (translation only).</p>
+<dl class="simple">
+<dt>This is designed for your “not normalized” workflow:</dt><dd><ul class="simple">
+<li><p>You keep SI units (years and meters),</p></li>
+<li><p>but you avoid feeding huge UTM magnitudes (e.g. 3e5, 2.5e6)
+into coord MLPs by shifting x,y (and optionally t).</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<ul class="simple">
+<li><p>This does NOT min-max scale to [0,1]. It only translates.</p></li>
+<li><p>Returning coord_mins/coord_ranges is still useful for logging/debug.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>)</p></li>
+<li><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>)</p></li>
+<li><p><strong>y</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>)</p></li>
+<li><p><strong>time_shift</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><em>Literal</em></a><em>[</em><em>'none'</em><em>, </em><em>'min'</em><em>, </em><em>'mean'</em><em>, </em><em>'value'</em><em>]</em>)</p></li>
+<li><p><strong>xy_shift</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><em>Literal</em></a><em>[</em><em>'none'</em><em>, </em><em>'min'</em><em>, </em><em>'mean'</em><em>, </em><em>'value'</em><em>]</em>)</p></li>
+<li><p><strong>time_shift_value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>x_shift_value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>y_shift_value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>dtype</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="../../utils.html#geoprior.utils.subsidence_utils.CoordsPack" title="geoprior.utils.subsidence_utils.CoordsPack"><em>CoordsPack</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.detect_subsidence_mode">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.subsidence_utils.</span></span><span class="sig-name descname"><span class="pre">detect_subsidence_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'subsidence'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cum_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'subsidence_cum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'year'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('longitude',</span> <span class="pre">'latitude',</span> <span class="pre">'city')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol_rel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/subsidence_utils.html#detect_subsidence_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.subsidence_utils.detect_subsidence_mode" title="Link to this definition">#</a></dt>
+<dd><p>Infer whether subsidence columns represent ‘rate’, ‘cumulative’,
+or an inconsistent pair.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>DataFrame</em>)</p></li>
+<li><p><strong>rate_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>cum_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>time_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>group_cols</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.14)"><em>Iterable</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>)</p></li>
+<li><p><strong>tol_rel</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p></li>
+<li><p><strong>min_points</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+<li><p><strong>max_groups</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+<li><p><strong>random_state</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.rate_to_cumulative">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.subsidence_utils.</span></span><span class="sig-name descname"><span class="pre">rate_to_cumulative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'subsidence'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cum_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'subsidence_cum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'year'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('longitude',</span> <span class="pre">'latitude',</span> <span class="pre">'city')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'first_equals_rate_dt'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/subsidence_utils.html#rate_to_cumulative"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.subsidence_utils.rate_to_cumulative" title="Link to this definition">#</a></dt>
+<dd><p>Build cumulative displacement from a rate series.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>DataFrame</em>)</p></li>
+<li><p><strong>rate_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>cum_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>time_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>group_cols</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.14)"><em>Iterable</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>)</p></li>
+<li><p><strong>initial</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>inplace</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>DataFrame</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.cumulative_to_rate">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.subsidence_utils.</span></span><span class="sig-name descname"><span class="pre">cumulative_to_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cum_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'subsidence_cum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'subsidence'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'year'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('longitude',</span> <span class="pre">'latitude',</span> <span class="pre">'city')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cum_over_dtref'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/subsidence_utils.html#cumulative_to_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.subsidence_utils.cumulative_to_rate" title="Link to this definition">#</a></dt>
+<dd><p>Recover a rate series from cumulative displacement.</p>
+<p>rate(t_i) = (cum(t_i) - cum(t_{i-1})) / dt_i  for i&gt;=1</p>
+<dl class="simple">
+<dt>first:</dt><dd><ul class="simple">
+<li><p>‘nan’: first rate is NaN</p></li>
+<li><p>‘cum_over_dtref’: rate(t0) = cum(t0)/dt_ref (dt_ref median dt)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span> <span class="pre">with</span> <span class="pre">rate_col</span> <span class="pre">added/overwritten.</span></code></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>df</strong> (<em>DataFrame</em>)</p></li>
+<li><p><strong>cum_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>rate_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>time_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>group_cols</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.14)"><em>Iterable</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>)</p></li>
+<li><p><strong>first</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>inplace</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.convert_eval_payload_units">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.subsidence_utils.</span></span><span class="sig-name descname"><span class="pre">convert_eval_payload_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'si'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savefile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_payload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/subsidence_utils.html#convert_eval_payload_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.subsidence_utils.convert_eval_payload_units" title="Link to this definition">#</a></dt>
+<dd><p>Convert GeoPriorSubsNet evaluation-payload units for reporting.</p>
+<p>This is a <strong>post-processing</strong> helper meant for stage-2 evaluation
+JSON payloads (e.g. <code class="docutils literal notranslate"><span class="pre">geoprior_eval_phys_&lt;timestamp&gt;.json</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>payload</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Any]</span></code>) – The evaluation payload dict. It is expected to contain sections
+like <code class="docutils literal notranslate"><span class="pre">metrics_evaluate</span></code>, <code class="docutils literal notranslate"><span class="pre">point_metrics</span></code>, <code class="docutils literal notranslate"><span class="pre">per_horizon</span></code>,
+<code class="docutils literal notranslate"><span class="pre">interval_calibration</span></code> and <code class="docutils literal notranslate"><span class="pre">censor_stratified</span></code>.</p></li>
+<li><p><strong>cfg</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">mapping</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">module</span></code>, <em>optional</em>) – The experiment config (e.g. <code class="docutils literal notranslate"><span class="pre">config</span></code> module or <code class="docutils literal notranslate"><span class="pre">globals()</span></code>).
+We use:
+- <code class="docutils literal notranslate"><span class="pre">SUBS_UNIT_TO_SI</span></code> (or stage-1 provenance)
+- <code class="docutils literal notranslate"><span class="pre">TIME_UNITS</span></code> (e.g. “year”)</p></li>
+<li><p><strong>mode</strong> (<code class="docutils literal notranslate"><span class="pre">{&quot;si&quot;,</span> <span class="pre">&quot;interpretable&quot;}</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">&quot;si&quot;</span></code>) – <ul>
+<li><p>“si”: leave values untouched (current behaviour).</p></li>
+<li><p>”interpretable”: convert selected subsidence/physics metrics
+from SI into native units implied by <code class="docutils literal notranslate"><span class="pre">SUBS_UNIT_TO_SI</span></code>.</p></li>
+</ul>
+</p></li>
+<li><p><strong>scope</strong> (<code class="docutils literal notranslate"><span class="pre">{&quot;all&quot;,</span> <span class="pre">&quot;subsidence&quot;,</span> <span class="pre">&quot;physics&quot;}</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code>) – <p>Which parts to convert when <code class="docutils literal notranslate"><span class="pre">mode=&quot;interpretable&quot;</span></code>.
+- “subsidence”: convert only subsidence metrics (MAE/MSE/</p>
+<blockquote>
+<div><p>sharpness) to the native unit (e.g. mm).</p>
+</div></blockquote>
+<ul>
+<li><p>”physics”: convert only physics residual rates where units are
+unambiguous (currently <code class="docutils literal notranslate"><span class="pre">epsilon_cons_raw</span></code> and
+<code class="docutils literal notranslate"><span class="pre">epsilon_gw_raw</span></code>).</p></li>
+<li><p>”all”: do both.</p></li>
+</ul>
+</p></li>
+<li><p><strong>savefile</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <em>optional</em>) – If provided, write the converted payload to this path.</p></li>
+<li><p><strong>fmt</strong> (<code class="docutils literal notranslate"><span class="pre">{&quot;json&quot;}</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">&quot;json&quot;</span></code>) – Output format when <code class="docutils literal notranslate"><span class="pre">savefile</span></code> is provided.</p></li>
+<li><p><strong>indent</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">2</span></code>) – JSON indentation.</p></li>
+<li><p><strong>copy_payload</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>default</em> <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a>) – If True, operate on a deep copy of <code class="docutils literal notranslate"><span class="pre">payload</span></code>. If False,
+convert in-place (dangerous).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Converted payload as a plain <code class="docutils literal notranslate"><span class="pre">dict</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Subsidence conversions:
+- linear metrics (MAE, sharpness) scale by <code class="docutils literal notranslate"><span class="pre">1/SUBS_UNIT_TO_SI</span></code>.
+- squared metrics (MSE) scale by <code class="docutils literal notranslate"><span class="pre">(1/SUBS_UNIT_TO_SI)^2</span></code>.</p>
+<p>Physics conversions (when enabled):
+- <code class="docutils literal notranslate"><span class="pre">epsilon_cons_raw</span></code> is treated as a <strong>rate</strong> in [m/s] and is</p>
+<blockquote>
+<div><p>converted to <code class="docutils literal notranslate"><span class="pre">&lt;subs_native_unit&gt;/&lt;TIME_UNITS&gt;</span></code> (e.g. mm/yr).</p>
+</div></blockquote>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">epsilon_gw_raw</span></code> is treated as a <strong>rate</strong> in [1/s] and is
+converted to <code class="docutils literal notranslate"><span class="pre">1/&lt;TIME_UNITS&gt;</span></code> (e.g. 1/yr).</p></li>
+</ul>
+<p>The helper records unit provenance under <code class="docutils literal notranslate"><span class="pre">payload[&quot;units&quot;]</span></code>.</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.clean_gwl_zsurf">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.subsidence_utils.</span></span><span class="sig-name descname"><span class="pre">clean_gwl_zsurf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'longitude'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'latitude'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'z_surf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gwl_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'GWL_depth_bgs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gwl_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth_m</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_outlier_iqr_mult</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knn_k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_report</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savefile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/subsidence_utils.html#clean_gwl_zsurf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.subsidence_utils.clean_gwl_zsurf" title="Link to this definition">#</a></dt>
+<dd><p>Fix GWL units + robust z_surf, then recompute head_m.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>DataFrame</em>)</p></li>
+<li><p><strong>lon_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>lat_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>z_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>gwl_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>gwl_scale</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p></li>
+<li><p><strong>max_depth_m</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p></li>
+<li><p><strong>z_outlier_iqr_mult</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p></li>
+<li><p><strong>knn_k</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+<li><p><strong>return_report</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>savefile</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[<em>DataFrame</em>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>] | None, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> | None]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geoprior.utils.subsidence_utils.postprocess_eval_json">
+<span class="sig-prename descclassname"><span class="pre">geoprior.utils.subsidence_utils.</span></span><span class="sig-name descname"><span class="pre">postprocess_eval_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eval_json</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_rmse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/geoprior/utils/subsidence_utils.html#postprocess_eval_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geoprior.utils.subsidence_utils.postprocess_eval_json" title="Link to this definition">#</a></dt>
+<dd><p>Post-hoc convert a Stage-2 evaluation JSON from SI to interpretable units.</p>
+<p>This is a safe wrapper around <cite>convert_eval_payload_units(…)</cite> that:
+- loads a JSON from disk (or accepts a payload dict),
+- infers unit factors from <cite>payload[“units”]</cite> when cfg is missing,
+- avoids double conversion unless <cite>force=True</cite>,
+- optionally adds RMSE fields (sqrt(MSE)),
+- writes a converted JSON file if <cite>out_path</cite> is provided.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eval_json</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.14)"><em>Mapping</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>) – Either a file path to the saved JSON, or an in-memory mapping.</p></li>
+<li><p><strong>cfg</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.14)"><em>Mapping</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>] </em><em>| </em><em>None</em>) – Optional config mapping/module. If missing (or incomplete), this helper
+will synthesize the minimal keys needed for conversion:
+- “SUBS_UNIT_TO_SI”
+- “TIME_UNITS”</p></li>
+<li><p><strong>scope</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><em>Literal</em></a><em>[</em><em>'all'</em><em>, </em><em>'subsidence'</em><em>, </em><em>'physics'</em><em>]</em>) – Forwarded to <cite>convert_eval_payload_units(…)</cite>.</p></li>
+<li><p><strong>out_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>) – If given, write the converted payload there. If a directory is given,
+a filename is generated next to the input name (or “geoprior_eval…”).</p></li>
+<li><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If False and out_path exists, raise.</p></li>
+<li><p><strong>add_rmse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, add RMSE fields wherever MSE is present (metrics_evaluate,
+point_metrics, per_horizon).</p></li>
+<li><p><strong>force</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If False, skip conversion when payload already declares an interpretable
+subsidence unit (e.g., “mm”). If True, always convert.</p></li>
+<li><p><strong>indent</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – JSON indent used when writing.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The converted payload (always returned as a dict).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="geoprior.utils.split.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">geoprior.utils.split</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="geoprior.utils.sys_utils.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">geoprior.utils.sys_utils</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.normalize_gwl_alias"><code class="docutils literal notranslate"><span class="pre">normalize_gwl_alias()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.resolve_gwl_for_physics"><code class="docutils literal notranslate"><span class="pre">resolve_gwl_for_physics()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.resolve_head_column"><code class="docutils literal notranslate"><span class="pre">resolve_head_column()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.convert_target_units_df"><code class="docutils literal notranslate"><span class="pre">convert_target_units_df()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.subs_unit_to_si"><code class="docutils literal notranslate"><span class="pre">subs_unit_to_si()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.subs_native_unit"><code class="docutils literal notranslate"><span class="pre">subs_native_unit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.add_subsidence_mm_columns"><code class="docutils literal notranslate"><span class="pre">add_subsidence_mm_columns()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.add_subsidence_native_unit_columns"><code class="docutils literal notranslate"><span class="pre">add_subsidence_native_unit_columns()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.finalize_si_scaling_kwargs"><code class="docutils literal notranslate"><span class="pre">finalize_si_scaling_kwargs()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.finalize_si_affines_and_units"><code class="docutils literal notranslate"><span class="pre">finalize_si_affines_and_units()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.infer_utm_epsg_from_lonlat"><code class="docutils literal notranslate"><span class="pre">infer_utm_epsg_from_lonlat()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.lonlat_to_utm_m"><code class="docutils literal notranslate"><span class="pre">lonlat_to_utm_m()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.CoordsPack"><code class="docutils literal notranslate"><span class="pre">CoordsPack</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.CoordsPack.coords"><code class="docutils literal notranslate"><span class="pre">CoordsPack.coords</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.CoordsPack.coord_mins"><code class="docutils literal notranslate"><span class="pre">CoordsPack.coord_mins</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.CoordsPack.coord_ranges"><code class="docutils literal notranslate"><span class="pre">CoordsPack.coord_ranges</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.CoordsPack.meta"><code class="docutils literal notranslate"><span class="pre">CoordsPack.meta</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.CoordsPack.__init__"><code class="docutils literal notranslate"><span class="pre">CoordsPack.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.make_txy_coords"><code class="docutils literal notranslate"><span class="pre">make_txy_coords()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.detect_subsidence_mode"><code class="docutils literal notranslate"><span class="pre">detect_subsidence_mode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.rate_to_cumulative"><code class="docutils literal notranslate"><span class="pre">rate_to_cumulative()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.cumulative_to_rate"><code class="docutils literal notranslate"><span class="pre">cumulative_to_rate()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.convert_eval_payload_units"><code class="docutils literal notranslate"><span class="pre">convert_eval_payload_units()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.clean_gwl_zsurf"><code class="docutils literal notranslate"><span class="pre">clean_gwl_zsurf()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geoprior.utils.subsidence_utils.postprocess_eval_json"><code class="docutils literal notranslate"><span class="pre">postprocess_eval_json()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/earthai-tech/geoprior-v3/edit/main/docs/source/api/generated/utils_workflow/geoprior.utils.subsidence_utils.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/api/generated/utils_workflow/geoprior.utils.subsidence_utils.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

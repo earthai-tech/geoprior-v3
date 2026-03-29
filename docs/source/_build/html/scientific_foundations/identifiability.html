@@ -1,0 +1,1470 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Identifiability &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=404c0980"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'scientific_foundations/identifiability';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Stability and constraints" href="stability_and_constraints.html" />
+    <link rel="prev" title="GeoPrior maths: definitions and conventions" href="maths.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="models_overview.html">Models overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geoprior_subsnet.html">GeoPriorSubsNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics_formulation.html">Physics formulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="poroelastic_background.html">Poroelastic background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="residual_assembly.html">Residual assembly</a></li>
+<li class="toctree-l1"><a class="reference internal" href="losses_and_training.html">Losses and training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_and_units.html">Data, units, and conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scaling.html">Scaling and conventions (<code class="docutils literal notranslate"><span class="pre">scaling_kwargs</span></code>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maths.html">GeoPrior maths: definitions and conventions</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Identifiability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability_and_constraints.html">Stability and constraints</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Scientific foundations</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Identifiability</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="geoprior-identifiability">
+<span id="identifiability"></span><h1>Identifiability<a class="headerlink" href="#geoprior-identifiability" title="Link to this heading">#</a></h1>
+<p>GeoPrior-v3 treats <strong>identifiability</strong> as part of the model
+design, not as a post hoc warning in the discussion section.</p>
+<p>This matters because the flagship model does not only predict
+subsidence and groundwater trajectories. It also learns
+effective physical fields such as:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(K(x,y)\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(S_s(x,y)\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\tau(x,y)\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(H_d(x,y)\)</span></p></li>
+</ul>
+<p>and uses them inside a coupled residual system. In problems
+like this, multiple parameter combinations can often explain
+similar observed behavior. That is a classic inverse-problem
+difficulty, and it remains central in physics-informed and
+poroelastic surrogate models <span id="id1">[<a class="reference internal" href="../references.html#id50" title="James Donnelly, Alireza Daneshkhah, and Soroush Abolfathi. Physics-informed neural networks as surrogate models of hydrodynamic simulators. Science of The Total Environment, 912:168814, 11 2023. doi:10.1016/j.scitotenv.2023.168814.">3</a>, <a class="reference internal" href="../references.html#id51" title="Sumanta Roy, Chandrasekhar Annavarapu, Pratanu Roy, and Dakshina M. Valiveti. Physics-informed neural networks for heterogeneous poroelastic media. International Journal for Computational Methods in Engineering Science and Mechanics, 26(2):187–207, 2024. doi:10.1080/15502287.2024.2440420.">4</a>, <a class="reference internal" href="../references.html#id56" title="Sumanta Roy, Chandrasekhar Annavarapu, Pratanu Roy, and Dakshina Murthy Valiveti. Physics-informed neural networks for heterogeneous poroelastic media. arXiv preprint arXiv:2407.03372, 2024. arXiv:2407.03372.">10</a>, <a class="reference internal" href="../references.html#id55" title="A. K. Sarma, S. Roy, C. Annavarapu, P. Roy, and S. Jagannathan. Interface pinns (i-pinns): a physics-informed neural networks framework for interface problems. Computer Methods in Applied Mechanics and Engineering, 429:117135, 2024. doi:10.1016/j.cma.2024.117135.">13</a>]</span>.</p>
+<p>GeoPrior addresses this directly by exposing explicit
+<strong>identifiability regimes</strong>, <strong>parameter locks</strong>, <strong>closure
+anchors</strong>, and <strong>diagnostic summaries</strong>.</p>
+<section id="why-identifiability-matters-here">
+<h2>Why identifiability matters here<a class="headerlink" href="#why-identifiability-matters-here" title="Link to this heading">#</a></h2>
+<p>A physics-guided model can fit observations well while still
+learning physically ambiguous or weakly constrained internal
+fields.</p>
+<p>For example, in the GeoPrior closure</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-identifiability-0">
+<span class="eqno">(1)<a class="headerlink" href="#equation-scientific-foundations-identifiability-0" title="Link to this equation">#</a></span>\[\tau_{phys}
+\approx
+\frac{H_d^2 \, S_s}{\pi^2 \, \kappa \, K},\]</div>
+<p>different combinations of:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(K\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(S_s\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(H_d\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\tau\)</span></p></li>
+</ul>
+<p>can produce similar effective timescales.</p>
+<p>This creates <strong>ridge-like trade-offs</strong> in parameter space.
+The supervised outputs may still look good, but the inferred
+fields can become hard to interpret if the problem is not
+constrained carefully.</p>
+<p>That is the core identifiability issue in GeoPrior.</p>
+</section>
+<section id="a-useful-intuition">
+<h2>A useful intuition<a class="headerlink" href="#a-useful-intuition" title="Link to this heading">#</a></h2>
+<p>A practical way to think about the problem is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>data fit alone
+     ↓
+can constrain observable trajectories
+     ↓
+but may not uniquely constrain K, Ss, tau, Hd
+     ↓
+so the model needs explicit identifiability structure
+</pre></div>
+</div>
+<p>This is why GeoPrior has a dedicated identifiability layer.</p>
+</section>
+<section id="where-identifiability-enters-the-model">
+<h2>Where identifiability enters the model<a class="headerlink" href="#where-identifiability-enters-the-model" title="Link to this heading">#</a></h2>
+<p>Identifiability in GeoPrior is not handled in only one place.</p>
+<p>It enters through:</p>
+<ul class="simple">
+<li><p>the <strong>closure design</strong> itself,</p></li>
+<li><p>the <strong>scaling and bounds contract</strong>,</p></li>
+<li><p>the <strong>compile-time weight defaults</strong>,</p></li>
+<li><p>the <strong>training warmup and ramp schedules</strong>,</p></li>
+<li><p>the <strong>ability to freeze or lock selected heads</strong>,</p></li>
+<li><p>and the <strong>diagnostic audit layer</strong>.</p></li>
+</ul>
+<p>So the identifiability story is distributed across:</p>
+<ul class="simple">
+<li><p>model construction,</p></li>
+<li><p>scaling kwargs,</p></li>
+<li><p>compile defaults,</p></li>
+<li><p>training behavior,</p></li>
+<li><p>and post hoc diagnostics.</p></li>
+</ul>
+<p>This is why the identifiability page belongs in the
+scientific foundations section rather than in a narrow
+debugging appendix.</p>
+<section id="the-main-source-of-non-identifiability">
+<h3>The main source of non-identifiability<a class="headerlink" href="#the-main-source-of-non-identifiability" title="Link to this heading">#</a></h3>
+<p>The most important structural source of non-identifiability
+in GeoPrior is the interaction between:</p>
+<ul class="simple">
+<li><p>the closure-based timescale,</p></li>
+<li><p>the compaction equilibrium,</p></li>
+<li><p>and the learned physical fields.</p></li>
+</ul>
+</section>
+</section>
+<section id="timescale-ridge">
+<h2>Timescale ridge<a class="headerlink" href="#timescale-ridge" title="Link to this heading">#</a></h2>
+<p>The closure prior says, conceptually:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-identifiability-1">
+<span class="eqno">(2)<a class="headerlink" href="#equation-scientific-foundations-identifiability-1" title="Link to this equation">#</a></span>\[\tau_{phys}
+\propto
+\frac{H_d^2 S_s}{K}.\]</div>
+<p>So increasing <span class="math notranslate nohighlight">\(H_d\)</span>, increasing <span class="math notranslate nohighlight">\(S_s\)</span>, or
+decreasing <span class="math notranslate nohighlight">\(K\)</span> can all lengthen the implied timescale.
+Without additional constraints, several different field
+combinations may generate similar effective dynamics.</p>
+</section>
+<section id="settlement-ridge">
+<h2>Settlement ridge<a class="headerlink" href="#settlement-ridge" title="Link to this heading">#</a></h2>
+<p>The equilibrium settlement proxy is:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-identifiability-2">
+<span class="eqno">(3)<a class="headerlink" href="#equation-scientific-foundations-identifiability-2" title="Link to this equation">#</a></span>\[s_{eq}(h)
+\approx
+S_s \, \Delta h \, H.\]</div>
+<p>So the same observed compaction tendency can also be traded
+off among:</p>
+<ul class="simple">
+<li><p>storage-like response,</p></li>
+<li><p>drawdown magnitude,</p></li>
+<li><p>and thickness.</p></li>
+</ul>
+<p>Together, these relations mean the model can have enough
+freedom to fit the forecast targets while still remaining
+ambiguous in how it explains them internally.</p>
+<p>That is why identifiability must be designed into the model.</p>
+<section id="the-geoprior-strategy">
+<h3>The GeoPrior strategy<a class="headerlink" href="#the-geoprior-strategy" title="Link to this heading">#</a></h3>
+<p>GeoPrior uses three main strategies to improve
+identifiability.</p>
+<p><strong>1. Constrain by construction</strong></p>
+<p>Use closure-based relationships so parameters are linked
+instead of floating independently.</p>
+<p><strong>2. Control training freedom</strong></p>
+<p>Freeze or relax selected parts of the physics branch through
+named regimes, locks, and warmup schedules.</p>
+<p><strong>3. Audit what was actually learned</strong></p>
+<p>Export JSON-safe audits and payload-based summaries so the
+model’s internal physical interpretation can be inspected
+after the run.</p>
+<p>This combination is much stronger than only saying “inverse
+problems can be ill-posed.”</p>
+</section>
+<section id="identifiability-regimes">
+<h3>Identifiability regimes<a class="headerlink" href="#identifiability-regimes" title="Link to this heading">#</a></h3>
+<p>GeoPrior exposes identifiability through the public model
+argument:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">identifiability_regime</span><span class="o">=</span><span class="s2">&quot;base&quot;</span>
+</pre></div>
+</div>
+<p>The current model validation and constructor signature accept
+four named regimes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">base</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">anchored</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">closure_locked</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data_relaxed</span></code>.</p></li>
+</ul>
+<p>These are not decorative presets. They change defaults in
+both:</p>
+<ul class="simple">
+<li><p>the scaling / closure behavior,</p></li>
+<li><p>and the compile-time physics weights.</p></li>
+</ul>
+</section>
+</section>
+<section id="how-regimes-are-applied">
+<h2>How regimes are applied<a class="headerlink" href="#how-regimes-are-applied" title="Link to this heading">#</a></h2>
+<p>The identifiability helper
+<code class="docutils literal notranslate"><span class="pre">init_identifiability(...)</span></code>:</p>
+<ul class="simple">
+<li><p>normalizes the regime name,</p></li>
+<li><p>loads the matching profile,</p></li>
+<li><p>merges profile defaults into <code class="docutils literal notranslate"><span class="pre">scaling_kwargs</span></code>,</p></li>
+<li><p>does <strong>not</strong> override user-provided keys,</p></li>
+<li><p>ensures the bounds-loss config exists in dict form.</p></li>
+</ul>
+<p>That “do not override user-provided keys” rule is important.
+It means the regime behaves like a <strong>scientific default
+profile</strong>, not like a hard-coded override that destroys
+experiment-specific settings.</p>
+<section id="the-four-built-in-regimes">
+<h3>The four built-in regimes<a class="headerlink" href="#the-four-built-in-regimes" title="Link to this heading">#</a></h3>
+</section>
+</section>
+<section id="base">
+<h2>Base<a class="headerlink" href="#base" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">base</span></code> is the conservative default regime.</p>
+<p>Its current profile sets:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">freeze_physics_fields_over_time</span> <span class="pre">=</span> <span class="pre">True</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bounds_loss_kind</span> <span class="pre">=</span> <span class="pre">&quot;barrier&quot;</span></code></p></li>
+<li><p>moderate physics warmup and ramp defaults</p></li>
+<li><p>compile defaults such as
+<code class="docutils literal notranslate"><span class="pre">lambda_bounds</span> <span class="pre">=</span> <span class="pre">1.0</span></code> and
+<code class="docutils literal notranslate"><span class="pre">lambda_prior</span> <span class="pre">=</span> <span class="pre">1.0</span></code>.</p></li>
+</ul>
+<p>Conceptually, <code class="docutils literal notranslate"><span class="pre">base</span></code> says:</p>
+<ul class="simple">
+<li><p>keep the physics fields time-stable,</p></li>
+<li><p>apply a standard closure prior,</p></li>
+<li><p>and use moderate bounds / prior pressure.</p></li>
+</ul>
+<p>This is the right regime when you want a scientifically
+disciplined baseline without very aggressive locking.</p>
+</section>
+<section id="anchored">
+<h2>Anchored<a class="headerlink" href="#anchored" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">anchored</span></code> makes the physics branch substantially more
+constrained.</p>
+<p>Its profile currently adds or strengthens settings such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">freeze_physics_fields_over_time</span> <span class="pre">=</span> <span class="pre">True</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">allow_subs_residual</span> <span class="pre">=</span> <span class="pre">False</span></code></p></li>
+<li><p>barrier-style bounds</p></li>
+<li><p>stronger bounds and prior penalties</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stop_grad_ref</span> <span class="pre">=</span> <span class="pre">True</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">drawdown_zero_at_origin</span> <span class="pre">=</span> <span class="pre">True</span></code></p></li>
+<li><p>shorter warmup but longer ramp</p></li>
+<li><p>stronger compile defaults, for example
+<code class="docutils literal notranslate"><span class="pre">lambda_bounds</span> <span class="pre">=</span> <span class="pre">10.0</span></code>,
+<code class="docutils literal notranslate"><span class="pre">lambda_prior</span> <span class="pre">=</span> <span class="pre">10.0</span></code>,
+<code class="docutils literal notranslate"><span class="pre">lambda_cons</span> <span class="pre">=</span> <span class="pre">50.0</span></code>.</p></li>
+</ul>
+<p>Conceptually, <code class="docutils literal notranslate"><span class="pre">anchored</span></code> says:</p>
+<ul class="simple">
+<li><p>keep the closure stable,</p></li>
+<li><p>stop the model from using overly flexible subsidence
+residual freedom,</p></li>
+<li><p>and strongly discourage parameter drift away from the prior
+structure.</p></li>
+</ul>
+<p>This is useful when you want a more interpretable but less
+free inverse solution.</p>
+</section>
+<section id="closure-locked">
+<h2>Closure-locked<a class="headerlink" href="#closure-locked" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">closure_locked</span></code> is the strongest closure-oriented regime in
+the current built-in set.</p>
+<p>It keeps many of the anchored constraints and additionally
+locks the <code class="docutils literal notranslate"><span class="pre">tau_head</span></code> by setting:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&quot;locks&quot;: {&quot;tau_head&quot;: True}
+</pre></div>
+</div>
+<p>in the profile. It also uses a very strong prior default,
+currently:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>lambda_prior = 100.0.
+</pre></div>
+</div>
+<p>Conceptually, this regime says:</p>
+<ul class="simple">
+<li><p>keep the learned timescale extremely close to the closure,</p></li>
+<li><p>strongly suppress free timescale drift,</p></li>
+<li><p>and interpret the model more like a closure-driven
+hydrogeological surrogate than a free inverse learner.</p></li>
+</ul>
+<p>This is especially useful for:</p>
+<ul class="simple">
+<li><p>ablation studies,</p></li>
+<li><p>identifiability experiments,</p></li>
+<li><p>synthetic validation,</p></li>
+<li><p>and cases where you want to isolate the effect of the
+closure itself.</p></li>
+</ul>
+</section>
+<section id="data-relaxed">
+<h2>Data-relaxed<a class="headerlink" href="#data-relaxed" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">data_relaxed</span></code> is the least constrained built-in regime.</p>
+<p>Its profile currently sets:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">freeze_physics_fields_over_time</span> <span class="pre">=</span> <span class="pre">False</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">allow_subs_residual</span> <span class="pre">=</span> <span class="pre">True</span></code></p></li>
+<li><p>a residual-style bounds loss instead of barrier-style</p></li>
+<li><p>weaker bounds and prior defaults</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stop_grad_ref</span> <span class="pre">=</span> <span class="pre">False</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">drawdown_zero_at_origin</span> <span class="pre">=</span> <span class="pre">False</span></code></p></li>
+<li><p>much longer warmup and ramp</p></li>
+<li><p>compile defaults such as
+<code class="docutils literal notranslate"><span class="pre">lambda_prior</span> <span class="pre">=</span> <span class="pre">0.0</span></code> and
+<code class="docutils literal notranslate"><span class="pre">lambda_gw</span> <span class="pre">=</span> <span class="pre">0.0</span></code>.</p></li>
+</ul>
+<p>Conceptually, this regime says:</p>
+<ul class="simple">
+<li><p>allow the model more freedom to follow the data,</p></li>
+<li><p>relax strong prior control,</p></li>
+<li><p>and tolerate greater flexibility in the subsidence pathway.</p></li>
+</ul>
+<p>This is useful for exploratory forecasting or when the user
+cares more about predictive fit than about aggressively
+constrained internal fields.</p>
+</section>
+<section id="a-regime-comparison-map">
+<h2>A regime comparison map<a class="headerlink" href="#a-regime-comparison-map" title="Link to this heading">#</a></h2>
+<p>A useful summary is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>base
+  moderate prior + bounds, time-frozen fields
+
+anchored
+  stronger prior + stronger bounds, no subs residual freedom
+
+closure_locked
+  anchored-like + tau head locked close to closure
+
+data_relaxed
+  weaker prior, more data freedom, slower physics ramp
+</pre></div>
+</div>
+<section id="why-tau-is-central">
+<h3>Why <code class="docutils literal notranslate"><span class="pre">tau</span></code> is central<a class="headerlink" href="#why-tau-is-central" title="Link to this heading">#</a></h3>
+<p>In the current implementation, the most important parameter
+for identifiability is usually <span class="math notranslate nohighlight">\(\tau\)</span>.</p>
+<p>That is because <span class="math notranslate nohighlight">\(\tau\)</span> sits at the intersection of:</p>
+<ul class="simple">
+<li><p>settlement delay,</p></li>
+<li><p>hydraulic conductivity,</p></li>
+<li><p>storage,</p></li>
+<li><p>and effective drainage thickness.</p></li>
+</ul>
+<p>If <span class="math notranslate nohighlight">\(\tau\)</span> is left completely free, it can absorb
+closure mismatch and make the inferred <span class="math notranslate nohighlight">\(K\)</span> / <span class="math notranslate nohighlight">\(S_s\)</span>
+relationship harder to interpret.</p>
+<p>That is why GeoPrior provides:</p>
+<ul class="simple">
+<li><p>closure-based <span class="math notranslate nohighlight">\(\tau_{phys}\)</span>,</p></li>
+<li><p>log-space prior mismatch,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">closure_locked</span></code> behavior,</p></li>
+<li><p>and even scenario utilities where <span class="math notranslate nohighlight">\(K\)</span> is <strong>derived</strong>
+from <span class="math notranslate nohighlight">\(\tau\)</span> instead of learned freely.</p></li>
+</ul>
+</section>
+<section id="locks-and-parameter-freezing">
+<h3>Locks and parameter freezing<a class="headerlink" href="#locks-and-parameter-freezing" title="Link to this heading">#</a></h3>
+<p>GeoPrior can apply explicit parameter-head locks through
+<code class="docutils literal notranslate"><span class="pre">apply_ident_locks(...)</span></code>.</p>
+<p>The current locking logic can freeze any of:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tau_head</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">K_head</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Ss_head</span></code></p></li>
+</ul>
+<p>when the active profile requests it. The built-in
+<code class="docutils literal notranslate"><span class="pre">closure_locked</span></code> regime currently freezes <code class="docutils literal notranslate"><span class="pre">tau_head</span></code>.</p>
+<p>This is scientifically meaningful because it lets the user
+separate two different questions:</p>
+<ul class="simple">
+<li><p><em>Can the model fit the data with closure-driven fields?</em></p></li>
+<li><p><em>What changes when one field is allowed to move freely?</em></p></li>
+</ul>
+<p>That is the essence of a good identifiability ablation.</p>
+</section>
+<section id="the-tau-only-scenario">
+<h3>The tau-only scenario<a class="headerlink" href="#the-tau-only-scenario" title="Link to this heading">#</a></h3>
+<p>The helper module also implements an explicit identifiability
+scenario:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>- learn tau only
+- derive K from tau via closure
+- freeze (or fix) Ss and Hd
+</pre></div>
+</div>
+<p>This is implemented by
+<code class="docutils literal notranslate"><span class="pre">scenario_tau_only_derive_K(...)</span></code>. The corresponding
+closure is:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-identifiability-3">
+<span class="eqno">(4)<a class="headerlink" href="#equation-scientific-foundations-identifiability-3" title="Link to this equation">#</a></span>\[\tau
+=
+\frac{H_d^2\,S_s}{\pi^2\,\kappa_b\,K}\]</div>
+<p>so that</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-identifiability-4">
+<span class="eqno">(5)<a class="headerlink" href="#equation-scientific-foundations-identifiability-4" title="Link to this equation">#</a></span>\[K
+=
+\frac{H_d^2\,S_s}{\pi^2\,\kappa_b\,\tau}.\]</div>
+<p>This is one of the clearest examples of “breaking
+non-identifiability ridges by construction,” which is exactly
+how the module describes its purpose.</p>
+</section>
+</section>
+<section id="why-this-scenario-is-useful">
+<h2>Why this scenario is useful<a class="headerlink" href="#why-this-scenario-is-useful" title="Link to this heading">#</a></h2>
+<p>The tau-only scenario is especially useful when you want to
+ask:</p>
+<ul class="simple">
+<li><p>if <span class="math notranslate nohighlight">\(S_s\)</span> and <span class="math notranslate nohighlight">\(H_d\)</span> are fixed or trusted,
+what timescale is the data asking for?</p></li>
+<li><p>once that timescale is known, what effective
+conductivity <span class="math notranslate nohighlight">\(K\)</span> does the closure imply?</p></li>
+</ul>
+<p>This is a much more identifiable question than trying to
+learn <span class="math notranslate nohighlight">\(K\)</span>, <span class="math notranslate nohighlight">\(S_s\)</span>, <span class="math notranslate nohighlight">\(H_d\)</span>, and <span class="math notranslate nohighlight">\(\tau\)</span>
+all completely freely from the same observed trajectory.</p>
+<section id="compile-time-identifiability-defaults">
+<h3>Compile-time identifiability defaults<a class="headerlink" href="#compile-time-identifiability-defaults" title="Link to this heading">#</a></h3>
+<p>Identifiability in GeoPrior also enters through the compile
+defaults.</p>
+<p>The helper <code class="docutils literal notranslate"><span class="pre">resolve_compile_weights(...)</span></code> merges the active
+profile’s recommended compile weights with any user-specified
+values. The selection rule is:</p>
+<ul class="simple">
+<li><p>if the user provides a value explicitly, that wins;</p></li>
+<li><p>otherwise the profile default is used;</p></li>
+<li><p>otherwise a fallback default is used.</p></li>
+</ul>
+<p>This is a very good design choice because it keeps the model
+scientifically guided without making the built-in regimes
+impossible to override.</p>
+<p>A useful consequence is that identifiability is not only
+about parameter constraints. It is also about <strong>which
+residuals are given enough optimization pressure to matter</strong>.</p>
+</section>
+<section id="how-regimes-affect-training-behavior">
+<h3>How regimes affect training behavior<a class="headerlink" href="#how-regimes-affect-training-behavior" title="Link to this heading">#</a></h3>
+<p>The current profiles do more than change lambdas.</p>
+<p>They also change scaling-side and training-side behaviors
+such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">freeze_physics_fields_over_time</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">allow_subs_residual</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bounds_loss_kind</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bounds_beta</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bounds_guard</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bounds_w</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bounds_include_tau</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bounds_tau_w</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stop_grad_ref</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">drawdown_zero_at_origin</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">physics_warmup_steps</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">physics_ramp_steps</span></code>.</p></li>
+</ul>
+<p>These settings matter because identifiability is not only
+about closed-form algebra. It is also about <strong>how much
+freedom the network is allowed to exploit during training</strong>.</p>
+</section>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>
+<p>A few especially important examples are:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">freeze_physics_fields_over_time</span></code></dt><dd><p>Prevents the model from explaining the same site with
+arbitrarily time-varying physical fields.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">allow_subs_residual</span> <span class="pre">=</span> <span class="pre">False</span></code></dt><dd><p>Reduces freedom in the settlement branch, pushing the
+model to follow the closure more closely.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">stop_grad_ref</span> <span class="pre">=</span> <span class="pre">True</span></code></dt><dd><p>Stops the model from “solving” drawdown inconsistencies by
+moving the reference head itself.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">drawdown_zero_at_origin</span> <span class="pre">=</span> <span class="pre">True</span></code></dt><dd><p>Anchors the drawdown convention more strongly near the
+reference point.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">physics_warmup_steps</span></code> and <code class="docutils literal notranslate"><span class="pre">physics_ramp_steps</span></code></dt><dd><p>Control how quickly physics pressure becomes active, which
+strongly affects whether the model finds a stable
+interpretable solution or a flexible but ambiguous one.</p>
+</dd>
+</dl>
+<section id="identifiability-audits">
+<h3>Identifiability audits<a class="headerlink" href="#identifiability-audits" title="Link to this heading">#</a></h3>
+<p>GeoPrior includes a JSON-safe audit helper:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.models.subsidence</span><span class="w"> </span><span class="kn">import</span> <span class="n">ident_audit_dict</span>
+</pre></div>
+</div>
+<p>The audit records:</p>
+<ul class="simple">
+<li><p>the active regime name,</p></li>
+<li><p>whether identifiability is enabled,</p></li>
+<li><p>the profile keys used,</p></li>
+<li><p>active locks,</p></li>
+<li><p>the trainable status of heads such as <code class="docutils literal notranslate"><span class="pre">tau_head</span></code>,
+<code class="docutils literal notranslate"><span class="pre">K_head</span></code>, and <code class="docutils literal notranslate"><span class="pre">Ss_head</span></code>,</p></li>
+<li><p>the effective lambda weights,</p></li>
+<li><p>selected scaling keys taken from the profile,</p></li>
+<li><p>selected scaling keys actually active on the model,</p></li>
+<li><p>and the current bounds-loss form.</p></li>
+</ul>
+<p>This is extremely useful for experiment logs, manifests, and
+evaluation JSON because it lets the user confirm what regime
+was <em>actually</em> active rather than what they intended to run.</p>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Save the output of <code class="docutils literal notranslate"><span class="pre">ident_audit_dict(model)</span></code> for every
+serious identifiability experiment.</p>
+<p>It is one of the cleanest ways to preserve the internal
+scientific posture of the run.</p>
+</div>
+</section>
+<section id="payload-based-identifiability-diagnostics">
+<h3>Payload-based identifiability diagnostics<a class="headerlink" href="#payload-based-identifiability-diagnostics" title="Link to this heading">#</a></h3>
+<p>GeoPrior also exposes post hoc identifiability diagnostics
+through the exported physics payload.</p>
+<p>The public helpers include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">identifiability_diagnostics_from_payload(...)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">summarise_effective_params(...)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">derive_K_from_tau_np(...)</span></code>.</p></li>
+</ul>
+<p>These are especially useful for synthetic or controlled
+experiments where “true” effective parameters are known.</p>
+</section>
+</section>
+<section id="what-the-payload-diagnostics-measure">
+<h2>What the payload diagnostics measure<a class="headerlink" href="#what-the-payload-diagnostics-measure" title="Link to this heading">#</a></h2>
+<p>The current payload diagnostics explicitly compute three
+blocks:</p>
+<ol class="arabic simple">
+<li><p><strong>relative error in</strong> <span class="math notranslate nohighlight">\(\tau\)</span></p></li>
+<li><p><strong>log-timescale residual for the closure</strong></p></li>
+<li><p><strong>log-offsets of</strong> <span class="math notranslate nohighlight">\(K\)</span>, <span class="math notranslate nohighlight">\(S_s\)</span>, and
+<span class="math notranslate nohighlight">\(H_d\)</span> <strong>relative to true values and priors</strong>.</p></li>
+</ol>
+<p>That is scientifically meaningful because it separates three
+different questions:</p>
+<ul class="simple">
+<li><p>did the model recover the effective timescale?</p></li>
+<li><p>did the closure stay consistent with the learned fields?</p></li>
+<li><p>how far did the learned physical fields drift away from the
+truth or from the priors?</p></li>
+</ul>
+</section>
+<section id="summarising-effective-parameters">
+<h2>Summarising effective parameters<a class="headerlink" href="#summarising-effective-parameters" title="Link to this heading">#</a></h2>
+<p>For 1D or synthetic-column studies, the helper
+<code class="docutils literal notranslate"><span class="pre">summarise_effective_params(...)</span></code> collapses 1D arrays of
+payload quantities such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tau</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tau_prior</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">K</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Ss</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Hd</span></code></p></li>
+</ul>
+<p>into representative scalar summaries, currently using the
+median of finite values.</p>
+<p>This makes it much easier to compare runs when the real
+scientific question is about one effective column-scale
+parameter set rather than about a large spatial field.</p>
+</section>
+<section id="a-good-synthetic-identifiability-workflow">
+<h2>A good synthetic identifiability workflow<a class="headerlink" href="#a-good-synthetic-identifiability-workflow" title="Link to this heading">#</a></h2>
+<p>A useful synthetic workflow is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>train with a chosen identifiability regime
+     ↓
+export physics payload
+     ↓
+summarise effective params
+     ↓
+compare tau, tau_prior, K, Ss, Hd with true and prior values
+     ↓
+inspect closure_log_resid and parameter offsets
+</pre></div>
+</div>
+<p>This is exactly the sort of loop that turns identifiability
+from an abstract concern into a measurable property of the
+model.</p>
+<section id="how-to-think-about-the-regimes-scientifically">
+<h3>How to think about the regimes scientifically<a class="headerlink" href="#how-to-think-about-the-regimes-scientifically" title="Link to this heading">#</a></h3>
+<p>A good conceptual spectrum is:</p>
+<ul class="simple">
+<li><p><strong>data_relaxed</strong>
+favors predictive freedom;</p></li>
+<li><p><strong>base</strong>
+gives a balanced default;</p></li>
+<li><p><strong>anchored</strong>
+favors interpretable closure-constrained behavior;</p></li>
+<li><p><strong>closure_locked</strong>
+is closest to a closure-dominant identifiability test.</p></li>
+</ul>
+<p>This means the regimes are not merely “more or less strict.”
+They are really different scientific stances about <strong>which
+degrees of freedom are allowed to explain the data</strong>.</p>
+</section>
+<section id="when-to-use-each-regime">
+<h3>When to use each regime<a class="headerlink" href="#when-to-use-each-regime" title="Link to this heading">#</a></h3>
+</section>
+</section>
+<section id="use-base-when">
+<h2>Use <code class="docutils literal notranslate"><span class="pre">base</span></code> when<a class="headerlink" href="#use-base-when" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>you want the default scientific baseline;</p></li>
+<li><p>you want moderate prior and bounds pressure;</p></li>
+<li><p>you want time-frozen physical fields without very strong
+closure locking.</p></li>
+</ul>
+</section>
+<section id="use-anchored-when">
+<h2>Use <code class="docutils literal notranslate"><span class="pre">anchored</span></code> when<a class="headerlink" href="#use-anchored-when" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>you want stronger physical discipline;</p></li>
+<li><p>you want to suppress free subsidence residual behavior;</p></li>
+<li><p>you want a more interpretable but less flexible inverse
+solution.</p></li>
+</ul>
+</section>
+<section id="use-closure-locked-when">
+<h2>Use <code class="docutils literal notranslate"><span class="pre">closure_locked</span></code> when<a class="headerlink" href="#use-closure-locked-when" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>you want to test closure-dominant behavior;</p></li>
+<li><p>you want <span class="math notranslate nohighlight">\(\tau\)</span> to remain tightly linked to the
+closure;</p></li>
+<li><p>you are running synthetic recovery or ablation studies.</p></li>
+</ul>
+</section>
+<section id="use-data-relaxed-when">
+<h2>Use <code class="docutils literal notranslate"><span class="pre">data_relaxed</span></code> when<a class="headerlink" href="#use-data-relaxed-when" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>predictive fit matters more than strict physical
+interpretability;</p></li>
+<li><p>you want more data freedom;</p></li>
+<li><p>you want a softer starting point for exploratory runs.</p></li>
+</ul>
+<section id="common-failure-modes">
+<h3>Common failure modes<a class="headerlink" href="#common-failure-modes" title="Link to this heading">#</a></h3>
+</section>
+</section>
+<section id="good-prediction-poor-parameter-identifiability">
+<h2>Good prediction, poor parameter identifiability<a class="headerlink" href="#good-prediction-poor-parameter-identifiability" title="Link to this heading">#</a></h2>
+<p>This is the most common failure mode.</p>
+<p>The model can still predict well because the observable state
+trajectory is easier to constrain than the internal fields.</p>
+<p>A solution is often to:</p>
+<ul class="simple">
+<li><p>move from <code class="docutils literal notranslate"><span class="pre">data_relaxed</span></code> to <code class="docutils literal notranslate"><span class="pre">base</span></code> or <code class="docutils literal notranslate"><span class="pre">anchored</span></code>;</p></li>
+<li><p>inspect the closure log residual;</p></li>
+<li><p>add or strengthen bounds and prior terms;</p></li>
+<li><p>freeze more of the physics structure.</p></li>
+</ul>
+</section>
+<section id="closure-looks-good-fields-still-drift">
+<h2>Closure looks good, fields still drift<a class="headerlink" href="#closure-looks-good-fields-still-drift" title="Link to this heading">#</a></h2>
+<p>This can happen when the closure itself is satisfied but the
+field decomposition remains ambiguous.</p>
+<p>A solution is often to:</p>
+<ul class="simple">
+<li><p>compare offsets vs true values and vs prior values;</p></li>
+<li><p>use a tau-only or partially frozen scenario;</p></li>
+<li><p>inspect whether <code class="docutils literal notranslate"><span class="pre">freeze_physics_fields_over_time</span></code> should
+be enabled.</p></li>
+</ul>
+</section>
+<section id="bounds-dominate-too-early">
+<h2>Bounds dominate too early<a class="headerlink" href="#bounds-dominate-too-early" title="Link to this heading">#</a></h2>
+<p>If bounds and prior penalties are too aggressive too early,
+the model may become overly rigid before the forecasting
+backbone has stabilized.</p>
+<p>A solution is often to:</p>
+<ul class="simple">
+<li><p>lengthen warmup and ramp;</p></li>
+<li><p>reduce bounds strength;</p></li>
+<li><p>move from <code class="docutils literal notranslate"><span class="pre">anchored</span></code> to <code class="docutils literal notranslate"><span class="pre">base</span></code> first.</p></li>
+</ul>
+</section>
+<section id="data-relaxed-solutions-look-better-but-are-harder-to-trust">
+<h2>Data-relaxed solutions look better but are harder to trust<a class="headerlink" href="#data-relaxed-solutions-look-better-but-are-harder-to-trust" title="Link to this heading">#</a></h2>
+<p>This is expected. More flexibility can improve apparent fit
+while reducing interpretability.</p>
+<p>That is why identifiability should be reported explicitly,
+not inferred from forecast quality alone.</p>
+<section id="a-compact-identifiability-map">
+<h3>A compact identifiability map<a class="headerlink" href="#a-compact-identifiability-map" title="Link to this heading">#</a></h3>
+<p>The GeoPrior identifiability story can be summarized as:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>closure:
+  tau ~ Hd^2 * Ss / (pi^2 * kappa * K)
+     ↓
+creates ridge-like trade-offs among K, Ss, Hd, tau
+     ↓
+identifiability regimes constrain those trade-offs
+     ↓
+locks, bounds, priors, and warmups shape training freedom
+     ↓
+audit helpers record the active regime
+     ↓
+payload diagnostics measure recovery and closure consistency
+</pre></div>
+</div>
+</section>
+<section id="relationship-to-the-rest-of-the-docs">
+<h3>Relationship to the rest of the docs<a class="headerlink" href="#relationship-to-the-rest-of-the-docs" title="Link to this heading">#</a></h3>
+<p>This page explains <strong>how GeoPrior controls and audits
+inverse-problem ambiguity</strong>.</p>
+<p>The companion pages explain related pieces:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="physics_formulation.html"><span class="doc">Physics formulation</span></a>
+explains the closure and residual system that create the
+identifiability challenge;</p></li>
+<li><p><a class="reference internal" href="residual_assembly.html"><span class="doc">Residual assembly</span></a>
+explains how those terms are built in the physics core;</p></li>
+<li><p><a class="reference internal" href="losses_and_training.html"><span class="doc">Losses and training</span></a>
+explains how the compile-time lambdas and physics multiplier
+affect optimization pressure;</p></li>
+<li><p><a class="reference internal" href="scaling.html"><span class="doc">Scaling and conventions (scaling_kwargs)</span></a>
+explains the bounds and semantic conventions that support
+identifiability;</p></li>
+<li><p><a class="reference internal" href="../user_guide/stage3.html"><span class="doc">Stage-3</span></a>
+and <a class="reference internal" href="../user_guide/stage5.html"><span class="doc">Stage-5</span></a>
+are especially relevant when identifiability is studied
+through tuning or transfer experiments.</p></li>
+</ul>
+</section>
+<section id="see-also">
+<h3>See also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h3>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="geoprior_subsnet.html"><span class="doc">GeoPriorSubsNet</span></a></p></li>
+<li><p><a class="reference internal" href="physics_formulation.html"><span class="doc">Physics formulation</span></a></p></li>
+<li><p><a class="reference internal" href="residual_assembly.html"><span class="doc">Residual assembly</span></a></p></li>
+<li><p><a class="reference internal" href="losses_and_training.html"><span class="doc">Losses and training</span></a></p></li>
+<li><p><a class="reference internal" href="data_and_units.html"><span class="doc">Data, units, and conventions</span></a></p></li>
+<li><p><a class="reference internal" href="scaling.html"><span class="doc">Scaling and conventions (scaling_kwargs)</span></a></p></li>
+<li><p><a class="reference internal" href="../user_guide/stage3.html"><span class="doc">Stage-3</span></a></p></li>
+<li><p><a class="reference internal" href="../user_guide/stage5.html"><span class="doc">Stage-5</span></a></p></li>
+</ul>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="maths.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">GeoPrior maths: definitions and conventions</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="stability_and_constraints.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Stability and constraints</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-identifiability-matters-here">Why identifiability matters here</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-useful-intuition">A useful intuition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-identifiability-enters-the-model">Where identifiability enters the model</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-main-source-of-non-identifiability">The main source of non-identifiability</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#timescale-ridge">Timescale ridge</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#settlement-ridge">Settlement ridge</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-geoprior-strategy">The GeoPrior strategy</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#identifiability-regimes">Identifiability regimes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-regimes-are-applied">How regimes are applied</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-four-built-in-regimes">The four built-in regimes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#base">Base</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#anchored">Anchored</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#closure-locked">Closure-locked</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-relaxed">Data-relaxed</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-regime-comparison-map">A regime comparison map</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#why-tau-is-central">Why <code class="docutils literal notranslate"><span class="pre">tau</span></code> is central</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#locks-and-parameter-freezing">Locks and parameter freezing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-tau-only-scenario">The tau-only scenario</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-scenario-is-useful">Why this scenario is useful</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compile-time-identifiability-defaults">Compile-time identifiability defaults</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-regimes-affect-training-behavior">How regimes affect training behavior</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#identifiability-audits">Identifiability audits</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#payload-based-identifiability-diagnostics">Payload-based identifiability diagnostics</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-payload-diagnostics-measure">What the payload diagnostics measure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summarising-effective-parameters">Summarising effective parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-good-synthetic-identifiability-workflow">A good synthetic identifiability workflow</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-think-about-the-regimes-scientifically">How to think about the regimes scientifically</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-use-each-regime">When to use each regime</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#use-base-when">Use <code class="docutils literal notranslate"><span class="pre">base</span></code> when</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#use-anchored-when">Use <code class="docutils literal notranslate"><span class="pre">anchored</span></code> when</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#use-closure-locked-when">Use <code class="docutils literal notranslate"><span class="pre">closure_locked</span></code> when</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#use-data-relaxed-when">Use <code class="docutils literal notranslate"><span class="pre">data_relaxed</span></code> when</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-failure-modes">Common failure modes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#good-prediction-poor-parameter-identifiability">Good prediction, poor parameter identifiability</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#closure-looks-good-fields-still-drift">Closure looks good, fields still drift</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bounds-dominate-too-early">Bounds dominate too early</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-relaxed-solutions-look-better-but-are-harder-to-trust">Data-relaxed solutions look better but are harder to trust</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-compact-identifiability-map">A compact identifiability map</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#relationship-to-the-rest-of-the-docs">Relationship to the rest of the docs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See also</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/earthai-tech/geoprior-v3/edit/main/docs/source/scientific_foundations/identifiability.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/scientific_foundations/identifiability.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,29 @@
+﻿geoprior.models.subsidence.step\_core
+=====================================
+
+.. automodule:: geoprior.models.subsidence.step_core
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      physics_core
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

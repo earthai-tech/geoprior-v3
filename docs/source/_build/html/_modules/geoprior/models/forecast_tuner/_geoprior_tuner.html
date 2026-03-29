@@ -1,0 +1,1317 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>geoprior.models.forecast_tuner._geoprior_tuner &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=404c0980"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geoprior/models/forecast_tuner/_geoprior_tuner';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../../../../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../../../../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geoprior.models.forecast_tuner._geoprior_tuner</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for geoprior.models.forecast_tuner._geoprior_tuner</h1><div class="highlight"><pre>
+<span></span><span class="c1"># License: Apache-2.0</span>
+<span class="c1"># Copyright (c) 2026-present</span>
+<span class="c1"># Author: LKouadio &lt;etanoyau@gmail.com&gt;</span>
+<span class="sd">&quot;&quot;&quot;Tuner for GeoPriorSubsNet.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">...core.handlers</span><span class="w"> </span><span class="kn">import</span> <span class="n">_get_valid_kwargs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">...logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">...utils.generic_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">cast_multiple_bool_params</span><span class="p">,</span>
+    <span class="n">rename_dict_keys</span><span class="p">,</span>
+    <span class="n">vlog</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">KERAS_DEPS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..subsidence.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoPriorSubsNet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils.pinn</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_required_input_keys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">KT_DEPS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._base_tuner</span><span class="w"> </span><span class="kn">import</span> <span class="n">PINNTunerBase</span>
+
+<span class="n">HyperParameters</span> <span class="o">=</span> <span class="n">KT_DEPS</span><span class="o">.</span><span class="n">HyperParameters</span>
+<span class="n">Objective</span> <span class="o">=</span> <span class="n">KT_DEPS</span><span class="o">.</span><span class="n">Objective</span>
+<span class="n">Tuner</span> <span class="o">=</span> <span class="n">KT_DEPS</span><span class="o">.</span><span class="n">Tuner</span>
+
+<span class="n">AUTOTUNE</span> <span class="o">=</span> <span class="n">KERAS_DEPS</span><span class="o">.</span><span class="n">AUTOTUNE</span>
+<span class="n">Model</span> <span class="o">=</span> <span class="n">KERAS_DEPS</span><span class="o">.</span><span class="n">Model</span>
+<span class="n">Adam</span> <span class="o">=</span> <span class="n">KERAS_DEPS</span><span class="o">.</span><span class="n">Adam</span>
+<span class="n">MeanSquaredError</span> <span class="o">=</span> <span class="n">KERAS_DEPS</span><span class="o">.</span><span class="n">MeanSquaredError</span>
+<span class="n">MeanAbsoluteError</span> <span class="o">=</span> <span class="n">KERAS_DEPS</span><span class="o">.</span><span class="n">MeanAbsoluteError</span>
+<span class="n">Callback</span> <span class="o">=</span> <span class="n">KERAS_DEPS</span><span class="o">.</span><span class="n">Callback</span>
+<span class="n">Dataset</span> <span class="o">=</span> <span class="n">KERAS_DEPS</span><span class="o">.</span><span class="n">Dataset</span>
+
+<span class="n">tf_float32</span> <span class="o">=</span> <span class="n">KERAS_DEPS</span><span class="o">.</span><span class="n">float32</span>
+<span class="n">tf_const</span> <span class="o">=</span> <span class="n">KERAS_DEPS</span><span class="o">.</span><span class="n">constant</span>
+<span class="n">tf_cast</span> <span class="o">=</span> <span class="n">KERAS_DEPS</span><span class="o">.</span><span class="n">cast</span>
+<span class="n">tf_reduce_mean</span> <span class="o">=</span> <span class="n">KERAS_DEPS</span><span class="o">.</span><span class="n">reduce_mean</span>
+<span class="n">tf_max</span> <span class="o">=</span> <span class="n">KERAS_DEPS</span><span class="o">.</span><span class="n">maximum</span>
+<span class="n">tf_expand</span> <span class="o">=</span> <span class="n">KERAS_DEPS</span><span class="o">.</span><span class="n">expand_dims</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># ------------------------------</span>
+<span class="c1"># Defaults specialized to model</span>
+<span class="c1"># ------------------------------</span>
+
+<span class="n">_DEFAULT_COMMON</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;output_subsidence_dim&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;output_gwl_dim&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;quantiles&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="s2">&quot;max_window_size&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="s2">&quot;memory_size&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="s2">&quot;scales&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+    <span class="s2">&quot;multi_scale_agg&quot;</span><span class="p">:</span> <span class="s2">&quot;last&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;final_agg&quot;</span><span class="p">:</span> <span class="s2">&quot;last&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;use_residuals&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">&quot;use_batch_norm&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s2">&quot;activation&quot;</span><span class="p">:</span> <span class="s2">&quot;relu&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;architecture_config&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;encoder_type&quot;</span><span class="p">:</span> <span class="s2">&quot;hybrid&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;decoder_attention_stack&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;cross&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;hierarchical&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;memory&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;feature_processing&quot;</span><span class="p">:</span> <span class="s2">&quot;vsn&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;loss_weights&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;subs_pred&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;gwl_pred&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span>
+<span class="p">}</span>
+
+<span class="n">_DEFAULT_GEOPRIOR</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="o">**</span><span class="n">_DEFAULT_COMMON</span><span class="p">,</span>
+    <span class="s2">&quot;pde_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;both&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mv&quot;</span><span class="p">:</span> <span class="mf">1e-7</span><span class="p">,</span>
+    <span class="s2">&quot;kappa&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="s2">&quot;gamma_w&quot;</span><span class="p">:</span> <span class="mf">9810.0</span><span class="p">,</span>
+    <span class="s2">&quot;h_ref&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="s2">&quot;use_effective_h&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s2">&quot;hd_factor&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="s2">&quot;kappa_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;bar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;scale_pde_residuals&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">&quot;scaling_kwargs&quot;</span><span class="p">:</span> <span class="p">{},</span>
+<span class="p">}</span>
+
+<span class="c1"># Compile-only HPs</span>
+<span class="n">_COMPILE_ONLY</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;learning_rate&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lambda_gw&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lambda_cons&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lambda_prior&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lambda_smooth&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lambda_mv&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lambda_bounds&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lambda_q&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lambda_offset&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;scale_mv_with_offset&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;scale_q_with_offset&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mv_lr_mult&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;kappa_lr_mult&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_INT_FIELDS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;embed_dim&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hidden_units&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lstm_units&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;attention_units&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vsn_units&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;num_heads&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">_BOOL_CAST</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s2">&quot;use_vsn&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;use_residuals&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;use_batch_norm&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;use_effective_h&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;scale_pde_residuals&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="SubsNetTuner">
+<a class="viewcode-back" href="../../../../api/tuner.html#geoprior.models.forecast_tuner.SubsNetTuner">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SubsNetTuner</span><span class="p">(</span><span class="n">PINNTunerBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Specialized tuner for ``GeoPriorSubsNet`` models.</span>
+
+<span class="sd">    This class provides a flexible hyperparameter tuner for the</span>
+<span class="sd">    physics-informed ``GeoPriorSubsNet``. It builds on</span>
+<span class="sd">    ``PINNTunerBase`` and uses keras-tuner backends to search</span>
+<span class="sd">    architectural, physics, and compile-time spaces. Fixed,</span>
+<span class="sd">    data-dependent parameters are separated from the search</span>
+<span class="sd">    space, and GeoPrior input checks are enforced during</span>
+<span class="sd">    ``run`` and ``create``.</span>
+
+<span class="sd">    The recommended entry point is ``SubsNetTuner.create``,</span>
+<span class="sd">    which infers data dimensions from NumPy arrays, merges</span>
+<span class="sd">    them with robust defaults, and applies user overrides.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fixed_params : dict</span>
+<span class="sd">        Non-tunable configuration passed to the model</span>
+<span class="sd">        ``__init__``. Include data-shape keys and stable</span>
+<span class="sd">        flags, for example:</span>
+
+<span class="sd">            - ``static_input_dim`` : int</span>
+<span class="sd">            - ``dynamic_input_dim`` : int</span>
+<span class="sd">            - ``future_input_dim`` : int</span>
+<span class="sd">            - ``output_subsidence_dim`` : int</span>
+<span class="sd">            - ``output_gwl_dim`` : int</span>
+<span class="sd">            - ``forecast_horizon`` : int</span>
+<span class="sd">            - optional flags (e.g., ``use_batch_norm``)</span>
+<span class="sd">            - physics toggles (e.g., ``pde_mode``)</span>
+
+<span class="sd">    search_space : dict, optional</span>
+<span class="sd">        Hyperparameter definitions. Each entry is either a</span>
+<span class="sd">        list of discrete choices or a dict with a typed</span>
+<span class="sd">        range, e.g.:</span>
+
+<span class="sd">            - list: ``{&quot;embed_dim&quot;: [32, 64, 96]}``</span>
+<span class="sd">            - dict: ``{&quot;dropout_rate&quot;: {&quot;type&quot;: &quot;float&quot;,</span>
+<span class="sd">              &quot;min_value&quot;: 0.1, &quot;max_value&quot;: 0.4}}``</span>
+
+<span class="sd">        Supported types are ``int``, ``float``, ``choice``,</span>
+<span class="sd">        and ``bool``. Items are routed to model ``__init__``</span>
+<span class="sd">        or to ``compile`` (see Notes).</span>
+
+<span class="sd">    objective : str or keras_tuner.Objective, default &quot;val_loss&quot;</span>
+<span class="sd">        Metric to optimize. If the string contains &quot;loss&quot;,</span>
+<span class="sd">        direction is inferred as &quot;min&quot;.</span>
+<span class="sd">    max_trials : int, default 10</span>
+<span class="sd">        Maximum number of trials evaluated by the tuner.</span>
+<span class="sd">    project_name : str, default &quot;SubsNetrTuner_Project&quot;</span>
+<span class="sd">        Project name used for directory layout.</span>
+<span class="sd">    directory : str, default &quot;subsnet_tuner_results&quot;</span>
+<span class="sd">        Root directory where tuner artifacts are saved.</span>
+<span class="sd">    executions_per_trial : int, default 1</span>
+<span class="sd">        Number of repeated trainings per hyperparameter set.</span>
+<span class="sd">    tuner_type : {&quot;randomsearch&quot;, &quot;bayesianoptimization&quot;,</span>
+<span class="sd">                  &quot;hyperband&quot;}, default &quot;randomsearch&quot;</span>
+<span class="sd">        Search algorithm used by keras-tuner.</span>
+<span class="sd">    seed : int, optional</span>
+<span class="sd">        Random seed for reproducibility.</span>
+<span class="sd">    overwrite : bool, default True</span>
+<span class="sd">        If True, existing project results are overwritten.</span>
+<span class="sd">    _logger : logging.Logger or callable, optional</span>
+<span class="sd">        Logger or print-like callable for progress lines.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Forwarded to ``PINNTunerBase`` for advanced control.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model_class : Type[tf.keras.Model]</span>
+<span class="sd">        Bound to ``GeoPriorSubsNet``.</span>
+<span class="sd">    fixed_params : dict</span>
+<span class="sd">        Finalized, non-tunable model configuration.</span>
+<span class="sd">    search_space : dict</span>
+<span class="sd">        User-provided hyperparameter search definitions.</span>
+<span class="sd">    best_hps_ : keras_tuner.HyperParameters or None</span>
+<span class="sd">        Best hyperparameters found by the search.</span>
+<span class="sd">    best_model_ : tf.keras.Model or None</span>
+<span class="sd">        Model built with the best hyperparameters.</span>
+<span class="sd">    tuner_ : keras_tuner.Tuner or None</span>
+<span class="sd">        Underlying tuner instance after ``run`` or ``search``.</span>
+<span class="sd">    tuning_summary_ : dict</span>
+<span class="sd">        Compact summary saved under the project directory.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Required inputs. ``GeoPriorSubsNet`` expects the keys in</span>
+<span class="sd">    ``inputs``:</span>
+<span class="sd">        - ``coords`` : spatiotemporal coordinates</span>
+<span class="sd">        - ``dynamic_features`` : time-varying covariates</span>
+<span class="sd">        - ``H_field`` : soil thickness field</span>
+<span class="sd">    The helper canonicalizes ``H_field`` from common aliases,</span>
+<span class="sd">    e.g., ``soil_thickness``, ``soil thickness``, ``h_field``.</span>
+
+<span class="sd">    Targets are canonicalized to ``subs_pred`` and</span>
+<span class="sd">    ``gwl_pred`` from ``subsidence`` and ``gwl``. This is</span>
+<span class="sd">    handled internally before data pipelines are built.</span>
+
+<span class="sd">    Compile-only hyperparameters. These search keys are not</span>
+<span class="sd">    passed to ``__init__`` and are routed to ``compile``:</span>
+
+<span class="sd">        - ``learning_rate``</span>
+<span class="sd">        - ``lambda_gw``, ``lambda_cons``, ``lambda_prior``,</span>
+<span class="sd">          ``lambda_smooth``, ``lambda_mv``</span>
+<span class="sd">        - ``mv_lr_mult``, ``kappa_lr_mult``</span>
+
+<span class="sd">    Losses and metrics. By default the supervised heads use</span>
+<span class="sd">    mean squared error with mean absolute error metrics. If</span>
+<span class="sd">    ``fixed_params[&quot;quantiles&quot;]`` is set, a pinball loss can</span>
+<span class="sd">    be injected via a user loss factory at compile time.</span>
+
+<span class="sd">    Physics objectives. GeoPrior adds residuals consistent</span>
+<span class="sd">    with consolidation and groundwater flow:</span>
+
+<span class="sd">        - :math:`R_gw = Ss * d(h)/dt - div(K * grad(h)) - Q`</span>
+<span class="sd">        - :math:`R_cons = d(s)/dt - (s_eq - s) / tau`</span>
+<span class="sd">      with :math:`s_eq = m_v * gamma_w * (h_ref - h) * H`.</span>
+<span class="sd">      Weights are controlled by the compile-time lambdas.</span>
+
+<span class="sd">    Typical search groups:</span>
+<span class="sd">        - Architecture: ``embed_dim``, ``hidden_units``,</span>
+<span class="sd">          ``lstm_units``, ``attention_units``, ``num_heads``,</span>
+<span class="sd">          ``dropout_rate``, ``vsn_units``, ``use_vsn``,</span>
+<span class="sd">          ``use_batch_norm``.</span>
+<span class="sd">        - Physics: ``pde_mode``, ``mv``, ``kappa``,</span>
+<span class="sd">          ``use_effective_h``, ``hd_factor``, ``kappa_mode``,</span>
+<span class="sd">          ``scale_pde_residuals``.</span>
+<span class="sd">        - Optimization: ``learning_rate`` and lambda weights.</span>
+
+<span class="sd">    Workflow. ``run`` builds ``tf.data`` pipelines from NumPy</span>
+<span class="sd">    inputs, applies key canonicalization, validates GeoPrior</span>
+<span class="sd">    requirements, and delegates to ``search``. The best HPs</span>
+<span class="sd">    and a built model are returned and stored on the class.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Create from arrays and tune a small space.</span>
+
+<span class="sd">    &gt;&gt;&gt; from geoprior.models.forecast_tuner import SubsNetTuner</span>
+<span class="sd">    &gt;&gt;&gt; fixed = {&quot;forecast_horizon&quot;: 7}</span>
+<span class="sd">    &gt;&gt;&gt; space = {</span>
+<span class="sd">    ...   &quot;embed_dim&quot;: [32, 64],</span>
+<span class="sd">    ...   &quot;num_heads&quot;: [2, 4],</span>
+<span class="sd">    ...   &quot;dropout_rate&quot;: {&quot;type&quot;: &quot;float&quot;,</span>
+<span class="sd">    ...     &quot;min_value&quot;: 0.1, &quot;max_value&quot;: 0.3},</span>
+<span class="sd">    ...   &quot;learning_rate&quot;: [1e-3, 5e-4],</span>
+<span class="sd">    ...   &quot;lambda_gw&quot;: {&quot;type&quot;: &quot;float&quot;,</span>
+<span class="sd">    ...     &quot;min_value&quot;: 0.5, &quot;max_value&quot;: 1.5},</span>
+<span class="sd">    ... }</span>
+<span class="sd">    &gt;&gt;&gt; tuner = SubsNetTuner.create(</span>
+<span class="sd">    ...   inputs_data=inputs_np,</span>
+<span class="sd">    ...   targets_data=targets_np,</span>
+<span class="sd">    ...   search_space=space,</span>
+<span class="sd">    ...   fixed_params=fixed,</span>
+<span class="sd">    ...   max_trials=20,</span>
+<span class="sd">    ...   project_name=&quot;GeoPrior_HP_Search&quot;,</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; best_model, best_hps, kt = tuner.run(</span>
+<span class="sd">    ...   inputs=inputs_np,</span>
+<span class="sd">    ...   y=targets_np,</span>
+<span class="sd">    ...   validation_data=(val_inputs_np, val_targets_np),</span>
+<span class="sd">    ...   epochs=30,</span>
+<span class="sd">    ...   batch_size=32,</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    PINNTunerBase</span>
+<span class="sd">        Base hypermodel with the generic ``search`` routine.</span>
+<span class="sd">    GeoPriorSubsNet</span>
+<span class="sd">        Target model with physics residuals and priors.</span>
+<span class="sd">    HydroTuner</span>
+<span class="sd">        Generic PINN tuner for HAL and TransFlow models.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] Keras Tuner. https://keras.io/keras_tuner/</span>
+<span class="sd">    .. [2] Terzaghi, K. Theory of Consolidation, 1943.</span>
+<span class="sd">    .. [3] Bear, J. Dynamics of Fluids in Porous Media, 1972.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SubsNetTuner.__init__">
+<a class="viewcode-back" href="../../../../api/tuner.html#geoprior.models.forecast_tuner.SubsNetTuner.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">fixed_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">search_space</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">objective</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Objective</span> <span class="o">=</span> <span class="s2">&quot;val_loss&quot;</span><span class="p">,</span>
+        <span class="n">max_trials</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;SubsNetrTuner_Project&quot;</span><span class="p">,</span>
+        <span class="n">directory</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;subsnet_tuner_results&quot;</span><span class="p">,</span>
+        <span class="n">executions_per_trial</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">tuner_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;randomsearch&quot;</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">_logger</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="o">|</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span>
+        <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">_logger</span> <span class="ow">or</span> <span class="nb">print</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">objective</span><span class="o">=</span><span class="n">objective</span><span class="p">,</span>
+            <span class="n">max_trials</span><span class="o">=</span><span class="n">max_trials</span><span class="p">,</span>
+            <span class="n">project_name</span><span class="o">=</span><span class="n">project_name</span><span class="p">,</span>
+            <span class="n">directory</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span>
+            <span class="n">executions_per_trial</span><span class="o">=</span><span class="n">executions_per_trial</span><span class="p">,</span>
+            <span class="n">tuner_type</span><span class="o">=</span><span class="n">tuner_type</span><span class="p">,</span>
+            <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+            <span class="n">overwrite_tuner</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span>
+            <span class="n">_logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fixed_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">fixed_params</span> <span class="ow">or</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">search_space</span> <span class="ow">or</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_class</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">Model</span><span class="p">]</span> <span class="o">=</span> <span class="n">GeoPriorSubsNet</span></div>
+
+
+<div class="viewcode-block" id="SubsNetTuner.create">
+<a class="viewcode-back" href="../../../../api/tuner.html#geoprior.models.forecast_tuner.SubsNetTuner.create">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">inputs_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="n">targets_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="n">search_space</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">fixed_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">tuner_kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SubsNetTuner</span><span class="p">:</span>
+        <span class="n">t_std</span> <span class="o">=</span> <span class="n">rename_dict_keys</span><span class="p">(</span>
+            <span class="n">targets_data</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="n">param_to_rename</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;subsidence&quot;</span><span class="p">:</span> <span class="s2">&quot;subs_pred&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;gwl&quot;</span><span class="p">:</span> <span class="s2">&quot;gwl_pred&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">final_fixed</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_infer_and_merge_params</span><span class="p">(</span>
+            <span class="n">inputs_data</span><span class="o">=</span><span class="n">inputs_data</span><span class="p">,</span>
+            <span class="n">targets_data</span><span class="o">=</span><span class="n">t_std</span><span class="p">,</span>
+            <span class="n">user_fixed_params</span><span class="o">=</span><span class="n">fixed_params</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">fixed_params</span><span class="o">=</span><span class="n">final_fixed</span><span class="p">,</span>
+            <span class="n">search_space</span><span class="o">=</span><span class="n">search_space</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">tuner_kwargs</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_hyperparameter</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">hp</span><span class="p">:</span> <span class="n">HyperParameters</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">definition</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">definition</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">hp</span><span class="o">.</span><span class="n">Choice</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">definition</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">definition</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">hp_type</span> <span class="o">=</span> <span class="n">definition</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">)</span>
+            <span class="n">kw</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">k</span><span class="p">:</span> <span class="n">v</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">definition</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">&quot;type&quot;</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="n">hp_type</span> <span class="o">==</span> <span class="s2">&quot;int&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">hp</span><span class="o">.</span><span class="n">Int</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">hp_type</span> <span class="o">==</span> <span class="s2">&quot;float&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">hp</span><span class="o">.</span><span class="n">Float</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">hp_type</span> <span class="o">==</span> <span class="s2">&quot;choice&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">hp</span><span class="o">.</span><span class="n">Choice</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">hp_type</span> <span class="o">==</span> <span class="s2">&quot;bool&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">hp</span><span class="o">.</span><span class="n">Boolean</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unsupported HP def for &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">definition</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># ----------------------------</span>
+    <span class="c1"># Build per-trial model</span>
+    <span class="c1"># ----------------------------</span>
+<div class="viewcode-block" id="SubsNetTuner.build">
+<a class="viewcode-back" href="../../../../api/tuner.html#geoprior.models.forecast_tuner.SubsNetTuner.build">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hp</span><span class="p">:</span> <span class="n">HyperParameters</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Model</span><span class="p">:</span>
+        <span class="n">init_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fixed_params</span><span class="p">)</span>
+        <span class="n">compile_hps</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_hyperparameter</span><span class="p">(</span><span class="n">hp</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_COMPILE_ONLY</span><span class="p">:</span>
+                <span class="n">compile_hps</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">init_params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_INT_FIELDS</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">init_params</span><span class="p">:</span>
+                <span class="n">init_params</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">init_params</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+
+        <span class="n">valid_init</span> <span class="o">=</span> <span class="n">_get_valid_kwargs</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_class</span><span class="o">.</span><span class="fm">__init__</span><span class="p">,</span>
+            <span class="n">init_params</span><span class="p">,</span>
+            <span class="n">error</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">cast_multiple_bool_params</span><span class="p">(</span>
+            <span class="n">valid_init</span><span class="p">,</span>
+            <span class="n">bool_params_to_cast</span><span class="o">=</span><span class="n">_BOOL_CAST</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_class</span><span class="p">(</span><span class="o">**</span><span class="n">valid_init</span><span class="p">)</span>
+
+        <span class="c1"># choose losses: pinball if quantiles set</span>
+        <span class="n">quantiles</span> <span class="o">=</span> <span class="n">valid_init</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;quantiles&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">quantiles</span><span class="p">:</span>
+            <span class="n">pinball</span> <span class="o">=</span> <span class="n">_pinball_factory</span><span class="p">(</span><span class="n">quantiles</span><span class="p">)</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;subs_pred&quot;</span><span class="p">:</span> <span class="n">pinball</span><span class="p">,</span>
+                <span class="s2">&quot;gwl_pred&quot;</span><span class="p">:</span> <span class="n">pinball</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">metrics</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># avoid MAE on Q-dim tensors</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;subs_pred&quot;</span><span class="p">:</span> <span class="n">MeanSquaredError</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;subs_data_loss&quot;</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;gwl_pred&quot;</span><span class="p">:</span> <span class="n">MeanSquaredError</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;gwl_data_loss&quot;</span>
+                <span class="p">),</span>
+            <span class="p">}</span>
+            <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;subs_pred&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="n">MeanAbsoluteError</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;subs_mae&quot;</span><span class="p">)</span>
+                <span class="p">],</span>
+                <span class="s2">&quot;gwl_pred&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="n">MeanAbsoluteError</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;gwl_mae&quot;</span><span class="p">)</span>
+                <span class="p">],</span>
+            <span class="p">}</span>
+
+        <span class="n">lr</span> <span class="o">=</span> <span class="n">compile_hps</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">)</span>
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span>
+            <span class="n">learning_rate</span><span class="o">=</span><span class="n">lr</span><span class="p">,</span> <span class="n">clipnorm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">clipvalue</span><span class="o">=</span><span class="mf">0.5</span>
+        <span class="p">)</span>
+
+        <span class="n">valid_compile</span> <span class="o">=</span> <span class="n">_get_valid_kwargs</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">,</span>
+            <span class="n">compile_hps</span><span class="p">,</span>
+            <span class="n">error</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">cast_multiple_bool_params</span><span class="p">(</span>
+            <span class="n">valid_compile</span><span class="p">,</span>
+            <span class="n">bool_params_to_cast</span><span class="o">=</span><span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;scale_mv_with_offset&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;scale_q_with_offset&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
+            <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span>
+            <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">loss_weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fixed_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">&quot;loss_weights&quot;</span><span class="p">,</span>
+                <span class="p">{</span><span class="s2">&quot;subs_pred&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;gwl_pred&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span>
+            <span class="p">),</span>
+            <span class="o">**</span><span class="n">valid_compile</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">model</span></div>
+
+
+    <span class="c1"># ----------------------------</span>
+    <span class="c1"># Run end-to-end search</span>
+    <span class="c1"># ----------------------------</span>
+<div class="viewcode-block" id="SubsNetTuner.run">
+<a class="viewcode-back" href="../../../../api/tuner.html#geoprior.models.forecast_tuner.SubsNetTuner.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="n">y</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="n">validation_data</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span>
+            <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+        <span class="p">]</span>
+        <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">epochs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+        <span class="n">callbacks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Callback</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">case_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">search_kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span>
+        <span class="n">Model</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">HyperParameters</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">Tuner</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">]:</span>
+        <span class="n">vlog</span><span class="p">(</span>
+            <span class="s2">&quot;SubsNetTuner: starting run...&quot;</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># fast fail for H_field presence</span>
+        <span class="n">_require_h_field</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="s2">&quot;inputs&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">validation_data</span><span class="p">:</span>
+            <span class="n">_require_h_field</span><span class="p">(</span><span class="n">validation_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;val_inputs&quot;</span><span class="p">)</span>
+
+        <span class="n">req</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;static_input_dim&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dynamic_input_dim&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;future_input_dim&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;output_subsidence_dim&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;output_gwl_dim&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;forecast_horizon&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixed_params</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">req</span><span class="p">):</span>
+            <span class="n">vlog</span><span class="p">(</span>
+                <span class="s2">&quot;Inferring fixed params from data...&quot;</span><span class="p">,</span>
+                <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">y_std</span> <span class="o">=</span> <span class="n">rename_dict_keys</span><span class="p">(</span>
+                <span class="n">y</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+                <span class="n">param_to_rename</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;subsidence&quot;</span><span class="p">:</span> <span class="s2">&quot;subs_pred&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;gwl&quot;</span><span class="p">:</span> <span class="s2">&quot;gwl_pred&quot;</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fixed_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_infer_and_merge_params</span><span class="p">(</span>
+                <span class="n">inputs_data</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
+                <span class="n">targets_data</span><span class="o">=</span><span class="n">y_std</span><span class="p">,</span>
+                <span class="n">user_fixed_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fixed_params</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">inputs</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">check_required_input_keys</span><span class="p">(</span>
+            <span class="n">inputs</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;GeoPriorSubsNet&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">train_ds</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">((</span><span class="n">inputs</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="n">AUTOTUNE</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">val_ds</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">validation_data</span><span class="p">:</span>
+            <span class="n">vx</span><span class="p">,</span> <span class="n">vy</span> <span class="o">=</span> <span class="n">validation_data</span>
+            <span class="n">vx</span><span class="p">,</span> <span class="n">vy</span> <span class="o">=</span> <span class="n">check_required_input_keys</span><span class="p">(</span>
+                <span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;GeoPriorSubsNet&quot;</span>
+            <span class="p">)</span>
+
+            <span class="n">val_ds</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">((</span><span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="p">))</span>
+                <span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="n">AUTOTUNE</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">metric_kind</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Quantile&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixed_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;quantiles&quot;</span><span class="p">)</span>
+            <span class="k">else</span> <span class="s2">&quot;Point&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_run_case_info</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;GeoPriorSubsNet </span><span class="si">{</span><span class="n">metric_kind</span><span class="si">}</span><span class="s2"> forecast&quot;</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_run_case_info</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fixed_params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">case_info</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current_run_case_info</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">case_info</span><span class="p">)</span>
+
+        <span class="n">vlog</span><span class="p">(</span>
+            <span class="s2">&quot;Delegating to base.search()...&quot;</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+            <span class="n">train_data</span><span class="o">=</span><span class="n">train_ds</span><span class="p">,</span>
+            <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+            <span class="n">validation_data</span><span class="o">=</span><span class="n">val_ds</span><span class="p">,</span>
+            <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">search_kwargs</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_infer_and_merge_params</span><span class="p">(</span>
+        <span class="n">inputs_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="n">targets_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="n">user_fixed_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="n">final</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_DEFAULT_GEOPRIOR</span><span class="p">)</span>
+
+        <span class="n">inputs_data</span><span class="p">,</span> <span class="n">targets_data</span> <span class="o">=</span> <span class="n">check_required_input_keys</span><span class="p">(</span>
+            <span class="n">inputs_data</span><span class="p">,</span>
+            <span class="n">targets_data</span><span class="p">,</span>
+            <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;GeoPriorSubsNet&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">inferred</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="s2">&quot;static_features&quot;</span> <span class="ow">in</span> <span class="n">inputs_data</span><span class="p">:</span>
+            <span class="n">inferred</span><span class="p">[</span><span class="s2">&quot;static_input_dim&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">inputs_data</span><span class="p">[</span>
+                <span class="s2">&quot;static_features&quot;</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">inferred</span><span class="p">[</span><span class="s2">&quot;static_input_dim&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">inferred</span><span class="p">[</span><span class="s2">&quot;dynamic_input_dim&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">inputs_data</span><span class="p">[</span>
+            <span class="s2">&quot;dynamic_features&quot;</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="s2">&quot;future_features&quot;</span> <span class="ow">in</span> <span class="n">inputs_data</span><span class="p">:</span>
+            <span class="n">inferred</span><span class="p">[</span><span class="s2">&quot;future_input_dim&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">inputs_data</span><span class="p">[</span>
+                <span class="s2">&quot;future_features&quot;</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">inferred</span><span class="p">[</span><span class="s2">&quot;future_input_dim&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">inferred</span><span class="p">[</span><span class="s2">&quot;output_subsidence_dim&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">targets_data</span><span class="p">[</span>
+            <span class="s2">&quot;subs_pred&quot;</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">inferred</span><span class="p">[</span><span class="s2">&quot;output_gwl_dim&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">targets_data</span><span class="p">[</span>
+            <span class="s2">&quot;gwl_pred&quot;</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">inferred</span><span class="p">[</span><span class="s2">&quot;forecast_horizon&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">targets_data</span><span class="p">[</span>
+            <span class="s2">&quot;subs_pred&quot;</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">final</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">inferred</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">user_fixed_params</span><span class="p">:</span>
+            <span class="n">final</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user_fixed_params</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">final</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_require_h_field</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">tag</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;H_field&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;soil_thickness&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2"> must contain &#39;H_field&#39; or &#39;soil_thickness&#39;.&quot;</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_pinball_factory</span><span class="p">(</span><span class="n">qs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+    <span class="n">q_base</span> <span class="o">=</span> <span class="n">tf_const</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf_float32</span><span class="p">)</span>  <span class="c1"># shape (Q,)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">loss</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+        <span class="n">yt</span> <span class="o">=</span> <span class="n">tf_cast</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">tf_float32</span><span class="p">)</span>
+        <span class="n">yp</span> <span class="o">=</span> <span class="n">tf_cast</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">tf_float32</span><span class="p">)</span>
+
+        <span class="c1"># --- Normalize shapes ---</span>
+        <span class="c1"># y_pred: either (B,H,Q) or (B,H,Q,1)</span>
+        <span class="k">if</span> <span class="n">yp</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="c1"># want y_true as (B,H,1) so it broadcasts across Q</span>
+            <span class="k">if</span> <span class="n">yt</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># (B,H) -&gt; (B,H,1)</span>
+                <span class="n">yt</span> <span class="o">=</span> <span class="n">tf_expand</span><span class="p">(</span><span class="n">yt</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># if yt is already (B,H,1), leave it</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="n">q_base</span><span class="p">[</span>
+                <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:</span>
+            <span class="p">]</span>  <span class="c1"># (1,1,Q) -&gt; matches (B,H,Q)</span>
+
+        <span class="k">elif</span> <span class="n">yp</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="c1"># want y_true as (B,H,1,1) to match (B,H,Q,1)</span>
+            <span class="k">if</span> <span class="n">yt</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># (B,H) -&gt; (B,H,1)</span>
+                <span class="n">yt</span> <span class="o">=</span> <span class="n">tf_expand</span><span class="p">(</span><span class="n">yt</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">yt</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># (B,H,1) -&gt; (B,H,1,1)</span>
+                <span class="n">yt</span> <span class="o">=</span> <span class="n">tf_expand</span><span class="p">(</span><span class="n">yt</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="n">q_base</span><span class="p">[</span>
+                <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="kc">None</span>
+            <span class="p">]</span>  <span class="c1"># (1,1,Q,1) -&gt; matches (B,H,Q,1)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;y_pred must be rank 3 (B,H,Q) or rank 4 (B,H,Q,1).&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># --- Pinball loss ---</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="n">yt</span> <span class="o">-</span> <span class="n">yp</span>
+        <span class="n">pin</span> <span class="o">=</span> <span class="n">tf_max</span><span class="p">(</span><span class="n">q</span> <span class="o">*</span> <span class="n">err</span><span class="p">,</span> <span class="p">(</span><span class="n">q</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">err</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tf_reduce_mean</span><span class="p">(</span><span class="n">pin</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">loss</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

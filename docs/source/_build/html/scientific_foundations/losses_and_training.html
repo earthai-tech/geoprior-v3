@@ -1,0 +1,1492 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Losses and training &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=404c0980"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'scientific_foundations/losses_and_training';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Data, units, and conventions" href="data_and_units.html" />
+    <link rel="prev" title="Residual assembly" href="residual_assembly.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="models_overview.html">Models overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geoprior_subsnet.html">GeoPriorSubsNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics_formulation.html">Physics formulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="poroelastic_background.html">Poroelastic background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="residual_assembly.html">Residual assembly</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Losses and training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_and_units.html">Data, units, and conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scaling.html">Scaling and conventions (<code class="docutils literal notranslate"><span class="pre">scaling_kwargs</span></code>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maths.html">GeoPrior maths: definitions and conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="identifiability.html">Identifiability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability_and_constraints.html">Stability and constraints</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Scientific foundations</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Losses and training</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="losses-and-training">
+<span id="geoprior-losses-and-training"></span><h1>Losses and training<a class="headerlink" href="#losses-and-training" title="Link to this heading">#</a></h1>
+<p>GeoPrior-v3 is trained as a <strong>hybrid forecasting and physics
+optimization system</strong>.</p>
+<p>Its flagship model,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">GeoPriorSubsNet</span></code>, does not optimize a
+single monolithic loss. Instead, it combines:</p>
+<ul class="simple">
+<li><p>supervised forecasting losses,</p></li>
+<li><p>multiple physics-consistency losses,</p></li>
+<li><p>optional prior and bounds penalties,</p></li>
+<li><p>a global physics multiplier,</p></li>
+<li><p>and a training-time stability layer with gradient
+sanitization and clipping.</p></li>
+</ul>
+<p>This page explains how those pieces fit together.</p>
+<p>It is the natural continuation of
+<a class="reference internal" href="residual_assembly.html"><span class="doc">Residual assembly</span></a>: that page explained how residuals
+are built, while this page explains how they become training
+objectives and how the optimizer uses them.</p>
+<section id="why-this-page-matters">
+<h2>Why this page matters<a class="headerlink" href="#why-this-page-matters" title="Link to this heading">#</a></h2>
+<p>A physics-guided model can fail in two opposite ways:</p>
+<ul class="simple">
+<li><p>it can behave like a black-box forecaster if the physics
+terms are too weak;</p></li>
+<li><p>it can become numerically unstable or underfit the data if
+the physics terms are too strong, too early, or too poorly
+scaled.</p></li>
+</ul>
+<p>GeoPrior addresses this by making the optimization structure
+explicit and controllable. This is consistent with broader
+work on physics-informed learning, where successful training
+often depends on careful balancing between data fit,
+residual-based regularization, and numerical stabilization
+<span id="id1">[<a class="reference internal" href="../references.html#id50" title="James Donnelly, Alireza Daneshkhah, and Soroush Abolfathi. Physics-informed neural networks as surrogate models of hydrodynamic simulators. Science of The Total Environment, 912:168814, 11 2023. doi:10.1016/j.scitotenv.2023.168814.">3</a>, <a class="reference internal" href="../references.html#id51" title="Sumanta Roy, Chandrasekhar Annavarapu, Pratanu Roy, and Dakshina M. Valiveti. Physics-informed neural networks for heterogeneous poroelastic media. International Journal for Computational Methods in Engineering Science and Mechanics, 26(2):187–207, 2024. doi:10.1080/15502287.2024.2440420.">4</a>, <a class="reference internal" href="../references.html#id55" title="A. K. Sarma, S. Roy, C. Annavarapu, P. Roy, and S. Jagannathan. Interface pinns (i-pinns): a physics-informed neural networks framework for interface problems. Computer Methods in Applied Mechanics and Engineering, 429:117135, 2024. doi:10.1016/j.cma.2024.117135.">13</a>]</span>.</p>
+</section>
+<section id="the-high-level-objective">
+<h2>The high-level objective<a class="headerlink" href="#the-high-level-objective" title="Link to this heading">#</a></h2>
+<p>At the highest level, GeoPrior uses a custom training step
+that optimizes</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-0">
+<span class="eqno">(1)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-0" title="Link to this equation">#</a></span>\[L_{\text{total}}
+=
+L_{\text{data}} + L_{\text{phys,scaled}}.\]</div>
+<p>Here:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(L_{\text{data}}\)</span> is the supervised Keras loss
+computed from the configured output losses;</p></li>
+<li><p><span class="math notranslate nohighlight">\(L_{\text{phys,scaled}}\)</span> is the <strong>scaled</strong> physics
+loss returned by the shared physics core.</p></li>
+</ul>
+<p>This distinction matters. The physics core already assembles
+per-term weights, residual scaling, and global physics
+multipliers before returning the physics loss seen by the
+optimizer.</p>
+</section>
+<section id="a-compact-view">
+<h2>A compact view<a class="headerlink" href="#a-compact-view" title="Link to this heading">#</a></h2>
+<p>A useful summary is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>supervised outputs
+    ↓
+compiled Keras data loss
+    +
+structured physics loss bundle
+    ↓
+total objective
+    ↓
+filtered and clipped gradients
+    ↓
+optimizer step
+</pre></div>
+</div>
+<p>This is the core training logic in GeoPrior.</p>
+</section>
+<section id="the-supervised-data-loss">
+<h2>The supervised data loss<a class="headerlink" href="#the-supervised-data-loss" title="Link to this heading">#</a></h2>
+<p>GeoPrior uses the normal Keras <code class="docutils literal notranslate"><span class="pre">compile(...)</span></code> interface for
+the supervised part of the objective.</p>
+<p>That means the model can inherit:</p>
+<ul class="simple">
+<li><p>per-output loss functions,</p></li>
+<li><p>per-output metrics,</p></li>
+<li><p>standard Keras regularization losses,</p></li>
+<li><p>and output-aware weighting behavior.</p></li>
+</ul>
+<p>At the user-facing level, the main supervised outputs are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">subs_pred</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gwl_pred</span></code></p></li>
+</ul>
+<p>So the supervised loss may conceptually look like</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-1">
+<span class="eqno">(2)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-1" title="Link to this equation">#</a></span>\[L_{\text{data}}
+=
+L_{\text{subs}} + L_{\text{gwl}} + L_{\text{reg}},\]</div>
+<p>where <span class="math notranslate nohighlight">\(L_{\text{reg}}\)</span> includes Keras regularization
+losses, if any.</p>
+<p>The actual implementation relies on <code class="docutils literal notranslate"><span class="pre">self.compiled_loss</span></code>
+after aligning target shapes and output ordering to the
+model’s output contract.</p>
+</section>
+<section id="why-output-alignment-matters">
+<h2>Why output alignment matters<a class="headerlink" href="#why-output-alignment-matters" title="Link to this heading">#</a></h2>
+<p>GeoPrior is a dict-input, multi-output model, and some
+outputs may be quantile-valued rather than only scalar.</p>
+<p>Before supervised losses are computed, the training step
+therefore:</p>
+<ul class="simple">
+<li><p>canonicalizes the target dictionary,</p></li>
+<li><p>reorders targets to match <code class="docutils literal notranslate"><span class="pre">self.output_names</span></code>,</p></li>
+<li><p>aligns target shapes with prediction shapes,</p></li>
+<li><p>and then passes the aligned lists into
+<code class="docutils literal notranslate"><span class="pre">self.compiled_loss</span></code>.</p></li>
+</ul>
+<p>This is important because the optimization must remain stable
+across:</p>
+<ul class="simple">
+<li><p>deterministic outputs,</p></li>
+<li><p>quantile outputs,</p></li>
+<li><p>and multi-output supervision.</p></li>
+</ul>
+</section>
+<section id="the-physics-loss-family">
+<h2>The physics loss family<a class="headerlink" href="#the-physics-loss-family" title="Link to this heading">#</a></h2>
+<p>The physics side is built from several distinct terms rather
+than one single PDE penalty.</p>
+<p>At compile time, GeoPrior exposes the following scalar
+weights:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_cons</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_gw</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_prior</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_smooth</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_mv</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_bounds</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_q</span></code></p></li>
+</ul>
+<p>These correspond to:</p>
+<ul class="simple">
+<li><p>consolidation residual loss</p></li>
+<li><p>groundwater-flow residual loss</p></li>
+<li><p>timescale prior loss</p></li>
+<li><p>smoothness regularization</p></li>
+<li><p>optional <span class="math notranslate nohighlight">\(m_v\)</span> consistency loss</p></li>
+<li><p>bounds penalty</p></li>
+<li><p>forcing regularization on <span class="math notranslate nohighlight">\(Q\)</span></p></li>
+</ul>
+<p>This makes the objective scientifically structured and
+interpretable.</p>
+</section>
+<section id="the-per-term-physics-losses">
+<h2>The per-term physics losses<a class="headerlink" href="#the-per-term-physics-losses" title="Link to this heading">#</a></h2>
+<p>Conceptually, the main physics loss terms are:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-2">
+<span class="eqno">(3)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-2" title="Link to this equation">#</a></span>\[L_{\text{cons}}
+=
+\mathbb{E}\!\left[(R_{\text{cons}}^{*})^2\right]\]</div>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-3">
+<span class="eqno">(4)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-3" title="Link to this equation">#</a></span>\[L_{\text{gw}}
+=
+\mathbb{E}\!\left[(R_{\text{gw}}^{*})^2\right]\]</div>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-4">
+<span class="eqno">(5)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-4" title="Link to this equation">#</a></span>\[L_{\text{prior}}
+=
+\mathbb{E}\!\left[(R_{\text{prior}})^2\right]\]</div>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-5">
+<span class="eqno">(6)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-5" title="Link to this equation">#</a></span>\[L_{\text{smooth}}
+=
+\mathbb{E}\!\left[(R_{\text{smooth}})^2\right]\]</div>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-6">
+<span class="eqno">(7)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-6" title="Link to this equation">#</a></span>\[L_{\text{bounds}}
+=
+\mathbb{E}\!\left[(R_{\text{bounds}})^2\right].\]</div>
+<p>Additional optional terms include:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-7">
+<span class="eqno">(8)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-7" title="Link to this equation">#</a></span>\[L_{mv}
+\quad \text{and} \quad
+L_q.\]</div>
+<p>These are then multiplied by their corresponding compile-time
+weights.</p>
+</section>
+<section id="weighted-physics-terms">
+<h2>Weighted physics terms<a class="headerlink" href="#weighted-physics-terms" title="Link to this heading">#</a></h2>
+<p>A useful intermediate notation is:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-8">
+<span class="eqno">(9)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-8" title="Link to this equation">#</a></span>\[T_{\text{cons}}
+=
+\lambda_{\text{cons}}\,L_{\text{cons}}\]</div>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-9">
+<span class="eqno">(10)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-9" title="Link to this equation">#</a></span>\[T_{\text{gw}}
+=
+\lambda_{\text{gw}}\,L_{\text{gw}}\]</div>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-10">
+<span class="eqno">(11)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-10" title="Link to this equation">#</a></span>\[T_{\text{prior}}
+=
+\lambda_{\text{prior}}\,L_{\text{prior}}\]</div>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-11">
+<span class="eqno">(12)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-11" title="Link to this equation">#</a></span>\[T_{\text{smooth}}
+=
+\lambda_{\text{smooth}}\,L_{\text{smooth}}\]</div>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-12">
+<span class="eqno">(13)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-12" title="Link to this equation">#</a></span>\[T_{\text{bounds}}
+=
+\lambda_{\text{bounds}}\,L_{\text{bounds}}\]</div>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-13">
+<span class="eqno">(14)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-13" title="Link to this equation">#</a></span>\[T_{mv}
+=
+\lambda_{mv}\,L_{mv}\]</div>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-14">
+<span class="eqno">(15)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-14" title="Link to this equation">#</a></span>\[T_q
+=
+\lambda_q\,L_q.\]</div>
+<p>GeoPrior then defines a raw PDE-style core:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-15">
+<span class="eqno">(16)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-15" title="Link to this equation">#</a></span>\[L_{\text{core}}
+=
+T_{\text{cons}}
++
+T_{\text{gw}}
++
+T_{\text{prior}}
++
+T_{\text{smooth}}
++
+T_{\text{bounds}}.\]</div>
+<p>The full unscaled physics loss is:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-16">
+<span class="eqno">(17)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-16" title="Link to this equation">#</a></span>\[L_{\text{phys,raw}}
+=
+L_{\text{core}} + T_{mv} + T_q.\]</div>
+<p>This is useful for diagnostics because it is independent of
+the global physics multiplier.</p>
+</section>
+<section id="the-global-physics-multiplier">
+<h2>The global physics multiplier<a class="headerlink" href="#the-global-physics-multiplier" title="Link to this heading">#</a></h2>
+<p>GeoPrior introduces a second layer of control through the
+global physics multiplier <code class="docutils literal notranslate"><span class="pre">lambda_offset</span></code>.</p>
+<p>This is stored as a non-trainable scalar weight and converted
+into the effective multiplier <span class="math notranslate nohighlight">\(\alpha\)</span> according to the
+selected <code class="docutils literal notranslate"><span class="pre">offset_mode</span></code>:</p>
+<dl>
+<dt><code class="docutils literal notranslate"><span class="pre">offset_mode='mul'</span></code></dt><dd><div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-17">
+<span class="eqno">(18)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-17" title="Link to this equation">#</a></span>\[\alpha = \lambda_{\text{offset}}\]</div>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">offset_mode='log10'</span></code></dt><dd><div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-18">
+<span class="eqno">(19)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-18" title="Link to this equation">#</a></span>\[\alpha = 10^{\lambda_{\text{offset}}}\]</div>
+</dd>
+</dl>
+<p>This design is extremely useful in practice because it lets
+the user keep the per-term physics weights fixed while still
+scheduling the overall strength of physics during training.</p>
+<p>A useful interpretation is:</p>
+<ul class="simple">
+<li><p>the <code class="docutils literal notranslate"><span class="pre">lambda_*</span></code> values define the <strong>relative structure</strong>
+of the physics objective;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_offset</span></code> defines the <strong>overall physics level</strong>.</p></li>
+</ul>
+</section>
+<section id="why-the-global-multiplier-exists">
+<h2>Why the global multiplier exists<a class="headerlink" href="#why-the-global-multiplier-exists" title="Link to this heading">#</a></h2>
+<p>The global multiplier solves an important practical problem.</p>
+<p>If you only change each individual <code class="docutils literal notranslate"><span class="pre">lambda_*</span></code> by hand, then
+it becomes hard to tell whether:</p>
+<ul class="simple">
+<li><p>the problem is the balance <em>within</em> physics,</p></li>
+<li><p>or the balance between data loss and physics loss.</p></li>
+</ul>
+<p>By separating those two roles, GeoPrior makes experiments
+cleaner and easier to interpret.</p>
+<p>This is especially useful for:</p>
+<ul class="simple">
+<li><p>warmup schedules,</p></li>
+<li><p>ablation studies,</p></li>
+<li><p>transfer across cities,</p></li>
+<li><p>and early-stage debugging of stiff residual terms.</p></li>
+</ul>
+</section>
+<section id="scaled-vs-unscaled-physics-loss">
+<h2>Scaled vs unscaled physics loss<a class="headerlink" href="#scaled-vs-unscaled-physics-loss" title="Link to this heading">#</a></h2>
+<p>The final scaled physics loss is assembled as:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-19">
+<span class="eqno">(20)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-19" title="Link to this equation">#</a></span>\[L_{\text{phys,scaled}}
+=
+\alpha\,L_{\text{core}}
++
+s_{mv}\,T_{mv}
++
+s_q\,T_q,\]</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(s_{mv} = \alpha\)</span> if
+<code class="docutils literal notranslate"><span class="pre">scale_mv_with_offset=True</span></code>, else <span class="math notranslate nohighlight">\(1\)</span>;</p></li>
+<li><p><span class="math notranslate nohighlight">\(s_q = \alpha\)</span> if
+<code class="docutils literal notranslate"><span class="pre">scale_q_with_offset=True</span></code>, else <span class="math notranslate nohighlight">\(1\)</span>.</p></li>
+</ul>
+<p>This is a subtle but important design choice.</p>
+<p>By default:</p>
+<ul class="simple">
+<li><p>PDE-style terms always scale with the global multiplier;</p></li>
+<li><p>the <span class="math notranslate nohighlight">\(m_v\)</span> term is <strong>not</strong> forced to scale with the
+global multiplier unless explicitly requested;</p></li>
+<li><p>the <span class="math notranslate nohighlight">\(Q\)</span> regularization term <strong>does</strong> scale with the
+global multiplier by default.</p></li>
+</ul>
+<p>This lets calibration-style or auxiliary terms behave
+differently from the main PDE core when needed.</p>
+</section>
+<section id="a-practical-rule-of-thumb">
+<h2>A practical rule of thumb<a class="headerlink" href="#a-practical-rule-of-thumb" title="Link to this heading">#</a></h2>
+<p>A good way to think about the two physics losses is:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">physics_loss_raw</span></code> tells you how large the underlying
+weighted physics mismatch is;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">physics_loss_scaled</span></code> tells you what the optimizer is
+actually paying attention to in the total objective.</p></li>
+</ul>
+<p>Both are useful, but they answer different questions.</p>
+</section>
+<section id="physics-off-behavior">
+<h2>Physics-off behavior<a class="headerlink" href="#physics-off-behavior" title="Link to this heading">#</a></h2>
+<p>GeoPrior also supports a clean <strong>physics-off</strong> regime.</p>
+<p>When physics is disabled, the model neutralizes the physics
+objective by forcing physics weights to safe values. In
+practice, this means terms such as prior, smoothness,
+<span class="math notranslate nohighlight">\(m_v\)</span>, <span class="math notranslate nohighlight">\(Q\)</span>, and bounds are set to zero
+contribution, and the global offset is reset to a neutral
+value.</p>
+<p>This allows the same training and evaluation code paths to
+work in:</p>
+<ul class="simple">
+<li><p>full physics mode,</p></li>
+<li><p>partial physics mode,</p></li>
+<li><p>purely data-driven mode.</p></li>
+</ul>
+<p>That makes ablation and debugging much easier.</p>
+</section>
+<section id="the-compile-api">
+<h2>The compile API<a class="headerlink" href="#the-compile-api" title="Link to this heading">#</a></h2>
+<p>GeoPrior extends the usual Keras <code class="docutils literal notranslate"><span class="pre">compile(...)</span></code> interface
+with explicit physics-related arguments such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_cons</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_gw</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_prior</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_smooth</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_mv</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_bounds</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_q</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_offset</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mv_lr_mult</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kappa_lr_mult</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scale_mv_with_offset</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scale_q_with_offset</span></code></p></li>
+</ul>
+<p>The rest of the usual compile arguments, such as optimizer,
+loss dictionary, and metrics, are still forwarded to the
+underlying Keras machinery.</p>
+<p>This means GeoPrior keeps the familiar Keras API while adding
+its own structured physics controls.</p>
+</section>
+<section id="a-minimal-compile-example">
+<h2>A minimal compile example<a class="headerlink" href="#a-minimal-compile-example" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoPriorSubsNet</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">GeoPriorSubsNet</span><span class="p">(</span>
+    <span class="n">static_input_dim</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">dynamic_input_dim</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">future_input_dim</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">forecast_horizon</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">pde_mode</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;adam&quot;</span><span class="p">,</span>
+    <span class="n">loss</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;subs_pred&quot;</span><span class="p">:</span> <span class="s2">&quot;mse&quot;</span><span class="p">,</span> <span class="s2">&quot;gwl_pred&quot;</span><span class="p">:</span> <span class="s2">&quot;mse&quot;</span><span class="p">},</span>
+    <span class="n">lambda_cons</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">lambda_gw</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">lambda_prior</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">lambda_smooth</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">lambda_bounds</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">lambda_q</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">lambda_offset</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This example already captures the main GeoPrior pattern:</p>
+<ul class="simple">
+<li><p>standard supervised losses,</p></li>
+<li><p>explicit physics weights,</p></li>
+<li><p>one global physics multiplier.</p></li>
+</ul>
+</section>
+<section id="the-training-step">
+<h2>The training step<a class="headerlink" href="#the-training-step" title="Link to this heading">#</a></h2>
+<p>GeoPrior overrides the default Keras <code class="docutils literal notranslate"><span class="pre">train_step(...)</span></code> to
+implement its hybrid optimization logic.</p>
+<p>Conceptually, one training step does the following:</p>
+<ol class="arabic simple">
+<li><p>unpack and canonicalize inputs and targets;</p></li>
+<li><p>run the shared physics core inside a gradient tape;</p></li>
+<li><p>compute aligned supervised data loss;</p></li>
+<li><p>add the scaled physics loss;</p></li>
+<li><p>compute gradients with respect to all trainable variables;</p></li>
+<li><p>optionally rescale selected parameter gradients;</p></li>
+<li><p>filter NaN / Inf gradients;</p></li>
+<li><p>apply global-norm clipping;</p></li>
+<li><p>apply the optimizer update;</p></li>
+<li><p>update trackers and return a packed metrics dictionary.</p></li>
+</ol>
+<p>This structure keeps data, physics, diagnostics, and
+stability logic in one coherent training path.</p>
+</section>
+<section id="the-total-training-objective">
+<h2>The total training objective<a class="headerlink" href="#the-total-training-objective" title="Link to this heading">#</a></h2>
+<p>Once the physics bundle has been returned by the shared core,
+the total optimization target is simply:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-losses-and-training-20">
+<span class="eqno">(21)<a class="headerlink" href="#equation-scientific-foundations-losses-and-training-20" title="Link to this equation">#</a></span>\[L_{\text{total}}
+=
+L_{\text{data}} + L_{\text{phys,scaled}}.\]</div>
+<p>This is a very important point:</p>
+<p>GeoPrior does <strong>not</strong> recompute physics weighting inside the
+training step. All of that is already handled inside the
+shared physics bundle.</p>
+<p>That keeps the training loop simpler and makes the physics
+logic portable across training and evaluation.</p>
+</section>
+<section id="target-alignment-before-loss-computation">
+<h2>Target alignment before loss computation<a class="headerlink" href="#target-alignment-before-loss-computation" title="Link to this heading">#</a></h2>
+<p>Because the model can emit deterministic or quantile-shaped
+outputs, the training step aligns target tensors before
+calling <code class="docutils literal notranslate"><span class="pre">compiled_loss</span></code>.</p>
+<p>This includes:</p>
+<ul class="simple">
+<li><p>ordering target keys consistently,</p></li>
+<li><p>matching output names,</p></li>
+<li><p>reconciling quantile layouts where needed.</p></li>
+</ul>
+<p>This is especially important for robust multi-output training
+under the dict-style GeoPrior API.</p>
+</section>
+<section id="gradient-scaling-for-selected-parameters">
+<h2>Gradient scaling for selected parameters<a class="headerlink" href="#gradient-scaling-for-selected-parameters" title="Link to this heading">#</a></h2>
+<p>GeoPrior can apply parameter-specific gradient scaling during
+training.</p>
+<p>In particular, the compile interface exposes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mv_lr_mult</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kappa_lr_mult</span></code></p></li>
+</ul>
+<p>These do <strong>not</strong> change the loss values themselves. Instead,
+they rescale the gradients flowing into selected physical
+parameters such as <span class="math notranslate nohighlight">\(m_v\)</span> and <span class="math notranslate nohighlight">\(\kappa\)</span>.</p>
+<p>This is useful because some physics parameters are far more
+sensitive than others and may otherwise update too quickly.</p>
+<p>A useful interpretation is:</p>
+<ul class="simple">
+<li><p>the loss says <strong>what</strong> to optimize;</p></li>
+<li><p>gradient scaling changes <strong>how aggressively</strong> certain
+parameters respond.</p></li>
+</ul>
+</section>
+<section id="gradient-sanitization">
+<h2>Gradient sanitization<a class="headerlink" href="#gradient-sanitization" title="Link to this heading">#</a></h2>
+<p>GeoPrior includes explicit stability logic before applying
+gradients.</p>
+<p>The training step can:</p>
+<ul class="simple">
+<li><p>filter NaN gradients,</p></li>
+<li><p>filter Inf gradients,</p></li>
+<li><p>and optionally run extra gradient debug checks.</p></li>
+</ul>
+<p>This is especially important in hybrid physics models, where
+bad coordinate scaling, unstable exponential mappings, or
+stiff residuals can produce pathological gradients early in
+training.</p>
+<p>Instead of letting one bad batch destroy the run, GeoPrior
+tries to sanitize the update path first.</p>
+</section>
+<section id="global-norm-clipping">
+<h2>Global-norm clipping<a class="headerlink" href="#global-norm-clipping" title="Link to this heading">#</a></h2>
+<p>After gradient sanitization, GeoPrior applies global-norm
+clipping before sending gradients to the optimizer.</p>
+<p>The main purpose of this step is to reduce catastrophic
+updates when:</p>
+<ul class="simple">
+<li><p>physics residuals spike,</p></li>
+<li><p>learned physical fields drift too fast,</p></li>
+<li><p>or coordinate-sensitive derivatives become temporarily
+unstable.</p></li>
+</ul>
+<p>This is not a substitute for good scaling and good bounds,
+but it provides an important safety layer during training.</p>
+</section>
+<section id="warmup-and-scheduling">
+<h2>Warmup and scheduling<a class="headerlink" href="#warmup-and-scheduling" title="Link to this heading">#</a></h2>
+<p>A recommended GeoPrior training pattern is to keep the
+per-term <code class="docutils literal notranslate"><span class="pre">lambda_*</span></code> values fixed and schedule only the
+global physics multiplier <code class="docutils literal notranslate"><span class="pre">lambda_offset</span></code>.</p>
+<p>This works well because:</p>
+<ul class="simple">
+<li><p>it preserves the internal balance of the physics terms;</p></li>
+<li><p>it lets the model start closer to a supervised forecaster;</p></li>
+<li><p>then it gradually increases physics discipline as training
+stabilizes.</p></li>
+</ul>
+<p>This pattern is especially useful for:</p>
+<ul class="simple">
+<li><p>coupled <code class="docutils literal notranslate"><span class="pre">pde_mode=&quot;both&quot;</span></code> runs,</p></li>
+<li><p>new datasets,</p></li>
+<li><p>transfer learning,</p></li>
+<li><p>identifiability experiments,</p></li>
+<li><p>and difficult cross-city training regimes.</p></li>
+</ul>
+</section>
+<section id="why-warmup-helps">
+<h2>Why warmup helps<a class="headerlink" href="#why-warmup-helps" title="Link to this heading">#</a></h2>
+<p>A physics-guided model often faces a mismatch early in
+training:</p>
+<ul class="simple">
+<li><p>the data head wants to learn quickly from supervised
+signals;</p></li>
+<li><p>the physics branch may initially produce poor fields,
+unstable derivatives, or raw residual spikes.</p></li>
+</ul>
+<p>Warmup reduces the chance that the early optimization is
+dominated by immature physics terms before the network has
+learned a reasonable representation.</p>
+<p>This is one of the most important practical reasons
+<code class="docutils literal notranslate"><span class="pre">lambda_offset</span></code> exists.</p>
+</section>
+<section id="the-evaluation-step">
+<h2>The evaluation step<a class="headerlink" href="#the-evaluation-step" title="Link to this heading">#</a></h2>
+<p>GeoPrior also overrides <code class="docutils literal notranslate"><span class="pre">test_step(...)</span></code> so that evaluation
+uses the same broad objective structure as training, but
+without weight updates.</p>
+<p>This keeps evaluation consistent with training in terms of:</p>
+<ul class="simple">
+<li><p>supervised loss computation,</p></li>
+<li><p>physics-bundle assembly,</p></li>
+<li><p>target alignment,</p></li>
+<li><p>packed logging structure.</p></li>
+</ul>
+<p>As a result, the logged evaluation metrics remain comparable
+to the training-side ones.</p>
+</section>
+<section id="what-is-logged">
+<h2>What is logged<a class="headerlink" href="#what-is-logged" title="Link to this heading">#</a></h2>
+<p>The packed step results typically include:</p>
+<ul class="simple">
+<li><p>total loss,</p></li>
+<li><p>per-output supervised losses and metrics,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">physics_loss_raw</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">physics_loss_scaled</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">physics_mult</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lambda_offset</span></code></p></li>
+<li><p>per-term physics losses such as consolidation, groundwater,
+prior, smoothness, bounds, <span class="math notranslate nohighlight">\(m_v\)</span>, and <span class="math notranslate nohighlight">\(Q\)</span></p></li>
+<li><p>epsilon diagnostics.</p></li>
+</ul>
+<p>This is why GeoPrior logs are much richer than the logs of a
+standard black-box forecaster.</p>
+</section>
+<section id="epsilon-metrics">
+<h2>Epsilon metrics<a class="headerlink" href="#epsilon-metrics" title="Link to this heading">#</a></h2>
+<p>GeoPrior optionally tracks epsilon-style physics diagnostics
+during training and evaluation.</p>
+<p>Typical keys include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">epsilon_prior</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">epsilon_cons</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">epsilon_gw</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">epsilon_cons_raw</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">epsilon_gw_raw</span></code></p></li>
+</ul>
+<p>These are not primary optimization targets by themselves.
+They are diagnostics derived from the residual bundle and are
+especially useful for:</p>
+<ul class="simple">
+<li><p>debugging physics behavior,</p></li>
+<li><p>comparing runs across cities,</p></li>
+<li><p>judging whether residual scaling is doing its job,</p></li>
+<li><p>understanding whether training improvement is purely
+supervised or also physics-consistent.</p></li>
+</ul>
+</section>
+<section id="what-is-not-part-of-the-training-loss">
+<h2>What is <strong>not</strong> part of the training loss<a class="headerlink" href="#what-is-not-part-of-the-training-loss" title="Link to this heading">#</a></h2>
+<p>It is important not to confuse the model’s training loss with
+the later calibration and export steps.</p>
+<p>For example, interval calibration used later in Stage-2,
+Stage-3, or Stage-4 is <strong>not</strong> part of the model’s internal
+training objective. Calibration is a downstream procedure
+applied to forecast intervals after the main training run.</p>
+<p>So a useful distinction is:</p>
+<ul class="simple">
+<li><p>training loss = model optimization objective;</p></li>
+<li><p>calibration = post-training uncertainty adjustment.</p></li>
+</ul>
+<p>This distinction keeps the scientific story cleaner.</p>
+</section>
+<section id="how-to-choose-physics-weights">
+<h2>How to choose physics weights<a class="headerlink" href="#how-to-choose-physics-weights" title="Link to this heading">#</a></h2>
+<p>There is no universal best set of weights, but a good
+practical strategy is:</p>
+<ul class="simple">
+<li><p>start with moderate <code class="docutils literal notranslate"><span class="pre">lambda_cons</span></code> and <code class="docutils literal notranslate"><span class="pre">lambda_prior</span></code>;</p></li>
+<li><p>keep <code class="docutils literal notranslate"><span class="pre">lambda_smooth</span></code> smaller than the core PDE terms;</p></li>
+<li><p>use <code class="docutils literal notranslate"><span class="pre">lambda_bounds</span></code> only when bounds matter scientifically
+and numerically;</p></li>
+<li><p>keep <code class="docutils literal notranslate"><span class="pre">lambda_q</span></code> at zero unless a learnable forcing head is
+part of the experiment;</p></li>
+<li><p>use <code class="docutils literal notranslate"><span class="pre">lambda_offset</span></code> to ramp the overall physics strength.</p></li>
+</ul>
+<p>This is usually easier to reason about than constantly
+changing every individual physics weight.</p>
+</section>
+<section id="common-failure-modes">
+<h2>Common failure modes<a class="headerlink" href="#common-failure-modes" title="Link to this heading">#</a></h2>
+<p><strong>Physics dominates too early</strong></p>
+<p>Symptoms:</p>
+<ul class="simple">
+<li><p>total loss spikes,</p></li>
+<li><p>gradients become unstable,</p></li>
+<li><p>training stalls or becomes noisy.</p></li>
+</ul>
+<p>Common fixes:</p>
+<ul class="simple">
+<li><p>lower <code class="docutils literal notranslate"><span class="pre">lambda_offset</span></code>,</p></li>
+<li><p>use a warmup schedule,</p></li>
+<li><p>verify coordinate scaling and SI conversion,</p></li>
+<li><p>inspect raw vs scaled epsilons.</p></li>
+</ul>
+<p><strong>Good data loss, poor physics diagnostics</strong></p>
+<p>Symptoms:</p>
+<ul class="simple">
+<li><p>supervised metrics improve,</p></li>
+<li><p>but <code class="docutils literal notranslate"><span class="pre">epsilon_cons</span></code> or <code class="docutils literal notranslate"><span class="pre">epsilon_gw</span></code> remain large.</p></li>
+</ul>
+<p>Common interpretation:</p>
+<ul class="simple">
+<li><p>the model is learning to fit the data,</p></li>
+<li><p>but the physical branch is still poorly constrained or
+inconsistently scaled.</p></li>
+</ul>
+<p><strong>Physics looks good, supervised fit is weak</strong></p>
+<p>Symptoms:</p>
+<ul class="simple">
+<li><p>residual diagnostics improve,</p></li>
+<li><p>but forecast performance remains poor.</p></li>
+</ul>
+<p>Common interpretation:</p>
+<ul class="simple">
+<li><p>physics may be over-regularizing,</p></li>
+<li><p>or the data model needs more representation capacity.</p></li>
+</ul>
+<p><strong>Unstable parameter fields</strong></p>
+<p>Symptoms:</p>
+<ul class="simple">
+<li><p>implausible <span class="math notranslate nohighlight">\(K\)</span>, <span class="math notranslate nohighlight">\(S_s\)</span>, or <span class="math notranslate nohighlight">\(\tau\)</span>,</p></li>
+<li><p>noisy training curves,</p></li>
+<li><p>bounds penalties or prior terms dominating.</p></li>
+</ul>
+<p>Common fixes:</p>
+<ul class="simple">
+<li><p>inspect bounds mode,</p></li>
+<li><p>strengthen smoothness or prior terms,</p></li>
+<li><p>reduce gradient aggressiveness,</p></li>
+<li><p>verify Stage-1 and scaling assumptions.</p></li>
+</ul>
+</section>
+<section id="a-compact-training-map">
+<h2>A compact training map<a class="headerlink" href="#a-compact-training-map" title="Link to this heading">#</a></h2>
+<p>The GeoPrior loss and training flow can be summarized as:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>inputs + targets
+     ↓
+forward_with_aux(...)
+     ↓
+residual assembly
+     ↓
+per-term physics losses
+     ↓
+weighted physics terms (lambda_*)
+     ↓
+global physics multiplier (lambda_offset, offset_mode)
+     ↓
+physics_loss_scaled
+     +
+compiled supervised data loss
+     ↓
+total_loss
+     ↓
+gradients
+     ↓
+optional param-specific grad scaling
+     ↓
+NaN/Inf filtering + global norm clipping
+     ↓
+optimizer step
+     ↓
+packed logs + epsilon diagnostics
+</pre></div>
+</div>
+</section>
+<section id="best-practices">
+<h2>Best practices<a class="headerlink" href="#best-practices" title="Link to this heading">#</a></h2>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Treat <code class="docutils literal notranslate"><span class="pre">lambda_offset</span></code> as the main knob for physics
+warmup.</p>
+<p>Keep the relative <code class="docutils literal notranslate"><span class="pre">lambda_*</span></code> weights fixed unless you
+are intentionally changing the scientific balance within
+the physics objective.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Compare <code class="docutils literal notranslate"><span class="pre">physics_loss_raw</span></code> and
+<code class="docutils literal notranslate"><span class="pre">physics_loss_scaled</span></code> together.</p>
+<p>They tell different stories: underlying mismatch versus
+effective optimization pressure.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Use parameter-specific gradient scaling sparingly and only
+for clearly sensitive physical parameters.</p>
+<p>It is a stabilization tool, not a substitute for proper
+model formulation.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Inspect epsilon diagnostics alongside supervised metrics.</p>
+<p>This is one of the best ways to see whether the model is
+improving physically as well as statistically.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Do not confuse post-training calibration with the training
+objective.</p>
+<p>Calibration belongs to later workflow stages, not to the
+core optimization loop.</p>
+</div>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="geoprior_subsnet.html"><span class="doc">GeoPriorSubsNet</span></a></p></li>
+<li><p><a class="reference internal" href="physics_formulation.html"><span class="doc">Physics formulation</span></a></p></li>
+<li><p><a class="reference internal" href="residual_assembly.html"><span class="doc">Residual assembly</span></a></p></li>
+<li><p><a class="reference internal" href="data_and_units.html"><span class="doc">Data, units, and conventions</span></a></p></li>
+<li><p><a class="reference internal" href="scaling.html"><span class="doc">Scaling and conventions (scaling_kwargs)</span></a></p></li>
+<li><p><a class="reference internal" href="maths.html"><span class="doc">GeoPrior maths: definitions and conventions</span></a></p></li>
+<li><p><a class="reference internal" href="identifiability.html"><span class="doc">Identifiability</span></a></p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="residual_assembly.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Residual assembly</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="data_and_units.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Data, units, and conventions</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-page-matters">Why this page matters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-high-level-objective">The high-level objective</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-compact-view">A compact view</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-supervised-data-loss">The supervised data loss</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-output-alignment-matters">Why output alignment matters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-physics-loss-family">The physics loss family</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-per-term-physics-losses">The per-term physics losses</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#weighted-physics-terms">Weighted physics terms</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-global-physics-multiplier">The global physics multiplier</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-the-global-multiplier-exists">Why the global multiplier exists</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scaled-vs-unscaled-physics-loss">Scaled vs unscaled physics loss</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-practical-rule-of-thumb">A practical rule of thumb</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#physics-off-behavior">Physics-off behavior</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-compile-api">The compile API</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-minimal-compile-example">A minimal compile example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-training-step">The training step</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-total-training-objective">The total training objective</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-alignment-before-loss-computation">Target alignment before loss computation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gradient-scaling-for-selected-parameters">Gradient scaling for selected parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gradient-sanitization">Gradient sanitization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#global-norm-clipping">Global-norm clipping</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#warmup-and-scheduling">Warmup and scheduling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-warmup-helps">Why warmup helps</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-evaluation-step">The evaluation step</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-logged">What is logged</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#epsilon-metrics">Epsilon metrics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-not-part-of-the-training-loss">What is <strong>not</strong> part of the training loss</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-choose-physics-weights">How to choose physics weights</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-failure-modes">Common failure modes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-compact-training-map">A compact training map</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">Best practices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See also</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/earthai-tech/geoprior-v3/edit/main/docs/source/scientific_foundations/losses_and_training.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/scientific_foundations/losses_and_training.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

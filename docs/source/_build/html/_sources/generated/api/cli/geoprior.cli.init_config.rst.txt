@@ -1,0 +1,29 @@
+﻿geoprior.cli.init\_config
+=========================
+
+.. automodule:: geoprior.cli.init_config
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      main
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

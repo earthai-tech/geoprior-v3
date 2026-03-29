@@ -1,0 +1,32 @@
+﻿geoprior.cli.\_\_main\_\_
+=========================
+
+.. automodule:: geoprior.cli.__main__
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      build_main
+      main
+      plot_main
+      run_main
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

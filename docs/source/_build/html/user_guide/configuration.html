@@ -1,0 +1,1330 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Configuration &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=404c0980"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/configuration';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Diagnostics" href="diagnostics.html" />
+    <link rel="prev" title="CLI guide" href="cli.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="workflow_overview.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stage1.html">Stage-1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stage2.html">Stage-2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stage3.html">Stage-3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stage4.html">Stage-4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stage5.html">Stage-5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI guide</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="diagnostics.html">Diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference_and_export.html">Inference and export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Configuration</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="configuration">
+<h1>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">#</a></h1>
+<p>GeoPrior-v3 is a <strong>configuration-driven workflow framework</strong>.</p>
+<p>That means the intended way to control a run is not by
+editing random values inside stage scripts. Instead, the
+workflow is designed so that:</p>
+<ul class="simple">
+<li><p>a configuration file defines the main project settings,</p></li>
+<li><p>commands can install or override that configuration,</p></li>
+<li><p>the effective runtime configuration is persisted,</p></li>
+<li><p>and later stages can inspect what was actually used.</p></li>
+</ul>
+<p>This is one of the key design choices in GeoPrior-v3. It
+helps keep runs reproducible, auditable, and easier to
+debug across the Stage-1 → Stage-5 workflow.</p>
+<section id="why-configuration-matters">
+<h2>Why configuration matters<a class="headerlink" href="#why-configuration-matters" title="Link to this heading">#</a></h2>
+<p>In GeoPrior-v3, many workflow outcomes depend on settings
+that are easy to get wrong if they remain implicit.</p>
+<p>Examples include:</p>
+<ul class="simple">
+<li><p>city and dataset identity,</p></li>
+<li><p>input file locations,</p></li>
+<li><p>time-window layout,</p></li>
+<li><p>forecast horizon,</p></li>
+<li><p>column semantics,</p></li>
+<li><p>groundwater conventions,</p></li>
+<li><p>scaling behavior,</p></li>
+<li><p>model defaults,</p></li>
+<li><p>results directories,</p></li>
+<li><p>and physics-related switches.</p></li>
+</ul>
+<p>If these values live only in scattered code edits, it becomes
+hard to answer basic questions later, such as:</p>
+<ul class="simple">
+<li><p>Which city did this run really use?</p></li>
+<li><p>Which horizon and time-step layout were active?</p></li>
+<li><p>Which config values were overridden from the CLI?</p></li>
+<li><p>Did this stage use the same assumptions as the previous
+stage?</p></li>
+<li><p>Can this run be reproduced on another machine?</p></li>
+</ul>
+<p>GeoPrior-v3 uses explicit configuration so those questions
+have clear answers.</p>
+</section>
+<section id="the-two-main-config-artifacts">
+<h2>The two main config artifacts<a class="headerlink" href="#the-two-main-config-artifacts" title="Link to this heading">#</a></h2>
+<p>GeoPrior-v3 uses two closely related configuration artifacts:</p>
+<p><strong>1.</strong> <code class="docutils literal notranslate"><span class="pre">nat.com/config.py</span></code>
+This is the main <strong>human-edited configuration file</strong>.</p>
+<p><strong>2.</strong> <code class="docutils literal notranslate"><span class="pre">nat.com/config.json</span></code>
+This is the <strong>persisted effective runtime snapshot</strong> used to
+record the currently active config state after initialization
+or CLI overrides.</p>
+<p>A useful mental model is:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">config.py</span></code> is the source you edit,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">config.json</span></code> is the resolved state the workflow records.</p></li>
+</ul>
+<p>This separation is important because a run often combines:</p>
+<ul class="simple">
+<li><p>the installed base config,</p></li>
+<li><p>mapped CLI fields such as <code class="docutils literal notranslate"><span class="pre">--city</span></code> or <code class="docutils literal notranslate"><span class="pre">--model</span></code>,</p></li>
+<li><p>repeated <code class="docutils literal notranslate"><span class="pre">--set</span> <span class="pre">KEY=VALUE</span></code> overrides,</p></li>
+<li><p>and any refresh logic used to derive dependent fields.</p></li>
+</ul>
+</section>
+<section id="where-the-config-lives">
+<h2>Where the config lives<a class="headerlink" href="#where-the-config-lives" title="Link to this heading">#</a></h2>
+<p>By default, GeoPrior-v3 uses a config root directory named:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>nat.com
+</pre></div>
+</div>
+<p>Within that root, the expected config artifacts are:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>nat.com/config.py
+nat.com/config.json
+</pre></div>
+</div>
+<p>The shared CLI helper layer also supports:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>--config-root
+</pre></div>
+</div>
+<p>so advanced users can point commands at an alternate config
+root when needed.</p>
+<p>This is useful for cases such as:</p>
+<ul class="simple">
+<li><p>comparing multiple experimental setups,</p></li>
+<li><p>isolating one project from another,</p></li>
+<li><p>testing a new config without touching the default one,</p></li>
+<li><p>or running CI / automation with a dedicated config root.</p></li>
+</ul>
+</section>
+<section id="how-configuration-enters-the-workflow">
+<h2>How configuration enters the workflow<a class="headerlink" href="#how-configuration-enters-the-workflow" title="Link to this heading">#</a></h2>
+<p>There are three main ways configuration enters a GeoPrior
+command.</p>
+<p><strong>1. Interactive or scripted initialization</strong></p>
+<p>The command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-init
+</pre></div>
+</div>
+<p>creates or refreshes the active <code class="docutils literal notranslate"><span class="pre">config.py</span></code> and also
+refreshes the JSON-side runtime snapshot.</p>
+<p><strong>2. Install a user-supplied config</strong></p>
+<p>Many commands support:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>--config path/to/config.py
+</pre></div>
+</div>
+<p>When supplied, the user config is copied into the active
+config root before the command runs.</p>
+<p><strong>3. Apply one-off runtime overrides</strong></p>
+<p>Many commands support:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>--set KEY=VALUE
+</pre></div>
+</div>
+<p>repeated as needed. These values are merged into the active
+configuration for the current run and then persisted into the
+runtime JSON snapshot.</p>
+<p>This layered model is one of the strengths of the CLI design.</p>
+</section>
+<section id="configuration-precedence">
+<h2>Configuration precedence<a class="headerlink" href="#configuration-precedence" title="Link to this heading">#</a></h2>
+<p>In practice, the effective configuration is built in a simple
+and predictable order.</p>
+<p>A good way to think about precedence is:</p>
+<ol class="arabic simple">
+<li><p>start from the active <code class="docutils literal notranslate"><span class="pre">config.py</span></code> in the chosen
+config root;</p></li>
+<li><p>if <code class="docutils literal notranslate"><span class="pre">--config</span></code> is provided, install that config into the
+active config root first;</p></li>
+<li><p>map selected explicit CLI fields, such as <code class="docutils literal notranslate"><span class="pre">--city</span></code> or
+<code class="docutils literal notranslate"><span class="pre">--model</span></code>, onto their corresponding config keys;</p></li>
+<li><p>apply repeated <code class="docutils literal notranslate"><span class="pre">--set</span> <span class="pre">KEY=VALUE</span></code> overrides;</p></li>
+<li><p>refresh any derived config fields if the command uses a
+refresh helper;</p></li>
+<li><p>persist the effective result to <code class="docutils literal notranslate"><span class="pre">config.json</span></code>.</p></li>
+</ol>
+<p>This means that CLI overrides do not merely affect a local
+in-memory object. They are also recorded into the runtime
+config snapshot.</p>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Treat the persisted runtime config as the record of what a
+command actually used.</p>
+<p>This is especially important when the run was launched with
+one-off overrides.</p>
+</div>
+</section>
+<section id="how-set-values-are-parsed">
+<h2>How <code class="docutils literal notranslate"><span class="pre">--set</span></code> values are parsed<a class="headerlink" href="#how-set-values-are-parsed" title="Link to this heading">#</a></h2>
+<p>GeoPrior-v3 parses <code class="docutils literal notranslate"><span class="pre">--set</span> <span class="pre">KEY=VALUE</span></code> conservatively so that
+common value types work without forcing everything to remain
+a raw string.</p>
+<p>The parser tries values in this order:</p>
+<ol class="arabic simple">
+<li><p>case-insensitive <code class="docutils literal notranslate"><span class="pre">true</span></code>, <code class="docutils literal notranslate"><span class="pre">false</span></code>, and <code class="docutils literal notranslate"><span class="pre">none</span></code></p></li>
+<li><p>integers</p></li>
+<li><p>floats</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ast.literal_eval(...)</span></code> for values such as lists,
+tuples, dicts, and quoted strings</p></li>
+<li><p>fallback to the stripped input string</p></li>
+</ol>
+<p>This gives practical behavior such as:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>--set<span class="w"> </span><span class="nv">TIME_STEPS</span><span class="o">=</span><span class="m">6</span>
+--set<span class="w"> </span><span class="nv">USE_VSN</span><span class="o">=</span>True
+--set<span class="w"> </span><span class="nv">QUANTILES</span><span class="o">=[</span><span class="m">0</span>.1,0.5,0.9<span class="o">]</span>
+--set<span class="w"> </span><span class="nv">SOME_OPTION</span><span class="o">=</span>None
+</pre></div>
+</div>
+<p>without forcing the user to implement a custom parser for
+every stage command.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Every <code class="docutils literal notranslate"><span class="pre">--set</span></code> item must use the form <code class="docutils literal notranslate"><span class="pre">KEY=VALUE</span></code>.
+Empty keys are rejected, and malformed items exit early.</p>
+</div>
+</section>
+<section id="what-geoprior-init-creates">
+<h2>What <code class="docutils literal notranslate"><span class="pre">geoprior-init</span></code> creates<a class="headerlink" href="#what-geoprior-init-creates" title="Link to this heading">#</a></h2>
+<p>The initialization command generates a NATCOM-style
+<code class="docutils literal notranslate"><span class="pre">config.py</span></code> template for GeoPrior-v3.</p>
+<p>The generated file is not tiny. It already organizes the
+configuration into meaningful blocks such as:</p>
+<ul class="simple">
+<li><p>dataset identity and file naming,</p></li>
+<li><p>time layout,</p></li>
+<li><p>required columns,</p></li>
+<li><p>physics conventions and target semantics,</p></li>
+<li><p>feature groups,</p></li>
+<li><p>training defaults,</p></li>
+<li><p>model defaults,</p></li>
+<li><p>scaling and bookkeeping.</p></li>
+</ul>
+<p>This is a design choice because it makes the config
+feel like a project control file rather than a loose set of
+unrelated constants.</p>
+<p>A typical initialization flow is:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-init
+geoprior-init<span class="w"> </span>--yes
+geoprior-init<span class="w"> </span>--city<span class="w"> </span>zhongshan<span class="w"> </span>--time-steps<span class="w"> </span><span class="m">6</span>
+</pre></div>
+</div>
+<p>The initializer also prints suggested next commands such as
+preprocess, train, tune, infer, and transfer.</p>
+</section>
+<section id="the-configuration-template-structure">
+<h2>The configuration template structure<a class="headerlink" href="#the-configuration-template-structure" title="Link to this heading">#</a></h2>
+<p>The generated config template is organized into practical
+sections that mirror how the workflow is used.</p>
+<section id="dataset-identity-and-file-naming">
+<h3>Dataset identity and file naming<a class="headerlink" href="#dataset-identity-and-file-naming" title="Link to this heading">#</a></h3>
+<p>This section usually defines core identifiers such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CITY_NAME</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MODEL_NAME</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DATA_DIR</span></code></p></li>
+<li><p>dataset variant and file naming choices</p></li>
+</ul>
+<p>These values control the basic identity of the run.</p>
+</section>
+<section id="time-layout">
+<h3>Time layout<a class="headerlink" href="#time-layout" title="Link to this heading">#</a></h3>
+<p>This section defines the temporal structure of the workflow,
+for example:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TRAIN_END_YEAR</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FORECAST_START_YEAR</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FORECAST_HORIZON_YEARS</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TIME_STEPS</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MODE</span></code></p></li>
+</ul>
+<p>These values are especially important because Stage-1, Stage-2,
+Stage-3, and Stage-4 all depend on a consistent understanding
+of horizon and sequence structure.</p>
+</section>
+<section id="required-columns">
+<h3>Required columns<a class="headerlink" href="#required-columns" title="Link to this heading">#</a></h3>
+<p>This section defines the core dataset columns used by the
+workflow, for example:</p>
+<ul class="simple">
+<li><p>time column,</p></li>
+<li><p>longitude and latitude columns,</p></li>
+<li><p>subsidence column,</p></li>
+<li><p>groundwater column,</p></li>
+<li><p>thickness column,</p></li>
+<li><p>surface-elevation or head-related columns.</p></li>
+</ul>
+<p>This is where raw tabular data begins to become a scientific
+contract for the pipeline.</p>
+</section>
+<section id="physics-conventions-and-target-semantics">
+<h3>Physics conventions and target semantics<a class="headerlink" href="#physics-conventions-and-target-semantics" title="Link to this heading">#</a></h3>
+<p>This section is especially important for GeoPrior-v3.</p>
+<p>It includes choices such as:</p>
+<ul class="simple">
+<li><p>groundwater kind,</p></li>
+<li><p>groundwater sign convention,</p></li>
+<li><p>whether to use a head proxy,</p></li>
+<li><p>PDE mode defaults,</p></li>
+<li><p>coordinate normalization or retention,</p></li>
+<li><p>scaling switches for groundwater, thickness, and surface
+elevation.</p></li>
+</ul>
+<p>These settings strongly influence how the workflow interprets
+the data physically, not just statistically.</p>
+</section>
+<section id="feature-groups">
+<h3>Feature groups<a class="headerlink" href="#feature-groups" title="Link to this heading">#</a></h3>
+<p>The config also organizes model-facing features into groups,
+such as:</p>
+<ul class="simple">
+<li><p>static features,</p></li>
+<li><p>dynamic features,</p></li>
+<li><p>future-known features,</p></li>
+<li><p>optional categorical or numeric groups,</p></li>
+<li><p>and bookkeeping lists used later in manifests and audits.</p></li>
+</ul>
+<p>This section matters because later stages depend on stable
+feature semantics and ordering.</p>
+</section>
+<section id="training-defaults">
+<h3>Training defaults<a class="headerlink" href="#training-defaults" title="Link to this heading">#</a></h3>
+<p>This section usually stores common training-time defaults
+such as:</p>
+<ul class="simple">
+<li><p>batch size,</p></li>
+<li><p>epoch count,</p></li>
+<li><p>learning rate,</p></li>
+<li><p>optimizer-related defaults.</p></li>
+</ul>
+<p>These settings become most visible in Stage-2 and Stage-3.</p>
+</section>
+<section id="model-defaults">
+<h3>Model defaults<a class="headerlink" href="#model-defaults" title="Link to this heading">#</a></h3>
+<p>This section typically contains model architecture defaults,
+for example:</p>
+<ul class="simple">
+<li><p>hidden units,</p></li>
+<li><p>LSTM units,</p></li>
+<li><p>attention units,</p></li>
+<li><p>number of heads,</p></li>
+<li><p>dropout rate,</p></li>
+<li><p>batch normalization usage,</p></li>
+<li><p>VSN usage.</p></li>
+</ul>
+<p>These values give the workflow a usable default model without
+forcing every run to spell out the entire architecture.</p>
+</section>
+<section id="scaling-and-bookkeeping">
+<h3>Scaling and bookkeeping<a class="headerlink" href="#scaling-and-bookkeeping" title="Link to this heading">#</a></h3>
+<p>The template also contains scaling and audit-oriented values,
+for example:</p>
+<ul class="simple">
+<li><p>subsidence scale,</p></li>
+<li><p>groundwater scale,</p></li>
+<li><p>verbose or audit-stage settings.</p></li>
+</ul>
+<p>This helps keep the workflow explicit about units, scaling,
+and stage tracing.</p>
+</section>
+</section>
+<section id="how-cli-fields-map-back-into-config">
+<h2>How CLI fields map back into config<a class="headerlink" href="#how-cli-fields-map-back-into-config" title="Link to this heading">#</a></h2>
+<p>Some CLI arguments are not only command-local inputs. They
+are also mapped back into config keys.</p>
+<p>Examples include mappings such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--city</span></code> → <code class="docutils literal notranslate"><span class="pre">CITY_NAME</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--model</span></code> → <code class="docutils literal notranslate"><span class="pre">MODEL_NAME</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--results-dir</span></code> → a results-root config key</p></li>
+</ul>
+<p>This design is useful because it lets a single command
+override a small number of important fields without forcing
+the user to modify the underlying config file by hand.</p>
+<p>Typical pattern:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-run<span class="w"> </span>stage1-preprocess<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--city<span class="w"> </span>zhongshan<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--model<span class="w"> </span>GeoPriorSubsNet
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-run<span class="w"> </span>stage1-preprocess<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--config<span class="w"> </span>my_config.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span><span class="nv">TIME_STEPS</span><span class="o">=</span><span class="m">6</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span><span class="nv">FORECAST_HORIZON_YEARS</span><span class="o">=</span><span class="m">3</span>
+</pre></div>
+</div>
+<p>The effective values are then written into the persisted
+runtime config snapshot.</p>
+</section>
+<section id="why-config-json-exists">
+<h2>Why <code class="docutils literal notranslate"><span class="pre">config.json</span></code> exists<a class="headerlink" href="#why-config-json-exists" title="Link to this heading">#</a></h2>
+<p>It is natural to ask why GeoPrior-v3 uses both <code class="docutils literal notranslate"><span class="pre">config.py</span></code>
+and <code class="docutils literal notranslate"><span class="pre">config.json</span></code>.</p>
+<p>The short answer is that they serve different roles.</p>
+<p><code class="docutils literal notranslate"><span class="pre">config.py</span></code> is convenient for:</p>
+<ul class="simple">
+<li><p>human editing,</p></li>
+<li><p>comments,</p></li>
+<li><p>structured grouping of settings,</p></li>
+<li><p>readable project control.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">config.json</span></code> is convenient for:</p>
+<ul class="simple">
+<li><p>persisting the effective merged runtime config,</p></li>
+<li><p>recording CLI-applied overrides,</p></li>
+<li><p>lightweight downstream inspection,</p></li>
+<li><p>and providing a machine-friendly snapshot.</p></li>
+</ul>
+<p>The persisted JSON payload also records key identity fields
+such as city and model alongside the config dictionary
+itself.</p>
+<p>This makes it easier for later stages or tools to answer:
+<em>what was the actual effective runtime config for this run?</em></p>
+</section>
+<section id="configuration-across-stages">
+<h2>Configuration across stages<a class="headerlink" href="#configuration-across-stages" title="Link to this heading">#</a></h2>
+<p>Configuration is not a Stage-1-only concern.</p>
+<p>Across the workflow:</p>
+<ul class="simple">
+<li><p>Stage-1 uses config to define preprocessing, features,
+splits, and export structure.</p></li>
+<li><p>Stage-2 uses config together with the Stage-1 manifest to
+define training, scaling, model construction, and export.</p></li>
+<li><p>Stage-3 uses config to define the tuning search procedure
+on top of the Stage-1 contract.</p></li>
+<li><p>Stage-4 uses config to control model reuse, calibration,
+and inference behavior.</p></li>
+<li><p>Stage-5 uses config to define city-pair transfer defaults,
+results directories, and experiment behavior.</p></li>
+</ul>
+<p>This is why the config page belongs in the <strong>user guide</strong>
+rather than in a small appendix.</p>
+</section>
+<section id="a-practical-lifecycle">
+<h2>A practical lifecycle<a class="headerlink" href="#a-practical-lifecycle" title="Link to this heading">#</a></h2>
+<p>A good mental model for GeoPrior configuration is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>initialize config
+     ↓
+edit config.py for project-level defaults
+     ↓
+run one command with optional --config and --set overrides
+     ↓
+persist effective runtime config to config.json
+     ↓
+inspect artifacts and manifests
+     ↓
+reuse or refine config for later stages
+</pre></div>
+</div>
+<p>This lifecycle is much safer than editing stage scripts
+directly every time something changes.</p>
+</section>
+<section id="recommended-workflow">
+<h2>Recommended workflow<a class="headerlink" href="#recommended-workflow" title="Link to this heading">#</a></h2>
+<p>A reliable configuration workflow looks like this:</p>
+<p><strong>1. Bootstrap once</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-init<span class="w"> </span>--yes
+</pre></div>
+</div>
+<p><strong>2. Edit ``nat.com/config.py``</strong></p>
+<p>Adjust city, paths, time layout, columns, feature lists,
+training defaults, and physics conventions.</p>
+<p><strong>3. Run the first stage</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-run<span class="w"> </span>preprocess
+</pre></div>
+</div>
+<p><strong>4. Use one-off overrides sparingly</strong></p>
+<p>When you want a temporary change, use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>--set<span class="w"> </span><span class="nv">KEY</span><span class="o">=</span>VALUE
+</pre></div>
+</div>
+<p>instead of editing the config file for every short-lived
+experiment.</p>
+<p><strong>5. Inspect the persisted runtime snapshot</strong></p>
+<p>Review <code class="docutils literal notranslate"><span class="pre">nat.com/config.json</span></code> when you need to confirm what
+a particular command actually used.</p>
+</section>
+<section id="common-configuration-mistakes">
+<h2>Common configuration mistakes<a class="headerlink" href="#common-configuration-mistakes" title="Link to this heading">#</a></h2>
+<p><strong>Mixing permanent defaults and temporary overrides</strong></p>
+<p>Not every change belongs in <code class="docutils literal notranslate"><span class="pre">config.py</span></code>. Temporary
+experiments are usually better expressed through <code class="docutils literal notranslate"><span class="pre">--set</span></code>.</p>
+<p><strong>Forgetting that stages depend on shared semantics</strong></p>
+<p>A harmless-looking change to horizon, feature lists, or
+groundwater semantics can affect multiple later stages.</p>
+<p><strong>Editing code instead of config</strong></p>
+<p>If a value is really part of the run contract, it should
+usually live in config.</p>
+<p><strong>Treating ``config.json`` as the main editing surface</strong></p>
+<p>The JSON file is best treated as a persisted runtime
+snapshot, not as the main human-authored config.</p>
+<p><strong>Using stale config with new artifacts</strong></p>
+<p>If a config changed materially, be careful about reusing old
+Stage-1 or Stage-2 artifacts whose semantics may no longer
+match.</p>
+</section>
+<section id="configuration-and-reproducibility">
+<h2>Configuration and reproducibility<a class="headerlink" href="#configuration-and-reproducibility" title="Link to this heading">#</a></h2>
+<p>Configuration is one of the main reasons GeoPrior-v3 can
+support reproducible staged workflows.</p>
+<p>A run can be understood much more clearly when you can trace:</p>
+<ul class="simple">
+<li><p>the authored <code class="docutils literal notranslate"><span class="pre">config.py</span></code>,</p></li>
+<li><p>the effective <code class="docutils literal notranslate"><span class="pre">config.json</span></code>,</p></li>
+<li><p>the stage manifest,</p></li>
+<li><p>the generated artifacts,</p></li>
+<li><p>and the CLI command that launched the stage.</p></li>
+</ul>
+<p>Together, these provide a much stronger provenance trail than
+a notebook or script with hidden local edits.</p>
+</section>
+<section id="best-practices">
+<h2>Best practices<a class="headerlink" href="#best-practices" title="Link to this heading">#</a></h2>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Keep <code class="docutils literal notranslate"><span class="pre">config.py</span></code> as the project-level source of truth.</p>
+<p>Use it for stable defaults, not for one-off experiment
+clutter.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">--set</span></code> for temporary variations.</p>
+<p>This keeps the project config readable while still making
+experiments easy.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Inspect <code class="docutils literal notranslate"><span class="pre">config.json</span></code> when debugging a run.</p>
+<p>It is often the fastest way to see what effective values a
+CLI command actually used.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Change configuration before the stage runs, not after.</p>
+<p>Later stages assume earlier artifact contracts are already
+fixed.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Keep configuration, manifests, and outputs conceptually
+aligned.</p>
+<p>If you change the config materially, consider whether the
+old artifacts should still be trusted.</p>
+</div>
+</section>
+<section id="a-compact-configuration-map">
+<h2>A compact configuration map<a class="headerlink" href="#a-compact-configuration-map" title="Link to this heading">#</a></h2>
+<p>The GeoPrior-v3 configuration system can be summarized like
+this:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>geoprior-init
+     ↓
+nat.com/config.py
+     ↓
+optional --config install
+     ↓
+optional mapped CLI fields (--city, --model, ...)
+     ↓
+optional repeated --set KEY=VALUE
+     ↓
+refresh derived config fields
+     ↓
+nat.com/config.json
+     ↓
+stage command reads effective config
+     ↓
+stage manifest + workflow artifacts record the result
+</pre></div>
+</div>
+</section>
+<section id="a-few-useful-examples">
+<h2>A few useful examples<a class="headerlink" href="#a-few-useful-examples" title="Link to this heading">#</a></h2>
+<p><strong>Initialize the default config</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-init<span class="w"> </span>--yes
+</pre></div>
+</div>
+<p><strong>Run Stage-1 with one-off horizon overrides</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-run<span class="w"> </span>preprocess<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span><span class="nv">TIME_STEPS</span><span class="o">=</span><span class="m">6</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span><span class="nv">FORECAST_HORIZON_YEARS</span><span class="o">=</span><span class="m">3</span>
+</pre></div>
+</div>
+<p><strong>Use an alternate authored config file</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-run<span class="w"> </span>train<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--config<span class="w"> </span>my_project_config.py
+</pre></div>
+</div>
+<p><strong>Override identity fields directly from the CLI</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-run<span class="w"> </span>stage1-preprocess<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--city<span class="w"> </span>zhongshan<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--model<span class="w"> </span>GeoPriorSubsNet
+</pre></div>
+</div>
+<p><strong>Work from an alternate config root</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-run<span class="w"> </span>tune<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--config-root<span class="w"> </span>natcom_experiment_a
+</pre></div>
+</div>
+</section>
+<section id="read-next">
+<h2>Read next<a class="headerlink" href="#read-next" title="Link to this heading">#</a></h2>
+<p>The best next pages after this one are:</p>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-1 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Stage-1</div>
+<p class="sd-card-text">Learn how configuration first becomes concrete workflow
+artifacts.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="stage1.html"><span class="doc">Stage-1</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Diagnostics</div>
+<p class="sd-card-text">Understand how config, manifests, and diagnostics work
+together when debugging a run.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="diagnostics.html"><span class="doc">Diagnostics</span></a></div>
+</div>
+</div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="cli.html"><span class="doc">CLI guide</span></a></p></li>
+<li><p><a class="reference internal" href="workflow_overview.html"><span class="doc">Workflow</span></a></p></li>
+<li><p><a class="reference internal" href="stage1.html"><span class="doc">Stage-1</span></a></p></li>
+<li><p><a class="reference internal" href="stage2.html"><span class="doc">Stage-2</span></a></p></li>
+<li><p><a class="reference internal" href="stage3.html"><span class="doc">Stage-3</span></a></p></li>
+<li><p><a class="reference internal" href="stage4.html"><span class="doc">Stage-4</span></a></p></li>
+<li><p><a class="reference internal" href="stage5.html"><span class="doc">Stage-5</span></a></p></li>
+<li><p><a class="reference internal" href="diagnostics.html"><span class="doc">Diagnostics</span></a></p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="cli.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">CLI guide</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="diagnostics.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Diagnostics</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-configuration-matters">Why configuration matters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-two-main-config-artifacts">The two main config artifacts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-the-config-lives">Where the config lives</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-configuration-enters-the-workflow">How configuration enters the workflow</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-precedence">Configuration precedence</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-set-values-are-parsed">How <code class="docutils literal notranslate"><span class="pre">--set</span></code> values are parsed</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-geoprior-init-creates">What <code class="docutils literal notranslate"><span class="pre">geoprior-init</span></code> creates</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-configuration-template-structure">The configuration template structure</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dataset-identity-and-file-naming">Dataset identity and file naming</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#time-layout">Time layout</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#required-columns">Required columns</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#physics-conventions-and-target-semantics">Physics conventions and target semantics</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-groups">Feature groups</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#training-defaults">Training defaults</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-defaults">Model defaults</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scaling-and-bookkeeping">Scaling and bookkeeping</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-cli-fields-map-back-into-config">How CLI fields map back into config</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-config-json-exists">Why <code class="docutils literal notranslate"><span class="pre">config.json</span></code> exists</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-across-stages">Configuration across stages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-practical-lifecycle">A practical lifecycle</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#recommended-workflow">Recommended workflow</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-configuration-mistakes">Common configuration mistakes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-and-reproducibility">Configuration and reproducibility</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">Best practices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-compact-configuration-map">A compact configuration map</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-few-useful-examples">A few useful examples</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#read-next">Read next</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/earthai-tech/geoprior-v3/edit/main/docs/source/user_guide/configuration.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/user_guide/configuration.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

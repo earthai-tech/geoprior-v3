@@ -1,0 +1,1216 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>geoprior._scripts.config &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=404c0980"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geoprior/_scripts/config';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../../../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../../../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geoprior._scripts.config</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for geoprior._scripts.config</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+<span class="c1"># GeoPrior-v3 — https://github.com/earthai-tech/</span>
+<span class="c1"># geoprior-v3</span>
+<span class="c1"># Copyright (c) 2026-present</span>
+<span class="c1"># Author: LKouadio &lt;https://lkouadio.com&gt;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="c1"># Artifact export environment</span>
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="n">FIG_DIR_ENV</span> <span class="o">=</span> <span class="s2">&quot;GEOPRIOR_FIG_DIR&quot;</span>
+<span class="n">OUT_DIR_ENV</span> <span class="o">=</span> <span class="s2">&quot;GEOPRIOR_OUT_DIR&quot;</span>
+<span class="n">ROOT_ENV</span> <span class="o">=</span> <span class="s2">&quot;GEOPRIOR_ARTIFACT_ROOT&quot;</span>
+
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="c1"># Filesystem helpers</span>
+<span class="c1"># ---------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_path</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an expanded absolute path.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_find_project_root</span><span class="p">(</span><span class="n">start</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the nearest project root.&quot;&quot;&quot;</span>
+
+    <span class="n">here</span> <span class="o">=</span> <span class="p">(</span><span class="n">start</span> <span class="ow">or</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">())</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">root</span> <span class="ow">in</span> <span class="p">(</span><span class="n">here</span><span class="p">,</span> <span class="o">*</span><span class="n">here</span><span class="o">.</span><span class="n">parents</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;pyproject.toml&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">root</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;.git&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">root</span>
+
+    <span class="k">return</span> <span class="n">here</span>
+
+
+<div class="viewcode-block" id="scripts_root">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.config.html#geoprior._scripts.config.scripts_root">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">scripts_root</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">create</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the user-facing artifact root.&quot;&quot;&quot;</span>
+
+    <span class="n">root_env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ROOT_ENV</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">root_env</span><span class="p">:</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">_as_path</span><span class="p">(</span><span class="n">root_env</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">_find_project_root</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;scripts&quot;</span>
+
+    <span class="k">if</span> <span class="n">create</span><span class="p">:</span>
+        <span class="n">root</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">root</span></div>
+
+
+
+<div class="viewcode-block" id="fig_dir">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.config.html#geoprior._scripts.config.fig_dir">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fig_dir</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">create</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the figure export directory.&quot;&quot;&quot;</span>
+
+    <span class="n">value</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">FIG_DIR_ENV</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_as_path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span>
+        <span class="k">else</span> <span class="n">scripts_root</span><span class="p">(</span><span class="n">create</span><span class="o">=</span><span class="n">create</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;figs&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">create</span><span class="p">:</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span></div>
+
+
+
+<div class="viewcode-block" id="out_dir">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.config.html#geoprior._scripts.config.out_dir">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">out_dir</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">create</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the tabular export directory.&quot;&quot;&quot;</span>
+
+    <span class="n">value</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">OUT_DIR_ENV</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_as_path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span>
+        <span class="k">else</span> <span class="n">scripts_root</span><span class="p">(</span><span class="n">create</span><span class="o">=</span><span class="n">create</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;out&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">create</span><span class="p">:</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_has_explicit_parent</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return True when path includes a parent part.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">parent</span> <span class="o">!=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="resolve_user_artifact_path">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.config.html#geoprior._scripts.config.resolve_user_artifact_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_user_artifact_path</span><span class="p">(</span>
+    <span class="n">value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">create_parent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resolve a user-provided export path.</span>
+
+<span class="sd">    Rules</span>
+<span class="sd">    -----</span>
+<span class="sd">    - absolute path: use as given</span>
+<span class="sd">    - relative path with parent: respect that folder</span>
+<span class="sd">    - bare filename/stem: place under scripts/figs or</span>
+<span class="sd">      scripts/out</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+    <span class="n">kind_norm</span> <span class="o">=</span> <span class="n">kind</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">path</span>
+    <span class="k">elif</span> <span class="n">_has_explicit_parent</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">kind_norm</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;fig&quot;</span><span class="p">,</span> <span class="s2">&quot;figs&quot;</span><span class="p">,</span> <span class="s2">&quot;figure&quot;</span><span class="p">,</span> <span class="s2">&quot;figures&quot;</span><span class="p">}:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">fig_dir</span><span class="p">(</span><span class="n">create</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">/</span> <span class="n">path</span>
+    <span class="k">elif</span> <span class="n">kind_norm</span> <span class="o">==</span> <span class="s2">&quot;out&quot;</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">out_dir</span><span class="p">(</span><span class="n">create</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">/</span> <span class="n">path</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;kind must be &#39;fig&#39;, &#39;figs&#39;, or &#39;out&#39;&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">create_parent</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<div class="viewcode-block" id="resolve_export_path">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.config.html#geoprior._scripts.config.resolve_export_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_export_path</span><span class="p">(</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">parts</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">create_parent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve a path under fig/ or out/.&quot;&quot;&quot;</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">resolve_user_artifact_path</span><span class="p">(</span>
+        <span class="n">Path</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">parts</span><span class="p">)),</span>
+        <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span>
+        <span class="n">create_parent</span><span class="o">=</span><span class="n">create_parent</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span></div>
+
+
+
+<div class="viewcode-block" id="export_env_summary">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.config.html#geoprior._scripts.config.export_env_summary">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">export_env_summary</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return resolved export environment values.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">ROOT_ENV</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">scripts_root</span><span class="p">(</span><span class="n">create</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
+        <span class="n">FIG_DIR_ENV</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">fig_dir</span><span class="p">(</span><span class="n">create</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
+        <span class="n">OUT_DIR_ENV</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">out_dir</span><span class="p">(</span><span class="n">create</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
+    <span class="p">}</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="c1"># Filesystem layout (v3.2)</span>
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="n">MODULE_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span>
+<span class="n">SCRIPTS_DIR</span> <span class="o">=</span> <span class="n">MODULE_DIR</span>
+<span class="n">ARTIFACT_ROOT</span> <span class="o">=</span> <span class="n">scripts_root</span><span class="p">()</span>
+<span class="n">FIG_DIR</span> <span class="o">=</span> <span class="n">fig_dir</span><span class="p">()</span>
+<span class="n">FIGS_DIR</span> <span class="o">=</span> <span class="n">FIG_DIR</span>
+<span class="n">OUT_DIR</span> <span class="o">=</span> <span class="n">out_dir</span><span class="p">()</span>
+
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="c1"># Common discovery patterns</span>
+<span class="c1"># (src may be a directory or a file)</span>
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="c1"># NOTE:</span>
+<span class="c1"># - We search recursively under src when src is a</span>
+<span class="c1">#   directory.</span>
+<span class="c1"># - For GeoPrior eval JSON we prefer the</span>
+<span class="c1">#   interpretable one when available.</span>
+<span class="c1"># - It may carry human units such as &quot;mm&quot;.</span>
+<span class="n">PATTERNS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># GeoPrior evaluation JSON</span>
+    <span class="s2">&quot;phys_json&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;geoprior_eval_phys_*_interpretable.json&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;geoprior_eval_phys_*.json&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># Eval diagnostics fallback JSON</span>
+    <span class="s2">&quot;eval_diag_json&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;*GeoPriorSubsNet_eval_diagnostics*_calibrated.json&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*GeoPriorSubsNet_eval_diagnostics*.json&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;eval_diagnostics*.json&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;diagnostics*.json&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*eval*diagnostic*.json&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># --- TestSet: EVAL</span>
+    <span class="c1"># (has subsidence_actual) ---</span>
+    <span class="s2">&quot;forecast_test_csv&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;*forecast*TestSet*eval_calibrated*.csv&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*forecast_TestSet*_eval_calibrated.csv&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*_forecast_TestSet_*_eval_calibrated.csv&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*TestSet*eval_calibrated*.csv&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># --- TestSet: FUTURE</span>
+    <span class="c1"># (no subsidence_actual) ---</span>
+    <span class="s2">&quot;forecast_test_future_csv&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;*forecast*TestSet*future*.csv&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*forecast_TestSet*_future.csv&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*_forecast_TestSet_*_future.csv&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*TestSet*future*.csv&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># Typical calibrated validation forecasts</span>
+    <span class="s2">&quot;forecast_val_csv&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;*forecast*Validation*calibrated*.csv&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*forecast*Validation*Fallback*calibrated*.csv&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*Validation*calibrated*.csv&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*_calibrated.csv&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># Typical future forecasts</span>
+    <span class="s2">&quot;forecast_future_csv&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;*future*.csv&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*H*_future*.csv&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*forecast*future*.csv&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># Physics payloads</span>
+    <span class="s2">&quot;physics_payload&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;*physics_payload*.npz&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*phys_payload*.npz&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*payload*.npz&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># Optional coords file</span>
+    <span class="c1"># (used by some physics maps)</span>
+    <span class="s2">&quot;coords_npz&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;*coords*.npz&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*xy*.npz&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*lonlat*.npz&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*val_inputs*.npz&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*test_inputs*.npz&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*train_inputs*.npz&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*oos_time_inputs*.npz&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># Ablation records (Supplement S6/S7)</span>
+    <span class="s2">&quot;ablation_record_jsonl&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;ablation_records/ablation_record.updated*.jsonl&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ablation_records/ablation_record*.jsonl&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ablation_record*.jsonl&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ablation_record.updated*.jsonl&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;boundary_shp&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;*boundary*.shp&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*coast*.shp&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*admin*.shp&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*outline*.shp&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;*border*.shp&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="c1"># Plot metric metadata</span>
+<span class="c1"># (titles / labels / format)</span>
+<span class="c1"># Used by multi-panel figures to avoid duplicated</span>
+<span class="c1"># strings.</span>
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="n">PLOT_METRIC_META</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;r2&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;$R^2$ (↑)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ylabel&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;$R^2$&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fmt&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;mae&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;MAE (↓, </span><span class="si">{unit}</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ylabel&quot;</span><span class="p">:</span> <span class="s2">&quot;MAE (</span><span class="si">{unit}</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fmt&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;rmse&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;RMSE (↓, </span><span class="si">{unit}</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ylabel&quot;</span><span class="p">:</span> <span class="s2">&quot;RMSE (</span><span class="si">{unit}</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fmt&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;mse&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;MSE (↓, </span><span class="si">{unit}</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ylabel&quot;</span><span class="p">:</span> <span class="s2">&quot;MSE (</span><span class="si">{unit}</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fmt&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;mm²&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;coverage80&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Coverage (80% PI; target 0.80)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ylabel&quot;</span><span class="p">:</span> <span class="s2">&quot;Coverage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fmt&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{:.3f}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;sharpness80&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Sharpness (80% PI; ↓, </span><span class="si">{unit}</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ylabel&quot;</span><span class="p">:</span> <span class="s2">&quot;Sharpness (</span><span class="si">{unit}</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fmt&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{:.3f}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="c1"># Matplotlib defaults (paper-friendly)</span>
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="n">PAPER_DPI</span> <span class="o">=</span> <span class="mi">600</span>
+<span class="n">PAPER_FONT</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="c1"># City styling</span>
+<span class="c1"># (keep consistent across all scripts)</span>
+<span class="c1"># (Used repeatedly across figures)</span>
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="n">CITY_CANON</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;nansha&quot;</span><span class="p">:</span> <span class="s2">&quot;Nansha&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;zhongshan&quot;</span><span class="p">:</span> <span class="s2">&quot;Zhongshan&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ns&quot;</span><span class="p">:</span> <span class="s2">&quot;Nansha&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;zh&quot;</span><span class="p">:</span> <span class="s2">&quot;Zhongshan&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">CITY_COLORS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Nansha&quot;</span><span class="p">:</span> <span class="s2">&quot;#1F78B4&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Zhongshan&quot;</span><span class="p">:</span> <span class="s2">&quot;#E31A1C&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="c1"># Units: payload + drivers + targets</span>
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="c1"># Keep *units* separate from *labels* so plots can</span>
+<span class="c1"># do:</span>
+<span class="c1">#   label = LABELS[key]</span>
+<span class="c1">#   unit = UNITS.get(key)</span>
+<span class="c1">#   ax.set_xlabel(</span>
+<span class="c1">#       f&quot;{label} ({unit})&quot; if unit else label</span>
+<span class="c1">#   )</span>
+<span class="n">UNITS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Drivers / coordinates</span>
+    <span class="s2">&quot;GWL&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rainfall_mm&quot;</span><span class="p">:</span> <span class="s2">&quot;mm/yr&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;soil_thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;normalized_urban_load_proxy&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="s2">&quot;deg&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="s2">&quot;deg&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="s2">&quot;year&quot;</span><span class="p">,</span>
+    <span class="c1"># Targets</span>
+    <span class="s2">&quot;subsidence&quot;</span><span class="p">:</span> <span class="s2">&quot;mm/yr&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;subsidence_cum&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+    <span class="c1"># Forecast CSV canonical columns</span>
+    <span class="s2">&quot;forecast_step&quot;</span><span class="p">:</span> <span class="s2">&quot;step&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sample_idx&quot;</span><span class="p">:</span> <span class="s2">&quot;id&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">LABELS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;GWL&quot;</span><span class="p">:</span> <span class="s2">&quot;Groundwater level&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rainfall_mm&quot;</span><span class="p">:</span> <span class="s2">&quot;Rainfall&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;soil_thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;Soil thickness&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;normalized_urban_load_proxy&quot;</span><span class="p">:</span> <span class="s2">&quot;Urban load&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="s2">&quot;Longitude&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="s2">&quot;Latitude&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="s2">&quot;Year&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;subsidence&quot;</span><span class="p">:</span> <span class="s2">&quot;Subsidence&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;subsidence_cum&quot;</span><span class="p">:</span> <span class="s2">&quot;Cumulative subsidence&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lithology_class&quot;</span><span class="p">:</span> <span class="s2">&quot;Lithology class&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;city&quot;</span><span class="p">:</span> <span class="s2">&quot;City&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;forecast_step&quot;</span><span class="p">:</span> <span class="s2">&quot;Forecast step&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sample_idx&quot;</span><span class="p">:</span> <span class="s2">&quot;Sample id&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">UNITS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;GWL_depth_bgs_m&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GWL_depth_bgs&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GWL_depth_bgs_raw&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;soil_thickness_eff&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;soil_thickness_imputed&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;urban_load_global&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;head_m&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;z_surf_m&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;z_surf&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="n">LABELS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;GWL_depth_bgs_m&quot;</span><span class="p">:</span> <span class="s2">&quot;Depth to water table&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GWL_depth_bgs&quot;</span><span class="p">:</span> <span class="s2">&quot;Depth to water table&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GWL_depth_bgs_raw&quot;</span><span class="p">:</span> <span class="s2">&quot;Depth to water table&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;soil_thickness_eff&quot;</span><span class="p">:</span> <span class="s2">&quot;Effective soil thickness&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;soil_thickness_imputed&quot;</span><span class="p">:</span> <span class="s2">&quot;Imputed soil thickness&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;urban_load_global&quot;</span><span class="p">:</span> <span class="s2">&quot;Urban load&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;head_m&quot;</span><span class="p">:</span> <span class="s2">&quot;Hydraulic head&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;z_surf_m&quot;</span><span class="p">:</span> <span class="s2">&quot;Surface elevation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;z_surf&quot;</span><span class="p">:</span> <span class="s2">&quot;Surface elevation&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="n">COLUMN_ALIASES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Drivers</span>
+    <span class="s2">&quot;GWL_depth_bgs_m&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;GWL_depth_bgs_m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GWL_depth_bgs&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GWL&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GWL_depth_bgs_raw&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;rainfall_mm&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;rainfall_mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rainfall&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rainfall_m&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;soil_thickness_eff&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;soil_thickness_eff&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;soil_thickness_imputed&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;soil_thickness&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;urban_load_global&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;urban_load_global&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;normalized_urban_load_proxy&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># Responses</span>
+    <span class="s2">&quot;subsidence_cum&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;subsidence_cum&quot;</span><span class="p">,),</span>
+    <span class="s2">&quot;subsidence&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;subsidence&quot;</span><span class="p">,),</span>
+    <span class="s2">&quot;head_m&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;head_m&quot;</span><span class="p">,),</span>
+<span class="p">}</span>
+
+<span class="n">DRIVER_RESPONSE_DEFAULT_DRIVERS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;GWL_depth_bgs_m&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rainfall_mm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;soil_thickness_eff&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;urban_load_global&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">DRIVER_RESPONSE_DEFAULT_RESPONSE</span> <span class="o">=</span> <span class="s2">&quot;subsidence_cum&quot;</span>
+
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="c1"># Units: GeoPrior physics fields / diagnostics</span>
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="c1"># Used for physics maps and sanity plots.</span>
+<span class="n">PHYS_UNITS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;K&quot;</span><span class="p">:</span> <span class="s2">&quot;m/s&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ss&quot;</span><span class="p">:</span> <span class="s2">&quot;1/m&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Hd&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;H&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tau&quot;</span><span class="p">:</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tau_prior&quot;</span><span class="p">:</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;log10_K&quot;</span><span class="p">:</span> <span class="s2">&quot;log10(m/s)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;log10_Ss&quot;</span><span class="p">:</span> <span class="s2">&quot;log10(1/m)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;log10_tau&quot;</span><span class="p">:</span> <span class="s2">&quot;log10(s)&quot;</span><span class="p">,</span>
+    <span class="c1"># Diagnostics</span>
+    <span class="s2">&quot;epsilon_prior&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;epsilon_cons&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;epsilon_gw&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;epsilon_cons_raw&quot;</span><span class="p">:</span> <span class="s2">&quot;varies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;epsilon_gw_raw&quot;</span><span class="p">:</span> <span class="s2">&quot;varies&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">PHYS_LABELS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;K&quot;</span><span class="p">:</span> <span class="s2">&quot;Hydraulic conductivity&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ss&quot;</span><span class="p">:</span> <span class="s2">&quot;Specific storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Hd&quot;</span><span class="p">:</span> <span class="s2">&quot;Drainage thickness&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;H&quot;</span><span class="p">:</span> <span class="s2">&quot;Effective thickness&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tau&quot;</span><span class="p">:</span> <span class="s2">&quot;Consolidation time scale&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tau_prior&quot;</span><span class="p">:</span> <span class="s2">&quot;Prior time scale&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;log10_K&quot;</span><span class="p">:</span> <span class="s2">&quot;log10 K&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;log10_Ss&quot;</span><span class="p">:</span> <span class="s2">&quot;log10 Ss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;log10_tau&quot;</span><span class="p">:</span> <span class="s2">&quot;log10 τ&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;epsilon_prior&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;$\epsilon_{\mathrm</span><span class="si">{prior}</span><span class="s2">}$&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;epsilon_cons&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;$\epsilon_{\mathrm</span><span class="si">{cons}</span><span class="s2">}$&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;epsilon_gw&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;$\epsilon_{\mathrm</span><span class="si">{gw}</span><span class="s2">}$&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;epsilon_cons_raw&quot;</span><span class="p">:</span> <span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\epsilon_{\mathrm{cons,raw}}$&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;epsilon_gw_raw&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;$\epsilon_{\mathrm{gw,raw}}$&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="c1"># Time + scaling</span>
+<span class="c1"># (used to harmonize JSON variants)</span>
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="n">SECONDS_PER_YEAR</span> <span class="o">=</span> <span class="mf">31556952.0</span>
+
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="c1"># Closure strings for captions / legends</span>
+<span class="c1"># (math &quot;single source&quot;)</span>
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="n">CLOSURES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;tau_prior&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="sa">r</span><span class="s2">&quot;$\tau_{\mathrm</span><span class="si">{prior}</span><span class="s2">}&quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;\approx H_d^2\,S_s&quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;/(\pi^2\,\kappa_b\,K)$&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;s_eq&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;$s_{\mathrm</span><span class="si">{eq}</span><span class="s2">}\approx S_s\,\Delta h\,H$&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;R_cons&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="sa">r</span><span class="s2">&quot;$R_{\mathrm</span><span class="si">{cons}</span><span class="s2">}=&quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;\partial_t \bar</span><span class="si">{s}</span><span class="s2">&quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;-(s_{\mathrm</span><span class="si">{eq}</span><span class="s2">}(\bar</span><span class="si">{h}</span><span class="s2">)-\bar</span><span class="si">{s}</span><span class="s2">)/\tau$&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;R_gw&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="sa">r</span><span class="s2">&quot;$R_{\mathrm</span><span class="si">{gw}</span><span class="s2">}=&quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;S_s\,\partial_t \bar</span><span class="si">{h}</span><span class="s2">&quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;-\nabla\cdot(K\nabla\bar</span><span class="si">{h}</span><span class="s2">)$&quot;</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="c1"># Column canonicalization</span>
+<span class="c1"># ---------------------------------------------------------</span>
+<span class="n">_BASE_ALIASES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;sample_idx&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;sample_idx&quot;</span><span class="p">,</span> <span class="s2">&quot;sample_id&quot;</span><span class="p">,</span> <span class="s2">&quot;sample&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;forecast_step&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;forecast_step&quot;</span><span class="p">,</span> <span class="s2">&quot;forecast_s&quot;</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;coord_t&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;coord_t&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;coord_x&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;coord_x&quot;</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;coord_y&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;coord_y&quot;</span><span class="p">,</span> <span class="s2">&quot;lat&quot;</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;subsidence_actual&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;subsidence_actual&quot;</span><span class="p">,</span> <span class="s2">&quot;actual&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;subsidence_q50&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;subsidence_q50&quot;</span><span class="p">,</span> <span class="s2">&quot;q50&quot;</span><span class="p">,</span> <span class="s2">&quot;p50&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;subsidence_unit&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;subsidence_unit&quot;</span><span class="p">,</span> <span class="s2">&quot;unit&quot;</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="n">_CALIB_REQUIRED</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;sample_idx&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;forecast_step&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;coord_t&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;coord_x&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;coord_y&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;subsidence_actual&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;subsidence_q50&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">_FUT_REQUIRED</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;sample_idx&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;forecast_step&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;coord_t&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;coord_x&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;coord_y&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;subsidence_q50&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">_CAL_ORDER</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="s2">&quot;target&quot;</span><span class="p">)</span>
+
+<span class="n">_CAL_LABEL</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;none&quot;</span><span class="p">:</span> <span class="s2">&quot;None&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;Source&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="s2">&quot;Target&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_CAL_MARKER</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;none&quot;</span><span class="p">:</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;^&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_STRAT_DEFAULT</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;baseline&quot;</span><span class="p">,</span> <span class="s2">&quot;xfer&quot;</span><span class="p">,</span> <span class="s2">&quot;warm&quot;</span><span class="p">)</span>
+
+<span class="n">_STRAT_LABEL</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;baseline&quot;</span><span class="p">:</span> <span class="s2">&quot;Baseline (target)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;xfer&quot;</span><span class="p">:</span> <span class="s2">&quot;Transfer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;warm&quot;</span><span class="p">:</span> <span class="s2">&quot;Warm-start&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_STRAT_HATCH</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;baseline&quot;</span><span class="p">:</span> <span class="s2">&quot;//&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;xfer&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;warm&quot;</span><span class="p">:</span> <span class="s2">&quot;xx&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_STRAT_EDGE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;baseline&quot;</span><span class="p">:</span> <span class="s2">&quot;#111111&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;xfer&quot;</span><span class="p">:</span> <span class="s2">&quot;#111111&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;warm&quot;</span><span class="p">:</span> <span class="s2">&quot;#111111&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_STRAT_LINESTYLE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;baseline&quot;</span><span class="p">:</span> <span class="s2">&quot;:&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;xfer&quot;</span><span class="p">:</span> <span class="s2">&quot;--&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;warm&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_STRAT_MARKER</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;baseline&quot;</span><span class="p">:</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;xfer&quot;</span><span class="p">:</span> <span class="s2">&quot;^&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;warm&quot;</span><span class="p">:</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_BASELINE_MAP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;A_to_B&quot;</span><span class="p">:</span> <span class="s2">&quot;B_to_B&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;B_to_A&quot;</span><span class="p">:</span> <span class="s2">&quot;A_to_A&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_METRIC_DEF</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;mae&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;overall_mae&quot;</span><span class="p">,</span> <span class="s2">&quot;MAE (mm)&quot;</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;mse&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;overall_mse&quot;</span><span class="p">,</span> <span class="s2">&quot;MSE (mm^2)&quot;</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;rmse&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;overall_rmse&quot;</span><span class="p">,</span> <span class="s2">&quot;RMSE (mm)&quot;</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;r2&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;overall_r2&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;$R^2$&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">),</span>
+<span class="p">}</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

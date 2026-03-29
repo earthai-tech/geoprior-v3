@@ -1,0 +1,34 @@
+﻿geoprior.\_scripts.config
+=========================
+
+.. automodule:: geoprior._scripts.config
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      export_env_summary
+      fig_dir
+      out_dir
+      resolve_export_path
+      resolve_user_artifact_path
+      scripts_root
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

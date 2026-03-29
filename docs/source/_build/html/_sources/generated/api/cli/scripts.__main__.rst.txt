@@ -1,0 +1,29 @@
+﻿scripts.\_\_main\_\_
+====================
+
+.. automodule:: scripts.__main__
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      main
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

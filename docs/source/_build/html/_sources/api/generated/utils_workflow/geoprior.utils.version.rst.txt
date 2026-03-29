@@ -1,0 +1,44 @@
+﻿geoprior.utils.version
+======================
+
+.. automodule:: geoprior.utils.version
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      parse
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      InfinityType
+      LegacyVersion
+      NegativeInfinityType
+      Version
+   
+   
+
+   
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+   
+      InvalidVersion
+   
+   
+
+
+

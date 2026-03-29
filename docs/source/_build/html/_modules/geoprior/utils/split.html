@@ -1,0 +1,1079 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>geoprior.utils.split &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=404c0980"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geoprior/utils/split';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../../../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../../../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geoprior.utils.split</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for geoprior.utils.split</h1><div class="highlight"><pre>
+<span></span><span class="c1"># License: Apache-2.0</span>
+<span class="c1"># Copyright (c) 2026-present</span>
+<span class="c1"># Author: LKouadio &lt;etanoyau@gmail.com&gt;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">geoprior.utils.split</span>
+
+<span class="sd">Group-holdout split for sequence data.</span>
+
+<span class="sd">Exports:</span>
+<span class="sd">  train_windows_T{T}_H{H}.npz</span>
+<span class="sd">  val_windows_T{T}_H{H}.npz</span>
+<span class="sd">  test_windows_T{T}_H{H}.npz</span>
+<span class="sd">  future_inputs_T{T}_H{H}.npz</span>
+<span class="sd">  splits_groups.json</span>
+
+<span class="sd">Leakage fix (Zhongshan 2 windows/pixel):</span>
+<span class="sd">  split by group_id first, then window inside split.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.panel_cache</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">make_group_keys</span><span class="p">,</span>
+    <span class="n">min_required_len</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.sequence_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">build_future_sequences_npz</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;SplitCfg&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;split_group_keys&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;subset_by_keys&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;write_splits_json&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pack_xy_npz&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;build_group_holdout_npzs&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;build_future_inputs_npz&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="SplitCfg">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.split.SplitCfg">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SplitCfg</span><span class="p">:</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span>
+    <span class="n">ratios</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">)</span>
+    <span class="n">decimals</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_ratios</span><span class="p">(</span><span class="n">r</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ratios must be (train,val,test).&quot;</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ratios must sum to 1.0.&quot;</span><span class="p">)</span>
+
+
+<span class="n">_SPLITCFG</span> <span class="o">=</span> <span class="n">SplitCfg</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="split_group_keys">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.split.split_group_keys">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">split_group_keys</span><span class="p">(</span>
+    <span class="n">keys</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">cfg</span><span class="p">:</span> <span class="n">SplitCfg</span> <span class="o">=</span> <span class="n">_SPLITCFG</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="n">_check_ratios</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">ratios</span><span class="p">)</span>
+
+    <span class="n">keys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">keys</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Need &gt;= 3 groups for splits.&quot;</span><span class="p">)</span>
+
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">seed</span><span class="p">))</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[</span><span class="n">rng</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span><span class="n">keys</span><span class="o">.</span><span class="n">size</span><span class="p">)]</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">keys</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">n_tr</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">ratios</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">))</span>
+    <span class="n">n_va</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">ratios</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">))</span>
+    <span class="n">n_tr</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">n_tr</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">n_va</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">n_va</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="n">n_tr</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">tr</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[:</span><span class="n">n_tr</span><span class="p">]</span>
+    <span class="n">va</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[</span><span class="n">n_tr</span> <span class="p">:</span> <span class="n">n_tr</span> <span class="o">+</span> <span class="n">n_va</span><span class="p">]</span>
+    <span class="n">te</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[</span><span class="n">n_tr</span> <span class="o">+</span> <span class="n">n_va</span> <span class="p">:]</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">tr</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">va</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">:</span> <span class="n">te</span><span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="subset_by_keys">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.split.subset_by_keys">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">subset_by_keys</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">group_cols</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">keys</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">decimals</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">keys</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="n">k</span> <span class="o">=</span> <span class="n">make_group_keys</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">group_cols</span><span class="o">=</span><span class="n">group_cols</span><span class="p">,</span>
+        <span class="n">decimals</span><span class="o">=</span><span class="n">decimals</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">keys</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="write_splits_json">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.split.write_splits_json">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_splits_json</span><span class="p">(</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">group_cols</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">time_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">horizon</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">train_end</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">cfg</span><span class="p">:</span> <span class="n">SplitCfg</span><span class="p">,</span>
+    <span class="n">splits</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">payload</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;group_cols&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">group_cols</span><span class="p">),</span>
+        <span class="s2">&quot;decimals&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">decimals</span><span class="p">),</span>
+        <span class="s2">&quot;seed&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">seed</span><span class="p">),</span>
+        <span class="s2">&quot;ratios&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">ratios</span><span class="p">)),</span>
+        <span class="s2">&quot;time_steps&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">time_steps</span><span class="p">),</span>
+        <span class="s2">&quot;horizon&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">horizon</span><span class="p">),</span>
+        <span class="s2">&quot;min_len&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">min_required_len</span><span class="p">(</span><span class="n">time_steps</span><span class="p">,</span> <span class="n">horizon</span><span class="p">)),</span>
+        <span class="s2">&quot;train_end&quot;</span><span class="p">:</span> <span class="n">train_end</span><span class="p">,</span>
+        <span class="s2">&quot;counts&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">splits</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
+        <span class="s2">&quot;splits&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="n">k</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">splits</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">path</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_pick_target_key</span><span class="p">(</span>
+    <span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">n</span>
+    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing target key in </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="pack_xy_npz">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.split.pack_xy_npz">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pack_xy_npz</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">y</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;coords&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;coords&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="s2">&quot;dynamic_features&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="n">x</span><span class="p">[</span><span class="s2">&quot;dynamic_features&quot;</span><span class="p">],</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;static_features&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;static_features&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;future_features&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;future_features&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;H_field&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;H_field&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="n">s_key</span> <span class="o">=</span> <span class="n">_pick_target_key</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="s2">&quot;subs_pred&quot;</span><span class="p">,</span> <span class="s2">&quot;subsidence&quot;</span><span class="p">)</span>
+    <span class="n">g_key</span> <span class="o">=</span> <span class="n">_pick_target_key</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="s2">&quot;gwl_pred&quot;</span><span class="p">,</span> <span class="s2">&quot;gwl&quot;</span><span class="p">)</span>
+
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;subs_pred&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">s_key</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;gwl_pred&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">g_key</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_save_npz</span><span class="p">(</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">arrays</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">arrays</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span>
+
+
+<div class="viewcode-block" id="build_group_holdout_npzs">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.split.build_group_holdout_npzs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_group_holdout_npzs</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">df_train</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">artifacts_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">group_cols</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">time_col_used</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">x_col_used</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">y_col_used</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">subs_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">gwl_target_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">gwl_dyn_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">h_field_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">static_cols</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">dynamic_cols</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">future_cols</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">time_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">horizon</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">train_end</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">keys_ok</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">cfg</span><span class="p">:</span> <span class="n">SplitCfg</span> <span class="o">=</span> <span class="n">_SPLITCFG</span><span class="p">,</span>
+    <span class="n">normalize_coords</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build train/val/test windows using group holdout.</span>
+
+<span class="sd">    Returns dict containing paths and coord_scaler.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.nn.pinn.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">prepare_pinn_data_sequences</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">splits</span> <span class="o">=</span> <span class="n">split_group_keys</span><span class="p">(</span><span class="n">keys_ok</span><span class="p">,</span> <span class="n">cfg</span><span class="o">=</span><span class="n">cfg</span><span class="p">)</span>
+
+    <span class="n">spath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">artifacts_dir</span><span class="p">,</span> <span class="s2">&quot;splits_groups.json&quot;</span><span class="p">)</span>
+    <span class="n">write_splits_json</span><span class="p">(</span>
+        <span class="n">spath</span><span class="p">,</span>
+        <span class="n">group_cols</span><span class="o">=</span><span class="n">group_cols</span><span class="p">,</span>
+        <span class="n">time_steps</span><span class="o">=</span><span class="n">time_steps</span><span class="p">,</span>
+        <span class="n">horizon</span><span class="o">=</span><span class="n">horizon</span><span class="p">,</span>
+        <span class="n">train_end</span><span class="o">=</span><span class="n">train_end</span><span class="p">,</span>
+        <span class="n">cfg</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span>
+        <span class="n">splits</span><span class="o">=</span><span class="n">splits</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">coord_scaler</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;splits_groups_json&quot;</span><span class="p">:</span> <span class="n">spath</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_one</span><span class="p">(</span>
+        <span class="n">which</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="n">dfi</span> <span class="o">=</span> <span class="n">subset_by_keys</span><span class="p">(</span>
+            <span class="n">df_train</span><span class="p">,</span>
+            <span class="n">group_cols</span><span class="o">=</span><span class="n">group_cols</span><span class="p">,</span>
+            <span class="n">keys</span><span class="o">=</span><span class="n">splits</span><span class="p">[</span><span class="n">which</span><span class="p">],</span>
+            <span class="n">decimals</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">decimals</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">dfi</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">which</span><span class="si">}</span><span class="s2"> split is empty.&quot;</span><span class="p">)</span>
+
+        <span class="n">fit_cs</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">normalize_coords</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">which</span> <span class="o">==</span> <span class="s2">&quot;train&quot;</span><span class="p">)</span>
+        <span class="n">ins</span><span class="p">,</span> <span class="n">tar</span><span class="p">,</span> <span class="n">cs</span> <span class="o">=</span> <span class="n">prepare_pinn_data_sequences</span><span class="p">(</span>
+            <span class="n">df</span><span class="o">=</span><span class="n">dfi</span><span class="p">,</span>
+            <span class="n">time_col</span><span class="o">=</span><span class="n">time_col_used</span><span class="p">,</span>
+            <span class="n">lon_col</span><span class="o">=</span><span class="n">x_col_used</span><span class="p">,</span>
+            <span class="n">lat_col</span><span class="o">=</span><span class="n">y_col_used</span><span class="p">,</span>
+            <span class="n">subsidence_col</span><span class="o">=</span><span class="n">subs_col</span><span class="p">,</span>
+            <span class="n">gwl_col</span><span class="o">=</span><span class="n">gwl_target_col</span><span class="p">,</span>
+            <span class="n">gwl_dyn_col</span><span class="o">=</span><span class="n">gwl_dyn_col</span><span class="p">,</span>
+            <span class="n">h_field_col</span><span class="o">=</span><span class="n">h_field_col</span><span class="p">,</span>
+            <span class="n">dynamic_cols</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">dynamic_cols</span><span class="p">),</span>
+            <span class="n">static_cols</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">static_cols</span><span class="p">),</span>
+            <span class="n">future_cols</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">future_cols</span><span class="p">),</span>
+            <span class="n">group_id_cols</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">group_cols</span><span class="p">),</span>
+            <span class="n">time_steps</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">time_steps</span><span class="p">),</span>
+            <span class="n">forecast_horizon</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">horizon</span><span class="p">),</span>
+            <span class="n">output_subsidence_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">output_gwl_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">normalize_coords</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">normalize_coords</span><span class="p">),</span>
+            <span class="n">coord_scaler</span><span class="o">=</span><span class="n">coord_scaler</span><span class="p">,</span>
+            <span class="n">fit_coord_scaler</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">fit_cs</span><span class="p">),</span>
+            <span class="n">return_coord_scaler</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">mode</span><span class="p">),</span>
+            <span class="n">model</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">model_name</span><span class="p">),</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ins</span><span class="p">,</span> <span class="n">tar</span><span class="p">,</span> <span class="n">cs</span>
+
+    <span class="k">for</span> <span class="n">which</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">):</span>
+        <span class="n">ins</span><span class="p">,</span> <span class="n">tar</span><span class="p">,</span> <span class="n">cs</span> <span class="o">=</span> <span class="n">_one</span><span class="p">(</span><span class="n">which</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">which</span> <span class="o">==</span> <span class="s2">&quot;train&quot;</span><span class="p">:</span>
+            <span class="n">coord_scaler</span> <span class="o">=</span> <span class="n">cs</span>
+
+        <span class="n">arrays</span> <span class="o">=</span> <span class="n">pack_xy_npz</span><span class="p">(</span><span class="n">ins</span><span class="p">,</span> <span class="n">tar</span><span class="p">)</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">which</span><span class="si">}</span><span class="s2">_windows_T</span><span class="si">{</span><span class="n">time_steps</span><span class="si">}</span><span class="s2">_H</span><span class="si">{</span><span class="n">horizon</span><span class="si">}</span><span class="s2">.npz&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">artifacts_dir</span><span class="p">,</span> <span class="n">fn</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">which</span><span class="si">}</span><span class="s2">_windows_npz&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_save_npz</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">arrays</span><span class="p">)</span>
+
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;coord_scaler&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coord_scaler</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<div class="viewcode-block" id="build_future_inputs_npz">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.split.build_future_inputs_npz">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_future_inputs_npz</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">df_scaled</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">artifacts_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">time_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">time_col_num</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lon_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">lat_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">subs_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">gwl_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">h_field_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">static_features</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">dynamic_features</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">future_features</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">group_cols</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">train_end_time</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">forecast_start_time</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">horizon</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">time_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">normalize_coords</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">coord_scaler</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;future_T</span><span class="si">{</span><span class="n">time_steps</span><span class="si">}</span><span class="s2">_H</span><span class="si">{</span><span class="n">horizon</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">build_future_sequences_npz</span><span class="p">(</span>
+        <span class="n">df_scaled</span><span class="o">=</span><span class="n">df_scaled</span><span class="p">,</span>
+        <span class="n">time_col</span><span class="o">=</span><span class="n">time_col</span><span class="p">,</span>
+        <span class="n">time_col_num</span><span class="o">=</span><span class="n">time_col_num</span><span class="p">,</span>
+        <span class="n">lon_col</span><span class="o">=</span><span class="n">lon_col</span><span class="p">,</span>
+        <span class="n">lat_col</span><span class="o">=</span><span class="n">lat_col</span><span class="p">,</span>
+        <span class="n">subs_col</span><span class="o">=</span><span class="n">subs_col</span><span class="p">,</span>
+        <span class="n">gwl_col</span><span class="o">=</span><span class="n">gwl_col</span><span class="p">,</span>
+        <span class="n">h_field_col</span><span class="o">=</span><span class="n">h_field_col</span><span class="p">,</span>
+        <span class="n">static_features</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">static_features</span><span class="p">),</span>
+        <span class="n">dynamic_features</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">dynamic_features</span><span class="p">),</span>
+        <span class="n">future_features</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">future_features</span><span class="p">),</span>
+        <span class="n">group_id_cols</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">group_cols</span><span class="p">),</span>
+        <span class="n">train_end_time</span><span class="o">=</span><span class="n">train_end_time</span><span class="p">,</span>
+        <span class="n">forecast_start_time</span><span class="o">=</span><span class="n">forecast_start_time</span><span class="p">,</span>
+        <span class="n">forecast_horizon</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">horizon</span><span class="p">),</span>
+        <span class="n">time_steps</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">time_steps</span><span class="p">),</span>
+        <span class="n">mode</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">mode</span><span class="p">),</span>
+        <span class="n">model_name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">model_name</span><span class="p">),</span>
+        <span class="n">artifacts_dir</span><span class="o">=</span><span class="n">artifacts_dir</span><span class="p">,</span>
+        <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span>
+        <span class="n">normalize_coords</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">normalize_coords</span><span class="p">),</span>
+        <span class="n">coord_scaler</span><span class="o">=</span><span class="n">coord_scaler</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">src</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_inputs_npz&quot;</span><span class="p">]</span>
+    <span class="n">dst</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">artifacts_dir</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;future_inputs_T</span><span class="si">{</span><span class="n">time_steps</span><span class="si">}</span><span class="s2">_H</span><span class="si">{</span><span class="n">horizon</span><span class="si">}</span><span class="s2">.npz&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dst</span></div>
+
+
+
+<span class="c1"># from geoprior.utils.panel_cache import (</span>
+<span class="c1">#     ensure_feasible_keys_cache,</span>
+<span class="c1"># )</span>
+
+<span class="c1"># df_min = pd.read_csv(</span>
+<span class="c1">#     used_path,</span>
+<span class="c1">#     usecols=[LON_COL, LAT_COL, TIME_COL],</span>
+<span class="c1"># )</span>
+
+<span class="c1"># paths = ensure_feasible_keys_cache(</span>
+<span class="c1">#     df_min,</span>
+<span class="c1">#     out_dir=ARTIFACTS_DIR,</span>
+<span class="c1">#     city=CITY_NAME,</span>
+<span class="c1">#     group_cols=[LON_COL, LAT_COL],</span>
+<span class="c1">#     time_col=TIME_COL,</span>
+<span class="c1">#     train_end=TRAIN_END_YEAR,</span>
+<span class="c1">#     time_steps=TIME_STEPS,</span>
+<span class="c1">#     horizon=FORECAST_HORIZON_YEARS,</span>
+<span class="c1"># )</span>
+
+<span class="c1"># keys_ok = np.load(paths.keys_npy, allow_pickle=True)</span>
+<span class="c1"># from geoprior.utils.split import subset_by_keys</span>
+
+<span class="c1"># df_clean = subset_by_keys(</span>
+<span class="c1">#     df_clean,</span>
+<span class="c1">#     group_cols=[LON_COL, LAT_COL],</span>
+<span class="c1">#     keys=keys_ok,</span>
+<span class="c1">#     decimals=8,</span>
+<span class="c1"># )</span>
+<span class="c1"># from geoprior.utils.split import (</span>
+<span class="c1">#     SplitCfg,</span>
+<span class="c1">#     build_group_holdout_npzs,</span>
+<span class="c1">#     build_future_inputs_npz,</span>
+<span class="c1"># )</span>
+
+<span class="c1"># cfg_split = SplitCfg(seed=42, ratios=(0.7, 0.15, 0.15))</span>
+
+<span class="c1"># res = build_group_holdout_npzs(</span>
+<span class="c1">#     df_train=df_train,</span>
+<span class="c1">#     artifacts_dir=ARTIFACTS_DIR,</span>
+<span class="c1">#     group_cols=[LON_COL, LAT_COL],</span>
+<span class="c1">#     time_col_used=TIME_COL_USED,</span>
+<span class="c1">#     x_col_used=X_COL_USED,</span>
+<span class="c1">#     y_col_used=Y_COL_USED,</span>
+<span class="c1">#     subs_col=SUBS_MODEL_COL,</span>
+<span class="c1">#     gwl_target_col=GWL_TARGET_COL,</span>
+<span class="c1">#     gwl_dyn_col=GWL_DYN_COL,</span>
+<span class="c1">#     h_field_col=H_FIELD_COL,</span>
+<span class="c1">#     static_cols=static_features,</span>
+<span class="c1">#     dynamic_cols=dynamic_features,</span>
+<span class="c1">#     future_cols=future_features,</span>
+<span class="c1">#     time_steps=TIME_STEPS,</span>
+<span class="c1">#     horizon=FORECAST_HORIZON_YEARS,</span>
+<span class="c1">#     mode=MODE,</span>
+<span class="c1">#     model_name=MODEL_NAME,</span>
+<span class="c1">#     train_end=TRAIN_END_YEAR,</span>
+<span class="c1">#     keys_ok=keys_ok,</span>
+<span class="c1">#     cfg=cfg_split,</span>
+<span class="c1">#     normalize_coords=normalize_coords,</span>
+<span class="c1"># )</span>
+
+<span class="c1"># future_npz = build_future_inputs_npz(</span>
+<span class="c1">#     df_scaled=df_scaled,</span>
+<span class="c1">#     artifacts_dir=ARTIFACTS_DIR,</span>
+<span class="c1">#     time_col=TIME_COL,</span>
+<span class="c1">#     time_col_num=TIME_COL_NUM,</span>
+<span class="c1">#     lon_col=COORD_X_COL,</span>
+<span class="c1">#     lat_col=COORD_Y_COL,</span>
+<span class="c1">#     subs_col=SUBS_MODEL_COL,</span>
+<span class="c1">#     gwl_col=GWL_TARGET_COL,</span>
+<span class="c1">#     h_field_col=H_FIELD_COL,</span>
+<span class="c1">#     static_features=static_features,</span>
+<span class="c1">#     dynamic_features=dynamic_features,</span>
+<span class="c1">#     future_features=future_features,</span>
+<span class="c1">#     group_cols=[LON_COL, LAT_COL],</span>
+<span class="c1">#     train_end_time=TRAIN_END_YEAR,</span>
+<span class="c1">#     forecast_start_time=FORECAST_START_YEAR,</span>
+<span class="c1">#     horizon=FORECAST_HORIZON_YEARS,</span>
+<span class="c1">#     time_steps=TIME_STEPS,</span>
+<span class="c1">#     mode=MODE,</span>
+<span class="c1">#     model_name=MODEL_NAME,</span>
+<span class="c1">#     normalize_coords=normalize_coords,</span>
+<span class="c1">#     coord_scaler=res[&quot;coord_scaler&quot;],</span>
+<span class="c1"># )</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

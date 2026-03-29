@@ -1,0 +1,34 @@
+﻿geoprior.utils.audit\_utils
+===========================
+
+.. automodule:: geoprior.utils.audit_utils
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      audit_stage1_scaling
+      audit_stage1_stage2_coord_consistency
+      audit_stage2_handshake
+      audit_stage3_run
+      resolve_audit_stages
+      should_audit
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

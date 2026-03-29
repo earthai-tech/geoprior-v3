@@ -1,0 +1,37 @@
+﻿geoprior.utils.deps\_utils
+==========================
+
+.. automodule:: geoprior.utils.deps_utils
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      ensure_module_installed
+      ensure_pkg
+      ensure_pkgs
+      get_installation_name
+      get_versions
+      install_package
+      install_pkg
+      is_installing
+      is_module_installed
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

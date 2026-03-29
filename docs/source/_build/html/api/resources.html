@@ -1,0 +1,1151 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Packaged resources reference &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=404c0980"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/resources';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Parameters API" href="params.html" />
+    <link rel="prev" title="geoprior.models.subsidence.utils" href="generated/utils_subsidence/geoprior.models.subsidence.utils.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="cli.html">CLI and command registry</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.__main__.html">geoprior.__main__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.html">geoprior.cli</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.__main__.html">geoprior.cli.__main__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/scripts.__main__.html">scripts.__main__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/scripts.registry.html">scripts.registry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli._dispatch.html">geoprior.cli._dispatch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli._presets.html">geoprior.cli._presets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.config.html">geoprior.cli.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.init_config.html">geoprior.cli.init_config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.stage1.html">geoprior.cli.stage1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.stage2.html">geoprior.cli.stage2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.stage3.html">geoprior.cli.stage3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.stage4.html">geoprior.cli.stage4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.stage5.html">geoprior.cli.stage5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.run_sensitivity.html">geoprior.cli.run_sensitivity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.run_sm3_suite.html">geoprior.cli.run_sm3_suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.sensitivity_lib.html">geoprior.cli.sensitivity_lib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.sm3_collect_summaries.html">geoprior.cli.sm3_collect_summaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.sm3_log_offsets_diagnostics.html">geoprior.cli.sm3_log_offsets_diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.sm3_synthetic_identifiability.html">geoprior.cli.sm3_synthetic_identifiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.build_add_zsurf_from_coords.html">geoprior.cli.build_add_zsurf_from_coords</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.build_assign_boreholes.html">geoprior.cli.build_assign_boreholes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.build_external_validation_fullcity.html">geoprior.cli.build_external_validation_fullcity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.build_external_validation_metrics.html">geoprior.cli.build_external_validation_metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.build_full_inputs_npz.html">geoprior.cli.build_full_inputs_npz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.build_physics_payload_npz.html">geoprior.cli.build_physics_payload_npz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior.cli.build_sm3_collect_summaries.html">geoprior.cli.build_sm3_collect_summaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.config.html">geoprior._scripts.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.registry.html">geoprior._scripts.registry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.utils.html">geoprior._scripts.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.extend_utils.html">geoprior._scripts.extend_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.build_ablation_table.html">geoprior._scripts.build_ablation_table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.build_model_metrics.html">geoprior._scripts.build_model_metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.compute_brier_exceedance.html">geoprior._scripts.compute_brier_exceedance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.compute_hotspots.html">geoprior._scripts.compute_hotspots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.extend_forecast.html">geoprior._scripts.extend_forecast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.make_boundary.html">geoprior._scripts.make_boundary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.make_district_grid.html">geoprior._scripts.make_district_grid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.make_exposure.html">geoprior._scripts.make_exposure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.rebuild_confusion_tables.html">geoprior._scripts.rebuild_confusion_tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.summarize_hotspots.html">geoprior._scripts.summarize_hotspots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.tag_clusters_with_zones.html">geoprior._scripts.tag_clusters_with_zones</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.update_ablation_record_posthoc.html">geoprior._scripts.update_ablation_record_posthoc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.update_ablation_records.html">geoprior._scripts.update_ablation_records</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_ablations_sensitivity.html">geoprior._scripts.plot_ablations_sensitivity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_core_ablation.html">geoprior._scripts.plot_core_ablation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_driver_response.html">geoprior._scripts.plot_driver_response</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_external_validation.html">geoprior._scripts.plot_external_validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_geo_cumulative.html">geoprior._scripts.plot_geo_cumulative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_hotspot_analytics.html">geoprior._scripts.plot_hotspot_analytics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_litho_parity.html">geoprior._scripts.plot_litho_parity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_physics_fields.html">geoprior._scripts.plot_physics_fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_physics_maps.html">geoprior._scripts.plot_physics_maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_physics_profiles.html">geoprior._scripts.plot_physics_profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_physics_sanity.html">geoprior._scripts.plot_physics_sanity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_physics_sensitivity.html">geoprior._scripts.plot_physics_sensitivity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_sm3_bounds_ridge_summary.html">geoprior._scripts.plot_sm3_bounds_ridge_summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_sm3_identifiability.html">geoprior._scripts.plot_sm3_identifiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_sm3_log_offsets.html">geoprior._scripts.plot_sm3_log_offsets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_spatial_forecasts.html">geoprior._scripts.plot_spatial_forecasts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_transfer.html">geoprior._scripts.plot_transfer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_uncertainty.html">geoprior._scripts.plot_uncertainty</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_uncertainty_extras.html">geoprior._scripts.plot_uncertainty_extras</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_xfer_impact.html">geoprior._scripts.plot_xfer_impact</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/api/cli/geoprior._scripts.plot_xfer_transferability.html">geoprior._scripts.plot_xfer_transferability</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="subsidence.html">Subsidence API reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/subsidence/core/geoprior.models.subsidence.models.html">geoprior.models.subsidence.models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/subsidence/core/geoprior.models.subsidence.maths.html">geoprior.models.subsidence.maths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/subsidence/core/geoprior.models.subsidence.scaling.html">geoprior.models.subsidence.scaling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/subsidence/core/geoprior.models.subsidence.losses.html">geoprior.models.subsidence.losses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/subsidence/core/geoprior.models.subsidence.identifiability.html">geoprior.models.subsidence.identifiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/subsidence/core/geoprior.models.subsidence.payloads.html">geoprior.models.subsidence.payloads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/subsidence/core/geoprior.models.subsidence.utils.html">geoprior.models.subsidence.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/subsidence/core/geoprior.models.subsidence.stability.html">geoprior.models.subsidence.stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/subsidence/core/geoprior.models.subsidence.step_core.html">geoprior.models.subsidence.step_core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/subsidence/support/geoprior.models.subsidence.batch_io.html">geoprior.models.subsidence.batch_io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/subsidence/support/geoprior.models.subsidence.debugs.html">geoprior.models.subsidence.debugs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/subsidence/support/geoprior.models.subsidence.derivatives.html">geoprior.models.subsidence.derivatives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/subsidence/support/geoprior.models.subsidence.doc.html">geoprior.models.subsidence.doc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/subsidence/support/geoprior.models.subsidence.log_offsets_diagnostics.html">geoprior.models.subsidence.log_offsets_diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/subsidence/support/geoprior.models.subsidence.plot.html">geoprior.models.subsidence.plot</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tuner.html">Tuner API reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/geoprior.models.forecast_tuner.html">geoprior.models.forecast_tuner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/geoprior.models.tuners.html">geoprior.models.tuners</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/geoprior.models.forecast_tuner._base_tuner.html">geoprior.models.forecast_tuner._base_tuner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/geoprior.models.forecast_tuner._geoprior_tuner.html">geoprior.models.forecast_tuner._geoprior_tuner</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="utils.html">Utility API reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.audit_utils.html">geoprior.utils.audit_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.base_utils.html">geoprior.utils.base_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.calibrate.html">geoprior.utils.calibrate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.data_utils.html">geoprior.utils.data_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.deps_utils.html">geoprior.utils.deps_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.forecast_utils.html">geoprior.utils.forecast_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.generic_utils.html">geoprior.utils.generic_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.geo_utils.html">geoprior.utils.geo_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.holdout_utils.html">geoprior.utils.holdout_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.io_utils.html">geoprior.utils.io_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.nat_utils.html">geoprior.utils.nat_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.parallel_utils.html">geoprior.utils.parallel_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.scale_metrics.html">geoprior.utils.scale_metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.sequence_utils.html">geoprior.utils.sequence_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.shapes.html">geoprior.utils.shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.spatial_utils.html">geoprior.utils.spatial_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.split.html">geoprior.utils.split</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.subsidence_utils.html">geoprior.utils.subsidence_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.sys_utils.html">geoprior.utils.sys_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.target_utils.html">geoprior.utils.target_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.validator.html">geoprior.utils.validator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_workflow/geoprior.utils.version.html">geoprior.utils.version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_models/geoprior.models.utils._utils.html">geoprior.models.utils._utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_models/geoprior.models.utils.pinn.html">geoprior.models.utils.pinn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/utils_subsidence/geoprior.models.subsidence.utils.html">geoprior.models.subsidence.utils</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Packaged resources reference</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="params.html">Parameters API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/params/bases/geoprior.params.BaseLearnable.html">geoprior.params.BaseLearnable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/params/bases/geoprior.params.BaseFixed.html">geoprior.params.BaseFixed</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Packaged resources reference</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="packaged-resources-reference">
+<h1>Packaged resources reference<a class="headerlink" href="#packaged-resources-reference" title="Link to this heading">#</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">geoprior/resources</span></code> area contains <strong>packaged runtime
+resources</strong> used by the GeoPrior-v3 workflow.</p>
+<p>Unlike the CLI, model, or tuner layers, this part of the
+project is not primarily about executable public APIs. It is
+about <strong>static or template assets</strong> that the workflow relies
+on at runtime, especially during configuration bootstrap and
+project setup.</p>
+<p>This page documents those resources and exposes their source
+content directly so that comments and inline guidance remain
+visible in the built documentation.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>This page is intentionally file-oriented rather than
+package-recursive, because the packaged resource
+contract is defined by a small number of concrete
+template files.</p>
+<p>At the moment, the most important packaged resource is:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior/resources/natcom_config_template.py</span></code></p></li>
+</ul>
+<p>This file is the NATCOM-style configuration template used by
+the GeoPrior configuration bootstrap flow.</p>
+<p>A useful mental model is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>resources/
+   └── natcom_config_template.py
+        ↓
+   used by init-config / geoprior-init
+        ↓
+   rendered into the user&#39;s active config.py
+</pre></div>
+</div>
+</section>
+<section id="why-this-page-exists">
+<h2>Why this page exists<a class="headerlink" href="#why-this-page-exists" title="Link to this heading">#</a></h2>
+<p>This page belongs in the API section because the resource
+template is part of the <strong>runtime contract</strong> of the package.</p>
+<p>Although it is not a model or CLI entry point, it still
+defines a large part of the public workflow surface by
+specifying:</p>
+<ul class="simple">
+<li><p>the experiment and city identifiers,</p></li>
+<li><p>dataset file patterns,</p></li>
+<li><p>time-window structure,</p></li>
+<li><p>column conventions,</p></li>
+<li><p>groundwater semantics,</p></li>
+<li><p>feature groups,</p></li>
+<li><p>holdout strategy,</p></li>
+<li><p>model defaults,</p></li>
+<li><p>physics defaults,</p></li>
+<li><p>scaling rules,</p></li>
+<li><p>and training defaults.</p></li>
+</ul>
+<p>In practice, that makes the resource template one of the most
+important reference files in the repository.</p>
+</section>
+<section id="resource-role-in-the-workflow">
+<h2>Resource role in the workflow<a class="headerlink" href="#resource-role-in-the-workflow" title="Link to this heading">#</a></h2>
+<p>The NATCOM template is the source text used by the config
+bootstrap command to create the working configuration file.</p>
+<p>The template itself states that it is rendered by:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>python -m scripts init-config
+</pre></div>
+</div>
+<p>and that it should live at:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>geoprior/resources/natcom_config_template.py
+</pre></div>
+</div>
+<p>The header comments also make the intended maintenance policy
+clear:</p>
+<ul class="simple">
+<li><p>keep placeholders only for values supplied by the bootstrap
+script;</p></li>
+<li><p>keep the file limited to assignments and comments;</p></li>
+<li><p>avoid imports or helper code.</p></li>
+</ul>
+<p>That is exactly the kind of resource that deserves to be
+shown directly in the docs.</p>
+</section>
+<section id="what-the-template-defines">
+<h2>What the template defines<a class="headerlink" href="#what-the-template-defines" title="Link to this heading">#</a></h2>
+<p>The current NATCOM template is structured into clear sections,
+which makes it a strong reference file for users and
+developers alike.</p>
+<p>The main sections are:</p>
+<ol class="arabic simple">
+<li><p><strong>Core experiment setup</strong></p></li>
+<li><p><strong>Feature registry</strong></p></li>
+<li><p><strong>Censoring / effective-thickness configuration</strong></p></li>
+<li><p><strong>Holdout strategy</strong></p></li>
+<li><p><strong>Model architecture defaults</strong></p></li>
+<li><p><strong>Physics + training schedule</strong></p></li>
+<li><p><strong>GeoPrior scalar parameters</strong></p></li>
+<li><p><strong>Training loop defaults</strong></p></li>
+<li><p><strong>Hardware / runtime</strong></p></li>
+<li><p><strong>Scaling / bookkeeping</strong></p></li>
+</ol>
+<p>This is useful because the template is not just a flat list
+of constants. It is already organized like a domain-specific
+control file for the GeoPrior workflow.</p>
+</section>
+<section id="why-the-comments-matter">
+<h2>Why the comments matter<a class="headerlink" href="#why-the-comments-matter" title="Link to this heading">#</a></h2>
+<p>For this resource file, the comments are part of the real
+documentation value.</p>
+<p>The section headers and inline comments explain:</p>
+<ul class="simple">
+<li><p>what each configuration block is for,</p></li>
+<li><p>which values are expected to be bootstrapped,</p></li>
+<li><p>which values are scientific defaults,</p></li>
+<li><p>and how the config is intended to remain lightweight and
+assignment-only.</p></li>
+</ul>
+<p>That is why this page uses a full source listing rather than
+only summarizing the file abstractly.</p>
+</section>
+<section id="relationship-to-the-cli-and-configuration-system">
+<h2>Relationship to the CLI and configuration system<a class="headerlink" href="#relationship-to-the-cli-and-configuration-system" title="Link to this heading">#</a></h2>
+<p>This resource is tightly connected to:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="cli.html"><span class="doc">CLI and command registry</span></a></p></li>
+<li><p><a class="reference internal" href="../user_guide/configuration.html"><span class="doc">Configuration</span></a></p></li>
+</ul>
+<p>In practical terms:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">geoprior-init</span></code> or the corresponding init-config command
+uses this template as the starting point for config
+generation;</p></li>
+<li><p>the resulting <code class="docutils literal notranslate"><span class="pre">config.py</span></code> becomes the authored config;</p></li>
+<li><p>the workflow then persists the effective runtime state into
+<code class="docutils literal notranslate"><span class="pre">config.json</span></code>.</p></li>
+</ul>
+<p>So the template is the <strong>packaged default source</strong>, while the
+generated config files are the <strong>active project-specific
+artifacts</strong>.</p>
+</section>
+<section id="what-kind-of-resource-this-is">
+<h2>What kind of resource this is<a class="headerlink" href="#what-kind-of-resource-this-is" title="Link to this heading">#</a></h2>
+<p>The NATCOM template is best understood as a <strong>renderable
+configuration resource</strong>.</p>
+<p>It is not meant to be:</p>
+<ul class="simple">
+<li><p>imported for scientific computation,</p></li>
+<li><p>executed as a stage script,</p></li>
+<li><p>or modified dynamically at runtime.</p></li>
+</ul>
+<p>Instead, it is meant to be:</p>
+<ul class="simple">
+<li><p>shipped with the package,</p></li>
+<li><p>rendered with placeholders substituted,</p></li>
+<li><p>and copied into the active configuration root.</p></li>
+</ul>
+<p>That makes it different from the other API pages in this
+section, and that difference should be reflected in the docs.</p>
+</section>
+<section id="recommended-way-to-document-resource-files">
+<h2>Recommended way to document resource files<a class="headerlink" href="#recommended-way-to-document-resource-files" title="Link to this heading">#</a></h2>
+<p>For resource-heavy pages like this one, the best Sphinx
+pattern is usually:</p>
+<ul class="simple">
+<li><p>short explanatory prose,</p></li>
+<li><p>followed by one or more <code class="docutils literal notranslate"><span class="pre">literalinclude</span></code> blocks.</p></li>
+</ul>
+<p>This keeps the page useful for both:</p>
+<ul class="simple">
+<li><p>users who want to understand what the resource is for,</p></li>
+<li><p>developers who want to inspect the exact template text and
+comments.</p></li>
+</ul>
+</section>
+<section id="natcom-config-template">
+<h2>NATCOM config template<a class="headerlink" href="#natcom-config-template" title="Link to this heading">#</a></h2>
+<p>The full source of the current NATCOM template is shown
+below.</p>
+</section>
+<section id="how-to-read-the-template">
+<h2>How to read the template<a class="headerlink" href="#how-to-read-the-template" title="Link to this heading">#</a></h2>
+<p>A good reading order for this file is:</p>
+<p><strong>1. Core experiment setup</strong></p>
+<p>Read these fields first to understand:</p>
+<ul class="simple">
+<li><p>city identity,</p></li>
+<li><p>model identity,</p></li>
+<li><p>data root,</p></li>
+<li><p>file naming,</p></li>
+<li><p>time-window settings,</p></li>
+<li><p>main column names.</p></li>
+</ul>
+<p><strong>2. Physics and scaling defaults</strong></p>
+<p>Read the physics and scaling sections next to understand:</p>
+<ul class="simple">
+<li><p>PDE mode,</p></li>
+<li><p>lambda defaults,</p></li>
+<li><p>physical bounds,</p></li>
+<li><p>time units,</p></li>
+<li><p>coordinate mode,</p></li>
+<li><p>SI conversion fields.</p></li>
+</ul>
+<p><strong>3. Training defaults</strong></p>
+<p>Finally, read:</p>
+<ul class="simple">
+<li><p>epochs,</p></li>
+<li><p>batch size,</p></li>
+<li><p>learning rate,</p></li>
+<li><p>hardware/runtime options.</p></li>
+</ul>
+<p>This gives the clearest progression from high-level workflow
+identity to numerical training settings.</p>
+</section>
+<section id="a-few-especially-important-fields">
+<h2>A few especially important fields<a class="headerlink" href="#a-few-especially-important-fields" title="Link to this heading">#</a></h2>
+<p>Although the whole template matters, several groups of fields
+are especially central to GeoPrior-v3.</p>
+<p><strong>Groundwater semantics</strong></p>
+<p>Examples:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">GWL_KIND</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GWL_SIGN</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_HEAD_PROXY</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HEAD_COL</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Z_SURF_COL</span></code></p></li>
+</ul>
+<p>These define how the groundwater variable is interpreted
+physically.</p>
+<p><strong>Temporal structure</strong></p>
+<p>Examples:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TRAIN_END_YEAR</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FORECAST_START_YEAR</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FORECAST_HORIZON_YEARS</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TIME_STEPS</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MODE</span></code></p></li>
+</ul>
+<p>These define the forecast contract.</p>
+<p><strong>Physics defaults</strong></p>
+<p>Examples:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">PDE_MODE_CONFIG</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SCALE_PDE_RESIDUALS</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LAMBDA_CONS</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LAMBDA_GW</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LAMBDA_PRIOR</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LAMBDA_SMOOTH</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PHYSICS_BOUNDS</span></code></p></li>
+</ul>
+<p>These define the default physics posture of the project.</p>
+<p><strong>Scaling and SI handling</strong></p>
+<p>Examples:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TIME_UNITS</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SUBS_SCALE_SI</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HEAD_SCALE_SI</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">THICKNESS_UNIT_TO_SI</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">COORD_MODE</span></code></p></li>
+</ul>
+<p>These define how raw dataset values become the quantities
+used by the physics core.</p>
+</section>
+<section id="maintenance-notes">
+<h2>Maintenance notes<a class="headerlink" href="#maintenance-notes" title="Link to this heading">#</a></h2>
+<p>A resource file like this is especially easy to damage if its
+role is misunderstood.</p>
+<p>Good maintenance rules are:</p>
+<ul class="simple">
+<li><p>keep it renderable with simple placeholder substitution;</p></li>
+<li><p>keep the comments because they are part of the workflow
+documentation;</p></li>
+<li><p>avoid adding runtime logic, imports, or helper functions;</p></li>
+<li><p>keep section structure stable so the generated config stays
+readable.</p></li>
+</ul>
+<p>The current header comments already reflect these principles,
+which is one reason exposing the full file in the docs is so
+useful.</p>
+</section>
+<section id="future-resource-pages">
+<h2>Future resource pages<a class="headerlink" href="#future-resource-pages" title="Link to this heading">#</a></h2>
+<p>If the resources area later grows to include additional
+templates or packaged assets, this page can expand naturally.</p>
+<p>Typical future additions might include:</p>
+<ul class="simple">
+<li><p>alternate config templates,</p></li>
+<li><p>packaged schema files,</p></li>
+<li><p>static JSON defaults,</p></li>
+<li><p>or other workflow bootstrap resources.</p></li>
+</ul>
+<p>If that happens, this page can evolve into a small resource
+catalog, with one subsection and one <code class="docutils literal notranslate"><span class="pre">literalinclude</span></code> block
+per resource.</p>
+</section>
+<section id="api-notes">
+<h2>API notes<a class="headerlink" href="#api-notes" title="Link to this heading">#</a></h2>
+<p>A few practical notes are worth keeping in mind:</p>
+<ul class="simple">
+<li><p>this page is intentionally <strong>resource-oriented</strong>, not
+import-oriented;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">literalinclude</span></code> is the main documentation mechanism here
+because it preserves inline comments;</p></li>
+<li><p>the NATCOM template is one of the most important packaged
+files in the project because it defines the generated
+configuration surface;</p></li>
+<li><p>changes to this template should be treated as changes to
+the public workflow contract.</p></li>
+</ul>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="cli.html"><span class="doc">CLI and command registry</span></a></p></li>
+<li><p><a class="reference internal" href="../user_guide/configuration.html"><span class="doc">Configuration</span></a></p></li>
+<li><p><a class="reference internal" href="../user_guide/cli.html"><span class="doc">CLI guide</span></a></p></li>
+<li><p><a class="reference internal" href="subsidence.html"><span class="doc">Subsidence API reference</span></a></p></li>
+<li><p><a class="reference internal" href="utils.html"><span class="doc">Utility API reference</span></a></p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="generated/utils_subsidence/geoprior.models.subsidence.utils.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">geoprior.models.subsidence.utils</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="params.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Parameters API</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-page-exists">Why this page exists</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#resource-role-in-the-workflow">Resource role in the workflow</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-template-defines">What the template defines</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-the-comments-matter">Why the comments matter</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#relationship-to-the-cli-and-configuration-system">Relationship to the CLI and configuration system</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-kind-of-resource-this-is">What kind of resource this is</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#recommended-way-to-document-resource-files">Recommended way to document resource files</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#natcom-config-template">NATCOM config template</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-read-the-template">How to read the template</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-few-especially-important-fields">A few especially important fields</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#maintenance-notes">Maintenance notes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#future-resource-pages">Future resource pages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-notes">API notes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See also</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/earthai-tech/geoprior-v3/edit/main/docs/source/api/resources.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/resources.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

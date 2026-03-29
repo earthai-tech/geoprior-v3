@@ -1,0 +1,30 @@
+﻿geoprior.\_scripts.plot\_ablations\_sensitivity
+===============================================
+
+.. automodule:: geoprior._scripts.plot_ablations_sensitivity
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      main
+      plot_ablations_sensivity_main
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

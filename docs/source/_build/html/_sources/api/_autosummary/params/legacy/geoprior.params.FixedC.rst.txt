@@ -1,0 +1,30 @@
+﻿geoprior.params.FixedC
+======================
+
+.. currentmodule:: geoprior.params
+
+.. autoclass:: FixedC
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FixedC.__init__
+      ~FixedC.from_config
+      ~FixedC.get_config
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~FixedC.trainable
+   
+   

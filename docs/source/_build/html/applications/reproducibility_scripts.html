@@ -1,0 +1,1263 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Reproducibility scripts &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=404c0980"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'applications/reproducibility_scripts';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Figure generation" href="figure_generation.html" />
+    <link rel="prev" title="Calibration and uncertainty" href="calibration_and_uncertainty.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="subsidence_forecasting.html">Subsidence forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tuner_workflow.html">Tuner workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration_and_uncertainty.html">Calibration and uncertainty</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Reproducibility scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="figure_generation.html">Figure generation</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Applications</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Reproducibility scripts</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="reproducibility-scripts">
+<span id="applications-reproducibility-scripts"></span><h1>Reproducibility scripts<a class="headerlink" href="#reproducibility-scripts" title="Link to this heading">#</a></h1>
+<p>GeoPrior-v3 is designed not only for model development, but
+also for <strong>reproducible scientific workflows</strong>.</p>
+<p>In many research projects, the real difficulty does not end
+when the model trains successfully. A result becomes useful
+only when you can reliably:</p>
+<ul class="simple">
+<li><p>rerun the preprocessing contract,</p></li>
+<li><p>recover the exact training configuration,</p></li>
+<li><p>regenerate the main forecast outputs,</p></li>
+<li><p>rebuild physics payloads and validation artifacts,</p></li>
+<li><p>and recreate the figures or tables used in a manuscript.</p></li>
+</ul>
+<p>This page explains how GeoPrior supports that workflow and
+how the <code class="docutils literal notranslate"><span class="pre">scripts/</span></code> directory fits into the broader
+reproducibility story.</p>
+<section id="what-reproducibility-means-in-geoprior">
+<h2>What “reproducibility” means in GeoPrior<a class="headerlink" href="#what-reproducibility-means-in-geoprior" title="Link to this heading">#</a></h2>
+<p>In GeoPrior-v3, reproducibility does <strong>not</strong> mean only
+“rerun one training command.”</p>
+<p>It usually means being able to reconstruct a whole result
+chain:</p>
+<ol class="arabic simple">
+<li><p>the authored configuration,</p></li>
+<li><p>the effective runtime configuration,</p></li>
+<li><p>the Stage-1 manifest and exported NPZ bundles,</p></li>
+<li><p>the Stage-2 or Stage-3 model artifacts,</p></li>
+<li><p>the inference or transfer outputs,</p></li>
+<li><p>and the figure/table scripts that consume those outputs.</p></li>
+</ol>
+<p>A useful summary is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>config
+   + manifests
+   + artifacts
+   + saved models
+   + summaries
+   + scripts
+   = reproducible result
+</pre></div>
+</div>
+<p>This is the guiding idea behind the application-facing
+reproducibility layer.</p>
+</section>
+<section id="why-scripts-matter">
+<h2>Why scripts matter<a class="headerlink" href="#why-scripts-matter" title="Link to this heading">#</a></h2>
+<p>GeoPrior-v3 separates two concerns:</p>
+<ul class="simple">
+<li><p>the <strong>workflow stages</strong>, which create durable model and
+data artifacts;</p></li>
+<li><p>the <strong>reproducibility scripts</strong>, which consume those
+artifacts to produce paper-facing outputs such as figures,
+parity plots, payload summaries, or validation tables.</p></li>
+</ul>
+<p>That separation is good scientific practice because it avoids
+mixing:</p>
+<ul class="simple">
+<li><p>heavy training logic,</p></li>
+<li><p>with lightweight figure regeneration.</p></li>
+</ul>
+<p>It also makes it easier to rerun figures without retraining a
+model from scratch.</p>
+</section>
+<section id="the-role-of-the-scripts-directory">
+<h2>The role of the <code class="docutils literal notranslate"><span class="pre">scripts/</span></code> directory<a class="headerlink" href="#the-role-of-the-scripts-directory" title="Link to this heading">#</a></h2>
+<p>The project structure already separates out a dedicated
+<code class="docutils literal notranslate"><span class="pre">scripts/</span></code> directory for:</p>
+<ul class="simple">
+<li><p>reproducibility scripts,</p></li>
+<li><p>figure-generation utilities,</p></li>
+<li><p>and paper-facing export helpers.</p></li>
+</ul>
+<p>Typical examples mentioned in the project structure include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_physics_fields.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_litho_parity.py</span></code></p></li>
+</ul>
+<p>alongside other reproducibility or figure scripts.</p>
+<p>This is exactly the right design for a scientific software
+project: training and inference stay in the core workflow,
+while figure-oriented logic lives in a clearly separate
+location.</p>
+</section>
+<section id="what-the-scripts-should-consume">
+<h2>What the scripts should consume<a class="headerlink" href="#what-the-scripts-should-consume" title="Link to this heading">#</a></h2>
+<p>A GeoPrior reproducibility script should generally consume
+<strong>existing durable artifacts</strong>, not regenerate the full model
+pipeline unless that is the explicit goal.</p>
+<p>Typical inputs for a reproducibility script include:</p>
+<ul class="simple">
+<li><p>Stage-1 manifest and NPZ bundles,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">training_summary.json</span></code> or <code class="docutils literal notranslate"><span class="pre">tuning_summary.json</span></code>,</p></li>
+<li><p>saved model bundles,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scaling_kwargs.json</span></code>,</p></li>
+<li><p>evaluation and future forecast CSVs,</p></li>
+<li><p>physics payload NPZ files,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inference_summary.json</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">transfer_eval.json</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xfer_results.csv</span></code> / <code class="docutils literal notranslate"><span class="pre">xfer_results.json</span></code>.</p></li>
+</ul>
+<p>This is a key principle:</p>
+<ul class="simple">
+<li><p>scripts are best when they are <strong>artifact-driven</strong>,</p></li>
+<li><p>not when they hide fresh training inside a plotting call.</p></li>
+</ul>
+</section>
+<section id="relationship-to-the-staged-workflow">
+<h2>Relationship to the staged workflow<a class="headerlink" href="#relationship-to-the-staged-workflow" title="Link to this heading">#</a></h2>
+<p>The reproducibility layer sits on top of the main GeoPrior
+workflow.</p>
+<p>A typical scientific lifecycle looks like:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Stage-1
+  create preprocessing contract
+     ↓
+Stage-2 / Stage-3
+  create trained or tuned model artifacts
+     ↓
+Stage-4 / Stage-5
+  create forecast and benchmark outputs
+     ↓
+scripts/
+  regenerate figures, tables, and paper-facing summaries
+</pre></div>
+</div>
+<p>This is one of the cleanest ways to make a research workflow
+auditable.</p>
+</section>
+<section id="what-should-be-reproducible">
+<h2>What should be reproducible<a class="headerlink" href="#what-should-be-reproducible" title="Link to this heading">#</a></h2>
+<p>For a serious GeoPrior experiment, the following should be
+reproducible without ambiguity:</p>
+<ul class="simple">
+<li><p>the data contract,</p></li>
+<li><p>the training or tuning setup,</p></li>
+<li><p>the inference/export outputs,</p></li>
+<li><p>the transfer comparison outputs,</p></li>
+<li><p>and the final figures or tables.</p></li>
+</ul>
+<p>A good practical test is:</p>
+<p><strong>Could another person regenerate the same paper figure from
+the saved run directory and the corresponding script?</strong></p>
+<p>If the answer is yes, the workflow is in good shape.</p>
+</section>
+<section id="the-minimum-reproducibility-bundle">
+<h2>The minimum reproducibility bundle<a class="headerlink" href="#the-minimum-reproducibility-bundle" title="Link to this heading">#</a></h2>
+<p>A good minimum reproducibility bundle for one experiment
+usually includes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">nat.com/config.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nat.com/config.json</span></code></p></li>
+<li><p>Stage-1 <code class="docutils literal notranslate"><span class="pre">manifest.json</span></code></p></li>
+<li><p>exported NPZ bundles</p></li>
+<li><p>saved model artifact(s)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model_init_manifest.json</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">training_summary.json</span></code> or <code class="docutils literal notranslate"><span class="pre">tuning_summary.json</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scaling_kwargs.json</span></code></p></li>
+<li><p>evaluation / future forecast CSVs</p></li>
+<li><p>diagnostics JSON files</p></li>
+<li><p>physics payload NPZ files</p></li>
+<li><p>the script used to produce the final figure or table</p></li>
+</ul>
+<p>This is usually a much stronger reproducibility package than
+a notebook alone.</p>
+</section>
+<section id="configuration-as-a-reproducibility-artifact">
+<h2>Configuration as a reproducibility artifact<a class="headerlink" href="#configuration-as-a-reproducibility-artifact" title="Link to this heading">#</a></h2>
+<p>The reproducibility story starts with configuration.</p>
+<p>GeoPrior already distinguishes between:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">config.py</span></code> as the human-authored project config,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">config.json</span></code> as the persisted effective runtime config.</p></li>
+</ul>
+<p>That is extremely valuable for scientific reproducibility,
+because it means a script or figure can be tied back to the
+actual effective runtime state rather than to a remembered or
+informal setup.</p>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Preserve both the authored config and the effective runtime
+snapshot for every serious experiment.</p>
+<p>A figure script is much easier to trust if the config used
+to generate its source artifacts is still available.</p>
+</div>
+</section>
+<section id="manifests-as-provenance-anchors">
+<h2>Manifests as provenance anchors<a class="headerlink" href="#manifests-as-provenance-anchors" title="Link to this heading">#</a></h2>
+<p>Stage-level manifests are one of the strongest parts of the
+GeoPrior reproducibility design.</p>
+<p>For example:</p>
+<ul class="simple">
+<li><p>Stage-1 manifest anchors the preprocessing contract;</p></li>
+<li><p>model-init and run manifests anchor the trained or tuned
+model configuration;</p></li>
+<li><p>inference and transfer summaries anchor downstream reuse.</p></li>
+</ul>
+<p>These files are what make later scripts scientifically
+defensible. They tell the user not only where data came from,
+but what the workflow believed those artifacts meant.</p>
+<p>A useful rule is:</p>
+<ul class="simple">
+<li><p>if a figure depends on a result,</p></li>
+<li><p>the corresponding manifest or summary file should be saved
+with that result.</p></li>
+</ul>
+</section>
+<section id="what-the-scripts-should-avoid">
+<h2>What the scripts should avoid<a class="headerlink" href="#what-the-scripts-should-avoid" title="Link to this heading">#</a></h2>
+<p>A reproducibility script should <strong>not</strong> casually hide major
+workflow changes.</p>
+<p>Avoid scripts that do things like:</p>
+<ul class="simple">
+<li><p>silently retrain the model,</p></li>
+<li><p>silently rewrite manifests,</p></li>
+<li><p>silently change scaling conventions,</p></li>
+<li><p>silently mix artifacts from two runs,</p></li>
+<li><p>silently regenerate Stage-1 under a different config.</p></li>
+</ul>
+<p>That makes figure regeneration much harder to trust.</p>
+<p>A good reproducibility script should ideally do one of three
+things:</p>
+<ol class="arabic simple">
+<li><p>read existing artifacts and plot them;</p></li>
+<li><p>read existing artifacts and build a table/summary;</p></li>
+<li><p>run a deterministic post-processing step whose inputs and
+outputs are both explicit.</p></li>
+</ol>
+</section>
+<section id="typical-reproducibility-use-cases">
+<h2>Typical reproducibility use cases<a class="headerlink" href="#typical-reproducibility-use-cases" title="Link to this heading">#</a></h2>
+<p>GeoPrior reproducibility scripts are especially useful for:</p>
+<p><strong>Physics-field figures</strong></p>
+<p>For example, plotting learned or summarized values such as:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(K\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(S_s\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\tau\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(H_d\)</span></p></li>
+</ul>
+<p>from a saved physics payload.</p>
+<p><strong>Parity and validation figures</strong></p>
+<p>For example, comparing:</p>
+<ul class="simple">
+<li><p>predicted vs observed subsidence,</p></li>
+<li><p>predicted vs observed groundwater,</p></li>
+<li><p>or lithology-conditioned parity behavior.</p></li>
+</ul>
+<p><strong>Transfer benchmark figures</strong></p>
+<p>For example, plotting:</p>
+<ul class="simple">
+<li><p>baseline vs transfer vs warm-start performance,</p></li>
+<li><p>calibration-mode comparison,</p></li>
+<li><p>per-horizon transfer degradation,</p></li>
+<li><p>cross-city uncertainty behavior.</p></li>
+</ul>
+<p><strong>Table regeneration</strong></p>
+<p>For example, rebuilding:</p>
+<ul class="simple">
+<li><p>summary metric tables,</p></li>
+<li><p>benchmark tables,</p></li>
+<li><p>per-horizon comparison tables,</p></li>
+<li><p>calibration comparison tables.</p></li>
+</ul>
+</section>
+<section id="the-role-of-deterministic-build-commands">
+<h2>The role of deterministic build commands<a class="headerlink" href="#the-role-of-deterministic-build-commands" title="Link to this heading">#</a></h2>
+<p>Not every reproducibility task belongs in <code class="docutils literal notranslate"><span class="pre">scripts/</span></code> alone.</p>
+<p>GeoPrior’s <strong>build</strong> family exists for deterministic artifact
+generation from existing workflow outputs. This is a very
+useful complement to paper-facing scripts.</p>
+<p>Typical build commands include tasks such as:</p>
+<ul class="simple">
+<li><p>merged full-input NPZ generation,</p></li>
+<li><p>physics payload NPZ generation,</p></li>
+<li><p>external validation artifact construction,</p></li>
+<li><p>external validation metric computation.</p></li>
+</ul>
+<p>This suggests a good separation of labor:</p>
+<ul class="simple">
+<li><p>use <strong>build commands</strong> for deterministic artifact
+materialization;</p></li>
+<li><p>use <strong>scripts</strong> for paper-facing visualization and summary
+logic.</p></li>
+</ul>
+<p>That separation is both cleaner and easier to maintain.</p>
+</section>
+<section id="figure-generation-philosophy">
+<h2>Figure-generation philosophy<a class="headerlink" href="#figure-generation-philosophy" title="Link to this heading">#</a></h2>
+<p>A good GeoPrior figure script should be:</p>
+<ul class="simple">
+<li><p><strong>artifact-driven</strong></p></li>
+<li><p><strong>lightweight</strong></p></li>
+<li><p><strong>deterministic</strong></p></li>
+<li><p><strong>well-labeled</strong></p></li>
+<li><p><strong>easy to rerun</strong></p></li>
+</ul>
+<p>It should ideally take explicit inputs such as:</p>
+<ul class="simple">
+<li><p>a run directory,</p></li>
+<li><p>a manifest path,</p></li>
+<li><p>a payload NPZ path,</p></li>
+<li><p>a forecast CSV path,</p></li>
+<li><p>or an output figure path.</p></li>
+</ul>
+<p>This is much better than hard-coding one user’s local paths
+inside the script body.</p>
+</section>
+<section id="a-practical-script-pattern">
+<h2>A practical script pattern<a class="headerlink" href="#a-practical-script-pattern" title="Link to this heading">#</a></h2>
+<p>A clean reproducibility script often follows this pattern:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>parse explicit input paths
+     ↓
+load manifest / summary / payload / CSV
+     ↓
+validate that required fields exist
+     ↓
+compute any deterministic derived summaries
+     ↓
+write figure(s) or table(s)
+     ↓
+optionally write a small sidecar metadata file
+</pre></div>
+</div>
+<p>This pattern works well for both plots and tables.</p>
+</section>
+<section id="examples-of-good-script-inputs">
+<h2>Examples of good script inputs<a class="headerlink" href="#examples-of-good-script-inputs" title="Link to this heading">#</a></h2>
+<p>A good figure or summary script might accept arguments such
+as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--stage1-manifest</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--stage2-run-dir</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--payload-npz</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--forecast-csv</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--xfer-results-csv</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--outdir</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--format</span></code></p></li>
+</ul>
+<p>The goal is not that every script must support all of these,
+but that each script makes its dependency chain explicit.</p>
+</section>
+<section id="physics-payload-reproducibility">
+<h2>Physics-payload reproducibility<a class="headerlink" href="#physics-payload-reproducibility" title="Link to this heading">#</a></h2>
+<p>One especially strong GeoPrior pattern is the use of
+<strong>physics payloads</strong>.</p>
+<p>These payloads make it possible to regenerate:</p>
+<ul class="simple">
+<li><p>parameter maps,</p></li>
+<li><p>effective-parameter summaries,</p></li>
+<li><p>identifiability diagnostics,</p></li>
+<li><p>physics-consistency plots,</p></li>
+</ul>
+<p>without retraining the model.</p>
+<p>This is one of the best parts of the package for scientific
+reproducibility, because it lets the user separate:</p>
+<ul class="simple">
+<li><p>training-time cost,</p></li>
+<li><p>from post hoc scientific analysis.</p></li>
+</ul>
+</section>
+<section id="transfer-result-reproducibility">
+<h2>Transfer-result reproducibility<a class="headerlink" href="#transfer-result-reproducibility" title="Link to this heading">#</a></h2>
+<p>Stage-5 is another strong reproducibility case.</p>
+<p>The transfer workflow already aggregates outcomes into:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">xfer_results.json</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xfer_results.csv</span></code></p></li>
+</ul>
+<p>Those two files are natural inputs to reproducibility
+scripts for:</p>
+<ul class="simple">
+<li><p>benchmark tables,</p></li>
+<li><p>transfer comparison figures,</p></li>
+<li><p>per-strategy summaries,</p></li>
+<li><p>calibration-mode comparisons.</p></li>
+</ul>
+<p>That means a paper-quality transfer figure does not need to
+rerun Stage-5 every time. It should be reproducible from the
+saved benchmark outputs.</p>
+</section>
+<section id="uncertainty-reproducibility">
+<h2>Uncertainty reproducibility<a class="headerlink" href="#uncertainty-reproducibility" title="Link to this heading">#</a></h2>
+<p>Calibration and uncertainty products are also excellent
+targets for reproducibility scripts.</p>
+<p>Useful artifacts include:</p>
+<ul class="simple">
+<li><p>calibrated forecast CSVs,</p></li>
+<li><p>calibration statistics JSON,</p></li>
+<li><p>calibrated diagnostics JSON,</p></li>
+<li><p>interval factor files.</p></li>
+</ul>
+<p>These can be used to reproduce:</p>
+<ul class="simple">
+<li><p>uncertainty band plots,</p></li>
+<li><p>coverage vs sharpness summaries,</p></li>
+<li><p>horizon-wise interval comparison figures,</p></li>
+<li><p>same-domain vs transfer uncertainty comparisons.</p></li>
+</ul>
+<p>This is another reason the application scripts should remain
+artifact-driven.</p>
+</section>
+<section id="what-a-paper-ready-run-directory-should-preserve">
+<h2>What a paper-ready run directory should preserve<a class="headerlink" href="#what-a-paper-ready-run-directory-should-preserve" title="Link to this heading">#</a></h2>
+<p>A good paper-ready run directory should preserve enough
+information that later scripts can be rerun without guessing.</p>
+<p>For example, it should be possible to recover:</p>
+<ul class="simple">
+<li><p>what city or city-pair the result came from,</p></li>
+<li><p>what stage artifacts were used,</p></li>
+<li><p>whether the model was trained or tuned,</p></li>
+<li><p>whether outputs were calibrated,</p></li>
+<li><p>which forecast horizon was used,</p></li>
+<li><p>where the source payload or CSV lives.</p></li>
+</ul>
+<p>If a script cannot answer those questions from the saved
+artifacts, the reproducibility chain is weaker than it should
+be.</p>
+</section>
+<section id="common-mistakes">
+<h2>Common mistakes<a class="headerlink" href="#common-mistakes" title="Link to this heading">#</a></h2>
+<p><strong>Putting figure logic inside training scripts</strong></p>
+<p>This makes later reruns heavy and harder to audit.</p>
+<p><strong>Relying on local absolute paths</strong></p>
+<p>A script should be portable enough to run from explicit
+artifact paths.</p>
+<p><strong>Mixing artifacts from different runs</strong></p>
+<p>This is one of the fastest ways to create misleading figures.</p>
+<p><strong>Recomputing major workflow steps silently</strong></p>
+<p>A plotting script should not secretly rerun training unless
+it clearly says so.</p>
+<p><strong>Not preserving summary JSON files</strong></p>
+<p>CSVs are useful, but the JSON summaries explain what the
+artifacts actually represent.</p>
+</section>
+<section id="best-practices">
+<h2>Best practices<a class="headerlink" href="#best-practices" title="Link to this heading">#</a></h2>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Keep figure scripts artifact-driven.</p>
+<p>They should consume saved outputs, not recreate the whole
+experiment implicitly.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Save manifests and summaries next to the artifacts they
+describe.</p>
+<p>This makes later figure regeneration far easier to trust.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Preserve transfer and calibration outputs in their final
+exported form.</p>
+<p>These are often the true inputs to paper-ready figures.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Keep scripts lightweight and explicit about inputs.</p>
+<p>A clear command-line interface for one script is often more
+reproducible than a notebook with hidden state.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Separate deterministic artifact builders from figure
+scripts.</p>
+<p>Use build commands for materialization and scripts for
+visualization or summarization.</p>
+</div>
+</section>
+<section id="a-compact-reproducibility-map">
+<h2>A compact reproducibility map<a class="headerlink" href="#a-compact-reproducibility-map" title="Link to this heading">#</a></h2>
+<p>The GeoPrior reproducibility workflow can be summarized as:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>config + runtime snapshot
+     ↓
+stage manifests + saved artifacts
+     ↓
+trained / tuned / inferred outputs
+     ↓
+deterministic build exports (optional)
+     ↓
+scripts/ consumes payloads, CSVs, summaries
+     ↓
+figures, tables, and paper-ready artifacts
+</pre></div>
+</div>
+</section>
+<section id="read-next">
+<h2>Read next<a class="headerlink" href="#read-next" title="Link to this heading">#</a></h2>
+<p>The strongest next pages after this one are:</p>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-1 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Figure generation</div>
+<p class="sd-card-text">Move from reproducibility logic to the figure-facing
+workflow directly.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="figure_generation.html"><span class="doc">Figure generation</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Diagnostics</div>
+<p class="sd-card-text">Revisit the summaries and payloads that scripts most
+often consume.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="../user_guide/diagnostics.html"><span class="doc">Diagnostics</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Inference and export</div>
+<p class="sd-card-text">Review the exported artifacts that form the inputs to
+reproducibility scripts.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="../user_guide/inference_and_export.html"><span class="doc">Inference and export</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Stage-5</div>
+<p class="sd-card-text">See how cross-city benchmark outputs become reproducible
+downstream figures and tables.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="../user_guide/stage5.html"><span class="doc">Stage-5</span></a></div>
+</div>
+</div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="subsidence_forecasting.html"><span class="doc">Subsidence forecasting</span></a></p></li>
+<li><p><a class="reference internal" href="calibration_and_uncertainty.html"><span class="doc">Calibration and uncertainty</span></a></p></li>
+<li><p><a class="reference internal" href="figure_generation.html"><span class="doc">Figure generation</span></a></p></li>
+<li><p><a class="reference internal" href="../user_guide/diagnostics.html"><span class="doc">Diagnostics</span></a></p></li>
+<li><p><a class="reference internal" href="../user_guide/inference_and_export.html"><span class="doc">Inference and export</span></a></p></li>
+<li><p><a class="reference internal" href="../user_guide/stage4.html"><span class="doc">Stage-4</span></a></p></li>
+<li><p><a class="reference internal" href="../user_guide/stage5.html"><span class="doc">Stage-5</span></a></p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="calibration_and_uncertainty.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Calibration and uncertainty</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="figure_generation.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Figure generation</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-reproducibility-means-in-geoprior">What “reproducibility” means in GeoPrior</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-scripts-matter">Why scripts matter</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-role-of-the-scripts-directory">The role of the <code class="docutils literal notranslate"><span class="pre">scripts/</span></code> directory</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-scripts-should-consume">What the scripts should consume</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#relationship-to-the-staged-workflow">Relationship to the staged workflow</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-should-be-reproducible">What should be reproducible</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-minimum-reproducibility-bundle">The minimum reproducibility bundle</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-as-a-reproducibility-artifact">Configuration as a reproducibility artifact</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#manifests-as-provenance-anchors">Manifests as provenance anchors</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-scripts-should-avoid">What the scripts should avoid</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-reproducibility-use-cases">Typical reproducibility use cases</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-role-of-deterministic-build-commands">The role of deterministic build commands</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#figure-generation-philosophy">Figure-generation philosophy</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-practical-script-pattern">A practical script pattern</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples-of-good-script-inputs">Examples of good script inputs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#physics-payload-reproducibility">Physics-payload reproducibility</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transfer-result-reproducibility">Transfer-result reproducibility</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#uncertainty-reproducibility">Uncertainty reproducibility</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-a-paper-ready-run-directory-should-preserve">What a paper-ready run directory should preserve</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-mistakes">Common mistakes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">Best practices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-compact-reproducibility-map">A compact reproducibility map</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#read-next">Read next</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/earthai-tech/geoprior-v3/edit/main/docs/source/applications/reproducibility_scripts.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/applications/reproducibility_scripts.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

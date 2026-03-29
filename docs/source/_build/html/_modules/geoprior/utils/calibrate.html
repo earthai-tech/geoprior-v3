@@ -1,0 +1,1615 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>geoprior.utils.calibrate &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=404c0980"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geoprior/utils/calibrate';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../../../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../../../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geoprior.utils.calibrate</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for geoprior.utils.calibrate</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+<span class="c1"># GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3</span>
+<span class="c1"># https://lkouadio.com</span>
+<span class="c1"># Copyright (c) 2026-present</span>
+<span class="c1"># Author: LKouadio &lt;etanoyau@gmail.com&gt;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Forecast utilities.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">Literal</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.isotonic</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsotonicRegression</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.checks</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_empty</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">SaveFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">isdf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.generic_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_model_inputs</span><span class="p">,</span> <span class="n">vlog</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_infer_quantile_map</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">target_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">column_map</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="n">column_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">column_map</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="n">q_spec</span> <span class="o">=</span> <span class="n">column_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;quantiles&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">q_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">q_spec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">q_spec</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">q</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">q_spec</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">qf</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Quantile col &#39;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">&#39; (q=</span><span class="si">{</span><span class="n">qf</span><span class="si">}</span><span class="s2">) missing.&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">q_map</span><span class="p">[</span><span class="n">qf</span><span class="p">]</span> <span class="o">=</span> <span class="n">col</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">q_spec</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Quantile col &#39;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">&#39; missing.&quot;</span>
+                    <span class="p">)</span>
+                <span class="c1"># user provided list =&gt; infer q from suffix _qXX</span>
+                <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+                <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span>
+                    <span class="sa">rf</span><span class="s2">&quot;^</span><span class="si">{</span><span class="n">target_name</span><span class="si">}</span><span class="s2">_q(\d+)$&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Cannot infer q from &#39;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Expected &#39;</span><span class="si">{</span><span class="n">target_name</span><span class="si">}</span><span class="s2">_qXX&#39;.&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">q_map</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="mf">100.0</span><span class="p">]</span> <span class="o">=</span> <span class="n">col</span>
+        <span class="k">return</span> <span class="n">q_map</span>
+
+    <span class="c1"># auto-detect</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+    <span class="n">pat</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;^</span><span class="si">{</span><span class="n">target_name</span><span class="si">}</span><span class="s2">_q(\d+)$&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">pat</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+            <span class="n">q_map</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="mf">100.0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">q_map</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_infer_actual_col</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">target_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">column_map</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">column_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">column_map</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="n">column_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;actual&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target_name</span><span class="si">}</span><span class="s2">_actual&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">spec</span> <span class="k">if</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only 1 actual col supported.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">else</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_pick_median_q</span><span class="p">(</span>
+    <span class="n">q_map</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">median_q</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">q_map</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No quantiles detected.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">q_map</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">q</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">q</span> <span class="o">-</span> <span class="n">median_q</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_pick_interval_qs</span><span class="p">(</span>
+    <span class="n">q_map</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">interval</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="n">lo_t</span><span class="p">,</span> <span class="n">hi_t</span> <span class="o">=</span> <span class="n">interval</span>
+    <span class="n">qs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">q_map</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">q_lo</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">q</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">q</span> <span class="o">-</span> <span class="n">lo_t</span><span class="p">))</span>
+    <span class="n">q_hi</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">qs</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">q</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">q</span> <span class="o">-</span> <span class="n">hi_t</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">q_lo</span> <span class="o">&gt;=</span> <span class="n">q_hi</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Bad interval selection: q_lo=</span><span class="si">{</span><span class="n">q_lo</span><span class="si">}</span><span class="s2">, q_hi=</span><span class="si">{</span><span class="n">q_hi</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">q_lo</span><span class="p">,</span> <span class="n">q_hi</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_coverage_and_width</span><span class="p">(</span>
+    <span class="n">y_true</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">y_lo</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">y_hi</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y_true</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y_lo</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y_hi</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>
+    <span class="n">yt</span> <span class="o">=</span> <span class="n">y_true</span><span class="p">[</span><span class="n">m</span><span class="p">]</span>
+    <span class="n">lo</span> <span class="o">=</span> <span class="n">y_lo</span><span class="p">[</span><span class="n">m</span><span class="p">]</span>
+    <span class="n">hi</span> <span class="o">=</span> <span class="n">y_hi</span><span class="p">[</span><span class="n">m</span><span class="p">]</span>
+    <span class="n">cov</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">yt</span> <span class="o">&gt;=</span> <span class="n">lo</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">yt</span> <span class="o">&lt;=</span> <span class="n">hi</span><span class="p">)))</span>
+    <span class="n">wid</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">hi</span> <span class="o">-</span> <span class="n">lo</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">cov</span><span class="p">,</span> <span class="n">wid</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fit_factor_bisect</span><span class="p">(</span>
+    <span class="n">y_true</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">q_lo</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">q_md</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">q_hi</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-3</span><span class="p">,</span>
+    <span class="n">f_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">,</span>
+    <span class="n">max_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="n">y_true</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="n">q_lo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">q_lo</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="n">q_md</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">q_md</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="n">q_hi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">q_hi</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cov</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="n">lo</span> <span class="o">=</span> <span class="n">q_md</span> <span class="o">-</span> <span class="n">f</span> <span class="o">*</span> <span class="p">(</span><span class="n">q_md</span> <span class="o">-</span> <span class="n">q_lo</span><span class="p">)</span>
+        <span class="n">hi</span> <span class="o">=</span> <span class="n">q_md</span> <span class="o">+</span> <span class="n">f</span> <span class="o">*</span> <span class="p">(</span><span class="n">q_hi</span> <span class="o">-</span> <span class="n">q_md</span><span class="p">)</span>
+        <span class="n">cov</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_coverage_and_width</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cov</span>
+
+    <span class="n">c1</span> <span class="o">=</span> <span class="n">_cov</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">c1</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mf">1.0</span>
+    <span class="k">if</span> <span class="n">c1</span> <span class="o">&gt;=</span> <span class="n">target</span> <span class="o">-</span> <span class="n">tol</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">1.0</span>
+
+    <span class="n">cmax</span> <span class="o">=</span> <span class="n">_cov</span><span class="p">(</span><span class="n">f_max</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">cmax</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mf">1.0</span>
+    <span class="k">if</span> <span class="n">cmax</span> <span class="o">&lt;</span> <span class="n">target</span> <span class="o">-</span> <span class="n">tol</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">f_max</span><span class="p">)</span>
+
+    <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">f_max</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">max_iter</span><span class="p">)):</span>
+        <span class="n">mid</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">lo</span> <span class="o">+</span> <span class="n">hi</span><span class="p">)</span>
+        <span class="n">cm</span> <span class="o">=</span> <span class="n">_cov</span><span class="p">(</span><span class="n">mid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cm</span> <span class="o">&gt;=</span> <span class="n">target</span><span class="p">:</span>
+            <span class="n">hi</span> <span class="o">=</span> <span class="n">mid</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lo</span> <span class="o">=</span> <span class="n">mid</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">hi</span> <span class="o">-</span> <span class="n">lo</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">1e-6</span><span class="p">:</span>
+            <span class="k">break</span>
+
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">hi</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="fit_interval_factors_df">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.calibrate.fit_interval_factors_df">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fit_interval_factors_df</span><span class="p">(</span>
+    <span class="n">df_eval</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">target_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;subsidence&quot;</span><span class="p">,</span>
+    <span class="n">column_map</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">step_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;forecast_step&quot;</span><span class="p">,</span>
+    <span class="n">interval</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">),</span>
+    <span class="n">target_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span>
+    <span class="n">median_q</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-3</span><span class="p">,</span>
+    <span class="n">f_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">,</span>
+    <span class="n">max_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="n">q_map</span> <span class="o">=</span> <span class="n">_infer_quantile_map</span><span class="p">(</span>
+        <span class="n">df_eval</span><span class="p">,</span>
+        <span class="n">target_name</span><span class="o">=</span><span class="n">target_name</span><span class="p">,</span>
+        <span class="n">column_map</span><span class="o">=</span><span class="n">column_map</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">act_col</span> <span class="o">=</span> <span class="n">_infer_actual_col</span><span class="p">(</span>
+        <span class="n">df_eval</span><span class="p">,</span>
+        <span class="n">target_name</span><span class="o">=</span><span class="n">target_name</span><span class="p">,</span>
+        <span class="n">column_map</span><span class="o">=</span><span class="n">column_map</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">act_col</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Cannot fit calibration factors: missing actual col.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">q_md</span> <span class="o">=</span> <span class="n">_pick_median_q</span><span class="p">(</span><span class="n">q_map</span><span class="p">,</span> <span class="n">median_q</span><span class="o">=</span><span class="n">median_q</span><span class="p">)</span>
+    <span class="n">q_lo</span><span class="p">,</span> <span class="n">q_hi</span> <span class="o">=</span> <span class="n">_pick_interval_qs</span><span class="p">(</span><span class="n">q_map</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">step_col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df_eval</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="n">df_eval</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="n">df_eval</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">step_col</span><span class="p">)</span>
+
+    <span class="n">factors</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">h</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+        <span class="n">h_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+        <span class="n">yt</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">act_col</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="n">lo</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">q_map</span><span class="p">[</span><span class="n">q_lo</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="n">md</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">q_map</span><span class="p">[</span><span class="n">q_md</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="n">hi</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">q_map</span><span class="p">[</span><span class="n">q_hi</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+        <span class="n">f</span> <span class="o">=</span> <span class="n">_fit_factor_bisect</span><span class="p">(</span>
+            <span class="n">yt</span><span class="p">,</span>
+            <span class="n">lo</span><span class="p">,</span>
+            <span class="n">md</span><span class="p">,</span>
+            <span class="n">hi</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">=</span><span class="n">target_coverage</span><span class="p">,</span>
+            <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span>
+            <span class="n">f_max</span><span class="o">=</span><span class="n">f_max</span><span class="p">,</span>
+            <span class="n">max_iter</span><span class="o">=</span><span class="n">max_iter</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">factors</span><span class="p">[</span><span class="n">h_int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="n">vlog</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;[calib] fitted factor H</span><span class="si">{</span><span class="n">h_int</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">f</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">factors</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_enforce_monotonic_q</span><span class="p">(</span>
+    <span class="n">q_vals</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cummax&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">q_vals</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;sort&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">q_vals</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;cummax&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="o">.</span><span class="n">accumulate</span><span class="p">(</span><span class="n">q_vals</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="s2">&quot;enforce_monotonic must be one of &quot;</span>
+        <span class="s2">&quot;{&#39;none&#39;,&#39;cummax&#39;,&#39;sort&#39;}.&quot;</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="apply_interval_factors_df">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.calibrate.apply_interval_factors_df">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_interval_factors_df</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">factors</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">target_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;subsidence&quot;</span><span class="p">,</span>
+    <span class="n">column_map</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">step_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;forecast_step&quot;</span><span class="p">,</span>
+    <span class="n">median_q</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">keep_original</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">factor_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;calibration_factor&quot;</span><span class="p">,</span>
+    <span class="n">calibrated_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;is_calibrated&quot;</span><span class="p">,</span>
+    <span class="n">enforce_monotonic</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cummax&quot;</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">df2</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">q_map</span> <span class="o">=</span> <span class="n">_infer_quantile_map</span><span class="p">(</span>
+        <span class="n">df2</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="n">target_name</span><span class="p">,</span> <span class="n">column_map</span><span class="o">=</span><span class="n">column_map</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">q_map</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No quantile columns to calibrate.&quot;</span><span class="p">)</span>
+
+    <span class="n">q_md</span> <span class="o">=</span> <span class="n">_pick_median_q</span><span class="p">(</span><span class="n">q_map</span><span class="p">,</span> <span class="n">median_q</span><span class="o">=</span><span class="n">median_q</span><span class="p">)</span>
+    <span class="n">qs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">q_map</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">q_map</span><span class="p">[</span><span class="n">q</span><span class="p">]</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qs</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">keep_original</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+            <span class="n">df2</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">_raw&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+
+    <span class="c1"># Resolve factors</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">factors</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="n">f_map</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">f_scalar</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">factors</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">f_map</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">factors</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">f_scalar</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">step_col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df2</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df2</span><span class="p">[</span><span class="n">step_col</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># Apply per horizon</span>
+    <span class="n">med_col</span> <span class="o">=</span> <span class="n">q_map</span><span class="p">[</span><span class="n">q_md</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">h</span><span class="p">,</span> <span class="n">g_idx</span> <span class="ow">in</span> <span class="n">df2</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">step_col</span><span class="p">)</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">h_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+        <span class="n">f_h</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">f_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">h_int</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">f_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">f_scalar</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">g_idx</span><span class="p">))</span>
+        <span class="n">med</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="n">med_col</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="n">q_vals</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="c1"># scale each quantile around median</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">qs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">q</span> <span class="o">&lt;</span> <span class="n">q_md</span><span class="p">:</span>
+                <span class="n">q_vals</span><span class="p">[:,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">med</span> <span class="o">-</span> <span class="n">f_h</span> <span class="o">*</span> <span class="p">(</span>
+                    <span class="n">med</span> <span class="o">-</span> <span class="n">q_vals</span><span class="p">[:,</span> <span class="n">j</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">q</span> <span class="o">&gt;</span> <span class="n">q_md</span><span class="p">:</span>
+                <span class="n">q_vals</span><span class="p">[:,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">med</span> <span class="o">+</span> <span class="n">f_h</span> <span class="o">*</span> <span class="p">(</span>
+                    <span class="n">q_vals</span><span class="p">[:,</span> <span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">med</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">q_vals</span><span class="p">[:,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">med</span>
+
+        <span class="n">q_vals</span> <span class="o">=</span> <span class="n">_enforce_monotonic_q</span><span class="p">(</span>
+            <span class="n">q_vals</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">enforce_monotonic</span>
+        <span class="p">)</span>
+
+        <span class="n">df2</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_vals</span>
+        <span class="n">df2</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="n">factor_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">f_h</span>
+
+    <span class="n">df2</span><span class="p">[</span><span class="n">calibrated_col</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">df2</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_looks_calibrated</span><span class="p">(</span>
+    <span class="n">df_eval</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">target_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">column_map</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">step_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">interval</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">calibrated_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">calibrated_col</span> <span class="ow">in</span> <span class="n">df_eval</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">df_eval</span><span class="p">[</span><span class="n">calibrated_col</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())):</span>
+            <span class="n">vlog</span><span class="p">(</span>
+                <span class="s2">&quot;[calib] detected calibrated_col=True.&quot;</span><span class="p">,</span>
+                <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="n">act</span> <span class="o">=</span> <span class="n">_infer_actual_col</span><span class="p">(</span>
+        <span class="n">df_eval</span><span class="p">,</span>
+        <span class="n">target_name</span><span class="o">=</span><span class="n">target_name</span><span class="p">,</span>
+        <span class="n">column_map</span><span class="o">=</span><span class="n">column_map</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">act</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">q_map</span> <span class="o">=</span> <span class="n">_infer_quantile_map</span><span class="p">(</span>
+        <span class="n">df_eval</span><span class="p">,</span>
+        <span class="n">target_name</span><span class="o">=</span><span class="n">target_name</span><span class="p">,</span>
+        <span class="n">column_map</span><span class="o">=</span><span class="n">column_map</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">q_map</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">q_lo</span><span class="p">,</span> <span class="n">q_hi</span> <span class="o">=</span> <span class="n">_pick_interval_qs</span><span class="p">(</span><span class="n">q_map</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">)</span>
+    <span class="n">lo_col</span> <span class="o">=</span> <span class="n">q_map</span><span class="p">[</span><span class="n">q_lo</span><span class="p">]</span>
+    <span class="n">hi_col</span> <span class="o">=</span> <span class="n">q_map</span><span class="p">[</span><span class="n">q_hi</span><span class="p">]</span>
+
+    <span class="n">yt</span> <span class="o">=</span> <span class="n">df_eval</span><span class="p">[</span><span class="n">act</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">lo</span> <span class="o">=</span> <span class="n">df_eval</span><span class="p">[</span><span class="n">lo_col</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">hi</span> <span class="o">=</span> <span class="n">df_eval</span><span class="p">[</span><span class="n">hi_col</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">cov</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_coverage_and_width</span><span class="p">(</span><span class="n">yt</span><span class="p">,</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">cov</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">ok</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">cov</span> <span class="o">-</span> <span class="n">target</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">tol</span>
+    <span class="n">vlog</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;[calib] auto-check coverage=</span><span class="si">{</span><span class="n">cov</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;target=</span><span class="si">{</span><span class="n">target</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> tol=</span><span class="si">{</span><span class="n">tol</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">ok</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">ok</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_factors</span><span class="p">(</span>
+    <span class="n">factors</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">factors</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">factors</span><span class="p">)</span>
+
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">dict</span><span class="p">(</span><span class="n">factors</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">out</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<div class="viewcode-block" id="calibrate_quantile_forecasts">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.calibrate.calibrate_quantile_forecasts">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calibrate_quantile_forecasts</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">df_eval</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">df_future</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">target_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;subsidence&quot;</span><span class="p">,</span>
+    <span class="n">column_map</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">step_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;forecast_step&quot;</span><span class="p">,</span>
+    <span class="n">interval</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">),</span>
+    <span class="n">target_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span>
+    <span class="n">median_q</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">use</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.02</span><span class="p">,</span>
+    <span class="n">f_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">,</span>
+    <span class="n">max_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+    <span class="n">keep_original</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">enforce_monotonic</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cummax&quot;</span><span class="p">,</span>
+    <span class="n">overall_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;__overall__&quot;</span><span class="p">,</span>
+    <span class="n">calibrated_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;is_calibrated&quot;</span><span class="p">,</span>
+    <span class="n">factor_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;calibration_factor&quot;</span><span class="p">,</span>
+    <span class="n">factors</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="o">|</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+    <span class="o">|</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">save_eval</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">save_future</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">save_stats</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span>
+    <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">]:</span>
+    <span class="n">use_s</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">use</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">use</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">use_s</span> <span class="o">=</span> <span class="n">use</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_df</span><span class="p">(</span><span class="n">dfX</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span> <span class="ow">or</span> <span class="n">dfX</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">pp</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">pp</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">dfX</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">pp</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_stats</span><span class="p">(</span><span class="n">statsX</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">save_stats</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">pp</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">save_stats</span><span class="p">)</span>
+        <span class="n">pp</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pp</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">statsX</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_jsonable_factors</span><span class="p">(</span><span class="n">fx</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fx</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">fx</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">)):</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">dict</span><span class="p">(</span><span class="n">fx</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+
+    <span class="n">stats</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">target_coverage</span><span class="p">),</span>
+        <span class="s2">&quot;interval&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">interval</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">interval</span><span class="p">[</span><span class="mi">1</span><span class="p">])],</span>
+        <span class="s2">&quot;f_max&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">f_max</span><span class="p">),</span>
+        <span class="s2">&quot;tol&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">tol</span><span class="p">),</span>
+        <span class="s2">&quot;overall_key&quot;</span><span class="p">:</span> <span class="n">overall_key</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># ----------------------------</span>
+    <span class="c1"># 0) Hard disable</span>
+    <span class="c1"># ----------------------------</span>
+    <span class="k">if</span> <span class="n">use</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">or</span> <span class="n">use_s</span> <span class="o">==</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;skipped&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;reason&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;use_false&quot;</span>
+        <span class="n">_save_df</span><span class="p">(</span><span class="n">df_eval</span><span class="p">,</span> <span class="n">save_eval</span><span class="p">)</span>
+        <span class="n">_save_df</span><span class="p">(</span><span class="n">df_future</span><span class="p">,</span> <span class="n">save_future</span><span class="p">)</span>
+        <span class="n">_save_stats</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df_eval</span><span class="p">,</span> <span class="n">df_future</span><span class="p">,</span> <span class="n">stats</span>
+
+    <span class="c1"># ----------------------------</span>
+    <span class="c1"># 1) Auto skip if calibrated</span>
+    <span class="c1">#    (safe default, even if</span>
+    <span class="c1">#     user passes factors)</span>
+    <span class="c1">#    -&gt; to force, set use=True</span>
+    <span class="c1"># ----------------------------</span>
+    <span class="k">if</span> <span class="n">use_s</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span> <span class="ow">and</span> <span class="n">df_eval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">_looks_calibrated</span><span class="p">(</span>
+            <span class="n">df_eval</span><span class="p">,</span>
+            <span class="n">target_name</span><span class="o">=</span><span class="n">target_name</span><span class="p">,</span>
+            <span class="n">column_map</span><span class="o">=</span><span class="n">column_map</span><span class="p">,</span>
+            <span class="n">step_col</span><span class="o">=</span><span class="n">step_col</span><span class="p">,</span>
+            <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">=</span><span class="n">target_coverage</span><span class="p">,</span>
+            <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span>
+            <span class="n">calibrated_col</span><span class="o">=</span><span class="n">calibrated_col</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;skipped&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;reason&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;already_calibrated&quot;</span>
+            <span class="n">_save_df</span><span class="p">(</span><span class="n">df_eval</span><span class="p">,</span> <span class="n">save_eval</span><span class="p">)</span>
+            <span class="n">_save_df</span><span class="p">(</span><span class="n">df_future</span><span class="p">,</span> <span class="n">save_future</span><span class="p">)</span>
+            <span class="n">_save_stats</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">df_eval</span><span class="p">,</span> <span class="n">df_future</span><span class="p">,</span> <span class="n">stats</span>
+
+    <span class="c1"># ----------------------------</span>
+    <span class="c1"># 2) Choose factors:</span>
+    <span class="c1">#    - user factors win</span>
+    <span class="c1">#    - else fit from eval</span>
+    <span class="c1"># ----------------------------</span>
+    <span class="n">f_apply</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">factors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">f_apply</span> <span class="o">=</span> <span class="n">_normalize_factors</span><span class="p">(</span><span class="n">factors</span><span class="p">)</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;factors_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;user&quot;</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;factors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_jsonable_factors</span><span class="p">(</span><span class="n">f_apply</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">df_eval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">f_apply</span> <span class="o">=</span> <span class="n">fit_interval_factors_df</span><span class="p">(</span>
+            <span class="n">df_eval</span><span class="p">,</span>
+            <span class="n">target_name</span><span class="o">=</span><span class="n">target_name</span><span class="p">,</span>
+            <span class="n">column_map</span><span class="o">=</span><span class="n">column_map</span><span class="p">,</span>
+            <span class="n">step_col</span><span class="o">=</span><span class="n">step_col</span><span class="p">,</span>
+            <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span>
+            <span class="n">target_coverage</span><span class="o">=</span><span class="n">target_coverage</span><span class="p">,</span>
+            <span class="n">median_q</span><span class="o">=</span><span class="n">median_q</span><span class="p">,</span>
+            <span class="n">tol</span><span class="o">=</span><span class="n">tol</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">,</span>
+            <span class="n">f_max</span><span class="o">=</span><span class="n">f_max</span><span class="p">,</span>
+            <span class="n">max_iter</span><span class="o">=</span><span class="n">max_iter</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;factors_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;fit&quot;</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;factors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_jsonable_factors</span><span class="p">(</span><span class="n">f_apply</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;skipped&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;reason&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;no_eval_no_factors&quot;</span>
+        <span class="n">_save_df</span><span class="p">(</span><span class="n">df_eval</span><span class="p">,</span> <span class="n">save_eval</span><span class="p">)</span>
+        <span class="n">_save_df</span><span class="p">(</span><span class="n">df_future</span><span class="p">,</span> <span class="n">save_future</span><span class="p">)</span>
+        <span class="n">_save_stats</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df_eval</span><span class="p">,</span> <span class="n">df_future</span><span class="p">,</span> <span class="n">stats</span>
+
+    <span class="c1"># If still None (shouldn&#39;t happen), skip safely.</span>
+    <span class="k">if</span> <span class="n">f_apply</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;skipped&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;reason&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;no_factors&quot;</span>
+        <span class="n">_save_df</span><span class="p">(</span><span class="n">df_eval</span><span class="p">,</span> <span class="n">save_eval</span><span class="p">)</span>
+        <span class="n">_save_df</span><span class="p">(</span><span class="n">df_future</span><span class="p">,</span> <span class="n">save_future</span><span class="p">)</span>
+        <span class="n">_save_stats</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df_eval</span><span class="p">,</span> <span class="n">df_future</span><span class="p">,</span> <span class="n">stats</span>
+
+    <span class="c1"># ----------------------------</span>
+    <span class="c1"># 3) Apply</span>
+    <span class="c1"># ----------------------------</span>
+    <span class="n">df_eval_cal</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">df_future_cal</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">df_eval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df_eval_cal</span> <span class="o">=</span> <span class="n">apply_interval_factors_df</span><span class="p">(</span>
+            <span class="n">df_eval</span><span class="p">,</span>
+            <span class="n">f_apply</span><span class="p">,</span>
+            <span class="n">target_name</span><span class="o">=</span><span class="n">target_name</span><span class="p">,</span>
+            <span class="n">column_map</span><span class="o">=</span><span class="n">column_map</span><span class="p">,</span>
+            <span class="n">step_col</span><span class="o">=</span><span class="n">step_col</span><span class="p">,</span>
+            <span class="n">median_q</span><span class="o">=</span><span class="n">median_q</span><span class="p">,</span>
+            <span class="n">keep_original</span><span class="o">=</span><span class="n">keep_original</span><span class="p">,</span>
+            <span class="n">factor_col</span><span class="o">=</span><span class="n">factor_col</span><span class="p">,</span>
+            <span class="n">calibrated_col</span><span class="o">=</span><span class="n">calibrated_col</span><span class="p">,</span>
+            <span class="n">enforce_monotonic</span><span class="o">=</span><span class="n">enforce_monotonic</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">df_future</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df_future_cal</span> <span class="o">=</span> <span class="n">apply_interval_factors_df</span><span class="p">(</span>
+            <span class="n">df_future</span><span class="p">,</span>
+            <span class="n">f_apply</span><span class="p">,</span>
+            <span class="n">target_name</span><span class="o">=</span><span class="n">target_name</span><span class="p">,</span>
+            <span class="n">column_map</span><span class="o">=</span><span class="n">column_map</span><span class="p">,</span>
+            <span class="n">step_col</span><span class="o">=</span><span class="n">step_col</span><span class="p">,</span>
+            <span class="n">median_q</span><span class="o">=</span><span class="n">median_q</span><span class="p">,</span>
+            <span class="n">keep_original</span><span class="o">=</span><span class="n">keep_original</span><span class="p">,</span>
+            <span class="n">factor_col</span><span class="o">=</span><span class="n">factor_col</span><span class="p">,</span>
+            <span class="n">calibrated_col</span><span class="o">=</span><span class="n">calibrated_col</span><span class="p">,</span>
+            <span class="n">enforce_monotonic</span><span class="o">=</span><span class="n">enforce_monotonic</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Optional: compute before/after stats (eval only)</span>
+    <span class="k">if</span> <span class="n">df_eval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">act</span> <span class="o">=</span> <span class="n">_infer_actual_col</span><span class="p">(</span>
+            <span class="n">df_eval</span><span class="p">,</span>
+            <span class="n">target_name</span><span class="o">=</span><span class="n">target_name</span><span class="p">,</span>
+            <span class="n">column_map</span><span class="o">=</span><span class="n">column_map</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">q_map</span> <span class="o">=</span> <span class="n">_infer_quantile_map</span><span class="p">(</span>
+            <span class="n">df_eval</span><span class="p">,</span>
+            <span class="n">target_name</span><span class="o">=</span><span class="n">target_name</span><span class="p">,</span>
+            <span class="n">column_map</span><span class="o">=</span><span class="n">column_map</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">act</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">q_map</span><span class="p">:</span>
+            <span class="n">q_lo</span><span class="p">,</span> <span class="n">q_hi</span> <span class="o">=</span> <span class="n">_pick_interval_qs</span><span class="p">(</span>
+                <span class="n">q_map</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">interval</span>
+            <span class="p">)</span>
+            <span class="n">lo_col</span> <span class="o">=</span> <span class="n">q_map</span><span class="p">[</span><span class="n">q_lo</span><span class="p">]</span>
+            <span class="n">hi_col</span> <span class="o">=</span> <span class="n">q_map</span><span class="p">[</span><span class="n">q_hi</span><span class="p">]</span>
+
+            <span class="k">def</span><span class="w"> </span><span class="nf">_summ</span><span class="p">(</span><span class="n">dfX</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+                <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">yt</span> <span class="o">=</span> <span class="n">dfX</span><span class="p">[</span><span class="n">act</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                <span class="n">lo</span> <span class="o">=</span> <span class="n">dfX</span><span class="p">[</span><span class="n">lo_col</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                <span class="n">hi</span> <span class="o">=</span> <span class="n">dfX</span><span class="p">[</span><span class="n">hi_col</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                <span class="n">cov</span><span class="p">,</span> <span class="n">wid</span> <span class="o">=</span> <span class="n">_coverage_and_width</span><span class="p">(</span><span class="n">yt</span><span class="p">,</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">)</span>
+                <span class="n">out</span><span class="p">[</span><span class="s2">&quot;coverage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cov</span>
+                <span class="n">out</span><span class="p">[</span><span class="s2">&quot;sharpness&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">wid</span>
+
+                <span class="k">if</span> <span class="n">step_col</span> <span class="ow">in</span> <span class="n">dfX</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">per</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="k">for</span> <span class="n">h</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">dfX</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">step_col</span><span class="p">):</span>
+                        <span class="n">yt_h</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">act</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                        <span class="n">lo_h</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">lo_col</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                        <span class="n">hi_h</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">hi_col</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                        <span class="n">c_h</span><span class="p">,</span> <span class="n">w_h</span> <span class="o">=</span> <span class="n">_coverage_and_width</span><span class="p">(</span>
+                            <span class="n">yt_h</span><span class="p">,</span> <span class="n">lo_h</span><span class="p">,</span> <span class="n">hi_h</span>
+                        <span class="p">)</span>
+                        <span class="n">per</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">h</span><span class="p">))]</span> <span class="o">=</span> <span class="p">{</span>
+                            <span class="s2">&quot;coverage&quot;</span><span class="p">:</span> <span class="n">c_h</span><span class="p">,</span>
+                            <span class="s2">&quot;sharpness&quot;</span><span class="p">:</span> <span class="n">w_h</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;per_horizon&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">per</span>
+                <span class="k">return</span> <span class="n">out</span>
+
+            <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;eval_before&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_summ</span><span class="p">(</span><span class="n">df_eval</span><span class="p">)</span>
+            <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;eval_after&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_summ</span><span class="p">(</span><span class="n">df_eval_cal</span><span class="p">)</span>
+
+    <span class="c1"># Save outputs</span>
+    <span class="n">_save_df</span><span class="p">(</span><span class="n">df_eval_cal</span><span class="p">,</span> <span class="n">save_eval</span><span class="p">)</span>
+    <span class="n">_save_df</span><span class="p">(</span><span class="n">df_future_cal</span><span class="p">,</span> <span class="n">save_future</span><span class="p">)</span>
+    <span class="n">_save_stats</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df_eval_cal</span><span class="p">,</span> <span class="n">df_future_cal</span><span class="p">,</span> <span class="n">stats</span></div>
+
+
+
+<span class="nd">@check_empty</span><span class="p">([</span><span class="s2">&quot;y_val&quot;</span><span class="p">,</span> <span class="s2">&quot;forecast_val&quot;</span><span class="p">])</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calibrate_forecasts</span><span class="p">(</span>
+    <span class="n">y_val</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">forecasts_val</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">forecasts_to_calibrate</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="o">|</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
+    <span class="n">quantiles</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="mi">10</span><span class="p">,</span>
+        <span class="mi">20</span><span class="p">,</span>
+        <span class="mi">30</span><span class="p">,</span>
+        <span class="mi">40</span><span class="p">,</span>
+        <span class="mi">50</span><span class="p">,</span>
+        <span class="mi">60</span><span class="p">,</span>
+        <span class="mi">70</span><span class="p">,</span>
+        <span class="mi">80</span><span class="p">,</span>
+        <span class="mi">90</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;subsidence&quot;</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">_logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">vlog</span><span class="p">(</span>
+        <span class="s2">&quot;Starting forecast calibration...&quot;</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="p">,</span>
+        <span class="n">level</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="n">_logger</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">calibrators</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1"># Train a calibration model for each quantile</span>
+    <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">quantiles</span><span class="p">:</span>
+        <span class="n">col</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_q</span><span class="si">{</span><span class="n">q</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">forecasts_val</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">vlog</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Skip quantile </span><span class="si">{</span><span class="n">q</span><span class="si">}</span><span class="s2">: &#39;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">&#39; missing&quot;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                <span class="n">verbose</span><span class="p">,</span>
+                <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="n">_logger</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">y_bin</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_val</span> <span class="o">&lt;</span> <span class="n">forecasts_val</span><span class="p">[</span><span class="n">col</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">iso</span> <span class="o">=</span> <span class="n">IsotonicRegression</span><span class="p">(</span>
+            <span class="n">y_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y_max</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">out_of_bounds</span><span class="o">=</span><span class="s2">&quot;clip&quot;</span>
+        <span class="p">)</span>
+        <span class="n">calibrators</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">iso</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">forecasts_val</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">y_bin</span><span class="p">)</span>
+    <span class="c1"># Normalize input forecasts into dict format</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">normalize_model_inputs</span><span class="p">(</span><span class="o">*</span><span class="n">forecasts_to_calibrate</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">vlog</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Applying calibration to </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span><span class="si">}</span><span class="s2"> model(s)...&quot;</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="p">,</span>
+        <span class="n">level</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="n">_logger</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Apply calibrators to each DataFrame</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">inputs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">df_cal</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">quantiles</span><span class="p">:</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_q</span><span class="si">{</span><span class="n">q</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">calibrators</span><span class="p">:</span>
+                <span class="n">out_col</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_cal_prob&quot;</span>
+                <span class="n">df_cal</span><span class="p">[</span><span class="n">out_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">calibrators</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+                <span class="p">)</span>
+        <span class="n">results</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_cal</span>
+    <span class="k">return</span> <span class="n">results</span><span class="p">,</span> <span class="n">calibrators</span>
+
+
+<span class="n">calibrate_forecasts</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">Train and apply isotonic calibration models on forecast data.</span>
+
+<span class="s2">Parameters</span>
+<span class="s2">----------</span>
+<span class="s2">y_val : pandas.Series</span>
+<span class="s2">    Observed target values for calibration.</span>
+<span class="s2">forecasts_val : pandas.DataFrame</span>
+<span class="s2">    Validation forecasts with columns named</span>
+<span class="s2">    `&lt;prefix&gt;_q</span><span class="si">{quantile}</span><span class="s2">` for each quantile.</span>
+<span class="s2">*forecasts_to_calibrate : DataFrame or dict</span>
+<span class="s2">    One or more DataFrames (or a mapping) of new forecasts</span>
+<span class="s2">    to calibrate using trained models.</span>
+<span class="s2">quantiles : tuple of int, optional</span>
+<span class="s2">    List of quantile levels (e.g., 10, 50, 90) to calibrate.</span>
+<span class="s2">prefix : str, default &#39;subsidence&#39;</span>
+<span class="s2">    Column name prefix for quantile forecasts.</span>
+<span class="s2">verbose : int, optional</span>
+<span class="s2">    Verbosity level passed to vlog for logging.</span>
+<span class="s2">_logger : Logger or callable, optional</span>
+<span class="s2">    Sink for log messages (print or logging.Logger).</span>
+
+<span class="s2">Returns</span>
+<span class="s2">-------</span>
+<span class="s2">results : dict</span>
+<span class="s2">    Mapping of model names to calibrated DataFrames,</span>
+<span class="s2">    each containing new `&lt;prefix&gt;_q</span><span class="si">{q}</span><span class="s2">_cal_prob`</span>
+<span class="s2">    probability columns.</span>
+<span class="s2">calibrators : dict</span>
+<span class="s2">    Fitted IsotonicRegression models per quantile.</span>
+
+<span class="s2">Notes</span>
+<span class="s2">-----</span>
+<span class="s2">This function fits an isotonic regression for each</span>
+<span class="s2">quantile on validation data and then predicts</span>
+<span class="s2">calibrated probabilities for new forecasts. Use</span>
+<span class="s2">`normalize_model_inputs` to handle varied input formats.</span>
+
+<span class="s2">Examples</span>
+<span class="s2">--------</span>
+<span class="s2">&gt;&gt;&gt; import pandas as pd</span>
+<span class="s2">&gt;&gt;&gt; import numpy as np</span>
+<span class="s2">&gt;&gt;&gt; from geoprior.utils.forecast_utils import calibrate_forecasts</span>
+<span class="s2">&gt;&gt;&gt; # Create dummy validation series</span>
+<span class="s2">&gt;&gt;&gt; idx = pd.date_range(&#39;2021-01-01&#39;, periods=50)</span>
+<span class="s2">&gt;&gt;&gt; y_val = pd.Series(</span>
+<span class="s2">...     np.random.randn(50), index=idx</span>
+<span class="s2">... )</span>
+<span class="s2">&gt;&gt;&gt; # Simulate validation forecasts</span>
+<span class="s2">&gt;&gt;&gt; val_df = pd.DataFrame({</span>
+<span class="s2">...     &#39;subsidence_q10&#39;: y_val - 0.2,</span>
+<span class="s2">...     &#39;subsidence_q90&#39;: y_val + 0.2</span>
+<span class="s2">... }, index=idx)</span>
+<span class="s2">&gt;&gt;&gt; # Simulate two new forecast sets</span>
+<span class="s2">&gt;&gt;&gt; newA = val_df + 0.1</span>
+<span class="s2">&gt;&gt;&gt; newB = val_df - 0.1</span>
+<span class="s2">&gt;&gt;&gt; # Calibrate forecasts</span>
+<span class="s2">&gt;&gt;&gt; results, models = calibrate_forecasts(</span>
+<span class="s2">...     y_val,</span>
+<span class="s2">...     val_df,</span>
+<span class="s2">...     newA,</span>
+<span class="s2">...     newB,</span>
+<span class="s2">...     quantiles=(10, 90),</span>
+<span class="s2">...     verbose=2</span>
+<span class="s2">... )</span>
+<span class="s2">&gt;&gt;&gt; # Access calibrated probabilities</span>
+<span class="s2">&gt;&gt;&gt; results[&#39;ModelA&#39;][&#39;subsidence_q10_cal_prob&#39;]</span>
+<span class="s2">&gt;&gt;&gt; # Inspect fitted calibrator for q90</span>
+<span class="s2">&gt;&gt;&gt; models[&#39;subsidence_q90&#39;].threshold_</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="calibrate_probability_forecast">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.calibrate.calibrate_probability_forecast">[docs]</a>
+<span class="nd">@SaveFile</span>
+<span class="nd">@check_empty</span><span class="p">([</span><span class="s2">&quot;df&quot;</span><span class="p">])</span>
+<span class="nd">@isdf</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calibrate_probability_forecast</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">prob_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">actual_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;isotonic&quot;</span><span class="p">,</span>
+    <span class="n">out_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">clip</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">savefile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calibrate a probability forecast using either isotonic regression</span>
+<span class="sd">    or logistic (Platt scaling).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        DataFrame containing raw probability forecasts and actuals.</span>
+<span class="sd">    prob_col : str</span>
+<span class="sd">        Column name of raw probability forecasts (values in [0,1]).</span>
+<span class="sd">    actual_col : str</span>
+<span class="sd">        Column name of binary outcomes (0 or 1).</span>
+<span class="sd">    method : {&#39;isotonic&#39;,&#39;logistic&#39;}, default &#39;isotonic&#39;</span>
+<span class="sd">        Calibration method:</span>
+<span class="sd">        - &#39;isotonic&#39;: non-parametric isotonic regression.</span>
+<span class="sd">        - &#39;logistic&#39;: parametric Platt scaling with logistic regression.</span>
+<span class="sd">    out_col : str, optional</span>
+<span class="sd">        Name for calibrated probability column. If None, defaults to</span>
+<span class="sd">        f&quot;{prob_col}_calib&quot;.</span>
+<span class="sd">    clip : bool, default True</span>
+<span class="sd">        If True, clip output to [0,1].</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        A copy of df with an added calibrated probability column.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">out_col</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">out_col</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prob_col</span><span class="si">}</span><span class="s2">_calib&quot;</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">prob_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">y_true</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">actual_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;isotonic&quot;</span><span class="p">:</span>
+        <span class="n">iso</span> <span class="o">=</span> <span class="n">IsotonicRegression</span><span class="p">(</span><span class="n">out_of_bounds</span><span class="o">=</span><span class="s2">&quot;clip&quot;</span><span class="p">)</span>
+        <span class="n">iso</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">y_true</span><span class="p">)</span>
+        <span class="n">y_cal</span> <span class="o">=</span> <span class="n">iso</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;logistic&quot;</span><span class="p">:</span>
+        <span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="s2">&quot;lbfgs&quot;</span><span class="p">)</span>
+        <span class="n">lr</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">y_pred</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">y_true</span><span class="p">)</span>
+        <span class="n">y_cal</span> <span class="o">=</span> <span class="n">lr</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">y_pred</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown method &#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">clip</span><span class="p">:</span>
+        <span class="n">y_cal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">y_cal</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="n">out_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_cal</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="calibrate_forecasts">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.calibrate.calibrate_forecasts">[docs]</a>
+<span class="nd">@SaveFile</span>
+<span class="nd">@check_empty</span><span class="p">([</span><span class="s2">&quot;df&quot;</span><span class="p">])</span>
+<span class="nd">@isdf</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calibrate_forecasts</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">quantiles</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">q_prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">actual_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;isotonic&quot;</span><span class="p">,</span> <span class="s2">&quot;logistic&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;isotonic&quot;</span><span class="p">,</span>
+    <span class="n">out_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;calib&quot;</span><span class="p">,</span>
+    <span class="n">grid_mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;unit&quot;</span><span class="p">,</span> <span class="s2">&quot;range&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;unit&quot;</span><span class="p">,</span>
+    <span class="n">grid_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1001</span><span class="p">,</span>
+    <span class="n">group_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">savefile</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># will handle by decorator so once the function</span>
+    <span class="c1"># return dataframe, decorator take it and explort to csv format instead .</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calibrate quantile forecasts by fitting a monotonic classifier</span>
+<span class="sd">    at each quantile level, then inverting the CDF at the nominal q.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        DataFrame containing raw quantile forecasts and actuals.</span>
+<span class="sd">    quantiles : sequence of float</span>
+<span class="sd">        Nominal quantile levels, e.g. [0.1,0.5,0.9].</span>
+<span class="sd">    q_prefix : str</span>
+<span class="sd">        Prefix for quantile columns (e.g. &#39;subsidence&#39; for</span>
+<span class="sd">        columns subsidence_q10, subsidence_q50, …).</span>
+<span class="sd">    actual_col : str</span>
+<span class="sd">        Column name of the true continuous outcome.</span>
+<span class="sd">    method : {&#39;isotonic&#39;,&#39;logistic&#39;}, default &#39;isotonic&#39;</span>
+<span class="sd">        Calibration method to fit P(actual &lt;= threshold).</span>
+<span class="sd">    out_prefix : str, default &#39;calib&#39;</span>
+<span class="sd">        Prefix for the calibrated columns (e.g. &#39;calib_subsidence_q10&#39;).</span>
+<span class="sd">    grid_mode : {&#39;unit&#39;,&#39;range&#39;}, default &#39;unit&#39;</span>
+<span class="sd">        Which domain to build the inversion grid over:</span>
+<span class="sd">          - &#39;unit&#39; → np.linspace(0,1,grid_size)</span>
+<span class="sd">          - &#39;range&#39; → np.linspace(min(raw), max(raw), grid_size)</span>
+<span class="sd">    grid_size : int, default 1001</span>
+<span class="sd">        Number of points in the inversion grid.</span>
+<span class="sd">    group_by : str, optional</span>
+<span class="sd">        If provided, calibrate separately per `df[group_by]`</span>
+<span class="sd">        (e.g. &#39;forecast_step&#39;).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        A copy of `df` with new columns</span>
+<span class="sd">        `{out_prefix}_{q_prefix}_qXX` appended.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calibrate_block</span><span class="p">(</span><span class="n">block</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">quantiles</span><span class="p">:</span>
+            <span class="n">raw_col</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">q_prefix</span><span class="si">}</span><span class="s2">_q</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">q</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">cal_col</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">out_prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">raw_col</span><span class="si">}</span><span class="s2">&quot;</span>
+
+            <span class="c1"># Build grid</span>
+            <span class="k">if</span> <span class="n">grid_mode</span> <span class="o">==</span> <span class="s2">&quot;unit&quot;</span><span class="p">:</span>
+                <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">grid_size</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># &#39;range&#39;</span>
+                <span class="n">vals</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">raw_col</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+                <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+                    <span class="n">vals</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">vals</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">grid_size</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Binary target: actual ≤ raw_pred</span>
+            <span class="n">y_thr</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">actual_col</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">out</span><span class="p">[</span><span class="n">raw_col</span><span class="p">])</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">values</span>
+            <span class="p">)</span>
+            <span class="n">x_thr</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">raw_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+            <span class="c1"># Fit calibrator</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;isotonic&quot;</span><span class="p">:</span>
+                <span class="n">iso</span> <span class="o">=</span> <span class="n">IsotonicRegression</span><span class="p">(</span><span class="n">out_of_bounds</span><span class="o">=</span><span class="s2">&quot;clip&quot;</span><span class="p">)</span>
+                <span class="n">iso</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_thr</span><span class="p">,</span> <span class="n">y_thr</span><span class="p">)</span>
+                <span class="n">cdf_vals</span> <span class="o">=</span> <span class="n">iso</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># &#39;logistic&#39;</span>
+                <span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="s2">&quot;lbfgs&quot;</span><span class="p">)</span>
+                <span class="n">lr</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_thr</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">y_thr</span><span class="p">)</span>
+                <span class="n">cdf_vals</span> <span class="o">=</span> <span class="n">lr</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span>
+                    <span class="n">grid</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+            <span class="c1"># Invert at q</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">cdf_vals</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">grid_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">cal_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="c1"># Apply either globally or per-group</span>
+    <span class="k">if</span> <span class="n">group_by</span> <span class="ow">and</span> <span class="n">group_by</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">pieces</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">grp</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">group_by</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_calibrate_block</span><span class="p">(</span><span class="n">grp</span><span class="p">))</span>
+        <span class="n">df_out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">pieces</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df_out</span> <span class="o">=</span> <span class="n">_calibrate_block</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df_out</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

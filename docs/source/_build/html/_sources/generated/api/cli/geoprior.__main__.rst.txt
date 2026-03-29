@@ -1,0 +1,23 @@
+﻿geoprior.\_\_main\_\_
+=====================
+
+.. automodule:: geoprior.__main__
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

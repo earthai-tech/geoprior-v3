@@ -1,0 +1,1332 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Scaling and conventions (scaling_kwargs) &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=404c0980"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'scientific_foundations/scaling';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="GeoPrior maths: definitions and conventions" href="maths.html" />
+    <link rel="prev" title="Data, units, and conventions" href="data_and_units.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="models_overview.html">Models overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geoprior_subsnet.html">GeoPriorSubsNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics_formulation.html">Physics formulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="poroelastic_background.html">Poroelastic background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="residual_assembly.html">Residual assembly</a></li>
+<li class="toctree-l1"><a class="reference internal" href="losses_and_training.html">Losses and training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_and_units.html">Data, units, and conventions</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Scaling and conventions (<code class="docutils literal notranslate"><span class="pre">scaling_kwargs</span></code>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maths.html">GeoPrior maths: definitions and conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="identifiability.html">Identifiability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stability_and_constraints.html">Stability and constraints</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Scientific foundations</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Scaling and conventions (<code class="docutils literal notranslate"><span class="pre">scaling_kwargs</span></code>)</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="scaling-and-conventions-scaling-kwargs">
+<span id="geoprior-scaling"></span><h1>Scaling and conventions (<code class="docutils literal notranslate"><span class="pre">scaling_kwargs</span></code>)<a class="headerlink" href="#scaling-and-conventions-scaling-kwargs" title="Link to this heading">#</a></h1>
+<p>GeoPrior-v3 treats <code class="docutils literal notranslate"><span class="pre">scaling_kwargs</span></code> as part of the <strong>model
+contract</strong>, not as optional preprocessing metadata.</p>
+<p>This is one of the most important design choices in the
+project. The scaling payload determines how the model
+interprets:</p>
+<ul class="simple">
+<li><p>subsidence targets,</p></li>
+<li><p>groundwater variables,</p></li>
+<li><p>thickness fields,</p></li>
+<li><p>coordinate order and normalization,</p></li>
+<li><p>time-unit conversion,</p></li>
+<li><p>SI conversion,</p></li>
+<li><p>head-from-depth proxy logic,</p></li>
+<li><p>residual scaling,</p></li>
+<li><p>bounds and priors,</p></li>
+<li><p>and selected training / diagnostics policies.</p></li>
+</ul>
+<p>The current code and model docstrings describe
+<code class="docutils literal notranslate"><span class="pre">scaling_kwargs</span></code> as the <strong>single most important
+configuration</strong> for GeoPrior, precisely because it controls
+how raw dataset values become the internal quantities used by
+the physics core. If this payload changes, the <em>physics
+problem definition itself</em> changes.</p>
+<p>This page explains:</p>
+<ul class="simple">
+<li><p>why scaling is scientifically central in GeoPrior,</p></li>
+<li><p>how <code class="docutils literal notranslate"><span class="pre">GeoPriorScalingConfig</span></code> works,</p></li>
+<li><p>what kinds of fields belong in <code class="docutils literal notranslate"><span class="pre">scaling_kwargs</span></code>,</p></li>
+<li><p>and how scaling affects derivatives, priors, bounds,
+diagnostics, and saved-model reuse.</p></li>
+</ul>
+<section id="why-scaling-is-physics-critical">
+<h2>Why scaling is physics-critical<a class="headerlink" href="#why-scaling-is-physics-critical" title="Link to this heading">#</a></h2>
+<p>GeoPrior is not a standard tabular forecaster.</p>
+<p>Its physics core differentiates with respect to the forecast
+coordinate tensor, converts those derivatives into
+SI-consistent quantities, and assembles residuals for:</p>
+<ul class="simple">
+<li><p>groundwater flow,</p></li>
+<li><p>consolidation relaxation,</p></li>
+<li><p>timescale consistency,</p></li>
+<li><p>smoothness,</p></li>
+<li><p>and bounds.</p></li>
+</ul>
+<p>That means the model is only scientifically meaningful if the
+coordinate spans, time units, head conventions, and target
+units are handled consistently. This is especially important
+for groundwater-driven subsidence, where storage, drawdown,
+drainage thickness, and delayed compaction must remain
+physically interpretable <span id="id1">[<a class="reference internal" href="../references.html#id17" title="Devin L Galloway and Thomas J Burbey. Regional land subsidence accompanying groundwater extraction. Hydrogeology Journal, 19(8):1459, 2011. doi:10.1007/s10040-011-0775-5.">6</a>, <a class="reference internal" href="../references.html#id63" title="J. Ellis, J. E. Knight, J. T. White, M. Sneed, J. D. Hughes, J. K. Ramage, C. L. Braun, A. Teeple, L. K. Foster, S. H. Rendon, and others. Hydrogeology, land-surface subsidence, and documentation of the gulf coast land subsidence and groundwater-flow (gulf) model, southeast texas, 1897–2018. Technical Report, U.S. Geological Survey, 2023. doi:10.3133/pp1877.">8</a>, <a class="reference internal" href="../references.html#id36" title="Manoochehr Shirzaei, Jeffrey Freymueller, Torbjörn E Törnqvist, Devin L Galloway, Tina Dura, and Philip S J Minderhoud. Measuring, modelling and projecting coastal land subsidence. Nature Reviews Earth &amp; Environment, 2(1):40–58, 2021. URL: https://doi.org/10.1038/s43017-020-00115-x, doi:10.1038/s43017-020-00115-x.">14</a>]</span>.</p>
+<p>A useful practical rule is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>if scaling is wrong,
+the physics branch is wrong
+</pre></div>
+</div>
+<p>even when the supervised loss still appears to behave well.</p>
+</section>
+<section id="a-compact-summary">
+<h2>A compact summary<a class="headerlink" href="#a-compact-summary" title="Link to this heading">#</a></h2>
+<p>A useful summary is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>raw dataset values
+     ↓
+scaling_kwargs defines meaning
+     ↓
+GeoPriorScalingConfig resolves a canonical payload
+     ↓
+model uses SI-consistent states and residuals
+     ↓
+training, inference, and saved-model reuse remain aligned
+</pre></div>
+</div>
+<p>This is the core role of scaling in GeoPrior.</p>
+</section>
+<section id="the-scaling-configuration-object">
+<h2>The scaling configuration object<a class="headerlink" href="#the-scaling-configuration-object" title="Link to this heading">#</a></h2>
+<p>GeoPrior wraps the scaling payload in a small
+Keras-serializable container:</p>
+<p><a class="reference internal" href="../api/subsidence.html#id59" title="geoprior.models.subsidence.scaling.GeoPriorScalingConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeoPriorScalingConfig</span></code></a></p>
+<p>The implementation describes this object as the container that
+stores and reconstructs the <strong>physics scaling and slicing
+controls</strong> used by GeoPriorSubsNet. This matters because a
+reloaded model must preserve the same coordinate handling,
+time-unit interpretation, groundwater conventions, bounds,
+and residual scaling behavior it had during training.</p>
+<p>The class supports construction from:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code> (empty config),</p></li>
+<li><p>a mapping / dict-like payload,</p></li>
+<li><p>a filesystem path to a JSON or YAML config file,</p></li>
+<li><p>or an existing <code class="docutils literal notranslate"><span class="pre">GeoPriorScalingConfig</span></code> instance.</p></li>
+</ul>
+</section>
+<section id="the-resolution-pipeline">
+<h2>The resolution pipeline<a class="headerlink" href="#the-resolution-pipeline" title="Link to this heading">#</a></h2>
+<p>The scaling object does not assume the incoming payload is
+already clean.</p>
+<p>The current implementation resolves the scaling contract
+through a four-step pipeline:</p>
+<ol class="arabic simple">
+<li><p>load the payload,</p></li>
+<li><p>canonicalize keys and fill defaults,</p></li>
+<li><p>enforce alias consistency,</p></li>
+<li><p>validate values and required fields.</p></li>
+</ol>
+<p>This is important because it makes reloaded models behave the
+same way as models built from a fresh training run.</p>
+<p>A typical usage pattern is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geoprior.models.subsidence.scaling</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">GeoPriorScalingConfig</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">GeoPriorScalingConfig</span><span class="o">.</span><span class="n">from_any</span><span class="p">(</span>
+    <span class="s2">&quot;path/to/scaling_kwargs.json&quot;</span>
+<span class="p">)</span>
+<span class="n">scaling_kwargs</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>That pattern is also the right mental model for the docs:
+the user may write an initial payload, but the <em>resolved</em>
+payload is what actually defines the model’s physics meaning.</p>
+</section>
+<section id="where-scaling-kwargs-enters-the-workflow">
+<h2>Where <code class="docutils literal notranslate"><span class="pre">scaling_kwargs</span></code> enters the workflow<a class="headerlink" href="#where-scaling-kwargs-enters-the-workflow" title="Link to this heading">#</a></h2>
+<p>In the GeoPrior workflow, scaling is not introduced only at
+model build time. It begins earlier and then persists through
+the whole staged pipeline.</p>
+<p>The older scaling guide already captured the right structure:
+Stage-1 writes <code class="docutils literal notranslate"><span class="pre">scaling_kwargs.json</span></code> as a compact resolved
+record of dataset conventions, feature naming, SI conversion
+constants, coordinate mode, and physics-control knobs, and
+Stage-2 then consumes that payload during training.</p>
+<p>In the current codebase, that logic goes further:</p>
+<ul class="simple">
+<li><p>the resolved scaling config is wrapped in
+<code class="docutils literal notranslate"><span class="pre">GeoPriorScalingConfig</span></code>;</p></li>
+<li><p>the model stores it as a serialized Keras object in
+<code class="docutils literal notranslate"><span class="pre">get_config()</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">from_config()</span></code> rehydrates it during model reload.</p></li>
+</ul>
+<p>This is why scaling belongs to the <strong>scientific foundations</strong>
+section, not only to the user guide.</p>
+</section>
+<section id="what-scaling-kwargs-governs">
+<h2>What <code class="docutils literal notranslate"><span class="pre">scaling_kwargs</span></code> governs<a class="headerlink" href="#what-scaling-kwargs-governs" title="Link to this heading">#</a></h2>
+<p>The internal doc templates are very explicit about the role
+of the scaling payload. The resolved payload is used by:</p>
+<ul class="simple">
+<li><p>target formatting for subsidence and head,</p></li>
+<li><p>coordinate handling (order, normalization, SI conversion),</p></li>
+<li><p>PDE derivative scaling and chain-rule correction,</p></li>
+<li><p>physics closures such as drawdown rules and head-from-depth
+proxy logic,</p></li>
+<li><p>priors and bounds for <span class="math notranslate nohighlight">\(K\)</span>, <span class="math notranslate nohighlight">\(S_s\)</span>,
+<span class="math notranslate nohighlight">\(\tau\)</span>, and <span class="math notranslate nohighlight">\(H\)</span>,</p></li>
+<li><p>training policies such as warmups, ramps, and diagnostics.</p></li>
+</ul>
+<p>So a good way to think about <code class="docutils literal notranslate"><span class="pre">scaling_kwargs</span></code> is:</p>
+<ul class="simple">
+<li><p>it defines <strong>what the data mean</strong>,</p></li>
+<li><p>not only <strong>how the data are numerically scaled</strong>.</p></li>
+</ul>
+</section>
+<section id="target-scaling-and-conventions">
+<h2>Target scaling and conventions<a class="headerlink" href="#target-scaling-and-conventions" title="Link to this heading">#</a></h2>
+<p>The first role of <code class="docutils literal notranslate"><span class="pre">scaling_kwargs</span></code> is to define how the raw
+targets become SI-consistent internal quantities.</p>
+<section id="subsidence">
+<h3>Subsidence<a class="headerlink" href="#subsidence" title="Link to this heading">#</a></h3>
+<p>The payload can declare the semantic type of subsidence
+through a field such as:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">subsidence_kind</span></code></dt><dd><p>Usually <code class="docutils literal notranslate"><span class="pre">&quot;cumulative&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;incremental&quot;</span></code>.</p>
+</dd>
+</dl>
+<p>The corresponding linear conversion is:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-scaling-0">
+<span class="eqno">(1)<a class="headerlink" href="#equation-scientific-foundations-scaling-0" title="Link to this equation">#</a></span>\[s_{si}
+=
+s_{raw}\,subs\_scale\_si + subs\_bias\_si.\]</div>
+<p>Typical interpretation:</p>
+<ul class="simple">
+<li><p>if raw subsidence is stored in millimeters, then
+<code class="docutils literal notranslate"><span class="pre">subs_scale_si</span> <span class="pre">=</span> <span class="pre">1e-3</span></code> converts it to meters;</p></li>
+<li><p>if it is already in meters, <code class="docutils literal notranslate"><span class="pre">subs_scale_si</span> <span class="pre">=</span> <span class="pre">1.0</span></code> is
+appropriate.</p></li>
+</ul>
+</section>
+<section id="groundwater-head">
+<h3>Groundwater / head<a class="headerlink" href="#groundwater-head" title="Link to this heading">#</a></h3>
+<p>The payload may also include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">head_scale_si</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">head_bias_si</span></code></p></li>
+</ul>
+<p>with the same general form:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-scaling-1">
+<span class="eqno">(2)<a class="headerlink" href="#equation-scientific-foundations-scaling-1" title="Link to this equation">#</a></span>\[h_{si}
+=
+h_{raw}\,head\_scale\_si + head\_bias\_si.\]</div>
+<p>This is especially important when the workflow mixes:</p>
+<ul class="simple">
+<li><p>already-physical head values,</p></li>
+<li><p>depth-to-water values later converted into head,</p></li>
+<li><p>or preprocessed standardized inputs that must be restored
+before physics is evaluated.</p></li>
+</ul>
+</section>
+<section id="thickness">
+<h3>Thickness<a class="headerlink" href="#thickness" title="Link to this heading">#</a></h3>
+<p>Thickness enters both the equilibrium settlement closure and
+the timescale prior. The scaling payload therefore also
+supports:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">H_scale_si</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">H_bias_si</span></code></p></li>
+</ul>
+<p>so that:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-scaling-2">
+<span class="eqno">(3)<a class="headerlink" href="#equation-scientific-foundations-scaling-2" title="Link to this equation">#</a></span>\[H_{si}
+=
+H_{raw}\,H\_scale\_si + H\_bias\_si.\]</div>
+<p>This is a high-impact quantity, because incorrect thickness
+scaling can distort:</p>
+<ul class="simple">
+<li><p>equilibrium settlement,</p></li>
+<li><p>effective drainage thickness,</p></li>
+<li><p>and the closure-based timescale prior.</p></li>
+</ul>
+</section>
+</section>
+<section id="groundwater-semantics-and-head-proxies">
+<h2>Groundwater semantics and head proxies<a class="headerlink" href="#groundwater-semantics-and-head-proxies" title="Link to this heading">#</a></h2>
+<p>GeoPrior explicitly tracks how groundwater is represented.</p>
+<p>The scaling payload may define conventions such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">gwl_kind</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gwl_sign</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">use_head_proxy</span></code>.</p></li>
+</ul>
+<p>This matters because different datasets may store:</p>
+<ul class="simple">
+<li><p>hydraulic head directly,</p></li>
+<li><p>depth to groundwater,</p></li>
+<li><p>or a head-like quantity reconstructed from surface
+elevation and groundwater depth.</p></li>
+</ul>
+<p>The model docstring already makes this explicit: one of the
+key ideas of GeoPrior is to <strong>convert GWL to hydraulic head
+using a scaling configuration</strong> before computing physics
+losses.</p>
+<p>A useful conceptual conversion is:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-scaling-3">
+<span class="eqno">(4)<a class="headerlink" href="#equation-scientific-foundations-scaling-3" title="Link to this equation">#</a></span>\[h = z_{surf} - z_{GWL}\]</div>
+<p>when groundwater is stored as positive downward depth below
+surface.</p>
+<p>The important point for users is not only the formula, but
+that the formula belongs to the <strong>scaling contract</strong> rather
+than to ad hoc hand-written preprocessing.</p>
+</section>
+<section id="drawdown-rules">
+<h2>Drawdown rules<a class="headerlink" href="#drawdown-rules" title="Link to this heading">#</a></h2>
+<p>The compaction side of GeoPrior depends on drawdown rather
+than only on the raw groundwater variable.</p>
+<p>The scaling payload can therefore also control:</p>
+<ul class="simple">
+<li><p>drawdown definition,</p></li>
+<li><p>sign policy,</p></li>
+<li><p>optional head-reference behavior,</p></li>
+<li><p>and whether head should be reconstructed from a proxy.</p></li>
+</ul>
+<p>This is one reason <code class="docutils literal notranslate"><span class="pre">scaling_kwargs</span></code> belongs in the model
+config itself: drawdown convention changes the meaning of the
+consolidation residual and the equilibrium settlement
+closure.</p>
+</section>
+<section id="coordinate-handling">
+<h2>Coordinate handling<a class="headerlink" href="#coordinate-handling" title="Link to this heading">#</a></h2>
+<p>The next major job of scaling is to define the derivative
+frame.</p>
+<p>GeoPrior expects the forecast coordinate tensor to follow a
+declared order, typically:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[&quot;t&quot;, &quot;x&quot;, &quot;y&quot;]
+</pre></div>
+</div>
+<p>This order is part of the scaling contract, not a hard-coded
+assumption. The current model documentation explicitly states
+that the coordinate axis order is expected to be
+<code class="docutils literal notranslate"><span class="pre">['t','x','y']</span></code> unless overridden by
+<code class="docutils literal notranslate"><span class="pre">scaling_kwargs['coord_order']</span></code>.</p>
+<p>A wrong coordinate order may not cause a shape error, but it
+makes the PDE residuals meaningless.</p>
+</section>
+<section id="normalized-coordinates-and-chain-rule-scaling">
+<h2>Normalized coordinates and chain-rule scaling<a class="headerlink" href="#normalized-coordinates-and-chain-rule-scaling" title="Link to this heading">#</a></h2>
+<p>One of the most important scaling roles is derivative
+correction when coordinates are normalized.</p>
+<p>The current doc templates describe this explicitly:
+if coordinates are normalized and
+<code class="docutils literal notranslate"><span class="pre">scale_pde_residuals=True</span></code>, GeoPrior applies the chain rule
+using the coordinate ranges. For example, if</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-scaling-4">
+<span class="eqno">(5)<a class="headerlink" href="#equation-scientific-foundations-scaling-4" title="Link to this equation">#</a></span>\[t' = \frac{t - t_0}{\Delta t},\]</div>
+<p>then:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-scaling-5">
+<span class="eqno">(6)<a class="headerlink" href="#equation-scientific-foundations-scaling-5" title="Link to this equation">#</a></span>\[\partial_t
+=
+\frac{1}{\Delta t}\,\partial_{t'}.\]</div>
+<p>Similarly for the spatial coordinates:</p>
+<div class="math notranslate nohighlight" id="equation-scientific-foundations-scaling-6">
+<span class="eqno">(7)<a class="headerlink" href="#equation-scientific-foundations-scaling-6" title="Link to this equation">#</a></span>\[\partial_x
+=
+\frac{1}{\Delta x}\,\partial_{x'},
+\qquad
+\partial_y
+=
+\frac{1}{\Delta y}\,\partial_{y'}.\]</div>
+<p>This is one of the clearest examples of why scaling is
+physics-critical. Raw autodiff operates in <strong>model coordinate
+space</strong>, but the residuals must be interpreted in
+<strong>SI-consistent physical space</strong>.</p>
+<p>The corresponding payload fields typically include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">coords_normalized</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coord_ranges</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coord_ranges_si</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coord_order</span></code>.</p></li>
+</ul>
+</section>
+<section id="time-units">
+<h2>Time units<a class="headerlink" href="#time-units" title="Link to this heading">#</a></h2>
+<p>Time handling is another central part of the scaling
+contract.</p>
+<p>The current docs for the model parameters define
+<code class="docutils literal notranslate"><span class="pre">time_units</span></code> as the name of the time unit used by the model
+coordinates, for example:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;year&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;month&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;day&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;second&quot;</span></code>.</p></li>
+</ul>
+<p>This field influences:</p>
+<ul class="simple">
+<li><p>conversion from dataset time steps to SI seconds,</p></li>
+<li><p>the magnitude of time derivatives in PDE residuals,</p></li>
+<li><p>and the interpretation of <span class="math notranslate nohighlight">\(\tau\)</span> priors.</p></li>
+</ul>
+<p>A useful practical rule is:</p>
+<ul class="simple">
+<li><p>always set <code class="docutils literal notranslate"><span class="pre">time_units</span></code> explicitly,</p></li>
+<li><p>even if the training setup feels obvious to you.</p></li>
+</ul>
+<p>A wrong time-unit declaration silently corrupts both:</p>
+<ul class="simple">
+<li><p>the groundwater residual,</p></li>
+<li><p>and the consolidation timescale logic.</p></li>
+</ul>
+</section>
+<section id="longitude-latitude-vs-projected-coordinates">
+<h2>Longitude / latitude vs projected coordinates<a class="headerlink" href="#longitude-latitude-vs-projected-coordinates" title="Link to this heading">#</a></h2>
+<p>The scaling payload also controls whether spatial coordinates
+are already metric or are still in angular units.</p>
+<p>Typical fields include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">coords_in_degrees</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">deg_to_m_lon</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">deg_to_m_lat</span></code>.</p></li>
+</ul>
+<p>This is essential because a longitude-latitude derivative is
+not directly a meter-based spatial derivative. If the physics
+core interprets raw degrees as meters, the spatial PDE terms
+are distorted by large and site-dependent scaling errors.</p>
+<p>A good rule is:</p>
+<ul class="simple">
+<li><p>projected coordinates are preferred for spatial PDE
+interpretation;</p></li>
+<li><p>if you must use lon/lat, the degree-to-meter conversion
+must be explicit in the scaling payload.</p></li>
+</ul>
+</section>
+<section id="residual-scaling-policy">
+<h2>Residual scaling policy<a class="headerlink" href="#residual-scaling-policy" title="Link to this heading">#</a></h2>
+<p>GeoPrior also uses the scaling payload to control how
+residuals themselves are nondimensionalized and audited.</p>
+<p>The model docs already highlight:</p>
+<ul class="simple">
+<li><p>residual display/scaling,</p></li>
+<li><p>warmup/ramp gates,</p></li>
+<li><p>training policies,</p></li>
+<li><p>and diagnostics</p></li>
+</ul>
+<p>as part of the scaling story.</p>
+<p>This is important because the same payload influences both:</p>
+<ul class="simple">
+<li><p>the <strong>physical meaning</strong> of the states and fields,</p></li>
+<li><p>and the <strong>optimization behavior</strong> of the physics losses.</p></li>
+</ul>
+<p>In other words, scaling is not only about units. It is also
+about keeping the loss geometry stable and comparable across
+runs.</p>
+</section>
+<section id="bounds-and-priors">
+<h2>Bounds and priors<a class="headerlink" href="#bounds-and-priors" title="Link to this heading">#</a></h2>
+<p>One of the less obvious but very important jobs of
+<code class="docutils literal notranslate"><span class="pre">scaling_kwargs</span></code> is to define priors and plausible bounds.</p>
+<p>The internal docs explicitly list priors and bounds for
+<span class="math notranslate nohighlight">\(K\)</span>, <span class="math notranslate nohighlight">\(S_s\)</span>, <span class="math notranslate nohighlight">\(\tau\)</span>, and <span class="math notranslate nohighlight">\(H\)</span> among the
+core responsibilities of the payload.</p>
+<p>This matters because GeoPrior learns effective physical
+fields and then regularizes them. Without a stable scaling
+contract, these fields can become:</p>
+<ul class="simple">
+<li><p>numerically unstable,</p></li>
+<li><p>physically implausible,</p></li>
+<li><p>or inconsistent across saved and reloaded models.</p></li>
+</ul>
+<p>PoroElasticSubsNet even applies a “fill missing bounds”
+policy on <code class="docutils literal notranslate"><span class="pre">scaling_kwargs['bounds']</span></code> by default, which
+shows how central the payload is to the scientific posture of
+the model family.</p>
+</section>
+<section id="forcing-term-meaning">
+<h2>Forcing-term meaning<a class="headerlink" href="#forcing-term-meaning" title="Link to this heading">#</a></h2>
+<p>The forcing term <span class="math notranslate nohighlight">\(Q\)</span> in GeoPrior’s groundwater residual
+also depends on scaling conventions.</p>
+<p>The current math helpers normalize the meaning of <code class="docutils literal notranslate"><span class="pre">Q</span></code> using
+a field such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Q_kind</span></code> / <code class="docutils literal notranslate"><span class="pre">q_kind</span></code> / <code class="docutils literal notranslate"><span class="pre">gw_q_kind</span></code></p></li>
+</ul>
+<p>and support meanings such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">per_volume</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">recharge_rate</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">head_rate</span></code>.</p></li>
+</ul>
+<p>The point is not that every user must expose a learnable
+forcing term. The point is that when forcing is present, its
+units and semantics must be declared explicitly, because the
+groundwater residual expects an SI-consistent source term.</p>
+</section>
+<section id="serialization-and-reproducibility">
+<h2>Serialization and reproducibility<a class="headerlink" href="#serialization-and-reproducibility" title="Link to this heading">#</a></h2>
+<p>One of the strongest reasons GeoPrior uses a dedicated
+scaling object is <strong>saved-model reproducibility</strong>.</p>
+<p>The current model serialization logic stores
+<code class="docutils literal notranslate"><span class="pre">scaling_kwargs</span></code> as a serialized Keras object representing
+the validated scaling configuration, and the model docs state
+explicitly that this preserves the exact conventions
+(units, coordinate normalization, bounds) used during
+training and is critical for consistent inference.</p>
+<p>This means a saved GeoPrior model is not fully specified by:</p>
+<ul class="simple">
+<li><p>architecture weights,</p></li>
+<li><p>loss settings,</p></li>
+<li><p>and optimizer state</p></li>
+</ul>
+<p>alone.</p>
+<p>It also depends on the resolved scaling payload.</p>
+<p>A useful rule is:</p>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Save the resolved scaling payload alongside all serious
+model artifacts.</p>
+<p>If two runs differ unexpectedly across sites, the first
+thing to compare is often the resolved scaling
+configuration.</p>
+</div>
+</section>
+<section id="why-the-scaling-payload-is-json-safe">
+<h2>Why the scaling payload is JSON-safe<a class="headerlink" href="#why-the-scaling-payload-is-json-safe" title="Link to this heading">#</a></h2>
+<p>The scaling helper includes defensive serialization through
+<code class="docutils literal notranslate"><span class="pre">_jsonify(...)</span></code>, which converts nested objects, tuples,
+sets, and NumPy scalars into stable JSON-safe Python types.</p>
+<p>This may look like an engineering detail, but it is
+scientifically important: reproducibility is weaker if the
+saved scaling contract depends on non-deterministic or
+non-serializable objects.</p>
+</section>
+<section id="a-minimal-example">
+<h2>A minimal example<a class="headerlink" href="#a-minimal-example" title="Link to this heading">#</a></h2>
+<p>A compact test-style payload already used in the current
+GeoPrior code looks like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">scaling_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;time_units&quot;</span><span class="p">:</span> <span class="s2">&quot;year&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gwl_kind&quot;</span><span class="p">:</span> <span class="s2">&quot;head&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gwl_sign&quot;</span><span class="p">:</span> <span class="s2">&quot;up_positive&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;use_head_proxy&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s2">&quot;subsidence_kind&quot;</span><span class="p">:</span> <span class="s2">&quot;cumulative&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;coords_normalized&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s2">&quot;track_aux_metrics&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s2">&quot;allow_subs_residual&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This is intentionally small, but it already shows the two
+main roles of the payload:</p>
+<ul class="simple">
+<li><p>unit / meaning declaration,</p></li>
+<li><p>physics policy declaration.</p></li>
+</ul>
+<p>A richer payload may also include coordinate ranges, bounds,
+feature indices, SI conversion factors, and diagnostics
+settings.</p>
+</section>
+<section id="common-mistakes">
+<h2>Common mistakes<a class="headerlink" href="#common-mistakes" title="Link to this heading">#</a></h2>
+<p><strong>Treating scaling as optional</strong></p>
+<p>In GeoPrior, it is not optional. It defines the model’s
+scientific interpretation.</p>
+<p><strong>Using normalized coordinates without range metadata</strong></p>
+<p>This breaks the chain-rule conversion needed for PDE
+derivatives.</p>
+<p><strong>Forgetting to declare time units</strong></p>
+<p>This silently distorts time derivatives and timescale
+priors.</p>
+<p><strong>Confusing head with depth-to-water</strong></p>
+<p>This changes the meaning of drawdown and therefore the
+consolidation closure.</p>
+<p><strong>Saving a model without its resolved scaling payload</strong></p>
+<p>This makes later inference or transfer much harder to trust.</p>
+</section>
+<section id="a-practical-checklist">
+<h2>A practical checklist<a class="headerlink" href="#a-practical-checklist" title="Link to this heading">#</a></h2>
+<p>Before trusting a GeoPrior run, confirm the following:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">coord_order</span></code> matches the actual coordinate tensor;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coords_normalized</span></code> and coordinate spans are correct;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">time_units</span></code> matches the time axis meaning;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subs_scale_si</span></code> converts subsidence to meters;</p></li>
+<li><p>head / groundwater semantics are explicit and correct;</p></li>
+<li><p>thickness scaling is correct and in meters internally;</p></li>
+<li><p>bounds and priors reflect the intended scientific regime;</p></li>
+<li><p>the saved model stores the same resolved scaling payload
+that was used during training.</p></li>
+</ul>
+<p>If those items are correct, then later instability is more
+likely to reflect:</p>
+<ul class="simple">
+<li><p>optimization difficulty,</p></li>
+<li><p>residual stiffness,</p></li>
+<li><p>or identifiability issues</p></li>
+</ul>
+<p>rather than a basic contract error.</p>
+</section>
+<section id="a-compact-scaling-map">
+<h2>A compact scaling map<a class="headerlink" href="#a-compact-scaling-map" title="Link to this heading">#</a></h2>
+<p>The GeoPrior scaling story can be summarized as:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>scaling_kwargs
+   ├── target conventions
+   │     subsidence, head, thickness
+   ├── coordinate conventions
+   │     order, normalization, SI conversion
+   ├── groundwater semantics
+   │     head, depth, drawdown, proxy logic
+   ├── priors and bounds
+   │     K, Ss, tau, H, closure controls
+   ├── residual policies
+   │     derivative scaling, diagnostics, warmups
+   └── serialization
+         preserved through GeoPriorScalingConfig
+</pre></div>
+</div>
+</section>
+<section id="relationship-to-the-rest-of-the-docs">
+<h2>Relationship to the rest of the docs<a class="headerlink" href="#relationship-to-the-rest-of-the-docs" title="Link to this heading">#</a></h2>
+<p>This page explains <strong>what scaling controls</strong>.</p>
+<p>The companion pages explain related parts of the story:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="data_and_units.html"><span class="doc">Data, units, and conventions</span></a>
+explains the variable meanings and dataset contract;</p></li>
+<li><p><a class="reference internal" href="physics_formulation.html"><span class="doc">Physics formulation</span></a>
+explains the governing equations and closures;</p></li>
+<li><p><a class="reference internal" href="residual_assembly.html"><span class="doc">Residual assembly</span></a>
+explains how scaled quantities become residual maps and
+losses;</p></li>
+<li><p><a class="reference internal" href="losses_and_training.html"><span class="doc">Losses and training</span></a>
+explains how those scaled residuals affect optimization;</p></li>
+<li><p><a class="reference internal" href="identifiability.html"><span class="doc">Identifiability</span></a>
+explains how scaling and bounds interact with parameter
+trade-offs.</p></li>
+</ul>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="data_and_units.html"><span class="doc">Data, units, and conventions</span></a></p></li>
+<li><p><a class="reference internal" href="geoprior_subsnet.html"><span class="doc">GeoPriorSubsNet</span></a></p></li>
+<li><p><a class="reference internal" href="physics_formulation.html"><span class="doc">Physics formulation</span></a></p></li>
+<li><p><a class="reference internal" href="residual_assembly.html"><span class="doc">Residual assembly</span></a></p></li>
+<li><p><a class="reference internal" href="losses_and_training.html"><span class="doc">Losses and training</span></a></p></li>
+<li><p><a class="reference internal" href="identifiability.html"><span class="doc">Identifiability</span></a></p></li>
+<li><p><a class="reference internal" href="../user_guide/configuration.html"><span class="doc">Configuration</span></a></p></li>
+<li><p><a class="reference internal" href="../user_guide/stage1.html"><span class="doc">Stage-1</span></a></p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="data_and_units.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Data, units, and conventions</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="maths.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">GeoPrior maths: definitions and conventions</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-scaling-is-physics-critical">Why scaling is physics-critical</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-compact-summary">A compact summary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-scaling-configuration-object">The scaling configuration object</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-resolution-pipeline">The resolution pipeline</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-scaling-kwargs-enters-the-workflow">Where <code class="docutils literal notranslate"><span class="pre">scaling_kwargs</span></code> enters the workflow</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-scaling-kwargs-governs">What <code class="docutils literal notranslate"><span class="pre">scaling_kwargs</span></code> governs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-scaling-and-conventions">Target scaling and conventions</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#subsidence">Subsidence</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#groundwater-head">Groundwater / head</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#thickness">Thickness</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#groundwater-semantics-and-head-proxies">Groundwater semantics and head proxies</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#drawdown-rules">Drawdown rules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#coordinate-handling">Coordinate handling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#normalized-coordinates-and-chain-rule-scaling">Normalized coordinates and chain-rule scaling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#time-units">Time units</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#longitude-latitude-vs-projected-coordinates">Longitude / latitude vs projected coordinates</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#residual-scaling-policy">Residual scaling policy</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bounds-and-priors">Bounds and priors</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#forcing-term-meaning">Forcing-term meaning</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#serialization-and-reproducibility">Serialization and reproducibility</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-the-scaling-payload-is-json-safe">Why the scaling payload is JSON-safe</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-minimal-example">A minimal example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-mistakes">Common mistakes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-practical-checklist">A practical checklist</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-compact-scaling-map">A compact scaling map</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#relationship-to-the-rest-of-the-docs">Relationship to the rest of the docs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See also</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/earthai-tech/geoprior-v3/edit/main/docs/source/scientific_foundations/scaling.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/scientific_foundations/scaling.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

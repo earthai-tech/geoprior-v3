@@ -1,0 +1,30 @@
+﻿geoprior.\_scripts.make\_boundary
+=================================
+
+.. automodule:: geoprior._scripts.make_boundary
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      main
+      make_boundary_main
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

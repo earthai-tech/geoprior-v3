@@ -1,0 +1,2002 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>geoprior._scripts.utils &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=404c0980"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geoprior/_scripts/utils';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../../../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../../../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geoprior._scripts.utils</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for geoprior._scripts.utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+<span class="c1"># GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3</span>
+<span class="c1"># Copyright (c) 2026-present</span>
+<span class="c1"># Author: LKouadio &lt;https://lkouadio.com&gt;</span>
+<span class="c1">#</span>
+<span class="c1"># Utilities to:</span>
+<span class="c1"># - enforce paper style (matplotlib rcParams)</span>
+<span class="c1"># - auto-detect artifacts from a &quot;src&quot; (file or folder)</span>
+<span class="c1"># - load JSON/CSV robustly (schema checks)</span>
+<span class="c1"># - harmonize GeoPrior JSON units (raw vs interpretable variants)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">cfg</span>
+
+<span class="n">_TRUE</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span><span class="p">,</span> <span class="s2">&quot;on&quot;</span><span class="p">}</span>
+<span class="n">_FALSE</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">,</span> <span class="s2">&quot;no&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;f&quot;</span><span class="p">,</span> <span class="s2">&quot;off&quot;</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="str_to_bool">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.str_to_bool">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">str_to_bool</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">default</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">_TRUE</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">_FALSE</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="n">default</span></div>
+
+
+
+<div class="viewcode-block" id="add_city_flags">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.add_city_flags">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_city_flags</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default_both</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-ns&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--ns&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--nansha&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;use_ns&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Select Nansha.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-zh&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--zh&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--zhongshan&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;use_zh&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Select Zhongshan.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--cities&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;ns,zh&quot;</span> <span class="k">if</span> <span class="n">default_both</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Comma list: ns,zh (default ns,zh).&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_plot_text_args">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.add_plot_text_args">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_plot_text_args</span><span class="p">(</span>
+    <span class="n">ap</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">default_out</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Common plot args for Nature workflows.</span>
+
+<span class="sd">    Use cases:</span>
+<span class="sd">    - Hide text for Illustrator editing.</span>
+<span class="sd">    - Keep titles/labels in SVG as editable text.</span>
+
+<span class="sd">    Conventions:</span>
+<span class="sd">    - &quot;legend&quot; includes colorbar (if present).</span>
+<span class="sd">    - &quot;labels&quot; means axis labels and cbar label.</span>
+<span class="sd">    - ticklabels are controlled separately.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--out&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">default_out</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output stem/path (scripts/figs/ if rel).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--show-legend&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show legend/colorbar (true/false).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--show-labels&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show axis labels (true/false).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--show-ticklabels&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show tick labels (true/false).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--show-title&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show suptitle (true/false).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--show-panel-titles&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show per-row panel titles (true/false).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--title&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Override suptitle text.&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_render_args">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.add_render_args">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_render_args</span><span class="p">(</span>
+    <span class="n">ap</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">default</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;heatmap&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Common render args for 2D sensitivity plots.</span>
+
+<span class="sd">    render:</span>
+<span class="sd">      - heatmap: pivot-&gt;imshow (discrete grid)</span>
+<span class="sd">      - tricontour: smooth contourf on scattered points</span>
+<span class="sd">      - pcolormesh: grid-aware shading using real coords</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--render&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;heatmap&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tricontour&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pcolormesh&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Render style (heatmap/tricontour/pcolormesh).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--levels&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Levels for tricontour render.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--clip&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;2,98&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Color scale clip percentiles (lo,hi).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--agg&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Aggregation for duplicate (λc, λp).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--show-points&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Overlay sampled points (true/false).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--trend-arrow&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;false&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Overlay a trend arrow (true/false).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--trend-arrow-len&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">0.22</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Arrow length in axes fraction.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--trend-arrow-pos&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;0.78,0.14&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Arrow anchor in axes frac: x,y&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--trend-arrow-min-n&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Min points needed to fit trend.&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="find_all">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.find_all">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_all</span><span class="p">(</span>
+    <span class="n">src</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">patterns</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">must_exist</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find all files matching any pattern under src.</span>
+
+<span class="sd">    - If src is a file:</span>
+<span class="sd">        return [src] if it matches, else [].</span>
+<span class="sd">    - If src is a directory:</span>
+<span class="sd">        search recursively (rglob) for all patterns.</span>
+
+<span class="sd">    Returned list is sorted by mtime (newest first),</span>
+<span class="sd">    with duplicates removed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">as_path</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">ok</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">_glob_match</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">pat</span><span class="p">)</span> <span class="k">for</span> <span class="n">pat</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">p</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">must_exist</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">must_exist</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">pat</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="n">pat</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">fp</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">out</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">resolve</span><span class="p">())]</span> <span class="o">=</span> <span class="n">fp</span>
+
+    <span class="n">files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">files</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span>
+        <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">,</span>
+        <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">files</span></div>
+
+
+
+<div class="viewcode-block" id="resolve_title">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.resolve_title">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_title</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">default</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">default</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">title</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">default</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">t</span> <span class="k">else</span> <span class="n">t</span></div>
+
+
+
+<div class="viewcode-block" id="resolve_cities">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.resolve_cities">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_cities</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">picked</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;use_ns&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="n">picked</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Nansha&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;use_zh&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="n">picked</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Zhongshan&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">picked</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">picked</span>
+
+    <span class="n">raw</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;cities&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">raw</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;ns&quot;</span><span class="p">,</span> <span class="s2">&quot;nansha&quot;</span><span class="p">}:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Nansha&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;zh&quot;</span><span class="p">,</span> <span class="s2">&quot;zhongshan&quot;</span><span class="p">}:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Zhongshan&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">title</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<div class="viewcode-block" id="resolve_fig_out">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.resolve_fig_out">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_fig_out</span><span class="p">(</span><span class="n">out</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resolve figure output with user-path semantics.</span>
+
+<span class="sd">    Bare relative names go to scripts/figs/.</span>
+<span class="sd">    Relative paths with an explicit parent are kept.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">cfg</span><span class="o">.</span><span class="n">resolve_user_artifact_path</span><span class="p">(</span>
+        <span class="n">out</span><span class="p">,</span>
+        <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;fig&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_norm_fig_formats</span><span class="p">(</span>
+    <span class="n">formats</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">formats</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;png&quot;</span><span class="p">,</span> <span class="s2">&quot;svg&quot;</span><span class="p">,</span> <span class="s2">&quot;pdf&quot;</span><span class="p">,</span> <span class="s2">&quot;eps&quot;</span><span class="p">)</span>
+
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">formats</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">out</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="resolve_fig_stem">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.resolve_fig_stem">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_fig_stem</span><span class="p">(</span><span class="n">out</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resolve an output stem under scripts/figs/ if relative.</span>
+
+<span class="sd">    If user passes a filename with suffix (e.g. foo.png),</span>
+<span class="sd">    we treat it as a stem and strip the suffix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">resolve_fig_out</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">out</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">suffix</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span></div>
+
+
+
+<div class="viewcode-block" id="save_figure">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.save_figure">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_figure</span><span class="p">(</span>
+    <span class="n">fig</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">out</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">formats</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dpi</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">bbox_inches</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;tight&quot;</span><span class="p">,</span>
+    <span class="n">pad_inches</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.02</span><span class="p">,</span>
+    <span class="n">transparent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">close</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save a Matplotlib figure to multiple formats.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fig:</span>
+<span class="sd">        Matplotlib Figure.</span>
+<span class="sd">    out:</span>
+<span class="sd">        Output stem or path. If relative, saved under scripts/figs/.</span>
+<span class="sd">        If has suffix, suffix is stripped and treated as stem.</span>
+<span class="sd">    formats:</span>
+<span class="sd">        Iterable of extensions (png/svg/pdf/eps). Default exports all 4.</span>
+<span class="sd">    dpi:</span>
+<span class="sd">        DPI for raster formats (png). If None, uses current rcParams.</span>
+<span class="sd">    bbox_inches, pad_inches, transparent:</span>
+<span class="sd">        Passed through to fig.savefig.</span>
+<span class="sd">    close:</span>
+<span class="sd">        Close the figure after saving.</span>
+<span class="sd">    verbose:</span>
+<span class="sd">        Print a compact &quot;[OK]&quot; line with what was written.</span>
+<span class="sd">    strict:</span>
+<span class="sd">        If True, any save failure raises immediately.</span>
+<span class="sd">        If False, failures are warned and other formats continue.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    written:</span>
+<span class="sd">        Mapping ext -&gt; output Path for successfully written files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fmts</span> <span class="o">=</span> <span class="n">_norm_fig_formats</span><span class="p">(</span><span class="n">formats</span><span class="p">)</span>
+    <span class="n">stem</span> <span class="o">=</span> <span class="n">resolve_fig_stem</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+    <span class="n">ensure_dir</span><span class="p">(</span><span class="n">stem</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+
+    <span class="n">raster</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;png&quot;</span><span class="p">,</span> <span class="s2">&quot;jpg&quot;</span><span class="p">,</span> <span class="s2">&quot;jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;tif&quot;</span><span class="p">,</span> <span class="s2">&quot;tiff&quot;</span><span class="p">}</span>
+
+    <span class="n">written</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">failed</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">fmts</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">stem</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">ext</span><span class="p">)</span>
+
+        <span class="n">kw</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">bbox_inches</span><span class="o">=</span><span class="n">bbox_inches</span><span class="p">,</span>
+            <span class="n">pad_inches</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">pad_inches</span><span class="p">),</span>
+            <span class="n">transparent</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">transparent</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">raster</span> <span class="ow">and</span> <span class="n">dpi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kw</span><span class="p">[</span><span class="s2">&quot;dpi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">dpi</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+            <span class="n">written</span><span class="p">[</span><span class="n">ext</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">strict</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="n">failed</span><span class="p">[</span><span class="n">ext</span><span class="p">]</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">close</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">ok_exts</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">written</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[OK] wrote </span><span class="si">{</span><span class="n">stem</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">ok_exts</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">failed</span><span class="p">:</span>
+            <span class="n">bad</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">failed</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[WARN] failed formats: </span><span class="si">{</span><span class="n">bad</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">written</span></div>
+
+
+
+<div class="viewcode-block" id="ensure_columns">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.ensure_columns">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ensure_columns</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">aliases</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Ensure canonical columns exist by copying from</span>
+<span class="sd">    the first available alias.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      mapping canonical -&gt; source column used</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">used</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">canon</span><span class="p">,</span> <span class="n">alts</span> <span class="ow">in</span> <span class="p">(</span><span class="n">aliases</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">canon</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">used</span><span class="p">[</span><span class="n">canon</span><span class="p">]</span> <span class="o">=</span> <span class="n">canon</span>
+            <span class="k">continue</span>
+
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">alts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="n">a</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">found</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">canon</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">found</span><span class="p">]</span>
+            <span class="n">used</span><span class="p">[</span><span class="n">canon</span><span class="p">]</span> <span class="o">=</span> <span class="n">found</span>
+
+    <span class="k">return</span> <span class="n">used</span></div>
+
+
+
+<div class="viewcode-block" id="load_dataset_any">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.load_dataset_any">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_dataset_any</span><span class="p">(</span>
+    <span class="n">src</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">ns_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nansha_dataset.final.ready.csv&quot;</span><span class="p">,</span>
+    <span class="n">zh_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;zhongshan_dataset.final.ready.csv&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load a combined dataset if:</span>
+<span class="sd">      - src is a CSV file, or</span>
+<span class="sd">      - src is a dir and --file is provided.</span>
+
+<span class="sd">    Otherwise load ns_file + zh_file from src dir and</span>
+<span class="sd">    concatenate.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">src</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">file</span><span class="p">:</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="p">(</span><span class="n">src</span> <span class="o">/</span> <span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fp</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fp</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+
+    <span class="n">ns_fp</span> <span class="o">=</span> <span class="p">(</span><span class="n">src</span> <span class="o">/</span> <span class="n">ns_file</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+    <span class="n">zh_fp</span> <span class="o">=</span> <span class="p">(</span><span class="n">src</span> <span class="o">/</span> <span class="n">zh_file</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ns_fp</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ns_fp</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">zh_fp</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">zh_fp</span><span class="p">))</span>
+
+    <span class="n">ns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ns_fp</span><span class="p">)</span>
+    <span class="n">zh</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">zh_fp</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;city&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ns</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">ns</span><span class="p">[</span><span class="s2">&quot;city&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Nansha&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;city&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">zh</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">zh</span><span class="p">[</span><span class="s2">&quot;city&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Zhongshan&quot;</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ns</span><span class="p">,</span> <span class="n">zh</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="filter_year">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.filter_year">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_year</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">year</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">year</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;year&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="sample_df">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.sample_df">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sample_df</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">sample_frac</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">sample_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">sample_n</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">sample_n</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">sample_frac</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">sample_frac</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">f</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="c1"># -------------------------------------------------------------------</span>
+<span class="c1"># Small helpers</span>
+<span class="c1"># -------------------------------------------------------------------</span>
+<div class="viewcode-block" id="ensure_dir">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.ensure_dir">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ensure_dir</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span></div>
+
+
+
+<div class="viewcode-block" id="ensure_script_dirs">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.ensure_script_dirs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ensure_script_dirs</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">ensure_dir</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">OUT_DIR</span><span class="p">)</span>
+    <span class="n">ensure_dir</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">FIG_DIR</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="as_path">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.as_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">as_path</span><span class="p">(</span><span class="n">src</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">src</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">src</span><span class="p">))</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="canonical_city">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.canonical_city">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">canonical_city</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">name</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">cfg</span><span class="o">.</span><span class="n">CITY_CANON</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="label">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.label">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">label</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">with_unit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">LABELS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">title</span><span class="p">())</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">with_unit</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">base</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">UNITS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">u</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">if</span> <span class="n">u</span> <span class="k">else</span> <span class="n">base</span></div>
+
+
+
+<div class="viewcode-block" id="phys_label">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.phys_label">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">phys_label</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">with_unit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">PHYS_LABELS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">with_unit</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">base</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">PHYS_UNITS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">u</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">if</span> <span class="n">u</span> <span class="k">else</span> <span class="n">base</span></div>
+
+
+
+<span class="c1"># -------------------------------------------------------------------</span>
+<span class="c1"># Matplotlib style (centralized)</span>
+<span class="c1"># Replaces repeated set_style() across figure scripts.</span>
+<span class="c1"># -------------------------------------------------------------------</span>
+<div class="viewcode-block" id="set_paper_style">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.set_paper_style">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_paper_style</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">fontsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">PAPER_FONT</span><span class="p">,</span>
+    <span class="n">dpi</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">PAPER_DPI</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
+
+    <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;figure.dpi&quot;</span><span class="p">:</span> <span class="n">dpi</span><span class="p">,</span>
+            <span class="s2">&quot;savefig.dpi&quot;</span><span class="p">:</span> <span class="n">dpi</span><span class="p">,</span>
+            <span class="s2">&quot;font.size&quot;</span><span class="p">:</span> <span class="n">fontsize</span><span class="p">,</span>
+            <span class="s2">&quot;axes.labelsize&quot;</span><span class="p">:</span> <span class="n">fontsize</span><span class="p">,</span>
+            <span class="s2">&quot;axes.titlesize&quot;</span><span class="p">:</span> <span class="n">fontsize</span><span class="p">,</span>
+            <span class="s2">&quot;xtick.labelsize&quot;</span><span class="p">:</span> <span class="n">fontsize</span><span class="p">,</span>
+            <span class="s2">&quot;ytick.labelsize&quot;</span><span class="p">:</span> <span class="n">fontsize</span><span class="p">,</span>
+            <span class="s2">&quot;legend.fontsize&quot;</span><span class="p">:</span> <span class="n">fontsize</span><span class="p">,</span>
+            <span class="s2">&quot;axes.linewidth&quot;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+            <span class="s2">&quot;xtick.major.width&quot;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+            <span class="s2">&quot;ytick.major.width&quot;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+            <span class="s2">&quot;lines.linewidth&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="s2">&quot;pdf.fonttype&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>
+            <span class="s2">&quot;ps.fonttype&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="c1"># -------------------------------------------------------------------</span>
+<span class="c1"># Robust file discovery from a &quot;src&quot;</span>
+<span class="c1"># -------------------------------------------------------------------</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_iter_candidates</span><span class="p">(</span>
+    <span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">patterns</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">pat</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">:</span>
+        <span class="k">yield from</span> <span class="n">root</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="n">pat</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="find_preferred">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.find_preferred">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_preferred</span><span class="p">(</span>
+    <span class="n">src</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">patterns</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">must_exist</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Try patterns in order, returning the first match.</span>
+
+<span class="sd">    Unlike find_latest() with multiple patterns,</span>
+<span class="sd">    this respects priority order.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">as_path</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">parent</span>
+
+    <span class="k">for</span> <span class="n">pat</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">find_latest</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="p">[</span><span class="n">pat</span><span class="p">],</span> <span class="n">must_exist</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">p</span>
+
+    <span class="k">if</span> <span class="n">must_exist</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;No match under </span><span class="si">{</span><span class="n">root</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">patterns</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="find_eval_diag_json">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.find_eval_diag_json">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_eval_diag_json</span><span class="p">(</span><span class="n">src</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">pats</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">PATTERNS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;eval_diag_json&quot;</span><span class="p">,</span> <span class="p">())</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pats</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">find_preferred</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">pats</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="find_latest">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.find_latest">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_latest</span><span class="p">(</span>
+    <span class="n">src</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">patterns</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">must_exist</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find newest file matching any of patterns under src.</span>
+
+<span class="sd">    - If src is a file: returns it if it matches any pattern.</span>
+<span class="sd">    - If src is a directory: searches recursively and returns</span>
+<span class="sd">      the most recently modified candidate.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">as_path</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">ok</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">_glob_match</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">pat</span><span class="p">)</span> <span class="k">for</span> <span class="n">pat</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">p</span>
+        <span class="k">if</span> <span class="n">must_exist</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">must_exist</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">cands</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_iter_candidates</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">patterns</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cands</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">must_exist</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No match under </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">patterns</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">cands</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cands</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_glob_match</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">fnmatch</span>
+
+    <span class="k">return</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">pattern</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Artifacts">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.Artifacts">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Artifacts</span><span class="p">:</span>
+    <span class="n">src</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">phys_json</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">eval_diag_json</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">forecast_test_csv</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">forecast_test_future_csv</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">forecast_val_csv</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">forecast_future_csv</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">physics_payload</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">coords_npz</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="detect_artifacts">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.detect_artifacts">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_artifacts</span><span class="p">(</span><span class="n">src</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Artifacts</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Detect common v3.2 artifacts starting from a src path.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">    - src = &quot;.../results/nansha_..._stage1/train_YYYYmmdd-HHMMSS&quot;</span>
+<span class="sd">    - We auto-locate:</span>
+<span class="sd">      geoprior_eval_phys_*.json, eval_diagnostics.json,</span>
+<span class="sd">      *_calibrated.csv, *_future.csv, physics payload, etc.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">as_path</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">parent</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">Artifacts</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="n">root</span><span class="p">)</span>
+
+    <span class="n">out</span><span class="o">.</span><span class="n">phys_json</span> <span class="o">=</span> <span class="n">find_latest</span><span class="p">(</span>
+        <span class="n">root</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">PATTERNS</span><span class="p">[</span><span class="s2">&quot;phys_json&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">eval_diag_json</span> <span class="o">=</span> <span class="n">find_eval_diag_json</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+
+    <span class="n">out</span><span class="o">.</span><span class="n">forecast_val_csv</span> <span class="o">=</span> <span class="n">find_latest</span><span class="p">(</span>
+        <span class="n">root</span><span class="p">,</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">PATTERNS</span><span class="p">[</span><span class="s2">&quot;forecast_val_csv&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">forecast_future_csv</span> <span class="o">=</span> <span class="n">find_latest</span><span class="p">(</span>
+        <span class="n">root</span><span class="p">,</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">PATTERNS</span><span class="p">[</span><span class="s2">&quot;forecast_future_csv&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="c1"># out.forecast_val_csv = find_preferred(</span>
+    <span class="c1">#     root,</span>
+    <span class="c1">#     cfg.PATTERNS[&quot;forecast_val_csv&quot;],</span>
+    <span class="c1"># )</span>
+
+    <span class="c1"># out.forecast_test_csv = find_preferred(</span>
+    <span class="c1">#     root,</span>
+    <span class="c1">#     cfg.PATTERNS[&quot;forecast_test_csv&quot;],</span>
+    <span class="c1"># )</span>
+
+    <span class="n">out</span><span class="o">.</span><span class="n">physics_payload</span> <span class="o">=</span> <span class="n">find_latest</span><span class="p">(</span>
+        <span class="n">root</span><span class="p">,</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">PATTERNS</span><span class="p">[</span><span class="s2">&quot;physics_payload&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">forecast_test_csv</span> <span class="o">=</span> <span class="n">find_latest</span><span class="p">(</span>
+        <span class="n">root</span><span class="p">,</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">PATTERNS</span><span class="p">[</span><span class="s2">&quot;forecast_test_csv&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">forecast_test_future_csv</span> <span class="o">=</span> <span class="n">find_latest</span><span class="p">(</span>
+        <span class="n">root</span><span class="p">,</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">PATTERNS</span><span class="p">[</span><span class="s2">&quot;forecast_test_future_csv&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">coords_npz</span> <span class="o">=</span> <span class="n">find_latest</span><span class="p">(</span>
+        <span class="n">root</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">PATTERNS</span><span class="p">[</span><span class="s2">&quot;coords_npz&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<span class="c1"># -------------------------------------------------------------------</span>
+<span class="c1"># Loading helpers (JSON / CSV)</span>
+<span class="c1"># -------------------------------------------------------------------</span>
+<div class="viewcode-block" id="safe_load_json">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.safe_load_json">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">safe_load_json</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">as_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">p</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+
+
+<div class="viewcode-block" id="load_forecast_csv">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.load_forecast_csv">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_forecast_csv</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load calibrated forecast CSV and enforce basic schema.</span>
+
+<span class="sd">    Expected columns are consistent with the uncertainty scripts:</span>
+<span class="sd">      sample_idx, forecast_step,</span>
+<span class="sd">      subsidence_q10, subsidence_q50, subsidence_q90,</span>
+<span class="sd">      subsidence_actual</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">as_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+    <span class="n">needed</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;sample_idx&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;forecast_step&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;subsidence_q10&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;subsidence_q50&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;subsidence_q90&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;subsidence_actual&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">needed</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+    <span class="c1"># if missing:</span>
+    <span class="c1">#     raise KeyError(f&quot;Missing columns in {p}: {missing}&quot;)</span>
+    <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="s2">&quot;subsidence_actual&quot;</span> <span class="ow">in</span> <span class="n">missing</span>
+            <span class="ow">and</span> <span class="s2">&quot;future&quot;</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2"> looks like a future &quot;</span>
+                <span class="s2">&quot;forecast (no actual). &quot;</span>
+                <span class="s2">&quot;Use *_eval*_calibrated.csv.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing columns in </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="s2">&quot;subsidence_q10&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;subsidence_q50&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;subsidence_q90&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;subsidence_actual&quot;</span><span class="p">,</span>
+    <span class="p">]:</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;forecast_step&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;forecast_step&quot;</span><span class="p">],</span>
+        <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;forecast_step&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="c1"># -------------------------------------------------------------------</span>
+<span class="c1"># GeoPrior JSON harmonization</span>
+<span class="c1"># - v3.2 may produce both:</span>
+<span class="c1">#   * raw JSON (subs_metrics_unit=&quot;m&quot;)</span>
+<span class="c1">#   * interpretable JSON (subs_metrics_unit=&quot;mm&quot;)</span>
+<span class="c1"># We standardize to &quot;mm&quot; for plotting/tables.</span>
+<span class="c1"># -------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="phys_json_to_mm">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.phys_json_to_mm">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">phys_json_to_mm</span><span class="p">(</span><span class="n">meta</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalize GeoPrior phys JSON to &quot;mm&quot; subs metrics.</span>
+
+<span class="sd">    v3.2 may produce:</span>
+<span class="sd">    - interpretable JSON: already in mm (no-op)</span>
+<span class="sd">    - raw JSON: often distance-like metrics in meters</span>
+
+<span class="sd">    We convert:</span>
+<span class="sd">    - distance-like: MAE / RMSE / sharpness  -&gt; × scale</span>
+<span class="sd">    - squared:       MSE                     -&gt; × scale²</span>
+
+<span class="sd">    This conversion touches (if present):</span>
+<span class="sd">    - metrics_evaluate: subs_pred_* keys</span>
+<span class="sd">    - point_metrics</span>
+<span class="sd">    - per_horizon: mae/mse/rmse/sharpness</span>
+<span class="sd">    - interval_metrics: sharpness*</span>
+<span class="sd">    - interval_calibration: sharpness* keys</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">meta</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;units&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span>
+
+    <span class="n">u</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subs_metrics_unit&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">u</span> <span class="o">==</span> <span class="s2">&quot;mm&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="c1"># Prefer an explicit factor if provided.</span>
+    <span class="c1"># Common: 1000 for m -&gt; mm.</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subs_factor_si_to_real&quot;</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="mf">1000.0</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span> <span class="ow">or</span> <span class="n">scale</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="mf">1000.0</span>
+
+    <span class="n">scale2</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_scale_dist</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_scale_mse</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">scale2</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_scale_map</span><span class="p">(</span>
+        <span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">dist_keys</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+        <span class="n">mse_keys</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{}</span>
+        <span class="n">dd</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">dist_keys</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">dd</span><span class="p">:</span>
+                <span class="n">_scale_dist</span><span class="p">(</span><span class="n">dd</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">mse_keys</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">dd</span><span class="p">:</span>
+                <span class="n">_scale_mse</span><span class="p">(</span><span class="n">dd</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dd</span>
+
+    <span class="c1"># ---------------------------------------------------------</span>
+    <span class="c1"># metrics_evaluate (subs_pred_*)</span>
+    <span class="c1"># ---------------------------------------------------------</span>
+    <span class="n">me</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metrics_evaluate&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">me</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">me</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">me</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;subs_pred_&quot;</span><span class="p">):</span>
+                <span class="k">continue</span>
+
+            <span class="n">kk</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+            <span class="c1"># mse family: mse, mse_q50, etc.</span>
+            <span class="k">if</span> <span class="s2">&quot;mse&quot;</span> <span class="ow">in</span> <span class="n">kk</span><span class="p">:</span>
+                <span class="n">_scale_mse</span><span class="p">(</span><span class="n">me</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># distance-like: mae/rmse/sharpness, incl *_q50.</span>
+            <span class="k">if</span> <span class="s2">&quot;mae&quot;</span> <span class="ow">in</span> <span class="n">kk</span> <span class="ow">or</span> <span class="s2">&quot;rmse&quot;</span> <span class="ow">in</span> <span class="n">kk</span> <span class="ow">or</span> <span class="s2">&quot;sharp&quot;</span> <span class="ow">in</span> <span class="n">kk</span><span class="p">:</span>
+                <span class="n">_scale_dist</span><span class="p">(</span><span class="n">me</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+
+        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;metrics_evaluate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">me</span>
+
+    <span class="c1"># ---------------------------------------------------------</span>
+    <span class="c1"># point_metrics</span>
+    <span class="c1"># ---------------------------------------------------------</span>
+    <span class="n">pm</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;point_metrics&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pm</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">pm</span><span class="p">:</span>
+        <span class="n">pm</span> <span class="o">=</span> <span class="n">_scale_map</span><span class="p">(</span>
+            <span class="n">pm</span><span class="p">,</span>
+            <span class="n">dist_keys</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;mae&quot;</span><span class="p">,</span> <span class="s2">&quot;rmse&quot;</span><span class="p">),</span>
+            <span class="n">mse_keys</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;mse&quot;</span><span class="p">,),</span>
+        <span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;point_metrics&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pm</span>
+
+    <span class="c1"># ---------------------------------------------------------</span>
+    <span class="c1"># per_horizon metrics</span>
+    <span class="c1"># (only scale numeric dict-of-dict blocks)</span>
+    <span class="c1"># ---------------------------------------------------------</span>
+    <span class="n">ph</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;per_horizon&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ph</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ph</span><span class="p">:</span>
+        <span class="n">ph2</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ph</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_scale_hdict</span><span class="p">(</span>
+            <span class="n">hd</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">mul</span><span class="p">:</span> <span class="nb">float</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+            <span class="n">outd</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">hd</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">hk</span><span class="p">,</span> <span class="n">hv</span> <span class="ow">in</span> <span class="n">outd</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span>
+                    <span class="n">hv</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span>
+                <span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">hv</span><span class="p">):</span>
+                    <span class="n">outd</span><span class="p">[</span><span class="n">hk</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">hv</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">mul</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">outd</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">mul</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;mae&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;rmse&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;sharpness80&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;sharpness&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;mse&quot;</span><span class="p">,</span> <span class="n">scale2</span><span class="p">),</span>
+        <span class="p">]:</span>
+            <span class="n">blk</span> <span class="o">=</span> <span class="n">ph2</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">blk</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">ph2</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_scale_hdict</span><span class="p">(</span><span class="n">blk</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">mul</span><span class="p">))</span>
+
+        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;per_horizon&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ph2</span>
+
+    <span class="c1"># ---------------------------------------------------------</span>
+    <span class="c1"># interval_metrics (if present)</span>
+    <span class="c1"># ---------------------------------------------------------</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;interval_metrics&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">im</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="s2">&quot;sharp&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">_scale_dist</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;interval_metrics&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">im</span>
+
+    <span class="c1"># ---------------------------------------------------------</span>
+    <span class="c1"># interval_calibration</span>
+    <span class="c1"># NOTE: these often contain both SI and phys fields.</span>
+    <span class="c1"># Raw JSON can store these in meters; scale all sharpness*</span>
+    <span class="c1"># keys to mm to make plotting consistent.</span>
+    <span class="c1"># ---------------------------------------------------------</span>
+    <span class="n">ic</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;interval_calibration&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ic</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ic</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">ic</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="s2">&quot;sharp&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">_scale_dist</span><span class="p">(</span><span class="n">ic</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;interval_calibration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ic</span>
+
+    <span class="n">units</span><span class="p">[</span><span class="s2">&quot;subs_metrics_unit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mm&quot;</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">units</span>
+
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<span class="c1"># -------------------------------------------------------------------</span>
+<span class="c1"># Metric picking (GeoPrior JSON = primary; eval_diag = fallback)</span>
+<span class="c1"># Mirrors your Figure-2 collection logic.</span>
+<span class="c1"># -------------------------------------------------------------------</span>
+<div class="viewcode-block" id="pick_point_metrics">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.pick_point_metrics">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pick_point_metrics</span><span class="p">(</span>
+    <span class="n">phys_json</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">fallback</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="n">r2</span> <span class="o">=</span> <span class="n">mae</span> <span class="o">=</span> <span class="n">mse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="k">if</span> <span class="n">phys_json</span><span class="p">:</span>
+        <span class="n">pm</span> <span class="o">=</span> <span class="n">phys_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;point_metrics&quot;</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">pm</span><span class="p">:</span>
+            <span class="n">r2</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;r2&quot;</span><span class="p">,</span> <span class="n">r2</span><span class="p">)</span>
+            <span class="n">mae</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mae&quot;</span><span class="p">,</span> <span class="n">mae</span><span class="p">)</span>
+            <span class="n">mse</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mse&quot;</span><span class="p">,</span> <span class="n">mse</span><span class="p">)</span>
+
+        <span class="n">me</span> <span class="o">=</span> <span class="n">phys_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metrics_evaluate&quot;</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">mae</span><span class="p">):</span>
+            <span class="n">mae</span> <span class="o">=</span> <span class="n">me</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subs_pred_mae&quot;</span><span class="p">,</span> <span class="n">mae</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">mse</span><span class="p">):</span>
+            <span class="n">mse</span> <span class="o">=</span> <span class="n">me</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subs_pred_mse&quot;</span><span class="p">,</span> <span class="n">mse</span><span class="p">)</span>
+
+    <span class="n">flat</span> <span class="o">=</span> <span class="n">flatten_eval_diag</span><span class="p">(</span><span class="n">fallback</span><span class="p">)</span> <span class="k">if</span> <span class="n">fallback</span> <span class="k">else</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">r2</span><span class="p">):</span>
+        <span class="n">r2</span> <span class="o">=</span> <span class="n">flat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;r2&quot;</span><span class="p">,</span> <span class="n">r2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">mae</span><span class="p">):</span>
+        <span class="n">mae</span> <span class="o">=</span> <span class="n">flat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mae&quot;</span><span class="p">,</span> <span class="n">mae</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">mse</span><span class="p">):</span>
+        <span class="n">mse</span> <span class="o">=</span> <span class="n">flat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mse&quot;</span><span class="p">,</span> <span class="n">mse</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">to_float</span><span class="p">(</span><span class="n">r2</span><span class="p">),</span> <span class="n">to_float</span><span class="p">(</span><span class="n">mae</span><span class="p">),</span> <span class="n">to_float</span><span class="p">(</span><span class="n">mse</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="pick_interval_metrics">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.pick_interval_metrics">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pick_interval_metrics</span><span class="p">(</span>
+    <span class="n">phys_json</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">fallback</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Pick interval metrics with calibrated preference.</span>
+
+<span class="sd">    Preference order:</span>
+<span class="sd">      1) phys_json.interval_calibration:</span>
+<span class="sd">         - calibrated_phys (paper / physical)</span>
+<span class="sd">         - calibrated      (often SI)</span>
+<span class="sd">      2) phys_json.interval_metrics</span>
+<span class="sd">      3) phys_json.metrics_evaluate (may be uncalibrated)</span>
+<span class="sd">      4) eval diagnostics JSON (flattened)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    coverage80 : float</span>
+<span class="sd">        Unitless.</span>
+<span class="sd">    sharpness80 : float</span>
+<span class="sd">        Returned in mm when we can infer conversion.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cov</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>
+    <span class="n">shp</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>
+    <span class="n">shp_src</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_take</span><span class="p">(</span><span class="n">cur</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">cur</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">cur</span>
+        <span class="n">fv</span> <span class="o">=</span> <span class="n">to_float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fv</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">fv</span><span class="p">)</span> <span class="k">else</span> <span class="n">cur</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_take_tag</span><span class="p">(</span>
+        <span class="n">cur</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">cur</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">cur</span><span class="p">,</span> <span class="n">tag</span>
+        <span class="n">fv</span> <span class="o">=</span> <span class="n">to_float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">fv</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">fv</span><span class="p">,</span> <span class="n">tag</span>
+        <span class="k">return</span> <span class="n">cur</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="c1"># Conversion factor (SI -&gt; &quot;real&quot;) when available.</span>
+    <span class="c1"># Common: 1000 for m -&gt; mm.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_si_to_real_factor</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">phys_json</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1000.0</span>
+
+        <span class="n">units</span> <span class="o">=</span> <span class="n">phys_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;units&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">fac</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subs_factor_si_to_real&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fac</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fac</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">fac</span> <span class="o">=</span> <span class="mf">1000.0</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">fac</span><span class="p">)</span> <span class="ow">or</span> <span class="n">fac</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">fac</span> <span class="o">=</span> <span class="mf">1000.0</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">fac</span><span class="p">)</span>
+
+    <span class="n">fac</span> <span class="o">=</span> <span class="n">_si_to_real_factor</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">phys_json</span><span class="p">:</span>
+        <span class="n">ic</span> <span class="o">=</span> <span class="n">phys_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;interval_calibration&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ic</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">cov</span> <span class="o">=</span> <span class="n">_take</span><span class="p">(</span>
+                <span class="n">cov</span><span class="p">,</span>
+                <span class="n">ic</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;coverage80_calibrated_phys&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">cov</span> <span class="o">=</span> <span class="n">_take</span><span class="p">(</span>
+                <span class="n">cov</span><span class="p">,</span>
+                <span class="n">ic</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;coverage80_calibrated&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+
+            <span class="n">shp</span><span class="p">,</span> <span class="n">tag</span> <span class="o">=</span> <span class="n">_take_tag</span><span class="p">(</span>
+                <span class="n">shp</span><span class="p">,</span>
+                <span class="n">ic</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sharpness80_calibrated_phys&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;ic_phys&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">tag</span><span class="p">:</span>
+                <span class="n">shp</span><span class="p">,</span> <span class="n">tag</span> <span class="o">=</span> <span class="n">_take_tag</span><span class="p">(</span>
+                    <span class="n">shp</span><span class="p">,</span>
+                    <span class="n">ic</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sharpness80_calibrated&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;ic_si&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">tag</span><span class="p">:</span>
+                <span class="n">shp_src</span> <span class="o">=</span> <span class="n">tag</span>
+
+        <span class="n">im</span> <span class="o">=</span> <span class="n">phys_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;interval_metrics&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">cov</span> <span class="o">=</span> <span class="n">_take</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="n">im</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;coverage80&quot;</span><span class="p">))</span>
+            <span class="n">shp</span><span class="p">,</span> <span class="n">tag</span> <span class="o">=</span> <span class="n">_take_tag</span><span class="p">(</span>
+                <span class="n">shp</span><span class="p">,</span>
+                <span class="n">im</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sharpness80&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;im&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">tag</span><span class="p">:</span>
+                <span class="n">shp_src</span> <span class="o">=</span> <span class="n">tag</span>
+
+        <span class="n">me</span> <span class="o">=</span> <span class="n">phys_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metrics_evaluate&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">me</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">cov</span> <span class="o">=</span> <span class="n">_take</span><span class="p">(</span>
+                <span class="n">cov</span><span class="p">,</span>
+                <span class="n">me</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subs_pred_coverage80&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">shp</span><span class="p">,</span> <span class="n">tag</span> <span class="o">=</span> <span class="n">_take_tag</span><span class="p">(</span>
+                <span class="n">shp</span><span class="p">,</span>
+                <span class="n">me</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subs_pred_sharpness80&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;me&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">tag</span><span class="p">:</span>
+                <span class="n">shp_src</span> <span class="o">=</span> <span class="n">tag</span>
+
+    <span class="n">flat</span> <span class="o">=</span> <span class="n">flatten_eval_diag</span><span class="p">(</span><span class="n">fallback</span><span class="p">)</span> <span class="k">if</span> <span class="n">fallback</span> <span class="k">else</span> <span class="p">{}</span>
+    <span class="n">cov</span> <span class="o">=</span> <span class="n">_take</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="n">flat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;coverage80&quot;</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">shp</span><span class="p">):</span>
+        <span class="n">shp</span><span class="p">,</span> <span class="n">tag</span> <span class="o">=</span> <span class="n">_take_tag</span><span class="p">(</span>
+            <span class="n">shp</span><span class="p">,</span>
+            <span class="n">flat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sharpness80&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;diag&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">tag</span><span class="p">:</span>
+            <span class="n">shp_src</span> <span class="o">=</span> <span class="n">tag</span>
+
+    <span class="c1"># ---------------------------------------------------------</span>
+    <span class="c1"># Unit harmonization for sharpness</span>
+    <span class="c1"># - If we used SI-calibrated value from interval_calibration,</span>
+    <span class="c1">#   convert to mm using fac.</span>
+    <span class="c1"># - If we fell back to diagnostics and it looks SI (&lt; 1),</span>
+    <span class="c1">#   convert as well.</span>
+    <span class="c1"># ---------------------------------------------------------</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">shp</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">shp_src</span> <span class="o">==</span> <span class="s2">&quot;ic_si&quot;</span><span class="p">:</span>
+            <span class="n">shp</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">shp</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">fac</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">shp_src</span> <span class="o">==</span> <span class="s2">&quot;diag&quot;</span> <span class="ow">and</span> <span class="nb">float</span><span class="p">(</span><span class="n">shp</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="n">shp</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">shp</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">fac</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cov</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">shp</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="flatten_eval_diag">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.flatten_eval_diag">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">flatten_eval_diag</span><span class="p">(</span>
+    <span class="n">diag</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Flatten eval diagnostics into keys used by plots.</span>
+
+<span class="sd">    Supports:</span>
+<span class="sd">      1) Flat: {&quot;mae&quot;:..., &quot;coverage80&quot;:...}</span>
+<span class="sd">      2) &quot;__overall__&quot; block:</span>
+<span class="sd">         {&quot;2020.0&quot;: {...}, &quot;__overall__&quot;: {...}}</span>
+<span class="sd">      3) eval_after:</span>
+<span class="sd">         {&quot;overall_key&quot;: &quot;__overall__&quot;,</span>
+<span class="sd">          &quot;eval_after&quot;: {&quot;__overall__&quot;: {...}}}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">diag</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_if</span><span class="p">(</span><span class="n">dst</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dst</span> <span class="ow">in</span> <span class="n">out</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">fv</span> <span class="o">=</span> <span class="n">to_float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">fv</span><span class="p">):</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">dst</span><span class="p">]</span> <span class="o">=</span> <span class="n">fv</span>
+
+    <span class="n">blk</span> <span class="o">=</span> <span class="n">diag</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;__overall__&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">blk</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">_set_if</span><span class="p">(</span><span class="s2">&quot;mae&quot;</span><span class="p">,</span> <span class="n">blk</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;overall_mae&quot;</span><span class="p">))</span>
+        <span class="n">_set_if</span><span class="p">(</span><span class="s2">&quot;mse&quot;</span><span class="p">,</span> <span class="n">blk</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;overall_mse&quot;</span><span class="p">))</span>
+        <span class="n">_set_if</span><span class="p">(</span><span class="s2">&quot;rmse&quot;</span><span class="p">,</span> <span class="n">blk</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;overall_rmse&quot;</span><span class="p">))</span>
+        <span class="n">_set_if</span><span class="p">(</span><span class="s2">&quot;r2&quot;</span><span class="p">,</span> <span class="n">blk</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;overall_r2&quot;</span><span class="p">))</span>
+        <span class="n">_set_if</span><span class="p">(</span><span class="s2">&quot;coverage80&quot;</span><span class="p">,</span> <span class="n">blk</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;coverage80&quot;</span><span class="p">))</span>
+        <span class="n">_set_if</span><span class="p">(</span><span class="s2">&quot;sharpness80&quot;</span><span class="p">,</span> <span class="n">blk</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sharpness80&quot;</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;r2&quot;</span><span class="p">,</span> <span class="s2">&quot;mae&quot;</span><span class="p">,</span> <span class="s2">&quot;mse&quot;</span><span class="p">,</span> <span class="s2">&quot;rmse&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">diag</span><span class="p">:</span>
+            <span class="n">_set_if</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">diag</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;coverage80&quot;</span><span class="p">,</span> <span class="s2">&quot;sharpness80&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">diag</span><span class="p">:</span>
+            <span class="n">_set_if</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">diag</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+
+    <span class="n">overall_key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">diag</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;overall_key&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">eval_after</span> <span class="o">=</span> <span class="n">diag</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;eval_after&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">eval_after</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">overall_key</span> <span class="ow">and</span> <span class="n">overall_key</span> <span class="ow">in</span> <span class="n">eval_after</span><span class="p">:</span>
+            <span class="n">maybe</span> <span class="o">=</span> <span class="n">eval_after</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">overall_key</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">maybe</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">eval_after</span> <span class="o">=</span> <span class="n">maybe</span>
+
+        <span class="n">cov</span> <span class="o">=</span> <span class="n">eval_after</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;coverage&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">shp</span> <span class="o">=</span> <span class="n">eval_after</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sharpness&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;coverage80&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">out</span> <span class="ow">and</span> <span class="n">cov</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_set_if</span><span class="p">(</span><span class="s2">&quot;coverage80&quot;</span><span class="p">,</span> <span class="n">cov</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;sharpness80&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">out</span> <span class="ow">and</span> <span class="n">shp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_set_if</span><span class="p">(</span><span class="s2">&quot;sharpness80&quot;</span><span class="p">,</span> <span class="n">shp</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<div class="viewcode-block" id="to_float">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.to_float">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_float</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="resolve_out_out">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.resolve_out_out">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_out_out</span><span class="p">(</span><span class="n">out</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resolve tabular output with user-path semantics.</span>
+
+<span class="sd">    Bare relative names go to scripts/out/.</span>
+<span class="sd">    Relative paths with an explicit parent are kept.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">cfg</span><span class="o">.</span><span class="n">resolve_user_artifact_path</span><span class="p">(</span>
+        <span class="n">out</span><span class="p">,</span>
+        <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;out&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="find_phys_json">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.utils.html#geoprior._scripts.utils.find_phys_json">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_phys_json</span><span class="p">(</span><span class="n">src</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prefer interpretable GeoPrior JSON when available.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pats</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">PATTERNS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;phys_json&quot;</span><span class="p">,</span> <span class="p">())</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pats</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">root</span> <span class="o">=</span> <span class="n">as_path</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">parent</span>
+
+    <span class="n">p0</span> <span class="o">=</span> <span class="n">find_latest</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="p">[</span><span class="n">pats</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+    <span class="k">if</span> <span class="n">p0</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">p0</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pats</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">find_latest</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="p">[</span><span class="n">pats</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -64,17 +64,18 @@ docs/
   source/
     examples/
       index.rst
-      subsidence_forecasting/
+      forecasting/
         GALLERY_HEADER.rst
-        plot_stage4_basic_forecast.py
+        plot_forecast_by_step.py
         plot_future_quantiles_map.py
         plot_holdout_vs_forecast.py
-      calibration_uncertainty/
+        plot_forecast
+      uncertainty/
         GALLERY_HEADER.rst
         plot_interval_calibration.py
         plot_coverage_vs_sharpness.py
         plot_brier_exceedance.py
-      workflow_diagnostics/
+      diagnostics/
         GALLERY_HEADER.rst
         plot_stage1_data_checks.py
         plot_stage2_training_curves.py
@@ -83,16 +84,53 @@ docs/
         GALLERY_HEADER.rst
         plot_physics_fields.py
         plot_spatial_forecasts.py
-        plot_transfer_analysis.py
+        plot_transfer.py
+        plot_physics_sensitivity.py 
+        plot_external_validation.py
+        plot_core_ablation.py
+        plot_ablation
+        plot_physics_profiles.py
+        plot_physics_sanity.py
+        plot_driver_response.py 
+        plot_physics_maps.py
+        plot_sm3_log_offsets.py 
+        plot_sm3_identifiability.py 
+        plot_sm3_bounds_ridge_summary.py
+        plot_geo_cumulative.py 
+        plot_uncertainty
+        plot_hotspot_analytics.py 
+        plot_litho_parity.py 
+        plot_uncertainty_extras.py
+        plot_uncertainty.py
+        plot_xfer_transferability.rst 
+        plot_xfer_impact.py 
+        
+      tables_and_summaries/
+        GALLERY_HEADER.rst
+        build_ablation_table.py
+        build_model_metrics.py
+        compute_brier_exceedance.py
+        compute_hotspots.py
+        summarize_hotspots.py
+        extend_forecast.py
+        make_boundary.py
+        make_district_grid.py
+        make_exposure.py
+        tag_clusters_with_zones.py        
+        
+      model_inspection/
+      GALLERY_HEADER.rst
+      plot_history_in.py
+      plot_epsilons_in.py
+      plot_physics_losses_in.py
+      plot_physics_values_in.py
+      autoplot_geoprior_history.py
+      gather_coords_flat.py
+      extract_physical_parameters.py        
+        
+        
+        
+        
+        
+        
 
-#The one we use is 
-examples/
-  README.rst
-  forecasting/
-    README.rst
-  diagnostics/
-    README.rst
-  uncertainty/
-    README.rst
-  figures/
-    README.rst

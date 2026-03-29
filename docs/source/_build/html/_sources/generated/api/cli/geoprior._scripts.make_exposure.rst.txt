@@ -1,0 +1,30 @@
+﻿geoprior.\_scripts.make\_exposure
+=================================
+
+.. automodule:: geoprior._scripts.make_exposure
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      main
+      make_exposure_main
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

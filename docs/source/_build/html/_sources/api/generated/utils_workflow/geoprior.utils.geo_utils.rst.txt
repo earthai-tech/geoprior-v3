@@ -1,0 +1,36 @@
+﻿geoprior.utils.geo\_utils
+=========================
+
+.. automodule:: geoprior.utils.geo_utils
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      augment_city_spatiotemporal_data
+      augment_series_features
+      augment_spatiotemporal_data
+      generate_dummy_pinn_data
+      interpolate_temporal_gaps
+      merge_frames_to_file
+      resolve_spatial_columns
+      unpack_frames_from_file
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

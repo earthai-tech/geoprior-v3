@@ -1,0 +1,25 @@
+﻿geoprior.params.LearnableSs
+===========================
+
+.. currentmodule:: geoprior.params
+
+.. autoclass:: LearnableSs
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LearnableSs.__init__
+      ~LearnableSs.from_config
+      ~LearnableSs.get_config
+      ~LearnableSs.get_value
+   
+   
+
+   
+   
+   

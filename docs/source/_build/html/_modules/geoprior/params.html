@@ -1,0 +1,2224 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>geoprior.params &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=404c0980"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geoprior/params';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geoprior.params</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for geoprior.params</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># GeoPrior-v3: Physics-guided AI for geohazards</span>
+<span class="c1"># Repo: https://github.com/earthai-tech/geoprior-v3</span>
+<span class="c1"># Web:  https://lkouadio.com</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright 2026-present Kouadio Laurent</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#   https://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or</span>
+<span class="c1"># implied. See the License for the specific language governing</span>
+<span class="c1"># permissions and limitations under the License.</span>
+<span class="c1">#</span>
+<span class="c1"># Author: LKouadio &lt;etanoyau@gmail.com&gt;</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module ``geoprior.params`` provides small, self-documenting helpers</span>
+<span class="sd">for scalar physical hyperparameters used in PINNs and physics-guided</span>
+<span class="sd">nets.</span>
+
+<span class="sd">Two families of descriptors are provided:</span>
+
+<span class="sd">- Learnable scalars (subclasses of :class:`BaseLearnable`) such as</span>
+<span class="sd">  :class:`LearnableK`, :class:`LearnableSs`, :class:`LearnableMV`,</span>
+<span class="sd">  :class:`LearnableKappa`, etc.  These wrap a trainable scalar, often</span>
+<span class="sd">  stored in log-space to enforce positivity.</span>
+
+<span class="sd">- Fixed scalars (subclasses of :class:`BaseFixed`) such as</span>
+<span class="sd">  :class:`FixedGammaW` and :class:`FixedHRef`, used for constants in</span>
+<span class="sd">  the physics block.</span>
+
+<span class="sd">Legacy descriptors :class:`LearnableC`, :class:`FixedC` and</span>
+<span class="sd">:class:`DisabledC` are kept for backwards-compatible handling of a</span>
+<span class="sd">generic positive coefficient :math:`C`.</span>
+
+<span class="sd">In the GeoPriorSubsNet consolidation model specifically, the spatial</span>
+<span class="sd">fields :math:`K(x,y)`, :math:`S_s(x,y)`, :math:`H(x,y)` and the</span>
+<span class="sd">relaxation time :math:`\\tau(x,y)` are represented as *effective</span>
+<span class="sd">fields* built from covariates and the neural network, whereas the</span>
+<span class="sd">scalar wrappers here represent global hyperparameters such as the</span>
+<span class="sd">effective compressibility :math:`m_v`, the consistency factor</span>
+<span class="sd">:math:`\\bar\\kappa`, the unit weight of water :math:`\\gamma_w`</span>
+<span class="sd">and the reference head :math:`h_{\\mathrm{ref}}`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
+
+<span class="c1"># Attempt to import TensorFlow, else fall</span>
+<span class="c1"># back to NumPy</span>
+<span class="n">_tf_spec</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">_tf_spec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+
+    <span class="n">_BACKEND</span> <span class="o">=</span> <span class="s2">&quot;tensorflow&quot;</span>
+    <span class="n">Tensor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span>
+    <span class="n">Variable</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+    <span class="n">_BACKEND</span> <span class="o">=</span> <span class="s2">&quot;numpy&quot;</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">_DummyTF</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">tf</span><span class="p">:</span>
+        <span class="n">Tensor</span> <span class="o">=</span> <span class="n">_DummyTF</span>
+        <span class="n">Variable</span> <span class="o">=</span> <span class="n">_DummyTF</span>
+
+    <span class="c1"># Fallback types for type hinting</span>
+    <span class="n">Tensor</span> <span class="o">=</span> <span class="n">Any</span>
+    <span class="n">Variable</span> <span class="o">=</span> <span class="n">Any</span>
+
+
+<span class="c1"># Keras serialisable base-class</span>
+<span class="k">if</span> <span class="n">_BACKEND</span> <span class="o">==</span> <span class="s2">&quot;tensorflow&quot;</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tensorflow.keras.saving</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">register_keras_serializable</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>  <span class="c1"># TF missing → no serialisation</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">register_keras_serializable</span><span class="p">(</span><span class="o">*</span><span class="n">_a</span><span class="p">,</span> <span class="o">**</span><span class="n">_kw</span><span class="p">):</span>  <span class="c1"># type: ignore</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">return</span> <span class="bp">cls</span>
+
+        <span class="k">return</span> <span class="n">decorator</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;LearnableC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FixedC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DisabledC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LearnableK&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LearnableSs&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LearnableQ&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LearnableMV&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LearnableKappa&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FixedGammaW&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FixedHRef&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="nd">@register_keras_serializable</span><span class="p">(</span><span class="s2">&quot;geoprior.params&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;_BaseC&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_BaseC</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parent class for :math:`C` descriptors.</span>
+
+<span class="sd">    Each subclass provides :pyattr:`value`</span>
+<span class="sd">    (``float`` in NumPy mode, ``tf.Variable`` in TF mode)</span>
+<span class="sd">    and declares whether it is *trainable*.</span>
+
+<span class="sd">    The class supports Keras JSON round-trip via</span>
+<span class="sd">    :py:meth:`get_config` / :py:meth:`from_config`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">trainable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1">#: overridden by concrete classes</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_value</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="c1"># Keras (de)serialisation</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="n">cfg</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_export_kw</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;class_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">return</span> <span class="n">cfg</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_BaseC</span><span class="p">],</span> <span class="n">cfg</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseC</span><span class="p">:</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;class_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">cfg</span><span class="p">)</span>
+
+    <span class="c1">#  utilities -</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>  <span class="c1"># noqa: D401</span>
+        <span class="n">nm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{</span><span class="n">nm</span><span class="si">}</span><span class="s2"> trainable=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">trainable</span><span class="si">}</span><span class="s2">, value=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">!r}</span><span class="s2">&gt;&quot;</span>
+
+    <span class="c1"># - Implemented by subclasses -</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>  <span class="c1"># noqa: D401</span>
+        <span class="o">...</span>
+
+
+<div class="viewcode-block" id="LearnableC">
+<a class="viewcode-back" href="../../api/_autosummary/params/legacy/geoprior.params.LearnableC.html#geoprior.params.LearnableC">[docs]</a>
+<span class="nd">@register_keras_serializable</span><span class="p">(</span>
+    <span class="s2">&quot;geoprior.params&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LearnableC&quot;</span>
+<span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LearnableC</span><span class="p">(</span><span class="n">_BaseC</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Indicates that the PINN’s physical coefficient :math:`C` should be</span>
+<span class="sd">    learned (trainable).  We actually learn :math:`\log(C)` to ensure</span>
+<span class="sd">    :math:`C &gt; 0`.  The user supplies an `initial_value`, and the model</span>
+<span class="sd">    initializes:</span>
+
+<span class="sd">    Trainable :math:`C`.</span>
+
+<span class="sd">    In TF mode we keep :math:`\log C` as a</span>
+<span class="sd">    :class:`tf.Variable`, ensuring :math:`C&gt;0`.</span>
+
+<span class="sd">    In NumPy mode the coefficient *cannot be trained*,</span>
+<span class="sd">    so it degrades gracefully to a fixed float.</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">       \log C \;=\; \log(\text{initial\_value}).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    initial_value : float</span>
+<span class="sd">        Strictly positive initial :math:`C`.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    initial_value : float</span>
+<span class="sd">        The positive starting value for :math:`C`.  Must be strictly</span>
+<span class="sd">        positive.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from geoprior.params import LearnableC</span>
+<span class="sd">    &gt;&gt;&gt; # Learn C, starting from C = 0.01</span>
+<span class="sd">    &gt;&gt;&gt; pinn_coeff = LearnableC(initial_value=0.01)</span>
+<span class="sd">    &gt;&gt;&gt; # Learn C, starting from C = 0.001</span>
+<span class="sd">    &gt;&gt;&gt; pinn_coeff_small = LearnableC(initial_value=0.001)</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LearnableC.__init__">
+<a class="viewcode-back" href="../../api/_autosummary/params/legacy/geoprior.params.LearnableC.html#geoprior.params.LearnableC.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">initial_value</span><span class="o">=</span><span class="n">initial_value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">initial_value</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;LearnableC.initial_value must be a float, got &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">initial_value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">initial_value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;LearnableC.initial_value must be strictly positive.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">initial_value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_export_kw</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;initial_value&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span>
+        <span class="p">}</span>  <span class="c1"># type: ignore</span>
+
+        <span class="k">if</span> <span class="n">_BACKEND</span> <span class="o">==</span> <span class="s2">&quot;tensorflow&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trainable</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">log_c0</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">initial_value</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="n">log_c0</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;log_pinn_coefficient_C&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="c1"># NumPy branch --&gt; behave as a *fixed* coefficient</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trainable</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">initial_value</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="FixedC">
+<a class="viewcode-back" href="../../api/_autosummary/params/legacy/geoprior.params.FixedC.html#geoprior.params.FixedC">[docs]</a>
+<span class="nd">@register_keras_serializable</span><span class="p">(</span><span class="s2">&quot;geoprior.params&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;FixedC&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FixedC</span><span class="p">(</span><span class="n">_BaseC</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Non-trainable, constant :math:`C`.</span>
+
+<span class="sd">    Indicates that the PINN&#39;s physical coefficient :math:`C` should be</span>
+<span class="sd">    held fixed (non-trainable) at a specified `value`.</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">       C = \text{value}, \qquad \text{non-trainable}.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : float</span>
+<span class="sd">        Constant :math:`C \ge 0`.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : float</span>
+<span class="sd">        The non-negative, constant value of :math:`C`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from geoprior.params import FixedC</span>
+<span class="sd">    &gt;&gt;&gt; # Use a fixed C = 0.5</span>
+<span class="sd">    &gt;&gt;&gt; pinn_coeff = FixedC(value=0.5)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FixedC.__init__">
+<a class="viewcode-back" href="../../api/_autosummary/params/legacy/geoprior.params.FixedC.html#geoprior.params.FixedC.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;FixedC.value must be a float, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;FixedC.value must be non-negative.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_export_kw</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">}</span>  <span class="c1"># type: ignore</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="DisabledC">
+<a class="viewcode-back" href="../../api/_autosummary/params/legacy/geoprior.params.DisabledC.html#geoprior.params.DisabledC">[docs]</a>
+<span class="nd">@register_keras_serializable</span><span class="p">(</span>
+    <span class="s2">&quot;geoprior.params&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;DisabledC&quot;</span>
+<span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DisabledC</span><span class="p">(</span><span class="n">_BaseC</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Disable physics – :math:`C` is ignored.</span>
+
+<span class="sd">    Indicates that physics should be disabled.  In practice, :math:`C` is</span>
+<span class="sd">    irrelevant (defaults to 1.0 internally, but is never used if</span>
+<span class="sd">    `lambda_pde == 0` when compiling).</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    None</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from geoprior.params import DisabledC</span>
+<span class="sd">    &gt;&gt;&gt; pinn_coeff = DisabledC()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DisabledC.__init__">
+<a class="viewcode-back" href="../../api/_autosummary/params/legacy/geoprior.params.DisabledC.html#geoprior.params.DisabledC.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># No parameters needed.  Presence of this class signals “disable”.</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>  <span class="c1"># noqa: D401</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_export_kw</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># type: ignore</span>
+        <span class="k">return</span> <span class="mf">1.0</span>  <span class="c1"># convention, but unused when physics is disabled</span></div>
+
+
+
+<div class="viewcode-block" id="BaseLearnable">
+<a class="viewcode-back" href="../../api/_autosummary/params/bases/geoprior.params.BaseLearnable.html#geoprior.params.BaseLearnable">[docs]</a>
+<span class="nd">@register_keras_serializable</span><span class="p">(</span>
+    <span class="s2">&quot;geoprior.params&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;BaseLearnable&quot;</span>
+<span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseLearnable</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract base for learnable physical parameters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    initial_value : float</span>
+<span class="sd">        Initial numeric value for the parameter.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Unique identifier for the variable.</span>
+<span class="sd">    log_transform : bool, optional</span>
+<span class="sd">        If True, store in log-space for positivity</span>
+<span class="sd">        constraint, by default False.</span>
+<span class="sd">    trainable : bool, optional</span>
+<span class="sd">        If True, make variable trainable, by</span>
+<span class="sd">        default True.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    initial_value : float</span>
+<span class="sd">        The original provided value.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Variable name in the computation graph.</span>
+<span class="sd">    log_transform : bool</span>
+<span class="sd">        Whether to apply log transform.</span>
+<span class="sd">    trainable : bool</span>
+<span class="sd">        Trainable flag for optimization.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; param = LearnableK(initial_value=0.5)</span>
+<span class="sd">    &gt;&gt;&gt; value = param.get_value()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BaseLearnable.__init__">
+<a class="viewcode-back" href="../../api/_autosummary/params/bases/geoprior.params.BaseLearnable.html#geoprior.params.BaseLearnable.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">initial_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">log_transform</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">trainable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kws</span><span class="p">,</span>  <span class="c1"># for future extension</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">initial_value</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Initial value for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;must be a float, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">initial_value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">log_transform</span> <span class="ow">and</span> <span class="n">initial_value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> initial value must be &quot;</span>
+                <span class="s2">&quot;strictly positive for log transform.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">initial_value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_transform</span> <span class="o">=</span> <span class="n">log_transform</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trainable</span> <span class="o">=</span> <span class="n">trainable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_variable</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_variable</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Variable</span> <span class="o">|</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal: create tf.Variable or fallback value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Union[Variable, Tensor, float]</span>
+<span class="sd">            Configured variable or numeric.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">_BACKEND</span> <span class="o">==</span> <span class="s2">&quot;tensorflow&quot;</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_transform</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="n">initial_value</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span>
+                    <span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span>
+                <span class="p">),</span>
+                <span class="n">trainable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trainable</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_transform</span>
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="BaseLearnable.get_value">
+<a class="viewcode-back" href="../../api/_autosummary/params/bases/geoprior.params.BaseLearnable.html#geoprior.params.BaseLearnable.get_value">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve parameter value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Union[Tensor, float]</span>
+<span class="sd">            Transformed parameter, e.g.,</span>
+<span class="sd">            :math:`\exp(log\_param)` if</span>
+<span class="sd">            log_transform is True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BaseLearnable.get_config">
+<a class="viewcode-back" href="../../api/_autosummary/params/bases/geoprior.params.BaseLearnable.html#geoprior.params.BaseLearnable.get_config">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a JSON-serialisable dict for tf.keras.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Keras looks for this method during ``model.save()``</span>
+<span class="sd">        and ``keras.saving.serialization_lib.serialize_keras_object``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;initial_value&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;log_transform&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_transform</span><span class="p">,</span>
+            <span class="s2">&quot;trainable&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainable</span><span class="p">,</span>
+            <span class="c1"># we also store the concrete subclass path for clarity</span>
+            <span class="s2">&quot;__class_name__&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="BaseLearnable.from_config">
+<a class="viewcode-back" href="../../api/_autosummary/params/bases/geoprior.params.BaseLearnable.html#geoprior.params.BaseLearnable.from_config">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseLearnable</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Re-instantiate from :py:meth:`get_config`.</span>
+
+<span class="sd">        Keras passes *config* exactly as returned above.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Guard against stray keys Keras might inject</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">k</span><span class="p">:</span> <span class="n">v</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">k</span>
+            <span class="ow">in</span> <span class="p">{</span>
+                <span class="s2">&quot;initial_value&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;log_transform&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;trainable&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(initial_value=&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="si">}</span><span class="s2">, trainable=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">trainable</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="LearnableK">
+<a class="viewcode-back" href="../../api/_autosummary/params/learnable/geoprior.params.LearnableK.html#geoprior.params.LearnableK">[docs]</a>
+<span class="nd">@register_keras_serializable</span><span class="p">(</span>
+    <span class="s2">&quot;geoprior.params&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LearnableK&quot;</span>
+<span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LearnableK</span><span class="p">(</span><span class="n">BaseLearnable</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Learnable Hydraulic Conductivity (K).</span>
+
+<span class="sd">    Indicates that the PINN’s hydraulic conductivity :math:`K` should be</span>
+<span class="sd">    learned (trainable) if TensorFlow is available; otherwise behaves as</span>
+<span class="sd">    a fixed NumPy‐based parameter. We learn :math:`\log(K)` to ensure</span>
+<span class="sd">    :math:`K &gt; 0`. The user supplies an `initial_value`, and the object</span>
+<span class="sd">    initializes:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">       \log K \;=\; \log(\text{initial\_value}).</span>
+
+
+<span class="sd">    Ensures positivity via log-space.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    BaseLearnableParam</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; k = LearnableK(1.2)</span>
+<span class="sd">    &gt;&gt;&gt; :math:`K = k.get_value()`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LearnableK.__init__">
+<a class="viewcode-back" href="../../api/_autosummary/params/learnable/geoprior.params.LearnableK.html#geoprior.params.LearnableK.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">initial_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">log_transform</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">trainable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kws</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">initial_value</span><span class="o">=</span><span class="n">initial_value</span><span class="p">,</span>
+            <span class="n">log_transform</span><span class="o">=</span><span class="n">log_transform</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;learnable_K&quot;</span><span class="p">,</span>
+            <span class="n">trainable</span><span class="o">=</span><span class="n">trainable</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kws</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LearnableK.get_value">
+<a class="viewcode-back" href="../../api/_autosummary/params/learnable/geoprior.params.LearnableK.html#geoprior.params.LearnableK.get_value">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return :math:`K = \exp(log\_K)`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Union[Tensor, float]</span>
+<span class="sd">            Positive conductivity.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">_BACKEND</span> <span class="o">==</span> <span class="s2">&quot;tensorflow&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="nb">__import__</span><span class="p">(</span><span class="s2">&quot;numpy&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">))</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="LearnableSs">
+<a class="viewcode-back" href="../../api/_autosummary/params/learnable/geoprior.params.LearnableSs.html#geoprior.params.LearnableSs">[docs]</a>
+<span class="nd">@register_keras_serializable</span><span class="p">(</span>
+    <span class="s2">&quot;geoprior.params&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LearnableSs&quot;</span>
+<span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LearnableSs</span><span class="p">(</span><span class="n">BaseLearnable</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Learnable Specific Storage (Ss).</span>
+
+<span class="sd">    Indicates that the PINN&#39;s specific storage coefficient :math:`S_s`</span>
+<span class="sd">    should be learned (trainable) if TensorFlow is available; otherwise acts</span>
+<span class="sd">    as a fixed NumPy‐based parameter. We learn :math:`\log(S_s)` to ensure</span>
+<span class="sd">    :math:`S_s &gt; 0`. The user supplies an `initial_value`, and the object</span>
+<span class="sd">    initializes:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">       \log S_s \;=\; \log(\text{initial\_value}).</span>
+
+<span class="sd">    Returns positive values via exp transform.</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; ss = LearnableSs(1e-3)</span>
+<span class="sd">    &gt;&gt;&gt; value = ss.get_value()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LearnableSs.__init__">
+<a class="viewcode-back" href="../../api/_autosummary/params/learnable/geoprior.params.LearnableSs.html#geoprior.params.LearnableSs.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">initial_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-4</span><span class="p">,</span>
+        <span class="n">log_transform</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">trainable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kws</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">initial_value</span><span class="o">=</span><span class="n">initial_value</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;learnable_Ss&quot;</span><span class="p">,</span>
+            <span class="n">log_transform</span><span class="o">=</span><span class="n">log_transform</span><span class="p">,</span>
+            <span class="n">trainable</span><span class="o">=</span><span class="n">trainable</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kws</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LearnableSs.get_value">
+<a class="viewcode-back" href="../../api/_autosummary/params/learnable/geoprior.params.LearnableSs.html#geoprior.params.LearnableSs.get_value">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return :math:`Ss = \exp(log\_Ss)`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Union[Tensor, float]</span>
+<span class="sd">            Positive storage coefficient.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">_BACKEND</span> <span class="o">==</span> <span class="s2">&quot;tensorflow&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="nb">__import__</span><span class="p">(</span><span class="s2">&quot;numpy&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">))</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="LearnableQ">
+<a class="viewcode-back" href="../../api/_autosummary/params/learnable/geoprior.params.LearnableQ.html#geoprior.params.LearnableQ">[docs]</a>
+<span class="nd">@register_keras_serializable</span><span class="p">(</span>
+    <span class="s2">&quot;geoprior.params&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LearnableQ&quot;</span>
+<span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LearnableQ</span><span class="p">(</span><span class="n">BaseLearnable</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Learnable Source/Sink term (Q).</span>
+
+<span class="sd">    Indicates that the PINN&#39;s source/sink term :math:`Q` should be</span>
+<span class="sd">    learned (trainable) if TensorFlow is available; otherwise acts as a</span>
+<span class="sd">    fixed NumPy‐based parameter. Unlike K and Ss, Q may be positive or</span>
+<span class="sd">    negative, so we learn it directly (no log‐transform). The user supplies</span>
+<span class="sd">    an `initial_value`, and the object initializes:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">       Q \;=\; \text{initial\_value}.</span>
+
+<span class="sd">    Unconstrained: may be positive or</span>
+<span class="sd">    negative.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; q = LearnableQ(0.0)</span>
+<span class="sd">    &gt;&gt;&gt; q.get_value()</span>
+<span class="sd">    0.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LearnableQ.__init__">
+<a class="viewcode-back" href="../../api/_autosummary/params/learnable/geoprior.params.LearnableQ.html#geoprior.params.LearnableQ.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">initial_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="c1"># log_transform: bool=False, # Q should not be log-transformed</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">trainable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kws</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">initial_value</span><span class="o">=</span><span class="n">initial_value</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;learnable_Q&quot;</span><span class="p">,</span>
+            <span class="n">log_transform</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># Explicitly set to False</span>
+            <span class="n">trainable</span><span class="o">=</span><span class="n">trainable</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kws</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LearnableQ.get_value">
+<a class="viewcode-back" href="../../api/_autosummary/params/learnable/geoprior.params.LearnableQ.html#geoprior.params.LearnableQ.get_value">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return raw :math:`Q` value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Union[Tensor, float]</span>
+<span class="sd">            Source/sink strength.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">_BACKEND</span> <span class="o">==</span> <span class="s2">&quot;tensorflow&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span>  <span class="c1"># No exp()</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">)</span>  <span class="c1"># No exp()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="LearnableMV">
+<a class="viewcode-back" href="../../api/_autosummary/params/learnable/geoprior.params.LearnableMV.html#geoprior.params.LearnableMV">[docs]</a>
+<span class="nd">@register_keras_serializable</span><span class="p">(</span>
+    <span class="s2">&quot;geoprior.params&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LearnableMV&quot;</span>
+<span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LearnableMV</span><span class="p">(</span><span class="n">BaseLearnable</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Learnable effective vertical compressibility (m_v).</span>
+
+<span class="sd">    In GeoPriorSubsNet this is a *global scalar* that links head</span>
+<span class="sd">    changes to equilibrium settlement via</span>
+<span class="sd">    :math:`s_{\\mathrm{eq}}(h) = m_v\\,\\gamma_w\\,\\Delta h\\,H`,</span>
+<span class="sd">    where :math:`H(x,y)` is an effective compressible thickness</span>
+<span class="sd">    field.  The field :math:`S_s(x,y)` is interpreted as an effective</span>
+<span class="sd">    specific storage, with :math:`S_s \\approx m_v\\,\\gamma_w` used</span>
+<span class="sd">    as a soft consistency relation rather than a hard identity.</span>
+
+<span class="sd">    Positivity is enforced by learning :math:`\\log(m_v)`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    initial_value : float, default=1e-7</span>
+<span class="sd">        Initial value for :math:`m_v` [Pa^-1].  Must be positive</span>
+<span class="sd">        and typically falls in a geotechnically plausible range</span>
+<span class="sd">        (e.g. :math:`10^{-9}–10^{-5}` Pa^-1).</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        Variable name.</span>
+<span class="sd">    trainable : bool, default=True</span>
+<span class="sd">        Whether the parameter is trainable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LearnableMV.__init__">
+<a class="viewcode-back" href="../../api/_autosummary/params/learnable/geoprior.params.LearnableMV.html#geoprior.params.LearnableMV.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">initial_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-7</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">trainable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">log_transform</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>  <span class="c1"># m_v must be positive</span>
+        <span class="o">**</span><span class="n">kws</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">initial_value</span><span class="o">=</span><span class="n">initial_value</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;learnable_mv&quot;</span><span class="p">,</span>
+            <span class="n">log_transform</span><span class="o">=</span><span class="n">log_transform</span><span class="p">,</span>
+            <span class="n">trainable</span><span class="o">=</span><span class="n">trainable</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kws</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LearnableMV.get_value">
+<a class="viewcode-back" href="../../api/_autosummary/params/learnable/geoprior.params.LearnableMV.html#geoprior.params.LearnableMV.get_value">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return :math:`m_v = \exp(\log(m_v))`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">_BACKEND</span> <span class="o">==</span> <span class="s2">&quot;tensorflow&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">))</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="LearnableKappa">
+<a class="viewcode-back" href="../../api/_autosummary/params/learnable/geoprior.params.LearnableKappa.html#geoprior.params.LearnableKappa">[docs]</a>
+<span class="nd">@register_keras_serializable</span><span class="p">(</span>
+    <span class="s2">&quot;geoprior.params&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LearnableKappa&quot;</span>
+<span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LearnableKappa</span><span class="p">(</span><span class="n">BaseLearnable</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Learnable scalar consistency factor (:math:`\\bar{\\kappa}`).</span>
+
+<span class="sd">    In the revised consolidation prior, :math:`\\bar{\\kappa}` relates</span>
+<span class="sd">    the effective relaxation time :math:`\\tau(x,y)` to the</span>
+<span class="sd">    Terzaghi-style diffusion time built from the effective fields</span>
+<span class="sd">    :math:`K(x,y)`, :math:`S_s(x,y)` and :math:`H(x,y)`.  In the</span>
+<span class="sd">    manuscript, it collects terms such as drainage-path ratios and</span>
+<span class="sd">    leakage / anisotropy factors.</span>
+
+<span class="sd">    It enters a soft prior term of the form</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \\log \\tau_{\\mathrm{prior}}(x,y)</span>
+<span class="sd">        \\approx</span>
+<span class="sd">        \\log\\left(</span>
+<span class="sd">          \\frac{\\bar{\\kappa} H(x,y)^2}</span>
+<span class="sd">               {\\pi^2 K(x,y) / S_s(x,y)}</span>
+<span class="sd">        \\right),</span>
+
+<span class="sd">    which is penalised against the learned :math:`\\log \\tau(x,y)`.</span>
+
+<span class="sd">    Positivity is enforced via a log-space parametrisation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    initial_value : float, default=1.0</span>
+<span class="sd">        Initial guess for :math:`\\bar{\\kappa}`</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        Variable name.</span>
+<span class="sd">    trainable : bool, default=True</span>
+<span class="sd">        Whether the parameter is trainable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LearnableKappa.__init__">
+<a class="viewcode-back" href="../../api/_autosummary/params/learnable/geoprior.params.LearnableKappa.html#geoprior.params.LearnableKappa.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">initial_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">log_transform</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>  <span class="c1"># kappa_bar must be positive</span>
+        <span class="n">trainable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kws</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">initial_value</span><span class="o">=</span><span class="n">initial_value</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;learnable_kappa&quot;</span><span class="p">,</span>
+            <span class="n">log_transform</span><span class="o">=</span><span class="n">log_transform</span><span class="p">,</span>
+            <span class="n">trainable</span><span class="o">=</span><span class="n">trainable</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kws</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LearnableKappa.get_value">
+<a class="viewcode-back" href="../../api/_autosummary/params/learnable/geoprior.params.LearnableKappa.html#geoprior.params.LearnableKappa.get_value">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return :math:`\bar{\kappa} = \exp(\log(\bar{\kappa}))`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">_BACKEND</span> <span class="o">==</span> <span class="s2">&quot;tensorflow&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">))</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="BaseFixed">
+<a class="viewcode-back" href="../../api/_autosummary/params/bases/geoprior.params.BaseFixed.html#geoprior.params.BaseFixed">[docs]</a>
+<span class="nd">@register_keras_serializable</span><span class="p">(</span>
+    <span class="s2">&quot;geoprior.params&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;BaseFixed&quot;</span>
+<span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseFixed</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract base for fixed physical parameters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : float</span>
+<span class="sd">        Fixed numeric value for the parameter.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Unique identifier for the variable.</span>
+<span class="sd">    log_transform : bool, optional</span>
+<span class="sd">        If True, store in log-space for positivity constraint and</span>
+<span class="sd">        apply exp() when retrieving value, by default False.</span>
+<span class="sd">    non_negative : bool, optional</span>
+<span class="sd">        If True, ensures value cannot be negative, by default True.</span>
+<span class="sd">        Only enforced when log_transform=False.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : float</span>
+<span class="sd">        The fixed parameter value.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Variable name in the computation graph.</span>
+<span class="sd">    log_transform : bool</span>
+<span class="sd">        Whether to apply log transform for positivity.</span>
+<span class="sd">    non_negative : bool</span>
+<span class="sd">        Whether negative values are allowed.</span>
+<span class="sd">    trainable : bool</span>
+<span class="sd">        Always False for fixed parameters.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; param = FixedGammaW(value=9810.0)</span>
+<span class="sd">    &gt;&gt;&gt; value = param.get_value()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BaseFixed.__init__">
+<a class="viewcode-back" href="../../api/_autosummary/params/bases/geoprior.params.BaseFixed.html#geoprior.params.BaseFixed.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">log_transform</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">non_negative</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kws</span><span class="p">,</span>  <span class="c1"># for future extension</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Value for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;must be a float, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Validate constraints</span>
+        <span class="k">if</span> <span class="n">log_transform</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> value must be &quot;</span>
+                <span class="s2">&quot;strictly positive for log transform.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">non_negative</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">log_transform</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> value must be &quot;</span>
+                <span class="s2">&quot;non-negative when non_negative=True.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_transform</span> <span class="o">=</span> <span class="n">log_transform</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">non_negative</span> <span class="o">=</span> <span class="n">non_negative</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trainable</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="kc">False</span>  <span class="c1"># Fixed parameters are never trainable</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_variable</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_variable</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Variable</span> <span class="o">|</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal: create tf.Variable or fallback value for fixed parameter.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Union[Variable, Tensor, float]</span>
+<span class="sd">            Configured fixed variable or numeric.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">_BACKEND</span> <span class="o">==</span> <span class="s2">&quot;tensorflow&quot;</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_transform</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+                <span class="n">initial_value</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+                <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># Explicitly non-trainable</span>
+                <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="c1"># NumPy fallback</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_transform</span>
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="BaseFixed.get_value">
+<a class="viewcode-back" href="../../api/_autosummary/params/bases/geoprior.params.BaseFixed.html#geoprior.params.BaseFixed.get_value">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve the fixed parameter value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Union[Tensor, float]</span>
+<span class="sd">            The parameter value, with exp() applied if log_transform=True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">_BACKEND</span> <span class="o">==</span> <span class="s2">&quot;tensorflow&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_transform</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span>
+        <span class="c1"># NumPy fallback</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_transform</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BaseFixed.get_config">
+<a class="viewcode-back" href="../../api/_autosummary/params/bases/geoprior.params.BaseFixed.html#geoprior.params.BaseFixed.get_config">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a JSON-serialisable dict for tf.keras serialization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;log_transform&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_transform</span><span class="p">,</span>
+            <span class="s2">&quot;non_negative&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">non_negative</span><span class="p">,</span>
+            <span class="s2">&quot;__class_name__&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="BaseFixed.from_config">
+<a class="viewcode-back" href="../../api/_autosummary/params/bases/geoprior.params.BaseFixed.html#geoprior.params.BaseFixed.from_config">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">BaseFixed</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Re-instantiate from configuration dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">k</span><span class="p">:</span> <span class="n">v</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">k</span>
+            <span class="ow">in</span> <span class="p">{</span>
+                <span class="s2">&quot;value&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;log_transform&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;non_negative&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(value=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, log_transform=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">log_transform</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;non_negative=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">non_negative</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="FixedGammaW">
+<a class="viewcode-back" href="../../api/_autosummary/params/fixed/geoprior.params.FixedGammaW.html#geoprior.params.FixedGammaW">[docs]</a>
+<span class="nd">@register_keras_serializable</span><span class="p">(</span>
+    <span class="s2">&quot;geoprior.params&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;FixedGammaW&quot;</span>
+<span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FixedGammaW</span><span class="p">(</span><span class="n">BaseFixed</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fixed scalar for the (effective) unit weight of water</span>
+<span class="sd">    :math:`\\gamma_w`.</span>
+
+<span class="sd">    Used in :math:`s_{\\mathrm{eq}}(h) = m_v\\,\\gamma_w\\,\\Delta h\\,H`.</span>
+<span class="sd">    Treated as a constant (non-trainable); in most applications</span>
+<span class="sd">    :math:`\\gamma_w \\approx 9{,}810\\ \\mathrm{N\\,m^{-3}}`.</span>
+
+<span class="sd">    Internally we keep :math:`\\log(\\gamma_w)` for numerical stability</span>
+<span class="sd">    and return :math:`\\gamma_w` via :meth:`get_value`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : float, default=9810.0</span>
+<span class="sd">        Value for :math:`\gamma_w` [N m^-3]. Must be positive.</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        Variable name.</span>
+<span class="sd">    non_negative : bool, default=True</span>
+<span class="sd">        Ensures the value cannot be negative.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FixedGammaW.__init__">
+<a class="viewcode-back" href="../../api/_autosummary/params/fixed/geoprior.params.FixedGammaW.html#geoprior.params.FixedGammaW.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">9810.0</span><span class="p">,</span>  <span class="c1"># Approx. 1000 kg/m^3 * 9.81 m/s^2</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">non_negative</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kws</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="c1"># gamma_w must be positive, so enforce log_transform for stability</span>
+        <span class="n">kws</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;log_transform&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;fixed_gamma_w&quot;</span><span class="p">,</span>
+            <span class="n">log_transform</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># gamma_w must always be positive</span>
+            <span class="n">non_negative</span><span class="o">=</span><span class="n">non_negative</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kws</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="FixedHRef">
+<a class="viewcode-back" href="../../api/_autosummary/params/fixed/geoprior.params.FixedHRef.html#geoprior.params.FixedHRef">[docs]</a>
+<span class="nd">@register_keras_serializable</span><span class="p">(</span>
+    <span class="s2">&quot;geoprior.params&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;FixedHRef&quot;</span>
+<span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FixedHRef</span><span class="p">(</span><span class="n">BaseFixed</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reference head configuration :math:`h_{\mathrm{ref}}` for drawdown.</span>
+
+<span class="sd">    Drawdown convention used in GeoPrior:</span>
+<span class="sd">    :math:`\Delta h = \max(h_{\mathrm{ref}} - h, 0)`.</span>
+
+<span class="sd">    This is a modelling datum (not a material parameter). In regional</span>
+<span class="sd">    hydrogeology it may represent a pre-development head, a long-term</span>
+<span class="sd">    mean head, or (recommended here) a rolling baseline derived from the</span>
+<span class="sd">    last observed historical head at forecast start.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : float or None, default=0.0</span>
+<span class="sd">        Fallback reference head [m] used when mode=&quot;auto&quot; cannot be</span>
+<span class="sd">        resolved. If None, defaults to 0.0.</span>
+<span class="sd">    mode : {&quot;auto&quot;, &quot;fixed&quot;}, default=&quot;auto&quot;</span>
+<span class="sd">        - &quot;auto&quot;: derive :math:`h_{\mathrm{ref}}` per batch from the</span>
+<span class="sd">          last historical groundwater observation (preferred).</span>
+<span class="sd">        - &quot;fixed&quot;: always use `value` as a global datum.</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        Variable name.</span>
+<span class="sd">    non_negative : bool, default=False</span>
+<span class="sd">        Allow negative values since heads can be negative depending on</span>
+<span class="sd">        datum.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FixedHRef.__init__">
+<a class="viewcode-back" href="../../api/_autosummary/params/fixed/geoprior.params.FixedHRef.html#geoprior.params.FixedHRef.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="s2">&quot;fixed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">non_negative</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kws</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">kws</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;log_transform&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">mode</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;auto&quot;</span>
+            <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="s2">&quot;fixed&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid mode=</span><span class="si">{</span><span class="n">mode</span><span class="si">!r}</span><span class="s2">. Expected &#39;auto&#39; or &#39;fixed&#39;.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;fixed_h_ref&quot;</span><span class="p">,</span>
+            <span class="n">log_transform</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">non_negative</span><span class="o">=</span><span class="n">non_negative</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kws</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FixedHRef.get_config">
+<a class="viewcode-back" href="../../api/_autosummary/params/fixed/geoprior.params.FixedHRef.html#geoprior.params.FixedHRef.get_config">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">cfg</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="resolve_physical_param">
+<a class="viewcode-back" href="../../api/_autosummary/params/helpers/geoprior.params.resolve_physical_param.html#geoprior.params.resolve_physical_param">[docs]</a>
+<span class="nd">@register_keras_serializable</span><span class="p">(</span>
+    <span class="s2">&quot;geoprior.params&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;resolve_physical_param&quot;</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_physical_param</span><span class="p">(</span>
+    <span class="n">param</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">serialize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">status</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">param_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">log_transform</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">non_negative</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">trainable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">additional_kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">dict</span> <span class="o">|</span> <span class="n">BaseLearnable</span> <span class="o">|</span> <span class="n">BaseFixed</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalize a physical-parameter descriptor with enhanced flexibility.</span>
+
+<span class="sd">    The helper converts *param* into:</span>
+
+<span class="sd">    - A concrete value (float/tf.Tensor) for runtime use</span>
+<span class="sd">    - A parameter wrapper (BaseLearnable/BaseFixed) when appropriate</span>
+<span class="sd">    - A JSON-serializable dict when ``serialize=True``</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    param : float | int | BaseLearnable | BaseFixed | str | Dict</span>
+<span class="sd">        Raw descriptor. Can be:</span>
+
+<span class="sd">        - Plain number: treated as fixed or learnable based on status</span>
+<span class="sd">        - Wrapped parameter (BaseLearnable/BaseFixed): forwarded as-is</span>
+<span class="sd">        - String: &quot;learnable&quot; or &quot;fixed&quot; to create wrapper with defaults</span>
+<span class="sd">        - Dict: configuration for parameter creation</span>
+
+<span class="sd">    name : str, optional</span>
+<span class="sd">        Parameter identifier used for:</span>
+
+<span class="sd">        - Variable naming in TensorFlow backend</span>
+<span class="sd">        - Type inference when creating wrappers</span>
+
+<span class="sd">    serialize : bool, default False</span>
+<span class="sd">        Return configuration dict instead of concrete value.</span>
+<span class="sd">    status : {&#39;learnable&#39;, &#39;fixed&#39;, &#39;auto&#39;, None}, optional</span>
+<span class="sd">        Global override:</span>
+
+<span class="sd">        - &#39;learnable&#39;: force creation of learnable wrapper</span>
+<span class="sd">        - &#39;fixed&#39;: force creation of fixed wrapper</span>
+<span class="sd">        - &#39;auto&#39;: infer from param type</span>
+<span class="sd">        - None: use param&#39;s inherent behavior</span>
+
+<span class="sd">    param_type : str, optional</span>
+<span class="sd">        Explicit parameter type. Overrides name-based inference.</span>
+<span class="sd">        Options: &#39;K&#39;, &#39;Ss&#39;, &#39;Q&#39;, &#39;MV&#39;, &#39;Kappa&#39;, &#39;GammaW&#39;, &#39;HRef&#39;</span>
+<span class="sd">    log_transform : bool, optional</span>
+<span class="sd">        Force log-space transformation for positivity.</span>
+<span class="sd">    non_negative : bool, optional</span>
+<span class="sd">        Force non-negativity constraint.</span>
+<span class="sd">    trainable : bool, optional</span>
+<span class="sd">        Override trainable flag (only for learnable params).</span>
+<span class="sd">    **additional_kwargs</span>
+<span class="sd">        Additional parameters passed to wrapper constructors.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tensor | float | Dict | BaseLearnable | BaseFixed</span>
+<span class="sd">        Concrete value, wrapper instance, or serialized configuration.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If param is of unsupported type.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If parameter type cannot be inferred or constraints are violated.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from geoprior.params import resolve_physical_param</span>
+<span class="sd">    &gt;&gt;&gt; # Basic usage with type inference from name</span>
+<span class="sd">    &gt;&gt;&gt; resolve_physical_param(1e-4, name=&quot;K&quot;, status=&quot;learnable&quot;)</span>
+<span class="sd">    LearnableK(initial_value=0.0001, trainable=True)</span>
+
+<span class="sd">    &gt;&gt;&gt; # Explicit parameter type</span>
+<span class="sd">    &gt;&gt;&gt; resolve_physical_param(0.5, param_type=&quot;MV&quot;, status=&quot;learnable&quot;)</span>
+<span class="sd">    LearnableMV(initial_value=0.5, trainable=True)</span>
+
+<span class="sd">    &gt;&gt;&gt; # Fixed parameter with custom constraints</span>
+<span class="sd">    &gt;&gt;&gt; resolve_physical_param(9810.0, param_type=&quot;GammaW&quot;, non_negative=True)</span>
+<span class="sd">    FixedGammaW(value=9810.0, non_negative=True)</span>
+
+<span class="sd">    &gt;&gt;&gt; # From configuration dict</span>
+<span class="sd">    &gt;&gt;&gt; config = {&quot;class&quot;: &quot;LearnableK&quot;, &quot;initial_value&quot;: 0.5, &quot;trainable&quot;: True}</span>
+<span class="sd">    &gt;&gt;&gt; resolve_physical_param(config)</span>
+<span class="sd">    LearnableK(initial_value=0.5, trainable=True)</span>
+
+<span class="sd">    &gt;&gt;&gt; # Serialization</span>
+<span class="sd">    &gt;&gt;&gt; k = LearnableK(0.5)</span>
+<span class="sd">    &gt;&gt;&gt; resolve_physical_param(k, serialize=True)</span>
+<span class="sd">    {&#39;class&#39;: &#39;LearnableK&#39;, &#39;initial_value&#39;: 0.5, ...}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># 1. Serialization Branch</span>
+    <span class="k">if</span> <span class="n">serialize</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">BaseLearnable</span> <span class="o">|</span> <span class="n">BaseFixed</span><span class="p">):</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="k">return</span> <span class="n">config</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">param</span><span class="p">),</span>
+                <span class="s2">&quot;learnable&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;class&quot;</span> <span class="ow">in</span> <span class="n">param</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">param</span>  <span class="c1"># Already serialized</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Cannot serialize parameter of type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">param</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># 2. Configuration Dict Processing</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;class&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">param</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Configuration dict must contain &#39;class&#39; key&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">class_name</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># Map class names to constructors</span>
+        <span class="n">wrapper_classes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="c1"># Learnable parameters</span>
+            <span class="s2">&quot;LearnableK&quot;</span><span class="p">:</span> <span class="n">LearnableK</span><span class="p">,</span>
+            <span class="s2">&quot;LearnableSs&quot;</span><span class="p">:</span> <span class="n">LearnableSs</span><span class="p">,</span>
+            <span class="s2">&quot;LearnableQ&quot;</span><span class="p">:</span> <span class="n">LearnableQ</span><span class="p">,</span>
+            <span class="s2">&quot;LearnableMV&quot;</span><span class="p">:</span> <span class="n">LearnableMV</span><span class="p">,</span>
+            <span class="s2">&quot;LearnableKappa&quot;</span><span class="p">:</span> <span class="n">LearnableKappa</span><span class="p">,</span>
+            <span class="c1"># Fixed parameters</span>
+            <span class="s2">&quot;FixedGammaW&quot;</span><span class="p">:</span> <span class="n">FixedGammaW</span><span class="p">,</span>
+            <span class="s2">&quot;FixedHRef&quot;</span><span class="p">:</span> <span class="n">FixedHRef</span><span class="p">,</span>
+            <span class="c1"># Legacy parameters</span>
+            <span class="s2">&quot;LearnableC&quot;</span><span class="p">:</span> <span class="n">LearnableC</span><span class="p">,</span>
+            <span class="s2">&quot;FixedC&quot;</span><span class="p">:</span> <span class="n">FixedC</span><span class="p">,</span>
+            <span class="s2">&quot;DisabledC&quot;</span><span class="p">:</span> <span class="n">DisabledC</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">class_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">wrapper_classes</span><span class="p">:</span>
+            <span class="c1"># Handle plain float values</span>
+            <span class="k">if</span> <span class="n">class_name</span> <span class="o">==</span> <span class="s2">&quot;float&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown parameter class: </span><span class="si">{</span><span class="n">class_name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">wrapper_classes</span><span class="p">[</span><span class="n">class_name</span><span class="p">](</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># 3. String Parameter Processing</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;learnable&quot;</span><span class="p">,</span> <span class="s2">&quot;fixed&quot;</span><span class="p">):</span>
+            <span class="c1"># Use string as status override</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># Default value for wrapper creation</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Try to parse as numeric string</span>
+                <span class="n">param</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;String parameter must be numeric or &#39;learnable&#39;/&#39;fixed&#39;, &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;got &#39;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                <span class="p">)</span>
+
+    <span class="c1"># 4. Type Inference and Wrapper Mapping</span>
+    <span class="c1"># Determine parameter type</span>
+    <span class="n">resolved_param_type</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">param_type</span> <span class="ow">or</span> <span class="n">_infer_param_type_from_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Map parameter types to wrapper classes</span>
+    <span class="n">learnable_wrappers</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;K&quot;</span><span class="p">:</span> <span class="n">LearnableK</span><span class="p">,</span>
+        <span class="s2">&quot;Ss&quot;</span><span class="p">:</span> <span class="n">LearnableSs</span><span class="p">,</span>
+        <span class="s2">&quot;Q&quot;</span><span class="p">:</span> <span class="n">LearnableQ</span><span class="p">,</span>
+        <span class="s2">&quot;MV&quot;</span><span class="p">:</span> <span class="n">LearnableMV</span><span class="p">,</span>
+        <span class="s2">&quot;Kappa&quot;</span><span class="p">:</span> <span class="n">LearnableKappa</span><span class="p">,</span>
+        <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="n">LearnableC</span><span class="p">,</span>  <span class="c1"># Legacy support</span>
+    <span class="p">}</span>
+
+    <span class="n">fixed_wrappers</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;GammaW&quot;</span><span class="p">:</span> <span class="n">FixedGammaW</span><span class="p">,</span>
+        <span class="s2">&quot;HRef&quot;</span><span class="p">:</span> <span class="n">FixedHRef</span><span class="p">,</span>
+        <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="n">FixedC</span><span class="p">,</span>  <span class="c1"># Legacy support</span>
+    <span class="p">}</span>
+
+    <span class="c1"># 5. Status-Based Processing</span>
+    <span class="n">resolved_status</span> <span class="o">=</span> <span class="n">status</span> <span class="ow">or</span> <span class="s2">&quot;auto&quot;</span>
+
+    <span class="c1"># Handle already wrapped parameters</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">BaseLearnable</span> <span class="o">|</span> <span class="n">BaseFixed</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">resolved_status</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">param</span>
+        <span class="k">elif</span> <span class="n">resolved_status</span> <span class="o">==</span> <span class="s2">&quot;learnable&quot;</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">param</span><span class="p">,</span> <span class="n">BaseFixed</span>
+        <span class="p">):</span>
+            <span class="c1"># Convert fixed to learnable if requested</span>
+            <span class="k">return</span> <span class="n">_convert_fixed_to_learnable</span><span class="p">(</span>
+                <span class="n">param</span><span class="p">,</span>
+                <span class="n">resolved_param_type</span><span class="p">,</span>
+                <span class="n">name</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">additional_kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">resolved_status</span> <span class="o">==</span> <span class="s2">&quot;fixed&quot;</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">param</span><span class="p">,</span> <span class="n">BaseLearnable</span>
+        <span class="p">):</span>
+            <span class="c1"># Convert learnable to fixed if requested</span>
+            <span class="k">return</span> <span class="n">_convert_learnable_to_fixed</span><span class="p">(</span>
+                <span class="n">param</span><span class="p">,</span>
+                <span class="n">resolved_param_type</span><span class="p">,</span>
+                <span class="n">name</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">additional_kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">param</span>
+
+    <span class="c1"># 6. Numeric Parameter Processing</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">numeric_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+
+        <span class="c1"># Apply status resolution</span>
+        <span class="k">if</span> <span class="n">resolved_status</span> <span class="o">==</span> <span class="s2">&quot;learnable&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_create_learnable_wrapper</span><span class="p">(</span>
+                <span class="n">numeric_value</span><span class="p">,</span>
+                <span class="n">resolved_param_type</span><span class="p">,</span>
+                <span class="n">name</span><span class="p">,</span>
+                <span class="n">learnable_wrappers</span><span class="p">,</span>
+                <span class="n">log_transform</span><span class="p">,</span>
+                <span class="n">non_negative</span><span class="p">,</span>
+                <span class="n">trainable</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">additional_kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">resolved_status</span> <span class="o">==</span> <span class="s2">&quot;fixed&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_create_fixed_wrapper</span><span class="p">(</span>
+                <span class="n">numeric_value</span><span class="p">,</span>
+                <span class="n">resolved_param_type</span><span class="p">,</span>
+                <span class="n">name</span><span class="p">,</span>
+                <span class="n">fixed_wrappers</span><span class="p">,</span>
+                <span class="n">log_transform</span><span class="p">,</span>
+                <span class="n">non_negative</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">additional_kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># auto or None</span>
+            <span class="c1"># Return as concrete value</span>
+            <span class="k">if</span> <span class="n">_BACKEND</span> <span class="o">==</span> <span class="s2">&quot;tensorflow&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span>
+                    <span class="n">numeric_value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">numeric_value</span>
+
+    <span class="c1"># 7. Fallback for Unhandled Types</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Parameter must be float, int, BaseLearnable, BaseFixed, dict, or str; &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">param</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_infer_param_type_from_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Infer parameter type from name using flexible matching.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;Unknown&quot;</span>
+
+    <span class="n">name_upper</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+    <span class="c1"># Flexible type matching</span>
+    <span class="n">type_patterns</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;K&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;K&quot;</span><span class="p">,</span> <span class="s2">&quot;CONDUCTIVITY&quot;</span><span class="p">,</span> <span class="s2">&quot;HYDRAULIC_CONDUCTIVITY&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;Ss&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SS&quot;</span><span class="p">,</span> <span class="s2">&quot;SPECIFIC_STORAGE&quot;</span><span class="p">,</span> <span class="s2">&quot;STORAGE&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;Q&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Q&quot;</span><span class="p">,</span> <span class="s2">&quot;SOURCE&quot;</span><span class="p">,</span> <span class="s2">&quot;SINK&quot;</span><span class="p">,</span> <span class="s2">&quot;SOURCE_SINK&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;MV&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;MV&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;M_V&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;COMPRESSIBILITY&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;VOLUME_COMPRESSIBILITY&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;Kappa&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;KAPPA&quot;</span><span class="p">,</span> <span class="s2">&quot;CONSISTENCY&quot;</span><span class="p">,</span> <span class="s2">&quot;PRIOR&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;GammaW&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;GAMMA_W&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;GAMMAW&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;UNIT_WEIGHT&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;WATER_WEIGHT&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;HRef&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;H_REF&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;HREF&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;REFERENCE_HEAD&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;REF_HEAD&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;COEFFICIENT&quot;</span><span class="p">,</span> <span class="s2">&quot;PHYSICS_COEFF&quot;</span><span class="p">],</span>  <span class="c1"># Legacy</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">param_type</span><span class="p">,</span> <span class="n">patterns</span> <span class="ow">in</span> <span class="n">type_patterns</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">pattern</span> <span class="ow">in</span> <span class="n">name_upper</span> <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">param_type</span>
+
+    <span class="k">return</span> <span class="s2">&quot;Unknown&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_create_learnable_wrapper</span><span class="p">(</span>
+    <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">param_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">wrapper_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseLearnable</span><span class="p">]],</span>
+    <span class="n">log_transform</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">non_negative</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">trainable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseLearnable</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a learnable parameter wrapper.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">param_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">wrapper_map</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Cannot create learnable wrapper for parameter type &#39;</span><span class="si">{</span><span class="n">param_type</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Available types: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">wrapper_map</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">wrapper_class</span> <span class="o">=</span> <span class="n">wrapper_map</span><span class="p">[</span><span class="n">param_type</span><span class="p">]</span>
+
+    <span class="c1"># Set default parameters based on type</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;K&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;initial_value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span>
+            <span class="s2">&quot;log_transform&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;trainable&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;Ss&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;initial_value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span>
+            <span class="s2">&quot;log_transform&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;trainable&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;Q&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;initial_value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span>
+            <span class="s2">&quot;log_transform&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;trainable&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;MV&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;initial_value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span>
+            <span class="s2">&quot;log_transform&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;trainable&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;Kappa&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;initial_value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span>
+            <span class="s2">&quot;log_transform&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;trainable&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;initial_value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">},</span>  <span class="c1"># Legacy</span>
+    <span class="p">}</span>
+
+    <span class="n">params</span> <span class="o">=</span> <span class="n">default_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="n">param_type</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;initial_value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Apply overrides</span>
+    <span class="k">if</span> <span class="n">log_transform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;log_transform&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">log_transform</span>
+    <span class="k">if</span> <span class="n">trainable</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;trainable&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trainable</span>
+    <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wrapper_class</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_create_fixed_wrapper</span><span class="p">(</span>
+    <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">param_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">wrapper_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseFixed</span><span class="p">]],</span>
+    <span class="n">log_transform</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">non_negative</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseFixed</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a fixed parameter wrapper.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">param_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">wrapper_map</span><span class="p">:</span>
+        <span class="c1"># For unsupported fixed types, return as concrete value</span>
+        <span class="k">if</span> <span class="n">_BACKEND</span> <span class="o">==</span> <span class="s2">&quot;tensorflow&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="n">wrapper_class</span> <span class="o">=</span> <span class="n">wrapper_map</span><span class="p">[</span><span class="n">param_type</span><span class="p">]</span>
+
+    <span class="c1"># Set default parameters based on type</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;GammaW&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span>
+            <span class="s2">&quot;log_transform&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;non_negative&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;HRef&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span>
+            <span class="s2">&quot;log_transform&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;non_negative&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">},</span>  <span class="c1"># Legacy</span>
+    <span class="p">}</span>
+
+    <span class="n">params</span> <span class="o">=</span> <span class="n">default_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param_type</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span>
+
+    <span class="c1"># Apply overrides</span>
+    <span class="k">if</span> <span class="n">log_transform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;log_transform&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">log_transform</span>
+    <span class="k">if</span> <span class="n">non_negative</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;non_negative&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">non_negative</span>
+    <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wrapper_class</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_convert_fixed_to_learnable</span><span class="p">(</span>
+    <span class="n">fixed_param</span><span class="p">:</span> <span class="n">BaseFixed</span><span class="p">,</span>
+    <span class="n">param_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseLearnable</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a fixed parameter to learnable.&quot;&quot;&quot;</span>
+    <span class="n">learnable_wrappers</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;K&quot;</span><span class="p">:</span> <span class="n">LearnableK</span><span class="p">,</span>
+        <span class="s2">&quot;Ss&quot;</span><span class="p">:</span> <span class="n">LearnableSs</span><span class="p">,</span>
+        <span class="s2">&quot;Q&quot;</span><span class="p">:</span> <span class="n">LearnableQ</span><span class="p">,</span>
+        <span class="s2">&quot;MV&quot;</span><span class="p">:</span> <span class="n">LearnableMV</span><span class="p">,</span>
+        <span class="s2">&quot;Kappa&quot;</span><span class="p">:</span> <span class="n">LearnableKappa</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">param_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">learnable_wrappers</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Cannot convert fixed parameter to&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; learnable for type &#39;</span><span class="si">{</span><span class="n">param_type</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">wrapper_class</span> <span class="o">=</span> <span class="n">learnable_wrappers</span><span class="p">[</span><span class="n">param_type</span><span class="p">]</span>
+
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;initial_value&quot;</span><span class="p">:</span> <span class="n">fixed_param</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">fixed_param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="s2">&quot;trainable&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wrapper_class</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_convert_learnable_to_fixed</span><span class="p">(</span>
+    <span class="n">learnable_param</span><span class="p">:</span> <span class="n">BaseLearnable</span><span class="p">,</span>
+    <span class="n">param_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseFixed</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a learnable parameter to fixed.&quot;&quot;&quot;</span>
+    <span class="n">fixed_wrappers</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;GammaW&quot;</span><span class="p">:</span> <span class="n">FixedGammaW</span><span class="p">,</span>
+        <span class="s2">&quot;HRef&quot;</span><span class="p">:</span> <span class="n">FixedHRef</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">param_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fixed_wrappers</span><span class="p">:</span>
+        <span class="c1"># For unsupported conversions, return as concrete value</span>
+        <span class="k">return</span> <span class="n">learnable_param</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
+
+    <span class="n">wrapper_class</span> <span class="o">=</span> <span class="n">fixed_wrappers</span><span class="p">[</span><span class="n">param_type</span><span class="p">]</span>
+
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">learnable_param</span><span class="o">.</span><span class="n">initial_value</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">learnable_param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wrapper_class</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

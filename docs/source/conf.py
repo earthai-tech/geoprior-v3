@@ -129,8 +129,8 @@ autosummary_generate = True
 autosummary_imported_members = False
 autodoc_mock_imports = [
     "tensorflow", "keras",
-    "seaborn", "contextily", 
-    "geopandas"
+    # "seaborn", "contextily", 
+    # "geopandas", "shapely"
  ]
 
 myst_enable_extensions = [
@@ -183,7 +183,7 @@ html_theme_options = {
     },
 
     # keep disabled until the JSON is actually deployed
-    "check_switcher": True,
+    "check_switcher": False,
 
     "navbar_start": [
         "navbar-logo",
@@ -292,7 +292,7 @@ extensions += [
 sphinx_gallery_conf = {
     "examples_dirs": ["examples"],
     "gallery_dirs": ["auto_examples"],
-    "filename_pattern": r"plot_",
+    "filename_pattern": r"(plot_|build_|compute_|make_|summarize_|tag_|extend_)",
     "ignore_pattern": r"__init__\.py",
     "nested_sections": True,
     "within_subsection_order": FileNameSortKey,

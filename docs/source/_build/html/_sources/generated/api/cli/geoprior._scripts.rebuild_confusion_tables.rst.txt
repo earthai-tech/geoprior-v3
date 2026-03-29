@@ -1,0 +1,35 @@
+﻿geoprior.\_scripts.rebuild\_confusion\_tables
+=============================================
+
+.. automodule:: geoprior._scripts.rebuild_confusion_tables
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      main
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      RowSpec
+   
+   
+
+   
+   
+   
+
+
+

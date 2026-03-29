@@ -1,0 +1,1231 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>geoprior._scripts.plot_physics_profiles &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=404c0980"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geoprior/_scripts/plot_physics_profiles';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../../../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../../../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geoprior._scripts.plot_physics_profiles</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for geoprior._scripts.plot_physics_profiles</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+<span class="c1"># GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3</span>
+<span class="c1"># Copyright (c) 2026-present</span>
+<span class="c1"># Author: LKouadio &lt;https://lkouadio.com&gt;</span>
+<span class="c1">#</span>
+<span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Appendix Fig. A1 • 1D physics sensitivity profiles</span>
+
+<span class="sd">Complements:</span>
+<span class="sd">- Supp. Fig. S6 (ablations: skill + coverage),</span>
+<span class="sd">- Supp. Fig. S7 (2D residual heatmaps),</span>
+
+<span class="sd">by providing 1D &quot;profiles&quot; (physics-on only):</span>
+
+<span class="sd">For each city (rows) and each metric (metric_prior, metric_cons),</span>
+<span class="sd">we draw two line profiles:</span>
+
+<span class="sd">- metric vs λ_prior  (mean over λ_cons, pde_mode=&#39;both&#39;)</span>
+<span class="sd">- metric vs λ_cons   (mean over λ_prior, pde_mode=&#39;both&#39;)</span>
+
+<span class="sd">Layout</span>
+<span class="sd">------</span>
+<span class="sd">2 rows × 4 columns:</span>
+
+<span class="sd">Row 1: City A (default: Nansha)</span>
+<span class="sd">  Col 1: metric_prior vs λ_prior</span>
+<span class="sd">  Col 2: metric_prior vs λ_cons</span>
+<span class="sd">  Col 3: metric_cons  vs λ_prior</span>
+<span class="sd">  Col 4: metric_cons  vs λ_cons</span>
+
+<span class="sd">Row 2: City B (default: Zhongshan)</span>
+<span class="sd">  same four panels.</span>
+
+<span class="sd">Data source</span>
+<span class="sd">-----------</span>
+<span class="sd">We scan for JSONL under:</span>
+<span class="sd">  &lt;root&gt;/**/ablation_records/ablation_record*.jsonl</span>
+
+<span class="sd">Outputs</span>
+<span class="sd">-------</span>
+<span class="sd">- Figure: &lt;out&gt;.png and &lt;out&gt;.pdf</span>
+<span class="sd">- Tidy table copy:</span>
+<span class="sd">    appendix_table_A1_phys_profiles_tidy.csv</span>
+<span class="sd">  written next to the figure.</span>
+
+<span class="sd">API conventions</span>
+<span class="sd">---------------</span>
+<span class="sd">- Style via scripts.utils.set_paper_style()</span>
+<span class="sd">- Output path via scripts.utils.resolve_fig_out()</span>
+<span class="sd">- JSONL discovery via cfg.PATTERNS[&quot;ablation_record_jsonl&quot;] +</span>
+<span class="sd">  scripts.utils.find_all()</span>
+<span class="sd">- main(argv) wrapper calls a *_main(argv) function.</span>
+
+<span class="sd">Linting / format</span>
+<span class="sd">----------------</span>
+<span class="sd">- black + ruff, line length &lt;= 62</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">cfg</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+
+<span class="c1"># Metrics where &quot;lower is better&quot; (best point highlight).</span>
+<span class="n">_LOWER_IS_BETTER</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;mae&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mse&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sharpness80&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;epsilon_prior&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;epsilon_cons&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------</span>
+<span class="c1"># CLI</span>
+<span class="c1"># ---------------------------------------------------------------------</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_args</span><span class="p">(</span>
+    <span class="n">argv</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">prog</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">:</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">prog</span><span class="o">=</span><span class="n">prog</span> <span class="ow">or</span> <span class="s2">&quot;plot-physics-profiles&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Appendix A1: 1D physics profiles&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--root&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;results&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Root to scan for &quot;</span>
+            <span class="s2">&quot;**/ablation_records/ablation_record*.jsonl&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Backward compat: explicit out dir override.</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--out-dir&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Optional output dir override.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--font&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">PAPER_FONT</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--dpi&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">PAPER_DPI</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--city-a&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;Nansha&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;City A name as recorded in JSONL.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--city-b&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;Zhongshan&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;City B name as recorded in JSONL.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--metric-prior&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;epsilon_prior&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;epsilon_prior&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;coverage80&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sharpness80&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;r2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mae&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mse&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Metric used for prior profiles.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--metric-cons&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;epsilon_cons&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;epsilon_cons&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;coverage80&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sharpness80&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;r2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mae&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mse&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Metric used for cons profiles.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">utils</span><span class="o">.</span><span class="n">add_plot_text_args</span><span class="p">(</span>
+        <span class="n">p</span><span class="p">,</span>
+        <span class="n">default_out</span><span class="o">=</span><span class="s2">&quot;appendix_fig_A1_phys_profiles&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Optional highlight of best point per panel.</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--show-best&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Mark best point (true/false).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------</span>
+<span class="c1"># I/O</span>
+<span class="c1"># ---------------------------------------------------------------------</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_records</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">files</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span>
+        <span class="n">root</span><span class="p">,</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">PATTERNS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ablation_record_jsonl&quot;</span><span class="p">,</span> <span class="p">()),</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">fp</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">rec</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rec</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                        <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;_src&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+                        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;lambda_prior&quot;</span><span class="p">,</span> <span class="s2">&quot;lambda_cons&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">],</span>
+                <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------</span>
+<span class="c1"># Helpers</span>
+<span class="c1"># ---------------------------------------------------------------------</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_city_mask</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">city</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;city&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">city</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_metric_label</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="c1"># Prefer central physics labels when available.</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">PHYS_LABELS</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cfg</span><span class="o">.</span><span class="n">PHYS_LABELS</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+    <span class="n">kl</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">kl</span> <span class="o">==</span> <span class="s2">&quot;coverage80&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;Coverage (80%)&quot;</span>
+    <span class="k">if</span> <span class="n">kl</span> <span class="o">==</span> <span class="s2">&quot;sharpness80&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;Sharpness (80%)&quot;</span>
+    <span class="k">if</span> <span class="n">kl</span> <span class="o">==</span> <span class="s2">&quot;r2&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;R</span><span class="se">\u00b2</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="n">kl</span> <span class="o">==</span> <span class="s2">&quot;mae&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;MAE&quot;</span>
+    <span class="k">if</span> <span class="n">kl</span> <span class="o">==</span> <span class="s2">&quot;mse&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;MSE&quot;</span>
+
+    <span class="k">return</span> <span class="n">k</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_axes_cleanup</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;right&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_only_physics_on</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="c1"># Some JSONLs may omit pde_mode. In that case we</span>
+    <span class="c1"># keep all rows (treat as &quot;physics on&quot;).</span>
+    <span class="k">if</span> <span class="s2">&quot;pde_mode&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;pde_mode&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="s2">&quot;both&quot;</span><span class="p">)]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_profile_over</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">city</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">axis</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">axis</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;lambda_prior&quot;</span><span class="p">,</span> <span class="s2">&quot;lambda_cons&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bad axis: </span><span class="si">{</span><span class="n">axis</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">sub</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">_city_mask</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">city</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">sub</span> <span class="o">=</span> <span class="n">_only_physics_on</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">sub</span><span class="o">.</span><span class="n">empty</span> <span class="ow">or</span> <span class="n">metric</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sub</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+
+    <span class="n">g</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">sub</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="n">metric</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">axis</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+        <span class="n">g</span><span class="p">[</span><span class="n">metric</span><span class="p">],</span>
+        <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="n">ok</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span><span class="p">[</span><span class="n">ok</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">ok</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_best_idx</span><span class="p">(</span><span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">metric</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">_LOWER_IS_BETTER</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanargmin</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanargmax</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_plot_profile_panel</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">,</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">city</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">axis</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">show_best</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">show_labels</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">show_ticks</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">show_title</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">_profile_over</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">city</span><span class="o">=</span><span class="n">city</span><span class="p">,</span>
+        <span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">,</span>
+        <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+        <span class="k">return</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">x</span><span class="p">,</span>
+        <span class="n">y</span><span class="p">,</span>
+        <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">show_best</span><span class="p">:</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">_best_idx</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">]],</span>
+                <span class="p">[</span><span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">]],</span>
+                <span class="n">s</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span>
+                <span class="n">facecolors</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+                <span class="n">edgecolors</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+                <span class="n">linewidths</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">show_ticks</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([])</span>
+
+    <span class="k">if</span> <span class="n">show_labels</span><span class="p">:</span>
+        <span class="n">xl</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;$\lambda_{\mathrm</span><span class="si">{prior}</span><span class="s2">}$&quot;</span>
+            <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="s2">&quot;lambda_prior&quot;</span>
+            <span class="k">else</span> <span class="sa">r</span><span class="s2">&quot;$\lambda_{\mathrm</span><span class="si">{cons}</span><span class="s2">}$&quot;</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">xl</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">_metric_label</span><span class="p">(</span><span class="n">metric</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">show_title</span><span class="p">:</span>
+        <span class="n">which</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;vs $\lambda_{\mathrm</span><span class="si">{prior}</span><span class="s2">}$&quot;</span>
+            <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="s2">&quot;lambda_prior&quot;</span>
+            <span class="k">else</span> <span class="sa">r</span><span class="s2">&quot;vs $\lambda_{\mathrm</span><span class="si">{cons}</span><span class="s2">}$&quot;</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">city</span><span class="si">}</span><span class="s2"> — </span><span class="si">{</span><span class="n">_metric_label</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">which</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="n">pad</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+            <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">_axes_cleanup</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_out</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">out_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">out_dir</span><span class="p">:</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">out_dir</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">base</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">())</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">resolve_fig_out</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------</span>
+<span class="c1"># Main</span>
+<span class="c1"># ---------------------------------------------------------------------</span>
+<div class="viewcode-block" id="figA1_phys_profiles_main">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.plot_physics_profiles.html#geoprior._scripts.plot_physics_profiles.figA1_phys_profiles_main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">figA1_phys_profiles_main</span><span class="p">(</span>
+    <span class="n">argv</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">prog</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">_parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="n">prog</span><span class="o">=</span><span class="n">prog</span><span class="p">)</span>
+
+    <span class="n">utils</span><span class="o">.</span><span class="n">set_paper_style</span><span class="p">(</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">font</span><span class="p">),</span>
+        <span class="n">dpi</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">dpi</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">show_labels</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">str_to_bool</span><span class="p">(</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">show_labels</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">show_ticks</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">str_to_bool</span><span class="p">(</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">show_ticklabels</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">show_title</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">str_to_bool</span><span class="p">(</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">show_title</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">show_pan_t</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">str_to_bool</span><span class="p">(</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">show_panel_titles</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">show_best</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">str_to_bool</span><span class="p">(</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">show_best</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">root</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">as_path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">_read_records</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span>
+            <span class="s2">&quot;No ablation_record*.jsonl found under:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Run ablations with the logger enabled first.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">city_a</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">canonical_city</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">city_a</span><span class="p">)</span>
+    <span class="n">city_b</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">canonical_city</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">city_b</span><span class="p">)</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">_resolve_out</span><span class="p">(</span><span class="n">out</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">out_dir</span><span class="p">)</span>
+    <span class="n">utils</span><span class="o">.</span><span class="n">ensure_dir</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+
+    <span class="n">tidy_csv</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">parent</span>
+        <span class="o">/</span> <span class="s2">&quot;appendix_table_A1_phys_profiles_tidy.csv&quot;</span>
+    <span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">tidy_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[OK] table -&gt; </span><span class="si">{</span><span class="n">tidy_csv</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">ca</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">CITY_COLORS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">city_a</span><span class="p">,</span> <span class="s2">&quot;#1F78B4&quot;</span><span class="p">)</span>
+    <span class="n">cb</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">CITY_COLORS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">city_b</span><span class="p">,</span> <span class="s2">&quot;#E31A1C&quot;</span><span class="p">)</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">6.5</span><span class="p">))</span>
+    <span class="n">gs</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_gridspec</span><span class="p">(</span>
+        <span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">ncols</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">left</span><span class="o">=</span><span class="mf">0.06</span><span class="p">,</span>
+        <span class="n">right</span><span class="o">=</span><span class="mf">0.98</span><span class="p">,</span>
+        <span class="n">top</span><span class="o">=</span><span class="mf">0.92</span><span class="p">,</span>
+        <span class="n">bottom</span><span class="o">=</span><span class="mf">0.10</span><span class="p">,</span>
+        <span class="n">hspace</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span>
+        <span class="n">wspace</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Row 1: city A</span>
+    <span class="n">_plot_profile_panel</span><span class="p">(</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">city</span><span class="o">=</span><span class="n">city_a</span><span class="p">,</span>
+        <span class="n">metric</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">metric_prior</span><span class="p">,</span>
+        <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;lambda_prior&quot;</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">ca</span><span class="p">,</span>
+        <span class="n">show_best</span><span class="o">=</span><span class="n">show_best</span><span class="p">,</span>
+        <span class="n">show_labels</span><span class="o">=</span><span class="n">show_labels</span><span class="p">,</span>
+        <span class="n">show_ticks</span><span class="o">=</span><span class="n">show_ticks</span><span class="p">,</span>
+        <span class="n">show_title</span><span class="o">=</span><span class="n">show_pan_t</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">_plot_profile_panel</span><span class="p">(</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">city</span><span class="o">=</span><span class="n">city_a</span><span class="p">,</span>
+        <span class="n">metric</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">metric_prior</span><span class="p">,</span>
+        <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;lambda_cons&quot;</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">ca</span><span class="p">,</span>
+        <span class="n">show_best</span><span class="o">=</span><span class="n">show_best</span><span class="p">,</span>
+        <span class="n">show_labels</span><span class="o">=</span><span class="n">show_labels</span><span class="p">,</span>
+        <span class="n">show_ticks</span><span class="o">=</span><span class="n">show_ticks</span><span class="p">,</span>
+        <span class="n">show_title</span><span class="o">=</span><span class="n">show_pan_t</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">_plot_profile_panel</span><span class="p">(</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]),</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">city</span><span class="o">=</span><span class="n">city_a</span><span class="p">,</span>
+        <span class="n">metric</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">metric_cons</span><span class="p">,</span>
+        <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;lambda_prior&quot;</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">ca</span><span class="p">,</span>
+        <span class="n">show_best</span><span class="o">=</span><span class="n">show_best</span><span class="p">,</span>
+        <span class="n">show_labels</span><span class="o">=</span><span class="n">show_labels</span><span class="p">,</span>
+        <span class="n">show_ticks</span><span class="o">=</span><span class="n">show_ticks</span><span class="p">,</span>
+        <span class="n">show_title</span><span class="o">=</span><span class="n">show_pan_t</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">_plot_profile_panel</span><span class="p">(</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">city</span><span class="o">=</span><span class="n">city_a</span><span class="p">,</span>
+        <span class="n">metric</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">metric_cons</span><span class="p">,</span>
+        <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;lambda_cons&quot;</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">ca</span><span class="p">,</span>
+        <span class="n">show_best</span><span class="o">=</span><span class="n">show_best</span><span class="p">,</span>
+        <span class="n">show_labels</span><span class="o">=</span><span class="n">show_labels</span><span class="p">,</span>
+        <span class="n">show_ticks</span><span class="o">=</span><span class="n">show_ticks</span><span class="p">,</span>
+        <span class="n">show_title</span><span class="o">=</span><span class="n">show_pan_t</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Row 2: city B</span>
+    <span class="n">_plot_profile_panel</span><span class="p">(</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">city</span><span class="o">=</span><span class="n">city_b</span><span class="p">,</span>
+        <span class="n">metric</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">metric_prior</span><span class="p">,</span>
+        <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;lambda_prior&quot;</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">cb</span><span class="p">,</span>
+        <span class="n">show_best</span><span class="o">=</span><span class="n">show_best</span><span class="p">,</span>
+        <span class="n">show_labels</span><span class="o">=</span><span class="n">show_labels</span><span class="p">,</span>
+        <span class="n">show_ticks</span><span class="o">=</span><span class="n">show_ticks</span><span class="p">,</span>
+        <span class="n">show_title</span><span class="o">=</span><span class="n">show_pan_t</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">_plot_profile_panel</span><span class="p">(</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">city</span><span class="o">=</span><span class="n">city_b</span><span class="p">,</span>
+        <span class="n">metric</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">metric_prior</span><span class="p">,</span>
+        <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;lambda_cons&quot;</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">cb</span><span class="p">,</span>
+        <span class="n">show_best</span><span class="o">=</span><span class="n">show_best</span><span class="p">,</span>
+        <span class="n">show_labels</span><span class="o">=</span><span class="n">show_labels</span><span class="p">,</span>
+        <span class="n">show_ticks</span><span class="o">=</span><span class="n">show_ticks</span><span class="p">,</span>
+        <span class="n">show_title</span><span class="o">=</span><span class="n">show_pan_t</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">_plot_profile_panel</span><span class="p">(</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]),</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">city</span><span class="o">=</span><span class="n">city_b</span><span class="p">,</span>
+        <span class="n">metric</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">metric_cons</span><span class="p">,</span>
+        <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;lambda_prior&quot;</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">cb</span><span class="p">,</span>
+        <span class="n">show_best</span><span class="o">=</span><span class="n">show_best</span><span class="p">,</span>
+        <span class="n">show_labels</span><span class="o">=</span><span class="n">show_labels</span><span class="p">,</span>
+        <span class="n">show_ticks</span><span class="o">=</span><span class="n">show_ticks</span><span class="p">,</span>
+        <span class="n">show_title</span><span class="o">=</span><span class="n">show_pan_t</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">_plot_profile_panel</span><span class="p">(</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">city</span><span class="o">=</span><span class="n">city_b</span><span class="p">,</span>
+        <span class="n">metric</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">metric_cons</span><span class="p">,</span>
+        <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;lambda_cons&quot;</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">cb</span><span class="p">,</span>
+        <span class="n">show_best</span><span class="o">=</span><span class="n">show_best</span><span class="p">,</span>
+        <span class="n">show_labels</span><span class="o">=</span><span class="n">show_labels</span><span class="p">,</span>
+        <span class="n">show_ticks</span><span class="o">=</span><span class="n">show_ticks</span><span class="p">,</span>
+        <span class="n">show_title</span><span class="o">=</span><span class="n">show_pan_t</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">show_title</span><span class="p">:</span>
+        <span class="n">default</span> <span class="o">=</span> <span class="s2">&quot;Appendix Fig. A1 • 1D physics sensitivity profiles&quot;</span>
+        <span class="n">ttl</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">resolve_title</span><span class="p">(</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
+            <span class="n">ttl</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+            <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">png</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.png&quot;</span><span class="p">)</span>
+    <span class="n">pdf</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.pdf&quot;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">png</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[OK] figs -&gt; </span><span class="si">{</span><span class="n">png</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">pdf</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.plot_physics_profiles.html#geoprior._scripts.plot_physics_profiles.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span>
+    <span class="n">argv</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">prog</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">figA1_phys_profiles_main</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="n">prog</span><span class="o">=</span><span class="n">prog</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

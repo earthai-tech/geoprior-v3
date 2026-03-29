@@ -1,0 +1,25 @@
+﻿geoprior.params.LearnableMV
+===========================
+
+.. currentmodule:: geoprior.params
+
+.. autoclass:: LearnableMV
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LearnableMV.__init__
+      ~LearnableMV.from_config
+      ~LearnableMV.get_config
+      ~LearnableMV.get_value
+   
+   
+
+   
+   
+   

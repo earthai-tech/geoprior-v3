@@ -1,0 +1,30 @@
+﻿geoprior.cli.run\_sm3\_suite
+============================
+
+.. automodule:: geoprior.cli.run_sm3_suite
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      main
+      sm3_suite_main
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,1487 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>geoprior._scripts.plot_geo_cumulative &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=404c0980"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geoprior/_scripts/plot_geo_cumulative';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../../../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../../../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geoprior._scripts.plot_geo_cumulative</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for geoprior._scripts.plot_geo_cumulative</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+<span class="c1"># GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3</span>
+<span class="c1"># Copyright (c) 2026-present</span>
+<span class="c1"># Author: LKouadio &lt;https://lkouadio.com&gt;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Cumulative subsidence maps on satellite basemap + optional hotspots.</span>
+
+<span class="sd">Layout (2 rows × N columns):</span>
+
+<span class="sd">  [2022 observed (cum)] [2022 predicted (cum)]</span>
+<span class="sd">  [2024 forecast (cum)] [2025 forecast (cum)] ...</span>
+
+<span class="sd">Rows: Nansha (top), Zhongshan (bottom).</span>
+
+<span class="sd">Background: Esri.WorldImagery satellite tiles (contextily).</span>
+<span class="sd">Foreground: PS points coloured by cumulative subsidence (mm)</span>
+<span class="sd">            since a baseline year (default 2020).</span>
+<span class="sd">Optional: hotspot overlay from Fig.6 hotspot points CSV.</span>
+
+<span class="sd">Cumulative definition</span>
+<span class="sd">---------------------</span>
+<span class="sd">This script always plots *cumulative since start_year*, but the</span>
+<span class="sd">input CSV can be:</span>
+
+<span class="sd">1) --subsidence-kind=cumulative (default)</span>
+<span class="sd">   Values are already cumulative. We rebase at the first year</span>
+<span class="sd">   &gt;= start_year:</span>
+
+<span class="sd">     cum(t) = value(t) - value(first)</span>
+
+<span class="sd">2) --subsidence-kind=increment (or rate)</span>
+<span class="sd">   Values are yearly increments. We accumulate:</span>
+
+<span class="sd">     cum(t) = sum_{y} increment(y)</span>
+
+<span class="sd">CRS handling (lat/lon vs UTM)</span>
+<span class="sd">-----------------------------</span>
+<span class="sd">coord_x/coord_y may be:</span>
+<span class="sd">- lon/lat (degrees)  -&gt; treated as EPSG:4326</span>
+<span class="sd">- UTM (meters)       -&gt; treated as EPSG:&lt;utm_epsg&gt; (default 32649)</span>
+
+<span class="sd">Auto-detection:</span>
+<span class="sd">- if |x|&lt;=180 and |y|&lt;=90 =&gt; lon/lat</span>
+<span class="sd">- else =&gt; UTM</span>
+
+<span class="sd">You can override using --coords-mode and --utm-epsg.</span>
+
+<span class="sd">Outputs</span>
+<span class="sd">-------</span>
+<span class="sd">Saves both PNG and PDF using --out (resolved under scripts/figs</span>
+<span class="sd">if relative).</span>
+
+<span class="sd">Notes</span>
+<span class="sd">-----</span>
+<span class="sd">- Code style targets black+ruff with line length 62.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">contextily</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">cfg</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------</span>
+<span class="c1"># CLI</span>
+<span class="c1"># ---------------------------------------------------------------------</span>
+<div class="viewcode-block" id="build_parser">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.plot_geo_cumulative.html#geoprior._scripts.plot_geo_cumulative.build_parser">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_parser</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span> <span class="n">prog</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">:</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">prog</span><span class="o">=</span><span class="n">prog</span> <span class="ow">or</span> <span class="s2">&quot;plot-geo-cumulative&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Cumulative subsidence maps on a satellite &quot;</span>
+            <span class="s2">&quot;basemap (GeoPrior).&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--ns-val&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Nansha validation calibrated CSV.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--zh-val&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Zhongshan validation calibrated CSV.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--ns-future&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Nansha future forecast CSV (H*_future).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--zh-future&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Zhongshan future forecast CSV (H*_future).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--start-year&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">2020</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Baseline year for cumulative sum.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--year-val&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">2022</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Observed vs predicted panel year.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--years-forecast&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">2025</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Forecast years (cumulative q50).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--subsidence-kind&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;cumulative&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;cumulative&quot;</span><span class="p">,</span> <span class="s2">&quot;increment&quot;</span><span class="p">,</span> <span class="s2">&quot;rate&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Meaning of subsidence values in CSVs. &quot;</span>
+            <span class="s2">&quot;cumulative=already cumulative (rebase at start_year); &quot;</span>
+            <span class="s2">&quot;increment/rate=per-year increments (cumsum).&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--clip&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">99.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Percentile clip for color scale.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--cmap&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Colormap for cumulative subsidence.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--point-size&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Marker size for PS points.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--point-alpha&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Alpha for PS points.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--hotspot-csv&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Optional hotspot points CSV (Fig.6).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--hotspot-field&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Optional hotspot color-by column.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--hotspot-color&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Hotspot color if no hotspot-field.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--hotspot-size&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Hotspot marker size.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--hotspot-alpha&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Hotspot alpha.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--coords-mode&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="s2">&quot;lonlat&quot;</span><span class="p">,</span> <span class="s2">&quot;utm&quot;</span><span class="p">),</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Coordinate mode for coord_x/coord_y.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--utm-epsg&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">32649</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;EPSG for UTM coords (default 32649).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--hide-attribution&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Hide contextily attribution.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--dpi&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">PAPER_DPI</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--font&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+
+    <span class="n">utils</span><span class="o">.</span><span class="n">add_plot_text_args</span><span class="p">(</span>
+        <span class="n">p</span><span class="p">,</span>
+        <span class="n">default_out</span><span class="o">=</span><span class="s2">&quot;spatial_satellite_cumulative&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">p</span></div>
+
+
+
+<div class="viewcode-block" id="parse_args">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.plot_geo_cumulative.html#geoprior._scripts.plot_geo_cumulative.parse_args">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_args</span><span class="p">(</span>
+    <span class="n">argv</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">prog</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">:</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">build_parser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="n">prog</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------</span>
+<span class="c1"># Loading / schema</span>
+<span class="c1"># ---------------------------------------------------------------------</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_csv_base</span><span class="p">(</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">needed</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">as_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+    <span class="n">miss</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">needed</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">miss</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing columns in </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">miss</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;coord_x&quot;</span><span class="p">,</span> <span class="s2">&quot;coord_y&quot;</span><span class="p">,</span> <span class="s2">&quot;coord_t&quot;</span><span class="p">]:</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;forecast_step&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;forecast_step&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;forecast_step&quot;</span><span class="p">],</span>
+            <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;coord_x&quot;</span><span class="p">,</span> <span class="s2">&quot;coord_y&quot;</span><span class="p">,</span> <span class="s2">&quot;coord_t&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="load_val_csv">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.plot_geo_cumulative.html#geoprior._scripts.plot_geo_cumulative.load_val_csv">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_val_csv</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">_load_csv_base</span><span class="p">(</span>
+        <span class="n">path</span><span class="p">,</span>
+        <span class="n">needed</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;sample_idx&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;coord_t&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;coord_x&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;coord_y&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;subsidence_actual&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;subsidence_q50&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;subsidence_actual&quot;</span><span class="p">,</span> <span class="s2">&quot;subsidence_q50&quot;</span><span class="p">]:</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span>
+        <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;subsidence_actual&quot;</span><span class="p">,</span> <span class="s2">&quot;subsidence_q50&quot;</span><span class="p">]</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="load_future_csv">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.plot_geo_cumulative.html#geoprior._scripts.plot_geo_cumulative.load_future_csv">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_future_csv</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">_load_csv_base</span><span class="p">(</span>
+        <span class="n">path</span><span class="p">,</span>
+        <span class="n">needed</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;sample_idx&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;coord_t&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;coord_x&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;coord_y&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;subsidence_q50&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;subsidence_q50&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;subsidence_q50&quot;</span><span class="p">],</span>
+        <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;subsidence_q50&quot;</span><span class="p">])</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------</span>
+<span class="c1"># CRS inference</span>
+<span class="c1"># ---------------------------------------------------------------------</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_looks_like_lonlat</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="mf">180.0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+        <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="mf">90.0</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="infer_xy_crs">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.plot_geo_cumulative.html#geoprior._scripts.plot_geo_cumulative.infer_xy_crs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">infer_xy_crs</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">utm_epsg</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;lonlat&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;EPSG:4326&quot;</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;utm&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;EPSG:</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">utm_epsg</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">xs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;coord_x&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+    <span class="n">ys</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;coord_y&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">xs</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">and</span> <span class="n">ys</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">xs</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">y0</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ys</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">_looks_like_lonlat</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;EPSG:4326&quot;</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;EPSG:</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">utm_epsg</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="to_web_mercator">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.plot_geo_cumulative.html#geoprior._scripts.plot_geo_cumulative.to_web_mercator">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_web_mercator</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">src_crs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;coord_x&quot;</span><span class="p">],</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;coord_y&quot;</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">crs</span><span class="o">=</span><span class="n">src_crs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">epsg</span><span class="o">=</span><span class="mi">3857</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------</span>
+<span class="c1"># Cumulative panels</span>
+<span class="c1"># ---------------------------------------------------------------------</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_panel_df</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;coord_x&quot;</span><span class="p">,</span> <span class="s2">&quot;coord_y&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">value_col</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">})</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_cum_from_input</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+    <span class="n">kind</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;sample_idx&quot;</span><span class="p">)[</span><span class="n">value_col</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;increment&quot;</span><span class="p">,</span> <span class="s2">&quot;rate&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">g</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
+
+    <span class="c1"># kind == &quot;cumulative&quot; (default): rebase at first available year</span>
+    <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="n">value_col</span><span class="p">]</span> <span class="o">-</span> <span class="n">g</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_cum_title_tag</span><span class="p">(</span><span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;increment&quot;</span><span class="p">,</span> <span class="s2">&quot;rate&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;cum (from increments)&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;cum (rebased)&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_cum_note</span><span class="p">(</span><span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;increment&quot;</span><span class="p">,</span> <span class="s2">&quot;rate&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;from increments&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;rebased&quot;</span>
+
+
+<div class="viewcode-block" id="build_city_panels">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.plot_geo_cumulative.html#geoprior._scripts.plot_geo_cumulative.build_city_panels">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_city_panels</span><span class="p">(</span>
+    <span class="n">val_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">fut_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">start_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">year_val</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">years_forecast</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">subs_kind</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cumulative&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">val_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">fut</span> <span class="o">=</span> <span class="n">fut_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="n">val</span><span class="p">[</span><span class="s2">&quot;coord_t&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="s2">&quot;coord_t&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">fut</span><span class="p">[</span><span class="s2">&quot;coord_t&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fut</span><span class="p">[</span><span class="s2">&quot;coord_t&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="s2">&quot;coord_t&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="nb">int</span><span class="p">(</span><span class="n">start_year</span><span class="p">)]</span>
+    <span class="n">fut</span> <span class="o">=</span> <span class="n">fut</span><span class="p">[</span><span class="n">fut</span><span class="p">[</span><span class="s2">&quot;coord_t&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="nb">int</span><span class="p">(</span><span class="n">start_year</span><span class="p">)]</span>
+
+    <span class="c1"># ---- observed cumulative (validation only)</span>
+    <span class="n">v0</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;sample_idx&quot;</span><span class="p">,</span> <span class="s2">&quot;coord_t&quot;</span><span class="p">])</span>
+    <span class="n">v0</span> <span class="o">=</span> <span class="n">v0</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
+        <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sample_idx&quot;</span><span class="p">,</span> <span class="s2">&quot;coord_t&quot;</span><span class="p">],</span>
+        <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;last&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># currently our data collected are cumlative so no need</span>
+    <span class="c1"># since the prediction should be made on cumulative</span>
+    <span class="n">v0</span><span class="p">[</span><span class="s2">&quot;cum_actual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_cum_from_input</span><span class="p">(</span>
+        <span class="n">v0</span><span class="p">,</span>
+        <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;subsidence_actual&quot;</span><span class="p">,</span>
+        <span class="n">kind</span><span class="o">=</span><span class="n">subs_kind</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">obs</span> <span class="o">=</span> <span class="n">v0</span><span class="p">[</span><span class="n">v0</span><span class="p">[</span><span class="s2">&quot;coord_t&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">year_val</span><span class="p">)]</span>
+    <span class="n">obs_panel</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_panel_df</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="s2">&quot;cum_actual&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">obs</span><span class="o">.</span><span class="n">empty</span>
+        <span class="k">else</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">())</span>
+    <span class="p">)</span>
+
+    <span class="c1"># ---- predicted cumulative (val + future)</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;sample_idx&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;coord_t&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;coord_x&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;coord_y&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;subsidence_q50&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">comb</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">fut</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()],</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">comb</span> <span class="o">=</span> <span class="n">comb</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;sample_idx&quot;</span><span class="p">,</span> <span class="s2">&quot;coord_t&quot;</span><span class="p">])</span>
+    <span class="n">comb</span> <span class="o">=</span> <span class="n">comb</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
+        <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sample_idx&quot;</span><span class="p">,</span> <span class="s2">&quot;coord_t&quot;</span><span class="p">],</span>
+        <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;last&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">comb</span><span class="p">[</span><span class="s2">&quot;cum_pred&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_cum_from_input</span><span class="p">(</span>
+        <span class="n">comb</span><span class="p">,</span>
+        <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;subsidence_q50&quot;</span><span class="p">,</span>
+        <span class="n">kind</span><span class="o">=</span><span class="n">subs_kind</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">pred</span> <span class="o">=</span> <span class="n">comb</span><span class="p">[</span><span class="n">comb</span><span class="p">[</span><span class="s2">&quot;coord_t&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">year_val</span><span class="p">)]</span>
+    <span class="n">pred_panel</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_panel_df</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="s2">&quot;cum_pred&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">pred</span><span class="o">.</span><span class="n">empty</span>
+        <span class="k">else</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">())</span>
+    <span class="p">)</span>
+
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">obs_panel</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">obs_panel</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pred_panel</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;pred&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pred_panel</span>
+
+    <span class="k">for</span> <span class="n">yy</span> <span class="ow">in</span> <span class="n">years_forecast</span><span class="p">:</span>
+        <span class="n">sub</span> <span class="o">=</span> <span class="n">comb</span><span class="p">[</span><span class="n">comb</span><span class="p">[</span><span class="s2">&quot;coord_t&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">yy</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">sub</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">out</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;Y</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">yy</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_panel_df</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="s2">&quot;cum_pred&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<div class="viewcode-block" id="clip_bounds">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.plot_geo_cumulative.html#geoprior._scripts.plot_geo_cumulative.clip_bounds">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">clip_bounds</span><span class="p">(</span>
+    <span class="n">arrays</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">clip</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">arrays</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="n">good</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">arrays</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">aa</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">a</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">aa</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+            <span class="n">good</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">aa</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">good</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">good</span><span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">clip</span><span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">50.0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
+
+    <span class="n">lo</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mf">100.0</span> <span class="o">-</span> <span class="n">p</span><span class="p">))</span>
+    <span class="n">hi</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">lo</span> <span class="o">&gt;=</span> <span class="n">hi</span><span class="p">:</span>
+        <span class="n">lo</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">hi</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------</span>
+<span class="c1"># Plotting</span>
+<span class="c1"># ---------------------------------------------------------------------</span>
+<div class="viewcode-block" id="draw_city_row">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.plot_geo_cumulative.html#geoprior._scripts.plot_geo_cumulative.draw_city_row">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">draw_city_row</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">axes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">row_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">city</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">panels_3857</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">],</span>
+    <span class="n">col_keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">cmap</span><span class="p">:</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Colormap</span><span class="p">,</span>
+    <span class="n">cum_tag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">vmin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">,</span>
+    <span class="n">show_panel_titles</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">hotspots</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">col_keys</span><span class="p">):</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="n">row_idx</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">panels_3857</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+            <span class="k">continue</span>
+
+        <span class="n">gdf</span> <span class="o">=</span> <span class="n">panels_3857</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="n">gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+            <span class="n">column</span><span class="o">=</span><span class="s2">&quot;value&quot;</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+            <span class="n">markersize</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">point_size</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">point_alpha</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">attrib</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">hide_attribution</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="n">cx</span><span class="o">.</span><span class="n">add_basemap</span><span class="p">(</span>
+            <span class="n">ax</span><span class="p">,</span>
+            <span class="n">source</span><span class="o">=</span><span class="n">cx</span><span class="o">.</span><span class="n">providers</span><span class="o">.</span><span class="n">Esri</span><span class="o">.</span><span class="n">WorldImagery</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span>
+            <span class="n">attribution</span><span class="o">=</span><span class="n">attrib</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">hotspots</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Y&quot;</span><span class="p">):</span>
+            <span class="n">yy</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="n">sub</span> <span class="o">=</span> <span class="n">hotspots</span><span class="p">[</span>
+                <span class="p">(</span><span class="n">hotspots</span><span class="p">[</span><span class="s2">&quot;city&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">city</span><span class="p">)</span>
+                <span class="o">&amp;</span> <span class="p">(</span><span class="n">hotspots</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">==</span> <span class="n">yy</span><span class="p">)</span>
+                <span class="o">&amp;</span> <span class="p">(</span><span class="n">hotspots</span><span class="p">[</span><span class="s2">&quot;kind&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;forecast&quot;</span><span class="p">)</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">sub</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="n">src</span> <span class="o">=</span> <span class="n">infer_xy_crs</span><span class="p">(</span>
+                    <span class="n">sub</span><span class="p">,</span>
+                    <span class="n">mode</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">coords_mode</span><span class="p">,</span>
+                    <span class="n">utm_epsg</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">utm_epsg</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">hot</span> <span class="o">=</span> <span class="n">to_web_mercator</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="n">src_crs</span><span class="o">=</span><span class="n">src</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">hotspot_field</span> <span class="ow">and</span> <span class="p">(</span>
+                    <span class="n">args</span><span class="o">.</span><span class="n">hotspot_field</span> <span class="ow">in</span> <span class="n">hot</span><span class="o">.</span><span class="n">columns</span>
+                <span class="p">):</span>
+                    <span class="n">hot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+                        <span class="n">column</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">hotspot_field</span><span class="p">,</span>
+                        <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;hot_r&quot;</span><span class="p">,</span>
+                        <span class="n">markersize</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">hotspot_size</span><span class="p">,</span>
+                        <span class="n">alpha</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">hotspot_alpha</span><span class="p">,</span>
+                        <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                        <span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">hot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+                        <span class="n">color</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">hotspot_color</span><span class="p">,</span>
+                        <span class="n">markersize</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">hotspot_size</span><span class="p">,</span>
+                        <span class="n">alpha</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">hotspot_alpha</span><span class="p">,</span>
+                        <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">show_panel_titles</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;obs&quot;</span><span class="p">:</span>
+            <span class="n">ttl</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">city</span><span class="si">}</span><span class="s2"> • </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">year_val</span><span class="si">}</span><span class="s2"> obs </span><span class="si">{</span><span class="n">cum_tag</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;pred&quot;</span><span class="p">:</span>
+            <span class="n">ttl</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">city</span><span class="si">}</span><span class="s2"> • </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">year_val</span><span class="si">}</span><span class="s2"> pred </span><span class="si">{</span><span class="n">cum_tag</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ttl</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">city</span><span class="si">}</span><span class="s2"> • </span><span class="si">{</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="si">}</span><span class="s2"> fcst </span><span class="si">{</span><span class="n">cum_tag</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+            <span class="n">ttl</span><span class="p">,</span>
+            <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+            <span class="n">pad</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------</span>
+<span class="c1"># Main</span>
+<span class="c1"># ---------------------------------------------------------------------</span>
+<div class="viewcode-block" id="plot_geo_cumulative_main">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.plot_geo_cumulative.html#geoprior._scripts.plot_geo_cumulative.plot_geo_cumulative_main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_geo_cumulative_main</span><span class="p">(</span>
+    <span class="n">argv</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">prog</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="n">prog</span><span class="o">=</span><span class="n">prog</span><span class="p">)</span>
+    <span class="n">utils</span><span class="o">.</span><span class="n">set_paper_style</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">font</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">dpi</span><span class="p">)</span>
+
+    <span class="n">cum_tag</span> <span class="o">=</span> <span class="n">_cum_title_tag</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">subsidence_kind</span><span class="p">)</span>
+    <span class="n">note</span> <span class="o">=</span> <span class="n">_cum_note</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">subsidence_kind</span><span class="p">)</span>
+
+    <span class="n">show_legend</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">str_to_bool</span><span class="p">(</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">show_legend</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">show_title</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">str_to_bool</span><span class="p">(</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">show_title</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">show_pan_t</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">str_to_bool</span><span class="p">(</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">show_panel_titles</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">show_labels</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">str_to_bool</span><span class="p">(</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">show_labels</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="n">ns_val</span> <span class="o">=</span> <span class="n">load_val_csv</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">ns_val</span><span class="p">)</span>
+    <span class="n">zh_val</span> <span class="o">=</span> <span class="n">load_val_csv</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">zh_val</span><span class="p">)</span>
+    <span class="n">ns_fut</span> <span class="o">=</span> <span class="n">load_future_csv</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">ns_future</span><span class="p">)</span>
+    <span class="n">zh_fut</span> <span class="o">=</span> <span class="n">load_future_csv</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">zh_future</span><span class="p">)</span>
+
+    <span class="n">ns_pan</span> <span class="o">=</span> <span class="n">build_city_panels</span><span class="p">(</span>
+        <span class="n">ns_val</span><span class="p">,</span>
+        <span class="n">ns_fut</span><span class="p">,</span>
+        <span class="n">start_year</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">start_year</span><span class="p">,</span>
+        <span class="n">year_val</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">year_val</span><span class="p">,</span>
+        <span class="n">years_forecast</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">years_forecast</span><span class="p">),</span>
+        <span class="n">subs_kind</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">subsidence_kind</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">zh_pan</span> <span class="o">=</span> <span class="n">build_city_panels</span><span class="p">(</span>
+        <span class="n">zh_val</span><span class="p">,</span>
+        <span class="n">zh_fut</span><span class="p">,</span>
+        <span class="n">start_year</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">start_year</span><span class="p">,</span>
+        <span class="n">year_val</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">year_val</span><span class="p">,</span>
+        <span class="n">years_forecast</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">years_forecast</span><span class="p">),</span>
+        <span class="n">subs_kind</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">subsidence_kind</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">col_keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;obs&quot;</span> <span class="ow">in</span> <span class="n">ns_pan</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s2">&quot;obs&quot;</span> <span class="ow">in</span> <span class="n">zh_pan</span><span class="p">):</span>
+        <span class="n">col_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;obs&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;pred&quot;</span> <span class="ow">in</span> <span class="n">ns_pan</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s2">&quot;pred&quot;</span> <span class="ow">in</span> <span class="n">zh_pan</span><span class="p">):</span>
+        <span class="n">col_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;pred&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">yy</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">years_forecast</span><span class="p">:</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Y</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">yy</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="n">ns_pan</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="n">zh_pan</span><span class="p">):</span>
+            <span class="n">col_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">col_keys</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">&quot;No panels found. Check years/CSVs.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># CRS conversion per city (supports lon/lat or UTM)</span>
+    <span class="n">ns_crs</span> <span class="o">=</span> <span class="n">infer_xy_crs</span><span class="p">(</span>
+        <span class="n">ns_val</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">coords_mode</span><span class="p">,</span>
+        <span class="n">utm_epsg</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">utm_epsg</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">zh_crs</span> <span class="o">=</span> <span class="n">infer_xy_crs</span><span class="p">(</span>
+        <span class="n">zh_val</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">coords_mode</span><span class="p">,</span>
+        <span class="n">utm_epsg</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">utm_epsg</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">ns_3857</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">zh_3857</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">col_keys</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ns_pan</span><span class="p">:</span>
+            <span class="n">ns_3857</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_web_mercator</span><span class="p">(</span>
+                <span class="n">ns_pan</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">src_crs</span><span class="o">=</span><span class="n">ns_crs</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">zh_pan</span><span class="p">:</span>
+            <span class="n">zh_3857</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_web_mercator</span><span class="p">(</span>
+                <span class="n">zh_pan</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">src_crs</span><span class="o">=</span><span class="n">zh_crs</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Global color scale</span>
+    <span class="n">vals</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">dct</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ns_pan</span><span class="p">,</span> <span class="n">zh_pan</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">col_keys</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">dct</span><span class="p">:</span>
+                <span class="n">vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dct</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
+
+    <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span> <span class="o">=</span> <span class="n">clip_bounds</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">clip</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">clip</span><span class="p">)</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">cmap</span><span class="p">)</span>
+
+    <span class="c1"># Optional hotspots</span>
+    <span class="n">hot_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">hotspot_csv</span><span class="p">:</span>
+        <span class="n">hp</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">as_path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">hotspot_csv</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hp</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">hot_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">hp</span><span class="p">)</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">ensure_columns</span><span class="p">(</span>
+                <span class="n">hot_df</span><span class="p">,</span>
+                <span class="n">aliases</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;coord_x&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;coord_x&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">,</span> <span class="s2">&quot;lng&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;coord_y&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;coord_y&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;lat&quot;</span><span class="p">),</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+
+    <span class="n">ncols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">col_keys</span><span class="p">)</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="mi">2</span><span class="p">,</span>
+        <span class="n">ncols</span><span class="p">,</span>
+        <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">),</span>
+        <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">axes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span>
+        <span class="n">left</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span>
+        <span class="n">right</span><span class="o">=</span><span class="mf">0.86</span> <span class="k">if</span> <span class="n">show_legend</span> <span class="k">else</span> <span class="mf">0.98</span><span class="p">,</span>
+        <span class="n">top</span><span class="o">=</span><span class="mf">0.93</span><span class="p">,</span>
+        <span class="n">bottom</span><span class="o">=</span><span class="mf">0.06</span><span class="p">,</span>
+        <span class="n">wspace</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+        <span class="n">hspace</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">draw_city_row</span><span class="p">(</span>
+        <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">,</span>
+        <span class="n">row_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">city</span><span class="o">=</span><span class="s2">&quot;Nansha&quot;</span><span class="p">,</span>
+        <span class="n">panels_3857</span><span class="o">=</span><span class="n">ns_3857</span><span class="p">,</span>
+        <span class="n">col_keys</span><span class="o">=</span><span class="n">col_keys</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+        <span class="n">cum_tag</span><span class="o">=</span><span class="n">cum_tag</span><span class="p">,</span>
+        <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
+        <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
+        <span class="n">show_panel_titles</span><span class="o">=</span><span class="n">show_pan_t</span><span class="p">,</span>
+        <span class="n">hotspots</span><span class="o">=</span><span class="n">hot_df</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">draw_city_row</span><span class="p">(</span>
+        <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">,</span>
+        <span class="n">row_idx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">city</span><span class="o">=</span><span class="s2">&quot;Zhongshan&quot;</span><span class="p">,</span>
+        <span class="n">panels_3857</span><span class="o">=</span><span class="n">zh_3857</span><span class="p">,</span>
+        <span class="n">col_keys</span><span class="o">=</span><span class="n">col_keys</span><span class="p">,</span>
+        <span class="n">cum_tag</span><span class="o">=</span><span class="n">cum_tag</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+        <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
+        <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
+        <span class="n">show_panel_titles</span><span class="o">=</span><span class="n">show_pan_t</span><span class="p">,</span>
+        <span class="n">hotspots</span><span class="o">=</span><span class="n">hot_df</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Shared colorbar</span>
+    <span class="k">if</span> <span class="n">show_legend</span><span class="p">:</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">)</span>
+        <span class="n">sm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+        <span class="n">sm</span><span class="o">.</span><span class="n">set_array</span><span class="p">([])</span>
+
+        <span class="n">cax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.88</span><span class="p">,</span> <span class="mf">0.20</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.60</span><span class="p">])</span>
+        <span class="n">cb</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cax</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">show_labels</span><span class="p">:</span>
+            <span class="n">lab</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;subsidence_cum&quot;</span><span class="p">)</span>
+            <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lab</span><span class="si">}</span><span class="s2"> since </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">start_year</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">show_legend</span> <span class="ow">and</span> <span class="n">show_labels</span><span class="p">:</span>
+        <span class="n">lab</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;subsidence_cum&quot;</span><span class="p">)</span>
+        <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lab</span><span class="si">}</span><span class="s2"> since </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">start_year</span><span class="p">)</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">note</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">show_title</span><span class="p">:</span>
+        <span class="n">default</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Cumulative subsidence since &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">start_year</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">note</span><span class="si">}</span><span class="s2">) on satellite basemap&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Suptitle</span>
+    <span class="k">if</span> <span class="n">show_title</span><span class="p">:</span>
+        <span class="n">default</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Cumulative subsidence since </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">start_year</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="s2">&quot;on satellite basemap&quot;</span>
+        <span class="p">)</span>
+        <span class="n">ttl</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">resolve_title</span><span class="p">(</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">title</span>
+        <span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
+            <span class="n">ttl</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="mf">0.98</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+            <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">resolve_fig_out</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">out</span><span class="p">)</span>
+    <span class="n">utils</span><span class="o">.</span><span class="n">save_figure</span><span class="p">(</span>
+        <span class="n">fig</span><span class="p">,</span>
+        <span class="n">out</span><span class="p">,</span>
+        <span class="n">dpi</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">dpi</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+    <span class="c1"># utils.ensure_dir(out.parent)</span>
+
+    <span class="c1"># png = out.with_suffix(&quot;.png&quot;)</span>
+    <span class="c1"># pdf = out.with_suffix(&quot;.pdf&quot;)</span>
+
+    <span class="c1"># fig.savefig(png, bbox_inches=&quot;tight&quot;)</span>
+    <span class="c1"># fig.savefig(pdf, bbox_inches=&quot;tight&quot;)</span>
+
+    <span class="c1"># print(f&quot;[OK] Saved: {png}&quot;)</span>
+    <span class="c1"># print(f&quot;[OK] Saved: {pdf}&quot;)</span>
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../../generated/api/cli/geoprior._scripts.plot_geo_cumulative.html#geoprior._scripts.plot_geo_cumulative.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">prog</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">plot_geo_cumulative_main</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="n">prog</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

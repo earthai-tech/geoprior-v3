@@ -1,0 +1,1264 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Forecast uncertainty: learning how calibration behaves across cities and horizons &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=404c0980"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/figure_generation/plot_uncertainty';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Expanded uncertainty diagnostics: learning what the main uncertainty figure still hides" href="plot_uncertainty_extras.html" />
+    <link rel="prev" title="Cross-city transferability: learning what survives transfer between cities" href="plot_transfer.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../forecasting/index.html">Forecasting</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_forecast.html">Forecast quick-look with <code class="docutils literal notranslate"><span class="pre">plot_forecasts</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_forecast_by_step.html">Forecast by horizon step with <code class="docutils literal notranslate"><span class="pre">plot_forecast_by_step</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_future_quantiles_map.html">Future quantile maps with <code class="docutils literal notranslate"><span class="pre">forecast_view</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../forecasting/plot_holdout_vs_forecast.html">Holdout versus future forecast with <code class="docutils literal notranslate"><span class="pre">plot_eval_future</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../uncertainty/index.html">Uncertainty</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../diagnostics/index.html">Diagnostics</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Figure generation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="plot_ablation.html">Core ablation: learning what physics adds to the workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_core_ablation.html">Ablations and sensitivities: learning where the model behaves well in lambda space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_driver_response.html">Driver-response plots: learning how the response moves with the drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_external_validation.html">External validation: comparing inferred effective fields against independent site evidence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_geo_cumulative.html">Cumulative subsidence on a satellite-style map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_hotspot_analytics.html">Hotspot analytics: turning future forecasts into decision-ready priority maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_litho_parity.html">Lithology parity: comparing the geological composition of the two cities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_fields.html">Physics fields: learning to read the physical story in a map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_maps.html">Physics maps: turning pointwise payloads into readable spatial fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_profiles.html">Physics profiles: reducing a 2D lambda landscape into readable 1D lessons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_sanity.html">Physics sanity: checking closure agreement and residual behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_physics_sensitivity.html">Physics sensitivity: learning how lambda choices reshape the physics diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_sm3_bounds_ridge_summary.html">SM3 bounds versus ridge: learning the two main failure modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_sm3_identifiability.html">SM3 identifiability: learning when recovery is accurate and when parameters slide along a ridge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_sm3_log_offsets.html">SM3 log offsets: learning where the inferred fields drift from their priors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_spatial_forecasts.html">Spatial forecasts: how to read observed maps, fitted maps, and future forecast maps together</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_transfer.html">Cross-city transferability: learning what survives transfer between cities</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Forecast uncertainty: learning how calibration behaves across cities and horizons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_uncertainty_extras.html">Expanded uncertainty diagnostics: learning what the main uncertainty figure still hides</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_xfer_impact.html">Transfer impact: what transfer changes for retention, risk, and hotspot stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_xfer_transferability.html">Cross-city transferability (v3.2): what survives when a workflow moves to the other city</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tables_and_summaries/index.html">Tables and summaries</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/build_ablation_table.html">Build ablation tables from sensitivity records</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/build_model_metrics.html">Build unified model-metrics tables from GeoPrior runs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/compute_brier_exceedance.html">Compute exceedance Brier scores from calibrated forecasts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/compute_hotspots.html">Compute hotspot summary tables from forecast CSVs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/extend_forecast.html">Extend forecast CSVs to later years</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/make_boundary.html">Build city boundary polygons from forecast points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/make_district_grid.html">Create district grid layers from forecast points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/make_exposure.html">Create exposure weights from forecast point density</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/summarize_hotspots.html">Summarize hotspot point clouds into tidy group tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tables_and_summaries/tag_clusters_with_zones.html">Tag hotspot clusters with district Zone IDs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../model_inspection/index.html">Model inspection</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/autoplot_geoprior_history.html">Automatically save the standard GeoPrior history diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/extract_physical_parameters.html">Extract learned physical parameters from a trained model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/gather_coords_flat.html">Flatten (t, x, y) coordinates from dataset batches</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/plot_epsilons_in.html">Plot epsilon diagnostics from a GeoPrior training history</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/plot_history_in.html">Plot training history with robust grouping and scale handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/plot_physics_losses_in.html">Plot physics loss terms from a GeoPrior training history</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_inspection/plot_physics_values_in.html">Plot physics payload values as maps and histograms</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../examples/index.html" class="nav-link">Gallery</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Figure generation</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Forecast uncertainty: learning how calibration behaves across cities and horizons</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-figure-generation-plot-uncertainty-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="forecast-uncertainty-learning-how-calibration-behaves-across-cities-and-horizons">
+<span id="sphx-glr-auto-examples-figure-generation-plot-uncertainty-py"></span><h1>Forecast uncertainty: learning how calibration behaves across cities and horizons<a class="headerlink" href="#forecast-uncertainty-learning-how-calibration-behaves-across-cities-and-horizons" title="Link to this heading">#</a></h1>
+<p>This example teaches you how to read the GeoPrior uncertainty
+figure.</p>
+<p>A forecast can look good in median form and still be badly
+calibrated. That is why point prediction alone is not enough.</p>
+<p>This figure asks three different uncertainty questions at once:</p>
+<ol class="arabic simple">
+<li><p>Are the forecast quantiles reliable overall?</p></li>
+<li><p>Does calibration change with forecast horizon?</p></li>
+<li><p>How do sharpness and coverage behave together across the
+horizon steps?</p></li>
+</ol>
+<p>That is exactly what the GeoPrior uncertainty page is designed
+to show.</p>
+<section id="what-the-figure-shows">
+<h2>What the figure shows<a class="headerlink" href="#what-the-figure-shows" title="Link to this heading">#</a></h2>
+<p>The real plotting backend builds a 3-row figure.</p>
+<section id="top-row">
+<h3>Top row<a class="headerlink" href="#top-row" title="Link to this heading">#</a></h3>
+<p>Overall reliability diagram for each city:
+nominal quantile versus empirical probability.</p>
+</section>
+<section id="middle-row">
+<h3>Middle row<a class="headerlink" href="#middle-row" title="Link to this heading">#</a></h3>
+<p>Mini reliability panels by forecast horizon. These show whether
+calibration is stable or drifts with lead time.</p>
+</section>
+<section id="bottom-row">
+<h3>Bottom row<a class="headerlink" href="#bottom-row" title="Link to this heading">#</a></h3>
+<p>A radial horizon summary where the radius represents interval
+sharpness and the point edge color indicates whether coverage is
+below or above the 80% target.</p>
+</section>
+</section>
+<section id="why-this-matters">
+<h2>Why this matters<a class="headerlink" href="#why-this-matters" title="Link to this heading">#</a></h2>
+<p>A model can be accurate on average while still being overconfident
+or underconfident.</p>
+<p>This figure helps the reader see:</p>
+<ul class="simple">
+<li><p>whether q10, q50, and q90 behave as expected,</p></li>
+<li><p>whether calibration deteriorates for later horizons,</p></li>
+<li><p>whether intervals are too wide or too narrow,</p></li>
+<li><p>and whether uncertainty behavior differs across cities.</p></li>
+</ul>
+<p>This gallery page uses compact synthetic forecast tables and small
+JSON-like metadata blocks so the example is fully executable
+during documentation builds.</p>
+</section>
+<section id="imports">
+<h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
+<p>We use the real plotting backend from the project script.
+For the gallery page, we display the PNG output directly.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.image</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpimg</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">geoprior._scripts</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_uncertainty</span> <span class="k">as</span> <span class="n">pu</span>
+</pre></div>
+</div>
+</section>
+<section id="step-1-build-compact-synthetic-forecast-tables">
+<h2>Step 1 - Build compact synthetic forecast tables<a class="headerlink" href="#step-1-build-compact-synthetic-forecast-tables" title="Link to this heading">#</a></h2>
+<p>The real script expects forecast tables containing:</p>
+<ul class="simple">
+<li><p>forecast_step</p></li>
+<li><p>subsidence_actual</p></li>
+<li><p>subsidence_q10</p></li>
+<li><p>subsidence_q50</p></li>
+<li><p>subsidence_q90</p></li>
+</ul>
+<p>We create two cities with three horizons. Nansha is designed to
+be slightly better calibrated; Zhongshan is deliberately a bit
+wider and a little less centered.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.Generator" title="numpy.random.Generator" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rng</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.default_rng" title="numpy.random.default_rng" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span></a><span class="p">(</span><span class="mi">14</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">make_city_forecast</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">city</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">n_per_h</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">bias_scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">spread_scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">noise_scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">:</span>
+    <span class="n">rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+        <span class="c1"># Synthetic &quot;true&quot; behavior.</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="mf">8.0</span> <span class="o">+</span> <span class="mf">5.0</span> <span class="o">*</span> <span class="n">h</span>
+        <span class="n">signal</span> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-method"><span class="n">rng</span><span class="o">.</span><span class="n">normal</span></a><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="mf">4.2</span> <span class="o">+</span> <span class="mf">0.7</span> <span class="o">*</span> <span class="n">h</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_per_h</span><span class="p">)</span>
+
+        <span class="c1"># Predictive median.</span>
+        <span class="n">q50</span> <span class="o">=</span> <span class="n">signal</span> <span class="o">*</span> <span class="mf">0.92</span> <span class="o">+</span> <span class="n">bias_scale</span> <span class="o">*</span> <span class="n">h</span> <span class="o">+</span> <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-method"><span class="n">rng</span><span class="o">.</span><span class="n">normal</span></a><span class="p">(</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">n_per_h</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Forecast interval width widens with horizon.</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">spread_scale</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">+</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">h</span><span class="p">)</span>
+            <span class="o">+</span> <span class="mf">0.15</span> <span class="o">*</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ufunc.html#numpy.ufunc" title="numpy.ufunc" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">np</span><span class="o">.</span><span class="n">abs</span></a><span class="p">(</span><span class="n">q50</span> <span class="o">-</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.median.html#numpy.median" title="numpy.median" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">median</span></a><span class="p">(</span><span class="n">q50</span><span class="p">))</span>
+        <span class="p">)</span>
+
+        <span class="n">q10</span> <span class="o">=</span> <span class="n">q50</span> <span class="o">-</span> <span class="n">width</span>
+        <span class="n">q90</span> <span class="o">=</span> <span class="n">q50</span> <span class="o">+</span> <span class="n">width</span>
+
+        <span class="c1"># Observations.</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">signal</span> <span class="o">+</span> <a href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.Generator.normal.html#numpy.random.Generator.normal" title="numpy.random.Generator.normal" class="sphx-glr-backref-module-numpy-random sphx-glr-backref-type-py-method"><span class="n">rng</span><span class="o">.</span><span class="n">normal</span></a><span class="p">(</span>
+            <span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">noise_scale</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">0.20</span> <span class="o">*</span> <span class="n">h</span><span class="p">),</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">n_per_h</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;forecast_step&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.full.html#numpy.full" title="numpy.full" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">full</span></a><span class="p">(</span><span class="n">n_per_h</span><span class="p">,</span> <span class="n">h</span><span class="p">),</span>
+                    <span class="s2">&quot;subsidence_actual&quot;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span>
+                    <span class="s2">&quot;subsidence_q10&quot;</span><span class="p">:</span> <span class="n">q10</span><span class="p">,</span>
+                    <span class="s2">&quot;subsidence_q50&quot;</span><span class="p">:</span> <span class="n">q50</span><span class="p">,</span>
+                    <span class="s2">&quot;subsidence_q90&quot;</span><span class="p">:</span> <span class="n">q90</span><span class="p">,</span>
+                    <span class="s2">&quot;city&quot;</span><span class="p">:</span> <span class="n">city</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.concat.html#pandas.concat" title="pandas.concat" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-function"><span class="n">pd</span><span class="o">.</span><span class="n">concat</span></a><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ns_df</span></a> <span class="o">=</span> <span class="n">make_city_forecast</span><span class="p">(</span>
+    <span class="n">city</span><span class="o">=</span><span class="s2">&quot;Nansha&quot;</span><span class="p">,</span>
+    <span class="n">n_per_h</span><span class="o">=</span><span class="mi">170</span><span class="p">,</span>
+    <span class="n">bias_scale</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span>
+    <span class="n">spread_scale</span><span class="o">=</span><span class="mf">0.92</span><span class="p">,</span>
+    <span class="n">noise_scale</span><span class="o">=</span><span class="mf">1.00</span><span class="p">,</span>
+<span class="p">)</span>
+
+<a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zh_df</span></a> <span class="o">=</span> <span class="n">make_city_forecast</span><span class="p">(</span>
+    <span class="n">city</span><span class="o">=</span><span class="s2">&quot;Zhongshan&quot;</span><span class="p">,</span>
+    <span class="n">n_per_h</span><span class="o">=</span><span class="mi">170</span><span class="p">,</span>
+    <span class="n">bias_scale</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span>
+    <span class="n">spread_scale</span><span class="o">=</span><span class="mf">1.06</span><span class="p">,</span>
+    <span class="n">noise_scale</span><span class="o">=</span><span class="mf">1.10</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Synthetic forecast rows&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Nansha:    </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ns_df</span></a><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Zhongshan: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zh_df</span></a><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Synthetic forecast rows
+  Nansha:    510
+  Zhongshan: 510
+</pre></div>
+</div>
+</section>
+<section id="step-2-build-small-json-like-metadata-blocks">
+<h2>Step 2 - Build small JSON-like metadata blocks<a class="headerlink" href="#step-2-build-small-json-like-metadata-blocks" title="Link to this heading">#</a></h2>
+<p>The real script can pull per-horizon coverage and sharpness from
+GeoPrior physics JSON metadata when available, and it can also
+annotate top-row panels with before/after interval calibration
+notes.</p>
+<p>We therefore create small metadata dictionaries that mimic those
+keys.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ns_meta</span></a> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;per_horizon&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;coverage80&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;H1&quot;</span><span class="p">:</span> <span class="mf">0.83</span><span class="p">,</span> <span class="s2">&quot;H2&quot;</span><span class="p">:</span> <span class="mf">0.81</span><span class="p">,</span> <span class="s2">&quot;H3&quot;</span><span class="p">:</span> <span class="mf">0.79</span><span class="p">},</span>
+        <span class="s2">&quot;sharpness80&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;H1&quot;</span><span class="p">:</span> <span class="mf">7.8</span><span class="p">,</span> <span class="s2">&quot;H2&quot;</span><span class="p">:</span> <span class="mf">9.4</span><span class="p">,</span> <span class="s2">&quot;H3&quot;</span><span class="p">:</span> <span class="mf">11.0</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;interval_calibration&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;coverage80_uncalibrated&quot;</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span>
+        <span class="s2">&quot;coverage80_calibrated&quot;</span><span class="p">:</span> <span class="mf">0.81</span><span class="p">,</span>
+        <span class="s2">&quot;sharpness80_uncalibrated&quot;</span><span class="p">:</span> <span class="mf">8.8</span><span class="p">,</span>
+        <span class="s2">&quot;sharpness80_calibrated&quot;</span><span class="p">:</span> <span class="mf">9.1</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zh_meta</span></a> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;per_horizon&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;coverage80&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;H1&quot;</span><span class="p">:</span> <span class="mf">0.80</span><span class="p">,</span> <span class="s2">&quot;H2&quot;</span><span class="p">:</span> <span class="mf">0.78</span><span class="p">,</span> <span class="s2">&quot;H3&quot;</span><span class="p">:</span> <span class="mf">0.76</span><span class="p">},</span>
+        <span class="s2">&quot;sharpness80&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;H1&quot;</span><span class="p">:</span> <span class="mf">8.6</span><span class="p">,</span> <span class="s2">&quot;H2&quot;</span><span class="p">:</span> <span class="mf">10.2</span><span class="p">,</span> <span class="s2">&quot;H3&quot;</span><span class="p">:</span> <span class="mf">12.1</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;interval_calibration&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;coverage80_uncalibrated&quot;</span><span class="p">:</span> <span class="mf">0.71</span><span class="p">,</span>
+        <span class="s2">&quot;coverage80_calibrated&quot;</span><span class="p">:</span> <span class="mf">0.78</span><span class="p">,</span>
+        <span class="s2">&quot;sharpness80_uncalibrated&quot;</span><span class="p">:</span> <span class="mf">9.4</span><span class="p">,</span>
+        <span class="s2">&quot;sharpness80_calibrated&quot;</span><span class="p">:</span> <span class="mf">9.9</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-render-the-real-uncertainty-figure">
+<h2>Step 3 - Render the real uncertainty figure<a class="headerlink" href="#step-3-render-the-real-uncertainty-figure" title="Link to this heading">#</a></h2>
+<p>We call the actual plotting backend.</p>
+<p>Important note:
+this script supports show_legend / show_labels /
+show_ticklabels / show_title / show_panel_titles, plus the
+uncertainty-specific controls show_point_values,
+show_mini_titles, show_mini_legend, show_json_notes, and
+radial_title.</p>
+<p>It does not use show_panel_labels, so we do not pass it.</p>
+<p>For the gallery page, we save PNG only by temporarily replacing
+the shared figure saver.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tmp_dir</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span>
+    <a href="https://docs.python.org/3/library/tempfile.html#tempfile.mkdtemp" title="tempfile.mkdtemp" class="sphx-glr-backref-module-tempfile sphx-glr-backref-type-py-function"><span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span></a><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;gp_sg_uncertainty_&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_base</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tmp_dir</span></a> <span class="o">/</span> <span class="s2">&quot;uncertainty_gallery&quot;</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_csv</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tmp_dir</span></a> <span class="o">/</span> <span class="s2">&quot;uncertainty_gallery_table.csv&quot;</span>
+
+<span class="n">_orig_save_figure</span> <span class="o">=</span> <span class="n">pu</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">save_figure</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_save_png_only</span><span class="p">(</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">dpi</span><span class="p">):</span>
+    <span class="n">p</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">suffix</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span></a><span class="p">(</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.png&quot;</span><span class="p">,</span>
+        <span class="n">dpi</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">dpi</span><span class="p">),</span>
+        <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.close.html#matplotlib.pyplot.close" title="matplotlib.pyplot.close" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">close</span></a><span class="p">(</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">)</span>
+
+
+<span class="n">pu</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">save_figure</span> <span class="o">=</span> <span class="n">_save_png_only</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <a href="../../generated/api/cli/geoprior._scripts.plot_uncertainty.html#geoprior._scripts.plot_uncertainty.plot_fig5_uncertainty" title="geoprior._scripts.plot_uncertainty.plot_fig5_uncertainty" class="sphx-glr-backref-module-geoprior-_scripts-plot_uncertainty sphx-glr-backref-type-py-function"><span class="n">pu</span><span class="o">.</span><span class="n">plot_fig5_uncertainty</span></a><span class="p">(</span>
+        <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ns_df</span></a><span class="o">=</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ns_df</span></a><span class="p">,</span>
+        <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zh_df</span></a><span class="o">=</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zh_df</span></a><span class="p">,</span>
+        <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ns_meta</span></a><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ns_meta</span></a><span class="p">,</span>
+        <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zh_meta</span></a><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">zh_meta</span></a><span class="p">,</span>
+        <span class="n">split_ns</span><span class="o">=</span><span class="s2">&quot;val&quot;</span><span class="p">,</span>
+        <span class="n">split_zh</span><span class="o">=</span><span class="s2">&quot;val&quot;</span><span class="p">,</span>
+        <span class="n">out</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_base</span></a><span class="p">),</span>
+        <a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_csv</span></a><span class="o">=</span><span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_csv</span></a><span class="p">),</span>
+        <span class="n">dpi</span><span class="o">=</span><span class="mi">160</span><span class="p">,</span>
+        <span class="n">font</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+        <span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">show_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">show_ticklabels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">show_title</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">show_panel_titles</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">show_point_values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">show_mini_titles</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">show_mini_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">show_json_notes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">radial_title</span><span class="o">=</span><span class="s2">&quot;full&quot;</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Synthetic uncertainty calibration: overall &quot;</span>
+            <span class="s2">&quot;reliability, horizon drift, and radial sharpness&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+<span class="k">finally</span><span class="p">:</span>
+    <span class="n">pu</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">save_figure</span> <span class="o">=</span> <span class="n">_orig_save_figure</span>
+</pre></div>
+</div>
+</section>
+<section id="step-4-show-the-png-produced-by-the-backend">
+<h2>Step 4 - Show the PNG produced by the backend<a class="headerlink" href="#step-4-show-the-png-produced-by-the-backend" title="Link to this heading">#</a></h2>
+<p>The gallery page displays the real rendered output directly.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">img</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/image_api.html#matplotlib.image.imread" title="matplotlib.image.imread" class="sphx-glr-backref-module-matplotlib-image sphx-glr-backref-type-py-function"><span class="n">mpimg</span><span class="o">.</span><span class="n">imread</span></a><span class="p">(</span><span class="nb">str</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_base</span></a><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.png&quot;</span><span class="p">)</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">9.8</span><span class="p">,</span> <span class="mf">7.6</span><span class="p">))</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.imshow.html#matplotlib.axes.Axes.imshow" title="matplotlib.axes.Axes.imshow" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">imshow</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">img</span></a><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.axis.html#matplotlib.axes.Axes.axis" title="matplotlib.axes.Axes.axis" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">axis</span></a><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_uncertainty_001.png" srcset="../../_images/sphx_glr_plot_uncertainty_001.png" alt="plot uncertainty" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(np.float64(-0.5), np.float64(1314.5), np.float64(1172.5), np.float64(-0.5))
+</pre></div>
+</div>
+</section>
+<section id="step-5-read-the-exported-metrics-table">
+<h2>Step 5 - Read the exported metrics table<a class="headerlink" href="#step-5-read-the-exported-metrics-table" title="Link to this heading">#</a></h2>
+<p>The plotting backend exports a tidy table containing:</p>
+<ul class="simple">
+<li><p>city</p></li>
+<li><p>split</p></li>
+<li><p>interval_source</p></li>
+<li><p>forecast_step</p></li>
+<li><p>coverage80</p></li>
+<li><p>sharpness80</p></li>
+<li><p>emp_q10 / emp_q50 / emp_q90</p></li>
+</ul>
+<p>The overall row uses forecast_step = 0.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tbl</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html#pandas.read_csv" title="pandas.read_csv" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-function"><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">out_csv</span></a><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Exported metrics table&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_string.html#pandas.DataFrame.to_string" title="pandas.DataFrame.to_string" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">tbl</span><span class="o">.</span><span class="n">to_string</span></a><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Exported metrics table
+     city split interval_source  forecast_step  coverage80  sharpness80  emp_q10  emp_q50  emp_q90
+   Nansha   val       phys_json              0        1.00    14.103908      0.0 0.245098      1.0
+   Nansha   val       phys_json              1        0.83     7.800000      0.0 0.270588      1.0
+   Nansha   val       phys_json              2        0.81     9.400000      0.0 0.223529      1.0
+   Nansha   val       phys_json              3        0.79    11.000000      0.0 0.241176      1.0
+Zhongshan   val       phys_json              0        1.00    16.057843      0.0 0.384314      1.0
+Zhongshan   val       phys_json              1        0.80     8.600000      0.0 0.423529      1.0
+Zhongshan   val       phys_json              2        0.78    10.200000      0.0 0.335294      1.0
+Zhongshan   val       phys_json              3        0.76    12.100000      0.0 0.394118      1.0
+</pre></div>
+</div>
+</section>
+<section id="step-6-summarize-the-overall-reliability-directly">
+<h2>Step 6 - Summarize the overall reliability directly<a class="headerlink" href="#step-6-summarize-the-overall-reliability-directly" title="Link to this heading">#</a></h2>
+<p>A compact teaching summary is helpful:</p>
+<ul class="simple">
+<li><p>how close is empirical q50 to 0.50?</p></li>
+<li><p>how close is coverage80 to the 0.80 target?</p></li>
+</ul>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">overall</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.loc.html#pandas.DataFrame.loc" title="pandas.DataFrame.loc" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-property"><span class="n">tbl</span><span class="o">.</span><span class="n">loc</span></a><span class="p">[</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">tbl</span></a><span class="p">[</span><span class="s2">&quot;forecast_step&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">overall</span></a><span class="p">[</span><span class="s2">&quot;q50_abs_error&quot;</span><span class="p">]</span> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ufunc.html#numpy.ufunc" title="numpy.ufunc" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">np</span><span class="o">.</span><span class="n">abs</span></a><span class="p">(</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">overall</span></a><span class="p">[</span><span class="s2">&quot;emp_q50&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.50</span><span class="p">)</span>
+<a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">overall</span></a><span class="p">[</span><span class="s2">&quot;cov80_abs_error&quot;</span><span class="p">]</span> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ufunc.html#numpy.ufunc" title="numpy.ufunc" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">np</span><span class="o">.</span><span class="n">abs</span></a><span class="p">(</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">overall</span></a><span class="p">[</span><span class="s2">&quot;coverage80&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.80</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Overall calibration summary&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">overall</span></a><span class="p">[</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;city&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;emp_q10&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;emp_q50&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;emp_q90&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;coverage80&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sharpness80&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;q50_abs_error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cov80_abs_error&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Overall calibration summary
+     city  emp_q10  emp_q50  emp_q90  coverage80  sharpness80  q50_abs_error  cov80_abs_error
+   Nansha      0.0    0.245      1.0         1.0       14.104          0.255              0.2
+Zhongshan      0.0    0.384      1.0         1.0       16.058          0.116              0.2
+</pre></div>
+</div>
+</section>
+<section id="step-7-learn-how-to-read-the-top-row">
+<h2>Step 7 - Learn how to read the top row<a class="headerlink" href="#step-7-learn-how-to-read-the-top-row" title="Link to this heading">#</a></h2>
+<p>The top row is the overall reliability row.</p>
+<p>Each point compares:</p>
+<ul class="simple">
+<li><p>nominal quantile</p></li>
+<li><p>empirical probability</p></li>
+</ul>
+<p>The dashed diagonal is the ideal relationship.</p>
+<p>If the points lie close to the diagonal, the quantiles are well
+calibrated overall. If they lie above or below it, the forecast
+is underconfident or overconfident at those quantile levels.</p>
+<p>The top panels also optionally show interval-calibration notes
+from the JSON metadata. Those notes help connect the visual
+reliability curve to the before/after coverage and sharpness
+adjustments.</p>
+</section>
+<section id="step-8-learn-how-to-read-the-middle-row">
+<h2>Step 8 - Learn how to read the middle row<a class="headerlink" href="#step-8-learn-how-to-read-the-middle-row" title="Link to this heading">#</a></h2>
+<p>The middle row breaks the same reliability idea into individual
+horizons.</p>
+<p>This is important because uncertainty can drift with lead time.</p>
+<p>A model might look well calibrated overall while:</p>
+<ul class="simple">
+<li><p>early horizons are slightly conservative,</p></li>
+<li><p>and later horizons become overconfident.</p></li>
+</ul>
+<p>That is why the small H1 / H2 / H3 panels matter. They expose
+horizon-specific calibration drift that would be hidden in the
+overall row.</p>
+</section>
+<section id="step-9-learn-how-to-read-the-radial-row">
+<h2>Step 9 - Learn how to read the radial row<a class="headerlink" href="#step-9-learn-how-to-read-the-radial-row" title="Link to this heading">#</a></h2>
+<p>The radial panels summarize horizon behavior in another way.</p>
+<section id="radius">
+<h3>Radius<a class="headerlink" href="#radius" title="Link to this heading">#</a></h3>
+<p>The radius shows sharpness80.</p>
+</section>
+<section id="edge-color">
+<h3>Edge color<a class="headerlink" href="#edge-color" title="Link to this heading">#</a></h3>
+<p>The edge color encodes whether coverage is below the 0.80 target:</p>
+<ul class="simple">
+<li><p>red edge  -&gt; coverage below target</p></li>
+<li><p>blue edge -&gt; coverage acceptable or above target</p></li>
+</ul>
+<p>This makes the radial plot a compact horizon-by-horizon
+uncertainty summary:</p>
+<ul class="simple">
+<li><p>wide radius means broad intervals,</p></li>
+<li><p>red outlines mean the intervals are still not covering enough,</p></li>
+<li><p>and the city-level pattern can be compared at a glance.</p></li>
+</ul>
+</section>
+</section>
+<section id="step-10-practical-takeaway">
+<h2>Step 10 - Practical takeaway<a class="headerlink" href="#step-10-practical-takeaway" title="Link to this heading">#</a></h2>
+<p>This figure is useful because it combines three uncertainty
+views in one page:</p>
+<ul class="simple">
+<li><p>overall calibration,</p></li>
+<li><p>horizon-specific calibration,</p></li>
+<li><p>and the sharpness-versus-coverage balance.</p></li>
+</ul>
+<p>That makes it one of the strongest pages for teaching forecast
+uncertainty, because it moves from:</p>
+<p>“Are the quantiles okay?”</p>
+<p>to:</p>
+<p>“Are they okay overall, across time, and at a useful interval
+width?”</p>
+</section>
+<section id="command-line-version">
+<h2>Command-line version<a class="headerlink" href="#command-line-version" title="Link to this heading">#</a></h2>
+<p>The same figure can be produced from the command line.</p>
+<p>The real script supports:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--ns-src</span></code> and <code class="docutils literal notranslate"><span class="pre">--zh-src</span></code> for artifact discovery,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--ns-forecast</span></code> and <code class="docutils literal notranslate"><span class="pre">--zh-forecast</span></code> for direct CSV
+overrides,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--ns-phys-json</span></code> and <code class="docutils literal notranslate"><span class="pre">--zh-phys-json</span></code> for metadata
+overrides,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--split</span></code> with <code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">|</span> <span class="pre">val</span> <span class="pre">|</span> <span class="pre">test</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--out-csv</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--radial-title</span></code> with <code class="docutils literal notranslate"><span class="pre">full</span> <span class="pre">|</span> <span class="pre">city</span> <span class="pre">|</span> <span class="pre">none</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--show-point-values</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--show-mini-titles</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--show-mini-legend</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--show-json-notes</span></code>,</p></li>
+<li><p>plus the shared plot text arguments added through
+<code class="docutils literal notranslate"><span class="pre">utils.add_plot_text_args(...,</span> <span class="pre">default_out=&quot;fig5-uncertainty&quot;)</span></code>.</p></li>
+</ul>
+<p>Legacy dispatcher:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>scripts<span class="w"> </span>plot-uncertainty<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--ns-src<span class="w"> </span>results/nansha_stage2_run<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--zh-src<span class="w"> </span>results/zhongshan_stage2_run<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--split<span class="w"> </span>auto<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--radial-title<span class="w"> </span>full<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--show-point-values<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--show-mini-titles<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--show-mini-legend<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--show-json-notes<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out<span class="w"> </span>fig5-uncertainty
+</pre></div>
+</div>
+<p>Manual CSV override:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>scripts<span class="w"> </span>plot-uncertainty<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--ns-forecast<span class="w"> </span>results/ns_forecast.csv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--zh-forecast<span class="w"> </span>results/zh_forecast.csv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--ns-phys-json<span class="w"> </span>results/ns_phys.json<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--zh-phys-json<span class="w"> </span>results/zh_phys.json<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--split<span class="w"> </span>val<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out<span class="w"> </span>fig5-uncertainty
+</pre></div>
+</div>
+<p>Modern CLI:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior<span class="w"> </span>plot<span class="w"> </span>uncertainty<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--ns-src<span class="w"> </span>results/nansha_stage2_run<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--zh-src<span class="w"> </span>results/zhongshan_stage2_run<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out<span class="w"> </span>fig5-uncertainty
+</pre></div>
+</div>
+<p>The gallery page teaches the figure.
+The command line reproduces it in a workflow.</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.635 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-figure-generation-plot-uncertainty-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/cbdae2eedae82469cd885a4ffbd27808/plot_uncertainty.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_uncertainty.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/52c3580797bcc24a176dfa597643ae48/plot_uncertainty.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_uncertainty.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/0d13b42f3543a5afb307bc16adb738c6/plot_uncertainty.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_uncertainty.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="plot_transfer.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Cross-city transferability: learning what survives transfer between cities</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="plot_uncertainty_extras.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Expanded uncertainty diagnostics: learning what the main uncertainty figure still hides</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-figure-shows">What the figure shows</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#top-row">Top row</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#middle-row">Middle row</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bottom-row">Bottom row</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-matters">Why this matters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-build-compact-synthetic-forecast-tables">Step 1 - Build compact synthetic forecast tables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-build-small-json-like-metadata-blocks">Step 2 - Build small JSON-like metadata blocks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-render-the-real-uncertainty-figure">Step 3 - Render the real uncertainty figure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-show-the-png-produced-by-the-backend">Step 4 - Show the PNG produced by the backend</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-read-the-exported-metrics-table">Step 5 - Read the exported metrics table</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-summarize-the-overall-reliability-directly">Step 6 - Summarize the overall reliability directly</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-learn-how-to-read-the-top-row">Step 7 - Learn how to read the top row</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-8-learn-how-to-read-the-middle-row">Step 8 - Learn how to read the middle row</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-9-learn-how-to-read-the-radial-row">Step 9 - Learn how to read the radial row</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#radius">Radius</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#edge-color">Edge color</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-10-practical-takeaway">Step 10 - Practical takeaway</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#command-line-version">Command-line version</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/earthai-tech/geoprior-v3/edit/main/docs/source/auto_examples/figure_generation/plot_uncertainty.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/auto_examples/figure_generation/plot_uncertainty.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

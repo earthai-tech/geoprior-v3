@@ -1,0 +1,2241 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>geoprior.utils.deps_utils &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=404c0980"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geoprior/utils/deps_utils';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../../../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../../../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geoprior.utils.deps_utils</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for geoprior.utils.deps_utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+<span class="c1"># Author: LKouadio &lt;etanoyau@gmail.com&gt;</span>
+<span class="c1"># Adapted from: earthai-tech/fusionlab-learn — https://github.com/earthai-tech/fusionlab-learn</span>
+<span class="c1"># Modified for GeoPrior-v3 API.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Dependency utilities providing functions to handle package installation,</span>
+<span class="sd">checking, and ensuring that optional dependencies are available.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..api.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">_T</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.handlers</span><span class="w"> </span><span class="kn">import</span> <span class="n">delegate_on_error</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">Deprecated</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._dependency</span><span class="w"> </span><span class="kn">import</span> <span class="n">import_optional_dependency</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">importlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">metadata</span> <span class="k">as</span> <span class="n">importlib_metadata</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Backport package for Python &lt; 3.8</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">importlib_metadata</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="n">importlib_metadata</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;ensure_pkg&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ensure_pkgs&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;install_package&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;is_installing&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_installation_name&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;is_module_installed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;import_optional_dependency&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ensure_module_installed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_versions&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="get_versions">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.deps_utils.get_versions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_versions</span><span class="p">(</span><span class="n">extras</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">distribution_mapping</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieve a dictionary containing version information for</span>
+<span class="sd">    common libraries, as well as any user-specified packages</span>
+<span class="sd">    and distribution name mappings.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    extras : list of str, optional</span>
+<span class="sd">        Additional packages for which to attempt version</span>
+<span class="sd">        retrieval. By default, None, which means no extra</span>
+<span class="sd">        packages beyond the defaults.</span>
+
+<span class="sd">    distribution_mapping : dict, optional</span>
+<span class="sd">        Mapping from import-like names to actual distribution</span>
+<span class="sd">        names. For example, the import name ``&#39;sklearn&#39;``</span>
+<span class="sd">        corresponds to the distribution name</span>
+<span class="sd">        ``&#39;scikit-learn&#39;``. Default is None, which uses</span>
+<span class="sd">        a built-in mapping for scikit-learn and any</span>
+<span class="sd">        user-provided dictionary overrides or additions.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Dictionary of the form:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">           {</span>
+<span class="sd">               &quot;__version__&quot;: {</span>
+<span class="sd">                   &quot;numpy&quot;: &quot;1.24.2&quot;,</span>
+<span class="sd">                   &quot;pandas&quot;: &quot;1.5.0&quot;,</span>
+<span class="sd">                   &quot;sklearn&quot;: &quot;1.3.2&quot;,</span>
+<span class="sd">                   ...</span>
+<span class="sd">               }</span>
+<span class="sd">           }</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - By default, this function attempts to retrieve versions</span>
+<span class="sd">      for the following packages:</span>
+<span class="sd">      ``[&#39;numpy&#39;, &#39;pandas&#39;, &#39;sklearn&#39;, &#39;joblib&#39;, &#39;tensorflow&#39;,</span>
+<span class="sd">      &#39;keras&#39;, &#39;torch&#39;]``.</span>
+<span class="sd">    - If a package is not installed, it is skipped (no error</span>
+<span class="sd">      is raised).</span>
+<span class="sd">    - If `&lt;distribution_mapping&gt;` is provided, it merges with</span>
+<span class="sd">      the built-in mapping (for ``&quot;sklearn&quot;`` → ``&quot;scikit-learn&quot;``),</span>
+<span class="sd">      allowing users to specify additional name differences.</span>
+<span class="sd">    - Python 3.8+ is recommended to ensure</span>
+<span class="sd">      ``importlib.metadata`` is available.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; get_versions()</span>
+<span class="sd">    {</span>
+<span class="sd">      &quot;__version__&quot;: {</span>
+<span class="sd">        &quot;numpy&quot;: &quot;1.24.2&quot;,</span>
+<span class="sd">        &quot;pandas&quot;: &quot;1.5.0&quot;,</span>
+<span class="sd">        ...</span>
+<span class="sd">      }</span>
+<span class="sd">    }</span>
+
+<span class="sd">    &gt;&gt;&gt; # Add custom package and distribution mapping:</span>
+<span class="sd">    &gt;&gt;&gt; get_versions(</span>
+<span class="sd">    ...   extras=[&quot;spacy&quot;],</span>
+<span class="sd">    ...   distribution_mapping={&quot;spacy&quot;: &quot;spacy-legacy&quot;}</span>
+<span class="sd">    ... )</span>
+<span class="sd">    {</span>
+<span class="sd">      &quot;__version__&quot;: {</span>
+<span class="sd">        &quot;numpy&quot;: &quot;1.24.2&quot;,</span>
+<span class="sd">        &quot;pandas&quot;: &quot;1.5.0&quot;,</span>
+<span class="sd">        &quot;spacy&quot;: &quot;3.5.1&quot;</span>
+<span class="sd">      }</span>
+<span class="sd">    }</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">extras</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">extras</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Default packages to check</span>
+    <span class="n">default_pkgs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;numpy&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sklearn&quot;</span><span class="p">,</span>  <span class="c1"># we expect distribution &#39;scikit-learn&#39;</span>
+        <span class="s2">&quot;joblib&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tensorflow&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;keras&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;torch&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Base distribution mapping for known discrepancies</span>
+    <span class="n">base_mapping</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;sklearn&quot;</span><span class="p">:</span> <span class="s2">&quot;scikit-learn&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;geoprior&quot;</span><span class="p">:</span> <span class="s2">&quot;geoprior-learn&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="c1"># Merge user-provided distribution mapping, if any</span>
+    <span class="k">if</span> <span class="n">distribution_mapping</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">base_mapping</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">distribution_mapping</span><span class="p">)</span>
+
+    <span class="n">all_pkgs</span> <span class="o">=</span> <span class="n">default_pkgs</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">extras</span><span class="p">)</span>
+    <span class="n">version_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">importlib_metadata</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="p">):</span>  <span class="c1"># Check if metadata module is available</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Version retrieval skipped: &#39;importlib.metadata&#39; (or its backport &quot;</span>
+            <span class="s2">&quot;&#39;importlib_metadata&#39;) not found. This typically occurs in &quot;</span>
+            <span class="s2">&quot;Python versions older than 3.8. Consider upgrading Python or &quot;</span>
+            <span class="s2">&quot;installing &#39;importlib-metadata&#39; if you are using an older Python.&quot;</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;__version__&quot;</span><span class="p">:</span> <span class="n">version_dict</span>
+        <span class="p">}</span>  <span class="c1"># Return empty if no way to get versions</span>
+
+    <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">all_pkgs</span><span class="p">:</span>
+        <span class="c1"># Determine the actual distribution name for version lookup</span>
+        <span class="n">dist_name</span> <span class="o">=</span> <span class="n">base_mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">pkg</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Check if the package is findable</span>
+            <span class="n">spec</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="n">pkg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># Not installed or can&#39;t be found</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Attempt to retrieve version from distribution name</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">metadata</span>
+            <span class="n">version</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="n">dist_name</span><span class="p">)</span>
+
+            <span class="c1"># Store the version under the original pkg key</span>
+            <span class="n">version_dict</span><span class="p">[</span><span class="n">pkg</span><span class="p">]</span> <span class="o">=</span> <span class="n">version</span>
+
+        <span class="k">except</span> <span class="p">(</span>
+            <span class="n">importlib</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">PackageNotFoundError</span><span class="p">,</span>
+            <span class="ne">ModuleNotFoundError</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="c1"># Not installed or cannot detect version</span>
+            <span class="k">continue</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># Catch other unexpected issues, warn and skip</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Could not retrieve version for &#39;</span><span class="si">{</span><span class="n">pkg</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+
+    <span class="c1"># After collecting versions in version_dict,</span>
+    <span class="c1"># fix distribution names if needed.</span>
+    <span class="k">for</span> <span class="n">import_name</span><span class="p">,</span> <span class="n">dist_name</span> <span class="ow">in</span> <span class="n">base_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">import_name</span> <span class="ow">in</span> <span class="n">version_dict</span><span class="p">:</span>
+            <span class="c1"># Move the version from import_name =&gt; dist_name</span>
+            <span class="n">version_dict</span><span class="p">[</span><span class="n">dist_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">version_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span>
+                <span class="n">import_name</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;__version__&quot;</span><span class="p">:</span> <span class="n">version_dict</span><span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="ensure_module_installed">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.deps_utils.ensure_module_installed">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ensure_module_installed</span><span class="p">(</span>
+    <span class="n">module_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">auto_install</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">package_manager</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pip&quot;</span><span class="p">,</span>
+    <span class="n">dist_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">extra_install_args</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Ensure that the required module is installed, optionally installing it </span>
+<span class="sd">    if missing.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_name : str</span>
+<span class="sd">        The name of the module to check and install if necessary.</span>
+<span class="sd">    auto_install : bool, optional</span>
+<span class="sd">        If ``True``, automatically install the module using the specified </span>
+<span class="sd">        package manager if it is not already installed (default is ``False``).</span>
+<span class="sd">    version : Optional[str], optional</span>
+<span class="sd">        Specify a version or version range for the module. For example, </span>
+<span class="sd">        &quot;&gt;=1.0.0&quot; or &quot;==2.0.1&quot;. If ``None``, no version constraints are </span>
+<span class="sd">        applied (default is ``None``).</span>
+<span class="sd">    package_manager : str, optional</span>
+<span class="sd">        The package manager to use for installation. Currently, only </span>
+<span class="sd">        ``&quot;pip&quot;`` is supported. Future versions may support other package </span>
+<span class="sd">        managers like ``&quot;conda&quot;`` (default is ``&quot;pip&quot;``).</span>
+<span class="sd">    dist_name : Optional[str], optional</span>
+<span class="sd">        Sometimes the module name used for importing is different from the </span>
+<span class="sd">        distribution package name. This parameter allows specifying the </span>
+<span class="sd">        distribution package name (default is ``None``).</span>
+<span class="sd">    extra_install_args : Optional[List[str]], optional</span>
+<span class="sd">        A list of additional arguments to pass to the package manager during </span>
+<span class="sd">        installation. For example, ``[&quot;--upgrade&quot;]`` to upgrade the package. </span>
+<span class="sd">        If ``None``, no extra arguments are passed (default is ``None``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        Returns ``True`` if the module is installed or successfully </span>
+<span class="sd">        installed, ``False`` otherwise.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ImportError</span>
+<span class="sd">        If the module is not installed and ``auto_install`` is ``False``, </span>
+<span class="sd">        or if the installation fails.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If an unsupported package manager is specified.</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        P(\text{installed}) = </span>
+<span class="sd">        \begin{cases} </span>
+<span class="sd">            1 &amp; \text{if module is installed} \\ </span>
+<span class="sd">            0 &amp; \text{otherwise} </span>
+<span class="sd">        \end{cases}</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from geoprior.utils.deps_utils import ensure_module_installed</span>
+
+<span class="sd">    &gt;&gt;&gt; # Ensure that &#39;numpy&#39; is installed</span>
+<span class="sd">    &gt;&gt;&gt; ensure_module_installed(&quot;numpy&quot;)</span>
+
+<span class="sd">    &gt;&gt;&gt; # Ensure that &#39;pandas&#39; is installed, automatically installing if missing</span>
+<span class="sd">    &gt;&gt;&gt; ensure_module_installed(&quot;pandas&quot;, auto_install=True)</span>
+
+<span class="sd">    &gt;&gt;&gt; # Ensure that &#39;scipy&#39; version &gt;=1.5.0 is installed</span>
+<span class="sd">    &gt;&gt;&gt; ensure_module_installed(&quot;scipy&quot;, version=&quot;&gt;=1.5.0&quot;, auto_install=True)</span>
+
+<span class="sd">    &gt;&gt;&gt; # Install with additional arguments</span>
+<span class="sd">    &gt;&gt;&gt; ensure_module_installed(</span>
+<span class="sd">    ...     &quot;requests&quot;, </span>
+<span class="sd">    ...     auto_install=True, </span>
+<span class="sd">    ...     extra_install_args=[&quot;--upgrade&quot;]</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - This function currently supports only ``&quot;pip&quot;`` as the package manager.</span>
+<span class="sd">    - When specifying a version, ensure that the version string is compatible </span>
+<span class="sd">      with the package manager&#39;s version specification syntax.</span>
+<span class="sd">    - For packages that require system-level dependencies, manual installation </span>
+<span class="sd">      might be necessary.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    subprocess : For spawning new processes.</span>
+<span class="sd">    sys : System-specific parameters and functions.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] Python Packaging User Guide. *Installing Packages*. </span>
+<span class="sd">       https://packaging.python.org/tutorials/installing-packages/</span>
+<span class="sd">    .. [2] pip documentation. *User Guide*. </span>
+<span class="sd">       https://pip.pypa.io/en/stable/user_guide/</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Attempt to import the module using the module_name</span>
+        <span class="k">if</span> <span class="n">dist_name</span><span class="p">:</span>
+            <span class="nb">__import__</span><span class="p">(</span><span class="n">dist_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">__import__</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">auto_install</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;``</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2">`` is required but not installed.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">package_manager</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;pip&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unsupported package manager ``&#39;</span><span class="si">{</span><span class="n">package_manager</span><span class="si">}</span><span class="s2">&#39;``. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Only ``&#39;pip&#39;`` is supported.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># If auto-install is true, create the install command</span>
+        <span class="n">install_cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;pip&quot;</span><span class="p">,</span> <span class="s2">&quot;install&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Append the module_name and version if provided</span>
+        <span class="n">install_cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">version</span><span class="p">:</span>
+            <span class="n">install_cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
+
+        <span class="c1"># Include any additional installation arguments</span>
+        <span class="k">if</span> <span class="n">extra_install_args</span><span class="p">:</span>
+            <span class="n">install_cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extra_install_args</span><span class="p">)</span>
+
+        <span class="c1"># Attempt to install the module</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">install_cmd</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">dist_name</span><span class="p">:</span>
+                <span class="nb">__import__</span><span class="p">(</span><span class="n">dist_name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">__import__</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Failed to install ``</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2">``&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; using ``</span><span class="si">{</span><span class="n">package_manager</span><span class="si">}</span><span class="s2">``: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Module ``</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2">`` was installed but could not be imported.&quot;</span>
+            <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="install_package">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.deps_utils.install_package">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">install_package</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">dist_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">infer_dist_name</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">extra</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">use_conda</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Install a Python package at runtime, optionally specifying a version</span>
+<span class="sd">    constraint or other parameters, using either conda or pip. If conda is</span>
+<span class="sd">    unavailable or disabled, pip is used by default. The function includes</span>
+<span class="sd">    a check for pre-existing installations, allowing users to skip redundant</span>
+<span class="sd">    installs.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Base name of the package to install (e.g., ``&#39;requests&#39;``).</span>
+<span class="sd">    dist_name : str, optional</span>
+<span class="sd">        Distribution name, if different from the import name. For example,</span>
+<span class="sd">        scikit-learn&#39;s import name &lt;sklearn&gt; differs from its distribution</span>
+<span class="sd">        name ``&#39;scikit-learn&#39;``.</span>
+<span class="sd">    infer_dist_name : bool, optional</span>
+<span class="sd">        If True, calls :meth:`get_installation_name` to infer the</span>
+<span class="sd">        distribution name automatically. Defaults to False.</span>
+<span class="sd">    version : str, optional</span>
+<span class="sd">        Version string or comparator. Examples:</span>
+<span class="sd">          - ``&#39;1.2.0&#39;``  =&gt; interpreted as &#39;&gt;=1.2.0&#39;</span>
+<span class="sd">          - ``&#39;==1.2.0&#39;``</span>
+<span class="sd">          - ``&#39;&lt;2.0&#39;``</span>
+<span class="sd">          - ``&#39;&gt;=1.5.3&#39;``</span>
+<span class="sd">        If None, no version constraint is applied.</span>
+
+<span class="sd">    extra : str, optional</span>
+<span class="sd">        Additional install specifiers or command-line flags passed</span>
+<span class="sd">        to the installation command. For instance, ``&#39; --no-cache-dir&#39;``</span>
+<span class="sd">        or ``&#39;[extra]&#39;``. Default is ``&#39;&#39;``.</span>
+<span class="sd">    use_conda : bool, optional</span>
+<span class="sd">        If True, attempts installation via conda first. If conda is</span>
+<span class="sd">        unavailable or fails, falls back to pip. Defaults to False.</span>
+<span class="sd">    verbose : bool, optional</span>
+<span class="sd">        If True, prints detailed logs throughout the installation.</span>
+<span class="sd">        Defaults to True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+<span class="sd">        On success, the specified package is installed (or is</span>
+<span class="sd">        already present). If the installer fails, raises a</span>
+<span class="sd">        RuntimeError.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    RuntimeError</span>
+<span class="sd">        If the installation cannot be completed using either</span>
+<span class="sd">        conda or pip, or if conda is requested but unavailable.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - If the package is already installed (as determined by</span>
+<span class="sd">      :meth:`is_module_installed`), no further action is taken.</span>
+<span class="sd">    - When using pip, a progress bar is displayed (if the `tqdm`</span>
+<span class="sd">      library is installed). For conda, no progress bar is shown</span>
+<span class="sd">      due to console I/O capture limitations.</span>
+
+
+<span class="sd">    Mathematically, this function assembles an install spec of the form:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">       \text{install\_str} = \langle \text{name} \rangle</span>
+<span class="sd">       + \langle \text{version\_spec} \rangle</span>
+<span class="sd">       + \langle \text{extra} \rangle</span>
+
+<span class="sd">    where :math:`\langle \text{name} \rangle` is the package name,</span>
+<span class="sd">    :math:`\langle \text{version\_spec} \rangle` is a version comparator</span>
+<span class="sd">    (e.g., ``&gt;=1.2.0``), and :math:`\langle \text{extra} \rangle` is any</span>
+<span class="sd">    additional flags or arguments.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from geoprior.utils.deps_utils import install_package</span>
+<span class="sd">    &gt;&gt;&gt; # Install requests with no version constraint, default pip:</span>
+<span class="sd">    &gt;&gt;&gt; install_package(&#39;requests&#39;, verbose=True)</span>
+
+<span class="sd">    &gt;&gt;&gt; # Install a specific version via conda (fallback to pip if conda fails):</span>
+<span class="sd">    &gt;&gt;&gt; install_package(</span>
+<span class="sd">    ...     &#39;pandas&#39;,</span>
+<span class="sd">    ...     version=&#39;==1.2.0&#39;,</span>
+<span class="sd">    ...     use_conda=True,</span>
+<span class="sd">    ...     verbose=True</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    is_module_installed:</span>
+<span class="sd">        Checks whether a Python module or corresponding distribution</span>
+<span class="sd">        is already installed.</span>
+<span class="sd">    get_installation_name:</span>
+<span class="sd">        Infers a distribution name for the given module name,</span>
+<span class="sd">        if necessary.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] Gonsalves, T. et al. (2023). *Dynamic Environment</span>
+<span class="sd">           Management in Python Projects*. PyCon Proceedings,</span>
+<span class="sd">           45(7), 31-42.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check if tqdm is available</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+
+        <span class="n">TQDM_AVAILABLE</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="n">TQDM_AVAILABLE</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># --- Helper Functions ---</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_version_spec</span><span class="p">(</span><span class="n">ver_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If `ver_str` starts with a comparator (&gt;, &lt;, ==, !=, &gt;=, &lt;=, ~=, ^),</span>
+<span class="sd">        return it unchanged. Otherwise, interpret it as &#39;&gt;=ver_str&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># List of recognized version operators</span>
+        <span class="n">operators</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;&gt;=&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;&lt;=&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;==&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;!=&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;&gt;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;&lt;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;~=&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;^&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="n">ver_str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">op</span><span class="p">)</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operators</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="n">ver_str</span>
+        <span class="c1"># Default to &gt;= if user just gave a plain version</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&gt;=</span><span class="si">{</span><span class="n">ver_str</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">execute_command</span><span class="p">(</span>
+        <span class="n">command</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">show_progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute a system command with optional progress bar for output lines.</span>
+<span class="sd">        Raises RuntimeError if the command fails.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">TQDM_AVAILABLE</span> <span class="ow">and</span> <span class="n">show_progress</span><span class="p">:</span>
+            <span class="k">with</span> <span class="p">(</span>
+                <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+                    <span class="n">command</span><span class="p">,</span>
+                    <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                    <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span>
+                    <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">bufsize</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span> <span class="k">as</span> <span class="n">process</span><span class="p">,</span>
+                <span class="n">tqdm</span><span class="p">(</span><span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Installing&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;line&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pbar</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="n">pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Installation failed for package &#39;</span><span class="si">{</span><span class="n">command</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                    <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># No tqdm available or progress not requested</span>
+            <span class="k">with</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+                <span class="n">command</span><span class="p">,</span>
+                <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span>
+                <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">bufsize</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">process</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Installation failed for package &#39;</span><span class="si">{</span><span class="n">command</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                    <span class="p">)</span>
+
+    <span class="c1"># --- Main Logic ---</span>
+    <span class="c1"># Check if already installed</span>
+    <span class="k">if</span> <span class="n">is_module_installed</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">dist_name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[INFO] &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; is already installed.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Potentially infer the distribution name for pip/conda usage</span>
+    <span class="k">if</span> <span class="n">infer_dist_name</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">get_installation_name</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">dist_name</span><span class="p">)</span>
+
+    <span class="c1"># Format version string if provided</span>
+    <span class="n">version_spec</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">version_spec</span> <span class="o">=</span> <span class="n">_format_version_spec</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
+
+    <span class="c1"># Combine the name + version spec + extra into a single string for pip/conda</span>
+    <span class="c1"># e.g. &quot;pandas&gt;=1.2.0&quot; or &quot;numpy==1.23.5 --no-cache-dir&quot;</span>
+    <span class="n">install_str</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="k">if</span> <span class="n">version_spec</span><span class="p">:</span>
+        <span class="n">install_str</span> <span class="o">+=</span> <span class="n">version_spec</span>
+    <span class="k">if</span> <span class="n">extra</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+        <span class="c1"># If user wrote extra like &quot;==1.2.0&quot;, we typically expect them</span>
+        <span class="c1"># to put version in &quot;version&quot; param. But let&#39;s not override. We&#39;ll just</span>
+        <span class="c1"># append it with a space if it doesn&#39;t start with &#39;=&#39;.</span>
+        <span class="c1"># For safety, always add a space. The user might specify advanced pip flags:</span>
+        <span class="c1"># e.g. extra=&quot; --no-cache-dir&quot;</span>
+        <span class="n">install_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">extra</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">conda_available</span> <span class="o">=</span> <span class="n">_check_conda_installed</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">use_conda</span> <span class="ow">and</span> <span class="n">conda_available</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;[INFO] Attempting to install &#39;</span><span class="si">{</span><span class="n">install_str</span><span class="si">}</span><span class="s2">&#39; using conda...&quot;</span>
+            <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># conda install &lt;package&gt;[version spec, etc.] -y</span>
+            <span class="n">execute_command</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;conda&quot;</span><span class="p">,</span> <span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="n">install_str</span><span class="p">,</span> <span class="s2">&quot;-y&quot;</span><span class="p">],</span>
+                <span class="n">show_progress</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;[INFO] Package &#39;</span><span class="si">{</span><span class="n">install_str</span><span class="si">}</span><span class="s2">&#39; installed via conda.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;[WARN] Conda installation failed: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[INFO] Falling back to pip...&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">use_conda</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">conda_available</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;[WARN] Conda is not available. Falling back to pip...&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Fallback to pip</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;[INFO] Attempting to install &#39;</span><span class="si">{</span><span class="n">install_str</span><span class="si">}</span><span class="s2">&#39; using pip...&quot;</span>
+        <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">execute_command</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span>
+                <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pip&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;install&quot;</span><span class="p">,</span>
+                <span class="n">install_str</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="n">show_progress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;[INFO] Package &#39;</span><span class="si">{</span><span class="n">install_str</span><span class="si">}</span><span class="s2">&#39; was successfully installed.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Failed to install &#39;</span><span class="si">{</span><span class="n">install_str</span><span class="si">}</span><span class="s2">&#39; via pip: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span></div>
+
+
+
+<span class="nd">@Deprecated</span><span class="p">(</span>
+    <span class="s2">&quot;&#39;Install_pkg&#39; is deprecated, fallback to `install_package&#39;&quot;</span>
+    <span class="s2">&quot; which implement the more robust approach.&quot;</span>
+<span class="p">)</span>
+<span class="nd">@delegate_on_error</span><span class="p">(</span>
+    <span class="n">transfer</span><span class="o">=</span><span class="n">install_package</span><span class="p">,</span>
+    <span class="n">delegate_params_mapping</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dist_name&quot;</span><span class="p">:</span> <span class="s2">&quot;dist_name&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;infer_dist_name&quot;</span><span class="p">:</span> <span class="s2">&quot;infer_dist_name&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;version&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;use_conda&quot;</span><span class="p">:</span> <span class="s2">&quot;use_conda&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="s2">&quot;verbose&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">install_pkg</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">dist_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">infer_dist_name</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">use_conda</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Install a Python package using either conda or pip, with an option to</span>
+<span class="sd">    display installation progress and fallback mechanism.</span>
+
+<span class="sd">    This function dynamically chooses between conda and pip for installing</span>
+<span class="sd">    Python packages, based on user preference and system configuration. It</span>
+<span class="sd">    supports a verbose mode for detailed operation logging and utilizes a</span>
+<span class="sd">    progress bar for pip installations.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of the package to install. Version specification can be included.</span>
+<span class="sd">    dist_name : str, optional</span>
+<span class="sd">        The distribution name of the package. Useful for packages where</span>
+<span class="sd">        the import name differs from the distribution name.</span>
+<span class="sd">    infer_dist_name : bool, optional</span>
+<span class="sd">        If True, attempt to infer the distribution name for pip installation,</span>
+<span class="sd">        defaults to False.</span>
+<span class="sd">    version : str, optional</span>
+<span class="sd">        Additional options or version specifier for the package, by default &#39;&#39;.</span>
+<span class="sd">    use_conda : bool, optional</span>
+<span class="sd">        Prefer conda over pip for installation, by default False.</span>
+<span class="sd">    verbose : bool, optional</span>
+<span class="sd">        Enable detailed output during the installation process, by default True.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    RuntimeError</span>
+<span class="sd">        If installation fails via both conda and pip, or if the specified installer</span>
+<span class="sd">        is not available.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Install a package using pip without version specification:</span>
+<span class="sd">        &gt;&gt;&gt; from geoprior.utils.deps_utils import install_package</span>
+<span class="sd">        &gt;&gt;&gt; install_package(&#39;requests&#39;, verbose=True)</span>
+
+<span class="sd">    Install a specific version of a package using conda:</span>
+
+<span class="sd">        &gt;&gt;&gt; install_package(&#39;pandas&#39;, extra=&#39;==1.2.0&#39;, use_conda=True, verbose=True)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Conda installations do not display a progress bar due to limitations in capturing</span>
+<span class="sd">    conda command line output. Pip installations will show a progress bar indicating</span>
+<span class="sd">    the number of processed output lines from the installation command.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">execute_command</span><span class="p">(</span>
+        <span class="n">command</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">progress_bar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute a system command with optional progress bar for output lines.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        command : list</span>
+<span class="sd">            Command and arguments to execute as a list.</span>
+<span class="sd">        progress_bar : bool, optional</span>
+<span class="sd">            Enable a progress bar that tracks the command&#39;s output lines,</span>
+<span class="sd">            by default False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+
+        <span class="k">with</span> <span class="p">(</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+                <span class="n">command</span><span class="p">,</span>
+                <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span>
+                <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">bufsize</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">process</span><span class="p">,</span>
+            <span class="n">tqdm</span><span class="p">(</span>
+                <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Installing&quot;</span><span class="p">,</span>
+                <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;line&quot;</span><span class="p">,</span>
+                <span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="n">progress_bar</span><span class="p">,</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">pbar</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span>
+            <span class="p">):</span>  <span class="c1"># Non-zero exit code indicates failure</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Installation failed for package &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}{</span><span class="n">version</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                <span class="p">)</span>
+
+    <span class="c1"># If the module is installed don&#39;t install again.</span>
+    <span class="k">if</span> <span class="n">is_module_installed</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">distribution_name</span><span class="o">=</span><span class="n">dist_name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is already installed.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="c1"># If the distribution to pkg name if the pkg name</span>
+    <span class="c1"># is different to distribution name .</span>
+    <span class="k">if</span> <span class="n">infer_dist_name</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">get_installation_name</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">dist_name</span><span class="p">)</span>
+
+    <span class="n">conda_available</span> <span class="o">=</span> <span class="n">_check_conda_installed</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">use_conda</span> <span class="ow">and</span> <span class="n">conda_available</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Attempting to install &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}{</span><span class="n">version</span><span class="si">}</span><span class="s2">&#39; using conda...&quot;</span>
+                <span class="p">)</span>
+            <span class="n">execute_command</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;conda&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;install&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}{</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;-y&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="n">progress_bar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">use_conda</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">conda_available</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;Conda is not available. Falling back to pip...&quot;</span>
+                <span class="p">)</span>
+            <span class="n">execute_command</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span>
+                    <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;pip&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;install&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}{</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="n">progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Attempting to install &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}{</span><span class="n">version</span><span class="si">}</span><span class="s2">&#39; using pip...&quot;</span>
+                <span class="p">)</span>
+            <span class="n">execute_command</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span>
+                    <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;pip&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;install&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}{</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="n">progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Package &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}{</span><span class="n">version</span><span class="si">}</span><span class="s2">&#39; was successfully installed.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Failed to install &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}{</span><span class="n">version</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_conda_installed</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if conda is installed and available in the system&#39;s PATH.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if conda is found, False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;conda&quot;</span><span class="p">,</span> <span class="s2">&quot;--version&quot;</span><span class="p">],</span>
+            <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span>
+            <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="p">(</span><span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">,</span> <span class="ne">FileNotFoundError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="ensure_pkg">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.deps_utils.ensure_pkg">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ensure_pkg</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">extra</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">error</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;raise&quot;</span><span class="p">,</span>
+    <span class="n">min_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">exception</span><span class="p">:</span> <span class="ne">Exception</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dist_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">infer_dist_name</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">auto_install</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">use_conda</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">partial_check</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">condition</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">_T</span><span class="p">],</span> <span class="n">_T</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorator to ensure a Python package is installed before function execution.</span>
+
+<span class="sd">    If the specified package is not installed, or if its installed version does</span>
+<span class="sd">    not meet the minimum version requirement, this decorator can optionally</span>
+<span class="sd">    install or upgrade the package automatically using either pip or conda.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The name of the package.</span>
+<span class="sd">    extra : str, optional</span>
+<span class="sd">        Additional specification for the package, such as version or extras.</span>
+<span class="sd">    error : str, optional</span>
+<span class="sd">        Error handling strategy if the package is missing: &#39;raise&#39;, &#39;ignore&#39;,</span>
+<span class="sd">        or &#39;warn&#39;.</span>
+<span class="sd">    min_version : str or None, optional</span>
+<span class="sd">        The minimum required version of the package. If not met, triggers</span>
+<span class="sd">        installation.</span>
+<span class="sd">    exception : Exception, optional</span>
+<span class="sd">        A custom exception to raise if the package is missing and `errors`</span>
+<span class="sd">        is &#39;raise&#39;.</span>
+<span class="sd">    dist_name : str, optional</span>
+<span class="sd">        The distribution name of the package as known by package managers (e.g., pip).</span>
+<span class="sd">        If provided and the module import fails, an additional check based on the</span>
+<span class="sd">        distribution name is performed. This parameter is useful for packages where</span>
+<span class="sd">        the distribution name differs from the importable module name.</span>
+<span class="sd">    infer_dist_name : bool, optional</span>
+<span class="sd">        If True, attempt to infer the distribution name for pip installation,</span>
+<span class="sd">        defaults to False.</span>
+<span class="sd">    auto_install : bool, optional</span>
+<span class="sd">        Whether to automatically install the package if missing.</span>
+<span class="sd">        Defaults to False.</span>
+<span class="sd">    use_conda : bool, optional</span>
+<span class="sd">        Prefer conda over pip for automatic installation. Defaults to False.</span>
+<span class="sd">    partial_check : bool, optional</span>
+<span class="sd">        If True, checks the existence of the package only if the `condition`</span>
+<span class="sd">        is met. This allows for conditional package checking based on the</span>
+<span class="sd">        function&#39;s arguments or other criteria. If `False`, the check is always</span>
+<span class="sd">        performed. Defaults to False.</span>
+<span class="sd">    condition : Any, optional</span>
+<span class="sd">        A condition that determines whether to check for the package&#39;s existence.</span>
+<span class="sd">        This can be a callable that takes the same arguments as the decorated function</span>
+<span class="sd">        and returns a boolean, a specific argument name to check for truthiness, or</span>
+<span class="sd">        any other value that will be evaluated as a boolean. If `None`, the package</span>
+<span class="sd">        check is performed unconditionally unless `partial_check` is False.</span>
+<span class="sd">    verbose : bool, optional</span>
+<span class="sd">        Enable verbose output during the installation process. Defaults to False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Callable</span>
+<span class="sd">        A decorator that wraps functions to ensure the specified package</span>
+<span class="sd">        is installed.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from geoprior.utils.deps_utils import ensure_pkg</span>
+<span class="sd">    &gt;&gt;&gt; @ensure_pkg(&quot;numpy&quot;, auto_install=True)</span>
+<span class="sd">    ... def use_numpy():</span>
+<span class="sd">    ...     import numpy as np</span>
+<span class="sd">    ...     return np.array([1, 2, 3])</span>
+
+<span class="sd">    &gt;&gt;&gt; @ensure_pkg(&quot;pandas&quot;, min_version=&quot;1.1.0&quot;, errors=&quot;warn&quot;, use_conda=True)</span>
+<span class="sd">    ... def use_pandas():</span>
+<span class="sd">    ...     import pandas as pd</span>
+<span class="sd">    ...     return pd.DataFrame([[1, 2], [3, 4]])</span>
+
+<span class="sd">    &gt;&gt;&gt; @ensure_pkg(&quot;matplotlib&quot;, partial_check=True, condition=lambda x, y: x &gt; 0)</span>
+<span class="sd">    ... def plot_data(x, y):</span>
+<span class="sd">    ...     import matplotlib.pyplot as plt</span>
+<span class="sd">    ...     plt.plot(x, y)</span>
+<span class="sd">    ...     plt.show()</span>
+
+<span class="sd">    &gt;&gt;&gt; @ensure_pkg(&quot;skimage&quot;, partial_check=True, condition=(</span>
+<span class="sd">    ...     lambda *args, **kwargs: &#39;method&#39; in kwargs and kwargs[&#39;method&#39;] == &#39;hog&#39;)</span>
+<span class="sd">    ...     )</span>
+<span class="sd">    &gt;&gt;&gt; def check_package_installed(data, method=&#39;hog&#39;, **kwargs):</span>
+<span class="sd">    ...     extractor_function = None</span>
+<span class="sd">    ...     if method == &#39;hog&#39;:</span>
+<span class="sd">    ...         from skimage.feature import hog</span>
+<span class="sd">    ...         extractor_function = lambda image: hog(image, **kwargs)</span>
+<span class="sd">    ...     return extractor_function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># def decorator(func: _T) -&gt; _T:</span>
+    <span class="c1">#     @functools.wraps(func)</span>
+    <span class="c1">#     def wrapper(*args, **kwargs):</span>
+    <span class="c1">#         # Determine if this is a method or a function based on the first argument</span>
+    <span class="c1">#         bound_method = hasattr(args[0], func.__name__) if args else False #</span>
+
+    <span class="c1">#         # If partial_check is True, check condition before performing actions</span>
+    <span class="c1">#         if not partial_check or  _should_check_condition(</span>
+    <span class="c1">#                 condition, *args, **kwargs):</span>
+    <span class="c1">#             try:</span>
+    <span class="c1">#                 # Attempt to import the package, handling installation</span>
+    <span class="c1">#                 # if necessary and permitted</span>
+    <span class="c1">#                 import_optional_dependency(</span>
+    <span class="c1">#                     name, extra=extra, errors=error,</span>
+    <span class="c1">#                     min_version=min_version,</span>
+    <span class="c1">#                     exception=exception</span>
+    <span class="c1">#                 )</span>
+    <span class="c1">#             except (ModuleNotFoundError, ImportError):</span>
+    <span class="c1">#                 if auto_install:</span>
+    <span class="c1">#                     # Install the package if auto-install is enabled</span>
+    <span class="c1">#                     install_package(</span>
+    <span class="c1">#                         name, dist_name=dist_name,</span>
+    <span class="c1">#                         infer_dist_name=infer_dist_name,</span>
+    <span class="c1">#                         extra=extra,</span>
+    <span class="c1">#                         version=min_version,</span>
+    <span class="c1">#                         use_conda=use_conda,</span>
+    <span class="c1">#                         verbose=verbose</span>
+    <span class="c1">#                     )</span>
+    <span class="c1">#                 elif exception is not None:</span>
+    <span class="c1">#                     raise exception</span>
+    <span class="c1">#                 else:</span>
+    <span class="c1">#                     raise</span>
+
+    <span class="c1">#         # If the function is a bound method, call it with &#39;self&#39; or &#39;cls&#39;</span>
+    <span class="c1">#         if bound_method:</span>
+    <span class="c1">#             return func(args[0], *args[1:], **kwargs)</span>
+    <span class="c1">#         else:</span>
+    <span class="c1">#             return func(*args, **kwargs) #</span>
+
+    <span class="c1">#     return wrapper</span>
+
+    <span class="c1"># return decorator</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="n">is_method_def</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="n">func</span><span class="o">.</span><span class="vm">__qualname__</span>
+            <span class="ow">and</span> <span class="s2">&quot;&lt;locals&gt;&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">func</span><span class="o">.</span><span class="vm">__qualname__</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">is_method_def</span><span class="p">:</span>
+
+            <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                <span class="c1"># --- your existing dependency check block ---</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="ow">not</span> <span class="n">partial_check</span>
+                    <span class="ow">or</span> <span class="n">_should_check_condition</span><span class="p">(</span>
+                        <span class="n">condition</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+                    <span class="p">)</span>
+                <span class="p">):</span>
+                    <span class="n">import_optional_dependency</span><span class="p">(</span>
+                        <span class="n">name</span><span class="p">,</span>
+                        <span class="n">extra</span><span class="o">=</span><span class="n">extra</span><span class="p">,</span>
+                        <span class="n">errors</span><span class="o">=</span><span class="n">error</span><span class="p">,</span>
+                        <span class="n">min_version</span><span class="o">=</span><span class="n">min_version</span><span class="p">,</span>
+                        <span class="n">exception</span><span class="o">=</span><span class="n">exception</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="ow">not</span> <span class="n">partial_check</span>
+                    <span class="ow">or</span> <span class="n">_should_check_condition</span><span class="p">(</span>
+                        <span class="n">condition</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+                    <span class="p">)</span>
+                <span class="p">):</span>
+                    <span class="n">import_optional_dependency</span><span class="p">(</span>
+                        <span class="n">name</span><span class="p">,</span>
+                        <span class="n">extra</span><span class="o">=</span><span class="n">extra</span><span class="p">,</span>
+                        <span class="n">errors</span><span class="o">=</span><span class="n">error</span><span class="p">,</span>
+                        <span class="n">min_version</span><span class="o">=</span><span class="n">min_version</span><span class="p">,</span>
+                        <span class="n">exception</span><span class="o">=</span><span class="n">exception</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># keep inspect.signature() nice (sklearn/etc.)</span>
+        <span class="n">wrapper</span><span class="o">.</span><span class="n">__signature__</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">wrapper</span>
+
+    <span class="k">return</span> <span class="n">decorator</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_should_check_condition</span><span class="p">(</span>
+    <span class="n">condition</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determines whether the condition(s) for checking a package&#39;s existence are met,</span>
+<span class="sd">    based on the provided arguments and keyword arguments of a decorated function.</span>
+
+<span class="sd">    This function offers enhanced flexibility by allowing conditions to be specified</span>
+<span class="sd">    as callable functions, tuples for positional argument checks, strings for keyword</span>
+<span class="sd">    argument checks, or a list combining any of these types for multiple conditions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    condition : Any</span>
+<span class="sd">        The condition(s) that determine whether to perform the package check. Can be:</span>
+<span class="sd">        - A callable that takes `*args` and `**kwargs` and returns a boolean.</span>
+<span class="sd">        - A string specifying a keyword argument name that should be truthy.</span>
+<span class="sd">        - A tuple `(index, value)` for checking a specific value of a positional argument.</span>
+<span class="sd">        - A list of any combination of the above to specify multiple conditions.</span>
+<span class="sd">    *args : tuple</span>
+<span class="sd">        Positional arguments passed to the decorated function.</span>
+<span class="sd">    **kwargs : dict</span>
+<span class="sd">        Keyword arguments passed to the decorated function.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        `True` if the package check should be performed based on the evaluation of</span>
+<span class="sd">        `condition`, `False` otherwise.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Checking with a single callable condition for partial_check is ``True``:</span>
+
+<span class="sd">    &gt;&gt;&gt; _should_check_condition(lambda x, y: x &gt; y, 5, 3)</span>
+<span class="sd">    True</span>
+
+<span class="sd">    Checking with a string condition (keyword argument name):</span>
+
+<span class="sd">    &gt;&gt;&gt; _should_check_condition(&#39;method&#39;, method=&#39;hog&#39;)</span>
+<span class="sd">    True</span>
+
+<span class="sd">    Checking with a tuple for positional argument value:</span>
+
+<span class="sd">    &gt;&gt;&gt; _should_check_condition((0, &#39;data&#39;), &#39;data&#39;, method=&#39;hog&#39;)</span>
+<span class="sd">    True</span>
+
+<span class="sd">    Checking with multiple conditions:</span>
+
+<span class="sd">    &gt;&gt;&gt; conditions = [(1, &#39;hog&#39;), lambda *args, **kwargs: kwargs.get(&#39;filter&#39;, False)]</span>
+<span class="sd">    &gt;&gt;&gt; _should_check_condition( conditions, &#39;data&#39;, &#39;hog&#39;, filter=True)</span>
+<span class="sd">    True</span>
+
+<span class="sd">    In the last example, the package check is performed because both conditions are met:</span>
+<span class="sd">    the second positional argument equals &#39;hog&#39;, and the &#39;filter&#39; keyword argument is `True`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">eval_condition</span><span class="p">(</span><span class="n">cond</span><span class="p">):</span>
+        <span class="c1"># Callable condition with direct application</span>
+        <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">cond</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">cond</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># String condition indicating a key in kwargs</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cond</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cond</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="n">cond</span><span class="p">])</span>
+        <span class="c1"># Tuple condition indicating positional argument check</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cond</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">cond</span>
+            <span class="k">return</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="ow">and</span> <span class="n">args</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="c1"># Support for list of conditions: all must be True</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">eval_condition</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span> <span class="k">for</span> <span class="n">cond</span> <span class="ow">in</span> <span class="n">condition</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">eval_condition</span><span class="p">(</span><span class="n">condition</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ensure_pkgs">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.deps_utils.ensure_pkgs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ensure_pkgs</span><span class="p">(</span>
+    <span class="n">names</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">extra</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">error</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;raise&quot;</span><span class="p">,</span>
+    <span class="n">min_versions</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">exception</span><span class="p">:</span> <span class="ne">Exception</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dist_names</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">infer_dist_name</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">auto_install</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">use_conda</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">partial_check</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">condition</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">_T</span><span class="p">],</span> <span class="n">_T</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorator to ensure Python packages are installed before function execution.</span>
+
+<span class="sd">    If the specified packages are not installed, or if their installed versions</span>
+<span class="sd">    do not meet the minimum version requirements, this decorator can optionally</span>
+<span class="sd">    install or upgrade the packages automatically using either pip or conda.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    names : str or list of str</span>
+<span class="sd">        The name(s) of the package(s). Can be a single string with package names</span>
+<span class="sd">        separated by commas, or a list of package names.</span>
+<span class="sd">    extra : str, optional</span>
+<span class="sd">        Additional specification for the package(s), such as version or extras.</span>
+<span class="sd">    error : {&#39;raise&#39;, &#39;ignore&#39;, &#39;warn&#39;}, optional</span>
+<span class="sd">        Error handling strategy if a package is missing: &#39;raise&#39;, &#39;ignore&#39;,</span>
+<span class="sd">        or &#39;warn&#39;. Defaults to &#39;raise&#39;.</span>
+<span class="sd">    min_version : str or list of str, optional</span>
+<span class="sd">        The minimum required version(s) of the package(s). If not met, triggers</span>
+<span class="sd">        installation. Can be a single version string applied to all packages</span>
+<span class="sd">        or a list matching the `names` list.</span>
+<span class="sd">    exception : Exception, optional</span>
+<span class="sd">        A custom exception to raise if a package is missing and `errors` is &#39;raise&#39;.</span>
+<span class="sd">    dist_name : str or list of str, optional</span>
+<span class="sd">        The distribution name(s) of the package(s) as known by package managers (e.g., pip).</span>
+<span class="sd">        Useful when the distribution name differs from the importable module name.</span>
+<span class="sd">        Can be a single string or a list matching the `names` list.</span>
+<span class="sd">    infer_dist_name : bool, optional</span>
+<span class="sd">        If True, attempt to infer the distribution name for pip installation.</span>
+<span class="sd">        Defaults to False.</span>
+<span class="sd">    auto_install : bool, optional</span>
+<span class="sd">        Whether to automatically install missing packages. Defaults to False.</span>
+<span class="sd">    use_conda : bool, optional</span>
+<span class="sd">        Prefer conda over pip for automatic installation. Defaults to False.</span>
+<span class="sd">    partial_check : bool, optional</span>
+<span class="sd">        If True, checks the existence of the packages only if the `condition` is met.</span>
+<span class="sd">        Allows for conditional package checking based on the function&#39;s arguments or</span>
+<span class="sd">        other criteria. If False, the check is always performed. Defaults to False.</span>
+<span class="sd">    condition : Any, optional</span>
+<span class="sd">        A condition that determines whether to check for the packages&#39; existence.</span>
+<span class="sd">        Can be a callable that takes the same arguments as the decorated function</span>
+<span class="sd">        and returns a boolean, a specific argument name to check for truthiness, or</span>
+<span class="sd">        any other value that will be evaluated as a boolean. If None, the package</span>
+<span class="sd">        check is performed unconditionally unless `partial_check` is False.</span>
+<span class="sd">    verbose : bool, optional</span>
+<span class="sd">        Enable verbose output during the installation process. Defaults to False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Callable</span>
+<span class="sd">        A decorator that wraps functions to ensure the specified packages</span>
+<span class="sd">        are installed.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from geoprior.utils.deps_utils import ensure_pkgs</span>
+<span class="sd">    &gt;&gt;&gt; @ensure_pkgs(&quot;numpy, pandas&quot;, auto_install=True)</span>
+<span class="sd">    ... def use_numpy_pandas():</span>
+<span class="sd">    ...     import numpy as np</span>
+<span class="sd">    ...     import pandas as pd</span>
+<span class="sd">    ...     return np.array([1, 2, 3]), pd.DataFrame([[1, 2], [3, 4]])</span>
+
+<span class="sd">    &gt;&gt;&gt; @ensure_pkgs([&quot;matplotlib&quot;, &quot;seaborn&quot;], min_version=[&quot;3.0.0&quot;, &quot;0.11.0&quot;])</span>
+<span class="sd">    ... def plot_data(x, y):</span>
+<span class="sd">    ...     import matplotlib.pyplot as plt</span>
+<span class="sd">    ...     import seaborn as sns</span>
+<span class="sd">    ...     sns.scatterplot(x=x, y=y)</span>
+<span class="sd">    ...     plt.show()</span>
+
+<span class="sd">    &gt;&gt;&gt; @ensure_pkgs(&quot;skimage&quot;, partial_check=True, condition=(</span>
+<span class="sd">    ...     lambda *args, **kwargs: &#39;method&#39; in kwargs and kwargs[&#39;method&#39;] == &#39;hog&#39;)</span>
+<span class="sd">    ... )</span>
+<span class="sd">    ... def process_image(data, method=&#39;hog&#39;, **kwargs):</span>
+<span class="sd">    ...     if method == &#39;hog&#39;:</span>
+<span class="sd">    ...         from skimage.feature import hog</span>
+<span class="sd">    ...         return hog(data, **kwargs)</span>
+<span class="sd">    ...     else:</span>
+<span class="sd">    ...         # Other processing</span>
+<span class="sd">    ...         pass</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">_T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="c1"># Determine if this is a method or a function based on the first argument</span>
+            <span class="n">bound_method</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">args</span>
+                <span class="k">else</span> <span class="kc">False</span>
+            <span class="p">)</span>
+
+            <span class="c1"># If partial_check is True, check condition before performing actions</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">partial_check</span> <span class="ow">or</span> <span class="n">_should_check_condition</span><span class="p">(</span>
+                <span class="n">condition</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">):</span>
+                <span class="c1"># Parse names into a list</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">pkg_list</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">pkg</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                        <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">names</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+                    <span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">pkg_list</span> <span class="o">=</span> <span class="n">names</span>
+
+                <span class="c1"># Ensure min_version and dist_name are lists matching pkg_list</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">min_versions</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">)):</span>
+                    <span class="n">min_version_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">min_versions</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span>
+                        <span class="n">pkg_list</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">min_version_list</span> <span class="o">=</span> <span class="n">min_versions</span>
+
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dist_names</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">)):</span>
+                    <span class="n">dist_name_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">dist_names</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span>
+                        <span class="n">pkg_list</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">dist_name_list</span> <span class="o">=</span> <span class="n">dist_names</span>
+
+                <span class="c1"># Iterate over the packages</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">pkg_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pkg_list</span><span class="p">):</span>
+                    <span class="n">pkg_min_version</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">min_version_list</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">min_version_list</span>
+                        <span class="k">else</span> <span class="kc">None</span>
+                    <span class="p">)</span>
+                    <span class="n">pkg_dist_name</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">dist_name_list</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">dist_name_list</span>
+                        <span class="k">else</span> <span class="kc">None</span>
+                    <span class="p">)</span>
+
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="c1"># Attempt to import the package</span>
+                        <span class="n">import_optional_dependency</span><span class="p">(</span>
+                            <span class="n">pkg_name</span><span class="p">,</span>
+                            <span class="n">extra</span><span class="o">=</span><span class="n">extra</span><span class="p">,</span>
+                            <span class="n">errors</span><span class="o">=</span><span class="n">error</span><span class="p">,</span>
+                            <span class="n">min_version</span><span class="o">=</span><span class="n">pkg_min_version</span><span class="p">,</span>
+                            <span class="n">exception</span><span class="o">=</span><span class="n">exception</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="k">except</span> <span class="p">(</span><span class="ne">ModuleNotFoundError</span><span class="p">,</span> <span class="ne">ImportError</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">auto_install</span><span class="p">:</span>
+                            <span class="c1"># Install the package if auto-install is enabled</span>
+                            <span class="n">install_package</span><span class="p">(</span>
+                                <span class="n">pkg_name</span><span class="p">,</span>
+                                <span class="n">dist_name</span><span class="o">=</span><span class="n">pkg_dist_name</span><span class="p">,</span>
+                                <span class="n">infer_dist_name</span><span class="o">=</span><span class="n">infer_dist_name</span><span class="p">,</span>
+                                <span class="n">version</span><span class="o">=</span><span class="n">pkg_min_version</span><span class="p">,</span>
+                                <span class="n">use_conda</span><span class="o">=</span><span class="n">use_conda</span><span class="p">,</span>
+                                <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                            <span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">exception</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="n">exception</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">raise</span>
+
+            <span class="c1"># Call the original function</span>
+            <span class="k">if</span> <span class="n">bound_method</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">wrapper</span>
+
+    <span class="k">return</span> <span class="n">decorator</span></div>
+
+
+
+<div class="viewcode-block" id="is_module_installed">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.deps_utils.is_module_installed">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_module_installed</span><span class="p">(</span>
+    <span class="n">module_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">distribution_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if a Python module is installed by attempting to import it.</span>
+<span class="sd">    Optionally, a distribution name can be provided if it differs from the module name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_name : str</span>
+<span class="sd">        The import name of the module to check.</span>
+<span class="sd">    distribution_name : str, optional</span>
+<span class="sd">        The distribution name of the package as known by package managers (e.g., pip).</span>
+<span class="sd">        If provided and the module import fails, an additional check based on the</span>
+<span class="sd">        distribution name is performed. This parameter is useful for packages where</span>
+<span class="sd">        the distribution name differs from the importable module name.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if the module can be imported or the distribution package is installed,</span>
+<span class="sd">        False otherwise.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; is_module_installed(&quot;sklearn&quot;)</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; is_module_installed(&quot;scikit-learn&quot;, &quot;scikit-learn&quot;)</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; is_module_installed(&quot;some_nonexistent_module&quot;)</span>
+<span class="sd">    False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">_try_import_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">distribution_name</span> <span class="ow">and</span> <span class="n">_check_distribution_installed</span><span class="p">(</span>
+        <span class="n">distribution_name</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_try_import_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Attempt to import a module by its name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_name : str</span>
+<span class="sd">        The import name of the module.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if the module can be imported, False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># import importlib.util</span>
+    <span class="c1"># module_spec = importlib.util.find_spec(module_name)</span>
+    <span class="c1"># return module_spec is not None</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_distribution_installed</span><span class="p">(</span>
+    <span class="n">distribution_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if a distribution package is installed by its name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    distribution_name : str</span>
+<span class="sd">        The distribution name of the package.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if the distribution package is installed, False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Prefer importlib.metadata for Python 3.8 and newer</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">distribution</span>
+
+        <span class="n">distribution</span><span class="p">(</span><span class="n">distribution_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="c1"># Fallback to pkg_resources for older Python versions</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">pkg_resources</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+                <span class="n">DistributionNotFound</span><span class="p">,</span>
+                <span class="n">get_distribution</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">get_distribution</span><span class="p">(</span><span class="n">distribution_name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="n">DistributionNotFound</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="get_installation_name">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.deps_utils.get_installation_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_installation_name</span><span class="p">(</span>
+    <span class="n">module_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">distribution_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">return_bool</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determines the appropriate name for installing a package, considering potential</span>
+<span class="sd">    discrepancies between the distribution name and the module import name. Optionally,</span>
+<span class="sd">    returns a boolean indicating if the distribution name matches the import name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_name : str</span>
+<span class="sd">        The import name of the module.</span>
+<span class="sd">    distribution_name : str, optional</span>
+<span class="sd">        The distribution name of the package. If None, the function attempts to infer</span>
+<span class="sd">        the distribution name from the module name.</span>
+<span class="sd">    return_bool : bool, optional</span>
+<span class="sd">        If True, returns a boolean indicating whether the distribution name matches</span>
+<span class="sd">        the module import name. Otherwise, returns the name recommended for installation.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Union[str, bool]</span>
+<span class="sd">        Depending on `return_bool`, returns either a boolean indicating if the distribution</span>
+<span class="sd">        name matches the module name, or the name (distribution or module) recommended for</span>
+<span class="sd">        installation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">inferred_name</span> <span class="o">=</span> <span class="n">_infer_distribution_name</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+
+    <span class="c1"># If a distribution name is provided, check if it matches the inferred name</span>
+    <span class="k">if</span> <span class="n">distribution_name</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">return_bool</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">distribution_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="o">==</span> <span class="n">inferred_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">distribution_name</span>
+
+    <span class="c1"># If no distribution name is provided, return the inferred name or module name</span>
+    <span class="k">if</span> <span class="n">return_bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">inferred_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">module_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">inferred_name</span> <span class="ow">or</span> <span class="n">module_name</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_infer_distribution_name</span><span class="p">(</span><span class="n">module_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Attempts to infer the distribution name of a package from its module name</span>
+<span class="sd">    by querying the metadata of installed packages.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_name : str</span>
+<span class="sd">        The import name of the module.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The inferred distribution name. If no specific inference is made, returns</span>
+<span class="sd">        the module name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Use importlib.metadata for Python 3.8+; use importlib_metadata for older versions</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">distributions</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">importlib_metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">distributions</span>
+    <span class="c1">#  Loop through all installed distributions</span>
+    <span class="k">for</span> <span class="n">distribution</span> <span class="ow">in</span> <span class="n">distributions</span><span class="p">():</span>
+        <span class="c1"># Check if the module name matches the distribution name directly</span>
+        <span class="k">if</span> <span class="n">module_name</span> <span class="o">==</span> <span class="n">distribution</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s2">&quot;Name&quot;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">distribution</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Safely attempt to read and split &#39;top_level.txt&#39;</span>
+        <span class="n">top_level_txt</span> <span class="o">=</span> <span class="n">distribution</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span>
+            <span class="s2">&quot;top_level.txt&quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">top_level_txt</span><span class="p">:</span>
+            <span class="n">top_level_packages</span> <span class="o">=</span> <span class="n">top_level_txt</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+                <span class="n">module_name</span> <span class="o">==</span> <span class="n">pkg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">top_level_packages</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="n">distribution</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">module_name</span>
+
+
+<div class="viewcode-block" id="is_installing">
+<a class="viewcode-back" href="../../../api/utils.html#geoprior.utils.deps_utils.is_installing">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_installing</span><span class="p">(</span>
+    <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">upgrade</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">action</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">DEVNULL</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">subpkws</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Install or uninstall a module/package using the subprocess</span>
+<span class="sd">    under the hood.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ------------</span>
+<span class="sd">    module: str,</span>
+<span class="sd">        the module or library name to install using Python Index Package `PIP`</span>
+
+<span class="sd">    upgrade: bool,</span>
+<span class="sd">        install the lastest version of the package. *default* is ``True``.</span>
+
+<span class="sd">    DEVNULL:bool,</span>
+<span class="sd">        decline the stdoutput the message in the console</span>
+
+<span class="sd">    action: str,bool</span>
+<span class="sd">        Action to perform. &#39;install&#39; or &#39;uninstall&#39; a package. *default* is</span>
+<span class="sd">        ``True`` which means &#39;intall&#39;.</span>
+
+<span class="sd">    verbose: int, Optional</span>
+<span class="sd">        Control the verbosity i.e output a message. High level</span>
+<span class="sd">        means more messages. *default* is ``0``.</span>
+
+<span class="sd">    subpkws: dict,</span>
+<span class="sd">        additional subprocess keywords arguments</span>
+<span class="sd">    Returns</span>
+<span class="sd">    ---------</span>
+<span class="sd">    success: bool</span>
+<span class="sd">        whether the package is sucessfully installed or not.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from gofast import is_installing</span>
+<span class="sd">    &gt;&gt;&gt; is_installing(</span>
+<span class="sd">        &#39;tqdm&#39;, action =&#39;install&#39;, DEVNULL=True, verbose =1)</span>
+<span class="sd">    &gt;&gt;&gt; is_installing(</span>
+<span class="sd">        &#39;tqdm&#39;, action =&#39;uninstall&#39;, verbose =1)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># implement pip as subprocess</span>
+    <span class="c1"># refer to https://pythongeeks.org/subprocess-in-python/</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">action</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;---&gt; No action `install`or `uninstall`&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; of the module </span><span class="si">{</span><span class="n">module</span><span class="si">!r}</span><span class="s2"> performed.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">action</span>  <span class="c1"># DO NOTHING</span>
+
+    <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">action_msg</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;uninstallation&quot;</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;uninstall&quot;</span>
+        <span class="k">else</span> <span class="s2">&quot;installation&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="s2">&quot;uninstall&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;---&gt; Module </span><span class="si">{</span><span class="n">module</span><span class="si">!r}</span><span class="s2"> </span><span class="si">{</span><span class="n">action_msg</span><span class="si">}</span><span class="s2"> will take a while,&quot;</span>
+            <span class="s2">&quot; please be patient...&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">cmdg</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;&lt;pip install </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2">&gt; | &lt;python -m pip install </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;install&quot;</span><span class="p">)</span>
+        <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="sa">f</span><span class="s2">&quot;&lt;pip uninstall </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2"> -y&gt; or &lt;pip3 uninstall </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2"> -y &quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;or &lt;python -m pip uninstall </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2"> -y&gt;.&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">upgrade</span> <span class="o">=</span> <span class="s2">&quot;--upgrade&quot;</span> <span class="k">if</span> <span class="n">upgrade</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;uninstall&quot;</span><span class="p">:</span>
+        <span class="n">upgrade</span> <span class="o">=</span> <span class="s2">&quot;-y&quot;</span>  <span class="c1"># Don&#39;t ask for confirmation of uninstall deletions.</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;install&quot;</span>
+
+    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pip&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">upgrade</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">STDOUT</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span> <span class="k">if</span> <span class="n">DEVNULL</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">STDERR</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span> <span class="k">if</span> <span class="n">DEVNULL</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">]</span> <span class="o">+</span> <span class="n">cmd</span><span class="p">,</span>
+            <span class="n">stdout</span><span class="o">=</span><span class="n">STDOUT</span><span class="p">,</span>
+            <span class="n">stderr</span><span class="o">=</span><span class="n">STDERR</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">subpkws</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;install&quot;</span><span class="p">):</span>
+            <span class="c1"># freeze the dependancies</span>
+            <span class="n">reqs</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;pip&quot;</span><span class="p">,</span> <span class="s2">&quot;freeze&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;==&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">reqs</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;---&gt; Module </span><span class="si">{</span><span class="n">module</span><span class="si">!r}</span><span class="s2"> </span><span class="si">{</span><span class="n">action_msg</span><span class="si">}</span><span class="s2"> failed. Please use&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; the following command: </span><span class="si">{</span><span class="n">cmdg</span><span class="si">}</span><span class="s2"> to manually do it.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">action_msg</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2"> of `</span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2">` &quot;</span>
+                <span class="s2">&quot;and dependancies was successfully done!&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">success</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

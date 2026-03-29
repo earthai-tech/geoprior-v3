@@ -1,0 +1,1308 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Subsidence forecasting &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=404c0980"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'applications/subsidence_forecasting';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tuner workflow" href="tuner_workflow.html" />
+    <link rel="prev" title="Applications" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Subsidence forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tuner_workflow.html">Tuner workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration_and_uncertainty.html">Calibration and uncertainty</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reproducibility_scripts.html">Reproducibility scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="figure_generation.html">Figure generation</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Applications</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Subsidence forecasting</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="subsidence-forecasting">
+<span id="applications-subsidence-forecasting"></span><h1>Subsidence forecasting<a class="headerlink" href="#subsidence-forecasting" title="Link to this heading">#</a></h1>
+<p>GeoPrior-v3 was built around a flagship application:
+<strong>physics-guided urban land subsidence forecasting</strong>.</p>
+<p>This page explains that application from the user and
+scientific workflow perspective. It is not a full theory page
+and it is not only a CLI tutorial. Instead, it shows how the
+different parts of GeoPrior-v3 come together for one concrete
+goal:</p>
+<ul class="simple">
+<li><p>prepare a city-scale subsidence dataset,</p></li>
+<li><p>train a physics-guided forecasting model,</p></li>
+<li><p>evaluate uncertainty-aware forecasts,</p></li>
+<li><p>reuse saved models for inference,</p></li>
+<li><p>and optionally study cross-city transfer behavior.</p></li>
+</ul>
+<p>In the current codebase, the public model family for this
+application is centered on
+<code class="xref py py-class docutils literal notranslate"><span class="pre">GeoPriorSubsNet</span></code> and
+<code class="xref py py-class docutils literal notranslate"><span class="pre">PoroElasticSubsNet</span></code>, with
+GeoPriorSubsNet acting as the main coupled model and
+PoroElasticSubsNet as a stronger consolidation-first preset.</p>
+<section id="why-land-subsidence-is-a-strong-geoprior-application">
+<h2>Why land subsidence is a strong GeoPrior application<a class="headerlink" href="#why-land-subsidence-is-a-strong-geoprior-application" title="Link to this heading">#</a></h2>
+<p>Land subsidence is a particularly good fit for GeoPrior-v3
+because it naturally combines:</p>
+<ul class="simple">
+<li><p>multi-horizon forecasting,</p></li>
+<li><p>groundwater-related delayed response,</p></li>
+<li><p>spatial heterogeneity,</p></li>
+<li><p>uncertainty-aware prediction,</p></li>
+<li><p>and physically interpretable closure structure.</p></li>
+</ul>
+<p>In many urban and peri-urban systems, subsidence is not only
+a curve-fitting problem. It is a coupled hydrogeological and
+geomechanical forecasting problem in which the future
+trajectory depends on:</p>
+<ul class="simple">
+<li><p>previous settlement history,</p></li>
+<li><p>groundwater evolution,</p></li>
+<li><p>effective thickness and drainage structure,</p></li>
+<li><p>rainfall and other external drivers,</p></li>
+<li><p>and local site conditions.</p></li>
+</ul>
+<p>That is exactly the kind of setting GeoPrior is designed for.</p>
+</section>
+<section id="what-geoprior-forecasts-in-this-application">
+<h2>What GeoPrior forecasts in this application<a class="headerlink" href="#what-geoprior-forecasts-in-this-application" title="Link to this heading">#</a></h2>
+<p>The main supervised targets in the current model family are:</p>
+<ul class="simple">
+<li><p>subsidence,</p></li>
+<li><p>groundwater level or a head-related groundwater quantity.</p></li>
+</ul>
+<p>At the model level, the main public outputs are
+<code class="docutils literal notranslate"><span class="pre">subs_pred</span></code> and <code class="docutils literal notranslate"><span class="pre">gwl_pred</span></code>. The forecasting system can
+also operate with quantiles, so the application naturally
+supports both central forecasts and uncertainty-aware
+forecast intervals.</p>
+<p>A practical mental model is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>historical site data
+     ↓
+future-known drivers
+     ↓
+GeoPrior forecasting backbone
+     ↓
+subsidence and groundwater forecasts
+     ↓
+physics-aware diagnostics and export
+</pre></div>
+</div>
+</section>
+<section id="typical-forecasting-questions">
+<h2>Typical forecasting questions<a class="headerlink" href="#typical-forecasting-questions" title="Link to this heading">#</a></h2>
+<p>This application layer is meant to support questions such as:</p>
+<ul class="simple">
+<li><p>How much subsidence is expected over the next
+1 to 5 years?</p></li>
+<li><p>Which zones are likely to experience stronger settlement?</p></li>
+<li><p>How uncertain are the forecast bands?</p></li>
+<li><p>Does a physically constrained model behave better than a
+purely data-driven baseline?</p></li>
+<li><p>Can a model trained in one city transfer to another city?</p></li>
+</ul>
+<p>These are the kinds of questions that make land subsidence
+forecasting more than a narrow regression benchmark.</p>
+</section>
+<section id="what-the-data-usually-look-like">
+<h2>What the data usually look like<a class="headerlink" href="#what-the-data-usually-look-like" title="Link to this heading">#</a></h2>
+<p>The GeoPrior config template already reflects the intended
+structure of a subsidence forecasting dataset. It includes
+city identity, file patterns, temporal windows, key columns,
+groundwater conventions, optional feature groups, future
+drivers, holdout strategy, model defaults, physics settings,
+and training defaults.</p>
+<p>A typical application dataset contains:</p>
+<ul class="simple">
+<li><p>longitude and latitude,</p></li>
+<li><p>time or year,</p></li>
+<li><p>observed subsidence,</p></li>
+<li><p>groundwater level or groundwater depth,</p></li>
+<li><p>thickness-related fields,</p></li>
+<li><p>optional geological or lithological descriptors,</p></li>
+<li><p>optional urban-load or other anthropogenic indicators,</p></li>
+<li><p>rainfall or other future-known driver variables.</p></li>
+</ul>
+<p>In the current default config template, GeoPrior explicitly
+tracks fields such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TIME_COL</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LON_COL</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LAT_COL</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SUBSIDENCE_COL</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GWL_COL</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">H_FIELD_COL_NAME</span></code></p></li>
+<li><p>future-driver feature names</p></li>
+<li><p>optional numeric and categorical features.</p></li>
+</ul>
+</section>
+<section id="why-the-groundwater-convention-matters">
+<h2>Why the groundwater convention matters<a class="headerlink" href="#why-the-groundwater-convention-matters" title="Link to this heading">#</a></h2>
+<p>The same config template also makes groundwater semantics
+explicit through settings such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">GWL_KIND</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GWL_SIGN</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_HEAD_PROXY</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Z_SURF_COL</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HEAD_COL</span></code>.</p></li>
+</ul>
+<p>This is especially important in subsidence forecasting,
+because compaction is not built from an arbitrary raw
+groundwater variable. It is built from a physically
+interpreted head or drawdown quantity.</p>
+<p>So the application story is not only:</p>
+<ul class="simple">
+<li><p>“we forecast subsidence”</p></li>
+</ul>
+<p>but also:</p>
+<ul class="simple">
+<li><p>“we forecast subsidence under a declared groundwater
+interpretation.”</p></li>
+</ul>
+</section>
+<section id="a-complete-application-workflow">
+<h2>A complete application workflow<a class="headerlink" href="#a-complete-application-workflow" title="Link to this heading">#</a></h2>
+<p>The end-to-end subsidence forecasting workflow in GeoPrior-v3
+can be summarized as:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Stage-1 preprocess city dataset
+     ↓
+Stage-2 train one physics-guided model
+     ↓
+Stage-3 optionally tune hyperparameters
+     ↓
+Stage-4 reuse saved model for inference/export
+     ↓
+Stage-5 optionally benchmark transfer across cities
+</pre></div>
+</div>
+<p>This is the core application pathway for the package.</p>
+</section>
+<section id="stage-1-in-this-application">
+<h2>Stage-1 in this application<a class="headerlink" href="#stage-1-in-this-application" title="Link to this heading">#</a></h2>
+<p>In the subsidence application, Stage-1 is where the raw city
+dataset is turned into a stable modeling contract.</p>
+<p>That includes:</p>
+<ul class="simple">
+<li><p>column resolution,</p></li>
+<li><p>feature grouping,</p></li>
+<li><p>coordinate handling,</p></li>
+<li><p>temporal window construction,</p></li>
+<li><p>train/validation/test splits,</p></li>
+<li><p>NPZ export,</p></li>
+<li><p>and manifest creation.</p></li>
+</ul>
+<p>For this application, Stage-1 is especially important because
+the later stages assume that subsidence, groundwater,
+coordinates, and thickness-like fields have already been
+organized into a coherent contract.</p>
+<p>A good practical rule is:</p>
+<ul class="simple">
+<li><p>if the Stage-1 contract is wrong,</p></li>
+<li><p>the later subsidence forecasts may still run,</p></li>
+<li><p>but they become much harder to trust scientifically.</p></li>
+</ul>
+</section>
+<section id="stage-2-in-this-application">
+<h2>Stage-2 in this application<a class="headerlink" href="#stage-2-in-this-application" title="Link to this heading">#</a></h2>
+<p>Stage-2 is the first true model-training stage.</p>
+<p>In the subsidence application, it usually means:</p>
+<ul class="simple">
+<li><p>one city,</p></li>
+<li><p>one chosen configuration,</p></li>
+<li><p>one model family,</p></li>
+<li><p>one full training run,</p></li>
+<li><p>plus evaluation and export artifacts.</p></li>
+</ul>
+<p>The current GeoPrior training stack is explicitly hybrid:
+the supervised data loss is combined with a scaled physics
+loss returned by the shared physics core.</p>
+<p>That makes Stage-2 scientifically important because it is not
+only fitting a forecast model. It is also learning a
+physically regularized representation of the subsidence
+system.</p>
+</section>
+<section id="stage-3-in-this-application">
+<h2>Stage-3 in this application<a class="headerlink" href="#stage-3-in-this-application" title="Link to this heading">#</a></h2>
+<p>Stage-3 extends the application from one configured run to a
+systematic hyperparameter search.</p>
+<p>In subsidence forecasting, this is where you ask:</p>
+<ul class="simple">
+<li><p>which architecture size works best?</p></li>
+<li><p>how much dropout is appropriate?</p></li>
+<li><p>do the physics weights need adjustment?</p></li>
+<li><p>does the tuned winner improve both forecast quality and
+physical consistency?</p></li>
+</ul>
+<p>Stage-3 is therefore especially useful when you want to move
+from a proof-of-concept city run to a more publication-grade
+benchmark.</p>
+</section>
+<section id="stage-4-in-this-application">
+<h2>Stage-4 in this application<a class="headerlink" href="#stage-4-in-this-application" title="Link to this heading">#</a></h2>
+<p>Stage-4 is the reusable inference stage.</p>
+<p>In the subsidence application, this is where a saved model is
+loaded and applied to a target contract to generate:</p>
+<ul class="simple">
+<li><p>evaluation forecasts,</p></li>
+<li><p>future forecasts,</p></li>
+<li><p>summary JSON files,</p></li>
+<li><p>and optional transfer-style diagnostics.</p></li>
+</ul>
+<p>This is useful for operational or repeated forecasting
+settings where the user does not want to retrain every time.</p>
+<p>A typical use case is:</p>
+<ul class="simple">
+<li><p>preprocess once,</p></li>
+<li><p>train once,</p></li>
+<li><p>then run inference repeatedly as new forecast scenarios or
+reporting needs arise.</p></li>
+</ul>
+</section>
+<section id="stage-5-in-this-application">
+<h2>Stage-5 in this application<a class="headerlink" href="#stage-5-in-this-application" title="Link to this heading">#</a></h2>
+<p>Stage-5 expands the application from one city to a transfer
+study across two cities.</p>
+<p>That is a very strong use case for urban subsidence
+forecasting because different cities often share broad
+hydrogeological mechanisms while still differing in forcing,
+stratigraphy, urbanization pattern, and scale conventions.</p>
+<p>In this stage, the application asks:</p>
+<ul class="simple">
+<li><p>how well does a model trained in city A work in city B?</p></li>
+<li><p>does target recalibration help?</p></li>
+<li><p>does warm-start adaptation improve transfer?</p></li>
+<li><p>do scaling choices explain some of the performance gap?</p></li>
+</ul>
+<p>That is one of the reasons the subsidence application page
+belongs early in the applications section.</p>
+</section>
+<section id="which-model-to-use">
+<h2>Which model to use<a class="headerlink" href="#which-model-to-use" title="Link to this heading">#</a></h2>
+<p>For most urban land subsidence forecasting runs, the natural
+starting point is:</p>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">GeoPriorSubsNet</span></code></p>
+<p>because it is the main coupled model in the current package. It
+is publicly exported from the GeoPrior model layer together
+with <code class="xref py py-class docutils literal notranslate"><span class="pre">PoroElasticSubsNet</span></code>.</p>
+<section id="use-geopriorsubsnet-when">
+<h3>Use GeoPriorSubsNet when<a class="headerlink" href="#use-geopriorsubsnet-when" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>you want the flagship physics-guided model;</p></li>
+<li><p>you want coupled groundwater and consolidation behavior;</p></li>
+<li><p>you want quantile-aware subsidence forecasting;</p></li>
+<li><p>you want later access to physics payloads and diagnostics.</p></li>
+</ul>
+</section>
+<section id="use-poroelasticsubsnet-when">
+<h3>Use PoroElasticSubsNet when<a class="headerlink" href="#use-poroelasticsubsnet-when" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>you want a stronger consolidation-first baseline;</p></li>
+<li><p>the groundwater PDE is less reliable than the compaction
+pathway;</p></li>
+<li><p>you want a stricter prior-driven ablation or debugging
+setup.</p></li>
+</ul>
+</section>
+</section>
+<section id="a-practical-application-data-flow">
+<h2>A practical application data flow<a class="headerlink" href="#a-practical-application-data-flow" title="Link to this heading">#</a></h2>
+<p>A useful way to think about the subsidence application is by
+splitting the information into three groups:</p>
+<p><strong>1. Static context</strong></p>
+<p>Examples:</p>
+<ul class="simple">
+<li><p>geology or lithology class,</p></li>
+<li><p>stable site descriptors,</p></li>
+<li><p>long-lived spatial attributes.</p></li>
+</ul>
+<p><strong>2. Dynamic historical context</strong></p>
+<p>Examples:</p>
+<ul class="simple">
+<li><p>historical subsidence behavior,</p></li>
+<li><p>groundwater evolution,</p></li>
+<li><p>rainfall history,</p></li>
+<li><p>other past time-varying drivers.</p></li>
+</ul>
+<p><strong>3. Future-known drivers</strong></p>
+<p>Examples:</p>
+<ul class="simple">
+<li><p>forecast calendar positions,</p></li>
+<li><p>known driver scenarios,</p></li>
+<li><p>exogenous covariates assumed known over the horizon.</p></li>
+</ul>
+<p>That structure matches the dict-input model contract used by
+GeoPrior models, where the backbone combines static,
+dynamic, future-known, and coordinate-aware inputs.</p>
+</section>
+<section id="what-the-default-config-already-supports">
+<h2>What the default config already supports<a class="headerlink" href="#what-the-default-config-already-supports" title="Link to this heading">#</a></h2>
+<p>The NATCOM config template already exposes most of the knobs
+needed for this application.</p>
+<p>Examples include:</p>
+<ul class="simple">
+<li><p>temporal layout such as
+<code class="docutils literal notranslate"><span class="pre">TRAIN_END_YEAR</span></code>,
+<code class="docutils literal notranslate"><span class="pre">FORECAST_START_YEAR</span></code>,
+<code class="docutils literal notranslate"><span class="pre">FORECAST_HORIZON_YEARS</span></code>,
+<code class="docutils literal notranslate"><span class="pre">TIME_STEPS</span></code>,</p></li>
+<li><p>holdout strategy settings,</p></li>
+<li><p>architecture defaults such as hidden units, LSTM units,
+attention units, heads, dropout, and quantiles,</p></li>
+<li><p>physics settings such as
+<code class="docutils literal notranslate"><span class="pre">PDE_MODE_CONFIG</span></code>,
+<code class="docutils literal notranslate"><span class="pre">SCALE_PDE_RESIDUALS</span></code>,
+<code class="docutils literal notranslate"><span class="pre">LAMBDA_CONS</span></code>,
+<code class="docutils literal notranslate"><span class="pre">LAMBDA_GW</span></code>,
+<code class="docutils literal notranslate"><span class="pre">LAMBDA_PRIOR</span></code>,
+<code class="docutils literal notranslate"><span class="pre">LAMBDA_SMOOTH</span></code>,
+<code class="docutils literal notranslate"><span class="pre">LAMBDA_BOUNDS</span></code>,</p></li>
+<li><p>physical bounds,</p></li>
+<li><p>time-unit and coordinate-mode settings,</p></li>
+<li><p>training defaults such as epochs, batch size, and learning
+rate.</p></li>
+</ul>
+<p>That is why GeoPrior-v3 is best understood as a structured
+application framework rather than a loose collection of
+scripts.</p>
+</section>
+<section id="forecast-horizons-and-practical-use">
+<h2>Forecast horizons and practical use<a class="headerlink" href="#forecast-horizons-and-practical-use" title="Link to this heading">#</a></h2>
+<p>The subsidence application is especially well suited to
+<strong>multi-year horizon forecasting</strong>, where the user wants
+future settlement trajectories rather than only one-step
+predictions.</p>
+<p>Examples include:</p>
+<ul class="simple">
+<li><p>annual forecasts over the next 3 years,</p></li>
+<li><p>medium-range subsidence scenarios over the next 5 years,</p></li>
+<li><p>benchmark comparisons across several horizon lengths.</p></li>
+</ul>
+<p>The key point is that the model is not only learning a local
+trend extrapolation. It is learning a multi-horizon response
+under both data and physics constraints.</p>
+</section>
+<section id="uncertainty-in-this-application">
+<h2>Uncertainty in this application<a class="headerlink" href="#uncertainty-in-this-application" title="Link to this heading">#</a></h2>
+<p>Urban subsidence forecasting should not be presented as a
+single deterministic curve whenever uncertainty matters.</p>
+<p>GeoPrior’s model and application stack support quantile-based
+forecasting, interval calibration, and downstream forecast
+export. The public NN layer also exposes interval-calibration
+helpers and related diagnostics utilities, which is why the
+subsidence application naturally extends into calibrated
+uncertainty workflows rather than stopping at point
+prediction.</p>
+<p>So a practical application output is often not only:</p>
+<ul class="simple">
+<li><p>one median forecast,</p></li>
+</ul>
+<p>but rather:</p>
+<ul class="simple">
+<li><p>a central forecast,</p></li>
+<li><p>a lower interval,</p></li>
+<li><p>an upper interval,</p></li>
+<li><p>plus diagnostics on coverage and sharpness.</p></li>
+</ul>
+</section>
+<section id="physics-aware-interpretation-in-this-application">
+<h2>Physics-aware interpretation in this application<a class="headerlink" href="#physics-aware-interpretation-in-this-application" title="Link to this heading">#</a></h2>
+<p>One reason GeoPrior is compelling for subsidence forecasting
+is that the outputs can be interpreted together with learned
+effective physical fields and physics diagnostics.</p>
+<p>Depending on the run, later-stage artifacts can support
+questions such as:</p>
+<ul class="simple">
+<li><p>is the learned timescale physically plausible?</p></li>
+<li><p>are the closure diagnostics stable?</p></li>
+<li><p>do the effective fields look smooth and bounded?</p></li>
+<li><p>do transfer runs break because of physics mismatch or only
+because of data shift?</p></li>
+</ul>
+<p>That makes the application useful not only for operational
+forecasting, but also for scientific interpretation.</p>
+</section>
+<section id="a-typical-cli-oriented-workflow">
+<h2>A typical CLI-oriented workflow<a class="headerlink" href="#a-typical-cli-oriented-workflow" title="Link to this heading">#</a></h2>
+<p>A practical end-to-end application flow is:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-init<span class="w"> </span>--yes
+geoprior-run<span class="w"> </span>preprocess
+geoprior-run<span class="w"> </span>train
+geoprior-run<span class="w"> </span>tune
+geoprior-run<span class="w"> </span>infer<span class="w"> </span>--help
+geoprior-run<span class="w"> </span>transfer<span class="w"> </span>--help
+</pre></div>
+</div>
+<p>The exact subcommand arguments should be taken from the
+installed help pages, but this sequence captures the intended
+application lifecycle. The config bootstrap command itself is
+also designed around this staged flow.</p>
+</section>
+<section id="a-compact-application-example">
+<h2>A compact application example<a class="headerlink" href="#a-compact-application-example" title="Link to this heading">#</a></h2>
+<p>Conceptually, a single-city subsidence forecasting experiment
+looks like this:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>choose city and dataset
+     ↓
+define groundwater and coordinate conventions
+     ↓
+export Stage-1 manifest and NPZ bundles
+     ↓
+train GeoPriorSubsNet
+     ↓
+inspect forecast metrics + physics diagnostics
+     ↓
+export calibrated eval/future forecasts
+     ↓
+optionally tune, reuse, or transfer
+</pre></div>
+</div>
+<p>This is the most natural “first serious experiment” in
+GeoPrior-v3.</p>
+</section>
+<section id="when-this-application-is-especially-valuable">
+<h2>When this application is especially valuable<a class="headerlink" href="#when-this-application-is-especially-valuable" title="Link to this heading">#</a></h2>
+<p>This application is especially strong when:</p>
+<ul class="simple">
+<li><p>subsidence has a delayed response to groundwater change;</p></li>
+<li><p>the user wants more than a black-box trend extrapolator;</p></li>
+<li><p>interpretability matters alongside predictive accuracy;</p></li>
+<li><p>multiple cities or regions need to be compared;</p></li>
+<li><p>future scenarios are needed rather than only retrospective
+fit.</p></li>
+</ul>
+<p>It is less about “can a neural net predict a number?” and
+more about “can a forecasting system remain useful under
+scientific constraints?”</p>
+</section>
+<section id="common-mistakes-in-subsidence-forecasting-workflows">
+<h2>Common mistakes in subsidence forecasting workflows<a class="headerlink" href="#common-mistakes-in-subsidence-forecasting-workflows" title="Link to this heading">#</a></h2>
+<p><strong>Treating Stage-1 as a minor preprocessing step</strong></p>
+<p>In this application, Stage-1 defines the scientific contract.</p>
+<p><strong>Ignoring groundwater semantics</strong></p>
+<p>Head, depth-to-water, and drawdown are not interchangeable.</p>
+<p><strong>Reporting only point forecasts</strong></p>
+<p>For many planning or scientific uses, interval behavior also
+matters.</p>
+<p><strong>Reading model outputs without diagnostics</strong></p>
+<p>A good fit can still hide poor physical consistency.</p>
+<p><strong>Mixing artifacts from different runs</strong></p>
+<p>This is especially dangerous when forecasting multiple cities
+or comparing transfer regimes.</p>
+</section>
+<section id="best-practices">
+<h2>Best practices<a class="headerlink" href="#best-practices" title="Link to this heading">#</a></h2>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Start with one city and one well-audited Stage-1 contract.</p>
+<p>This is the cleanest way to validate the application
+workflow before tuning or transfer.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Keep the groundwater convention explicit from the start.</p>
+<p>It affects drawdown, compaction, and physical
+interpretation.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Use GeoPriorSubsNet as the default first model.</p>
+<p>Move to PoroElasticSubsNet when you intentionally want a
+more closure-dominant or consolidation-first regime.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Inspect both forecast metrics and physics diagnostics.</p>
+<p>Subsidence forecasting in GeoPrior is both a predictive and
+a scientific workflow.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Treat Stage-4 and Stage-5 as part of the application, not
+as afterthoughts.</p>
+<p>Reuse and transfer are major practical use cases.</p>
+</div>
+</section>
+<section id="a-compact-map-of-the-application">
+<h2>A compact map of the application<a class="headerlink" href="#a-compact-map-of-the-application" title="Link to this heading">#</a></h2>
+<p>The GeoPrior subsidence forecasting application can be
+summarized as:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>city-scale subsidence dataset
+     ↓
+Stage-1 preprocessing + manifest
+     ↓
+GeoPriorSubsNet / PoroElasticSubsNet
+     ↓
+Stage-2 training
+     ↓
+Stage-3 tuning (optional)
+     ↓
+Stage-4 inference and export
+     ↓
+Stage-5 transfer benchmarking (optional)
+</pre></div>
+</div>
+</section>
+<section id="read-next">
+<h2>Read next<a class="headerlink" href="#read-next" title="Link to this heading">#</a></h2>
+<p>The strongest next pages after this one are:</p>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-1 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Tuner workflow</div>
+<p class="sd-card-text">See how hyperparameter search fits into the application
+lifecycle.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="tuner_workflow.html"><span class="doc">Tuner workflow</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Calibration and uncertainty</div>
+<p class="sd-card-text">Follow the subsidence application into interval
+calibration and uncertainty interpretation.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="calibration_and_uncertainty.html"><span class="doc">Calibration and uncertainty</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Workflow overview</div>
+<p class="sd-card-text">Revisit the five-stage workflow from the user guide.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="../user_guide/workflow_overview.html"><span class="doc">Workflow</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+GeoPriorSubsNet</div>
+<p class="sd-card-text">Go from the application page back into the flagship
+scientific model.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="../scientific_foundations/geoprior_subsnet.html"><span class="doc">GeoPriorSubsNet</span></a></div>
+</div>
+</div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../user_guide/workflow_overview.html"><span class="doc">Workflow</span></a></p></li>
+<li><p><a class="reference internal" href="../user_guide/stage1.html"><span class="doc">Stage-1</span></a></p></li>
+<li><p><a class="reference internal" href="../user_guide/stage2.html"><span class="doc">Stage-2</span></a></p></li>
+<li><p><a class="reference internal" href="../user_guide/stage3.html"><span class="doc">Stage-3</span></a></p></li>
+<li><p><a class="reference internal" href="../user_guide/stage4.html"><span class="doc">Stage-4</span></a></p></li>
+<li><p><a class="reference internal" href="../user_guide/stage5.html"><span class="doc">Stage-5</span></a></p></li>
+<li><p><a class="reference internal" href="../scientific_foundations/geoprior_subsnet.html"><span class="doc">GeoPriorSubsNet</span></a></p></li>
+<li><p><a class="reference internal" href="../scientific_foundations/physics_formulation.html"><span class="doc">Physics formulation</span></a></p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Applications</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="tuner_workflow.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Tuner workflow</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-land-subsidence-is-a-strong-geoprior-application">Why land subsidence is a strong GeoPrior application</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-geoprior-forecasts-in-this-application">What GeoPrior forecasts in this application</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-forecasting-questions">Typical forecasting questions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-data-usually-look-like">What the data usually look like</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-the-groundwater-convention-matters">Why the groundwater convention matters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-complete-application-workflow">A complete application workflow</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-1-in-this-application">Stage-1 in this application</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-2-in-this-application">Stage-2 in this application</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-3-in-this-application">Stage-3 in this application</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-4-in-this-application">Stage-4 in this application</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-5-in-this-application">Stage-5 in this application</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#which-model-to-use">Which model to use</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#use-geopriorsubsnet-when">Use GeoPriorSubsNet when</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#use-poroelasticsubsnet-when">Use PoroElasticSubsNet when</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-practical-application-data-flow">A practical application data flow</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-default-config-already-supports">What the default config already supports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#forecast-horizons-and-practical-use">Forecast horizons and practical use</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#uncertainty-in-this-application">Uncertainty in this application</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#physics-aware-interpretation-in-this-application">Physics-aware interpretation in this application</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-typical-cli-oriented-workflow">A typical CLI-oriented workflow</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-compact-application-example">A compact application example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-this-application-is-especially-valuable">When this application is especially valuable</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-mistakes-in-subsidence-forecasting-workflows">Common mistakes in subsidence forecasting workflows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">Best practices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-compact-map-of-the-application">A compact map of the application</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#read-next">Read next</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/earthai-tech/geoprior-v3/edit/main/docs/source/applications/subsidence_forecasting.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/applications/subsidence_forecasting.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

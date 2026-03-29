@@ -1,0 +1,31 @@
+﻿geoprior.\_scripts.plot\_sm3\_identifiability
+=============================================
+
+.. automodule:: geoprior._scripts.plot_sm3_identifiability
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      main
+      plot_sm3_identifiability
+      plot_sm3_identifiability_main
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

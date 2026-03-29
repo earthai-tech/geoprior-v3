@@ -1,0 +1,1345 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Stage-5 &#8212; GeoPrior v3.2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=987bb874" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=a2ac599a"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=404c0980"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/stage5';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://geoprior-v3.readthedocs.io/en/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '3.2.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../_static/js/custom.js?v=b28a656d"></script>
+    <link rel="icon" href="../_static/gp.logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CLI guide" href="cli.html" />
+    <link rel="prev" title="Stage-4" href="stage4.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="auto">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the GeoPrior docs ..."
+         aria-label="Search the GeoPrior docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+     
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-light" alt="GeoPrior-v3 documentation - Home"/>
+    <img src="../_static/geoprior-svg.svg" class="logo__image only-dark pst-js-only" alt="GeoPrior-v3 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../scientific_foundations/index.html">
+    Scientific foundations
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../applications/index.html">
+    Applications
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developer/index.html">
+    Developer notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="External links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/earthai-tech/geoprior-v3" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://geoprior-v3.readthedocs.io" title="Website" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Website</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geoprior-v3/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/pypi.svg" class="icon-link-image" alt="PyPI"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://stackoverflow.com/questions/tagged/geoprior" title="Stack Overflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/icons/stackoverflow.svg" class="icon-link-image" alt="Stack Overflow"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="workflow_overview.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stage1.html">Stage-1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stage2.html">Stage-2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stage3.html">Stage-3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stage4.html">Stage-4</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Stage-5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="diagnostics.html">Diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference_and_export.html">Inference and export</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Stage-5</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="stage-5">
+<h1>Stage-5<a class="headerlink" href="#stage-5" title="Link to this heading">#</a></h1>
+<p>Stage-5 is the <strong>cross-city transfer evaluation and
+benchmarking stage</strong> of the GeoPrior-v3 workflow.</p>
+<p>It is the stage where GeoPrior-v3 moves from single-run
+training, tuning, or inference into a structured
+<strong>source-to-target transfer analysis</strong>. Rather than focusing
+on one city and one saved model in isolation, Stage-5
+evaluates how a source-domain model behaves when applied to
+another city under different transfer strategies, calibration
+policies, and rescaling assumptions.</p>
+<p>This makes Stage-5 one of the most scientifically important
+stages in the workflow. It is where GeoPrior-v3 asks not
+only:</p>
+<ul class="simple">
+<li><p><em>Can the model fit one city well?</em></p></li>
+</ul>
+<p>but also:</p>
+<ul class="simple">
+<li><p><em>How well does the learned structure transfer?</em></p></li>
+<li><p><em>How sensitive is performance to scaling assumptions?</em></p></li>
+<li><p><em>What changes when calibration is reused or refit?</em></p></li>
+<li><p><em>Does warm-start adaptation improve target performance?</em></p></li>
+</ul>
+<p>In the current implementation, Stage-5 is explicitly exposed
+as a <strong>cross-city transfer evaluation</strong> workflow supporting
+<strong>baseline</strong>, <strong>transfer</strong>, and <strong>warm-start</strong> strategies.</p>
+<section id="what-stage-5-does">
+<h2>What Stage-5 does<a class="headerlink" href="#what-stage-5-does" title="Link to this heading">#</a></h2>
+<p>Stage-5 orchestrates a grid of transfer experiments between
+two cities.</p>
+<p>At a high level, it:</p>
+<ul class="simple">
+<li><p>loads Stage-1 bundles for two cities;</p></li>
+<li><p>builds a set of transfer jobs across directions and
+strategies;</p></li>
+<li><p>resolves the source model artifact to reuse;</p></li>
+<li><p>aligns the target inputs to the source schema;</p></li>
+<li><p>optionally reprojects target dynamic inputs into source
+scaling;</p></li>
+<li><p>optionally applies calibration from the source or target
+side;</p></li>
+<li><p>evaluates each job on validation or test splits;</p></li>
+<li><p>writes per-job forecast CSVs and physics payloads;</p></li>
+<li><p>aggregates all jobs into transfer summary files.</p></li>
+</ul>
+<p>This means Stage-5 is best understood as a <strong>benchmarking
+matrix stage</strong> rather than as a single model execution step.</p>
+</section>
+<section id="why-stage-5-matters">
+<h2>Why Stage-5 matters<a class="headerlink" href="#why-stage-5-matters" title="Link to this heading">#</a></h2>
+<p>Stage-5 matters because real geohazard models are often used
+beyond the exact city or domain on which they were trained.</p>
+<p>A model that performs well in one city may fail in another
+for reasons such as:</p>
+<ul class="simple">
+<li><p>different scaling conventions,</p></li>
+<li><p>different feature distributions,</p></li>
+<li><p>different static covariate availability,</p></li>
+<li><p>different future-driver ordering,</p></li>
+<li><p>or different calibration behavior.</p></li>
+</ul>
+<p>Stage-5 is designed to make those differences explicit.</p>
+<p>Instead of hiding transfer behavior inside ad hoc notebooks,
+GeoPrior-v3 gives it a dedicated stage with:</p>
+<ul class="simple">
+<li><p>explicit strategies,</p></li>
+<li><p>explicit job construction,</p></li>
+<li><p>explicit schema audits,</p></li>
+<li><p>explicit calibration modes,</p></li>
+<li><p>and explicit benchmark outputs.</p></li>
+</ul>
+<p>That makes the transfer study reproducible, comparable, and
+scientifically inspectable.</p>
+</section>
+<section id="stage-5-entry-point">
+<h2>Stage-5 entry point<a class="headerlink" href="#stage-5-entry-point" title="Link to this heading">#</a></h2>
+<p>Stage-5 is exposed through the modern GeoPrior wrapper while
+preserving the existing transfer implementation underneath.</p>
+<p>The wrapper supports a configuration-driven launch style with
+options such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--config</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--config-root</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--city-a</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--city-b</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--model</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--results-dir</span></code></p></li>
+<li><p>repeated <code class="docutils literal notranslate"><span class="pre">--set</span> <span class="pre">KEY=VALUE</span></code> overrides</p></li>
+</ul>
+<p>The wrapper then forwards the original transfer arguments to
+the legacy Stage-5 CLI unchanged.</p>
+<p>A good first move is:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoprior-run<span class="w"> </span>--help
+</pre></div>
+</div>
+<p>Then inspect the Stage-5 transfer subcommand in your
+installed environment.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The wrapper is intentionally thin. It seeds defaults from
+configuration but preserves the original transfer CLI
+behavior. The installed help output is therefore the best
+source for the exact invocation syntax.</p>
+</div>
+</section>
+<section id="the-stage-5-problem-setup">
+<h2>The Stage-5 problem setup<a class="headerlink" href="#the-stage-5-problem-setup" title="Link to this heading">#</a></h2>
+<p>Stage-5 is built around two cities:</p>
+<ul class="simple">
+<li><p><strong>city A</strong></p></li>
+<li><p><strong>city B</strong></p></li>
+</ul>
+<p>It then constructs directional experiments such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">A_to_A</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">B_to_B</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">A_to_B</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">B_to_A</span></code></p></li>
+</ul>
+<p>These directions are combined with one or more strategies,
+splits, calibration modes, and rescale modes to form the full
+job matrix.</p>
+<p>This is a very important design choice: Stage-5 does not
+evaluate only one transfer path. It builds a <strong>systematic
+experiment grid</strong>.</p>
+</section>
+<section id="strategies-evaluated-by-stage-5">
+<h2>Strategies evaluated by Stage-5<a class="headerlink" href="#strategies-evaluated-by-stage-5" title="Link to this heading">#</a></h2>
+<p>Stage-5 supports three main strategies.</p>
+<p><strong>1. baseline</strong></p>
+<p>This is the in-domain reference case:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">A_to_A</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">B_to_B</span></code></p></li>
+</ul>
+<p>It answers the question:</p>
+<p><em>How well does each city perform when evaluated against its
+own trained or tuned artifact family?</em></p>
+<p>Baseline runs are important because they define the natural
+comparison point for transfer performance.</p>
+<p><strong>2. xfer</strong></p>
+<p>This is the zero-shot cross-city transfer case:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">A_to_B</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">B_to_A</span></code></p></li>
+</ul>
+<p>It answers the question:</p>
+<p><em>How well does a source-domain model generalize directly to a
+target city without warm-start adaptation?</em></p>
+<p><strong>3. warm</strong></p>
+<p>This is the warm-start transfer case:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">A_to_B</span></code> with target adaptation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">B_to_A</span></code> with target adaptation</p></li>
+</ul>
+<p>It answers the question:</p>
+<p><em>Can limited target-domain adaptation improve transfer
+performance compared with pure zero-shot reuse?</em></p>
+<p>Taken together, these three strategies let Stage-5 compare
+in-domain performance, zero-shot transfer, and limited target
+adaptation in one reproducible framework.</p>
+</section>
+<section id="splits-evaluated-by-stage-5">
+<h2>Splits evaluated by Stage-5<a class="headerlink" href="#splits-evaluated-by-stage-5" title="Link to this heading">#</a></h2>
+<p>Stage-5 supports evaluation on:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">val</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test</span></code></p></li>
+</ul>
+<p>These splits are read from the Stage-1 bundles for each city.</p>
+<p>This is useful because the same transfer strategy can be
+studied under validation-like and held-out evaluation
+conditions.</p>
+</section>
+<section id="calibration-modes">
+<h2>Calibration modes<a class="headerlink" href="#calibration-modes" title="Link to this heading">#</a></h2>
+<p>Stage-5 supports several calibration modes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">none</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">source</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">target</span></code></p></li>
+</ul>
+<p>Each one answers a different question.</p>
+<p><strong>none</strong></p>
+<p>No interval calibration is applied.</p>
+<p>This is the cleanest way to inspect raw transferred quantile
+behavior.</p>
+<p><strong>source</strong></p>
+<p>A calibrator near the source model is reused.</p>
+<p>This asks whether a calibration learned in the source domain
+remains useful after transfer.</p>
+<p><strong>target</strong></p>
+<p>A new calibrator is fitted on the target validation set.</p>
+<p>This asks whether transfer improves when quantile intervals
+are adapted to the target domain.</p>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Be explicit about which calibration mode you are using
+when interpreting Stage-5 results.</p>
+<p>These modes answer different scientific questions and
+should not be merged casually in reporting.</p>
+</div>
+</section>
+<section id="rescale-modes">
+<h2>Rescale modes<a class="headerlink" href="#rescale-modes" title="Link to this heading">#</a></h2>
+<p>Stage-5 also supports two rescale modes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">as_is</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">strict</span></code></p></li>
+</ul>
+<p>These are especially important in cross-city work.</p>
+<p><strong>as_is</strong></p>
+<p>The target city remains in its own scaling convention.</p>
+<p>This reflects a more direct target-domain inference path.</p>
+<p><strong>strict</strong></p>
+<p>The target dynamic inputs are reprojected into the source
+scaling space before transfer evaluation.</p>
+<p>This reflects a stricter source-space transfer setup.</p>
+<p>In practice, this helps disentangle whether performance
+differences are coming from:</p>
+<ul class="simple">
+<li><p>learned model structure,</p></li>
+<li><p>domain shift,</p></li>
+<li><p>or mismatched scaling conventions.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Baseline runs do not need strict reprojection. In the
+implementation, baseline is effectively kept in
+<code class="docutils literal notranslate"><span class="pre">as_is</span></code> mode.</p>
+</div>
+</section>
+<section id="what-stage-5-consumes">
+<h2>What Stage-5 consumes<a class="headerlink" href="#what-stage-5-consumes" title="Link to this heading">#</a></h2>
+<p>Stage-5 consumes <strong>Stage-1 bundles for both cities</strong>.</p>
+<p>These bundles provide:</p>
+<ul class="simple">
+<li><p>the manifest for each city,</p></li>
+<li><p>train/validation/test NPZ arrays,</p></li>
+<li><p>scaler metadata,</p></li>
+<li><p>feature lists,</p></li>
+<li><p>target semantics,</p></li>
+<li><p>and configuration snapshots.</p></li>
+</ul>
+<p>The transfer stage uses these Stage-1 contracts to build both
+the source-side and target-side evaluation context.</p>
+<p>This is one of the strongest parts of the design: Stage-5
+does not guess the schema of either city. It reads both from
+their exported preprocessing contracts.</p>
+</section>
+<section id="how-stage-5-resolves-the-source-model">
+<h2>How Stage-5 resolves the source model<a class="headerlink" href="#how-stage-5-resolves-the-source-model" title="Link to this heading">#</a></h2>
+<p>For each transfer job, Stage-5 resolves a source-side model
+artifact.</p>
+<p>It supports source model selection modes such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">auto</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tuned</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trained</span></code></p></li>
+</ul>
+<p>and load policies such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">auto</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">full</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">weights</span></code></p></li>
+</ul>
+<p>This allows Stage-5 to reuse:</p>
+<ul class="simple">
+<li><p>tuned winners from Stage-3,</p></li>
+<li><p>standard trained models from Stage-2,</p></li>
+<li><p>full saved model bundles,</p></li>
+<li><p>or weights-plus-rebuild workflows.</p></li>
+</ul>
+<p>This is important because transfer benchmarking should not be
+tied to only one artifact format.</p>
+</section>
+<section id="schema-alignment-and-transfer-safety">
+<h2>Schema alignment and transfer safety<a class="headerlink" href="#schema-alignment-and-transfer-safety" title="Link to this heading">#</a></h2>
+<p>One of the most important responsibilities of Stage-5 is
+<strong>schema validation between source and target</strong>.</p>
+<p>The stage explicitly checks:</p>
+<ul class="simple">
+<li><p>static feature compatibility,</p></li>
+<li><p>dynamic feature compatibility,</p></li>
+<li><p>future feature compatibility,</p></li>
+<li><p>dimension agreement,</p></li>
+<li><p>and feature-order agreement.</p></li>
+</ul>
+<p>Static inputs are aligned by name so that shared source-side
+static semantics can still be used even when the target has
+missing or extra static features.</p>
+<p>Dynamic and future features are more strict. If their names
+or order differ, Stage-5 can:</p>
+<ul class="simple">
+<li><p>fail explicitly, or</p></li>
+<li><p>allow controlled reordering in a soft mode when the same
+names exist but the order differs.</p></li>
+</ul>
+<p>This is critical for trustworthy transfer evaluation.</p>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Prefer harmonized Stage-1 feature schemas across cities.</p>
+<p>Stage-5 can help detect and sometimes soften transfer
+mismatches, but the most trustworthy setup is still to use
+the same feature lists and ordering across the cities being
+compared.</p>
+</div>
+</section>
+<section id="warm-start-behavior">
+<h2>Warm-start behavior<a class="headerlink" href="#warm-start-behavior" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">warm</span></code> strategy is a special case in Stage-5.</p>
+<p>Instead of evaluating the source model directly on the target
+city, it first adapts the source model using a subset of
+target data, then evaluates the warmed model on the selected
+split.</p>
+<p>Warm-start settings include items such as:</p>
+<ul class="simple">
+<li><p>warm split,</p></li>
+<li><p>warm sample count,</p></li>
+<li><p>warm fraction,</p></li>
+<li><p>warm epochs,</p></li>
+<li><p>warm learning rate,</p></li>
+<li><p>warm sampling seed.</p></li>
+</ul>
+<p>This creates a useful middle ground between:</p>
+<ul class="simple">
+<li><p>zero-shot transfer,</p></li>
+<li><p>and full retraining on the target domain.</p></li>
+</ul>
+<p>Warm-start is especially important when you want to study
+whether a small amount of target adaptation produces a large
+gain in performance.</p>
+</section>
+<section id="internal-structure-of-stage-5">
+<h2>Internal structure of Stage-5<a class="headerlink" href="#internal-structure-of-stage-5" title="Link to this heading">#</a></h2>
+<p>The user does not need to know every helper function to use
+Stage-5, but it is helpful to understand the overall flow.</p>
+<p><strong>1. Load Stage-1 bundles for both cities</strong></p>
+<p>Stage-5 first loads the Stage-1 bundle for city A and city B.</p>
+<p><strong>2. Build directional experiment jobs</strong></p>
+<p>It constructs all jobs implied by the chosen strategies,
+splits, calibration modes, and rescale modes.</p>
+<p><strong>3. Prepare target inputs for one job</strong></p>
+<p>For a given job, it loads the target split arrays and
+normalizes them into inference-ready form.</p>
+<p><strong>4. Align static schema and validate transfer compatibility</strong></p>
+<p>The target static inputs are aligned to the source schema by
+name, and the dynamic/future schema is audited carefully.</p>
+<p><strong>5. Optionally reproject target dynamics</strong></p>
+<p>If strict rescaling is enabled, target dynamics are moved
+into source scaling space before evaluation.</p>
+<p><strong>6. Load or reuse the source model</strong></p>
+<p>The source model is resolved from the saved artifact family.</p>
+<p><strong>7. Optionally calibrate</strong></p>
+<p>Depending on calibration mode, Stage-5 may load a source
+calibrator, fit a target calibrator, or run without one.</p>
+<p><strong>8. Predict and format outputs</strong></p>
+<p>The transferred or warmed model is used to create evaluation
+and future forecast CSVs.</p>
+<p><strong>9. Compute metrics and diagnostics</strong></p>
+<p>Stage-5 computes summary metrics, per-horizon metrics, and
+optional physics-facing exports.</p>
+<p><strong>10. Aggregate the experiment matrix</strong></p>
+<p>All completed jobs are written into a shared JSON and CSV
+benchmark summary.</p>
+</section>
+<section id="per-job-outputs">
+<h2>Per-job outputs<a class="headerlink" href="#per-job-outputs" title="Link to this heading">#</a></h2>
+<p>Each successful Stage-5 job can write job-level artifacts
+such as:</p>
+<ul class="simple">
+<li><p>evaluation CSV,</p></li>
+<li><p>future forecast CSV,</p></li>
+<li><p>optional physics payload NPZ,</p></li>
+<li><p>schema audit details,</p></li>
+<li><p>warm-start metadata,</p></li>
+<li><p>and per-job metrics returned to the final summary table.</p></li>
+</ul>
+<p>The per-job forecast base name follows the logical pattern:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;source_city&gt;_to_&lt;target_city&gt;_
+&lt;strategy&gt;_&lt;split&gt;_&lt;calibration&gt;_&lt;rescale_mode&gt;
+</pre></div>
+</div>
+<p>This keeps the output naming explicit and easy to audit.</p>
+</section>
+<section id="metrics-and-summaries">
+<h2>Metrics and summaries<a class="headerlink" href="#metrics-and-summaries" title="Link to this heading">#</a></h2>
+<p>Stage-5 records several types of metrics.</p>
+<p>Typical summary metrics include:</p>
+<ul class="simple">
+<li><p>coverage80,</p></li>
+<li><p>sharpness80,</p></li>
+<li><p>overall MAE,</p></li>
+<li><p>overall MSE,</p></li>
+<li><p>overall RMSE,</p></li>
+<li><p>overall R².</p></li>
+</ul>
+<p>It also records per-horizon metrics such as:</p>
+<ul class="simple">
+<li><p>per-horizon MAE,</p></li>
+<li><p>per-horizon MSE,</p></li>
+<li><p>per-horizon RMSE,</p></li>
+<li><p>per-horizon R².</p></li>
+</ul>
+<p>This is important because transfer may behave differently at
+different forecast horizons, and Stage-5 is designed to make
+that visible.</p>
+</section>
+<section id="unit-handling">
+<h2>Unit handling<a class="headerlink" href="#unit-handling" title="Link to this heading">#</a></h2>
+<p>Stage-5 includes explicit unit handling for subsidence
+outputs and metrics.</p>
+<p>It supports settings such as:</p>
+<ul class="simple">
+<li><p>exported CSV subsidence unit,</p></li>
+<li><p>source physical output unit,</p></li>
+<li><p>metrics unit.</p></li>
+</ul>
+<p>This is especially useful in transfer settings, where the
+workflow may need to keep CSV presentation units and internal
+metric units conceptually distinct.</p>
+<p>The stage can also recompute metrics from the exported
+evaluation CSV when needed. This is helpful when unit,
+scaling, or calibration conventions have changed and you want
+the final benchmark summary to reflect the exported products
+rather than stale intermediate values.</p>
+</section>
+<section id="the-main-stage-5-benchmark-outputs">
+<h2>The main Stage-5 benchmark outputs<a class="headerlink" href="#the-main-stage-5-benchmark-outputs" title="Link to this heading">#</a></h2>
+<p>After all jobs finish, Stage-5 writes two main benchmark
+artifacts:</p>
+<p><strong>1. xfer_results.json</strong></p>
+<p>This contains the full list of completed job dictionaries,
+including metrics, schema audit fields, calibration choices,
+rescale mode, model source details, and warm-start metadata.</p>
+<p><strong>2. xfer_results.csv</strong></p>
+<p>This flattens the benchmark results into a tabular form that
+is easier to inspect, compare, plot, or export into papers
+and reports.</p>
+<p>The CSV includes columns such as:</p>
+<ul class="simple">
+<li><p>strategy,</p></li>
+<li><p>rescale mode,</p></li>
+<li><p>direction,</p></li>
+<li><p>source city,</p></li>
+<li><p>target city,</p></li>
+<li><p>split,</p></li>
+<li><p>calibration,</p></li>
+<li><p>overall metrics,</p></li>
+<li><p>coverage and sharpness,</p></li>
+<li><p>warm-start details,</p></li>
+<li><p>schema audit details,</p></li>
+<li><p>per-horizon metrics.</p></li>
+</ul>
+<p>This makes Stage-5 the natural source for transfer summary
+figures and cross-city comparison tables.</p>
+</section>
+<section id="where-stage-5-writes-outputs">
+<h2>Where Stage-5 writes outputs<a class="headerlink" href="#where-stage-5-writes-outputs" title="Link to this heading">#</a></h2>
+<p>Stage-5 writes its benchmark outputs under a timestamped
+transfer results directory with the general structure:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;results_dir&gt;/xfer/&lt;city_a&gt;__&lt;city_b&gt;/&lt;timestamp&gt;/
+</pre></div>
+</div>
+<p>This is a good design because it keeps one complete transfer
+experiment grouped together.</p>
+<p>Inside that directory, you will typically find:</p>
+<ul class="simple">
+<li><p>job-level eval/future CSVs,</p></li>
+<li><p>physics payload NPZ files where available,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xfer_results.json</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xfer_results.csv</span></code>.</p></li>
+</ul>
+</section>
+<section id="what-to-inspect-after-stage-5-completes">
+<h2>What to inspect after Stage-5 completes<a class="headerlink" href="#what-to-inspect-after-stage-5-completes" title="Link to this heading">#</a></h2>
+<p>After a Stage-5 run, inspect at least:</p>
+<ul class="simple">
+<li><p>the experiment output directory,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xfer_results.json</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xfer_results.csv</span></code>,</p></li>
+<li><p>a few representative job-level eval CSVs,</p></li>
+<li><p>a few representative future CSVs,</p></li>
+<li><p>any physics payload files,</p></li>
+<li><p>the schema audit fields in the summary,</p></li>
+<li><p>and the warm-start metadata when warm runs were included.</p></li>
+</ul>
+<p>You should be able to answer questions such as:</p>
+<ul class="simple">
+<li><p>Which strategies were actually evaluated?</p></li>
+<li><p>Which calibration modes were included?</p></li>
+<li><p>Which rescale modes were used?</p></li>
+<li><p>Did the benchmark include both directions?</p></li>
+<li><p>Were any schema reorders or mismatches recorded?</p></li>
+<li><p>Did warm-start improve over zero-shot transfer?</p></li>
+<li><p>Did strict rescaling help or hurt?</p></li>
+<li><p>Were baseline runs clearly separated from transfer runs?</p></li>
+</ul>
+</section>
+<section id="common-stage-5-mistakes">
+<h2>Common Stage-5 mistakes<a class="headerlink" href="#common-stage-5-mistakes" title="Link to this heading">#</a></h2>
+<p><strong>Treating baseline and transfer as interchangeable</strong></p>
+<p>Baseline is the in-domain reference. It should not be mixed
+casually with cross-city transfer outcomes.</p>
+<p><strong>Ignoring schema audit fields</strong></p>
+<p>Transfer results are much harder to trust if dynamic or
+future features were reordered or mismatched.</p>
+<p><strong>Comparing calibrated and uncalibrated runs without care</strong></p>
+<p>Calibration mode changes the interpretation of interval
+metrics and should be tracked explicitly.</p>
+<p><strong>Running too many combinations without a clear question</strong></p>
+<p>Stage-5 can generate a large job matrix. It is better to
+start from a focused scientific question than to evaluate
+every possible combination blindly.</p>
+<p><strong>Forgetting that warm-start is a different regime</strong></p>
+<p>Warm-start is not just “better transfer.” It is a distinct
+adaptation setting and should be reported as such.</p>
+</section>
+<section id="best-practices">
+<h2>Best practices<a class="headerlink" href="#best-practices" title="Link to this heading">#</a></h2>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Always report Stage-5 results with strategy, calibration
+mode, and rescale mode shown explicitly.</p>
+<p>Otherwise, transfer comparisons become hard to interpret.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Review the schema audit fields before trusting a transfer
+comparison.</p>
+<p>A model may appear to transfer poorly when the real issue
+is a schema mismatch rather than a modeling limitation.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Keep baseline, zero-shot transfer, and warm-start results
+separated clearly in figures and tables.</p>
+<p>These are different experimental questions.</p>
+</div>
+<div class="admonition-best-practice admonition">
+<p class="admonition-title">Best practice</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">xfer_results.csv</span></code> as the main summary table for
+downstream analysis.</p>
+<p>It is the cleanest compact artifact for comparing all jobs
+in one place.</p>
+</div>
+</section>
+<section id="a-compact-stage-5-map">
+<h2>A compact Stage-5 map<a class="headerlink" href="#a-compact-stage-5-map" title="Link to this heading">#</a></h2>
+<p>The Stage-5 workflow can be summarized like this:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Stage-1 bundle (city A) + Stage-1 bundle (city B)
+     ↓
+build directions and job matrix
+     ↓
+choose strategy: baseline / xfer / warm
+     ↓
+choose split: val / test
+     ↓
+choose calibration: none / source / target
+     ↓
+choose rescale mode: as_is / strict
+     ↓
+align target schema to source contract
+     ↓
+load or rebuild source model artifact
+     ↓
+optionally warm-start on target subset
+     ↓
+predict + format eval/future CSVs
+     ↓
+compute overall + per-horizon metrics
+     ↓
+export physics payload where available
+     ↓
+aggregate into xfer_results.json + xfer_results.csv
+</pre></div>
+</div>
+</section>
+<section id="read-next">
+<h2>Read next<a class="headerlink" href="#read-next" title="Link to this heading">#</a></h2>
+<p>The next best pages after Stage-5 are:</p>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-1 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Diagnostics</div>
+<p class="sd-card-text">Learn how to interpret benchmark metrics, schema audit
+fields, and physics-facing outputs.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="diagnostics.html"><span class="doc">Diagnostics</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Inference and export</div>
+<p class="sd-card-text">See how forecast CSVs, summaries, and related artifacts
+fit into the broader GeoPrior workflow.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="inference_and_export.html"><span class="doc">Inference and export</span></a></div>
+</div>
+</div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="workflow_overview.html"><span class="doc">Workflow</span></a></p></li>
+<li><p><a class="reference internal" href="stage3.html"><span class="doc">Stage-3</span></a></p></li>
+<li><p><a class="reference internal" href="stage4.html"><span class="doc">Stage-4</span></a></p></li>
+<li><p><a class="reference internal" href="diagnostics.html"><span class="doc">Diagnostics</span></a></p></li>
+<li><p><a class="reference internal" href="inference_and_export.html"><span class="doc">Inference and export</span></a></p></li>
+<li><p><a class="reference internal" href="configuration.html"><span class="doc">Configuration</span></a></p></li>
+<li><p><a class="reference internal" href="cli.html"><span class="doc">CLI guide</span></a></p></li>
+<li><p><a class="reference internal" href="../scientific_foundations/scaling.html"><span class="doc">Scaling and conventions (scaling_kwargs)</span></a></p></li>
+<li><p><a class="reference internal" href="../scientific_foundations/data_and_units.html"><span class="doc">Data, units, and conventions</span></a></p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="stage4.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Stage-4</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="cli.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">CLI guide</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-stage-5-does">What Stage-5 does</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-stage-5-matters">Why Stage-5 matters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-5-entry-point">Stage-5 entry point</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-stage-5-problem-setup">The Stage-5 problem setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#strategies-evaluated-by-stage-5">Strategies evaluated by Stage-5</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#splits-evaluated-by-stage-5">Splits evaluated by Stage-5</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calibration-modes">Calibration modes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rescale-modes">Rescale modes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-stage-5-consumes">What Stage-5 consumes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-stage-5-resolves-the-source-model">How Stage-5 resolves the source model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#schema-alignment-and-transfer-safety">Schema alignment and transfer safety</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#warm-start-behavior">Warm-start behavior</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#internal-structure-of-stage-5">Internal structure of Stage-5</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#per-job-outputs">Per-job outputs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#metrics-and-summaries">Metrics and summaries</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unit-handling">Unit handling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-main-stage-5-benchmark-outputs">The main Stage-5 benchmark outputs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-stage-5-writes-outputs">Where Stage-5 writes outputs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-to-inspect-after-stage-5-completes">What to inspect after Stage-5 completes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-stage-5-mistakes">Common Stage-5 mistakes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">Best practices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-compact-stage-5-map">A compact Stage-5 map</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#read-next">Read next</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/earthai-tech/geoprior-v3/edit/main/docs/source/user_guide/stage5.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/user_guide/stage5.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><span>
+  &copy; Copyright 2026,
+  <a
+    href="https://lkouadio.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Laurent Kouadio
+  </a>.
+</span></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

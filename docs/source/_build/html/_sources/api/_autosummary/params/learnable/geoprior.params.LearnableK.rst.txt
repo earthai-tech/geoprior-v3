@@ -1,0 +1,25 @@
+﻿geoprior.params.LearnableK
+==========================
+
+.. currentmodule:: geoprior.params
+
+.. autoclass:: LearnableK
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LearnableK.__init__
+      ~LearnableK.from_config
+      ~LearnableK.get_config
+      ~LearnableK.get_value
+   
+   
+
+   
+   
+   
