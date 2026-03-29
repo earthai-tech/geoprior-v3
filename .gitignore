@@ -205,6 +205,7 @@ scripts/figs/
 # Sphinx generated docs
 # ------------------------------
 docs/_build/
+docs/source/_build/
 docs/source/_autosummary/
 docs/source/generated/
 docs/source/api/_autosummary/
