@@ -5,12 +5,11 @@
   <h1>Physics-guided AI for Geohazards</h1>
 
   <p align="center">
-    <!-- Docs (add when ready) -->
     <a href="https://github.com/earthai-tech/geoprior-v3/actions/workflows/python-package-conda.yml">
        <img alt="Build Status" src="https://img.shields.io/github/actions/workflow/status/earthai-tech/geoprior-v3/python-package-conda.yml?branch=main&style=flat-square">
     </a>
-    <a href="https://earthai-tech.github.io/geoprior-v3/">
-      <img alt="Docs" src="https://img.shields.io/badge/docs-coming%20soon-blue?style=flat-square">
+    <a href="https://geoprior-v3.readthedocs.io/en/latest/">
+        <img alt="Docs" src="https://img.shields.io/readthedocs/geoprior-v3?style=flat-square">
     </a>
     <a href="https://github.com/earthai-tech/geoprior-v3/blob/main/LICENSE">
       <img alt="License" src="https://img.shields.io/github/license/earthai-tech/geoprior-v3?style=plastic&logo=Apache&logoColor=0492C2&color=FBB040">
