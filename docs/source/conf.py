@@ -182,8 +182,7 @@ html_theme_options = {
         "version_match": release,
     },
 
-    # keep disabled until the JSON is actually deployed
-    "check_switcher": False,
+    "check_switcher": True,
 
     "navbar_start": [
         "navbar-logo",
