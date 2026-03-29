@@ -1,0 +1,12 @@
+[
+  {
+    "name": "stable",
+    "version": "stable",
+    "url": "https://geoprior-v3.readthedocs.io/en/stable/"
+  },
+  {
+    "name": "dev",
+    "version": "latest",
+    "url": "https://geoprior-v3.readthedocs.io/en/latest/"
+  }
+]

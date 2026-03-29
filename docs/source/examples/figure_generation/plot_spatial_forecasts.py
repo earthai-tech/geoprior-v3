@@ -60,11 +60,11 @@ choice, and hotspot export.
 # module. This gallery page is therefore a teaching wrapper
 # around the real plotting function, not a disconnected demo.
 
-from __future__ import annotations
-
 import tempfile
 from pathlib import Path
 
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -72,241 +72,335 @@ from geoprior._scripts.plot_spatial_forecasts import (
     plot_fig6_spatial_forecasts,
 )
 
-# %%
-# Step 1 - Build a compact synthetic spatial domain
-# -------------------------------------------------
-# We create a small regular grid for two synthetic cities.
-#
-# The intention is pedagogical:
-#
-# - City A will show one dominant basin-like pattern,
-# - City B will show a shifted and slightly different pattern,
-# - future years will gradually intensify the main hotspots.
-#
-# This makes it easy for the reader to see what the figure is
-# doing.
-
-nx = 24
-ny = 18
-
-xv = np.linspace(0.0, 12_000.0, nx)
-yv = np.linspace(0.0, 8_000.0, ny)
-
-X, Y = np.meshgrid(xv, yv)
-
-x = X.ravel()
-y = Y.ravel()
-
-xn = (X - X.min()) / (X.max() - X.min())
-yn = (Y - Y.min()) / (Y.max() - Y.min())
 
 # %%
-# Step 2 - Create one synthetic spatial pattern
-# ---------------------------------------------
-# We build a helper that creates a smooth subsidence surface with
-# a localized depression and a broad regional gradient.
+# Step 1 - Understand the figure we want to teach
+# -----------------------------------------------
+# The real backend builds a row for each city and a sequence of
+# columns that should be read from left to right:
 #
-# The pattern is deliberately easy to interpret:
+# - observed map in the reference year,
+# - predicted median map in that same year,
+# - future forecast maps for selected forecast years.
 #
-# - one compact hotspot,
-# - one broad background trend,
-# - and a future intensification factor.
+# That makes the figure much more than a future-only plot.
+# It is a spatial comparison page that asks:
+#
+# 1. What did the city actually look like in the reference year?
+# 2. Did the model reconstruct that geography credibly?
+# 3. How does the spatial pattern evolve into the future?
+#
+# A good teaching page therefore needs spatial inputs that are
+# rich enough to make those panel-to-panel comparisons easy.
 
-def make_pattern(
-    xn: np.ndarray,
-    yn: np.ndarray,
-    *,
-    cx: float,
-    cy: float,
-    amp: float,
-    width_x: float,
-    width_y: float,
-    slope_x: float,
-    slope_y: float,
-    offset: float,
-) -> np.ndarray:
-    bowl = np.exp(
-        -(
-            ((xn - cx) ** 2) / width_x
-            + ((yn - cy) ** 2) / width_y
-        )
-    )
-    z = (
-        offset
-        + amp * bowl
-        + slope_x * xn
-        + slope_y * yn
-    )
-    return z
-
-
-# %%
-# Step 3 - Build the reference-year observations
-# ----------------------------------------------
-# The plotting backend expects, for the calibration / observed
-# frame, a table with at least:
-#
-# - sample_idx,
-# - forecast_step,
-# - coord_t,
-# - coord_x,
-# - coord_y,
-# - subsidence_actual,
-# - subsidence_q50.
-#
-# For the future frame, the required fields are the same except
-# that ``subsidence_actual`` is not needed. That is how the
-# project loader prepares the tables before plotting.
 
 year_val = 2022
 years_fore = [2025, 2027, 2030]
 
-base_a = make_pattern(
-    xn,
-    yn,
-    cx=0.62,
-    cy=0.38,
-    amp=38.0,
-    width_x=0.020,
-    width_y=0.035,
-    slope_x=8.0,
-    slope_y=4.0,
-    offset=6.0,
-)
 
-base_b = make_pattern(
-    xn,
-    yn,
-    cx=0.35,
-    cy=0.62,
-    amp=28.0,
-    width_x=0.030,
-    width_y=0.028,
-    slope_x=5.0,
-    slope_y=7.0,
-    offset=5.5,
-)
+# %%
+# Step 2 - Build a denser city-shaped spatial support
+# ---------------------------------------------------
+# We do not use a tiny rectangular grid here. Instead, we create
+# denser projected point clouds and keep only points inside a
+# synthetic city mask. That makes the gallery page look closer to
+# a real urban spatial domain.
+#
+# The masks below are not real city boundaries. They are only
+# teaching devices that help the reader see compact cores,
+# corridors, and cut-out regions.
 
-# Add a small structured difference between actual and fitted
-# q50 so the "predicted reference year" panel is realistic.
-fit_a = base_a * 0.96 + 1.4 * np.sin(2.0 * np.pi * xn)
-fit_b = base_b * 0.95 + 1.0 * np.cos(2.0 * np.pi * yn)
+
+def _city_mask(
+    xn: np.ndarray,
+    yn: np.ndarray,
+    *,
+    city: str,
+) -> np.ndarray:
+    e1 = ((xn - 0.50) / 0.44) ** 2 + ((yn - 0.48) / 0.34) ** 2 <= 1.0
+    e2 = ((xn - 0.70) / 0.22) ** 2 + ((yn - 0.58) / 0.18) ** 2 <= 1.0
+    cut = ((xn - 0.16) / 0.12) ** 2 + ((yn - 0.74) / 0.14) ** 2 <= 1.0
+
+    if city.lower().startswith("nan"):
+        band = (
+            (xn > 0.10)
+            & (xn < 0.92)
+            & (yn > 0.24)
+            & (yn < 0.82)
+        )
+        return (e1 | e2 | band) & (~cut)
+
+    e3 = ((xn - 0.34) / 0.18) ** 2 + ((yn - 0.30) / 0.15) ** 2 <= 1.0
+    corridor = (
+        (xn > 0.22)
+        & (xn < 0.88)
+        & (yn > 0.18)
+        & (yn < 0.72)
+    )
+    return (e1 | e3 | corridor) & (~cut)
+
+
+# %%
+# Step 3 - Build reference-year spatial patterns
+# ----------------------------------------------
+# The lesson becomes more readable when the synthetic cities have
+# different but still interpretable spatial structures.
+#
+# We therefore combine:
+#
+# - a dominant hotspot,
+# - a secondary lobe,
+# - a weak ridge,
+# - directional drift,
+# - and small local texture.
+#
+# That gives us surfaces whose geography is easy to compare from
+# the observed panel to the fitted panel and then into the future.
+
+
+def _multi_lobe_surface(
+    xn: np.ndarray,
+    yn: np.ndarray,
+    *,
+    amp: float,
+    drift_x: float,
+    drift_y: float,
+    phase: float,
+) -> np.ndarray:
+    g1 = np.exp(
+        -(((xn - 0.66) ** 2) / 0.020 + ((yn - 0.42) ** 2) / 0.032)
+    )
+    g2 = np.exp(
+        -(((xn - 0.38) ** 2) / 0.042 + ((yn - 0.64) ** 2) / 0.022)
+    )
+    ridge = np.exp(-((yn - (0.30 + 0.24 * xn)) ** 2) / 0.020)
+    wave = 0.22 * np.sin(2.4 * np.pi * xn + phase)
+    wave = wave * np.cos(1.7 * np.pi * yn)
+    trend = drift_x * xn + drift_y * yn
+    return amp * (0.92 * g1 + 0.54 * g2 + 0.16 * ridge + 0.10 * wave)
+    + trend
+
 
 # %%
 # Step 4 - Package the calibration-year tables
 # --------------------------------------------
-# The backend will extract the selected ``year_val`` and then use
-# ``subsidence_actual`` for the observed panel and
-# ``subsidence_q50`` for the matched prediction panel.
+# The plotting backend expects one calibration DataFrame per city
+# with at least these columns:
+#
+# - ``sample_idx``
+# - ``forecast_step``
+# - ``coord_t``
+# - ``coord_x``
+# - ``coord_y``
+# - ``subsidence_actual``
+# - ``subsidence_q50``
+#
+# The future DataFrame uses the same spatial columns but does not
+# need ``subsidence_actual``. We keep that exact schema here so
+# the lesson teaches the real workflow.
 
-def make_calib_df(
-    actual: np.ndarray,
-    fitted: np.ndarray,
+
+def _make_city_frames(
+    city: str,
     *,
-    year: int,
-) -> pd.DataFrame:
-    n = actual.size
-    return pd.DataFrame(
+    x0: float,
+    y0: float,
+    span_x: float,
+    span_y: float,
+    amp: float,
+    drift_x: float,
+    drift_y: float,
+    seed: int,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    rng = np.random.default_rng(seed)
+
+    nx = 60
+    ny = 44
+
+    xs = np.linspace(x0 - span_x, x0 + span_x, nx)
+    ys = np.linspace(y0 - span_y, y0 + span_y, ny)
+
+    X, Y = np.meshgrid(xs, ys)
+    X = X + rng.normal(0.0, 36.0, size=X.shape)
+    Y = Y + rng.normal(0.0, 32.0, size=Y.shape)
+
+    xn = (X - X.min()) / (X.max() - X.min())
+    yn = (Y - Y.min()) / (Y.max() - Y.min())
+
+    keep = _city_mask(xn, yn, city=city)
+
+    X = X[keep]
+    Y = Y[keep]
+    xn = xn[keep]
+    yn = yn[keep]
+
+    base = _multi_lobe_surface(
+        xn,
+        yn,
+        amp=amp,
+        drift_x=drift_x,
+        drift_y=drift_y,
+        phase=0.7 if city.lower().startswith("nan") else 1.5,
+    )
+
+    local = 1.5 * np.sin(4.8 * xn) + 1.2 * np.cos(3.7 * yn)
+    actual_ref = base + local + rng.normal(0.0, 0.55, size=X.size)
+    fitted_ref = 0.975 * base + 0.7 * np.sin(2.0 * np.pi * xn)
+    fitted_ref = fitted_ref + rng.normal(0.0, 0.38, size=X.size)
+
+    calib_df = pd.DataFrame(
         {
-            "sample_idx": np.arange(n, dtype=int),
-            "forecast_step": np.zeros(n, dtype=int),
-            "coord_t": np.full(n, year, dtype=int),
-            "coord_x": x,
-            "coord_y": y,
-            "subsidence_actual": actual.ravel(),
-            "subsidence_q50": fitted.ravel(),
-            "subsidence_unit": ["mm"] * n,
+            "sample_idx": np.arange(X.size, dtype=int),
+            "forecast_step": np.zeros(X.size, dtype=int),
+            "coord_t": np.full(X.size, year_val, dtype=int),
+            "coord_x": X.astype(float),
+            "coord_y": Y.astype(float),
+            "subsidence_actual": actual_ref.astype(float),
+            "subsidence_q50": fitted_ref.astype(float),
+            "subsidence_unit": ["mm"] * X.size,
         }
     )
 
-
-calib_a = make_calib_df(base_a.ravel(), fit_a.ravel(), year=year_val)
-calib_b = make_calib_df(base_b.ravel(), fit_b.ravel(), year=year_val)
-
-# %%
-# Step 5 - Package the future forecast tables
-# -------------------------------------------
-# Now we create future median forecasts. We keep the shape of the
-# hotspot but let it intensify through time. This lets the page
-# teach one of the main uses of the figure: reading how the
-# geography of risk evolves from one forecast year to the next.
-
-def make_future_df(
-    fitted_ref: np.ndarray,
-    *,
-    year_list: list[int],
-    growths: list[float],
-    wave_scale: float,
-) -> pd.DataFrame:
     rows: list[pd.DataFrame] = []
-    n = fitted_ref.size
+    growths = [1.10, 1.24, 1.40]
 
-    for i, (yy, g) in enumerate(zip(year_list, growths)):
-        wave = wave_scale * np.sin(
-            2.0 * np.pi * (xn + 0.2 * i)
-        )
-        vals = fitted_ref.reshape(X.shape) * g + wave
+    for i, (yy, g) in enumerate(zip(years_fore, growths)):
+        wave = 0.7 * np.sin(2.0 * np.pi * (xn + 0.18 * i))
+        drift = 0.65 * i * (0.34 * xn + 0.20 * yn)
+        vals = fitted_ref * g + wave + drift
 
         rows.append(
             pd.DataFrame(
                 {
-                    "sample_idx": np.arange(n, dtype=int),
-                    "forecast_step": np.full(
-                        n, i + 1, dtype=int
-                    ),
-                    "coord_t": np.full(
-                        n, yy, dtype=int
-                    ),
-                    "coord_x": x,
-                    "coord_y": y,
-                    "subsidence_q50": vals.ravel(),
-                    "subsidence_unit": ["mm"] * n,
+                    "sample_idx": np.arange(X.size, dtype=int),
+                    "forecast_step": np.full(X.size, i + 1, dtype=int),
+                    "coord_t": np.full(X.size, yy, dtype=int),
+                    "coord_x": X.astype(float),
+                    "coord_y": Y.astype(float),
+                    "subsidence_q50": vals.astype(float),
+                    "subsidence_unit": ["mm"] * X.size,
                 }
             )
         )
 
-    return pd.concat(rows, ignore_index=True)
+    future_df = pd.concat(rows, ignore_index=True)
+    return calib_df, future_df
 
 
-future_a = make_future_df(
-    fit_a,
-    year_list=years_fore,
-    growths=[1.10, 1.22, 1.35],
-    wave_scale=0.8,
+ns_calib, ns_future = _make_city_frames(
+    "Nansha",
+    x0=6200.0,
+    y0=4300.0,
+    span_x=3900.0,
+    span_y=2900.0,
+    amp=37.0,
+    drift_x=7.0,
+    drift_y=3.0,
+    seed=10,
 )
 
-future_b = make_future_df(
-    fit_b,
-    year_list=years_fore,
-    growths=[1.06, 1.15, 1.28],
-    wave_scale=0.6,
+zh_calib, zh_future = _make_city_frames(
+    "Zhongshan",
+    x0=5900.0,
+    y0=4100.0,
+    span_x=3700.0,
+    span_y=2800.0,
+    amp=31.0,
+    drift_x=4.5,
+    drift_y=6.4,
+    seed=22,
 )
+
+print("Reference-year rows")
+print(f"  Nansha:    {len(ns_calib)}")
+print(f"  Zhongshan: {len(zh_calib)}")
+print("")
+print("Future rows")
+print(f"  Nansha:    {len(ns_future)}")
+print(f"  Zhongshan: {len(zh_future)}")
+
 
 # %%
-# Step 6 - Build the city objects expected by the backend
-# -------------------------------------------------------
-# The plotting function expects a list of city dictionaries. Each
-# city contains at least a name, a color, a calibration DataFrame,
-# and a future DataFrame. That is the same structure assembled by
-# the real CLI helper ``_resolve_city(...)`` before plotting.
+# Step 5 - Preview the synthetic geography before plotting
+# --------------------------------------------------------
+# Before we run the real backend, it helps to look at the spatial
+# support and the reference-year pattern directly.
+#
+# The preview below is intentionally simple. It lets the reader
+# check two things:
+#
+# - the city footprints are no longer plain rectangles,
+# - the reference-year signal already has a geography worth
+#   reconstructing and forecasting.
 
+fig, axes = plt.subplots(2, 2, figsize=(10.0, 7.2))
+
+preview_specs = [
+    (axes[0, 0], ns_calib, "Nansha support"),
+    (axes[0, 1], ns_calib, "Nansha 2022 observed"),
+    (axes[1, 0], zh_calib, "Zhongshan support"),
+    (axes[1, 1], zh_calib, "Zhongshan 2022 observed"),
+]
+
+for ax, df, ttl in preview_specs:
+    if "observed" in ttl:
+        sc = ax.scatter(
+            df["coord_x"],
+            df["coord_y"],
+            c=df["subsidence_actual"],
+            s=9,
+            cmap="viridis",
+            linewidths=0,
+        )
+    else:
+        sc = ax.scatter(
+            df["coord_x"],
+            df["coord_y"],
+            s=8,
+            c=np.full(len(df), 1.0),
+            cmap="Greys",
+            linewidths=0,
+        )
+    ax.set_title(ttl)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_aspect("equal", adjustable="box")
+
+cbar = fig.colorbar(sc, ax=axes[:, 1], shrink=0.88)
+cbar.set_label("Synthetic subsidence")
+plt.tight_layout()
+
+
+# %%
+# Step 6 - Run the real backend and summarize the story
+# -----------------------------------------------------
+# The backend expects a list of city dictionaries. Each city must
+# provide at least:
+#
+# - a city name,
+# - a display color,
+# - one calibration DataFrame,
+# - one future DataFrame.
+#
+# We also turn panel titles off here because dense multi-panel
+# gallery figures can become cramped when every axis repeats a
+# long city-year title.
 
 cities = [
     {
         "name": "Nansha",
         "color": "#2a6f97",
-        "calib_df": calib_a,
-        "future_df": future_a,
+        "calib_df": ns_calib,
+        "future_df": ns_future,
     },
     {
         "name": "Zhongshan",
         "color": "#c26d3d",
-        "calib_df": calib_b,
-        "future_df": future_b,
+        "calib_df": zh_calib,
+        "future_df": zh_future,
     },
 ]
 
-# %%
 # Step 7 - Render the spatial forecast figure
 # -------------------------------------------
 # The plotting backend creates:
@@ -320,12 +414,8 @@ cities = [
 # across all cities and panels, which is important because visual
 # comparison is only fair when the color range is shared.
 
-tmp_dir = Path(
-    tempfile.mkdtemp(prefix="gp_sg_spatial_")
-)
-out_base = str(
-    tmp_dir / "spatial_forecasts_gallery"
-)
+tmp_dir = Path(tempfile.mkdtemp(prefix="gp_sg_spatial_lesson_"))
+out_base = str(tmp_dir / "spatial_forecasts_lesson")
 
 plot_fig6_spatial_forecasts(
     cities=cities,
@@ -333,7 +423,7 @@ plot_fig6_spatial_forecasts(
     years_fore=years_fore,
     cumulative=True,
     subsidence_kind="cumulative",
-    grid_res=180,
+    grid_res=220,
     clip=98.0,
     cmap_name="viridis",
     hotspot_mode="delta",
@@ -344,54 +434,97 @@ plot_fig6_spatial_forecasts(
     font=9,
     show_legend=True,
     show_title=True,
-    show_panel_titles=True,
+    show_panel_titles=False,
     title=(
         "Synthetic spatial forecasts: observed, fitted, "
         "and future median maps"
     ),
 )
 
+print("")
 print("Spatial-forecast figure written to:")
 print(f"  {out_base}")
-
 # %%
-# Step 8 - Measure how the hotspot grows through time
-# ---------------------------------------------------
-# Let us compute a simple diagnostic outside the figure itself.
-#
-# We define "hotspot" as the top 10% of the median forecast in
-# each future year. This is not required by the plotting backend,
-# but it helps the reader see how to interpret the panels in a
-# more quantitative way.
+# Show the saved figure inside the gallery page
+# ---------------------------------------------
+# The backend writes PNG/SVG outputs. We load the PNG back into a
+# small display figure so Sphinx-Gallery always shows the rendered
+# result on the page.
 
-def hotspot_share(df: pd.DataFrame) -> pd.DataFrame:
-    rows: list[dict[str, float | int]] = []
+img = mpimg.imread(str(out_base) + ".png")
+fig, ax = plt.subplots(figsize=(10.8, 6.4))
+ax.imshow(img)
+ax.axis("off")
 
-    for yy, g in df.groupby("coord_t", sort=True):
-        vals = g["subsidence_q50"].to_numpy()
-        thr = np.quantile(vals, 0.90)
-        frac = float(np.mean(vals >= thr))
-        mean_hot = float(np.mean(vals[vals >= thr]))
 
+def _city_summary(
+    city: str,
+    calib_df: pd.DataFrame,
+    fut_df: pd.DataFrame,
+) -> pd.DataFrame:
+    rows: list[dict[str, float | str | int]] = []
+
+    rows.append(
+        {
+            "city": city,
+            "panel": f"{year_val} observed",
+            "median_value": float(
+                calib_df["subsidence_actual"].median()
+            ),
+            "q90_value": float(
+                calib_df["subsidence_actual"].quantile(0.90)
+            ),
+        }
+    )
+    rows.append(
+        {
+            "city": city,
+            "panel": f"{year_val} predicted",
+            "median_value": float(
+                calib_df["subsidence_q50"].median()
+            ),
+            "q90_value": float(
+                calib_df["subsidence_q50"].quantile(0.90)
+            ),
+        }
+    )
+
+    for yy in years_fore:
+        sub = fut_df.loc[fut_df["coord_t"].eq(yy)]
         rows.append(
             {
-                "year": int(yy),
-                "hotspot_threshold": float(thr),
-                "hotspot_fraction": frac,
-                "mean_hotspot_q50": mean_hot,
+                "city": city,
+                "panel": f"{yy} forecast",
+                "median_value": float(
+                    sub["subsidence_q50"].median()
+                ),
+                "q90_value": float(
+                    sub["subsidence_q50"].quantile(0.90)
+                ),
             }
         )
 
     return pd.DataFrame(rows)
 
+# %%
+# Step 8 - Build the city objects expected by the backend
+# -------------------------------------------------------
+# The plotting function expects a list of city dictionaries. Each
+# city contains at least a name, a color, a calibration DataFrame,
+# and a future DataFrame. That is the same structure assembled by
+# the real CLI helper ``_resolve_city(...)`` before plotting.
+
+summary = pd.concat(
+    [
+        _city_summary("Nansha", ns_calib, ns_future),
+        _city_summary("Zhongshan", zh_calib, zh_future),
+    ],
+    ignore_index=True,
+)
 
 print("")
-print("Nansha hotspot summary:")
-print(hotspot_share(future_a).to_string(index=False))
-
-print("")
-print("Zhongshan hotspot summary:")
-print(hotspot_share(future_b).to_string(index=False))
+print("Median and upper-tail spatial summary")
+print(summary.round(2).to_string(index=False))
 
 # %%
 # Step 9 - How to read the figure

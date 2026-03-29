@@ -12,12 +12,11 @@
 from __future__ import annotations
 
 import json
+import os
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import (
-    Any,
-)
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -27,6 +26,228 @@ from . import config as cfg
 
 _TRUE = {"1", "true", "yes", "y", "t", "on"}
 _FALSE = {"0", "false", "no", "n", "f", "off"}
+
+
+def _as_pathlike_str(
+    value: str | os.PathLike[str] | Any,
+) -> str:
+    """Return a filesystem-like value as a string."""
+    return os.fspath(value)
+
+
+def _candidate_raster_from_stem(
+    stem: str | os.PathLike[str],
+    *,
+    raster_exts: tuple[str, ...] = (
+        "png",
+        "jpg",
+        "jpeg",
+        "tif",
+        "tiff",
+        "webp",
+    ),
+) -> list[Path]:
+    """
+    Build raster candidates from an output stem or file path.
+
+    Parameters
+    ----------
+    stem : path-like
+        Output stem or filename. If a suffix is already present,
+        it is tested first. If the suffix is not a supported raster
+        type, the suffix is stripped and raster candidates are built
+        from the stem.
+    raster_exts : tuple of str, default=("png", "jpg", ...)
+        Raster extensions to test in order.
+
+    Returns
+    -------
+    list of Path
+        Candidate raster paths in priority order.
+    """
+    p = Path(_as_pathlike_str(stem)).expanduser()
+    out: list[Path] = []
+
+    if p.suffix:
+        ext = p.suffix.lower().lstrip(".")
+        if ext in raster_exts:
+            out.append(p)
+            return out
+        p = p.with_suffix("")
+
+    for ext in raster_exts:
+        out.append(p.with_suffix(f".{ext}"))
+
+    return out
+
+
+def resolve_gallery_raster_path(
+    *,
+    out_paths: Any | None = None,
+    out_base: str | os.PathLike[str] | None = None,
+    raster_exts: tuple[str, ...] = (
+        "png",
+        "jpg",
+        "jpeg",
+        "tif",
+        "tiff",
+        "webp",
+    ),
+    must_exist: bool = True,
+) -> Path:
+    """
+    Resolve a saved raster image for gallery display.
+
+    This helper supports the two common lesson patterns:
+
+    1. a plotting backend returns ``out_paths``
+    2. a plotting backend writes from an ``out_base`` stem
+
+    Parameters
+    ----------
+    out_paths : Any or None, default=None
+        Collection of written paths returned by a backend. This may
+        be a list/tuple/set of paths or strings, or a mapping whose
+        values are paths.
+    out_base : path-like or None, default=None
+        Output stem or filename used by the backend.
+    raster_exts : tuple of str, default=("png", "jpg", ...)
+        Raster extensions accepted for gallery display, in priority
+        order.
+    must_exist : bool, default=True
+        If ``True``, raise an error when no existing raster file is
+        found.
+
+    Returns
+    -------
+    Path
+        Resolved raster path.
+
+    Raises
+    ------
+    RuntimeError
+        If no usable raster path can be resolved.
+    FileNotFoundError
+        If a candidate path was resolved but does not exist and
+        ``must_exist=True``.
+
+    Notes
+    -----
+    Sphinx-Gallery reliably displays raster images when they are
+    reloaded into a matplotlib figure. This helper resolves the
+    raster file that should be re-opened.
+    """
+    candidates: list[Path] = []
+
+    if out_paths is not None:
+        values: list[Any]
+        if isinstance(out_paths, dict):
+            values = list(out_paths.values())
+        else:
+            try:
+                values = list(out_paths)
+            except TypeError:
+                values = [out_paths]
+
+        for item in values:
+            p = Path(_as_pathlike_str(item)).expanduser()
+            ext = p.suffix.lower().lstrip(".")
+            if ext in raster_exts:
+                candidates.append(p)
+
+    if not candidates and out_base is not None:
+        candidates.extend(
+            _candidate_raster_from_stem(
+                out_base,
+                raster_exts=raster_exts,
+            )
+        )
+
+    for p in candidates:
+        if p.exists():
+            return p.resolve()
+
+    if candidates and must_exist:
+        tried = "\n".join(f" - {p}" for p in candidates)
+        raise FileNotFoundError(
+            "Could not locate a saved raster image for gallery "
+            f"display. Tried:\n{tried}"
+        )
+
+    raise RuntimeError(
+        "Could not resolve a gallery raster path. Provide either "
+        "`out_paths` or `out_base`."
+    )
+
+
+def show_gallery_saved_figure(
+    *,
+    out_paths: Any | None = None,
+    out_base: str | os.PathLike[str] | None = None,
+    image_path: str | os.PathLike[str] | None = None,
+    figsize: tuple[float, float] = (8.4, 5.4),
+    hide_axes: bool = True,
+    title: str | None = None,
+):
+    """
+    Reload a saved raster figure and display it in matplotlib.
+
+    Parameters
+    ----------
+    out_paths : Any or None, default=None
+        Written paths returned by a plotting backend.
+    out_base : path-like or None, default=None
+        Output stem or filename used by the backend.
+    image_path : path-like or None, default=None
+        Explicit image path. When provided, this takes precedence
+        over ``out_paths`` and ``out_base``.
+    figsize : tuple of float, default=(8.4, 5.4)
+        Figure size passed to ``plt.subplots``.
+    hide_axes : bool, default=True
+        If ``True``, hide axis decorations.
+    title : str or None, default=None
+        Optional title for the display figure.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Created figure.
+    ax : matplotlib.axes.Axes
+        Created axis.
+    image_path : pathlib.Path
+        Resolved image path that was displayed.
+
+    Notes
+    -----
+    Imports are done locally so lesson pages can reuse this helper
+    without adding top-level matplotlib image imports everywhere.
+    """
+    import matplotlib.image as mpimg
+    import matplotlib.pyplot as plt
+
+    if image_path is None:
+        image_path = resolve_gallery_raster_path(
+            out_paths=out_paths,
+            out_base=out_base,
+        )
+
+    p = Path(_as_pathlike_str(image_path)).expanduser()
+    if not p.exists():
+        raise FileNotFoundError(
+            f"Gallery image does not exist: {p}"
+        )
+
+    img = mpimg.imread(str(p))
+    fig, ax = plt.subplots(figsize=figsize)
+    ax.imshow(img)
+
+    if hide_axes:
+        ax.axis("off")
+
+    if title:
+        ax.set_title(title)
+
+    return fig, ax, p.resolve()
 
 
 def str_to_bool(x: object, *, default: bool = False) -> bool:
