@@ -45,7 +45,10 @@ import tensorflow as tf
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 
 from geoprior.api.util import get_table_size
-from geoprior.datasets import fetch_zhongshan_data
+from geoprior.datasets import (
+    fetch_nansha_data,
+    fetch_zhongshan_data,
+)
 from geoprior.models.utils import prepare_pinn_data_sequences
 from geoprior.utils import (
     audit_stage1_scaling,
@@ -867,21 +870,121 @@ def run_stage1(
             except Exception as e:
                 print(f"    [Warn] Error reading {p}: {e}")
 
-    if df_raw is None or df_raw.empty:
-        print(
-            "  [Info] No CSV found. Trying geoprior.datasets.fetch_zhongshan_data() ..."
-        )
-        try:
-            bunch = fetch_zhongshan_data(verbose=1)
-            df_raw = bunch.frame
-            used_path = "<fetch_zhongshan_data>"
+        # if df_raw is None or df_raw.empty:
+        #     print(
+        #         "  [Info] No CSV found. Trying geoprior.datasets.fetch_zhongshan_data() ..."
+        #     )
+        #     try:
+        #         if CITY_NAME =="nansha":
+        #             bunch = fetch_nansha_data(verbose=1)
+        #         else:
+        #             bunch = fetch_zhongshan_data(verbose=1)
+        #         df_raw = bunch.frame
+        #         used_path = "<fetch_zhongshan_data>"
+        #         print(
+        #             f"    Loaded via fetch_zhongshan_data -> {df_raw.shape}"
+        #         )
+        #     except Exception as e:
+        #         raise FileNotFoundError(
+        #             f"Failed to load dataset from CSV and fetcher: {e}"
+        #         )
+        used_fetch_fallback = False
+        fetch_name = None
+
+        if df_raw is None or df_raw.empty:
+            fetch_name = (
+                "fetch_nansha_data"
+                if str(CITY_NAME).strip().lower() == "nansha"
+                else "fetch_zhongshan_data"
+            )
             print(
-                f"    Loaded via fetch_zhongshan_data -> {df_raw.shape}"
+                "  [Info] No CSV found. Trying "
+                f"geoprior.datasets.{fetch_name}() ..."
             )
-        except Exception as e:
-            raise FileNotFoundError(
-                f"Failed to load dataset from CSV and fetcher: {e}"
+            try:
+                if fetch_name == "fetch_nansha_data":
+                    bunch = fetch_nansha_data(verbose=1)
+                else:
+                    bunch = fetch_zhongshan_data(verbose=1)
+
+                df_raw = bunch.frame.copy()
+                used_path = f"<{fetch_name}>"
+                used_fetch_fallback = True
+                print(
+                    f"    Loaded via {fetch_name} -> {df_raw.shape}"
+                )
+            except Exception as e:
+                raise FileNotFoundError(
+                    "Failed to load dataset from CSV and fetcher: "
+                    f"{e}"
+                )
+
+        def _group_year_stats(
+            df: pd.DataFrame,
+            *,
+            lon_col: str,
+            lat_col: str,
+            time_col: str,
+        ) -> dict[str, int | float | None]:
+            if df.empty:
+                return {
+                    "rows": 0,
+                    "groups": 0,
+                    "min_year": None,
+                    "max_year": None,
+                    "max_points_per_group": 0,
+                    "mean_points_per_group": 0.0,
+                    "single_year_groups": 0,
+                }
+
+            g = (
+                df.groupby([lon_col, lat_col], dropna=False)[
+                    time_col
+                ]
+                .nunique()
+                .astype(int)
             )
+
+            return {
+                "rows": int(df.shape[0]),
+                "groups": int(g.shape[0]),
+                "min_year": int(df[time_col].min()),
+                "max_year": int(df[time_col].max()),
+                "max_points_per_group": int(g.max()),
+                "mean_points_per_group": float(g.mean()),
+                "single_year_groups": int((g <= 1).sum()),
+            }
+
+        raw_stats = _group_year_stats(
+            df_raw,
+            lon_col=LON_COL,
+            lat_col=LAT_COL,
+            time_col=TIME_COL,
+        )
+
+        if used_fetch_fallback:
+            need = int(TIME_STEPS + FORECAST_HORIZON_YEARS)
+            if raw_stats["max_points_per_group"] < need:
+                raise RuntimeError(
+                    "Stage-1 loaded a built-in sampled dataset via "
+                    f"{fetch_name}, but it is not suitable for sequence "
+                    "construction for the current window settings. "
+                    f"Need at least {need} time points per "
+                    f"({LON_COL}, {LAT_COL}) group for "
+                    f"TIME_STEPS={TIME_STEPS} and "
+                    f"FORECAST_HORIZON_YEARS="
+                    f"{FORECAST_HORIZON_YEARS}. "
+                    f"Observed rows={raw_stats['rows']}, "
+                    f"groups={raw_stats['groups']}, "
+                    f"year_range=[{raw_stats['min_year']}, "
+                    f"{raw_stats['max_year']}], "
+                    f"max_points_per_group="
+                    f"{raw_stats['max_points_per_group']}, "
+                    f"single_year_groups="
+                    f"{raw_stats['single_year_groups']}. "
+                    "Use the harmonized full-city CSV/parquet for "
+                    "Stage-1 instead of the built-in sample."
+                )
 
     # Save a copy of the raw loaded table for traceability
     raw_csv = os.path.join(
@@ -1235,6 +1338,12 @@ def run_stage1(
     print(f"\n{'=' * 18} Step 3: Encode & Scale {'=' * 18}")
     df_proc = df_cens.copy()
 
+    if df_proc.empty:
+        raise RuntimeError(
+            "No rows remain after preprocessing/filtering; "
+            "cannot project coordinates. Check city/dataset match, "
+            "time window, and holdout constraints."
+        )
     # ------------------------------------------------------------------
     # 3.0 Choose thickness source column (raw vs effective)
     # ------------------------------------------------------------------

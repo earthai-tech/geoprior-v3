@@ -63,7 +63,7 @@ def get_data(data_home: str | None = None) -> str:
     datasets or storing user-provided data relevant to geoprior.
     The directory is created if it doesn't exist.
 
-    The location defaults to ``~/fusionlab_data`` but can be overridden
+    The location defaults to ``~/geoprior_data`` but can be overridden
     by setting the ``GEOPRIOR_DATA`` environment variable or by
     providing an explicit path to the `data_home` argument.
 
@@ -72,7 +72,7 @@ def get_data(data_home: str | None = None) -> str:
     data_home : str, optional
         Explicit path to the desired data directory. If ``None``,
         checks the 'GEOPRIOR_DATA' environment variable, then falls
-        back to ``~/fusionlab_data``. Tilde ('~') is expanded to the
+        back to ``~/geoprior_data``. Tilde ('~') is expanded to the
         user's home directory. Default is ``None``.
 
     Returns
@@ -92,7 +92,7 @@ def get_data(data_home: str | None = None) -> str:
         # Check environment variable first
         data_home = os.environ.get(
             "GEOPRIOR_DATA",
-            os.path.join("~", "fusionlab_data"),
+            os.path.join("~", "geoprior_data"),
         )
     # Expand user path (~ character)
     data_home = os.path.expanduser(data_home)
