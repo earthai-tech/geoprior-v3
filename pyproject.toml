@@ -47,7 +47,10 @@ dependencies = [
   "platformdirs",
   "lz4",
   "psutil",
-  "seaborn"
+  "seaborn", 
+  "contextily",
+  "geopandas", 
+  "shapely"
 ]
 
 [project.urls]
@@ -79,9 +82,6 @@ docs = [
   "sphinx-prompt",
   "sphinxcontrib-bibtex",
   "numpydoc>=1.6",
-  "contextily",
-  "geopandas", 
-  "shapely"
 
 ]
 

@@ -1,6 +1,8 @@
 <div align="center">
 
-<img src="geoprior-svg.svg" alt="GeoPrior logo" width="320"><br>
+<img src="https://raw.githubusercontent.com/earthai-tech/geoprior-v3/main/docs/source/_static/geoprior-svg.svg" 
+   alt="GeoPrior logo" width="320">
+<br>
 
 <h1>GeoPrior-v3 (GeoPriorSubsNet)</h1>
 

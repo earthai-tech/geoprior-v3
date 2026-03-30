@@ -10,7 +10,7 @@ Physics-guided AI for geohazards and risk analytics.
 GeoPrior-v3 is a scientific Python framework for building
 physics-guided models for geohazard analysis, forecasting, and
 risk-oriented interpretation. The current generation focuses on
-**land subsidence** through **GeoPriorSubsNet v3.x**, while the broader
+**land subsidence** through **GeoPriorSubsNet v3**, while the broader
 roadmap extends toward **landslides and other geohazard modeling
 tasks**. The project combines scientific modeling,
 configuration-driven workflows, staged CLI execution, and

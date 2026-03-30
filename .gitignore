@@ -201,6 +201,9 @@ scripts/figs/
 # Notebook checkpoints
 .ipynb_checkpoints/
 
+data/*.csv 
+results/ 
+
 # ------------------------------
 # Sphinx generated docs
 # ------------------------------
@@ -217,4 +220,4 @@ docs/source/auto_examples/
 # ------------------------------
 geoprior/api/gimini_key.py
 
-# 
+

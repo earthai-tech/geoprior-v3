@@ -38,6 +38,7 @@ from pathlib import Path
 from typing import Any
 
 import matplotlib.pyplot as plt
+import argparse
 import numpy as np
 import pandas as pd
 from matplotlib.gridspec import GridSpec
@@ -667,7 +668,7 @@ def parse_args(
     *,
     prog: str | None = None,
 ) -> Any:
-    ap = u.argparse.ArgumentParser(  # type: ignore[attr-defined]
+    ap = argparse.ArgumentParser(  # type: ignore[attr-defined]
         prog=prog or "plot-transfer",
         description=(
             "Supplementary Figure Sx — transferability from xfer CSV"

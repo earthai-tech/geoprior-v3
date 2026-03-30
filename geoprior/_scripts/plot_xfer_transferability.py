@@ -48,6 +48,7 @@ from pathlib import Path
 from typing import Any
 
 import matplotlib.pyplot as plt
+import argparse
 import numpy as np
 import pandas as pd
 from matplotlib.gridspec import GridSpec
@@ -147,7 +148,6 @@ def _canon_cols(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
-
 def _subset(
     df: pd.DataFrame,
     *,
@@ -167,7 +167,14 @@ def _subset(
     use_rm = rescale_mode
 
     if s == "baseline":
-        use_dir = cfg._BASELINE_MAP.get(d, d).lower()
+        baseline_map = {
+            "a_to_b": "b_to_b",
+            "b_to_a": "a_to_a",
+        }
+        use_dir = baseline_map.get(
+            d,
+            cfg._BASELINE_MAP.get(d, d).lower(),
+        )
         use_rm = baseline_rescale
 
     m = df["direction"].eq(use_dir)
@@ -179,6 +186,38 @@ def _subset(
         m &= df["rescale_mode"].eq(str(use_rm).lower())
 
     return df.loc[m].copy()
+
+# def _subset(
+#     df: pd.DataFrame,
+#     *,
+#     direction: str,
+#     strategy: str,
+#     split: str,
+#     calib: str,
+#     rescale_mode: str | None,
+#     baseline_rescale: str,
+# ) -> pd.DataFrame:
+#     d = str(direction).lower()
+#     s = str(strategy).lower()
+#     sp = str(split).lower()
+#     cm = str(calib).lower()
+
+#     use_dir = d
+#     use_rm = rescale_mode
+
+#     if s == "baseline":
+#         use_dir = cfg._BASELINE_MAP.get(d, d).lower()
+#         use_rm = baseline_rescale
+
+#     m = df["direction"].eq(use_dir)
+#     m &= df["strategy"].eq(s)
+#     m &= df["split"].eq(sp)
+#     m &= df["calibration"].eq(cm)
+
+#     if use_rm is not None:
+#         m &= df["rescale_mode"].eq(str(use_rm).lower())
+
+#     return df.loc[m].copy()
 
 
 def _reduce_vals(
@@ -609,7 +648,7 @@ def render(
 def parse_args(
     argv: list[str] | None = None, *, prog: str | None = None
 ) -> Any:
-    ap = u.argparse.ArgumentParser(  # type: ignore[attr-defined]
+    ap = argparse.ArgumentParser(  # type: ignore[attr-defined]
         prog=prog or "plot-xfer-transferability",
         description=(
             "Plot cross-city transferability from xfer_results.csv"

@@ -221,7 +221,7 @@ class HelpMeta(type):
         for attr_name, attr_value in namespace.items():
             if isinstance(
                 attr_value,
-                FunctionType | staticmethod | classmethod,
+                (FunctionType, staticmethod, classmethod),
             ):
                 decorated_method = mcs._decorate_method(
                     attr_value
