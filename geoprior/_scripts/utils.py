@@ -16,9 +16,8 @@ import os
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
-
 from statistics import NormalDist
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -745,6 +744,7 @@ def sample_df(
 
     return df
 
+
 @dataclass(frozen=True)
 class SpatialSupport:
     """
@@ -834,27 +834,19 @@ def _footprint_mask(
         return np.ones_like(x_norm, dtype=bool)
 
     if fp == "ellipse":
-        return (
-            ((x_norm - 0.50) / 0.44) ** 2
-            + ((y_norm - 0.50) / 0.34) ** 2
-            <= 1.0
-        )
+        return ((x_norm - 0.50) / 0.44) ** 2 + (
+            (y_norm - 0.50) / 0.34
+        ) ** 2 <= 1.0
 
-    e1 = (
-        ((x_norm - 0.50) / 0.44) ** 2
-        + ((y_norm - 0.48) / 0.34) ** 2
-        <= 1.0
-    )
-    e2 = (
-        ((x_norm - 0.70) / 0.22) ** 2
-        + ((y_norm - 0.58) / 0.18) ** 2
-        <= 1.0
-    )
-    cut = (
-        ((x_norm - 0.16) / 0.12) ** 2
-        + ((y_norm - 0.74) / 0.14) ** 2
-        <= 1.0
-    )
+    e1 = ((x_norm - 0.50) / 0.44) ** 2 + (
+        (y_norm - 0.48) / 0.34
+    ) ** 2 <= 1.0
+    e2 = ((x_norm - 0.70) / 0.22) ** 2 + (
+        (y_norm - 0.58) / 0.18
+    ) ** 2 <= 1.0
+    cut = ((x_norm - 0.16) / 0.12) ** 2 + (
+        (y_norm - 0.74) / 0.14
+    ) ** 2 <= 1.0
 
     if fp == "nansha_like":
         band = (
@@ -866,11 +858,9 @@ def _footprint_mask(
         return (e1 | e2 | band) & (~cut)
 
     if fp == "zhongshan_like":
-        e3 = (
-            ((x_norm - 0.34) / 0.18) ** 2
-            + ((y_norm - 0.30) / 0.15) ** 2
-            <= 1.0
-        )
+        e3 = ((x_norm - 0.34) / 0.18) ** 2 + (
+            (y_norm - 0.30) / 0.15
+        ) ** 2 <= 1.0
         corridor = (
             (x_norm > 0.22)
             & (x_norm < 0.88)
@@ -1042,16 +1032,12 @@ def make_spatial_field(
             + ((yn - 0.64) ** 2) / 0.022
         )
     )
-    ridge = np.exp(
-        -((yn - (0.30 + 0.24 * xn)) ** 2) / 0.020
+    ridge = np.exp(-((yn - (0.30 + 0.24 * xn)) ** 2) / 0.020)
+    wave = np.sin(2.4 * np.pi * xn + float(phase)) * np.cos(
+        1.7 * np.pi * yn
     )
-    wave = np.sin(
-        2.4 * np.pi * xn + float(phase)
-    ) * np.cos(1.7 * np.pi * yn)
     trend = float(drift_x) * xn + float(drift_y) * yn
-    local = (
-        np.sin(4.8 * xn) + np.cos(3.7 * yn)
-    )
+    local = np.sin(4.8 * xn) + np.cos(3.7 * yn)
 
     return (
         float(amplitude)
@@ -1159,10 +1145,15 @@ def evolve_spatial_field(
         * (float(drift_x) * xn + float(drift_y) * yn)
     )
 
-    return float(growth) * np.asarray(
-        base_field,
-        dtype=float,
-    ) + wave + drift
+    return (
+        float(growth)
+        * np.asarray(
+            base_field,
+            dtype=float,
+        )
+        + wave
+        + drift
+    )
 
 
 def quantile_columns_from_mean_scale(
@@ -1282,7 +1273,8 @@ def make_spatial_quantile_frame(
         ),
         "coord_x": support.coord_x.astype(float),
         "coord_y": support.coord_y.astype(float),
-        f"{prefix}_unit": [str(unit)] * support.sample_idx.size,
+        f"{prefix}_unit": [str(unit)]
+        * support.sample_idx.size,
     }
 
     for name, vals in qcols.items():
@@ -1336,6 +1328,7 @@ def make_noisy_actual(
         float(noise_scale) * sig,
         size=mu.shape,
     )
+
 
 # -------------------------------------------------------------------
 # Small helpers

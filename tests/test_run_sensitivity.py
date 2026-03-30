@@ -428,7 +428,11 @@ def test_main_returns_early_when_no_runs_selected(
     monkeypatch.setattr(
         rs_module,
         "_save_state",
-        lambda state_path, city, scan_root, completed_n, last_key: (
+        lambda state_path,
+        city,
+        scan_root,
+        completed_n,
+        last_key: (
             saved.append(
                 {
                     "state_path": str(state_path),
