@@ -18,6 +18,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from statistics import NormalDist
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -743,6 +745,597 @@ def sample_df(
 
     return df
 
+@dataclass(frozen=True)
+class SpatialSupport:
+    """
+    Lightweight container for synthetic spatial support.
+    """
+
+    city: str
+    sample_idx: np.ndarray
+    coord_x: np.ndarray
+    coord_y: np.ndarray
+    x_norm: np.ndarray
+    y_norm: np.ndarray
+    extent: tuple[float, float, float, float]
+
+    def to_frame(self) -> pd.DataFrame:
+        """
+        Return support as a compact DataFrame.
+        """
+        return pd.DataFrame(
+            {
+                "sample_idx": self.sample_idx.astype(int),
+                "coord_x": self.coord_x.astype(float),
+                "coord_y": self.coord_y.astype(float),
+                "x_norm": self.x_norm.astype(float),
+                "y_norm": self.y_norm.astype(float),
+                "city": [self.city] * self.sample_idx.size,
+            }
+        )
+
+
+@dataclass(frozen=True)
+class SpatialSupportSpec:
+    """
+    Configuration for a synthetic city support.
+    """
+
+    city: str = "City"
+    center_x: float = 0.0
+    center_y: float = 0.0
+    span_x: float = 1_000.0
+    span_y: float = 800.0
+    nx: int = 60
+    ny: int = 44
+    jitter_x: float = 0.0
+    jitter_y: float = 0.0
+    footprint: str = "ellipse"
+    keep_frac: float = 1.0
+    seed: int = 0
+
+
+def _normalize01(x: np.ndarray) -> np.ndarray:
+    """
+    Normalize values to [0, 1].
+
+    Degenerate arrays are mapped to zeros.
+    """
+    x = np.asarray(x, dtype=float)
+    lo = float(np.nanmin(x))
+    hi = float(np.nanmax(x))
+    if not np.isfinite(lo) or not np.isfinite(hi):
+        return np.zeros_like(x, dtype=float)
+    if hi <= lo:
+        return np.zeros_like(x, dtype=float)
+    return (x - lo) / (hi - lo)
+
+
+def _footprint_mask(
+    x_norm: np.ndarray,
+    y_norm: np.ndarray,
+    *,
+    footprint: str,
+) -> np.ndarray:
+    """
+    Return a synthetic city-like footprint mask.
+
+    Supported footprints
+    --------------------
+    - "ellipse"
+    - "rectangle"
+    - "nansha_like"
+    - "zhongshan_like"
+    - "corridor"
+    """
+    fp = str(footprint).strip().lower()
+
+    if fp == "rectangle":
+        return np.ones_like(x_norm, dtype=bool)
+
+    if fp == "ellipse":
+        return (
+            ((x_norm - 0.50) / 0.44) ** 2
+            + ((y_norm - 0.50) / 0.34) ** 2
+            <= 1.0
+        )
+
+    e1 = (
+        ((x_norm - 0.50) / 0.44) ** 2
+        + ((y_norm - 0.48) / 0.34) ** 2
+        <= 1.0
+    )
+    e2 = (
+        ((x_norm - 0.70) / 0.22) ** 2
+        + ((y_norm - 0.58) / 0.18) ** 2
+        <= 1.0
+    )
+    cut = (
+        ((x_norm - 0.16) / 0.12) ** 2
+        + ((y_norm - 0.74) / 0.14) ** 2
+        <= 1.0
+    )
+
+    if fp == "nansha_like":
+        band = (
+            (x_norm > 0.10)
+            & (x_norm < 0.92)
+            & (y_norm > 0.24)
+            & (y_norm < 0.82)
+        )
+        return (e1 | e2 | band) & (~cut)
+
+    if fp == "zhongshan_like":
+        e3 = (
+            ((x_norm - 0.34) / 0.18) ** 2
+            + ((y_norm - 0.30) / 0.15) ** 2
+            <= 1.0
+        )
+        corridor = (
+            (x_norm > 0.22)
+            & (x_norm < 0.88)
+            & (y_norm > 0.18)
+            & (y_norm < 0.72)
+        )
+        return (e1 | e3 | corridor) & (~cut)
+
+    if fp == "corridor":
+        return (
+            (x_norm > 0.18)
+            & (x_norm < 0.88)
+            & (y_norm > 0.24)
+            & (y_norm < 0.72)
+        )
+
+    raise ValueError(
+        "Unknown footprint. Use one of: "
+        "ellipse, rectangle, nansha_like, "
+        "zhongshan_like, corridor."
+    )
+
+
+def make_spatial_support(
+    spec: SpatialSupportSpec,
+) -> SpatialSupport:
+    """
+    Build a synthetic spatial support cloud.
+
+    Parameters
+    ----------
+    spec : SpatialSupportSpec
+        Support configuration.
+
+    Returns
+    -------
+    SpatialSupport
+        Support container with coordinates, normalized
+        coordinates, and sample indices.
+
+    Notes
+    -----
+    This helper is intended for gallery pages and tests.
+    It produces a stable, reproducible spatial support
+    that looks more like a compact urban footprint than
+    a plain rectangular mesh.
+    """
+    rng = np.random.default_rng(int(spec.seed))
+
+    xs = np.linspace(
+        spec.center_x - spec.span_x,
+        spec.center_x + spec.span_x,
+        int(spec.nx),
+    )
+    ys = np.linspace(
+        spec.center_y - spec.span_y,
+        spec.center_y + spec.span_y,
+        int(spec.ny),
+    )
+
+    X, Y = np.meshgrid(xs, ys)
+
+    if float(spec.jitter_x) > 0.0:
+        X = X + rng.normal(
+            0.0,
+            float(spec.jitter_x),
+            size=X.shape,
+        )
+    if float(spec.jitter_y) > 0.0:
+        Y = Y + rng.normal(
+            0.0,
+            float(spec.jitter_y),
+            size=Y.shape,
+        )
+
+    x_flat = X.ravel().astype(float)
+    y_flat = Y.ravel().astype(float)
+
+    x_norm = _normalize01(x_flat)
+    y_norm = _normalize01(y_flat)
+
+    keep = _footprint_mask(
+        x_norm,
+        y_norm,
+        footprint=spec.footprint,
+    )
+
+    if float(spec.keep_frac) < 1.0:
+        frac = max(0.0, min(1.0, float(spec.keep_frac)))
+        idx_keep = np.flatnonzero(keep)
+        n_keep = int(np.floor(frac * idx_keep.size))
+        n_keep = max(1, n_keep)
+        picked = rng.choice(
+            idx_keep,
+            size=n_keep,
+            replace=False,
+        )
+        picked.sort()
+
+        keep2 = np.zeros_like(keep, dtype=bool)
+        keep2[picked] = True
+        keep = keep2
+
+    x_flat = x_flat[keep]
+    y_flat = y_flat[keep]
+    x_norm = x_norm[keep]
+    y_norm = y_norm[keep]
+
+    sample_idx = np.arange(x_flat.size, dtype=int)
+
+    extent = (
+        float(np.nanmin(x_flat)),
+        float(np.nanmax(x_flat)),
+        float(np.nanmin(y_flat)),
+        float(np.nanmax(y_flat)),
+    )
+
+    return SpatialSupport(
+        city=str(spec.city),
+        sample_idx=sample_idx,
+        coord_x=x_flat,
+        coord_y=y_flat,
+        x_norm=x_norm,
+        y_norm=y_norm,
+        extent=extent,
+    )
+
+
+def make_spatial_field(
+    support: SpatialSupport,
+    *,
+    amplitude: float = 1.0,
+    drift_x: float = 0.0,
+    drift_y: float = 0.0,
+    phase: float = 0.0,
+    hotspot_weight: float = 0.92,
+    secondary_weight: float = 0.54,
+    ridge_weight: float = 0.16,
+    wave_weight: float = 0.10,
+    local_weight: float = 0.0,
+) -> np.ndarray:
+    """
+    Build a smooth synthetic spatial field.
+
+    The field combines:
+    - one main hotspot,
+    - one secondary lobe,
+    - one ridge,
+    - one wave component,
+    - one linear drift.
+
+    Returns
+    -------
+    np.ndarray
+        Field values on the support points.
+    """
+    xn = support.x_norm
+    yn = support.y_norm
+
+    g1 = np.exp(
+        -(
+            ((xn - 0.66) ** 2) / 0.020
+            + ((yn - 0.42) ** 2) / 0.032
+        )
+    )
+    g2 = np.exp(
+        -(
+            ((xn - 0.38) ** 2) / 0.042
+            + ((yn - 0.64) ** 2) / 0.022
+        )
+    )
+    ridge = np.exp(
+        -((yn - (0.30 + 0.24 * xn)) ** 2) / 0.020
+    )
+    wave = np.sin(
+        2.4 * np.pi * xn + float(phase)
+    ) * np.cos(1.7 * np.pi * yn)
+    trend = float(drift_x) * xn + float(drift_y) * yn
+    local = (
+        np.sin(4.8 * xn) + np.cos(3.7 * yn)
+    )
+
+    return (
+        float(amplitude)
+        * (
+            float(hotspot_weight) * g1
+            + float(secondary_weight) * g2
+            + float(ridge_weight) * ridge
+            + float(wave_weight) * wave
+        )
+        + trend
+        + float(local_weight) * local
+    )
+
+
+def make_spatial_scale(
+    support: SpatialSupport,
+    *,
+    base: float = 0.30,
+    x_weight: float = 0.08,
+    hotspot_weight: float = 0.05,
+    step_weight: float = 0.0,
+    step: int = 0,
+    floor: float = 1e-6,
+) -> np.ndarray:
+    """
+    Build a positive spatial spread / uncertainty field.
+
+    Parameters
+    ----------
+    support : SpatialSupport
+        Support container.
+    base : float, default=0.30
+        Base scale level.
+    x_weight : float, default=0.08
+        East-west spread increase.
+    hotspot_weight : float, default=0.05
+        Extra spread near the main hotspot.
+    step_weight : float, default=0.0
+        Optional horizon-dependent increase.
+    step : int, default=0
+        Horizon index used with `step_weight`.
+    floor : float, default=1e-6
+        Minimum allowed scale.
+
+    Returns
+    -------
+    np.ndarray
+        Positive spread field.
+    """
+    xn = support.x_norm
+    yn = support.y_norm
+
+    hotspot = np.exp(
+        -(
+            ((xn - 0.66) ** 2) / 0.022
+            + ((yn - 0.42) ** 2) / 0.035
+        )
+    )
+
+    scale = (
+        float(base)
+        + float(x_weight) * xn
+        + float(hotspot_weight) * hotspot
+        + float(step_weight) * float(step)
+    )
+
+    return np.clip(scale, float(floor), None)
+
+
+def evolve_spatial_field(
+    support: SpatialSupport,
+    *,
+    base_field: np.ndarray,
+    step: int,
+    growth: float = 1.0,
+    phase_step: float = 0.18,
+    drift_scale: float = 0.65,
+    drift_x: float = 0.34,
+    drift_y: float = 0.20,
+    wave_amp: float = 0.70,
+) -> np.ndarray:
+    """
+    Evolve a base field across horizons.
+
+    This keeps the same geography but lets:
+    - the mean intensity grow,
+    - the wave phase shift,
+    - the field drift slightly.
+
+    Returns
+    -------
+    np.ndarray
+        Evolved field for the requested step.
+    """
+    xn = support.x_norm
+    yn = support.y_norm
+
+    i = int(step)
+    wave = float(wave_amp) * np.sin(
+        2.0 * np.pi * (xn + float(phase_step) * i)
+    )
+    drift = (
+        float(drift_scale)
+        * i
+        * (float(drift_x) * xn + float(drift_y) * yn)
+    )
+
+    return float(growth) * np.asarray(
+        base_field,
+        dtype=float,
+    ) + wave + drift
+
+
+def quantile_columns_from_mean_scale(
+    mean: np.ndarray,
+    scale: np.ndarray,
+    *,
+    quantiles: Sequence[float] = (0.1, 0.5, 0.9),
+    prefix: str = "subsidence",
+) -> dict[str, np.ndarray]:
+    """
+    Convert mean + scale fields into quantile columns.
+
+    Parameters
+    ----------
+    mean : np.ndarray
+        Central field.
+    scale : np.ndarray
+        Positive spread field.
+    quantiles : sequence of float
+        Quantile levels in (0, 1).
+    prefix : str, default="subsidence"
+        Output column prefix.
+
+    Returns
+    -------
+    dict[str, np.ndarray]
+        Mapping like:
+        {
+            "subsidence_q10": ...,
+            "subsidence_q50": ...,
+            ...
+        }
+    """
+    mu = np.asarray(mean, dtype=float)
+    sig = np.asarray(scale, dtype=float)
+
+    if mu.shape != sig.shape:
+        raise ValueError(
+            "`mean` and `scale` must share the same shape."
+        )
+
+    nd = NormalDist()
+    out: dict[str, np.ndarray] = {}
+
+    for q in quantiles:
+        qq = float(q)
+        if not (0.0 < qq < 1.0):
+            raise ValueError(
+                "Quantiles must lie strictly in (0, 1)."
+            )
+        z = float(nd.inv_cdf(qq))
+        name = f"{prefix}_q{int(round(100 * qq))}"
+        out[name] = mu + z * sig
+
+    return out
+
+
+def make_spatial_quantile_frame(
+    support: SpatialSupport,
+    *,
+    year: int,
+    forecast_step: int,
+    mean: np.ndarray,
+    scale: np.ndarray,
+    quantiles: Sequence[float] = (0.1, 0.5, 0.9),
+    actual: np.ndarray | None = None,
+    prefix: str = "subsidence",
+    unit: str = "mm",
+) -> pd.DataFrame:
+    """
+    Pack one spatial mean/scale state into a forecast table.
+
+    Parameters
+    ----------
+    support : SpatialSupport
+        Support container.
+    year : int
+        Calendar year for `coord_t`.
+    forecast_step : int
+        Forecast step or horizon index.
+    mean : np.ndarray
+        Central field.
+    scale : np.ndarray
+        Positive spread field.
+    quantiles : sequence of float
+        Quantile levels to export.
+    actual : np.ndarray or None, default=None
+        Optional observed target values.
+    prefix : str, default="subsidence"
+        Column prefix.
+    unit : str, default="mm"
+        Unit label.
+
+    Returns
+    -------
+    pd.DataFrame
+        Forecast-ready long table for one year.
+    """
+    qcols = quantile_columns_from_mean_scale(
+        mean,
+        scale,
+        quantiles=quantiles,
+        prefix=prefix,
+    )
+
+    data: dict[str, Any] = {
+        "sample_idx": support.sample_idx.astype(int),
+        "forecast_step": np.full(
+            support.sample_idx.size,
+            int(forecast_step),
+            dtype=int,
+        ),
+        "coord_t": np.full(
+            support.sample_idx.size,
+            int(year),
+            dtype=int,
+        ),
+        "coord_x": support.coord_x.astype(float),
+        "coord_y": support.coord_y.astype(float),
+        f"{prefix}_unit": [str(unit)] * support.sample_idx.size,
+    }
+
+    for name, vals in qcols.items():
+        data[name] = np.asarray(vals, dtype=float)
+
+    if actual is not None:
+        data[f"{prefix}_actual"] = np.asarray(
+            actual,
+            dtype=float,
+        )
+
+    return pd.DataFrame(data)
+
+
+def make_noisy_actual(
+    mean: np.ndarray,
+    scale: np.ndarray,
+    *,
+    rng: np.random.Generator,
+    noise_scale: float = 1.0,
+) -> np.ndarray:
+    """
+    Sample an observed field from mean + spread.
+
+    Parameters
+    ----------
+    mean : np.ndarray
+        Mean field.
+    scale : np.ndarray
+        Positive spread field.
+    rng : np.random.Generator
+        Random generator.
+    noise_scale : float, default=1.0
+        Global multiplier applied to the spread.
+
+    Returns
+    -------
+    np.ndarray
+        Noisy observed field.
+    """
+    mu = np.asarray(mean, dtype=float)
+    sig = np.asarray(scale, dtype=float)
+
+    if mu.shape != sig.shape:
+        raise ValueError(
+            "`mean` and `scale` must share the same shape."
+        )
+
+    return mu + rng.normal(
+        0.0,
+        float(noise_scale) * sig,
+        size=mu.shape,
+    )
 
 # -------------------------------------------------------------------
 # Small helpers

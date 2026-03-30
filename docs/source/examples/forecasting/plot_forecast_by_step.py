@@ -51,107 +51,194 @@ the documentation build.
 # -------
 # We use the real public plotting backend.
 
-from __future__ import annotations
-
 import numpy as np
 import pandas as pd
 
 from geoprior.plot import plot_forecast_by_step
+from geoprior._scripts import utils as script_utils
 
 # %%
 # Step 1 - Build a compact long-format forecast table
 # ---------------------------------------------------
 # ``plot_forecast_by_step`` expects a long-format DataFrame with a
-# ``forecast_step`` column and one or more value columns such as
-# ``subsidence_q50`` or ``subsidence_actual``.
+# ``forecast_step`` column and forecast value columns such as
+# ``subsidence_q10``, ``subsidence_q50``, ``subsidence_q90``,
+# and optionally ``subsidence_actual``.
 #
-# We build a synthetic spatial grid and create four forecast steps.
-# The synthetic behavior is chosen so the figure remains easy to read:
+# Instead of building a plain rectangular grid by hand, we now use
+# the shared synthetic-spatial helpers from ``geoprior._scripts``.
+# That gives us:
 #
-# - the median forecast increases with horizon,
-# - the uncertainty widens with horizon,
-# - one main hotspot persists through time,
-# - actual values stay close to the median but are not identical.
+# - a more city-like support,
+# - a smoother and more interpretable spatial field,
+# - quantiles generated from one coherent mean-plus-scale model,
+# - cleaner control over how the field changes by horizon.
+#
+# The parameter comments below are intentionally explicit so the user
+# can understand how spatial synthetic data are constructed.
 
 rng = np.random.default_rng(101)
 
-nx = 22
-ny = 16
 steps = [1, 2, 3, 4]
+years = {
+    1: 2024,
+    2: 2025,
+    3: 2026,
+    4: 2027,
+}
 
-xv = np.linspace(0.0, 11_000.0, nx)
-yv = np.linspace(0.0, 7_500.0, ny)
+# Build one reusable support cloud.
+#
+# Key parameters
+# --------------
+# city:
+#     Only a label for the synthetic support.
+# center_x, center_y:
+#     Center of the projected coordinate system.
+# span_x, span_y:
+#     Half-width and half-height of the domain.
+# nx, ny:
+#     Number of support locations before masking.
+# jitter_x, jitter_y:
+#     Small perturbations so the grid does not look too artificial.
+# footprint:
+#     Shape of the retained support. "ellipse" is compact and works
+#     well for generic lessons. You can also use "nansha_like" or
+#     "zhongshan_like" for more distinctive urban shapes.
+# seed:
+#     Keeps the support reproducible across doc builds.
 
-X, Y = np.meshgrid(xv, yv)
-x_flat = X.ravel()
-y_flat = Y.ravel()
-
-n_sites = x_flat.size
-
-xn = (x_flat - x_flat.min()) / (x_flat.max() - x_flat.min())
-yn = (y_flat - y_flat.min()) / (y_flat.max() - y_flat.min())
-
-base_hotspot = np.exp(
-    -(
-        ((xn - 0.70) ** 2) / 0.020
-        + ((yn - 0.38) ** 2) / 0.030
+support = script_utils.make_spatial_support(
+    script_utils.SpatialSupportSpec(
+        city="ForecastDemo",
+        center_x=5_500.0,
+        center_y=3_750.0,
+        span_x=5_200.0,
+        span_y=3_600.0,
+        nx=23,
+        ny=17,
+        jitter_x=35.0,
+        jitter_y=28.0,
+        footprint="ellipse",
+        seed=101,
     )
 )
-secondary_zone = 0.55 * np.exp(
-    -(
-        ((xn - 0.28) ** 2) / 0.028
-        + ((yn - 0.74) ** 2) / 0.050
-    )
-)
-regional_gradient = 0.42 * xn + 0.24 * (1.0 - yn)
 
-rows: list[dict[str, float | int]] = []
+# Build a baseline median field.
+#
+# Key parameters
+# --------------
+# amplitude:
+#     Overall signal strength.
+# drift_x, drift_y:
+#     Large-scale east-west / north-south trend.
+# phase:
+#     Phase of the smooth oscillatory component.
+# local_weight:
+#     Adds small local texture so the map is not overly smooth.
+
+base_mean = script_utils.make_spatial_field(
+    support,
+    amplitude=2.25,
+    drift_x=0.95,
+    drift_y=0.45,
+    phase=0.55,
+    local_weight=0.18,
+)
+
+# Build a baseline uncertainty field.
+#
+# Key parameters
+# --------------
+# base:
+#     Global baseline uncertainty.
+# x_weight:
+#     Lets uncertainty increase gradually across space.
+# hotspot_weight:
+#     Adds extra spread near the dominant hotspot.
+#
+# This makes the interval width spatially meaningful rather than
+# constant everywhere.
+
+base_scale = script_utils.make_spatial_scale(
+    support,
+    base=0.26,
+    x_weight=0.08,
+    hotspot_weight=0.05,
+)
+
+rows: list[pd.DataFrame] = []
 
 for step in steps:
-    lead_scale = {
+    # Horizon growth controls how strongly the response increases from
+    # one forecast step to the next.
+    growth = {
         1: 1.00,
         2: 1.18,
         3: 1.40,
         4: 1.68,
     }[step]
 
-    # Step-specific median field
-    q50 = (
-        1.8
-        + 1.3 * regional_gradient
-        + 1.9 * base_hotspot
-        + 0.9 * secondary_zone
-    ) * lead_scale
-
-    # Wider intervals at later steps
-    width = (
-        0.26
-        + 0.08 * xn
-        + 0.05 * base_hotspot
-        + 0.05 * step
+    # Evolve the central field through the horizon.
+    #
+    # Key parameters
+    # --------------
+    # base_field:
+    #     The shared spatial pattern that persists over time.
+    # step:
+    #     Zero-based step index used by the evolution helper.
+    # growth:
+    #     Multiplies the overall field intensity.
+    #
+    # This keeps the hotspot in roughly the same place while letting
+    # it intensify with lead time.
+    mean_step = script_utils.evolve_spatial_field(
+        support,
+        base_field=base_mean,
+        step=step - 1,
+        growth=growth,
     )
 
-    q10 = q50 - width + rng.normal(0.0, 0.02, size=n_sites)
-    q50 = q50 + rng.normal(0.0, 0.03, size=n_sites)
-    q90 = q50 + width + rng.normal(0.0, 0.02, size=n_sites)
+    # Let uncertainty widen with horizon.
+    #
+    # Earlier steps are tighter; later steps are wider.
+    scale_step = base_scale * {
+        1: 0.95,
+        2: 1.10,
+        3: 1.28,
+        4: 1.48,
+    }[step]
 
-    actual = q50 + rng.normal(0.0, 0.14, size=n_sites)
+    # Sample a synthetic "actual" field near the step-specific mean.
+    #
+    # This is only for the lesson. In a real evaluation table, the
+    # actual values would come from observations.
+    actual_step = script_utils.make_noisy_actual(
+        mean_step,
+        0.55 * scale_step,
+        rng=rng,
+        noise_scale=1.0,
+    )
 
-    for idx in range(n_sites):
-        rows.append(
-            {
-                "sample_idx": idx,
-                "forecast_step": step,
-                "coord_x": float(x_flat[idx]),
-                "coord_y": float(y_flat[idx]),
-                "subsidence_actual": float(actual[idx]),
-                "subsidence_q10": float(q10[idx]),
-                "subsidence_q50": float(q50[idx]),
-                "subsidence_q90": float(q90[idx]),
-            }
+    # Package the step into one forecast-ready table.
+    #
+    # Quantiles are generated coherently from the same mean and scale,
+    # so q10 < q50 < q90 is naturally preserved.
+    rows.append(
+        script_utils.make_spatial_quantile_frame(
+            support,
+            year=years[step],
+            forecast_step=step,
+            mean=mean_step,
+            scale=scale_step,
+            quantiles=(0.1, 0.5, 0.9),
+            actual=actual_step,
+            prefix="subsidence",
+            unit="mm",
         )
+    )
 
-forecast_df = pd.DataFrame(rows)
+forecast_df = pd.concat(rows, ignore_index=True)
 
 print("Forecast table shape:", forecast_df.shape)
 print("")

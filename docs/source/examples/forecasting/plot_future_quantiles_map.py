@@ -75,107 +75,151 @@ import numpy as np
 import pandas as pd
 
 from geoprior.plot import forecast_view
+from geoprior._scripts import utils as script_utils
 
 # %%
 # Step 1 - Build a compact synthetic future forecast table
 # --------------------------------------------------------
-# We create a long-format table representing future forecasts at
-# three years:
+# We now build the synthetic future map from the shared spatial
+# helpers in ``geoprior._scripts.utils``.
 #
-# - 2025
-# - 2027
-# - 2030
+# This is better than rebuilding a plain grid and hotspot manually
+# inside the lesson because it keeps:
 #
-# Each row corresponds to one spatial sample at one future year.
-# The prediction columns are:
-#
-# - ``subsidence_q10``
-# - ``subsidence_q50``
-# - ``subsidence_q90``
-#
-# This matches the contract expected by ``forecast_view`` for a
-# prediction-only future map layout. 
+# - the spatial support reusable,
+# - the hotspot geometry coherent across years,
+# - the quantile family internally consistent,
+# - the uncertainty widening easy to control and explain.
 
 rng = np.random.default_rng(17)
 
-nx = 24
-ny = 18
 years = [2025, 2027, 2030]
 
-xv = np.linspace(0.0, 12_000.0, nx)
-yv = np.linspace(0.0, 8_000.0, ny)
-X, Y = np.meshgrid(xv, yv)
+# Build one reusable support cloud.
+#
+# Key parameters
+# --------------
+# city:
+#     Only a label for this synthetic lesson.
+# center_x, center_y:
+#     Center of the projected coordinate system.
+# span_x, span_y:
+#     Half-width and half-height of the map domain.
+# nx, ny:
+#     Number of support locations before masking.
+# jitter_x, jitter_y:
+#     Small perturbations so the support is not an overly rigid grid.
+# footprint:
+#     Shape of the retained support. "ellipse" is a good generic
+#     choice for future-map lessons.
+# seed:
+#     Makes the support reproducible across doc builds.
 
-x_flat = X.ravel()
-y_flat = Y.ravel()
-n_sites = x_flat.size
+support = script_utils.make_spatial_support(
+    script_utils.SpatialSupportSpec(
+        city="FutureForecastDemo",
+        center_x=6_000.0,
+        center_y=4_000.0,
+        span_x=5_400.0,
+        span_y=3_700.0,
+        nx=24,
+        ny=18,
+        jitter_x=32.0,
+        jitter_y=26.0,
+        footprint="ellipse",
+        seed=17,
+    )
+)
 
-# normalized coordinates for constructing smooth synthetic fields
-xn = (x_flat - x_flat.min()) / (x_flat.max() - x_flat.min())
-yn = (y_flat - y_flat.min()) / (y_flat.max() - y_flat.min())
+# Build one baseline central field.
+#
+# Key parameters
+# --------------
+# amplitude:
+#     Overall field strength.
+# drift_x, drift_y:
+#     Broad spatial gradient across the domain.
+# phase:
+#     Phase of the smooth oscillatory component.
+# local_weight:
+#     Small local texture so the map is smooth but not too perfect.
 
-rows: list[dict[str, float | int]] = []
+base_mean = script_utils.make_spatial_field(
+    support,
+    amplitude=2.35,
+    drift_x=1.05,
+    drift_y=0.55,
+    phase=0.60,
+    local_weight=0.14,
+)
 
-for year in years:
-    # stronger response at later years
-    year_level = {
+# Build one baseline uncertainty field.
+#
+# Key parameters
+# --------------
+# base:
+#     Global uncertainty floor.
+# x_weight:
+#     Gradual east-west spread increase.
+# hotspot_weight:
+#     Extra spread near the dominant hotspot.
+#
+# This makes uncertainty spatially meaningful instead of constant.
+
+base_scale = script_utils.make_spatial_scale(
+    support,
+    base=0.30,
+    x_weight=0.10,
+    hotspot_weight=0.06,
+)
+
+rows: list[pd.DataFrame] = []
+
+for i, year in enumerate(years):
+    growth = {
         2025: 1.00,
         2027: 1.35,
         2030: 1.80,
     }[year]
 
-    # smooth spatial pattern with one main hotspot and one weaker ridge
-    hotspot = np.exp(
-        -(
-            ((xn - 0.72) ** 2) / 0.018
-            + ((yn - 0.34) ** 2) / 0.028
-        )
-    )
-    ridge = 0.55 * np.exp(
-        -(
-            ((xn - 0.28) ** 2) / 0.020
-            + ((yn - 0.72) ** 2) / 0.040
-        )
-    )
-    gradient = 0.40 * xn + 0.22 * (1.0 - yn)
+    scale_mult = {
+        2025: 1.00,
+        2027: 1.20,
+        2030: 1.42,
+    }[year]
 
-    q50 = (
-        2.2
-        + 1.7 * gradient
-        + 2.3 * hotspot
-        + 1.2 * ridge
-    ) * year_level
-
-    # modest spatially varying uncertainty, increasing with year
-    width = (
-        0.30
-        + 0.10 * xn
-        + 0.06 * hotspot
-        + {2025: 0.12, 2027: 0.20, 2030: 0.32}[year]
+    # Evolve the same spatial pattern through time.
+    #
+    # The hotspot stays broadly in the same place but intensifies as
+    # the forecast horizon moves farther into the future.
+    mean_year = script_utils.evolve_spatial_field(
+        support,
+        base_field=base_mean,
+        step=i,
+        growth=growth,
     )
 
-    q10 = q50 - width
-    q90 = q50 + width
+    # Widen uncertainty with year.
+    scale_year = base_scale * scale_mult
 
-    # small perturbation to avoid a too-perfect synthetic field
-    q10 = q10 + rng.normal(0.0, 0.02, size=n_sites)
-    q50 = q50 + rng.normal(0.0, 0.02, size=n_sites)
-    q90 = q90 + rng.normal(0.0, 0.02, size=n_sites)
-
-    for idx in range(n_sites):
-        rows.append(
-            {
-                "sample_idx": idx,
-                "coord_t": year,
-                "coord_x": float(x_flat[idx]),
-                "coord_y": float(y_flat[idx]),
-                "subsidence_q10": float(q10[idx]),
-                "subsidence_q50": float(q50[idx]),
-                "subsidence_q90": float(q90[idx]),
-            }
+    # Pack one year into a forecast-ready table.
+    #
+    # Quantiles come from one coherent mean-plus-scale model, so
+    # q10 < q50 < q90 is naturally preserved.
+    rows.append(
+        script_utils.make_spatial_quantile_frame(
+            support,
+            year=year,
+            forecast_step=year - 2023,
+            mean=mean_year,
+            scale=scale_year,
+            quantiles=(0.1, 0.5, 0.9),
+            prefix="subsidence",
+            unit="mm",
         )
+    )
 
-future_df = pd.DataFrame(rows)
+future_df = pd.concat(rows, ignore_index=True)
 
 print("Future forecast table shape:", future_df.shape)
 print("")

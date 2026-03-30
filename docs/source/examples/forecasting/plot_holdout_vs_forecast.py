@@ -73,93 +73,136 @@ documentation build.
 # -------
 # We use the real public plotting function.
 
-from __future__ import annotations
-
 import numpy as np
 import pandas as pd
 
 from geoprior.plot import plot_eval_future
+from geoprior._scripts import utils as script_utils
 
 # %%
 # Step 1 - Build a compact synthetic evaluation split
 # ---------------------------------------------------
-# The evaluation split represents years for which we still have
-# observed values. The table therefore includes:
+# The evaluation split should represent a known year with:
 #
-# - spatial coordinates,
-# - a time column,
 # - actual values,
-# - lower / median / upper predictive quantiles.
+# - lower / median / upper forecast quantiles,
+# - the same spatial support that will also be used later for the
+#   future split.
 #
-# We construct one evaluation year (2023) so the panel is easy to
-# read. The synthetic field has:
-#
-# - a coherent hotspot,
-# - a moderate spatial gradient,
-# - predicted quantiles that bracket the actual values with some error.
+# We therefore build one reusable support and one reusable baseline
+# spatial field first, then derive both evaluation and future tables
+# from that same synthetic geography.
 
 rng = np.random.default_rng(123)
 
-nx = 24
-ny = 18
 eval_year = 2023
 future_years = [2025, 2027, 2030]
 
-xv = np.linspace(0.0, 12_000.0, nx)
-yv = np.linspace(0.0, 8_000.0, ny)
+# Build one reusable support cloud.
+#
+# Key parameters
+# --------------
+# city:
+#     Only a label for the synthetic lesson.
+# center_x, center_y:
+#     Center of the projected map coordinates.
+# span_x, span_y:
+#     Half-width and half-height of the domain.
+# nx, ny:
+#     Number of candidate points before masking.
+# jitter_x, jitter_y:
+#     Small coordinate perturbations to avoid an overly rigid grid.
+# footprint:
+#     Shape of the retained support.
+# seed:
+#     Ensures full reproducibility across doc builds.
 
-X, Y = np.meshgrid(xv, yv)
-x_flat = X.ravel()
-y_flat = Y.ravel()
-
-xn = (x_flat - x_flat.min()) / (x_flat.max() - x_flat.min())
-yn = (y_flat - y_flat.min()) / (y_flat.max() - y_flat.min())
-
-n_sites = x_flat.size
-
-hotspot = np.exp(
-    -(
-        ((xn - 0.70) ** 2) / 0.020
-        + ((yn - 0.36) ** 2) / 0.030
+support = script_utils.make_spatial_support(
+    script_utils.SpatialSupportSpec(
+        city="EvalFutureDemo",
+        center_x=6_000.0,
+        center_y=4_000.0,
+        span_x=5_500.0,
+        span_y=3_800.0,
+        nx=24,
+        ny=18,
+        jitter_x=34.0,
+        jitter_y=28.0,
+        footprint="ellipse",
+        seed=123,
     )
 )
-ridge = 0.45 * np.exp(
-    -(
-        ((xn - 0.32) ** 2) / 0.028
-        + ((yn - 0.76) ** 2) / 0.050
-    )
+
+# Build one baseline central field.
+#
+# Key parameters
+# --------------
+# amplitude:
+#     Overall magnitude of the spatial response.
+# drift_x, drift_y:
+#     Broad regional trend.
+# phase:
+#     Phase of the oscillatory texture.
+# local_weight:
+#     Small local variation to avoid an overly smooth toy field.
+
+base_mean = script_utils.make_spatial_field(
+    support,
+    amplitude=2.45,
+    drift_x=0.95,
+    drift_y=0.42,
+    phase=0.58,
+    local_weight=0.16,
 )
-gradient = 0.42 * xn + 0.18 * (1.0 - yn)
 
-eval_q50 = 2.5 + 1.5 * gradient + 2.0 * hotspot + 1.0 * ridge
-eval_width = 0.34 + 0.08 * xn + 0.06 * hotspot
+# Build one baseline uncertainty field.
+#
+# This gives us a spatially varying interval width that can later be
+# widened for the future years.
+base_scale = script_utils.make_spatial_scale(
+    support,
+    base=0.32,
+    x_weight=0.08,
+    hotspot_weight=0.06,
+)
 
-eval_q10 = eval_q50 - eval_width + rng.normal(0.0, 0.02, size=n_sites)
-eval_q50 = eval_q50 + rng.normal(0.0, 0.03, size=n_sites)
-eval_q90 = eval_q50 + eval_width + rng.normal(0.0, 0.02, size=n_sites)
+# Evaluation-year forecast field.
+#
+# We keep the evaluation year close to the baseline state so the page
+# first reads as a holdout reconstruction of a known spatial pattern.
+eval_mean = script_utils.evolve_spatial_field(
+    support,
+    base_field=base_mean,
+    step=0,
+    growth=1.00,
+)
 
-# Observed holdout values:
-# close to q50, but not identical, with local mismatch
-eval_actual = eval_q50 + rng.normal(0.0, 0.18, size=n_sites)
+eval_scale = base_scale * 1.00
 
-eval_rows: list[dict[str, float | int]] = []
+# Sample synthetic observed holdout values.
+#
+# In a real workflow these would be true observations. Here they are
+# generated near the evaluation-year central field so the evaluation
+# panel remains meaningful.
+eval_actual = script_utils.make_noisy_actual(
+    eval_mean,
+    0.60 * eval_scale,
+    rng=rng,
+    noise_scale=1.0,
+)
 
-for idx in range(n_sites):
-    eval_rows.append(
-        {
-            "sample_idx": idx,
-            "forecast_step": 1,
-            "coord_t": eval_year,
-            "coord_x": float(x_flat[idx]),
-            "coord_y": float(y_flat[idx]),
-            "subsidence_actual": float(eval_actual[idx]),
-            "subsidence_q10": float(eval_q10[idx]),
-            "subsidence_q50": float(eval_q50[idx]),
-            "subsidence_q90": float(eval_q90[idx]),
-        }
-    )
-
-df_eval = pd.DataFrame(eval_rows)
+# Build the evaluation DataFrame.
+df_eval = script_utils.make_spatial_quantile_frame(
+    support,
+    year=eval_year,
+    forecast_step=1,
+    mean=eval_mean,
+    scale=eval_scale,
+    quantiles=(0.1, 0.5, 0.9),
+    actual=eval_actual,
+    prefix="subsidence",
+    unit="mm",
+)
 
 print("Evaluation table shape:", df_eval.shape)
 print("")
@@ -168,64 +211,54 @@ print(df_eval.head(8).to_string(index=False))
 # %%
 # Step 2 - Build a compact synthetic future split
 # -----------------------------------------------
-# The future split keeps the same spatial grid but contains only
-# predictions. There are no actual values because these years are
-# beyond the observed period.
+# The future split must extend the same spatial story rather than
+# create a disconnected new one.
 #
-# We create three years:
+# We therefore:
 #
-# - 2025
-# - 2027
-# - 2030
-#
-# The future field intensifies through time and the uncertainty also
-# widens, which makes the page easy to interpret.
+# - keep the same support,
+# - evolve the same central field through time,
+# - widen uncertainty with future year,
+# - and omit actual values because they are unknown in future years.
 
-future_rows: list[dict[str, float | int]] = []
+future_rows: list[pd.DataFrame] = []
 
-for year in future_years:
-    scale = {
+for i, year in enumerate(future_years, start=1):
+    growth = {
         2025: 1.10,
         2027: 1.38,
         2030: 1.82,
     }[year]
 
-    width_add = {
-        2025: 0.10,
-        2027: 0.18,
-        2030: 0.30,
+    scale_mult = {
+        2025: 1.08,
+        2027: 1.22,
+        2030: 1.40,
     }[year]
 
-    fut_q50 = (
-        2.5 + 1.5 * gradient + 2.0 * hotspot + 1.0 * ridge
-    ) * scale
-
-    fut_width = (
-        0.36
-        + 0.08 * xn
-        + 0.06 * hotspot
-        + width_add
+    mean_year = script_utils.evolve_spatial_field(
+        support,
+        base_field=base_mean,
+        step=i,
+        growth=growth,
     )
 
-    fut_q10 = fut_q50 - fut_width + rng.normal(0.0, 0.02, size=n_sites)
-    fut_q50 = fut_q50 + rng.normal(0.0, 0.03, size=n_sites)
-    fut_q90 = fut_q50 + fut_width + rng.normal(0.0, 0.02, size=n_sites)
+    scale_year = base_scale * scale_mult
 
-    for idx in range(n_sites):
-        future_rows.append(
-            {
-                "sample_idx": idx,
-                "forecast_step": year - eval_year,
-                "coord_t": year,
-                "coord_x": float(x_flat[idx]),
-                "coord_y": float(y_flat[idx]),
-                "subsidence_q10": float(fut_q10[idx]),
-                "subsidence_q50": float(fut_q50[idx]),
-                "subsidence_q90": float(fut_q90[idx]),
-            }
+    future_rows.append(
+        script_utils.make_spatial_quantile_frame(
+            support,
+            year=year,
+            forecast_step=year - eval_year,
+            mean=mean_year,
+            scale=scale_year,
+            quantiles=(0.1, 0.5, 0.9),
+            prefix="subsidence",
+            unit="mm",
         )
+    )
 
-df_future = pd.DataFrame(future_rows)
+df_future = pd.concat(future_rows, ignore_index=True)
 
 print("")
 print("Future table shape:", df_future.shape)
