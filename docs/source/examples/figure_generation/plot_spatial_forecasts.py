@@ -71,7 +71,7 @@ import pandas as pd
 from geoprior._scripts.plot_spatial_forecasts import (
     plot_fig6_spatial_forecasts,
 )
-
+from geoprior._scripts import utils as script_utils
 
 # %%
 # Step 1 - Understand the figure we want to teach
@@ -333,18 +333,25 @@ print(f"  Zhongshan: {len(zh_future)}")
 # - the reference-year signal already has a geography worth
 #   reconstructing and forecasting.
 
-fig, axes = plt.subplots(2, 2, figsize=(10.0, 7.2))
+fig, axes = plt.subplots(
+    2,
+    2,
+    figsize=(10.0, 7.2),
+    constrained_layout=True,
+)
 
 preview_specs = [
-    (axes[0, 0], ns_calib, "Nansha support"),
-    (axes[0, 1], ns_calib, "Nansha 2022 observed"),
-    (axes[1, 0], zh_calib, "Zhongshan support"),
-    (axes[1, 1], zh_calib, "Zhongshan 2022 observed"),
+    (axes[0, 0], ns_calib, "Nansha support", False),
+    (axes[0, 1], ns_calib, "Nansha 2022 observed", True),
+    (axes[1, 0], zh_calib, "Zhongshan support", False),
+    (axes[1, 1], zh_calib, "Zhongshan 2022 observed", True),
 ]
 
-for ax, df, ttl in preview_specs:
-    if "observed" in ttl:
-        sc = ax.scatter(
+sc_obs = None
+
+for ax, df, ttl, is_observed in preview_specs:
+    if is_observed:
+        sc_obs = ax.scatter(
             df["coord_x"],
             df["coord_y"],
             c=df["subsidence_actual"],
@@ -353,22 +360,27 @@ for ax, df, ttl in preview_specs:
             linewidths=0,
         )
     else:
-        sc = ax.scatter(
+        ax.scatter(
             df["coord_x"],
             df["coord_y"],
             s=8,
-            c=np.full(len(df), 1.0),
-            cmap="Greys",
+            color="0.30",   # dark gray, always visible
             linewidths=0,
         )
+
     ax.set_title(ttl)
     ax.set_xticks([])
     ax.set_yticks([])
     ax.set_aspect("equal", adjustable="box")
 
-cbar = fig.colorbar(sc, ax=axes[:, 1], shrink=0.88)
-cbar.set_label("Synthetic subsidence")
-plt.tight_layout()
+if sc_obs is not None:
+    cbar = fig.colorbar(
+        sc_obs,
+        ax=[axes[0, 1], axes[1, 1]],
+        fraction=0.046,
+        pad=0.03,
+    )
+    cbar.set_label("Synthetic subsidence")
 
 
 # %%
@@ -451,11 +463,10 @@ print(f"  {out_base}")
 # small display figure so Sphinx-Gallery always shows the rendered
 # result on the page.
 
-img = mpimg.imread(str(out_base) + ".png")
-fig, ax = plt.subplots(figsize=(10.8, 6.4))
-ax.imshow(img)
-ax.axis("off")
-
+script_utils.show_gallery_saved_figure(
+    out_base=out_base,
+    figsize=(10.8, 6.4),
+)
 
 def _city_summary(
     city: str,

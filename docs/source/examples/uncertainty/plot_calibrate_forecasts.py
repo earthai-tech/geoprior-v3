@@ -198,7 +198,7 @@ print(df.head(8).to_string(index=False))
 #
 # .. math::
 #
-#    P(Y \\le \\hat{q}_\\alpha) \\approx \\alpha
+#    P(Y \le \hat{q}_\alpha) \approx \alpha
 #
 # So for each quantile column, we compare:
 #
