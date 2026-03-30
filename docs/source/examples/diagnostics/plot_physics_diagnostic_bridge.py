@@ -88,7 +88,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from geoprior.nn.pinn.geoprior.payloads import (
+from geoprior.models.subsidence.payloads import (
     identifiability_diagnostics_from_payload,
 )
 
