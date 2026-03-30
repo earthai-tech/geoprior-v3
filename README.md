@@ -20,6 +20,9 @@
     <a href="https://github.com/earthai-tech/geoprior-v3/blob/main/CONTRIBUTING.md">
       <img alt="Contributions" src="https://img.shields.io/badge/Contributions-Welcome-brightgreen?style=flat-square">
     </a>
+    <a href="https://github.com/earthai-tech/geoprior-v3/releases/latest">
+        <img alt="GitHub Release" src="https://img.shields.io/github/v/release/earthai-tech/geoprior-v3">
+    </a>
   </p>
 
   <p>
