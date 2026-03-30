@@ -89,9 +89,8 @@ class LayerScale(Layer, NNLearner):
         self.gamma = self.add_weight(
             "gamma",
             shape=gamma_shape,
-            initializer=lambda s,
-            d=None: tf_float32.as_numpy_dtype(
-                self.init_value
+            initializer=lambda s, d=None: (
+                tf_float32.as_numpy_dtype(self.init_value)
             ),
             trainable=True,
         )

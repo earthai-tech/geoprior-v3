@@ -3049,9 +3049,9 @@ def pivot_forecast(
     aggfunc: str | Callable = "first",
     fill_value: Any = np.nan,
     sep: str = "_",
-    time_formatter: Callable[
-        [Any], str
-    ] = lambda t: pd.to_datetime(t).strftime("%Y-%m-%d"),
+    time_formatter: Callable[[Any], str] = lambda t: (
+        pd.to_datetime(t).strftime("%Y-%m-%d")
+    ),
     inplace: bool = False,
     savefile: str | None = None,
     verbose: int = 0,

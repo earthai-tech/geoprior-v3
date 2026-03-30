@@ -91,6 +91,15 @@ def pytest_configure(config: pytest.Config) -> None:
         "stage_artifacts: uses synthetic stage"
         " artifact trees.",
     )
+    config.addinivalue_line(
+        "markers",
+        "script_artifacts: uses isolated geoprior._scripts"
+        " output roots.",
+    )
+    config.addinivalue_line(
+        "markers",
+        "fast_plots: uses stubbed figure writing for speed.",
+    )
 
 
 @pytest.fixture(autouse=True)
@@ -98,6 +107,17 @@ def _test_env(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("PYTHONHASHSEED", str(RNG_SEED))
     monkeypatch.setenv("TF_CPP_MIN_LOG_LEVEL", "3")
     monkeypatch.setenv("MPLBACKEND", "Agg")
+
+    import matplotlib
+
+    matplotlib.use("Agg", force=True)
+
+    try:
+        import matplotlib.pyplot as plt
+
+        plt.switch_backend("Agg")
+    except Exception:
+        pass
 
 
 @pytest.fixture
@@ -1285,3 +1305,227 @@ def write_python_assignments(
         "\n".join(lines) + "\n",
         encoding="utf-8",
     )
+
+
+# ------------------------------------------------------------------
+# Optional helpers for geoprior._scripts tests.
+# These are opt-in so the existing stage tests keep the exact same
+# behavior.
+# ------------------------------------------------------------------
+
+
+def _write_placeholder_artifact(path: Path) -> Path:
+    """Create a tiny placeholder file for fast plot tests."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    ext = path.suffix.lower()
+
+    if ext == ".png":
+        import base64
+
+        png_b64 = (
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwC"
+            "AAAAC0lEQVR42mP8/x8AAwMCAO+a4WQAAAAASUVORK5CYII="
+        )
+        path.write_bytes(base64.b64decode(png_b64))
+        return path
+
+    if ext == ".svg":
+        path.write_text(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>\n',
+            encoding="utf-8",
+        )
+        return path
+
+    if ext == ".pdf":
+        path.write_bytes(
+            b"%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n"
+        )
+        return path
+
+    if ext == ".eps":
+        path.write_text(
+            "%!PS-Adobe-3.0 EPSF-3.0\n"
+            "%%BoundingBox: 0 0 1 1\n"
+            "showpage\n",
+            encoding="utf-8",
+        )
+        return path
+
+    path.touch()
+    return path
+
+
+def _default_script_output_dirs(
+    root: Path,
+) -> dict[str, Path]:
+    """Return a standard isolated output tree for script tests."""
+    scripts_dir = root / "scripts"
+    out = {
+        "root": root,
+        "scripts_dir": scripts_dir,
+        "figs_dir": scripts_dir / "figs",
+        "tables_dir": scripts_dir / "tables",
+        "exports_dir": scripts_dir / "exports",
+        "results_dir": scripts_dir / "results",
+        "data_dir": scripts_dir / "data",
+    }
+    for path in out.values():
+        path.mkdir(parents=True, exist_ok=True)
+    return out
+
+
+@pytest.fixture
+def scripts_workspace(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> dict[str, Path]:
+    """
+    Isolated workspace for ``geoprior._scripts`` tests.
+
+    The fixture changes the working directory to a temporary root and
+    pre-creates the common ``scripts/`` output folders. Existing tests
+    are unaffected unless they opt into this fixture.
+    """
+    root = tmp_path / "scripts-workspace"
+    paths = _default_script_output_dirs(root)
+    monkeypatch.chdir(root)
+    return paths
+
+
+@pytest.fixture
+def patch_script_output_roots(
+    monkeypatch: pytest.MonkeyPatch,
+    scripts_workspace: dict[str, Path],
+) -> dict[str, Path]:
+    """
+    Route relative script outputs into the temporary workspace.
+
+    This patches ``geoprior._scripts.config.resolve_user_artifact_path``
+    when available. Absolute output paths are preserved.
+    """
+    try:
+        import importlib
+
+        cfg = importlib.import_module(
+            "geoprior._scripts.config"
+        )
+    except Exception:
+        return scripts_workspace
+
+    def _resolve(
+        out: str | os.PathLike[str],
+        *,
+        kind: str | None = None,
+    ) -> Path:
+        path = Path(os.fspath(out)).expanduser()
+        if path.is_absolute():
+            path.parent.mkdir(parents=True, exist_ok=True)
+            return path
+
+        kind_key = str(kind or "result").strip().lower()
+        if kind_key in {"fig", "figure", "plot"}:
+            base = scripts_workspace["figs_dir"]
+        elif kind_key in {"table", "tables", "summary"}:
+            base = scripts_workspace["tables_dir"]
+        elif kind_key in {"export", "exports", "geojson"}:
+            base = scripts_workspace["exports_dir"]
+        elif kind_key in {"data", "dataset", "input"}:
+            base = scripts_workspace["data_dir"]
+        else:
+            base = scripts_workspace["results_dir"]
+
+        out_path = base / path
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        return out_path
+
+    monkeypatch.setattr(
+        cfg,
+        "resolve_user_artifact_path",
+        _resolve,
+        raising=False,
+    )
+    return scripts_workspace
+
+
+@pytest.fixture
+def fast_script_figures(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """
+    Replace expensive Matplotlib file rendering with placeholders.
+
+    Use this only in tests that assert file creation or dispatch,
+    not in tests that inspect real pixel content.
+    """
+    import matplotlib.pyplot as plt
+    from matplotlib.figure import Figure
+
+    def _fake_savefig(
+        self,
+        fname,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
+        del self, args, kwargs
+        _write_placeholder_artifact(Path(os.fspath(fname)))
+
+    monkeypatch.setattr(Figure, "savefig", _fake_savefig)
+    monkeypatch.setattr(plt, "show", lambda *a, **k: None)
+
+
+@pytest.fixture
+def script_test_env(
+    patch_script_output_roots: dict[str, Path],
+) -> dict[str, Path]:
+    """
+    Convenience fixture for most ``geoprior._scripts`` tests.
+
+    It provides an isolated workspace and patched relative output
+    resolution, while leaving figure rendering unchanged.
+    """
+    return patch_script_output_roots
+
+
+@pytest.fixture
+def collect_script_outputs(
+    scripts_workspace: dict[str, Path],
+) -> Callable[..., list[Path]]:
+    """Collect files written inside the isolated script workspace."""
+
+    def _collect(*patterns: str) -> list[Path]:
+        pats = patterns or ("*",)
+        seen: dict[str, Path] = {}
+        for key in (
+            "figs_dir",
+            "tables_dir",
+            "exports_dir",
+            "results_dir",
+            "data_dir",
+        ):
+            base = scripts_workspace[key]
+            for pat in pats:
+                for path in base.rglob(pat):
+                    if path.is_file():
+                        seen[str(path.resolve())] = (
+                            path.resolve()
+                        )
+        return sorted(seen.values())
+
+    return _collect
+
+
+@pytest.fixture
+def assert_script_outputs(
+    collect_script_outputs: Callable[..., list[Path]],
+) -> Callable[..., list[Path]]:
+    """Assert that one or more script outputs were created."""
+
+    def _assert(*patterns: str) -> list[Path]:
+        found = collect_script_outputs(*patterns)
+        assert found, (
+            "No script outputs were created"
+            f" for patterns={patterns or ('*',)}."
+        )
+        return found
+
+    return _assert

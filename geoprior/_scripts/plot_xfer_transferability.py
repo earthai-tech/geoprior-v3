@@ -42,6 +42,7 @@ Notes
 
 from __future__ import annotations
 
+import argparse
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
@@ -167,7 +168,14 @@ def _subset(
     use_rm = rescale_mode
 
     if s == "baseline":
-        use_dir = cfg._BASELINE_MAP.get(d, d).lower()
+        baseline_map = {
+            "a_to_b": "b_to_b",
+            "b_to_a": "a_to_a",
+        }
+        use_dir = baseline_map.get(
+            d,
+            cfg._BASELINE_MAP.get(d, d).lower(),
+        )
         use_rm = baseline_rescale
 
     m = df["direction"].eq(use_dir)
@@ -609,7 +617,7 @@ def render(
 def parse_args(
     argv: list[str] | None = None, *, prog: str | None = None
 ) -> Any:
-    ap = u.argparse.ArgumentParser(  # type: ignore[attr-defined]
+    ap = argparse.ArgumentParser(  # type: ignore[attr-defined]
         prog=prog or "plot-xfer-transferability",
         description=(
             "Plot cross-city transferability from xfer_results.csv"

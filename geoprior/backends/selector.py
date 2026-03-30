@@ -538,15 +538,17 @@ class BackendSelector(BaseClass):
     "torch",
     extra="backend is set to ``torch`` while it is not installed.",
     partial_check=True,
-    condition=lambda *args, **kwargs: kwargs.get("backend")
-    in ("torch", "pytorch"),
+    condition=lambda *args, **kwargs: (
+        kwargs.get("backend") in ("torch", "pytorch")
+    ),
 )
 @ensure_pkg(
     "tensorflow",
     extra="backend is set to ``tensorflow`` while it is not installed.",
     partial_check=True,
-    condition=lambda *args, **kwargs: kwargs.get("backend")
-    in ("tensorflow", "tf"),
+    condition=lambda *args, **kwargs: (
+        kwargs.get("backend") in ("tensorflow", "tf")
+    ),
 )
 def select_backend_n(
     backend=None, return_module=False, return_both=False

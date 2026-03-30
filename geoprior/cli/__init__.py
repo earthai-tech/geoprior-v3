@@ -61,6 +61,7 @@ _PUBLIC_MODULES: Final = {
     "build_add_zsurf_from_coords",
     "build_spatial_sampling",
     "build_batch_spatial_sampling",
+    "build_forecast_ready_sample",
     "build_spatial_roi",
     "build_spatial_clusters",
     "build_extract_zones",

@@ -32,6 +32,7 @@ python -m scripts.plot_transfer \
 
 from __future__ import annotations
 
+import argparse
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
@@ -667,7 +668,7 @@ def parse_args(
     *,
     prog: str | None = None,
 ) -> Any:
-    ap = u.argparse.ArgumentParser(  # type: ignore[attr-defined]
+    ap = argparse.ArgumentParser(  # type: ignore[attr-defined]
         prog=prog or "plot-transfer",
         description=(
             "Supplementary Figure Sx — transferability from xfer CSV"

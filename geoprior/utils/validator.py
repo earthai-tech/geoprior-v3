@@ -4793,9 +4793,11 @@ def check_mixed_data_types(data) -> bool:
     )
     has_categorical = any(
         data.dtypes.apply(
-            lambda dtype: dtype == "object"
-            or dtype.name == "category"
-            or dtype == "bool"
+            lambda dtype: (
+                dtype == "object"
+                or dtype.name == "category"
+                or dtype == "bool"
+            )
         )
     )
 
@@ -5509,8 +5511,9 @@ def _validate_input(ignore: str, x, y, _is_arraylike_1d):
     validation_checks = {
         "x": lambda: _is_arraylike_1d(y),
         "y": lambda: _is_arraylike_1d(x),
-        "both": lambda: _is_arraylike_1d(x)
-        and _is_arraylike_1d(y),
+        "both": lambda: (
+            _is_arraylike_1d(x) and _is_arraylike_1d(y)
+        ),
     }
 
     check = validation_checks.get(

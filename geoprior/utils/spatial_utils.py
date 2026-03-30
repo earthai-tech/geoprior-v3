@@ -12,11 +12,11 @@ from __future__ import annotations
 
 import warnings
 from numbers import Real
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 from matplotlib.patches import Circle, Patch
 from scipy.spatial import cKDTree
 from sklearn.cluster import (
@@ -69,7 +69,604 @@ __all__ = [
     "gen_buffered_negative_samples",
     "gen_negative_samples_plus",
     "extract_spatial_roi",
+    "make_forecast_ready_sample",
 ]
+
+
+def _longest_consecutive_run(
+    values: np.ndarray | list[int],
+) -> int:
+    """Return the longest consecutive integer run."""
+    if len(values) == 0:
+        return 0
+
+    years = np.asarray(values, dtype=int)
+    years = np.unique(years)
+    years.sort()
+
+    if years.size == 1:
+        return 1
+
+    diffs = np.diff(years)
+    longest = 1
+    current = 1
+
+    for d in diffs:
+        if d == 1:
+            current += 1
+            longest = max(longest, current)
+        else:
+            current = 1
+
+    return int(longest)
+
+
+def _export_demo_sample(
+    df: pd.DataFrame,
+    export_path: str | None = None,
+    export_format: str | None = None,
+) -> pd.DataFrame:
+    """
+    Export a demo sample to a non-CSV format.
+
+    Notes
+    -----
+    - `savefile` is still handled by `@SaveFile`
+      and remains the simplest CSV export path.
+    - This helper only handles explicit non-CSV
+      or forced-format exports.
+    """
+    if export_path is None:
+        return df
+
+    path = Path(export_path).expanduser()
+
+    fmt = export_format
+    if fmt is None:
+        suffix = path.suffix.lower().lstrip(".")
+        if suffix in {"xlsx", "xls"}:
+            fmt = "xlsx"
+        elif suffix in {"pq", "parquet"}:
+            fmt = "parquet"
+        elif suffix in {"json"}:
+            fmt = "json"
+        elif suffix in {"feather", "ftr"}:
+            fmt = "feather"
+        elif suffix in {"pkl", "pickle"}:
+            fmt = "pickle"
+        else:
+            fmt = "csv"
+
+    fmt = str(fmt).strip().lower()
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    if fmt == "csv":
+        df.to_csv(path, index=False)
+    elif fmt in {"xlsx", "xls", "excel"}:
+        df.to_excel(path, index=False)
+    elif fmt == "parquet":
+        df.to_parquet(path, index=False)
+    elif fmt == "json":
+        df.to_json(
+            path,
+            orient="records",
+            indent=2,
+        )
+    elif fmt in {"feather", "ftr"}:
+        df.reset_index(drop=True).to_feather(path)
+    elif fmt in {"pkl", "pickle"}:
+        df.to_pickle(path)
+    else:
+        raise ValueError(
+            "Unsupported export_format. "
+            "Use one of: "
+            "{'csv', 'xlsx', 'parquet', "
+            "'json', 'feather', 'pickle'}."
+        )
+
+    return df
+
+
+@SaveFile
+@is_data_readable
+@validate_params(
+    {
+        "data": ["array-like"],
+        "method": [
+            StrOptions({"abs", "absolute", "relative"}),
+            None,
+        ],
+        "year_mode": [
+            StrOptions(
+                {
+                    "all",
+                    "latest",
+                    "earliest",
+                    "random",
+                }
+            ),
+            None,
+        ],
+        "export_format": [
+            StrOptions(
+                {
+                    "csv",
+                    "xlsx",
+                    "excel",
+                    "parquet",
+                    "json",
+                    "feather",
+                    "pickle",
+                }
+            ),
+            None,
+        ],
+    }
+)
+@isdf
+def make_forecast_ready_sample(
+    data,
+    sample_size=0.05,
+    time_col: str = "year",
+    spatial_cols: tuple[str, str] | list[str] | None = None,
+    group_cols: tuple[str, ...] | list[str] | None = None,
+    stratify_by: list[str] | tuple[str, ...] | None = None,
+    spatial_bins: int | tuple[int, int] | list[int] = 10,
+    time_steps: int = 3,
+    forecast_horizon: int = 1,
+    require_consecutive: bool = True,
+    keep_years: int | None = None,
+    year_mode: str = "latest",
+    min_groups: int = 5,
+    max_groups: int | None = None,
+    columns_to_keep: list[str]
+    | tuple[str, ...]
+    | None = None,
+    method: str = "abs",
+    min_relative_ratio: float = 0.01,
+    random_state: int | None = 42,
+    export_path: str | None = None,
+    export_format: str | None = None,
+    savefile: str | None = None,
+    sort_output: bool = True,
+    verbose: int = 1,
+) -> pd.DataFrame:
+    """
+    Build a compact, forecast-ready panel sample.
+
+    The function samples *spatial groups* rather than
+    individual rows, then reconstructs the full panel
+    for the selected groups. This is much safer for
+    demo/testing than row-wise sampling because each
+    sampled location keeps enough temporal history for
+    sequence construction.
+
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        Input panel DataFrame.
+
+    sample_size : float or int, default=0.05
+        Group-level sample size passed to the internal
+        spatial sampler.
+        - float: fraction of eligible groups
+        - int: absolute number of eligible groups
+
+    time_col : str, default='year'
+        Time column.
+
+    spatial_cols : tuple/list of str, optional
+        Spatial coordinate columns. If None, the function
+        searches for 'longitude' and 'latitude'.
+
+    group_cols : tuple/list of str, optional
+        Group identifier columns. If None, uses
+        `spatial_cols`.
+
+    stratify_by : list/tuple of str, optional
+        Extra group-level columns used for stratification.
+        Typical examples:
+        ['lithology_class'] or ['city', 'lithology_class'].
+
+    spatial_bins : int or tuple/list, default=10
+        Spatial bins passed to `spatial_sampling()`.
+
+    time_steps : int, default=3
+        Lookback window length.
+
+    forecast_horizon : int, default=1
+        Forecast horizon length.
+
+    require_consecutive : bool, default=True
+        If True, each kept group must contain at least
+        one consecutive run of length
+        `time_steps + forecast_horizon`.
+
+    keep_years : int, optional
+        If provided, keep only this many years per group
+        after sampling. Must be >=
+        `time_steps + forecast_horizon`.
+
+    year_mode : {'all', 'latest', 'earliest', 'random'}
+        How to trim years when `keep_years` is given.
+
+    min_groups : int, default=5
+        Minimum number of eligible groups required.
+
+    max_groups : int, optional
+        Hard cap on sampled groups after spatial sampling.
+
+    columns_to_keep : list/tuple of str, optional
+        Restrict the returned columns. Group and time
+        columns are always preserved.
+
+    method : {'abs', 'absolute', 'relative'}, default='abs'
+        Same meaning as in `spatial_sampling()`.
+
+    min_relative_ratio : float, default=0.01
+        Minimum relative sampling ratio when
+        `method='relative'`.
+
+    random_state : int, optional
+        Random seed.
+
+    export_path : str, optional
+        Explicit path for non-CSV export.
+
+    export_format : str, optional
+        Export format for `export_path`. If None,
+        inferred from suffix.
+
+    savefile : str, optional
+        CSV save path handled by `@SaveFile`.
+
+    sort_output : bool, default=True
+        Sort final output by group and time.
+
+    verbose : int, default=1
+        Verbosity level.
+
+    Returns
+    -------
+    pandas.DataFrame
+        A compact panel sample that preserves group-wise
+        temporal structure for forecast demos/tests.
+
+    Examples
+    --------
+    >>> from geoprior.utils.spatial_utils import make_forecast_ready_sample
+    >>> # Small demo sample, latest 4 years per location
+    >>> demo = make_forecast_ready_sample(
+            data=df,
+            sample_size=0.05,
+            stratify_by=["lithology_class"],
+            spatial_cols=("longitude", "latitude"),
+            time_col="year",
+            time_steps=3,
+            forecast_horizon=1,
+            keep_years=4,
+            year_mode="latest",
+            require_consecutive=True,
+            savefile="demo_panel.csv",
+        )
+    >>> #Slightly richer test panel, keep all years, export parquet
+        demo = make_forecast_ready_sample(
+        data=df,
+        sample_size=150,
+        stratify_by=["city", "lithology_class"],
+        spatial_cols=("longitude", "latitude"),
+        time_col="year",
+        time_steps=3,
+        forecast_horizon=1,
+        keep_years=None,
+        export_path="demo_panel.parquet",
+        export_format="parquet",
+    )
+    """
+    df = data.copy()
+
+    rng = np.random.RandomState(random_state)
+
+    spatial_cols = columns_manager(spatial_cols)
+    if spatial_cols is None:
+        spatial_cols = []
+        if "longitude" in df.columns:
+            spatial_cols.append("longitude")
+        if "latitude" in df.columns:
+            spatial_cols.append("latitude")
+
+    if not spatial_cols:
+        raise ValueError(
+            "No spatial columns found. Provide spatial_cols "
+            "or ensure 'longitude'/'latitude' exist."
+        )
+
+    if len(spatial_cols) > 2:
+        raise ValueError(
+            "spatial_cols can contain at most two columns."
+        )
+
+    if group_cols is None:
+        group_cols = tuple(spatial_cols)
+    else:
+        group_cols = tuple(columns_manager(group_cols))
+
+    stratify_by = (
+        []
+        if stratify_by is None
+        else list(columns_manager(stratify_by))
+    )
+
+    required_cols = set(group_cols) | {time_col}
+    required_cols |= set(spatial_cols)
+    required_cols |= set(stratify_by)
+
+    missing = [
+        c for c in required_cols if c not in df.columns
+    ]
+    if missing:
+        raise ValueError(
+            f"Missing required columns: {missing}"
+        )
+
+    min_required_years = int(time_steps) + int(
+        forecast_horizon
+    )
+    if min_required_years <= 1:
+        raise ValueError(
+            "time_steps + forecast_horizon must be >= 2."
+        )
+
+    if keep_years is not None:
+        keep_years = validate_positive_integer(
+            keep_years,
+            "keep_years",
+        )
+        if keep_years < min_required_years:
+            raise ValueError(
+                "keep_years must be >= "
+                "time_steps + forecast_horizon."
+            )
+
+    min_groups = validate_positive_integer(
+        min_groups,
+        "min_groups",
+    )
+
+    if max_groups is not None:
+        max_groups = validate_positive_integer(
+            max_groups,
+            "max_groups",
+        )
+
+    if not 0 < float(min_relative_ratio) <= 1:
+        raise ValueError(
+            "min_relative_ratio must be in (0, 1]."
+        )
+
+    df = df.dropna(subset=list(required_cols)).copy()
+
+    if df.empty:
+        raise ValueError(
+            "No rows remain after dropping NA values in "
+            "required columns."
+        )
+
+    if not pd.api.types.is_numeric_dtype(df[time_col]):
+        dt = pd.to_datetime(df[time_col], errors="coerce")
+        if dt.isna().all():
+            raise ValueError(
+                f"Could not coerce {time_col!r} to a "
+                "numeric or datetime-like time column."
+            )
+        df[time_col] = dt.dt.year.astype(int)
+    else:
+        df[time_col] = df[time_col].astype(int)
+
+    stats = []
+    grouped = df.groupby(list(group_cols), dropna=False)
+
+    for key, g in grouped:
+        years = np.asarray(
+            sorted(pd.unique(g[time_col])),
+            dtype=int,
+        )
+        n_years = int(years.size)
+        longest_run = _longest_consecutive_run(years)
+
+        ok = n_years >= min_required_years
+        if require_consecutive:
+            ok = ok and (longest_run >= min_required_years)
+
+        if not ok:
+            continue
+
+        row0 = g.iloc[0]
+        record = {
+            "__group_key__": "||".join(map(str, key))
+            if isinstance(key, tuple)
+            else str(key),
+            "__n_years__": n_years,
+            "__min_year__": int(years.min()),
+            "__max_year__": int(years.max()),
+            "__longest_run__": longest_run,
+        }
+
+        for col in group_cols:
+            record[col] = row0[col]
+
+        for col in spatial_cols:
+            record[col] = row0[col]
+
+        for col in stratify_by:
+            record[col] = row0[col]
+
+        stats.append(record)
+
+    eligible = pd.DataFrame(stats)
+
+    if eligible.empty:
+        raise ValueError(
+            "No eligible groups found. Try lowering "
+            "time_steps/forecast_horizon, or set "
+            "require_consecutive=False."
+        )
+
+    if len(eligible) < min_groups:
+        raise ValueError(
+            f"Only {len(eligible)} eligible groups found, "
+            f"but min_groups={min_groups}."
+        )
+
+    # Group-level spatial sampling.
+    select_cols = list(
+        dict.fromkeys(
+            list(spatial_cols)
+            + list(stratify_by)
+            + list(group_cols)
+            + [
+                "__group_key__",
+                "__n_years__",
+                "__min_year__",
+                "__max_year__",
+                "__longest_run__",
+            ]
+        )
+    )
+
+    dups = eligible.loc[:, select_cols].columns[
+        eligible.loc[:, select_cols].columns.duplicated()
+    ]
+
+    if len(dups) > 0:
+        raise RuntimeError(
+            "Duplicate columns detected before spatial_sampling: "
+            f"{list(dups)}"
+        )
+
+    sampled_groups = spatial_sampling(
+        eligible.loc[:, select_cols],
+        sample_size=sample_size,
+        stratify_by=stratify_by or None,
+        spatial_bins=spatial_bins,
+        spatial_cols=spatial_cols,
+        method=method,
+        min_relative_ratio=min_relative_ratio,
+        random_state=random_state,
+        verbose=max(0, int(verbose) - 1),
+    )
+
+    if sampled_groups.empty:
+        raise ValueError(
+            "The group-level sampler returned no groups."
+        )
+
+    if (
+        max_groups is not None
+        and len(sampled_groups) > max_groups
+    ):
+        sampled_groups = sampled_groups.sample(
+            n=max_groups,
+            random_state=random_state,
+        )
+
+    sampled = df.merge(
+        sampled_groups.loc[
+            :, list(group_cols)
+        ].drop_duplicates(),
+        on=list(group_cols),
+        how="inner",
+    )
+
+    if sampled.empty:
+        raise ValueError(
+            "No rows were recovered after merging sampled "
+            "groups back to the source panel."
+        )
+
+    if keep_years is not None:
+        parts = []
+        for _, g in sampled.groupby(
+            list(group_cols),
+            dropna=False,
+            sort=False,
+        ):
+            g = g.sort_values(time_col)
+
+            if len(g) <= keep_years:
+                parts.append(g)
+                continue
+
+            if year_mode == "latest":
+                parts.append(g.tail(keep_years))
+            elif year_mode == "earliest":
+                parts.append(g.head(keep_years))
+            elif year_mode == "random":
+                years = np.asarray(
+                    sorted(pd.unique(g[time_col])),
+                    dtype=int,
+                )
+                chosen = np.sort(
+                    rng.choice(
+                        years,
+                        size=keep_years,
+                        replace=False,
+                    )
+                )
+                parts.append(
+                    g[g[time_col].isin(chosen)].copy()
+                )
+            else:  # "all"
+                parts.append(g)
+
+        sampled = pd.concat(
+            parts,
+            axis=0,
+            ignore_index=True,
+        )
+
+    if columns_to_keep is not None:
+        keep = list(columns_manager(columns_to_keep))
+        keep = list(
+            dict.fromkeys(
+                list(group_cols) + [time_col] + keep
+            )
+        )
+        keep = [c for c in keep if c in sampled.columns]
+        sampled = sampled.loc[:, keep].copy()
+
+    if sort_output:
+        sampled = sampled.sort_values(
+            list(group_cols) + [time_col]
+        ).reset_index(drop=True)
+
+    if verbose:
+        n_groups = (
+            sampled.loc[
+                :,
+                list(group_cols),
+            ]
+            .drop_duplicates()
+            .shape[0]
+        )
+        msg = (
+            "[INFO] Built forecast-ready sample: "
+            f"{len(sampled)} rows, "
+            f"{n_groups} groups, "
+            f"min_required_years={min_required_years}"
+        )
+        if keep_years is not None:
+            msg += f", keep_years={keep_years}"
+        print(msg)
+
+    sampled = _export_demo_sample(
+        sampled,
+        export_path=export_path,
+        export_format=export_format,
+    )
+
+    return sampled
 
 
 def deg_to_m_from_lat(lat_deg: float) -> tuple[float, float]:
@@ -1861,6 +2458,8 @@ def _plot_clusters(
     show_grid: bool = True,
     grid_props: dict = None,
 ) -> None:
+    import seaborn as sns
+
     # Create a scatterplot to visualize clustered data
     plt.figure(figsize=figsize)
 

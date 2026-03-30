@@ -14,6 +14,7 @@ aliases from ``typing`` are mapped to their modern
 built-in or stdlib equivalents.
 """
 
+import os
 from collections import deque
 from collections.abc import (
     Callable,
@@ -34,6 +35,7 @@ from typing import (
     NewType,
     Optional,
     SupportsInt,
+    TypeAlias,
     TypedDict,
     TypeVar,
     Union,
@@ -51,9 +53,15 @@ if TYPE_CHECKING:
     # we can refine this.
     TensorLike = Any
     DatasetLike = Any
+    PathLike: TypeAlias = str | os.PathLike[str]
 else:
     TensorLike = Any
     DatasetLike = Any
+    try:
+        PathLike = str | os.PathLike
+    except TypeError:
+        PathLike = Union[str, os.PathLike]  # noqa: UP007
+
 
 # Modern aliases kept for backward compatibility.
 List = list

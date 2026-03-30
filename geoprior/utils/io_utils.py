@@ -1741,11 +1741,11 @@ def rename_files(
             ):
                 src_files = sorted(
                     ldir,
-                    key=lambda s: int(
-                        re.search("\d+", s).group()
-                    )
-                    if re.search("\d+", s)
-                    else 0,
+                    key=lambda s: (
+                        int(re.search("\d+", s).group())
+                        if re.search("\d+", s)
+                        else 0
+                    ),
                 )
             else:
                 src_files = sorted(ldir, key=sortby)
