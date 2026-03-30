@@ -254,7 +254,7 @@ for key, value in overall.items():
 # from one evaluation year to another.
 
 year_keys = [k for k in metrics.keys() if k != "__overall__"]
-first_year = sorted(year_keys)[0]
+first_year = sorted(year_keys, key=lambda x: float(x))[0]
 
 print("")
 print(f"Metrics for year {first_year}")
@@ -291,12 +291,18 @@ for key, value in metrics[first_year].items():
 # For interpretation, it helps to convert the nested result
 # into compact DataFrames.
 
+def _as_int_label(x):
+    try:
+        return int(float(x))
+    except Exception:
+        return x
+
 year_rows = []
-for key in sorted(year_keys):
+for key in sorted(year_keys, key=lambda x: float(x)):
     m = metrics[key]
     year_rows.append(
         {
-            "year": int(key),
+            "year": _as_int_label(key),
             "overall_mae": m["overall_mae"],
             "overall_rmse": m["overall_rmse"],
             "overall_r2": m["overall_r2"],
@@ -311,7 +317,7 @@ horizon_rows = []
 for h, mae in overall["per_horizon_mae"].items():
     horizon_rows.append(
         {
-            "forecast_step": int(h),
+            "forecast_step": int(float(h)),
             "mae": float(mae),
             "rmse": float(overall["per_horizon_rmse"][h]),
             "r2": float(overall["per_horizon_r2"][h]),

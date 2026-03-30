@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:01.677** total execution time for 55 files **from all galleries**:
+**00:02.624** total execution time for 55 files **from all galleries**:
 
 .. container::
 
@@ -32,22 +32,25 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_diagnostics_plot_stage3_tuning_summary.py` (``examples\diagnostics\plot_stage3_tuning_summary.py``)
-     - 00:01.167
+   * - :ref:`sphx_glr_auto_examples_forecasting_plot_forecast_by_step.py` (``examples\forecasting\plot_forecast_by_step.py``)
+     - 00:01.741
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_uncertainty_plot_reliability_diagram.py` (``examples\uncertainty\plot_reliability_diagram.py``)
-     - 00:00.510
+   * - :ref:`sphx_glr_auto_examples_diagnostics_plot_physics_diagnostic_bridge.py` (``examples\diagnostics\plot_physics_diagnostic_bridge.py``)
+     - 00:00.625
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_diagnostics_holdout_group_masks.py` (``examples\diagnostics\holdout_group_masks.py``)
+   * - :ref:`sphx_glr_auto_examples_forecasting_plot_evaluate_forecast.py` (``examples\forecasting\plot_evaluate_forecast.py``)
+     - 00:00.258
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_diagnostics_plot_holdout_group_masks.py` (``examples\diagnostics\plot_holdout_group_masks.py``)
      - 00:00.000
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_diagnostics_physics_diagnostic_bridge.py` (``examples\diagnostics\physics_diagnostic_bridge.py``)
+   * - :ref:`sphx_glr_auto_examples_diagnostics_plot_spatial_block_holdout.py` (``examples\diagnostics\plot_spatial_block_holdout.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_diagnostics_plot_stage1_data_checks.py` (``examples\diagnostics\plot_stage1_data_checks.py``)
      - 00:00.000
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_diagnostics_spatial_block_holdout.py` (``examples\diagnostics\spatial_block_holdout.py``)
+   * - :ref:`sphx_glr_auto_examples_diagnostics_plot_stage3_tuning_summary.py` (``examples\diagnostics\plot_stage3_tuning_summary.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_figure_generation_plot_ablation.py` (``examples\figure_generation\plot_ablation.py``)
@@ -113,16 +116,10 @@ Computation times
    * - :ref:`sphx_glr_auto_examples_figure_generation_plot_xfer_transferability.py` (``examples\figure_generation\plot_xfer_transferability.py``)
      - 00:00.000
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_forecasting_evaluate_forecast.py` (``examples\forecasting\evaluate_forecast.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_forecasting_format_and_forecast.py` (``examples\forecasting\format_and_forecast.py``)
-     - 00:00.000
-     - 0.0
    * - :ref:`sphx_glr_auto_examples_forecasting_plot_forecast.py` (``examples\forecasting\plot_forecast.py``)
      - 00:00.000
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_forecasting_plot_forecast_by_step.py` (``examples\forecasting\plot_forecast_by_step.py``)
+   * - :ref:`sphx_glr_auto_examples_forecasting_plot_format_and_forecast.py` (``examples\forecasting\plot_format_and_forecast.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_forecasting_plot_future_quantiles_map.py` (``examples\forecasting\plot_future_quantiles_map.py``)
@@ -182,16 +179,19 @@ Computation times
    * - :ref:`sphx_glr_auto_examples_tables_and_summaries_tag_clusters_with_zones.py` (``examples\tables_and_summaries\tag_clusters_with_zones.py``)
      - 00:00.000
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_uncertainty_calibrate_forecasts.py` (``examples\uncertainty\calibrate_forecasts.py``)
+   * - :ref:`sphx_glr_auto_examples_uncertainty_plot_brier_exceedance.py` (``examples\uncertainty\plot_brier_exceedance.py``)
      - 00:00.000
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_uncertainty_plot_brier_exceedance.py` (``examples\uncertainty\plot_brier_exceedance.py``)
+   * - :ref:`sphx_glr_auto_examples_uncertainty_plot_calibrate_forecasts.py` (``examples\uncertainty\plot_calibrate_forecasts.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_uncertainty_plot_coverage_vs_sharpness.py` (``examples\uncertainty\plot_coverage_vs_sharpness.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_uncertainty_plot_interval_calibration.py` (``examples\uncertainty\plot_interval_calibration.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_uncertainty_plot_reliability_diagram.py` (``examples\uncertainty\plot_reliability_diagram.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_uncertainty_plot_stage2_training_curves.py` (``examples\uncertainty\plot_stage2_training_curves.py``)

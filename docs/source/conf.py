@@ -215,14 +215,14 @@ html_theme_options = {
         {
             "name": "PyPI",
             "url": "https://pypi.org/project/geoprior-v3/",
-            "icon": "_static/icons/pypi.svg",
-            "type": "local",
+            "icon": "fa-solid fa-box", # "_static/icons/pypi.svg",
+            # "type": "local",
         },
         {
             "name": "Stack Overflow",
             "url": "https://stackoverflow.com/questions/tagged/geoprior",
-            "icon": "_static/icons/stackoverflow.svg",
-            "type": "local",
+            "icon": "fab fa-stack-overflow",# "_static/icons/stackoverflow.svg",
+            "type":"fontawesome", # "local",
 
         },
     ],
