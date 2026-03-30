@@ -14,11 +14,26 @@ pytestmark = [
 def _make_xfer_csv(path: Path) -> Path:
     rows = []
 
-    def add(direction, strategy, source, target, *, mae, r2, cov, shp, h1, h2, h3):
+    def add(
+        direction,
+        strategy,
+        source,
+        target,
+        *,
+        mae,
+        r2,
+        cov,
+        shp,
+        h1,
+        h2,
+        h3,
+    ):
         rows.append(
             {
                 "strategy": strategy,
-                "rescale_mode": "as_is" if strategy == "baseline" else "strict",
+                "rescale_mode": "as_is"
+                if strategy == "baseline"
+                else "strict",
                 "direction": direction,
                 "source_city": source,
                 "target_city": target,
@@ -123,12 +138,16 @@ def test_plot_xfer_impact_main_writes_outputs(
     fast_script_figures,
     monkeypatch,
 ):
-    mod = pytest.importorskip("geoprior._scripts.plot_xfer_impact")
+    mod = pytest.importorskip(
+        "geoprior._scripts.plot_xfer_impact"
+    )
 
     monkeypatch.setattr(
         mod.u,
         "resolve_fig_out",
-        lambda out: script_test_env["figs_dir"] / Path(str(out)),
+        lambda out: (
+            script_test_env["figs_dir"] / Path(str(out))
+        ),
     )
 
     csv_path = _make_xfer_csv(tmp_path / "xfer_results.csv")
@@ -160,11 +179,19 @@ def test_plot_xfer_impact_main_writes_outputs(
         ]
     )
 
-    assert (script_test_env["figs_dir"] / "xfer_impact_case.png").exists()
-    assert (script_test_env["figs_dir"] / "xfer_impact_case.svg").exists()
-    assert (script_test_env["figs_dir"] / "xfer_impact_case.eps").exists()
+    assert (
+        script_test_env["figs_dir"] / "xfer_impact_case.png"
+    ).exists()
+    assert (
+        script_test_env["figs_dir"] / "xfer_impact_case.svg"
+    ).exists()
+    assert (
+        script_test_env["figs_dir"] / "xfer_impact_case.eps"
+    ).exists()
 
 
 def test_canon_dir_normalizes_lowercase_direction():
-    mod = pytest.importorskip("geoprior._scripts.plot_xfer_impact")
+    mod = pytest.importorskip(
+        "geoprior._scripts.plot_xfer_impact"
+    )
     assert mod._canon_dir("a_to_b") == "A_to_B"

@@ -66,13 +66,17 @@ def test_run_build_batch_spatial_sampling_writes_stacked_and_splits(
         calls["writes"].append((frame.copy(), out, kwargs))
         return out
 
-    monkeypatch.setattr(mod, "load_dataframe_from_args", fake_load)
+    monkeypatch.setattr(
+        mod, "load_dataframe_from_args", fake_load
+    )
     monkeypatch.setattr(
         mod,
         "batch_spatial_sampling",
         fake_batch_sampling,
     )
-    monkeypatch.setattr(mod, "normalize_output_format", fake_norm)
+    monkeypatch.setattr(
+        mod, "normalize_output_format", fake_norm
+    )
     monkeypatch.setattr(mod, "write_dataframe", fake_write)
 
     stacked_out = tmp_path / "stacked.csv"
@@ -130,7 +134,9 @@ def test_build_batch_spatial_sampling_main_uses_parser_result(
     def fake_run(**kwargs) -> None:
         seen["kwargs"] = kwargs
 
-    monkeypatch.setattr(mod, "_build_parser", lambda: DummyParser())
+    monkeypatch.setattr(
+        mod, "_build_parser", lambda: DummyParser()
+    )
     monkeypatch.setattr(
         mod,
         "run_build_batch_spatial_sampling",

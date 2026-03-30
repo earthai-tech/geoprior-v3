@@ -89,7 +89,9 @@ def _build_parser(
         ),
     )
 
-    add_data_reader_args(parser, nargs="+", paths_metavar="PATH")
+    add_data_reader_args(
+        parser, nargs="+", paths_metavar="PATH"
+    )
 
     parser.add_argument(
         "--out",
@@ -118,9 +120,7 @@ def _build_parser(
         "--group-cols",
         nargs="+",
         default=None,
-        help=(
-            "Grouping columns. Default: use spatial-cols."
-        ),
+        help=("Grouping columns. Default: use spatial-cols."),
     )
     parser.add_argument(
         "--stratify-by",
@@ -230,7 +230,7 @@ def _build_parser(
         default=42,
         help="Random seed. Default: 42.",
     )
-    
+
     parser.add_argument(
         "--require-consecutive",
         dest="require_consecutive",
@@ -303,10 +303,14 @@ def build_forecast_ready_sample_main(
         index=False,
     )
 
-    n_groups = out_df.loc[
-        :,
-        list(args.group_cols or args.spatial_cols),
-    ].drop_duplicates().shape[0]
+    n_groups = (
+        out_df.loc[
+            :,
+            list(args.group_cols or args.spatial_cols),
+        ]
+        .drop_duplicates()
+        .shape[0]
+    )
 
     print("")
     print("[OK] forecast-ready sample written")

@@ -35,7 +35,9 @@ def test_build_grid_cartesian_product(rs_module):
 
 
 def test_maybe_shuffle_is_deterministic(rs_module):
-    runs = rs_module.build_grid(["both"], [0.0, 0.1], [0.0, 1.0])
+    runs = rs_module.build_grid(
+        ["both"], [0.0, 0.1], [0.0, 1.0]
+    )
 
     out1 = rs_module.maybe_shuffle(
         runs,
@@ -60,7 +62,9 @@ def test_maybe_shuffle_is_deterministic(rs_module):
 
 
 def test_apply_runner_slicing_handles_bounds(rs_module):
-    runs = rs_module.build_grid(["both"], [0.0, 0.1], [0.0, 1.0])
+    runs = rs_module.build_grid(
+        ["both"], [0.0, 0.1], [0.0, 1.0]
+    )
 
     sliced = rs_module.apply_runner_slicing(
         runs,
@@ -69,17 +73,23 @@ def test_apply_runner_slicing_handles_bounds(rs_module):
     )
     assert sliced == runs[:2]
 
-    assert rs_module.apply_runner_slicing(
-        runs,
-        start=1,
-        limit=None,
-    ) == runs[1:]
+    assert (
+        rs_module.apply_runner_slicing(
+            runs,
+            start=1,
+            limit=None,
+        )
+        == runs[1:]
+    )
 
-    assert rs_module.apply_runner_slicing(
-        runs,
-        start=0,
-        limit=0,
-    ) == []
+    assert (
+        rs_module.apply_runner_slicing(
+            runs,
+            start=0,
+            limit=0,
+        )
+        == []
+    )
 
 
 def test_load_completed_keys_from_done_filters_city(
@@ -294,7 +304,9 @@ def test_sensitivity_main_seeds_scan_root_and_restores_env(
         rs_module.os.environ["MODEL_NAME_OVERRIDE"]
         == "old-model"
     )
-    assert rs_module.os.environ["RESULTS_DIR"] == "old-results"
+    assert (
+        rs_module.os.environ["RESULTS_DIR"] == "old-results"
+    )
     assert (
         rs_module.os.environ["GEOPRIOR_RESULTS_DIR"]
         == "old-geoprior-results"
@@ -348,7 +360,9 @@ def test_main_returns_early_when_no_runs_selected(
     tmp_path: Path,
 ):
     train_script = tmp_path / "_sensitivity.py"
-    train_script.write_text("print('stub')\n", encoding="utf-8")
+    train_script.write_text(
+        "print('stub')\n", encoding="utf-8"
+    )
 
     saved: list[dict[str, object]] = []
     built: list[object] = []
@@ -392,11 +406,40 @@ def test_main_returns_early_when_no_runs_selected(
         dry_run=False,
     )
 
-    monkeypatch.setattr(rs_module, "parse_args", lambda argv=None: args)
-    monkeypatch.setattr(rs_module, "resolve_device", lambda *a, **k: "cpu")
-    monkeypatch.setattr(rs_module, "build_grid", lambda *a, **k: built.append(True) or [rs_module.RunSpec("both", 0.0, 0.0)])
-    monkeypatch.setattr(rs_module, "maybe_shuffle", lambda runs, shuffle, seed: runs)
-    monkeypatch.setattr(rs_module, "_save_state", lambda state_path, city, scan_root, completed_n, last_key: saved.append({"state_path": str(state_path), "city": city, "scan_root": str(scan_root), "completed_n": completed_n, "last_key": last_key}))
+    monkeypatch.setattr(
+        rs_module, "parse_args", lambda argv=None: args
+    )
+    monkeypatch.setattr(
+        rs_module, "resolve_device", lambda *a, **k: "cpu"
+    )
+    monkeypatch.setattr(
+        rs_module,
+        "build_grid",
+        lambda *a, **k: (
+            built.append(True)
+            or [rs_module.RunSpec("both", 0.0, 0.0)]
+        ),
+    )
+    monkeypatch.setattr(
+        rs_module,
+        "maybe_shuffle",
+        lambda runs, shuffle, seed: runs,
+    )
+    monkeypatch.setattr(
+        rs_module,
+        "_save_state",
+        lambda state_path, city, scan_root, completed_n, last_key: (
+            saved.append(
+                {
+                    "state_path": str(state_path),
+                    "city": city,
+                    "scan_root": str(scan_root),
+                    "completed_n": completed_n,
+                    "last_key": last_key,
+                }
+            )
+        ),
+    )
 
     rs_module.main([])
 

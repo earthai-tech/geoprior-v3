@@ -26,10 +26,14 @@ def physics_sensitivity_csv(tmp_path):
                         "lambda_prior": lam_prior,
                         "lambda_cons": lam_cons,
                         "epsilon_prior": (
-                            0.20 + 0.01 * lam_prior + 0.005 * lam_cons
+                            0.20
+                            + 0.01 * lam_prior
+                            + 0.005 * lam_cons
                         ),
                         "epsilon_cons": (
-                            0.30 + 0.02 * lam_cons + 0.002 * lam_prior
+                            0.30
+                            + 0.02 * lam_cons
+                            + 0.002 * lam_prior
                         ),
                         "coverage80": 0.81,
                         "sharpness80": 12.0,
@@ -71,8 +75,12 @@ def test_plot_physics_sensitivity_main_writes_outputs(
         ]
     )
 
-    pngs = collect_script_outputs("physics_sensitivity_case.png")
-    pdfs = collect_script_outputs("physics_sensitivity_case.pdf")
+    pngs = collect_script_outputs(
+        "physics_sensitivity_case.png"
+    )
+    pdfs = collect_script_outputs(
+        "physics_sensitivity_case.pdf"
+    )
     csvs = collect_script_outputs("tableS7_physics_used.csv")
 
     assert pngs, "Expected a PNG artifact."
@@ -86,7 +94,9 @@ def test_plot_physics_sensitivity_main_writes_outputs(
 
 
 def test_best_point_prefers_lower_metric_when_needed():
-    from geoprior._scripts.plot_physics_sensitivity import _best_point
+    from geoprior._scripts.plot_physics_sensitivity import (
+        _best_point,
+    )
 
     df = pd.DataFrame(
         {

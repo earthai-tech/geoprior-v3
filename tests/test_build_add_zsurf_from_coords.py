@@ -31,7 +31,9 @@ def test_enrich_city_dataset_merges_zsurf_and_head(
         }
     ).to_csv(elev_csv, index=False)
 
-    args = mod._build_parser().parse_args if hasattr(mod, '_build_parser') else None
+    mod._build_parser().parse_args if hasattr(
+        mod, "_build_parser"
+    ) else None
     # The module exposes argparse assembly inline, so a light namespace is enough.
     ns = type(
         "Args",
@@ -81,7 +83,8 @@ def test_build_add_zsurf_main_writes_outputs_and_summary(
                 "GWL_depth_bgs_m": [1.0],
             }
         ).to_csv(
-            data_root / f"{city}_final_main_std.harmonized.csv",
+            data_root
+            / f"{city}_final_main_std.harmonized.csv",
             index=False,
         )
         pd.DataFrame(
@@ -124,13 +127,21 @@ def test_build_add_zsurf_main_writes_outputs_and_summary(
         ]
     )
 
-    n_out = outdir / "nansha_final_main_std.harmonized.with_zsurf.csv"
-    z_out = outdir / "zhongshan_final_main_std.harmonized.with_zsurf.csv"
+    n_out = (
+        outdir
+        / "nansha_final_main_std.harmonized.with_zsurf.csv"
+    )
+    z_out = (
+        outdir
+        / "zhongshan_final_main_std.harmonized.with_zsurf.csv"
+    )
     assert n_out.exists()
     assert z_out.exists()
     assert summary_json.exists()
 
-    summary = json.loads(summary_json.read_text(encoding="utf-8"))
+    summary = json.loads(
+        summary_json.read_text(encoding="utf-8")
+    )
     assert {item["city"] for item in summary} == {
         "nansha",
         "zhongshan",

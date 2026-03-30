@@ -24,10 +24,16 @@ def geocum_inputs(tmp_path: Path) -> dict[str, Path]:
                     {
                         "sample_idx": sample_idx,
                         "coord_t": year,
-                        "coord_x": 113.40 + city_shift + 0.01 * sample_idx,
-                        "coord_y": 22.15 + city_shift + 0.01 * sample_idx,
-                        "subsidence_actual": act + 0.2 * sample_idx,
-                        "subsidence_q50": pred + 0.2 * sample_idx,
+                        "coord_x": 113.40
+                        + city_shift
+                        + 0.01 * sample_idx,
+                        "coord_y": 22.15
+                        + city_shift
+                        + 0.01 * sample_idx,
+                        "subsidence_actual": act
+                        + 0.2 * sample_idx,
+                        "subsidence_q50": pred
+                        + 0.2 * sample_idx,
                     }
                 )
         return pd.DataFrame(rows)
@@ -44,9 +50,14 @@ def geocum_inputs(tmp_path: Path) -> dict[str, Path]:
                         "sample_idx": sample_idx,
                         "forecast_step": step,
                         "coord_t": year,
-                        "coord_x": 113.40 + city_shift + 0.01 * sample_idx,
-                        "coord_y": 22.15 + city_shift + 0.01 * sample_idx,
-                        "subsidence_q50": pred + 0.2 * sample_idx,
+                        "coord_x": 113.40
+                        + city_shift
+                        + 0.01 * sample_idx,
+                        "coord_y": 22.15
+                        + city_shift
+                        + 0.01 * sample_idx,
+                        "subsidence_q50": pred
+                        + 0.2 * sample_idx,
                     }
                 )
         return pd.DataFrame(rows)
@@ -79,7 +90,9 @@ def _patch_outputs(monkeypatch, mod, env):
         fig.savefig(str(base) + ".png", dpi=dpi)
         fig.savefig(str(base) + ".pdf", dpi=dpi)
 
-    monkeypatch.setattr(mod.utils, "save_figure", _save_figure)
+    monkeypatch.setattr(
+        mod.utils, "save_figure", _save_figure
+    )
     monkeypatch.setattr(
         mod.utils,
         "resolve_fig_out",
@@ -98,7 +111,9 @@ def test_plot_geocum_main_writes_png_and_pdf(
     mod = pytest.importorskip("geoprior._scripts.plot_geocum")
 
     _patch_outputs(monkeypatch, mod, script_test_env)
-    monkeypatch.setattr(mod.cx, "add_basemap", lambda *a, **k: None)
+    monkeypatch.setattr(
+        mod.cx, "add_basemap", lambda *a, **k: None
+    )
 
     mod.plot_geo_cumulative_main(
         [

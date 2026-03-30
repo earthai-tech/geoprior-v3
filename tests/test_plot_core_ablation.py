@@ -70,8 +70,12 @@ def _patch_outputs(monkeypatch, mod, env):
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
-    monkeypatch.setattr(mod.utils, "resolve_fig_out", _fig_out)
-    monkeypatch.setattr(mod.utils, "resolve_out_out", _table_out)
+    monkeypatch.setattr(
+        mod.utils, "resolve_fig_out", _fig_out
+    )
+    monkeypatch.setattr(
+        mod.utils, "resolve_out_out", _table_out
+    )
 
 
 def test_plot_core_ablation_main_writes_artifacts(
@@ -107,8 +111,12 @@ def test_plot_core_ablation_main_writes_artifacts(
         prog="plot-core-ablation",
     )
 
-    fig_png = script_test_env["figs_dir"] / "fig3-core-test.png"
-    fig_svg = script_test_env["figs_dir"] / "fig3-core-test.svg"
+    fig_png = (
+        script_test_env["figs_dir"] / "fig3-core-test.png"
+    )
+    fig_svg = (
+        script_test_env["figs_dir"] / "fig3-core-test.svg"
+    )
     out_csv = (
         script_test_env["tables_dir"]
         / "fig3-core-metrics.csv"

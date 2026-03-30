@@ -45,7 +45,9 @@ def test_run_build_spatial_roi_calls_helper_and_writer(
         frame.to_csv(out, index=False)
         return out
 
-    monkeypatch.setattr(mod, "load_dataframe_from_args", fake_load)
+    monkeypatch.setattr(
+        mod, "load_dataframe_from_args", fake_load
+    )
     monkeypatch.setattr(mod, "extract_spatial_roi", fake_roi)
     monkeypatch.setattr(mod, "write_dataframe", fake_write)
 
@@ -90,8 +92,12 @@ def test_build_spatial_roi_main_uses_parser_result(
     def fake_run(**kwargs) -> None:
         seen["kwargs"] = kwargs
 
-    monkeypatch.setattr(mod, "_build_parser", lambda: DummyParser())
-    monkeypatch.setattr(mod, "run_build_spatial_roi", fake_run)
+    monkeypatch.setattr(
+        mod, "_build_parser", lambda: DummyParser()
+    )
+    monkeypatch.setattr(
+        mod, "run_build_spatial_roi", fake_run
+    )
 
     mod.build_spatial_roi_main(["--demo"])
 
@@ -107,6 +113,8 @@ def test_main_alias_delegates(
     def fake_main(argv=None) -> None:
         seen["argv"] = argv
 
-    monkeypatch.setattr(mod, "build_spatial_roi_main", fake_main)
+    monkeypatch.setattr(
+        mod, "build_spatial_roi_main", fake_main
+    )
     mod.main(["--flag"])
     assert seen["argv"] == ["--flag"]

@@ -53,7 +53,9 @@ def test_plot_physics_sanity_main_writes_outputs(
         plot_physics_sanity_main,
     )
 
-    ns = _write_payload(tmp_path / "nansha_payload.npz", shift=0.0)
+    ns = _write_payload(
+        tmp_path / "nansha_payload.npz", shift=0.0
+    )
     zh = _write_payload(
         tmp_path / "zhongshan_payload.npz",
         shift=5.0,
@@ -97,7 +99,9 @@ def test_plot_physics_sanity_main_writes_outputs(
 
 
 def test_eps_prior_ln_is_zero_for_matching_arrays():
-    from geoprior._scripts.plot_physics_sanity import _eps_prior_ln
+    from geoprior._scripts.plot_physics_sanity import (
+        _eps_prior_ln,
+    )
 
     tau = np.array([1.0, 2.0, 4.0])
     tp = np.array([1.0, 2.0, 4.0])

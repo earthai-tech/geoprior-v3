@@ -40,7 +40,9 @@ def test_plot_sm3_log_offsets_main_writes_outputs(
         plot_sm3_log_offsets_main,
     )
 
-    payload = _write_payload(tmp_path / "sm3_offsets_payload.npz")
+    payload = _write_payload(
+        tmp_path / "sm3_offsets_payload.npz"
+    )
 
     plot_sm3_log_offsets_main(
         [
@@ -63,10 +65,16 @@ def test_plot_sm3_log_offsets_main_writes_outputs(
         ]
     )
 
-    raw_csv = collect_script_outputs("sm3_offsets_case_raw.csv")
-    sum_csv = collect_script_outputs("sm3_offsets_case_summary.csv")
+    raw_csv = collect_script_outputs(
+        "sm3_offsets_case_raw.csv"
+    )
+    sum_csv = collect_script_outputs(
+        "sm3_offsets_case_summary.csv"
+    )
     jsons = collect_script_outputs("sm3_offsets_case.json")
-    hist_png = collect_script_outputs("sm3_offsets_case-hists.png")
+    hist_png = collect_script_outputs(
+        "sm3_offsets_case-hists.png"
+    )
     tau_png = collect_script_outputs(
         "sm3_offsets_case-tau-scatter.png"
     )

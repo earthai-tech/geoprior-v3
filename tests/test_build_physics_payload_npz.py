@@ -84,7 +84,7 @@ def test_build_physics_payload_npz_exports_with_fake_model(
     bundle = mini_stage1_bundle
     run_dir = Path(bundle["run_dir"])
     manifest_path = Path(bundle["manifest_path"])
-    art_dir = Path(bundle["artifacts_dir"])
+    Path(bundle["artifacts_dir"])
     model_path = run_dir / "mock_best.keras"
     model_path.write_text("stub", encoding="utf-8")
 
@@ -103,10 +103,17 @@ def test_build_physics_payload_npz_exports_with_fake_model(
                 "kwargs": kwargs,
             }
         )
-        return {"dataset": "fake", "n": x_np["coords"].shape[0]}
+        return {
+            "dataset": "fake",
+            "n": x_np["coords"].shape[0],
+        }
 
-    monkeypatch.setattr(mod, "make_tf_dataset", fake_make_tf_dataset)
-    monkeypatch.setattr(mod, "_load_model", lambda path: fake_model)
+    monkeypatch.setattr(
+        mod, "make_tf_dataset", fake_make_tf_dataset
+    )
+    monkeypatch.setattr(
+        mod, "_load_model", lambda path: fake_model
+    )
 
     out, payload = mod.build_physics_payload_npz(
         manifest=str(manifest_path),
@@ -134,7 +141,10 @@ def test_build_physics_payload_npz_exports_with_fake_model(
     assert export_call["metadata"]["stage1_manifest"] == str(
         manifest_path
     )
-    assert export_call["metadata"]["source_inputs_npz"] is not None
+    assert (
+        export_call["metadata"]["source_inputs_npz"]
+        is not None
+    )
 
     expected_n = (
         bundle["arrays"]["train_inputs"]["coords"].shape[0]
@@ -149,7 +159,9 @@ def test_build_physics_payload_main_delegates(
     write_natcom_config,
 ) -> None:
     config = dict(mini_stage1_bundle["config"])
-    config["RESULTS_DIR"] = str(Path(config["BASE_OUTPUT_DIR"]))
+    config["RESULTS_DIR"] = str(
+        Path(config["BASE_OUTPUT_DIR"])
+    )
     paths = write_natcom_config(config)
 
     captured: dict[str, object] = {}

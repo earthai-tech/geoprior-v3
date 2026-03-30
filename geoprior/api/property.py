@@ -1477,7 +1477,9 @@ class NNLearner(metaclass=LearnerMeta):
                     json.dump(
                         params,
                         f,
-                        default=lambda o: "<not serializable>",
+                        default=lambda o: (
+                            "<not serializable>"
+                        ),
                     )
             elif format == "pickle":
                 # Save the entire learner object using pickle

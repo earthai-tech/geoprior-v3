@@ -18,7 +18,9 @@ def _patch_fig_out(monkeypatch, mod, env):
             return base.with_suffix("")
         return base
 
-    monkeypatch.setattr(mod.utils, "resolve_fig_out", _resolve)
+    monkeypatch.setattr(
+        mod.utils, "resolve_fig_out", _resolve
+    )
 
 
 @pytest.fixture
@@ -59,11 +61,7 @@ def test_plot_driver_response_main_writes_outputs(
             "--cities",
             "ns,zh",
             "--drivers",
-            (
-                "rainfall_mm,"
-                "GWL_depth_bgs_m,"
-                "urban_load_global"
-            ),
+            ("rainfall_mm,GWL_depth_bgs_m,urban_load_global"),
             "--response",
             "head_m",
             "--trend",
@@ -74,8 +72,14 @@ def test_plot_driver_response_main_writes_outputs(
         prog="plot-driver-response",
     )
 
-    png = script_test_env["figs_dir"] / "driver-response-smoke.png"
-    svg = script_test_env["figs_dir"] / "driver-response-smoke.svg"
+    png = (
+        script_test_env["figs_dir"]
+        / "driver-response-smoke.png"
+    )
+    svg = (
+        script_test_env["figs_dir"]
+        / "driver-response-smoke.svg"
+    )
 
     assert png.exists()
     assert svg.exists()

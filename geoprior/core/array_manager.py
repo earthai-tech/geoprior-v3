@@ -3605,9 +3605,11 @@ def concat_array_from_list(list_of_array, concat_axis=0):
     # Replace None with NaN arrays
     list_of_array = list(
         map(
-            lambda e: np.array([np.nan])
-            if e is None
-            else np.array(e),
+            lambda e: (
+                np.array([np.nan])
+                if e is None
+                else np.array(e)
+            ),
             list_of_array,
         )
     )
@@ -3633,18 +3635,22 @@ def concat_array_from_list(list_of_array, concat_axis=0):
     list_of_array = (
         list(
             map(
-                lambda e: e.reshape(e.shape[0], 1)
-                if e.ndim == 1
-                else e,
+                lambda e: (
+                    e.reshape(e.shape[0], 1)
+                    if e.ndim == 1
+                    else e
+                ),
                 list_of_array,
             )
         )
         if concat_axis == 1
         else list(
             map(
-                lambda e: e.reshape(1, e.shape[0])
-                if e.ndim == 1
-                else e,
+                lambda e: (
+                    e.reshape(1, e.shape[0])
+                    if e.ndim == 1
+                    else e
+                ),
                 list_of_array,
             )
         )

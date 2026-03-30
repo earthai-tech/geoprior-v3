@@ -12,8 +12,7 @@ import joblib
 import numpy as np
 import pandas as pd
 import pytest
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 
 TIME_STEPS = 5
 FORECAST_HORIZON = 3
@@ -110,10 +109,12 @@ def _test_env(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("MPLBACKEND", "Agg")
 
     import matplotlib
+
     matplotlib.use("Agg", force=True)
 
     try:
         import matplotlib.pyplot as plt
+
         plt.switch_backend("Agg")
     except Exception:
         pass
@@ -151,7 +152,9 @@ def write_city_csv(
             )
 
         out = data_dir / name
-        frame = city_panel_df.copy() if df is None else df.copy()
+        frame = (
+            city_panel_df.copy() if df is None else df.copy()
+        )
         frame["city"] = city
         frame.to_csv(out, index=False)
         return out
@@ -282,7 +285,9 @@ def patch_cli_entry(
         ) -> None:
             state["calls"].append(
                 {
-                    "argv": [] if argv is None else list(argv),
+                    "argv": []
+                    if argv is None
+                    else list(argv),
                     "args": args,
                     "kwargs": kwargs,
                 }
@@ -561,7 +566,9 @@ def build_stage1_artifact_tree(
     clean_df.to_csv(clean_csv, index=False)
     proc.to_csv(scaled_csv, index=False)
 
-    main_scaler_path = artifacts_dir / f"{city}_main_scaler.joblib"
+    main_scaler_path = (
+        artifacts_dir / f"{city}_main_scaler.joblib"
+    )
     coord_scaler_path = (
         artifacts_dir / f"{city}_coord_scaler.joblib"
     )
@@ -569,8 +576,7 @@ def build_stage1_artifact_tree(
         artifacts_dir / f"{city}_ohe_lithology.joblib"
     )
     ohe_class_path = (
-        artifacts_dir
-        / f"{city}_ohe_lithology_class.joblib"
+        artifacts_dir / f"{city}_ohe_lithology_class.joblib"
     )
     seq_path = (
         artifacts_dir
@@ -655,9 +661,7 @@ def add_processed_columns(df: pd.DataFrame) -> pd.DataFrame:
     out["subsidence_cum__si"] = out["subsidence_cum"]
     out["GWL_depth_bgs_m__si"] = out["GWL_depth_bgs_m"]
     out["head_m__si"] = out["head_m"]
-    out["soil_thickness_eff__si"] = out[
-        "soil_thickness_eff"
-    ]
+    out["soil_thickness_eff__si"] = out["soil_thickness_eff"]
     out["z_surf_m__si"] = out["z_surf_m"]
     return out
 
@@ -675,9 +679,7 @@ def add_static_ohe(
     ohe_cls = make_ohe()
     cls = ohe_cls.fit_transform(out[["lithology_class"]])
     cls_cols = list(
-        ohe_cls.get_feature_names_out([
-            "lithology_class"
-        ])
+        ohe_cls.get_feature_names_out(["lithology_class"])
     )
 
     for idx, col in enumerate(lith_cols):
@@ -753,9 +755,8 @@ def make_split_arrays(
     gwl_rows: list[np.ndarray] = []
 
     for row in group_df.itertuples(index=False):
-        mask = (
-            (df["longitude"] == row.longitude)
-            & (df["latitude"] == row.latitude)
+        mask = (df["longitude"] == row.longitude) & (
+            df["latitude"] == row.latitude
         )
         g = df.loc[mask].sort_values("year")
         hist = g[
@@ -773,9 +774,7 @@ def make_split_arrays(
         full_fut = g[
             g["year"].between(
                 TRAIN_END_YEAR - TIME_STEPS + 1,
-                FORECAST_START_YEAR
-                + FORECAST_HORIZON
-                - 1,
+                FORECAST_START_YEAR + FORECAST_HORIZON - 1,
             )
         ]
 
@@ -849,17 +848,18 @@ def save_stage1_helpers(
 ) -> None:
     main_scaler = MinMaxScaler()
     main_scaler.fit(
-        df[[
-            "rainfall_mm",
-            "soil_thickness_censored",
-        ]].astype(float)
+        df[
+            [
+                "rainfall_mm",
+                "soil_thickness_censored",
+            ]
+        ].astype(float)
     )
     joblib.dump(main_scaler, main_scaler_path)
 
     coord_scaler = MinMaxScaler()
     coord_scaler.fit(
-        df[["year_numeric_coord", "x_m", "y_m"]]
-        .astype(float)
+        df[["year_numeric_coord", "x_m", "y_m"]].astype(float)
     )
     joblib.dump(coord_scaler, coord_scaler_path)
 
@@ -1167,13 +1167,9 @@ def build_manifest(
                     "valid_for_train": int(len(proc)),
                     "valid_for_forecast": int(len(proc)),
                     "kept_for_processing": int(len(proc)),
-                    "train_groups": int(
-                        len(groups["train"])
-                    ),
+                    "train_groups": int(len(groups["train"])),
                     "val_groups": int(len(groups["val"])),
-                    "test_groups": int(
-                        len(groups["test"])
-                    ),
+                    "test_groups": int(len(groups["test"])),
                 },
                 "row_counts_hist": {
                     "train_rows": int(
@@ -1193,14 +1189,14 @@ def build_manifest(
                         ].shape[0]
                     ),
                     "val_seq": int(
-                        arrays["val_inputs"][
-                            "coords"
-                        ].shape[0]
+                        arrays["val_inputs"]["coords"].shape[
+                            0
+                        ]
                     ),
                     "test_seq": int(
-                        arrays["test_inputs"][
-                            "coords"
-                        ].shape[0]
+                        arrays["test_inputs"]["coords"].shape[
+                            0
+                        ]
                     ),
                 },
                 "artifacts": {
@@ -1212,7 +1208,9 @@ def build_manifest(
         "artifacts": {
             "csv": {
                 "raw": str(run_dir / f"{city}_01_raw.csv"),
-                "clean": str(run_dir / f"{city}_02_clean.csv"),
+                "clean": str(
+                    run_dir / f"{city}_02_clean.csv"
+                ),
                 "scaled": str(
                     run_dir / f"{city}_03_scaled.csv"
                 ),
@@ -1220,9 +1218,7 @@ def build_manifest(
             "encoders": {
                 "ohe": {
                     "lithology": str(ohe_lith_path),
-                    "lithology_class": str(
-                        ohe_class_path
-                    ),
+                    "lithology_class": str(ohe_class_path),
                 },
                 "coord_scaler": str(coord_scaler_path),
                 "main_scaler": str(main_scaler_path),
@@ -1317,6 +1313,7 @@ def write_python_assignments(
 # behavior.
 # ------------------------------------------------------------------
 
+
 def _write_placeholder_artifact(path: Path) -> Path:
     """Create a tiny placeholder file for fast plot tests."""
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -1358,7 +1355,9 @@ def _write_placeholder_artifact(path: Path) -> Path:
     return path
 
 
-def _default_script_output_dirs(root: Path) -> dict[str, Path]:
+def _default_script_output_dirs(
+    root: Path,
+) -> dict[str, Path]:
     """Return a standard isolated output tree for script tests."""
     scripts_dir = root / "scripts"
     out = {
@@ -1407,7 +1406,9 @@ def patch_script_output_roots(
     try:
         import importlib
 
-        cfg = importlib.import_module("geoprior._scripts.config")
+        cfg = importlib.import_module(
+            "geoprior._scripts.config"
+        )
     except Exception:
         return scripts_workspace
 
@@ -1505,7 +1506,9 @@ def collect_script_outputs(
             for pat in pats:
                 for path in base.rglob(pat):
                     if path.is_file():
-                        seen[str(path.resolve())] = path.resolve()
+                        seen[str(path.resolve())] = (
+                            path.resolve()
+                        )
         return sorted(seen.values())
 
     return _collect

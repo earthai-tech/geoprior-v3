@@ -336,11 +336,11 @@ def escape_dataframe_elements(
     # Optionally escape all string values within the DataFrame
     if escape_all:
         escaped_df = escaped_df.applymap(
-            lambda x: str(x).replace(
-                item_to_escape, escape_char
+            lambda x: (
+                str(x).replace(item_to_escape, escape_char)
+                if isinstance(x, str)
+                else x
             )
-            if isinstance(x, str)
-            else x
         )
 
     return escaped_df
@@ -1507,9 +1507,11 @@ def flex_df_formatter(
             header=header,
             max_rows=max_rows,
             max_cols=max_cols,
-            float_format=lambda x: float_format.format(x)
-            if isinstance(x, float | np.float64)
-            else x,
+            float_format=lambda x: (
+                float_format.format(x)
+                if isinstance(x, float | np.float64)
+                else x
+            ),
         )
     # update max_cols with the auto maximum width layout calculation
     _, auto_max_cols = propose_layouts(
@@ -3291,10 +3293,12 @@ def calculate_widths(df, max_text_length=50):
         str
     )  # make sure that columns is string
     formatted_cells = df.applymap(
-        lambda x: str(format_value(x))[: max_text_length - 3]
-        + "..."
-        if len(str(x)) > max_text_length
-        else str(format_value(x))
+        lambda x: (
+            str(format_value(x))[: max_text_length - 3]
+            + "..."
+            if len(str(x)) > max_text_length
+            else str(format_value(x))
+        )
     )
     max_col_widths = {
         col: max(
@@ -5549,20 +5553,24 @@ def refine_df(
                 include=["datetime"]
             ).columns:
                 refined_data[col] = refined_data[col].apply(
-                    lambda x: format_numeric(
-                        x.timestamp(), precision
+                    lambda x: (
+                        format_numeric(
+                            x.timestamp(), precision
+                        )
+                        if pd.notnull(x)
+                        else x
                     )
-                    if pd.notnull(x)
-                    else x
                 )
         else:
             for col in refined_data.select_dtypes(
                 include=["datetime"]
             ).columns:
                 refined_data[col] = refined_data[col].apply(
-                    lambda x: x.strftime("%Y-%m-%d %H:%M:%S")
-                    if pd.notnull(x)
-                    else x
+                    lambda x: (
+                        x.strftime("%Y-%m-%d %H:%M:%S")
+                        if pd.notnull(x)
+                        else x
+                    )
                 )
 
     # Truncate string values
@@ -5570,9 +5578,11 @@ def refine_df(
         include=[object]
     ).columns:
         refined_data[col] = refined_data[col].apply(
-            lambda x: format_string(x, max_text_char)
-            if isinstance(x, str)
-            else x
+            lambda x: (
+                format_string(x, max_text_char)
+                if isinstance(x, str)
+                else x
+            )
         )
 
     return refined_data

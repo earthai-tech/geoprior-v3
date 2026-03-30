@@ -30,12 +30,16 @@ def test_parse_sample_size_accepts_int_and_fraction() -> None:
     "raw",
     ["", "0", "-2", "1.5", "abc"],
 )
-def test_parse_sample_size_rejects_bad_values(raw: str) -> None:
+def test_parse_sample_size_rejects_bad_values(
+    raw: str,
+) -> None:
     with pytest.raises(Exception):
         mod._parse_sample_size(raw)
 
 
-def test_normalize_bins_handles_none_scalar_and_many() -> None:
+def test_normalize_bins_handles_none_scalar_and_many() -> (
+    None
+):
     assert mod._normalize_bins(None) == 10
     assert mod._normalize_bins([7]) == 7
     assert mod._normalize_bins([3, 5]) == (3, 5)
@@ -72,8 +76,12 @@ def test_run_build_spatial_sampling_calls_helper_and_writer(
         frame.to_csv(out, index=False)
         return out
 
-    monkeypatch.setattr(mod, "load_dataframe_from_args", fake_load)
-    monkeypatch.setattr(mod, "spatial_sampling", fake_sampling)
+    monkeypatch.setattr(
+        mod, "load_dataframe_from_args", fake_load
+    )
+    monkeypatch.setattr(
+        mod, "spatial_sampling", fake_sampling
+    )
     monkeypatch.setattr(mod, "write_dataframe", fake_write)
 
     out = tmp_path / "sampled.csv"
@@ -127,8 +135,12 @@ def test_build_spatial_sampling_main_uses_parser_result(
     def fake_run(**kwargs) -> None:
         seen["kwargs"] = kwargs
 
-    monkeypatch.setattr(mod, "_build_parser", lambda: DummyParser())
-    monkeypatch.setattr(mod, "run_build_spatial_sampling", fake_run)
+    monkeypatch.setattr(
+        mod, "_build_parser", lambda: DummyParser()
+    )
+    monkeypatch.setattr(
+        mod, "run_build_spatial_sampling", fake_run
+    )
 
     mod.build_spatial_sampling_main(["--anything", "value"])
 
@@ -144,6 +156,8 @@ def test_main_alias_delegates(
     def fake_main(argv=None) -> None:
         seen["argv"] = argv
 
-    monkeypatch.setattr(mod, "build_spatial_sampling_main", fake_main)
+    monkeypatch.setattr(
+        mod, "build_spatial_sampling_main", fake_main
+    )
     mod.main(["--flag"])
     assert seen["argv"] == ["--flag"]

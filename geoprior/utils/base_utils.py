@@ -884,9 +884,9 @@ def select_features(
     if parse_features:
         for col in df.select_dtypes(["object", "string"]):
             df[col] = df[col].apply(
-                lambda x: x.split(",")
-                if isinstance(x, str)
-                else x
+                lambda x: (
+                    x.split(",") if isinstance(x, str) else x
+                )
             )
 
     # Initialize mask for column selection

@@ -16,7 +16,9 @@ def _make_city_df(city: str) -> pd.DataFrame:
             rows.append(
                 {
                     "year": year,
-                    "lithology_class": classes[idx % len(classes)],
+                    "lithology_class": classes[
+                        idx % len(classes)
+                    ],
                     "city": city,
                 }
             )

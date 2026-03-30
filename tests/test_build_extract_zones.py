@@ -115,6 +115,7 @@ def test_run_build_extract_zones_writes_result(
     assert extract_kwargs["axis_off"] is True
     assert extract_kwargs["figsize"] == (7.0, 4.0)
 
+
 def test_build_extract_zones_main_parses_cli(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,

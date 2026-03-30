@@ -7,10 +7,12 @@ import pytest
 
 import geoprior.cli.build_assign_boreholes as mod
 
+
 def fake_ensure_outdir(p):
     path = Path(p).expanduser().resolve()
     path.mkdir(parents=True, exist_ok=True)
     return path
+
 
 def test_find_proc_csv_prefers_named_city_file(
     tmp_path: Path,
@@ -109,5 +111,7 @@ def test_collect_city_sources_requires_at_least_two_inputs(
     ns.results_dir = None
     ns.model = None
 
-    with pytest.raises(SystemExit, match="At least two city clouds"):
+    with pytest.raises(
+        SystemExit, match="At least two city clouds"
+    ):
         mod._collect_city_sources(ns, {})

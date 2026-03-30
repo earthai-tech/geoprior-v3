@@ -53,7 +53,9 @@ def _patch_fig_save(monkeypatch, mod, env):
         fig.savefig(str(base) + ".png", dpi=dpi)
         fig.savefig(str(base) + ".pdf", dpi=dpi)
 
-    monkeypatch.setattr(mod.utils, "save_figure", _save_figure)
+    monkeypatch.setattr(
+        mod.utils, "save_figure", _save_figure
+    )
     monkeypatch.setattr(
         mod.utils,
         "resolve_fig_out",
@@ -88,8 +90,12 @@ def test_plot_ablations_sensitivity_main_writes_plot_and_table(
         prog="plot-ablations-sensitivity",
     )
 
-    fig_png = script_test_env["figs_dir"] / "ablations-smoke.png"
-    fig_pdf = script_test_env["figs_dir"] / "ablations-smoke.pdf"
+    fig_png = (
+        script_test_env["figs_dir"] / "ablations-smoke.png"
+    )
+    fig_pdf = (
+        script_test_env["figs_dir"] / "ablations-smoke.pdf"
+    )
     tidy_csv = (
         script_test_env["figs_dir"]
         / "tableS6_ablations_used.csv"

@@ -188,7 +188,6 @@ def test_default_outdir_appends_sm3_identifiability_and_city(
 
     got = sm3_ident_mod._default_outdir(cfg)
 
-
     assert Path(got) == (
         Path("/tmp/results")
         / "sm3_identifiability"
@@ -206,7 +205,10 @@ def test_default_outdir_keeps_explicit_sm3_folder(
 
     got = sm3_ident_mod._default_outdir(cfg)
 
-    assert Path(got) == Path("/tmp/outputs") / "sm3_identifiability"
+    assert (
+        Path(got)
+        == Path("/tmp/outputs") / "sm3_identifiability"
+    )
 
 
 def test_seed_forwarded_args_adds_defaults_from_cfg(
@@ -302,7 +304,7 @@ def test_run_sm3_identifiability_calls_legacy_main_and_restores_sys_argv(
     sm3_ident_mod.run_sm3_identifiability([])
 
     assert sys.argv == original
-    
+
     argv = state["argv"]
     assert argv[0] == "sm3-identifiability"
     assert argv[1] == "--outdir"

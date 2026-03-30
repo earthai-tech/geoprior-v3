@@ -12,13 +12,11 @@ from __future__ import annotations
 
 import warnings
 from numbers import Real
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
-from pathlib import Path
-
 from matplotlib.patches import Circle, Patch
 from scipy.spatial import cKDTree
 from sklearn.cluster import (
@@ -222,7 +220,9 @@ def make_forecast_ready_sample(
     year_mode: str = "latest",
     min_groups: int = 5,
     max_groups: int | None = None,
-    columns_to_keep: list[str] | tuple[str, ...] | None = None,
+    columns_to_keep: list[str]
+    | tuple[str, ...]
+    | None = None,
     method: str = "abs",
     min_relative_ratio: float = 0.01,
     random_state: int | None = 42,
@@ -332,7 +332,7 @@ def make_forecast_ready_sample(
     pandas.DataFrame
         A compact panel sample that preserves group-wise
         temporal structure for forecast demos/tests.
-    
+
     Examples
     --------
     >>> from geoprior.utils.spatial_utils import make_forecast_ready_sample
@@ -392,15 +392,19 @@ def make_forecast_ready_sample(
     else:
         group_cols = tuple(columns_manager(group_cols))
 
-    stratify_by = [] if stratify_by is None else list(
-        columns_manager(stratify_by)
+    stratify_by = (
+        []
+        if stratify_by is None
+        else list(columns_manager(stratify_by))
     )
 
     required_cols = set(group_cols) | {time_col}
     required_cols |= set(spatial_cols)
     required_cols |= set(stratify_by)
 
-    missing = [c for c in required_cols if c not in df.columns]
+    missing = [
+        c for c in required_cols if c not in df.columns
+    ]
     if missing:
         raise ValueError(
             f"Missing required columns: {missing}"
@@ -530,17 +534,17 @@ def make_forecast_ready_sample(
             ]
         )
     )
-    
+
     dups = eligible.loc[:, select_cols].columns[
         eligible.loc[:, select_cols].columns.duplicated()
     ]
-    
+
     if len(dups) > 0:
         raise RuntimeError(
             "Duplicate columns detected before spatial_sampling: "
             f"{list(dups)}"
         )
-    
+
     sampled_groups = spatial_sampling(
         eligible.loc[:, select_cols],
         sample_size=sample_size,
@@ -552,20 +556,25 @@ def make_forecast_ready_sample(
         random_state=random_state,
         verbose=max(0, int(verbose) - 1),
     )
-    
+
     if sampled_groups.empty:
         raise ValueError(
             "The group-level sampler returned no groups."
         )
 
-    if max_groups is not None and len(sampled_groups) > max_groups:
+    if (
+        max_groups is not None
+        and len(sampled_groups) > max_groups
+    ):
         sampled_groups = sampled_groups.sample(
             n=max_groups,
             random_state=random_state,
         )
 
     sampled = df.merge(
-        sampled_groups.loc[:, list(group_cols)].drop_duplicates(),
+        sampled_groups.loc[
+            :, list(group_cols)
+        ].drop_duplicates(),
         on=list(group_cols),
         how="inner",
     )
@@ -621,9 +630,7 @@ def make_forecast_ready_sample(
         keep = list(columns_manager(columns_to_keep))
         keep = list(
             dict.fromkeys(
-                list(group_cols)
-                + [time_col]
-                + keep
+                list(group_cols) + [time_col] + keep
             )
         )
         keep = [c for c in keep if c in sampled.columns]
@@ -635,10 +642,14 @@ def make_forecast_ready_sample(
         ).reset_index(drop=True)
 
     if verbose:
-        n_groups = sampled.loc[
-            :,
-            list(group_cols),
-        ].drop_duplicates().shape[0]
+        n_groups = (
+            sampled.loc[
+                :,
+                list(group_cols),
+            ]
+            .drop_duplicates()
+            .shape[0]
+        )
         msg = (
             "[INFO] Built forecast-ready sample: "
             f"{len(sampled)} rows, "
@@ -656,6 +667,7 @@ def make_forecast_ready_sample(
     )
 
     return sampled
+
 
 def deg_to_m_from_lat(lat_deg: float) -> tuple[float, float]:
     """
@@ -2447,7 +2459,7 @@ def _plot_clusters(
     grid_props: dict = None,
 ) -> None:
     import seaborn as sns
-    
+
     # Create a scatterplot to visualize clustered data
     plt.figure(figsize=figsize)
 

@@ -16,9 +16,30 @@ def _make_forecast(city: str) -> pd.DataFrame:
     rows = []
     for sid in (1, 2):
         for step, year, act, q10, q50, q90 in (
-            (1, 2024, 10.0 + sid, 9.0 + sid, 10.1 + sid, 11.1 + sid),
-            (2, 2025, 11.0 + sid, 10.0 + sid, 11.2 + sid, 12.2 + sid),
-            (3, 2026, 12.0 + sid, 11.0 + sid, 12.3 + sid, 13.4 + sid),
+            (
+                1,
+                2024,
+                10.0 + sid,
+                9.0 + sid,
+                10.1 + sid,
+                11.1 + sid,
+            ),
+            (
+                2,
+                2025,
+                11.0 + sid,
+                10.0 + sid,
+                11.2 + sid,
+                12.2 + sid,
+            ),
+            (
+                3,
+                2026,
+                12.0 + sid,
+                11.0 + sid,
+                12.3 + sid,
+                13.4 + sid,
+            ),
         ):
             rows.append(
                 {
@@ -53,14 +74,28 @@ def _patch_outputs(monkeypatch, mod, env):
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
-    monkeypatch.setattr(mod.utils, "save_figure", _save_figure)
-    monkeypatch.setattr(mod.utils, "resolve_fig_out", _fig_out)
-    monkeypatch.setattr(mod.utils, "resolve_out_out", _out_path)
-    monkeypatch.setattr(mod.utils, "load_forecast_csv", lambda p: pd.read_csv(p))
+    monkeypatch.setattr(
+        mod.utils, "save_figure", _save_figure
+    )
+    monkeypatch.setattr(
+        mod.utils, "resolve_fig_out", _fig_out
+    )
+    monkeypatch.setattr(
+        mod.utils, "resolve_out_out", _out_path
+    )
+    monkeypatch.setattr(
+        mod.utils,
+        "load_forecast_csv",
+        lambda p: pd.read_csv(p),
+    )
     monkeypatch.setattr(
         mod.utils,
         "safe_load_json",
-        lambda p: json.loads(Path(p).read_text(encoding="utf-8")) if p else {},
+        lambda p: (
+            json.loads(Path(p).read_text(encoding="utf-8"))
+            if p
+            else {}
+        ),
     )
 
 
@@ -70,7 +105,9 @@ def test_plot_uncertainty_extras_main_writes_outputs(
     fast_script_figures,
     monkeypatch,
 ):
-    mod = pytest.importorskip("geoprior._scripts.plot_uncertainty_extras")
+    mod = pytest.importorskip(
+        "geoprior._scripts.plot_uncertainty_extras"
+    )
     _patch_outputs(monkeypatch, mod, script_test_env)
 
     ns_csv = tmp_path / "nansha_forecast.csv"
@@ -83,7 +120,11 @@ def test_plot_uncertainty_extras_main_writes_outputs(
 
     meta = {
         "interval_calibration": {
-            "factors_per_horizon": {"H1": 1.1, "H2": 1.0, "H3": 0.9}
+            "factors_per_horizon": {
+                "H1": 1.1,
+                "H2": 1.0,
+                "H3": 0.9,
+            }
         }
     }
     ns_json.write_text(json.dumps(meta), encoding="utf-8")
@@ -107,13 +148,34 @@ def test_plot_uncertainty_extras_main_writes_outputs(
         ]
     )
 
-    assert (script_test_env["figs_dir"] / "uncertainty_extras_case.png").exists()
-    assert (script_test_env["figs_dir"] / "uncertainty_extras_case.pdf").exists()
-    assert (script_test_env["tables_dir"] / "uncertainty_extras_tables.csv").exists()
-    assert (script_test_env["tables_dir"] / "uncertainty_extras_tables.tex").exists()
+    assert (
+        script_test_env["figs_dir"]
+        / "uncertainty_extras_case.png"
+    ).exists()
+    assert (
+        script_test_env["figs_dir"]
+        / "uncertainty_extras_case.pdf"
+    ).exists()
+    assert (
+        script_test_env["tables_dir"]
+        / "uncertainty_extras_tables.csv"
+    ).exists()
+    assert (
+        script_test_env["tables_dir"]
+        / "uncertainty_extras_tables.tex"
+    ).exists()
 
 
 def test_extract_factors_per_horizon_accepts_dict():
-    mod = pytest.importorskip("geoprior._scripts.plot_uncertainty_extras")
-    meta = {"interval_calibration": {"factors_per_horizon": {"H2": 0.9, "H1": 1.1}}}
-    assert mod._extract_factors_per_horizon(meta) == [1.1, 0.9]
+    mod = pytest.importorskip(
+        "geoprior._scripts.plot_uncertainty_extras"
+    )
+    meta = {
+        "interval_calibration": {
+            "factors_per_horizon": {"H2": 0.9, "H1": 1.1}
+        }
+    }
+    assert mod._extract_factors_per_horizon(meta) == [
+        1.1,
+        0.9,
+    ]

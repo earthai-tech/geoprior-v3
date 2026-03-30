@@ -43,7 +43,9 @@ def test_merge_inputs_rejects_mismatched_keys() -> None:
         },
     }
 
-    with pytest.raises(ValueError, match="Input-key mismatch"):
+    with pytest.raises(
+        ValueError, match="Input-key mismatch"
+    ):
         mod._merge_inputs(split_arrays, strict_keys=True)
 
 
@@ -53,14 +55,19 @@ def test_build_full_inputs_main_uses_runtime_defaults(
     write_natcom_config,
 ) -> None:
     config = dict(mini_stage1_bundle["config"])
-    config["RESULTS_DIR"] = str(Path(config["BASE_OUTPUT_DIR"]))
+    config["RESULTS_DIR"] = str(
+        Path(config["BASE_OUTPUT_DIR"])
+    )
     paths = write_natcom_config(config)
 
     captured: dict[str, object] = {}
 
     def fake_build_full_inputs_npz(**kwargs):
         captured.update(kwargs)
-        out = Path(config["BASE_OUTPUT_DIR"]) / "synthetic_full.npz"
+        out = (
+            Path(config["BASE_OUTPUT_DIR"])
+            / "synthetic_full.npz"
+        )
         np.savez_compressed(out, coords=np.zeros((1, 1, 1)))
         return out
 
@@ -83,7 +90,9 @@ def test_build_full_inputs_main_uses_runtime_defaults(
         Path(paths["config_json"]).read_text(encoding="utf-8")
     )
     assert cfg_json["config"]["CITY_NAME"] == "zhongshan"
-    assert captured["results_dir"] == str(config["BASE_OUTPUT_DIR"])
+    assert captured["results_dir"] == str(
+        config["BASE_OUTPUT_DIR"]
+    )
     assert captured["city"] == "zhongshan"
     assert captured["model"] == config["MODEL_NAME"]
     assert captured["strict_keys"] is True

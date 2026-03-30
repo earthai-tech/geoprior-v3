@@ -156,7 +156,10 @@ exclude = ["docs"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
-ignore = ["F401", "E501", "E741", "E722","E731",  "E402", "B007", "B023", "B024", "B904"]
+ignore = [
+    "F401", "E501", "E741", "E722","E731",  "E402", 
+    "B007", "B023", "B024", "B904", "B017"
+   ]
 
 [tool.ruff.lint.isort]
 known-first-party = ["geoprior"]

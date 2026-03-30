@@ -42,13 +42,13 @@ Notes
 
 from __future__ import annotations
 
+import argparse
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import matplotlib.pyplot as plt
-import argparse
 import numpy as np
 import pandas as pd
 from matplotlib.gridspec import GridSpec
@@ -147,6 +147,7 @@ def _canon_cols(df: pd.DataFrame) -> pd.DataFrame:
         _to_num(df, c)
 
     return df
+
 
 def _subset(
     df: pd.DataFrame,

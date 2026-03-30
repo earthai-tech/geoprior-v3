@@ -6,7 +6,9 @@ import numpy as np
 import pytest
 
 
-def _write_payload(tmp_path, *, stem: str = "physics_fields_case"):
+def _write_payload(
+    tmp_path, *, stem: str = "physics_fields_case"
+):
     n = 81
     gx = np.repeat(np.linspace(113.2, 113.4, 9), 9)
     gy = np.tile(np.linspace(22.0, 22.2, 9), 9)

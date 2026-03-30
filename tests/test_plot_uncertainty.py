@@ -14,11 +14,34 @@ pytestmark = [
 
 def _make_forecast(city: str) -> pd.DataFrame:
     rows = []
-    for sid, (x, y) in enumerate(((113.40, 22.15), (113.42, 22.17)), start=1):
+    for sid, (x, y) in enumerate(
+        ((113.40, 22.15), (113.42, 22.17)), start=1
+    ):
         for step, year, act, q10, q50, q90 in (
-            (1, 2024, 10.0 + sid, 9.0 + sid, 10.1 + sid, 11.2 + sid),
-            (2, 2025, 11.0 + sid, 10.0 + sid, 11.1 + sid, 12.3 + sid),
-            (3, 2026, 12.0 + sid, 11.1 + sid, 12.2 + sid, 13.5 + sid),
+            (
+                1,
+                2024,
+                10.0 + sid,
+                9.0 + sid,
+                10.1 + sid,
+                11.2 + sid,
+            ),
+            (
+                2,
+                2025,
+                11.0 + sid,
+                10.0 + sid,
+                11.1 + sid,
+                12.3 + sid,
+            ),
+            (
+                3,
+                2026,
+                12.0 + sid,
+                11.1 + sid,
+                12.2 + sid,
+                13.5 + sid,
+            ),
         ):
             rows.append(
                 {
@@ -52,15 +75,29 @@ def _patch_outputs(monkeypatch, mod, env):
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
-    monkeypatch.setattr(mod.utils, "save_figure", _save_figure)
-    monkeypatch.setattr(mod.utils, "resolve_out_out", _out_table)
-    monkeypatch.setattr(mod.utils, "load_forecast_csv", lambda p: pd.read_csv(p))
+    monkeypatch.setattr(
+        mod.utils, "save_figure", _save_figure
+    )
+    monkeypatch.setattr(
+        mod.utils, "resolve_out_out", _out_table
+    )
+    monkeypatch.setattr(
+        mod.utils,
+        "load_forecast_csv",
+        lambda p: pd.read_csv(p),
+    )
     monkeypatch.setattr(
         mod.utils,
         "safe_load_json",
-        lambda p: json.loads(Path(p).read_text(encoding="utf-8")) if p else {},
+        lambda p: (
+            json.loads(Path(p).read_text(encoding="utf-8"))
+            if p
+            else {}
+        ),
     )
-    monkeypatch.setattr(mod.utils, "phys_json_to_mm", lambda meta: meta or {})
+    monkeypatch.setattr(
+        mod.utils, "phys_json_to_mm", lambda meta: meta or {}
+    )
 
 
 def test_plot_uncertainty_main_writes_outputs(
@@ -69,7 +106,9 @@ def test_plot_uncertainty_main_writes_outputs(
     fast_script_figures,
     monkeypatch,
 ):
-    mod = pytest.importorskip("geoprior._scripts.plot_uncertainty")
+    mod = pytest.importorskip(
+        "geoprior._scripts.plot_uncertainty"
+    )
     _patch_outputs(monkeypatch, mod, script_test_env)
 
     ns_csv = tmp_path / "nansha_forecast.csv"
@@ -103,9 +142,15 @@ def test_plot_uncertainty_main_writes_outputs(
         ]
     )
 
-    assert (script_test_env["figs_dir"] / "uncertainty_case.png").exists()
-    assert (script_test_env["figs_dir"] / "uncertainty_case.svg").exists()
-    out_csv = script_test_env["tables_dir"] / "uncertainty_case.csv"
+    assert (
+        script_test_env["figs_dir"] / "uncertainty_case.png"
+    ).exists()
+    assert (
+        script_test_env["figs_dir"] / "uncertainty_case.svg"
+    ).exists()
+    out_csv = (
+        script_test_env["tables_dir"] / "uncertainty_case.csv"
+    )
     assert out_csv.exists()
     df = pd.read_csv(out_csv)
     assert set(df["city"]) == {"Nansha", "Zhongshan"}
@@ -113,7 +158,9 @@ def test_plot_uncertainty_main_writes_outputs(
 
 
 def test_interval_stats_returns_expected_columns():
-    mod = pytest.importorskip("geoprior._scripts.plot_uncertainty")
+    mod = pytest.importorskip(
+        "geoprior._scripts.plot_uncertainty"
+    )
     df = _make_forecast("Nansha")
     out = mod.interval_stats(df, by_horizon=False)
     assert {"coverage80", "sharpness80"}.issubset(out.columns)

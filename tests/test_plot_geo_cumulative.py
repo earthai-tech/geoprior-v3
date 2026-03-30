@@ -24,10 +24,16 @@ def geo_cumulative_inputs(tmp_path: Path) -> dict[str, Path]:
                     {
                         "sample_idx": sample_idx,
                         "coord_t": year,
-                        "coord_x": 113.40 + city_shift + 0.01 * sample_idx,
-                        "coord_y": 22.15 + city_shift + 0.01 * sample_idx,
-                        "subsidence_actual": act + 0.2 * sample_idx,
-                        "subsidence_q50": pred + 0.2 * sample_idx,
+                        "coord_x": 113.40
+                        + city_shift
+                        + 0.01 * sample_idx,
+                        "coord_y": 22.15
+                        + city_shift
+                        + 0.01 * sample_idx,
+                        "subsidence_actual": act
+                        + 0.2 * sample_idx,
+                        "subsidence_q50": pred
+                        + 0.2 * sample_idx,
                     }
                 )
         return pd.DataFrame(rows)
@@ -44,9 +50,14 @@ def geo_cumulative_inputs(tmp_path: Path) -> dict[str, Path]:
                         "sample_idx": sample_idx,
                         "forecast_step": step,
                         "coord_t": year,
-                        "coord_x": 113.40 + city_shift + 0.01 * sample_idx,
-                        "coord_y": 22.15 + city_shift + 0.01 * sample_idx,
-                        "subsidence_q50": pred + 0.2 * sample_idx,
+                        "coord_x": 113.40
+                        + city_shift
+                        + 0.01 * sample_idx,
+                        "coord_y": 22.15
+                        + city_shift
+                        + 0.01 * sample_idx,
+                        "subsidence_q50": pred
+                        + 0.2 * sample_idx,
                     }
                 )
         return pd.DataFrame(rows)
@@ -79,7 +90,9 @@ def _patch_outputs(monkeypatch, mod, env):
         fig.savefig(str(base) + ".png", dpi=dpi)
         fig.savefig(str(base) + ".pdf", dpi=dpi)
 
-    monkeypatch.setattr(mod.utils, "save_figure", _save_figure)
+    monkeypatch.setattr(
+        mod.utils, "save_figure", _save_figure
+    )
     monkeypatch.setattr(
         mod.utils,
         "resolve_fig_out",
@@ -99,7 +112,9 @@ def test_plot_geo_cumulative_main_writes_png_and_pdf(
         "geoprior._scripts.plot_geo_cumulative"
     )
     _patch_outputs(monkeypatch, mod, script_test_env)
-    monkeypatch.setattr(mod.cx, "add_basemap", lambda *a, **k: None)
+    monkeypatch.setattr(
+        mod.cx, "add_basemap", lambda *a, **k: None
+    )
 
     mod.plot_geo_cumulative_main(
         [
@@ -126,8 +141,14 @@ def test_plot_geo_cumulative_main_writes_png_and_pdf(
         prog="plot-geo-cumulative",
     )
 
-    fig_png = script_test_env["figs_dir"] / "geo-cumulative-smoke.png"
-    fig_pdf = script_test_env["figs_dir"] / "geo-cumulative-smoke.pdf"
+    fig_png = (
+        script_test_env["figs_dir"]
+        / "geo-cumulative-smoke.png"
+    )
+    fig_pdf = (
+        script_test_env["figs_dir"]
+        / "geo-cumulative-smoke.pdf"
+    )
 
     assert fig_png.exists()
     assert fig_pdf.exists()

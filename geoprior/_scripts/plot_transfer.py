@@ -32,13 +32,13 @@ python -m scripts.plot_transfer \
 
 from __future__ import annotations
 
+import argparse
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import matplotlib.pyplot as plt
-import argparse
 import numpy as np
 import pandas as pd
 from matplotlib.gridspec import GridSpec

@@ -60,7 +60,7 @@ else:
     try:
         PathLike = str | os.PathLike
     except TypeError:
-        PathLike = Union[str, os.PathLike] #noqa: UP007
+        PathLike = Union[str, os.PathLike]  # noqa: UP007
 
 
 # Modern aliases kept for backward compatibility.

@@ -87,14 +87,10 @@ def test_plot_hotspot_analytics_main_writes_outputs(
         "geoprior._scripts.plot_hotspot_analytics"
     )
 
-    target_utils = getattr(mod, "u", None) or getattr(
-        mod,
-        "utils",
-    )
+    target_utils = getattr(mod, "u", None) or mod.utils
 
     def _fig_out(out):
         return script_test_env["figs_dir"] / Path(str(out))
-
 
     if hasattr(target_utils, "resolve_fig_out"):
         monkeypatch.setattr(
@@ -112,7 +108,7 @@ def test_plot_hotspot_analytics_main_writes_outputs(
     _make_eval("Zhongshan").to_csv(zh_eval, index=False)
     _make_future("Nansha").to_csv(ns_fut, index=False)
     _make_future("Zhongshan").to_csv(zh_fut, index=False)
-    
+
     out_points = (
         script_test_env["tables_dir"]
         / "hotspot_case_points.csv"

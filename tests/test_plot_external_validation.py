@@ -23,8 +23,16 @@ def site_validation_csv(tmp_path: Path) -> Path:
             "matched_pixel_y": [22.15, 22.16, 22.17],
             "model_H_eff_m": [11.0, 13.0, 12.5],
             "model_K_mps": [1.2e-5, 1.4e-5, 1.1e-5],
-            "approx_compressible_thickness_m": [10.5, 12.8, 12.0],
-            "step3_specific_capacity_Lps_per_m": [5.0, 6.0, 4.8],
+            "approx_compressible_thickness_m": [
+                10.5,
+                12.8,
+                12.0,
+            ],
+            "step3_specific_capacity_Lps_per_m": [
+                5.0,
+                6.0,
+                4.8,
+            ],
             "match_distance_m": [10.0, 15.0, 8.0],
         }
     )
@@ -61,8 +69,12 @@ def _patch_outputs(monkeypatch, mod, env):
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
-    monkeypatch.setattr(mod.utils, "save_figure", _save_figure)
-    monkeypatch.setattr(mod.utils, "resolve_out_out", _out_table)
+    monkeypatch.setattr(
+        mod.utils, "save_figure", _save_figure
+    )
+    monkeypatch.setattr(
+        mod.utils, "resolve_out_out", _out_table
+    )
 
 
 def test_plot_external_validation_main_writes_plot_and_json(
@@ -87,7 +99,9 @@ def test_plot_external_validation_main_writes_plot_and_json(
             "pixel_idx": [0, 1, 2],
         }
     )
-    monkeypatch.setattr(mod, "build_pixel_table", lambda *a, **k: pix)
+    monkeypatch.setattr(
+        mod, "build_pixel_table", lambda *a, **k: pix
+    )
 
     mod.plot_external_validation_main(
         [
@@ -131,7 +145,9 @@ def test_plot_external_validation_main_writes_plot_and_json(
     assert "borehole_vs_H_eff" in rec
 
 
-def test_load_boundary_xy_reads_simple_csv(boundary_csv: Path):
+def test_load_boundary_xy_reads_simple_csv(
+    boundary_csv: Path,
+):
     mod = pytest.importorskip(
         "geoprior._scripts.plot_external_validation"
     )

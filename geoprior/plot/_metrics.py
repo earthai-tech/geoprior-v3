@@ -5213,16 +5213,18 @@ def plot_qce_donut(
     wedges, texts, autotexts = ax.pie(
         plot_miscalibrations,
         labels=None,  # Labels handled by legend or custom placement
-        autopct=lambda pct: segment_label_format.format(
-            name="",  # Name will be in legend
-            value=(pct / 100.0)
-            * np.sum(
-                plot_miscalibrations
-            ),  # Value this segment represents
-            percent=pct,
-        )
-        if value_annotations
-        else None,
+        autopct=lambda pct: (
+            segment_label_format.format(
+                name="",  # Name will be in legend
+                value=(pct / 100.0)
+                * np.sum(
+                    plot_miscalibrations
+                ),  # Value this segment represents
+                percent=pct,
+            )
+            if value_annotations
+            else None
+        ),
         startangle=startangle,
         counterclock=counterclock,
         colors=plot_colors,

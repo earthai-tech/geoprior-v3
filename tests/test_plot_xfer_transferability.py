@@ -30,7 +30,9 @@ def _make_xfer_csv(path: Path) -> Path:
         rows.append(
             {
                 "strategy": strategy,
-                "rescale_mode": "as_is" if strategy == "baseline" else "strict",
+                "rescale_mode": "as_is"
+                if strategy == "baseline"
+                else "strict",
                 "direction": direction,
                 "source_city": source,
                 "target_city": target,
@@ -134,10 +136,14 @@ def test_plot_xfer_transferability_main_writes_outputs(
     monkeypatch.setattr(
         mod.u,
         "resolve_fig_out",
-        lambda out: script_test_env["figs_dir"] / Path(str(out)),
+        lambda out: (
+            script_test_env["figs_dir"] / Path(str(out))
+        ),
     )
 
-    csv_path = _make_xfer_csv(tmp_path / "xfer_transferability.csv")
+    csv_path = _make_xfer_csv(
+        tmp_path / "xfer_transferability.csv"
+    )
 
     mod.figSx_xfer_transferability_main(
         [
@@ -163,10 +169,12 @@ def test_plot_xfer_transferability_main_writes_outputs(
     )
 
     assert (
-        script_test_env["figs_dir"] / "xfer_transferability_case.png"
+        script_test_env["figs_dir"]
+        / "xfer_transferability_case.png"
     ).exists()
     assert (
-        script_test_env["figs_dir"] / "xfer_transferability_case.svg"
+        script_test_env["figs_dir"]
+        / "xfer_transferability_case.svg"
     ).exists()
 
 
@@ -181,7 +189,11 @@ def test_subset_uses_target_baseline_for_cross_city_rows():
             "rescale_mode": ["as_is", "as_is", "strict"],
             "direction": ["a_to_a", "b_to_b", "a_to_b"],
             "source_city": ["nansha", "zhongshan", "nansha"],
-            "target_city": ["nansha", "zhongshan", "zhongshan"],
+            "target_city": [
+                "nansha",
+                "zhongshan",
+                "zhongshan",
+            ],
             "split": ["val", "val", "val"],
             "calibration": ["source", "source", "source"],
             "overall_mae": [8.0, 9.0, 10.0],

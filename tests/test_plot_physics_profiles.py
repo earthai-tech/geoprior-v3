@@ -17,8 +17,12 @@ def _write_ablation_jsonl(root):
                         "pde_mode": "both",
                         "lambda_prior": lp,
                         "lambda_cons": lc,
-                        "epsilon_prior": 0.2 + lp * 0.01 + lc * 0.001,
-                        "epsilon_cons": 0.3 + lc * 0.02 + lp * 0.001,
+                        "epsilon_prior": 0.2
+                        + lp * 0.01
+                        + lc * 0.001,
+                        "epsilon_cons": 0.3
+                        + lc * 0.02
+                        + lp * 0.001,
                         "coverage80": 0.8,
                         "sharpness80": 12.0,
                         "r2": 0.7,
@@ -61,8 +65,12 @@ def test_plot_physics_profiles_main_writes_figure_and_table(
         ]
     )
 
-    pngs = collect_script_outputs("appendix_profiles_case.png")
-    pdfs = collect_script_outputs("appendix_profiles_case.pdf")
+    pngs = collect_script_outputs(
+        "appendix_profiles_case.png"
+    )
+    pdfs = collect_script_outputs(
+        "appendix_profiles_case.pdf"
+    )
     csvs = collect_script_outputs(
         "appendix_table_A1_phys_profiles_tidy.csv"
     )
