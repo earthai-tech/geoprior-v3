@@ -78,7 +78,7 @@ A GUI preview image is provided here:
 
 <p align="center">
   <img
-    src="codeocean/geoprior-v3.app.png"
+    src="./geoprior-v3.app.png"
     alt="GeoPrior GUI preview"
     width="760"
   />

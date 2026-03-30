@@ -882,7 +882,7 @@ def fetch_zhongshan_data(
         Include the 'subsidence' column.
 
     data_home : str, optional
-        Path to cache directory. Defaults to ``~/fusionlab_data``.
+        Path to cache directory. Defaults to ``~/geoprior_data``.
 
     download_if_missing : bool, default=True
         Attempt download if file is not found locally.
@@ -1152,7 +1152,7 @@ def fetch_nansha_data(
         Include the 'subsidence' column.
 
     data_home : str, optional
-        Path to cache directory. Defaults to ``~/fusionlab_data``.
+        Path to cache directory. Defaults to ``~/geoprior_data``.
 
     download_if_missing : bool, default=True
         Attempt download if file is not found locally.
@@ -1441,7 +1441,7 @@ def load_processed_subsidence_data(
         Specify a directory path to cache raw datasets and processed
         files. If ``None``, uses the path determined by
         :func:`~geoprior.datasets._property.get_data`
-        (typically ``~/fusionlab_data``). Default is ``None``.
+        (typically ``~/geoprior_data``). Default is ``None``.
     download_if_missing : bool, default=True
         If ``True``, attempt to download the raw dataset file from the
         remote repository if it's not found locally.
