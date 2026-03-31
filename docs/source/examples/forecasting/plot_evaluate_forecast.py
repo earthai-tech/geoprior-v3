@@ -1,6 +1,6 @@
 """
 Evaluate forecast tables with ``evaluate_forecast``
-==================================================
+====================================================
 
 This lesson teaches how to use
 :func:`geoprior.utils.forecast_utils.evaluate_forecast`

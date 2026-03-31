@@ -70,7 +70,7 @@ geoprior-check-imports = "tools.check_imports:main"
 kdiagram = ["k-diagram>=1.3.0"]
 
 docs = [
-  "sphinx>=7.0,<8.0",
+  "sphinx>=7.0",
   "pydata-sphinx-theme>=0.16",
   "sphinx-copybutton",
   "myst-parser",

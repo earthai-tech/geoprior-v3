@@ -21,7 +21,7 @@ Panels
     delta_K vs (delta_Ss + 2 delta_Hd).
 
 (d) Error vs identifiability metric:
-    |Δ log10 tau| vs chosen identifiability metric.
+    :math:`|\Delta  log10 tau|` vs chosen identifiability metric.
 
 Inputs
 ------

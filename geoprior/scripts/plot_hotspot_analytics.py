@@ -139,40 +139,6 @@ def _canonize(
     return df
 
 
-# def _load_exposure(
-#     path: str,
-#     *,
-#     col: str,
-# ) -> pd.DataFrame:
-#     p = utils.as_path(path)
-#     df = pd.read_csv(p)
-
-#     utils.ensure_columns(
-#         df,
-#         aliases={
-#             "sample_idx": ("sample_idx", "sample_id"),
-#             col: (col,),
-#         },
-#     )
-
-#     if "sample_idx" not in df.columns:
-#         raise KeyError("exposure: missing sample_idx")
-
-#     if col not in df.columns:
-#         raise KeyError(f"exposure: missing {col}")
-
-#     df["sample_idx"] = pd.to_numeric(
-#         df["sample_idx"],
-#         errors="coerce",
-#     )
-#     df[col] = pd.to_numeric(
-#         df[col],
-#         errors="coerce",
-#     )
-
-#     df = df.dropna(subset=["sample_idx", col]).copy()
-#     df["sample_idx"] = df["sample_idx"].astype(int)
-#     return df[["sample_idx", col]].copy()
 
 
 def _load_exposure(path: str, *, col: str) -> pd.DataFrame:
@@ -919,7 +885,7 @@ def build_hotspot_tables(
       For the first requested year, we automatically include the
       previous year if available (future preferred, else eval).
     - Hotspot rule can be percentile/abs/risk/combo (optional).
-    - Risk can be exposure-weighted: P * |Δs| * exposure.
+    - Risk can be exposure-weighted :math:`P * |\Delta s | * exposure`.
 
     Returns CityHotspotData with:
       df_points: per-point metrics for requested years
