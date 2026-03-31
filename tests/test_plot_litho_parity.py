@@ -33,7 +33,7 @@ def test_plot_litho_parity_main_writes_outputs(
     fast_script_figures,
     collect_script_outputs,
 ):
-    from geoprior._scripts.plot_litho_parity import (
+    from geoprior.scripts.plot_litho_parity import (
         figS1_lithology_parity_main,
     )
 

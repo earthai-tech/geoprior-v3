@@ -48,7 +48,7 @@ def test_plot_physics_maps_main_writes_outputs(
     fast_script_figures,
     collect_script_outputs,
 ):
-    from geoprior._scripts.plot_physics_maps import (
+    from geoprior.scripts.plot_physics_maps import (
         plot_physics_maps_main,
     )
 

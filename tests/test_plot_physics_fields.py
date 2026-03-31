@@ -50,7 +50,7 @@ def test_plot_physics_fields_main_writes_outputs(
     fast_script_figures,
     collect_script_outputs,
 ):
-    from geoprior._scripts.plot_physics_fields import (
+    from geoprior.scripts.plot_physics_fields import (
         plot_physics_fields_main,
     )
 

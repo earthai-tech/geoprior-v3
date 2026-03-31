@@ -70,7 +70,7 @@ def test_plot_ablations_sensitivity_main_writes_plot_and_table(
     ablation_input_csv: Path,
 ):
     mod = pytest.importorskip(
-        "geoprior._scripts.plot_ablations_sensitivity"
+        "geoprior.scripts.plot_ablations_sensitivity"
     )
     _patch_fig_save(monkeypatch, mod, script_test_env)
 
@@ -112,7 +112,7 @@ def test_plot_ablations_sensitivity_main_writes_plot_and_table(
 
 def test_canon_pde_mode_normalizes_aliases():
     mod = pytest.importorskip(
-        "geoprior._scripts.plot_ablations_sensitivity"
+        "geoprior.scripts.plot_ablations_sensitivity"
     )
 
     assert mod._canon_pde_mode("off") == "none"

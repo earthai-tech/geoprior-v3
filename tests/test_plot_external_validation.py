@@ -85,7 +85,7 @@ def test_plot_external_validation_main_writes_plot_and_json(
     boundary_csv: Path,
 ):
     mod = pytest.importorskip(
-        "geoprior._scripts.plot_external_validation"
+        "geoprior.scripts.plot_external_validation"
     )
     _patch_outputs(monkeypatch, mod, script_test_env)
 
@@ -149,7 +149,7 @@ def test_load_boundary_xy_reads_simple_csv(
     boundary_csv: Path,
 ):
     mod = pytest.importorskip(
-        "geoprior._scripts.plot_external_validation"
+        "geoprior.scripts.plot_external_validation"
     )
 
     bx, by = mod.load_boundary_xy(str(boundary_csv))

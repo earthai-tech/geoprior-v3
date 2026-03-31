@@ -139,7 +139,7 @@ def test_plot_xfer_impact_main_writes_outputs(
     monkeypatch,
 ):
     mod = pytest.importorskip(
-        "geoprior._scripts.plot_xfer_impact"
+        "geoprior.scripts.plot_xfer_impact"
     )
 
     monkeypatch.setattr(
@@ -192,6 +192,6 @@ def test_plot_xfer_impact_main_writes_outputs(
 
 def test_canon_dir_normalizes_lowercase_direction():
     mod = pytest.importorskip(
-        "geoprior._scripts.plot_xfer_impact"
+        "geoprior.scripts.plot_xfer_impact"
     )
     assert mod._canon_dir("a_to_b") == "A_to_B"

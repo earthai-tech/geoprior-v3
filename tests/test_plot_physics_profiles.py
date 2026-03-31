@@ -48,7 +48,7 @@ def test_plot_physics_profiles_main_writes_figure_and_table(
     fast_script_figures,
     collect_script_outputs,
 ):
-    from geoprior._scripts.plot_physics_profiles import (
+    from geoprior.scripts.plot_physics_profiles import (
         figA1_phys_profiles_main,
     )
 

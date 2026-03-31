@@ -85,7 +85,7 @@ def test_plot_core_ablation_main_writes_artifacts(
     core_ablation_df: pd.DataFrame,
 ):
     mod = pytest.importorskip(
-        "geoprior._scripts.plot_core_ablation"
+        "geoprior.scripts.plot_core_ablation"
     )
     _patch_outputs(monkeypatch, mod, script_test_env)
 
@@ -136,7 +136,7 @@ def test_plot_core_ablation_main_writes_artifacts(
 
 def test_pick_rmse_falls_back_to_mse_square_root():
     mod = pytest.importorskip(
-        "geoprior._scripts.plot_core_ablation"
+        "geoprior.scripts.plot_core_ablation"
     )
 
     rmse = mod._pick_rmse({}, {}, 25.0)

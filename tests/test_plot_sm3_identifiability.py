@@ -208,7 +208,7 @@ def test_plot_sm3_identifiability_main_writes_outputs(
     collect_script_outputs,
     sm3_ident_csv,
 ):
-    from geoprior._scripts.plot_sm3_identifiability import (
+    from geoprior.scripts.plot_sm3_identifiability import (
         plot_sm3_identifiability_main,
     )
 
@@ -245,7 +245,7 @@ def test_plot_sm3_identifiability_main_writes_outputs(
 
 
 def test_linfit_stats_returns_nan_for_constant_x():
-    from geoprior._scripts.plot_sm3_identifiability import (
+    from geoprior.scripts.plot_sm3_identifiability import (
         _linfit_stats,
     )
 

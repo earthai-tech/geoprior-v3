@@ -56,7 +56,7 @@ def test_plot_sm3_bounds_ridge_summary_main_writes_outputs(
     collect_script_outputs,
     sm3_bounds_csv,
 ):
-    from geoprior._scripts.plot_sm3_bounds_ridge_summary import (
+    from geoprior.scripts.plot_sm3_bounds_ridge_summary import (
         plot_sm3_bounds_ridge_summary_main,
     )
 
@@ -95,7 +95,7 @@ def test_plot_sm3_bounds_ridge_summary_main_writes_outputs(
 
 
 def test_infer_bounds_returns_run_extrema():
-    from geoprior._scripts.plot_sm3_bounds_ridge_summary import (
+    from geoprior.scripts.plot_sm3_bounds_ridge_summary import (
         infer_bounds,
     )
 

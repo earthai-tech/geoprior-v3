@@ -106,7 +106,7 @@ def test_plot_uncertainty_extras_main_writes_outputs(
     monkeypatch,
 ):
     mod = pytest.importorskip(
-        "geoprior._scripts.plot_uncertainty_extras"
+        "geoprior.scripts.plot_uncertainty_extras"
     )
     _patch_outputs(monkeypatch, mod, script_test_env)
 
@@ -168,7 +168,7 @@ def test_plot_uncertainty_extras_main_writes_outputs(
 
 def test_extract_factors_per_horizon_accepts_dict():
     mod = pytest.importorskip(
-        "geoprior._scripts.plot_uncertainty_extras"
+        "geoprior.scripts.plot_uncertainty_extras"
     )
     meta = {
         "interval_calibration": {
