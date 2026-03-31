@@ -31,49 +31,58 @@ context, and sequence behind the workflow, stay in the User Guide.
 Start here for commands
 -----------------------
 
-.. container:: cta-tiles cli-tiles
+.. grid:: 1 1 2 3
+   :gutter: 3
+   :class-container: cta-tiles cli-tiles
 
-   .. card:: CLI overview
+   .. grid-item-card:: CLI overview
       :link: ../cli/index
       :link-type: doc
+      :class-card: sd-shadow-sm
 
       Start with the main CLI landing page for the overall structure,
       command families, and reading path.
 
-   .. card:: CLI introduction
+   .. grid-item-card:: CLI introduction
       :link: ../cli/introduction
       :link-type: doc
+      :class-card: sd-shadow-sm
 
       Learn the mental model behind ``geoprior``,
       ``geoprior-run``, ``geoprior-build``, and ``geoprior-plot``.
 
-   .. card:: Shared conventions
+   .. grid-item-card:: Shared conventions
       :link: ../cli/shared_conventions
       :link-type: doc
+      :class-card: sd-shadow-sm
 
       See the common CLI patterns once: config installation, runtime
       overrides, repeated data-loading behavior, and output handling.
 
-   .. card:: Run family
+   .. grid-item-card:: Run family
       :link: ../cli/run_family
       :link-type: doc
+      :class-card: sd-shadow-sm
 
       Go here when you want to execute workflow stages, transfer runs,
       sensitivity sweeps, or SM3 run-side diagnostics.
 
-   .. card:: Build family
+   .. grid-item-card:: Build family
       :link: ../cli/build_family
       :link-type: doc
+      :class-card: sd-shadow-sm
 
       Go here when you want to materialize datasets, payloads,
       summaries, metrics, or geospatial side products.
 
-   .. card:: Plot family
+   .. grid-item-card:: Plot family
       :link: ../cli/plot_family
       :link-type: doc
+      :class-card: sd-shadow-sm
 
       Go here when you want to render figures, maps, uncertainty plots,
       transfer plots, or supporting diagnostics.
+      
 
 How the CLI maps onto the workflow
 ----------------------------------
@@ -106,7 +115,7 @@ A good way to move through the docs is:
 Read next
 ---------
 
-The best next pages after this one are:
+The next pages after this one are:
 
 .. grid:: 1 1 2 2
    :gutter: 3
