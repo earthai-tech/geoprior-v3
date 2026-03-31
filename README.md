@@ -6,10 +6,10 @@
 
   <p align="center">
     <a href="https://github.com/earthai-tech/geoprior-v3/actions/workflows/python-package-conda.yml">
-       <img alt="Build Status" src="https://img.shields.io/github/actions/workflow/status/earthai-tech/geoprior-v3/python-package-conda.yml?branch=main&style=flat-square">
+       <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/earthai-tech/geoprior-v3/python-package-conda.yml?style=plastic">
     </a>
     <a href="https://geoprior-v3.readthedocs.io/en/latest/">
-        <img alt="Docs" src="https://img.shields.io/readthedocs/geoprior-v3?style=flat-square">
+        <img alt="Read the Docs" src="https://img.shields.io/readthedocs/geoprior-v3?style=plastic">
     </a>
     <a href="https://github.com/earthai-tech/geoprior-v3/blob/main/LICENSE">
       <img alt="License" src="https://img.shields.io/github/license/earthai-tech/geoprior-v3?style=plastic&logo=Apache&logoColor=0492C2&color=FBB040">
@@ -18,7 +18,7 @@
       <img alt="Black" src="https://img.shields.io/badge/code%20style-Black-000000.svg?style=flat-square">
     </a>
     <a href="https://github.com/earthai-tech/geoprior-v3/blob/main/CONTRIBUTING.md">
-      <img alt="Contributions" src="https://img.shields.io/badge/Contributions-Welcome-brightgreen?style=flat-square">
+      <img alt="Contributions" src="https://img.shields.io/badge/Contributions-Welcome-brightgreen?style=plastic">
     </a>
     <a href="https://github.com/earthai-tech/geoprior-v3/releases/latest">
         <img alt="GitHub Release" src="https://img.shields.io/github/v/release/earthai-tech/geoprior-v3">

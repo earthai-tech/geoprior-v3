@@ -1,47 +1,388 @@
-<div align="center">
+# GeoPrior-v3 Code Ocean Capsule
 
-<img src="https://raw.githubusercontent.com/earthai-tech/geoprior-v3/main/docs/source/_static/geoprior-svg.svg" 
-   alt="GeoPrior logo" width="320">
-<br>
+This capsule accompanies the manuscript:
 
-<h1>GeoPrior-v3 (GeoPriorSubsNet)</h1>
+**Physics-Informed Deep Learning Reveals Divergent Urban Land Subsidence Regimes**
 
-<p>
-  Physics-guided AI for geohazard forecasting & risk analytics<br>
-  <em>Code Ocean reproducibility capsule</em>
-</p>
-
-<p>
-  <a href="https://github.com/earthai-tech/geoprior-v3">
-    GitHub: earthai-tech/geoprior-v3
-  </a>
-  &nbsp;•&nbsp;
-  <a href="https://fusion-lab.readthedocs.io/en/latest/user_guide/models/pinn/geoprior/index.html">
-    User guide (temporary)
-  </a>
-</p>
-
-</div>
+It is designed to let reviewers run the GeoPrior-v3 workflow from the packaged command-line interface rather than from ad hoc scripts. The capsule focuses on reproducibility, auditability, and ease of testing in a Code Ocean environment.
 
 ---
 
-## Overview
+## 1. What this capsule contains
 
-This capsule provides an end-to-end, reproducible implementation of
-**GeoPriorSubsNet (GeoPrior-v3)** — a physics-informed deep learning
-framework for **urban land subsidence forecasting** that couples an
-attentive spatio-temporal backbone to a reduced consolidation model and
-a closure-consistent mapping between inferred hydrogeological fields and
-the emergent relaxation timescale.
+At minimum, the capsule is expected to contain:
 
-**Today:** land subsidence (GeoPriorSubsNet).  
-**Next:** landslides and broader geohazard regimes (GeoPrior roadmap).
+```text
+.
+├── config.py
+├── data/
+│   ├── zhongshan_full_city.csv
+│   └── nansha_full_city.csv            # optional unless Stage-5 is tested
+├── nat.com/
+│   └── config.json                     # auto-generated / updated by GeoPrior
+├── results/
+└── README.md
+```
+
+### Important notes
+
+- `config.py` at the capsule root is the **reviewer-facing configuration file**.
+- GeoPrior uses `nat.com/config.py` and `nat.com/config.json` internally.
+- The commands below use `--config ./config.py` so the shipped root config is installed into `nat.com/config.py` automatically before execution.
+- All run outputs are written under the capsule-level `results/` directory.
+- The full-city reviewer dataset for this capsule is expected at:
+  - `data/zhongshan_full_city.csv`
+- If a second city dataset is provided for transfer experiments, place it at:
+  - `data/nansha_full_city.csv`
+
+> The built-in fetchers in GeoPrior provide small sample datasets for demonstration and smoke tests. They are **not** the intended data source for reproducing the paper workflow in this capsule.
 
 ---
 
-## Manuscript (how to cite)
+## 2. Scientific context
 
-If you use this capsule, please cite:
+GeoPrior-v3 implements **GeoPriorSubsNet**, a physics-guided spatiotemporal forecasting framework for urban land subsidence and groundwater-related dynamics. In the submitted Nature Communications study, the framework is evaluated in **two contrasting cities: Nansha and Zhongshan**.
+
+For Code Ocean review, the most important executable checks are:
+
+1. **Stage-1 preprocessing**
+2. **Stage-3 training**
+
+Optional reviewer checks include:
+
+3. **Stage-2 short tuning demo**
+4. **Stage-4 inference/export**
+5. **Stage-5 cross-city transfer evaluation**
+
+---
+
+## 3. Installation
+
+Install the published package from PyPI:
+
+```bash
+pip install geoprior-v3
+```
+
+You may also install a few common extras explicitly if your environment is very minimal:
+
+```bash
+pip install geoprior-v3 joblib pandas scikit-learn matplotlib tensorflow
+```
+
+---
+
+## 4. Documentation and source code
+
+- Documentation: [GeoPrior-v3 documentation](https://geoprior-v3.readthedocs.io/)
+- Source code: [earthai-tech/geoprior-v3](https://github.com/earthai-tech/geoprior-v3)
+
+Tutorial videos:
+
+- App tutorial: [https://youtu.be/JtOpX5lv4iw](https://youtu.be/JtOpX5lv4iw)
+- Example simulation run: [https://youtu.be/nCouLQQFpQg](https://youtu.be/nCouLQQFpQg)
+
+![Screenshot of the GeoPrior-V3 GUI showing running flow](https://github.com/earthai-tech/geoprior-v3/blob/main/codeocean/geoprior-v3.app.png)
+---
+
+## 5. GeoPrior CLI overview
+
+GeoPrior-v3 exposes a family-based CLI. The canonical form is:
+
+```bash
+geoprior run <command> [args]
+geoprior build <command> [args]
+geoprior plot <command> [args]
+```
+
+For this capsule, the main workflow commands are:
+
+```bash
+geoprior run stage1-preprocess
+geoprior run stage2-train
+geoprior run stage3-tune
+geoprior run stage4-infer
+geoprior run stage5-transfer
+```
+
+You can inspect the installed CLI with:
+
+```bash
+geoprior --help
+geoprior run --help
+geoprior run stage1-preprocess --help
+geoprior run stage3-tune --help
+```
+
+---
+
+## 6. Configuration model used in this capsule
+
+GeoPrior's NATCOM-style configuration treats `config.py` as the **single source of truth** for experiment settings. The library then regenerates `nat.com/config.json` from it automatically when the workflow runs.
+
+In this capsule:
+
+- edit the root-level `config.py` if you need to inspect or modify settings;
+- run all commands with `--config ./config.py`;
+- GeoPrior will copy that file into `nat.com/config.py` and update `nat.com/config.json` as needed.
+
+### Recommended reviewer settings
+
+For the Zhongshan reviewer dataset, ensure that the shipped `config.py` points to the root `data/` folder and to the full-city CSV rather than a bundled demo fetcher.
+
+Typical settings are:
+
+```python
+CITY_NAME = "zhongshan"
+MODEL_NAME = "GeoPriorSubsNet"
+DATA_DIR = "."
+SEARCH_PATHS = ["data/zhongshan_full_city.csv"]
+FALLBACK_PATHS = []
+```
+
+If you want to test transfer later, add the second city file and adjust or extend the paths accordingly.
+
+---
+
+## 7. Minimal reviewer workflow
+
+### Step A. Confirm the reviewer dataset exists
+
+```bash
+ls data
+```
+
+Expected primary file:
+
+```text
+data/zhongshan_full_city.csv
+```
+
+### Step B. Run Stage-1 preprocessing
+
+This builds the cleaned tables, scalers, sequence NPZ files, and a manifest for downstream stages.
+
+```bash
+geoprior run stage1-preprocess \
+  --config ./config.py
+```
+
+### Expected Stage-1 result
+
+A city-specific Stage-1 folder is created under `results/`, containing artifacts such as:
+
+- raw / cleaned / scaled CSV files
+- feature encoders and scalers
+- split NPZ files for train / validation / test
+- `manifest.json`
+
+A typical path is:
+
+```text
+results/zhongshan_GeoPriorSubsNet_stage1/
+```
+
+with the key handoff file:
+
+```text
+results/zhongshan_GeoPriorSubsNet_stage1/manifest.json
+```
+
+### Step C. Run Stage-3 tuning
+
+Stage-3 can be run directly from the Stage-1 manifest.
+
+```bash
+geoprior run stage3-tune \
+  --config ./config.py \
+  --stage1-manifest results/zhongshan_GeoPriorSubsNet_stage1/manifest.json
+```
+
+This is the main reviewer-side computational check after Stage-1.
+
+---
+
+## 8. Fast demonstration mode
+
+For a lighter test run, reviewers may reduce training effort by overriding configuration values from the CLI.
+
+### Short Stage-2 demo (5 epochs)
+
+```bash
+geoprior run stage2-train \
+  --config ./config.py \
+  --stage1-manifest results/zhongshan_GeoPriorSubsNet_stage1/manifest.json \
+  --set EPOCHS=5
+```
+
+### Short Stage-3 demo (5 epochs per trial)
+
+```bash
+geoprior run stage3-tune \
+  --config ./config.py \
+  --stage1-manifest results/zhongshan_GeoPriorSubsNet_stage1/manifest.json \
+  --set EPOCHS=5
+```
+
+If your local `config.py` already defines a small search space or small number of trials, that is usually sufficient for Code Ocean testing.
+
+---
+
+## 9. Stage-4 inference and export
+
+Stage-4 is used after a successful training or tuning workflow to run inference, evaluation, and export. It accepts the same `--config` installation pattern and can also be pointed at a specific Stage-1 manifest.
+
+Basic form:
+
+```bash
+geoprior run stage4-infer \
+  --config ./config.py \
+  --stage1-manifest results/zhongshan_GeoPriorSubsNet_stage1/manifest.json
+```
+
+If you want to inspect all supported inference arguments in the packaged environment:
+
+```bash
+geoprior run stage4-infer --help
+```
+
+Because Stage-4 forwards additional inference options to the legacy inference backend, the exact export flags may be appended as needed in the capsule.
+
+---
+
+## 10. Stage-5 cross-city transfer evaluation
+
+Stage-5 is for **cross-city transfer** and therefore requires **two cities**.
+
+To test Stage-5 in this capsule, ensure both of the following are present:
+
+```text
+data/zhongshan_full_city.csv
+data/nansha_full_city.csv
+```
+
+Then run the transfer command with an explicit city pair:
+
+```bash
+geoprior run stage5-transfer \
+  --config ./config.py \
+  --city-a zhongshan \
+  --city-b nansha
+```
+
+To inspect all forwarded transfer options:
+
+```bash
+geoprior run stage5-transfer --help
+```
+
+If only Zhongshan data is packaged, Stage-5 should be considered optional and may be skipped.
+
+---
+
+## 11. What Stage-1 produces for downstream stages
+
+Stage-1 is the key handshake stage in GeoPrior-v3.
+
+It exports:
+
+- cleaned and scaled tabular files;
+- encoded static, dynamic, and future-known features;
+- train / validation / test sequence arrays in NPZ form;
+- scalers and one-hot encoders;
+- a `manifest.json` file describing paths, dimensions, columns, and configuration.
+
+Downstream stages use this manifest instead of rebuilding the full preprocessing pipeline from scratch.
+
+---
+
+## 12. Typical output layout
+
+All outputs are written under `results/`.
+
+A typical reviewer run may create directories such as:
+
+```text
+results/
+├── zhongshan_GeoPriorSubsNet_stage1/
+├── zhongshan_GeoPriorSubsNet_stage2/
+├── zhongshan_GeoPriorSubsNet_stage3/
+├── zhongshan_GeoPriorSubsNet_stage4/
+└── transfer_zhongshan_to_nansha/
+```
+
+The exact names can vary slightly with configuration, but `results/` is the central output root for this capsule.
+
+---
+
+## 13. Suggested reviewer command sequence
+
+### Minimal verification
+
+```bash
+geoprior run stage1-preprocess --config ./config.py
+geoprior run stage3-tune \
+  --config ./config.py \
+  --stage1-manifest results/zhongshan_GeoPriorSubsNet_stage1/manifest.json \
+  --set EPOCHS=5
+```
+
+### Slightly broader verification
+
+```bash
+geoprior run stage1-preprocess --config ./config.py
+geoprior run stage2-train \
+  --config ./config.py \
+  --stage1-manifest results/zhongshan_GeoPriorSubsNet_stage1/manifest.json \
+  --set EPOCHS=5
+geoprior run stage4-infer \
+  --config ./config.py \
+  --stage1-manifest results/zhongshan_GeoPriorSubsNet_stage1/manifest.json
+```
+
+### Full two-city transfer check
+
+```bash
+geoprior run stage5-transfer \
+  --config ./config.py \
+  --city-a zhongshan \
+  --city-b nansha
+```
+
+---
+
+## 14. Troubleshooting
+
+### Problem: GeoPrior falls back to a small bundled sample dataset
+
+Cause:
+- the expected full-city CSV was not found from the configured paths.
+
+Fix:
+- confirm `data/zhongshan_full_city.csv` exists;
+- confirm `config.py` points to that file through `DATA_DIR`, `SEARCH_PATHS`, `BIG_FN`, or equivalent settings;
+- re-run the command with `--config ./config.py`.
+
+### Problem: Stage-3 cannot find Stage-1 artifacts
+
+Fix:
+- check that Stage-1 finished successfully;
+- pass the exact manifest path using `--stage1-manifest`.
+
+### Problem: Stage-5 cannot run
+
+Cause:
+- only one city dataset is available.
+
+Fix:
+- add the second full-city dataset to `data/`;
+- then re-run Stage-5 with `--city-a` and `--city-b`.
+
+---
+
+## 15. Citation
+
+If you use or discuss this capsule, please cite the manuscript as:
 
 ```bibtex
 @unpublished{kouadio_geopriorsubsnet_nature_2025,
@@ -53,259 +394,28 @@ If you use this capsule, please cite:
   note    = {Submitted},
   year    = {2025}
 }
-````
+```
 
 ---
 
-## What is included in this capsule?
+## 16. Summary
 
-**Included**
+This Code Ocean capsule is set up so that reviewers can:
 
-* GeoPrior-v3 source code required to reproduce the paper runs
-  (model, training, evaluation, plotting, exports).
-* Reproducibility scripts (pipeline stages; see below).
-* Physics-audit exports (e.g., closure consistency and residual payloads).
-* Tuning utility: **`SubsNetTuner`** (hyperparameter search for GeoPriorSubsNet).
+- install `geoprior-v3` from PyPI,
+- use the packaged CLI,
+- point GeoPrior to the shipped root `config.py`,
+- run Stage-1 and Stage-3 as the primary reproducibility checks,
+- optionally run a short 5-epoch Stage-2 demo,
+- optionally run Stage-4 inference,
+- optionally run Stage-5 transfer if both Zhongshan and Nansha full-city datasets are present.
 
-**Not included (by design)**
-
-* The **GeoPrior GUI application code** (premium/private).
-  This capsule only demonstrates that the app exists.
-
----
-
-## GeoPrior GUI (not included, preview only)
-
-A GUI preview image is provided here:
-
-<p align="center">
-  <img
-    src="./geoprior-v3.app.png"
-    alt="GeoPrior GUI preview"
-    width="760"
-  />
-</p>
-
-Tutorial videos:
-
-* App tutorial: [https://youtu.be/JtOpX5lv4iw](https://youtu.be/JtOpX5lv4iw)
-* Example simulation run: [https://youtu.be/nCouLQQFpQg](https://youtu.be/nCouLQQFpQg)
-
----
-
-## Repository structure (capsule)
-
-This capsule follows a staged workflow. The exact filenames may evolve,
-but the intent is stable:
-
-* `nat.com/config.py`
-  Central configuration for reproducibility (paths, seeds, defaults).
-
-* `nat.com/stage1.py`
-  Data harmonisation + feature construction + tensor packaging.
-
-* `nat.com/stage2.py`
-  Training GeoPriorSubsNet (physics + data objectives).
-
-* `nat.com/stage5.py`
-  Transfer / warm-start experiments (cross-city adaptation).
-
-Outputs are written under `./outputs/` (models, logs, figures, metrics,
-payload exports).
-
----
-
-## Input data (CSV contract)
-
-### Where the CSV files must live
-
-The Stage-1 pipeline searches for the city CSV using multiple locations,
-including `./data/<BIG_FN>` from the repository root. 
-
-For this capsule, place the harmonized city datasets here:
-
-- `data/nansha_final_main_std.harmonized.cleaned.with_zsurf.csv`
-- `data/zhongshan_final_main_std.harmonized.cleaned.with_zsurf.csv`
-
-These filenames follow the configured template:
-
-- `DATASET_VARIANT = "with_zsurf"`
-- `BIG_FN_TEMPLATE = "{city}_final_main_std.harmonized.cleaned.{variant}.csv"` 
-
-> Note: The full processed datasets used in the paper are not stored in
-> GitHub because they are large. They are provided in the Code Ocean
-> capsule and/or made available through the corresponding data providers.
-
-### Required columns (minimum)
-
-Stage-1 expects a harmonized CSV that contains (at minimum) the following
-core fields (names are configured in `nat.com/config.py`):
-
-- `year` (time index)
-- `longitude`, `latitude` (coordinates)
-- `subsidence_cum` (target)
-- `GWL_depth_bgs_m` (groundwater, depth below ground surface)
-- `soil_thickness` (H-field proxy for GeoPrior physics)
-- `z_surf_m` (surface elevation used to construct head consistently)
-- `head_m` (hydraulic head, used when available) 
-
-### Optional drivers used in the paper runs
-
-If present, GeoPrior-v3 will automatically use:
-
-- Numeric drivers: `rainfall_mm`, `urban_load_global`
-- Categorical/static features: `lithology`, `lithology_class` 
-
-These match the processed dataset schema used for the paper.
-
-### Switching city
-
-To switch between cities, edit:
-
-- `CITY_NAME = "nansha"` → `"zhongshan"` 
-
-Stage-1 will then resolve the correct `BIG_FN` from the template and
-search for the corresponding file.
-
----
-## Quick start (reproduce a full run)
-
-
-### 0) Install / import (inside Code Ocean)
-
-In many capsules, the environment is already provisioned.
-If you need an editable install:
+For most reviewers, the two most informative commands are:
 
 ```bash
-python -m pip install -e .
+geoprior run stage1-preprocess --config ./config.py
+geoprior run stage3-train \
+  --config ./config.py \
+  --stage1-manifest results/zhongshan_GeoPriorSubsNet_stage1/manifest.json \
+  --set EPOCHS=5
 ```
-
-### 1) (Optional) Configure log directory
-
-GeoPrior supports `${LOG_PATH}` substitution in YAML logging configs.
-Recommended for Code Ocean (clean, user-scoped):
-
-```bash
-export GEOPRIOR_LOG_PATH="$HOME/.geoprior/logs"
-mkdir -p "$GEOPRIOR_LOG_PATH"
-```
-
-### 2) Stage 1 — data preparation
-
-```bash
-python nat.com/stage1.py --help
-python nat.com/stage1.py
-```
-
-### 3) Stage 2 — train GeoPriorSubsNet
-
-```bash
-python nat.com/stage2.py --help
-python nat.com/stage2.py
-```
-
-### 4) Stage 5 — transfer experiments (optional)
-
-```bash
-python nat.com/stage5.py --help
-python nat.com/stage5.py
-```
-
----
-
-## Hyperparameter tuning (SubsNetTuner)
-
-GeoPrior includes a tuner specialized for **GeoPriorSubsNet**:
-`SubsNetTuner` (implemented in `_geoprior_tuner.py` and re-exported by
-`tuners.py`).
-
-Example pattern (Python):
-
-```python
-from geoprior.models.tuners import SubsNetTuner
-
-fixed = {"forecast_horizon": 3}
-space = {
-    "embed_dim": [32, 64],
-    "num_heads": [2, 4],
-    "dropout_rate": {"type": "float", "min_value": 0.1, "max_value": 0.3},
-    "learning_rate": [1e-3, 5e-4],
-    "lambda_gw": {"type": "float", "min_value": 0.5, "max_value": 1.5},
-}
-
-tuner = SubsNetTuner.create(
-    inputs_data=inputs_np,
-    targets_data=targets_np,
-    search_space=space,
-    fixed_params=fixed,
-    max_trials=20,
-    project_name="GeoPrior_HP_Search",
-)
-
-best_model, best_hps, kt = tuner.run(
-    inputs=inputs_np,
-    y=targets_np,
-    validation_data=(val_inputs_np, val_targets_np),
-    epochs=30,
-    batch_size=32,
-)
-```
-
----
-
-## Outputs (what to look for)
-
-After running stages, check `./outputs/` for:
-
-* `outputs/models/`
-  Saved weights / checkpoints.
-
-* `outputs/figures/`
-  Paper-style and diagnostic plots.
-
-* `outputs/metrics/`
-  Deterministic and probabilistic evaluation summaries.
-
-* `outputs/payloads/`
-  Physics-audit payload exports (closure, residuals, learned fields).
-
-* `outputs/logs/` (or `$GEOPRIOR_LOG_PATH`)
-  Structured run logs.
-
----
-
-## Notes on data conventions
-
-The workflow uses an **annual grid** and a harmonized driver set.
-The manuscript’s experiments use a look-back window `L=5` years and a
-forecast horizon `H=3` years, but the pipeline is configurable in
-`nat.com/config.py`.
-
----
-
-## Documentation
-
-Documentation is in active development.
-
-* Current (temporary) user guide:
-  [https://fusion-lab.readthedocs.io/en/latest/user_guide/models/pinn/geoprior/index.html](https://fusion-lab.readthedocs.io/en/latest/user_guide/models/pinn/geoprior/index.html)
-
-A dedicated documentation site will be added later for GeoPrior-v3.
-
----
-
-## License
-
-GeoPrior-v3 is distributed under **Apache License 2.0**.
-Some files may be adapted from other earthai-tech repositories and keep
-their original license headers where required.
-
----
-
-## Contact
-
-**Laurent Kouadio**
-Website: [https://lkouadio.com](https://lkouadio.com)
-Email: [etanoyau@gmail.com](mailto:etanoyau@gmail.com)
-
-
