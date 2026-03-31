@@ -44,7 +44,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from geoprior._scripts.build_ablation_table import (
+from geoprior.scripts.build_ablation_table import (
     build_ablation_table_main,
 )
 

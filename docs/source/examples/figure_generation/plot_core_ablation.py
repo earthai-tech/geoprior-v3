@@ -86,7 +86,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from geoprior._scripts.plot_ablations_sensitivity import (
+from geoprior.scripts.plot_ablations_sensitivity import (
     plot_ablations_sensivity_main,
 )
 

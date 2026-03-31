@@ -93,7 +93,7 @@ def pytest_configure(config: pytest.Config) -> None:
     )
     config.addinivalue_line(
         "markers",
-        "script_artifacts: uses isolated geoprior._scripts"
+        "script_artifacts: uses isolated geoprior.scripts"
         " output roots.",
     )
     config.addinivalue_line(
@@ -1308,7 +1308,7 @@ def write_python_assignments(
 
 
 # ------------------------------------------------------------------
-# Optional helpers for geoprior._scripts tests.
+# Optional helpers for geoprior.scripts tests.
 # These are opt-in so the existing stage tests keep the exact same
 # behavior.
 # ------------------------------------------------------------------
@@ -1380,7 +1380,7 @@ def scripts_workspace(
     monkeypatch: pytest.MonkeyPatch,
 ) -> dict[str, Path]:
     """
-    Isolated workspace for ``geoprior._scripts`` tests.
+    Isolated workspace for ``geoprior.scripts`` tests.
 
     The fixture changes the working directory to a temporary root and
     pre-creates the common ``scripts/`` output folders. Existing tests
@@ -1400,14 +1400,14 @@ def patch_script_output_roots(
     """
     Route relative script outputs into the temporary workspace.
 
-    This patches ``geoprior._scripts.config.resolve_user_artifact_path``
+    This patches ``geoprior.scripts.config.resolve_user_artifact_path``
     when available. Absolute output paths are preserved.
     """
     try:
         import importlib
 
         cfg = importlib.import_module(
-            "geoprior._scripts.config"
+            "geoprior.scripts.config"
         )
     except Exception:
         return scripts_workspace
@@ -1478,7 +1478,7 @@ def script_test_env(
     patch_script_output_roots: dict[str, Path],
 ) -> dict[str, Path]:
     """
-    Convenience fixture for most ``geoprior._scripts`` tests.
+    Convenience fixture for most ``geoprior.scripts`` tests.
 
     It provides an isolated workspace and patched relative output
     resolution, while leaving figure rendering unchanged.

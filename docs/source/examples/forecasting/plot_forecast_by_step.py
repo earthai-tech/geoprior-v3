@@ -55,7 +55,7 @@ import numpy as np
 import pandas as pd
 
 from geoprior.plot import plot_forecast_by_step
-from geoprior._scripts import utils as script_utils
+from geoprior.scripts import utils as script_utils
 
 # %%
 # Step 1 - Build a compact long-format forecast table
@@ -66,7 +66,7 @@ from geoprior._scripts import utils as script_utils
 # and optionally ``subsidence_actual``.
 #
 # Instead of building a plain rectangular grid by hand, we now use
-# the shared synthetic-spatial helpers from ``geoprior._scripts``.
+# the shared synthetic-spatial helpers from ``geoprior.scripts``.
 # That gives us:
 #
 # - a more city-like support,

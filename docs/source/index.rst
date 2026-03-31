@@ -23,7 +23,7 @@ reproducible figure generation in a single documentation space.
    entry points for initialization, staged runs, builds, and
    plotting, including ``geoprior``, ``geoprior-run``,
    ``geoprior-build``, ``geoprior-plot``, and
-   ``geoprior-init``. See :doc:`user_guide/cli` for the full
+   ``geoprior-init``. See :doc:`cli/index`  for the full
    command reference.
 
 Start here
@@ -40,16 +40,7 @@ Start here
 
       Begin with the project overview, installation guidance,
       quickstart usage, and a first end-to-end run.
-
-   .. grid-item-card:: Scientific foundations
-      :link: scientific_foundations/index
-      :link-type: doc
-      :class-card: card--physics
-
-      Understand the model family, the physical formulation,
-      residual construction, scaling strategy, and the main
-      scientific assumptions.
-
+      
    .. grid-item-card:: User guide
       :link: user_guide/index
       :link-type: doc
@@ -58,13 +49,23 @@ Start here
       Follow the staged workflow, command-line logic,
       diagnostics, inference paths, and export-oriented use.
 
-   .. grid-item-card:: Applications
-      :link: applications/index
+   .. grid-item-card:: CLI
+      :link: cli/index
       :link-type: doc
+      :class-card: card--cli
 
-      Explore forecasting workflows, tuning, calibration,
-      uncertainty handling, and reproducibility scripts.
+      Find run, build, and plot commands, shared conventions,
+      command families, and the main command-line entry points.
+      
+   .. grid-item-card:: Scientific foundations
+      :link: scientific_foundations/index
+      :link-type: doc
+      :class-card: card--physics
 
+      Understand the model family, the physical formulation,
+      residual construction, scaling strategy, and the main
+      scientific assumptions.
+      
    .. grid-item-card:: Gallery
       :link: examples/index
       :link-type: doc
@@ -97,6 +98,54 @@ Start here
       Track user-visible changes across versions, including
       workflow, API, scientific, and documentation updates.
 
+Roadmap
+-------
+
+.. image:: _static/previews/geoprior-documentation-roadmap.svg
+   :alt: GeoPrior-v3 documentation roadmap
+   :width: 100%
+   :align: center
+ 
+ 
+Featured applications
+---------------------
+
+.. grid:: 1 1 2 4
+   :gutter: 3
+   :class-container: see-also-tiles
+
+   .. grid-item-card:: Applications
+      :link: applications/index
+      :link-type: doc
+      :class-card: sd-shadow-sm seealso-card card--workflow
+
+      Explore forecasting workflows, tuning, calibration,
+      uncertainty handling, and reproducibility scripts.
+
+   .. grid-item-card:: Core & ablation
+      :link: auto_examples/figure_generation/plot_core_ablation
+      :link-type: doc
+      :class-card: sd-shadow-sm seealso-card card--core-ablation
+
+      Compare the main with-physics and no-physics results in
+      the core ablation figure.
+
+   .. grid-item-card:: Bounds vs ridge summary
+      :link: auto_examples/figure_generation/plot_sm3_bounds_ridge_summary
+      :link-type: doc
+      :class-card: sd-shadow-sm seealso-card card--ridge-bounds
+
+      Inspect clipping, ridge behavior, and SM3 failure modes
+      in one summary figure.
+
+   .. grid-item-card:: Where to act first
+      :link: auto_examples/figure_generation/plot_hotspot_analytics
+      :link-type: doc
+      :class-card: sd-shadow-sm seealso-card card--hotspot-analytics
+
+      See the hotspot analytics figure that highlights where
+      intervention should come first.
+      
 Why GeoPrior-v3?
 ----------------
 
@@ -162,109 +211,104 @@ its current flagship application area. The command-line
 workflow complements the Python API so the same project can be
 used both programmatically and operationally.
 
-.. seealso::
-
-   - :doc:`getting_started/index`
-   - :doc:`user_guide/index`
-   - :doc:`applications/index`
-   - :doc:`examples/index`
-   - :doc:`api/index`
-
-Documentation map
------------------
-
-The documentation is organized into **seven main sections**
-plus a shared bibliography.
-
-1. **Getting started**
-   introduces the project, installation, quickstart usage,
-   and the first practical run.
-
-2. **Scientific foundations**
-   presents the model family, physical formulation,
-   poroelastic background, residual construction, losses,
-   scaling, mathematics, and identifiability assumptions.
-
-3. **User guide**
-   explains the staged workflow, command-line usage,
-   configuration system, diagnostics, and export logic.
-
-4. **Applications**
-   focuses on subsidence forecasting, tuning workflows,
-   uncertainty-oriented calibration, figure scripts, and
-   reproducibility.
-
-5. **API reference**
-   documents the importable interfaces for parameters, the
-   CLI, subsidence modules, tuner components, utilities, and
-   packaged resources.
-
-6. **Developer notes**
-   collects package structure, migration notes, and
-   contribution guidance.
-
-7. **Release notes**
-   record user-visible changes across versions, including
-   workflow, API, scientific, and documentation changes.
-
-The shared :doc:`references` page gathers the bibliography
-used throughout the scientific and application-facing
-documentation.
 
 Navigate directly
 -----------------
 
-.. button-ref:: getting_started/index
-   :ref-type: doc
-   :color: primary
-   :expand:
+.. grid:: 1 1 2 3
+   :gutter: 3
 
-   Begin with getting started
+   .. grid-item::
+      .. button-ref:: getting_started/index
+         :ref-type: doc
+         :color: primary
+         :expand:
 
-.. button-ref:: scientific_foundations/index
-   :ref-type: doc
-   :color: secondary
-   :expand:
+         Begin with getting started
 
-   Explore the models and physics
+   .. grid-item::
+      .. button-ref:: user_guide/index
+         :ref-type: doc
+         :color: secondary
+         :expand:
 
-.. button-ref:: user_guide/index
-   :ref-type: doc
-   :color: primary
-   :expand:
+         Open the user guide
 
-   Open the user guide
+   .. grid-item::
+      .. button-ref:: cli/index
+         :ref-type: doc
+         :color: primary
+         :expand:
 
-.. button-ref:: applications/index
-   :ref-type: doc
-   :color: secondary
-   :expand:
+         Explore the CLI reference
 
-   See the application workflows
+   .. grid-item::
+      .. button-ref:: applications/index
+         :ref-type: doc
+         :color: secondary
+         :expand:
 
-.. button-ref:: api/index
-   :ref-type: doc
-   :color: primary
-   :expand:
+         See the application workflows
 
-   Browse the API reference
+   .. grid-item::
+      .. button-ref:: examples/index
+         :ref-type: doc
+         :color: primary
+         :expand:
 
-.. button-ref:: release_notes
-   :ref-type: doc
-   :color: secondary
-   :expand:
+         Browse gallery examples
 
-   View release notes
+   .. grid-item::
+      .. button-ref:: scientific_foundations/index
+         :ref-type: doc
+         :color: secondary
+         :expand:
+
+         Explore the models and physics
+
+   .. grid-item::
+      .. button-ref:: api/index
+         :ref-type: doc
+         :color: primary
+         :expand:
+
+         Browse the API reference
+
+   .. grid-item::
+      .. button-ref:: developer/index
+         :ref-type: doc
+         :color: secondary
+         :expand:
+
+         Open developer notes
+
+   .. grid-item::
+      .. button-ref:: release_notes
+         :ref-type: doc
+         :color: primary
+         :expand:
+
+         View release notes
+
+   .. grid-item::
+      .. button-ref:: references
+         :ref-type: doc
+         :color: secondary
+         :expand:
+
+         See shared references
 
 .. toctree::
    :hidden:
-   :maxdepth: 2
+   :maxdepth: 1
+   :titlesonly:
 
    getting_started/index
-   scientific_foundations/index
    user_guide/index
+   cli/index
    applications/index
    examples/index
+   scientific_foundations/index
    api/index
    developer/index
    release_notes

@@ -108,7 +108,7 @@ def test_plot_geocum_main_writes_png_and_pdf(
 ):
     pytest.importorskip("geopandas")
     pytest.importorskip("contextily")
-    mod = pytest.importorskip("geoprior._scripts.plot_geocum")
+    mod = pytest.importorskip("geoprior.scripts.plot_geocum")
 
     _patch_outputs(monkeypatch, mod, script_test_env)
     monkeypatch.setattr(
@@ -150,7 +150,7 @@ def test_plot_geocum_main_writes_png_and_pdf(
 
 
 def test_infer_xy_crs_detects_lonlat():
-    mod = pytest.importorskip("geoprior._scripts.plot_geocum")
+    mod = pytest.importorskip("geoprior.scripts.plot_geocum")
 
     df = pd.DataFrame(
         {

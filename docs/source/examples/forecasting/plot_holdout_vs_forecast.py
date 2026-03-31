@@ -77,7 +77,7 @@ import numpy as np
 import pandas as pd
 
 from geoprior.plot import plot_eval_future
-from geoprior._scripts import utils as script_utils
+from geoprior.scripts import utils as script_utils
 
 # %%
 # Step 1 - Build a compact synthetic evaluation split

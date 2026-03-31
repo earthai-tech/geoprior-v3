@@ -73,7 +73,7 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
 
-from geoprior._scripts.plot_physics_sanity import (
+from geoprior.scripts.plot_physics_sanity import (
     render_physics_sanity,
 )
 

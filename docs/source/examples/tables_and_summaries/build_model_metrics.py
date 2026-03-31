@@ -35,7 +35,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from geoprior._scripts.build_model_metrics import (
+from geoprior.scripts.build_model_metrics import (
     build_model_metrics_main,
 )
 

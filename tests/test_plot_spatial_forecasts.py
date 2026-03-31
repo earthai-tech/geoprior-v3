@@ -85,7 +85,7 @@ def test_plot_spatial_forecasts_main_writes_outputs(
     spatial_inputs,
 ):
     mod = pytest.importorskip(
-        "geoprior._scripts.plot_spatial_forecasts"
+        "geoprior.scripts.plot_spatial_forecasts"
     )
 
     monkeypatch.setattr(
@@ -154,7 +154,7 @@ def test_plot_spatial_forecasts_main_writes_outputs(
 
 def test_coord_kind_detects_lonlat_ranges():
     mod = pytest.importorskip(
-        "geoprior._scripts.plot_spatial_forecasts"
+        "geoprior.scripts.plot_spatial_forecasts"
     )
     df = pd.DataFrame(
         {"coord_x": [113.4, 113.5], "coord_y": [22.1, 22.2]}

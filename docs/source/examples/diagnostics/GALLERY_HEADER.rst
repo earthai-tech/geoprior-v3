@@ -62,10 +62,15 @@ Module guide
      - Compare random and spatial-block train/validation/test group
        splits and explain why spatial-block holdout is often more
        credible for geospatial forecasting.
+   * - ``plot_stage1_data_checks.py``
+     - Stage-1 data-validity and split diagnostics
+     - Check which spatial groups are valid for training or only for
+       forecasting, filter the raw table accordingly, and compare
+       random versus spatial-block holdout credibility.
    * - ``plot_stage2_training_curves.py``
      - Training-history diagnostics
-     - Read Stage-2 loss curves, physics-loss components, epsilon-style
-       residual diagnostics, and warmup / scaling controls.
+     - Read Stage-2 loss curves, physics-loss components, validation
+       behavior, and warmup / scaling controls.
    * - ``plot_stage3_tuning_summary.py``
      - Tuning-summary diagnostics
      - Inspect Stage-3 hyperparameter search results, top trials,
@@ -82,8 +87,8 @@ Reading path
 A useful way to move through this gallery is to follow the logic of a
 complete workflow check:
 
-#. begin by checking whether the data groups are valid,
-#. confirm that the holdout split is credible,
+#. begin by checking whether the data groups are valid and whether the
+   holdout split is credible,
 #. inspect Stage-2 training behavior,
 #. inspect Stage-3 tuning behavior,
 #. finish with the bridge from optimization diagnostics to physics

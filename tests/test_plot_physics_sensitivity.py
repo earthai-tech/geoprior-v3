@@ -56,7 +56,7 @@ def test_plot_physics_sensitivity_main_writes_outputs(
     collect_script_outputs,
     physics_sensitivity_csv,
 ):
-    from geoprior._scripts.plot_physics_sensitivity import (
+    from geoprior.scripts.plot_physics_sensitivity import (
         plot_physics_sensitivity_main,
     )
 
@@ -94,7 +94,7 @@ def test_plot_physics_sensitivity_main_writes_outputs(
 
 
 def test_best_point_prefers_lower_metric_when_needed():
-    from geoprior._scripts.plot_physics_sensitivity import (
+    from geoprior.scripts.plot_physics_sensitivity import (
         _best_point,
     )
 

@@ -130,7 +130,7 @@ def test_plot_xfer_transferability_main_writes_outputs(
     monkeypatch,
 ):
     mod = pytest.importorskip(
-        "geoprior._scripts.plot_xfer_transferability"
+        "geoprior.scripts.plot_xfer_transferability"
     )
 
     monkeypatch.setattr(
@@ -180,7 +180,7 @@ def test_plot_xfer_transferability_main_writes_outputs(
 
 def test_subset_uses_target_baseline_for_cross_city_rows():
     mod = pytest.importorskip(
-        "geoprior._scripts.plot_xfer_transferability"
+        "geoprior.scripts.plot_xfer_transferability"
     )
 
     df = pd.DataFrame(

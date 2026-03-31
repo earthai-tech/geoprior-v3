@@ -73,7 +73,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from geoprior._scripts.plot_hotspot_analytics import (
+from geoprior.scripts.plot_hotspot_analytics import (
     build_hotspot_tables,
     plot_hotspot_analytics,
 )

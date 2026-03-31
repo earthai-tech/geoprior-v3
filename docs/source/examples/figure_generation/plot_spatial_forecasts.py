@@ -68,10 +68,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from geoprior._scripts.plot_spatial_forecasts import (
+from geoprior.scripts.plot_spatial_forecasts import (
     plot_fig6_spatial_forecasts,
 )
-from geoprior._scripts import utils as script_utils
+from geoprior.scripts import utils as script_utils
 
 # %%
 # Step 1 - Understand the figure we want to teach

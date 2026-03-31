@@ -945,21 +945,25 @@ def plot_forecast_by_step(
     vmin, vmax = None, None
     if cbar == "uniform":
         numeric_cols_for_cbar: list[str] = []
-    
+
         for p in value_prefixes:
             for m in metrics:
                 col = f"{p}_{m}"
                 if col not in df.columns:
                     continue
-    
+
                 s = pd.to_numeric(df[col], errors="coerce")
                 if s.notna().any():
                     df[col] = s
                     numeric_cols_for_cbar.append(col)
-    
+
         if numeric_cols_for_cbar:
-            vmin = min(df[c].min() for c in numeric_cols_for_cbar)
-            vmax = max(df[c].max() for c in numeric_cols_for_cbar)
+            vmin = min(
+                df[c].min() for c in numeric_cols_for_cbar
+            )
+            vmax = max(
+                df[c].max() for c in numeric_cols_for_cbar
+            )
 
     # Shared kwargs for plotting helpers.
     plot_kwargs = dict(
@@ -3527,6 +3531,7 @@ def _get_metrics_from_cols(
             metrics.add(suffix)
 
     return sorted(metrics)
+
 
 def _parse_wide_df_columns(
     df_wide: pd.DataFrame, value_prefixes: list[str]

@@ -50,7 +50,7 @@ def test_plot_driver_response_main_writes_outputs(
     driver_response_csv: Path,
 ):
     mod = pytest.importorskip(
-        "geoprior._scripts.plot_driver_response"
+        "geoprior.scripts.plot_driver_response"
     )
     _patch_fig_out(monkeypatch, mod, script_test_env)
 
@@ -87,7 +87,7 @@ def test_plot_driver_response_main_writes_outputs(
 
 def test_robust_trend_returns_none_for_small_samples():
     mod = pytest.importorskip(
-        "geoprior._scripts.plot_driver_response"
+        "geoprior.scripts.plot_driver_response"
     )
 
     x = pd.Series([1.0, 2.0, 3.0])

@@ -175,7 +175,6 @@ def __getattr__(name: str):
 
 
 import geoprior as gp
-import geoprior._scripts
 import geoprior.api
 import geoprior.backends
 import geoprior.cli
@@ -189,6 +188,7 @@ import geoprior.models
 import geoprior.params
 import geoprior.plot
 import geoprior.registry
+import geoprior.scripts
 import geoprior.utils
 
 __doc__ = (__doc__ or "") + f"\nVersion: {__version__}\n"

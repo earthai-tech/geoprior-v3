@@ -36,7 +36,7 @@ def test_plot_sm3_log_offsets_main_writes_outputs(
     fast_script_figures,
     collect_script_outputs,
 ):
-    from geoprior._scripts.plot_sm3_log_offsets import (
+    from geoprior.scripts.plot_sm3_log_offsets import (
         plot_sm3_log_offsets_main,
     )
 
@@ -91,7 +91,7 @@ def test_plot_sm3_log_offsets_main_writes_outputs(
 
 
 def test_summarise_offsets_requires_delta_columns():
-    from geoprior._scripts.plot_sm3_log_offsets import (
+    from geoprior.scripts.plot_sm3_log_offsets import (
         summarise_offsets,
     )
 

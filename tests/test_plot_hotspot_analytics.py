@@ -84,7 +84,7 @@ def test_plot_hotspot_analytics_main_writes_outputs(
     monkeypatch,
 ):
     mod = pytest.importorskip(
-        "geoprior._scripts.plot_hotspot_analytics"
+        "geoprior.scripts.plot_hotspot_analytics"
     )
 
     target_utils = getattr(mod, "u", None) or mod.utils

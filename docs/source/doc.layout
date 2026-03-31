@@ -1,4 +1,4 @@
-docs/build
+docs/_build
 docs/source/
 +-- _static/
 +-- index.rst
@@ -16,7 +16,7 @@ docs/source/
 ¦   +-- stage3.rst
 ¦   +-- stage4.rst
 ¦   +-- stage5.rst
-¦   +-- cli.rst
+¦   +-- cli.rst # This part is the one defined below should be a page cli/index.rst 
 ¦   +-- configuration.rst
 ¦   +-- diagnostics.rst
 ¦   +-- inference_and_export.rst
@@ -53,12 +53,23 @@ docs/source/
 ¦   +-- package_structure.rst
 ¦   +-- migration_from_fusionlab.rst
 ¦   +-- contributing.rst
+  cli/
+    index.rst
+    introduction.rst
+    shared_conventions.rst
+    run_family.rst
+    build_family.rst
+    plot_family.rst
+    _generated/
+      run_commands.rst
+      build_commands.rst
+      plot_commands.rst
+      aliases.rst
 +-- release_notes.rst
 +-- release_notes/
 ¦   +-- v3.2.0.rst
 +-- references.rst
 +-- references.bib
-
 
 docs/
   source/
@@ -128,7 +139,44 @@ docs/
       gather_coords_flat.py
       extract_physical_parameters.py        
         
-        
+geoprior-v3/ 
++- geoprior/ 
+¦ +- __init__.py 
+¦ +- cli/ 
+¦ ¦ +- __init__.py 
+¦ ¦ +- __main__.py 
+¦ ¦ +- _dispatch.py 
+¦ ¦ +- init_config.py 
+¦ ¦ +- stage1.py 
+¦ ¦ +- stage2.py 
+¦ ¦ +- stage3.py 
+¦ ¦ +- stage4.py 
+¦ ¦ +- stage5.py 
+¦ ¦ +- .... 
+¦ +- scripts/ 
+¦ ¦ +- __init__.py 
+¦ ¦ +- config.py 
+¦ ¦ +- utils.py 
+¦ ¦ +- registry.py 
+¦ ¦ +- plot_*.py 
+¦ ¦ +- tag_cluster_with_zones.py 
+¦ ¦ +- ... 
+¦ +- resources/ 
+¦ ¦ +- natcom_config_template.py 
+¦ +- utils/ 
+¦ +- nat_utils.py +- nat.com/ 
+¦ +- config.py 
+¦ +- config.json +- scripts/ 
+¦ +- __init__.py 
+¦ +- __main__.py 
+¦ +- plot_physics_fields.py 
+¦ +- plot_litho_parity.py 
+¦ +- ... reproducibility / figure scripts only 
++- scripts
+¦ +- __init__.py       
+¦ +- __main__.py  
+¦ +- registry.py  
++- pyproject.toml +- ...        
         
         
         

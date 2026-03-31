@@ -77,7 +77,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from geoprior._scripts.plot_litho_parity import (
+from geoprior.scripts.plot_litho_parity import (
     chisq_cramers_v,
     compute_proportions,
     draw_lithology_parity,

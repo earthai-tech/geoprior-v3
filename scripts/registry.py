@@ -6,13 +6,13 @@
 """Compatibility registry for legacy ``python -m scripts`` runs.
 
 The authoritative reproducibility registry now lives under
-``geoprior._scripts``. This module re-exports the public objects so
+``geoprior.scripts``. This module re-exports the public objects so
 legacy dispatch continues to work without duplicating the registry.
 """
 
 from __future__ import annotations
 
-from geoprior._scripts.registry import (
+from geoprior.scripts.registry import (
     SCRIPT_COMMANDS,
     SCRIPT_GROUPS,
     ScriptSpec,

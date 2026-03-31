@@ -4,7 +4,7 @@ CLI and command registry
 GeoPrior-v3 exposes a staged command-line interface for
 pipeline execution, artifact materialization, and figure
 rendering. The refactored layout uses
-``geoprior._scripts`` as the authoritative home for
+``geoprior.scripts`` as the authoritative home for
 reproducibility commands, while the top-level
 ``scripts`` package remains a backward-compatible launcher.
 
@@ -12,7 +12,7 @@ The practical rule is simple:
 
 - ``geoprior`` and its family entry points are the modern
   public interface.
-- ``geoprior._scripts`` owns the real script registry and
+- ``geoprior.scripts`` owns the real script registry and
   artifact-path policy.
 - ``scripts`` mirrors that registry for legacy invocations
   such as ``python -m scripts ...``.
@@ -22,7 +22,7 @@ The practical rule is simple:
    The root dispatcher no longer depends on the legacy
    ``scripts`` package as its source of truth. Instead,
    both the modern CLI and the compatibility launcher read
-   from ``geoprior._scripts.registry``.
+   from ``geoprior.scripts.registry``.
 
 Architecture overview
 ---------------------
@@ -42,8 +42,8 @@ The command stack is split into three layers.
    - ``geoprior.__main__``
    - ``geoprior.cli``
    - ``geoprior.cli._dispatch``
-   - ``geoprior._scripts.registry``
-   - ``geoprior._scripts.config``
+   - ``geoprior.scripts.registry``
+   - ``geoprior.scripts.config``
 
 3. **Compatibility layer**
 
@@ -72,7 +72,7 @@ A compact conceptual map is shown below.
    │   ├── stage4.py
    │   ├── stage5.py
    │   └── build_*.py / sm3_*.py / ...
-   ├── _scripts/
+   ├── scripts/
    │   ├── registry.py
    │   ├── config.py
    │   └── plot_*.py / build_*.py / ...
@@ -147,7 +147,7 @@ Examples:
 
 This compatibility surface is intentionally thin. It
 re-exports the registry and dispatches to modules stored in
-``geoprior._scripts``.
+``geoprior.scripts``.
 
 Command families
 ----------------
@@ -245,12 +245,12 @@ model for reproducibility commands.
 
 Before the refactor, the modern CLI treated ``scripts`` as a
 registry bridge. After the refactor, the authoritative
-registry lives in ``geoprior._scripts.registry``.
+registry lives in ``geoprior.scripts.registry``.
 
 That yields a cleaner dependency direction:
 
-- ``geoprior.cli`` → ``geoprior._scripts``
-- ``scripts`` → ``geoprior._scripts``
+- ``geoprior.cli`` → ``geoprior.scripts``
+- ``scripts`` → ``geoprior.scripts``
 
 and avoids making the main package depend on a legacy shim.
 
@@ -435,73 +435,73 @@ Reproducibility registry and shared helpers
    :toctree: ../generated/api/cli
    :nosignatures:
 
-   ~geoprior._scripts.config
-   ~geoprior._scripts.registry
-   ~geoprior._scripts.utils
-   ~geoprior._scripts.extend_utils
+   ~geoprior.scripts.config
+   ~geoprior.scripts.registry
+   ~geoprior.scripts.utils
+   ~geoprior.scripts.extend_utils
 
-Build and compute scripts under ``geoprior._scripts``
+Build and compute scripts under ``geoprior.scripts``
 -----------------------------------------------------
 
 .. autosummary::
    :toctree: ../generated/api/cli
    :nosignatures:
 
-   ~geoprior._scripts.build_ablation_table
-   ~geoprior._scripts.build_model_metrics
-   ~geoprior._scripts.compute_brier_exceedance
-   ~geoprior._scripts.compute_hotspots
-   ~geoprior._scripts.extend_forecast
-   ~geoprior._scripts.make_boundary
-   ~geoprior._scripts.make_district_grid
-   ~geoprior._scripts.make_exposure
-   ~geoprior._scripts.rebuild_confusion_tables
-   ~geoprior._scripts.summarize_hotspots
-   ~geoprior._scripts.tag_clusters_with_zones
-   ~geoprior._scripts.update_ablation_record_posthoc
-   ~geoprior._scripts.update_ablation_records
+   ~geoprior.scripts.build_ablation_table
+   ~geoprior.scripts.build_model_metrics
+   ~geoprior.scripts.compute_brier_exceedance
+   ~geoprior.scripts.compute_hotspots
+   ~geoprior.scripts.extend_forecast
+   ~geoprior.scripts.make_boundary
+   ~geoprior.scripts.make_district_grid
+   ~geoprior.scripts.make_exposure
+   ~geoprior.scripts.rebuild_confusion_tables
+   ~geoprior.scripts.summarize_hotspots
+   ~geoprior.scripts.tag_clusters_with_zones
+   ~geoprior.scripts.update_ablation_record_posthoc
+   ~geoprior.scripts.update_ablation_records
 
-Plot scripts under ``geoprior._scripts``
+Plot scripts under ``geoprior.scripts``
 ----------------------------------------
 
 .. autosummary::
    :toctree: ../generated/api/cli
    :nosignatures:
 
-   ~geoprior._scripts.plot_ablations_sensitivity
-   ~geoprior._scripts.plot_core_ablation
-   ~geoprior._scripts.plot_driver_response
-   ~geoprior._scripts.plot_external_validation
-   ~geoprior._scripts.plot_geo_cumulative
-   ~geoprior._scripts.plot_hotspot_analytics
-   ~geoprior._scripts.plot_litho_parity
-   ~geoprior._scripts.plot_physics_fields
-   ~geoprior._scripts.plot_physics_maps
-   ~geoprior._scripts.plot_physics_profiles
-   ~geoprior._scripts.plot_physics_sanity
-   ~geoprior._scripts.plot_physics_sensitivity
-   ~geoprior._scripts.plot_sm3_bounds_ridge_summary
-   ~geoprior._scripts.plot_sm3_identifiability
-   ~geoprior._scripts.plot_sm3_log_offsets
-   ~geoprior._scripts.plot_spatial_forecasts
-   ~geoprior._scripts.plot_transfer
-   ~geoprior._scripts.plot_uncertainty
-   ~geoprior._scripts.plot_uncertainty_extras
-   ~geoprior._scripts.plot_xfer_impact
-   ~geoprior._scripts.plot_xfer_transferability
+   ~geoprior.scripts.plot_ablations_sensitivity
+   ~geoprior.scripts.plot_core_ablation
+   ~geoprior.scripts.plot_driver_response
+   ~geoprior.scripts.plot_external_validation
+   ~geoprior.scripts.plot_geo_cumulative
+   ~geoprior.scripts.plot_hotspot_analytics
+   ~geoprior.scripts.plot_litho_parity
+   ~geoprior.scripts.plot_physics_fields
+   ~geoprior.scripts.plot_physics_maps
+   ~geoprior.scripts.plot_physics_profiles
+   ~geoprior.scripts.plot_physics_sanity
+   ~geoprior.scripts.plot_physics_sensitivity
+   ~geoprior.scripts.plot_sm3_bounds_ridge_summary
+   ~geoprior.scripts.plot_sm3_identifiability
+   ~geoprior.scripts.plot_sm3_log_offsets
+   ~geoprior.scripts.plot_spatial_forecasts
+   ~geoprior.scripts.plot_transfer
+   ~geoprior.scripts.plot_uncertainty
+   ~geoprior.scripts.plot_uncertainty_extras
+   ~geoprior.scripts.plot_xfer_impact
+   ~geoprior.scripts.plot_xfer_transferability
 
 Registry ownership
 ------------------
 
 The authoritative command registry lives under
-``geoprior._scripts.registry``. The modern CLI and the
+``geoprior.scripts.registry``. The modern CLI and the
 compatibility launcher both read from that registry rather
 than maintaining separate command maps.
 
 The dependency direction is therefore:
 
-- ``geoprior.cli`` → ``geoprior._scripts``
-- ``scripts`` → ``geoprior._scripts``
+- ``geoprior.cli`` → ``geoprior.scripts``
+- ``scripts`` → ``geoprior.scripts``
 
 This keeps the compatibility layer thin and avoids making the
 main package depend on legacy launch code.
@@ -601,13 +601,13 @@ Modern CLI package
 Script registry and shared config
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../geoprior/_scripts/registry.py
+.. literalinclude:: ../../geoprior/scripts/registry.py
    :language: python
-   :caption: ``geoprior/_scripts/registry.py``
+   :caption: ``geoprior/scripts/registry.py``
 
-.. literalinclude:: ../../geoprior/_scripts/config.py
+.. literalinclude:: ../../geoprior/scripts/config.py
    :language: python
-   :caption: ``geoprior/_scripts/config.py``
+   :caption: ``geoprior/scripts/config.py``
 
 Compatibility package
 ~~~~~~~~~~~~~~~~~~~~~
@@ -632,7 +632,7 @@ A few design choices are intentional.
 Single source of truth
 ~~~~~~~~~~~~~~~~~~~~~~
 
-The real registry now lives under ``geoprior._scripts``.
+The real registry now lives under ``geoprior.scripts``.
 This avoids circular dependency pressure and makes the main
 package self-contained.
 

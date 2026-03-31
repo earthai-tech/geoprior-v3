@@ -75,13 +75,13 @@ import numpy as np
 import pandas as pd
 
 from geoprior.plot import forecast_view
-from geoprior._scripts import utils as script_utils
+from geoprior.scripts import utils as script_utils
 
 # %%
 # Step 1 - Build a compact synthetic future forecast table
 # --------------------------------------------------------
 # We now build the synthetic future map from the shared spatial
-# helpers in ``geoprior._scripts.utils``.
+# helpers in ``geoprior.scripts.utils``.
 #
 # This is better than rebuilding a plain grid and hotspot manually
 # inside the lesson because it keeps:

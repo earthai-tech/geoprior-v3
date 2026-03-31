@@ -79,7 +79,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from geoprior._scripts.plot_external_validation import (
+from geoprior.scripts.plot_external_validation import (
     plot_external_validation,
 )
 

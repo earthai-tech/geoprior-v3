@@ -107,7 +107,7 @@ def test_plot_uncertainty_main_writes_outputs(
     monkeypatch,
 ):
     mod = pytest.importorskip(
-        "geoprior._scripts.plot_uncertainty"
+        "geoprior.scripts.plot_uncertainty"
     )
     _patch_outputs(monkeypatch, mod, script_test_env)
 
@@ -159,7 +159,7 @@ def test_plot_uncertainty_main_writes_outputs(
 
 def test_interval_stats_returns_expected_columns():
     mod = pytest.importorskip(
-        "geoprior._scripts.plot_uncertainty"
+        "geoprior.scripts.plot_uncertainty"
     )
     df = _make_forecast("Nansha")
     out = mod.interval_stats(df, by_horizon=False)

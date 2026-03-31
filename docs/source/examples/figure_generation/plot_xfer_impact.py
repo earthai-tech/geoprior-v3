@@ -73,7 +73,7 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from geoprior._scripts.plot_xfer_impact import (
+from geoprior.scripts.plot_xfer_impact import (
     TextFlags,
     _canon_cols,
     render,

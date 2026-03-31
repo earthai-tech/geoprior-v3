@@ -998,14 +998,10 @@ div.admonition > .admonition-title::before {
 }
 
 /* --------------------------------------------------------------------------
- * CTA cards / See-also cards / preview popups
+ * CTA cards / see-also cards / preview popups
  * -------------------------------------------------------------------------- */
-.cta-tiles .sd-card {
-  background: var(--pst-color-background);
-}
 
-
-/* Keep stretched links clickable across full card */
+/* Keep stretched links clickable across the full card */
 a.sd-stretched-link {
   position: static !important;
 }
@@ -1015,32 +1011,38 @@ a.sd-stretched-link::after {
   content: "";
   inset: 0;
   position: absolute;
-  z-index: 1;
+  z-index: 3;
 }
 
+/* CTA tiles */
+.cta-tiles .sd-card {
+  background: var(--pst-color-background);
+}
+
+/* See-also / featured application cards */
 .see-also-tiles .sd-card {
   background: var(--pst-color-surface) !important;
   overflow: hidden;
+  position: relative;
 }
 
-/*.see-also-tiles .sd-card .sd-card-header,
-.see-also-tiles .sd-card .sd-card-body {
-  background: transparent !important;
-  position: relative;
-  z-index: 2;
-*/
+.see-also-tiles .sd-card::before,
+.see-also-tiles .sd-card::after {
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
 
 .see-also-tiles .sd-card::before {
   background-image: var(--card-preview);
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  content: "";
-  inset: 0;
   opacity: 0;
-  position: absolute;
   transform: scale(1.04);
-  transition: opacity 0.25s ease,
+  transition:
+    opacity 0.25s ease,
     transform 0.25s ease;
   z-index: 0;
 }
@@ -1051,10 +1053,7 @@ a.sd-stretched-link::after {
     rgba(4, 146, 194, 0.16),
     rgba(4, 146, 194, 0.48)
   );
-  content: "";
-  inset: 0;
   opacity: 0;
-  position: absolute;
   transition: opacity 0.25s ease;
   z-index: 1;
 }
@@ -1068,14 +1067,13 @@ a.sd-stretched-link::after {
   transform: scale(1);
 }
 
-/*.see-also-tiles .sd-card:hover,
-.see-also-tiles .sd-card:hover .sd-card-header,
-.see-also-tiles .sd-card:hover .sd-card-body,
-.see-also-tiles .sd-card:hover p,
-.see-also-tiles .sd-card:hover a {
-  color: #fff !important;
-}*/
+.see-also-tiles .sd-card .sd-card-header,
+.see-also-tiles .sd-card .sd-card-body {
+  position: relative;
+  z-index: 2;
+}
 
+/* Accent variant */
 .see-also-tiles .see-also-accent {
   background: color-mix(
     in srgb,
@@ -1102,31 +1100,28 @@ a.sd-stretched-link::after {
   color: var(--pst-color-text-base) !important;
 }
 
-.see-also-tiles .card--uncertainty {
-  --card-preview: url('../previews/uncertainty.png');
-}
+/* Preview image mappings */
+.see-also-tiles .card--uncertainty       { --card-preview: url("../previews/uncertainty.png"); }
+.see-also-tiles .card--errors            { --card-preview: url("../previews/errors.png"); }
+.see-also-tiles .card--evaluation        { --card-preview: url("../previews/evaluation.png"); }
+.see-also-tiles .card--importance        { --card-preview: url("../previews/importance.png"); }
+.see-also-tiles .card--relationship      { --card-preview: url("../previews/relationship.png"); }
+.see-also-tiles .card--core-ablation     { --card-preview: url("../previews/core_ablation.png"); }
+.see-also-tiles .card--ridge-bounds      { --card-preview: url("../previews/ridge_bounds.png"); }
+.see-also-tiles .card--hotspot-analytics { --card-preview: url("../previews/where-to-act.png"); }
 
-.see-also-tiles .card--errors {
-  --card-preview: url('../previews/errors.png');
-}
-
-.see-also-tiles .card--evaluation {
-  --card-preview: url('../previews/evaluation.png');
-}
-
-.see-also-tiles .card--importance {
-  --card-preview: url('../previews/importance.png');
-}
-
-.see-also-tiles .card--relationship {
-  --card-preview: url('../previews/relationship.png');
-}
-
-.seealso-card {
+/* Popup anchor */
+/*.seealso-card {
   overflow: visible;
+  position: relative;
+}*/
+
+.see-also-tiles .sd-card.seealso-card {
+  overflow: visible !important;
   position: relative;
 }
 
+/* Preview popup */
 .card-preview-popup {
   background: var(--pst-color-background);
   border: 1px solid color-mix(
@@ -1135,14 +1130,48 @@ a.sd-stretched-link::after {
     var(--pst-color-border)
   );
   border-radius: 0.9rem;
+  bottom: calc(100% + 0.55rem);
   box-shadow: var(--gp-shadow-lg);
+  left: 50%;
+  max-width: min(34rem, calc(100vw - 2rem));
+  opacity: 0;
+  padding: 0.6rem;
+  pointer-events: none;
+  position: absolute;
+  transform: translateX(-50%) translateY(0.35rem);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+  width: 30rem;
+  z-index: 40;
 }
 
+.card-preview-popup.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.card-preview-popup__figure {
+  margin: 0;
+}
+
+.card-preview-popup__image,
 .card-preview-popup img {
   border: 2px solid var(--pst-color-background);
   border-radius: 0.75rem;
   display: block;
   width: 100%;
+}
+
+.card-preview-popup__caption {
+  color: var(--pst-color-text-base);
+  font-size: 0.92rem;
+  line-height: 1.45;
+  margin-top: 0.55rem;
+}
+
+html[data-theme="dark"] .card-preview-popup__caption {
+  color: var(--pst-color-on-background);
 }
 
 /* --------------------------------------------------------------------------
@@ -1577,4 +1606,67 @@ html[data-theme="dark"] .see-also-tiles .sd-card:hover {
 .cta-tiles .sd-card:hover .sd-card-header,
 .see-also-tiles .sd-card:hover .sd-card-header {
   border-bottom-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+/* --------------------------------------------------------------------------
+ * CLI page cards
+ * -------------------------------------------------------------------------- */
+
+.cli-tiles {
+  margin-top: 1.4rem;
+}
+
+.cli-tiles .sd-card {
+  min-height: 100%;
+  position: relative;
+}
+
+.cli-tiles .sd-card .sd-card-header {
+  font-weight: 800;
+}
+
+.cli-tiles .sd-card .sd-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.cli-tiles .sd-card pre,
+.cli-tiles .sd-card div.highlight {
+  margin: 0.4rem 0 0;
+  box-shadow: none;
+}
+
+.cli-tiles .sd-card code {
+  font-size: 0.88em;
+}
+
+.cli-tiles .sd-card:hover {
+  transform: translateY(-2px);
+}
+
+.cli-tiles .sd-card .sd-card-text strong {
+  color: var(--pst-color-heading) !important;
+}
+
+/* --------------------------------------------------------------------------
+ * CLI intro card
+ * -------------------------------------------------------------------------- */
+
+.gp-intro-card {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--pst-color-primary) 7%, transparent) 0%,
+    transparent 70%
+  ),
+  var(--pst-color-surface);
+  border: 1px solid color-mix(
+    in srgb,
+    var(--pst-color-primary) 18%,
+    var(--pst-color-border)
+  );
+  border-radius: 1rem;
+  box-shadow: var(--gp-shadow-sm);
+  margin: 1.4rem 0 1.8rem;
+  padding: 1rem 1.15rem;
 }

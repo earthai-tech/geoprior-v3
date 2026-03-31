@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import sys
 
-from .._scripts.registry import SCRIPT_COMMANDS
+from ..scripts.registry import SCRIPT_COMMANDS
 from ._dispatch import (
     CommandSpec,
     alias_map,
@@ -32,7 +32,7 @@ def _scripts_as_cli() -> dict[str, CommandSpec]:
             )
 
         items[public] = CommandSpec(
-            package="geoprior._scripts",
+            package="geoprior.scripts",
             mod=spec.mod,
             fn=spec.fn,
             desc=spec.desc,

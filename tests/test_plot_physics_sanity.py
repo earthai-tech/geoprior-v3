@@ -49,7 +49,7 @@ def test_plot_physics_sanity_main_writes_outputs(
     fast_script_figures,
     collect_script_outputs,
 ):
-    from geoprior._scripts.plot_physics_sanity import (
+    from geoprior.scripts.plot_physics_sanity import (
         plot_physics_sanity_main,
     )
 
@@ -99,7 +99,7 @@ def test_plot_physics_sanity_main_writes_outputs(
 
 
 def test_eps_prior_ln_is_zero_for_matching_arrays():
-    from geoprior._scripts.plot_physics_sanity import (
+    from geoprior.scripts.plot_physics_sanity import (
         _eps_prior_ln,
     )
 
