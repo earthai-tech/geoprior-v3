@@ -498,7 +498,7 @@ ax.legend(fontsize=8)
 # - the annual forecast series for the requested year,
 # - the absolute anomaly:
 #
-#     |future_annual - baseline_2022_annual|
+#     :math:`\lvert future\_annual - baseline\_{2022,\mathrm{annual}} \rvert`
 #
 # Then it marks hotspots where that anomaly exceeds the chosen
 # percentile threshold.

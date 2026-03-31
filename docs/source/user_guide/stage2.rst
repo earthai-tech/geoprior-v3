@@ -620,8 +620,6 @@ The next pages after Stage-2 are:
       :link: cli
       :link-type: doc
       :class-card: sd-shadow-sm card--cli
-      :data-preview: cli.png
-      :data-preview-label: GeoPrior command-line interface
 
       Move from the stage narrative to the full command
       reference.

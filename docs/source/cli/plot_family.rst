@@ -671,8 +671,7 @@ Distinctive options to notice
 ``--hex-gridsize`` / ``--hex-mincnt``
    Matter when ``--render hexbin`` is used.
 
-``--boundary-auto`` / ``--boundary`` / ``--boundary-to-crs`` /
-``--boundary-lw`` / ``--boundary-alpha``
+``--boundary-auto`` / ``--boundary`` / ``--boundary-to-crs`` / ``--boundary-lw`` / ``--boundary-alpha``
    Control optional boundary discovery and overlay styling.
 
 ``--scalebar`` / ``--north-arrow`` / ``--scalebar-km``
@@ -957,7 +956,8 @@ Distinctive options to notice
    Add sampled-point overlays and an improvement-direction arrow.
 
 **Related figure:**
-:doc:`../auto_examples/figure_generation/plot_physics_sensitivity`
+
+- :doc:`../auto_examples/figure_generation/plot_physics_sensitivity`
 
 
 ``sm3-identifiability``
@@ -1026,7 +1026,8 @@ Distinctive options to notice
    Toggle the prior and closure overlays in panel (a).
 
 **Related figure:**
-:doc:`../auto_examples/figure_generation/plot_sm3_identifiability`
+
+- :doc:`../auto_examples/figure_generation/plot_sm3_identifiability`
 
 
 ``sm3-bounds-ridge-summary``
@@ -1087,7 +1088,8 @@ Distinctive options to notice
 
 
 **Related figure:**
-:doc:`../auto_examples/figure_generation/plot_sm3_bounds_ridge_summary`
+
+- :doc:`../auto_examples/figure_generation/plot_sm3_bounds_ridge_summary`
 
 
 ``sm3-log-offsets``
@@ -1142,7 +1144,8 @@ Distinctive options to notice
    Control the histogram bin count.
 
 **Related figure:**
-:doc:`../auto_examples/figure_generation/plot_sm3_log_offsets`
+
+- :doc:`../auto_examples/figure_generation/plot_sm3_log_offsets`
 
 
 Transfer and validation
@@ -1207,7 +1210,8 @@ Distinctive options to notice
    Control duplicate reduction and the reference coverage line.
 
 **Related figure:**
-:doc:`../auto_examples/figure_generation/plot_xfer_transferability`
+
+- :doc:`../auto_examples/figure_generation/plot_xfer_transferability`
 
 Alias:
 ``transfer``
@@ -1276,14 +1280,13 @@ Distinctive options to notice
    Provide or override the JSON metadata used to resolve evaluation CSVs
    for risk and hotspot computations. 
 
-``--add-hotspots`` / ``--hotspot-k`` / ``--hotspot-score`` /
-``--hotspot-horizon`` / ``--hotspot-ref`` / ``--hotspot-style`` /
-``--hotspot-errorbars``
+``--add-hotspots`` / ``--hotspot-k`` / ``--hotspot-score`` / ``--hotspot-horizon`` / ``--hotspot-ref`` / ``--hotspot-style`` / ``--hotspot-errorbars``
    Enable and tune the hotspot-stability extensions.
 
 
 **Related figure:**
-:doc:`../auto_examples/figure_generation/plot_xfer_impact`
+
+- :doc:`../auto_examples/figure_generation/plot_xfer_impact`
 
 Alias:
 ``transfer-impact``
@@ -1354,7 +1357,8 @@ Distinctive options to notice
    Export a compact validation summary payload. 
 
 **Related figure:**
-:doc:`../auto_examples/figure_generation/plot_external_validation`
+
+- :doc:`../auto_examples/figure_generation/plot_external_validation`
 
 Supporting and supplementary figures
 ------------------------------------
@@ -1420,7 +1424,8 @@ Distinctive options to notice
    
 
 **Related figure:**
-:doc:`../auto_examples/figure_generation/plot_driver_response`
+
+- :doc:`../auto_examples/figure_generation/plot_driver_response`
 
 
 ``core-ablation``
@@ -1485,7 +1490,8 @@ Distinctive options to notice
    Control bar annotations and panel lettering.
 
 **Related figure:**
-:doc:`../auto_examples/figure_generation/plot_core_ablation`
+
+- :doc:`../auto_examples/figure_generation/plot_core_ablation`
 
 
 ``litho-parity``
@@ -1541,7 +1547,8 @@ Distinctive options to notice
    are grouped into ``Others``. 
 
 **Related figure:**
-:doc:`../auto_examples/figure_generation/plot_litho_parity`
+
+- :doc:`../auto_examples/figure_generation/plot_litho_parity`
 
 
 ``ablations-sensitivity``
@@ -1623,7 +1630,8 @@ Distinctive options to notice
    front and density overlay. 
 
 **Related figure:**
-:doc:`../auto_examples/figure_generation/plot_physics_sensitivity`
+
+- :doc:`../auto_examples/figure_generation/plot_physics_sensitivity`
 
 
 ``geo-cumulative``
@@ -1704,7 +1712,8 @@ Distinctive options to notice
    every panel. 
 
 **Related figure:**
-:doc:`../auto_examples/figure_generation/plot_geo_cumulative`
+
+- :doc:`../auto_examples/figure_generation/plot_geo_cumulative`
 
 From here
 ---------

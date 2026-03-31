@@ -368,8 +368,8 @@ Distinctive options to notice
    Trim the final output to a selected subset of columns.
 
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:**
+
 - :doc:`../auto_examples/tables_and_summaries/index`
 
 .. _build-spatial-sampling:
@@ -459,8 +459,8 @@ Distinctive options to notice
    Control whether the sampler behaves in absolute or relative mode.
 
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:** 
+
 - :doc:`../auto_examples/tables_and_summaries/index`
 
 .. _build-batch-spatial-sampling:
@@ -608,8 +608,8 @@ Distinctive options to notice
    Disable snapping to the nearest available coordinates and instead use
    the exact bounds supplied on the command line. 
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:**
+
 - :doc:`../auto_examples/tables_and_summaries/index`
 
 
@@ -699,8 +699,8 @@ Distinctive options to notice
    Display a diagnostic cluster plot using the plotting options exposed
    by the wrapper. 
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:** 
+
 - :doc:`../auto_examples/tables_and_summaries/index`
 
 .. _build-extract-zones:
@@ -797,8 +797,8 @@ Distinctive options to notice
    Enable a diagnostic spatial view of the extracted zone.
 
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:**
+
 - :doc:`../auto_examples/tables_and_summaries/index`
 
 .. _build-assign-boreholes:
@@ -896,8 +896,8 @@ Distinctive options to notice
    Control whether the command writes only one combined CSV or also one
    file per assigned city. 
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:** 
+
 - :doc:`../auto_examples/tables_and_summaries/index`
 
 .. _build-add-zsurf-from-coords:
@@ -1026,8 +1026,8 @@ Payloads and validation artifacts
 These commands build model-facing or validation-facing artifacts that
 other workflows can consume later. 
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:** 
+
 - :doc:`../auto_examples/tables_and_summaries/index`
 
 .. _build-full-inputs-npz:
@@ -1120,8 +1120,8 @@ Distinctive options to notice
    exactly the same arrays. 
 
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:** 
+
 - :doc:`../auto_examples/tables_and_summaries/index`
 
 .. _build-physics-payload-npz:
@@ -1224,8 +1224,8 @@ Distinctive options to notice
    Control how much data is processed per export pass and whether the
    export is limited to only part of the dataset.
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:** 
+
 - :doc:`../auto_examples/figure_generation/plot_physics_fields`
 
 .. _build-external-validation-fullcity:
@@ -1341,8 +1341,8 @@ Distinctive options to notice
    and how strict the site-to-pixel sanity checks are. 
 
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:** 
+
 - :doc:`../auto_examples/figure_generation/plot_external_validation`
 
 .. _build-external-validation-metrics:
@@ -1454,8 +1454,8 @@ Distinctive options to notice
   sanity thresholds. 
 
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:** 
+
 - :doc:`../auto_examples/figure_generation/plot_external_validation`
 
 .. _build-sm3-collect-summaries:
@@ -1553,8 +1553,8 @@ Distinctive options to notice
    them.
    
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:** 
+
 - :doc:`../auto_examples/figure_generation/plot_sm3_bounds_ridge_summary`
 
 Tables, summaries, and derived products
@@ -1642,8 +1642,8 @@ Distinctive options to notice
 ``--ns-csv`` and ``--zh-csv``
    Explicit city-level CSV overrides that bypass directory scanning.
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:** 
+
 - :doc:`../auto_examples/tables_and_summaries/compute_brier_exceedance`
 
 
@@ -1742,8 +1742,8 @@ Distinctive options to notice
    Export as CSV, TeX, or both. 
 
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:** 
+
 - :doc:`../auto_examples/tables_and_summaries/compute_hotspots`
 
 .. _build-hotspots-summary:
@@ -1803,8 +1803,8 @@ Distinctive options to notice
    Disable console table printing. 
 
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:** 
+
 - :doc:`../auto_examples/tables_and_summaries/summarize_hotspots`
 
 .. _build-model-metrics:
@@ -1881,8 +1881,8 @@ Distinctive options to notice
 ``--city`` and ``--models``
    Filter the collected runs before export. 
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:** 
+
 - :doc:`../auto_examples/tables_and_summaries/build_model_metrics`
 
 
@@ -1969,8 +1969,8 @@ Distinctive options to notice
    Support grouped supplementary outputs such as S6 and S7 style
    summaries.
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:** 
+
 - :doc:`../auto_examples/tables_and_summaries/build_ablation_table`
 
 
@@ -2015,8 +2015,8 @@ subsection can be expanded in the same style as the others with:
 - distinctive options.
 
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:** 
+
 - :doc:`../auto_examples/tables_and_summaries/index`
 
 .. _build-extend-forecast:
@@ -2102,8 +2102,8 @@ Distinctive options to notice
 ``--unc-growth`` and ``--unc-scale``
    Control how predictive uncertainty widens into the added years.
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:** 
+
 - :doc:`../auto_examples/tables_and_summaries/extend_forecast`
 
 .. _build-boundary:
@@ -2175,8 +2175,8 @@ Distinctive options to notice
 ``--format``
    Export GeoJSON, Shapefile, or both. 
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:** 
+
 - :doc:`../auto_examples/tables_and_summaries/make_boundary`
 
 .. _build-exposure:
@@ -2245,8 +2245,8 @@ Distinctive options to notice
 ``--k``
    kNN size used by the density-style exposure proxy.
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:** 
+
 - :doc:`../auto_examples/tables_and_summaries/make_exposure`
 
 .. _build-district-grid:
@@ -2331,8 +2331,8 @@ Distinctive options to notice
 ``--assign-samples``
    Also write a CSV mapping ``sample_idx`` to ``zone_id``.
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:** 
+
 - :doc:`../auto_examples/tables_and_summaries/make_district_grid`
 
 .. _build-clusters-with-zones:
@@ -2410,8 +2410,8 @@ Distinctive options to notice
 ``--nearest``
    Assign the nearest zone when no polygon contains the centroid.
 
-Related examples 
-^^^^^^^^^^^^^^^^^
+**Related example:** 
+
 - :doc:`../auto_examples/tables_and_summaries/tag_clusters_with_zones`
 
 

@@ -124,8 +124,6 @@ The next pages after this one are:
       :link: configuration
       :link-type: doc
       :class-card: sd-shadow-sm card--configuration
-      :data-preview: configuration.png
-      :data-preview-label: GeoPrior configuration system
 
       Learn how the config layer interacts with CLI
       installation, overrides, and runtime persistence.
@@ -134,8 +132,6 @@ The next pages after this one are:
       :link: workflow_overview
       :link-type: doc
       :class-card: sd-shadow-sm card--workflow
-      :data-preview: workflow.png
-      :data-preview-label: GeoPrior staged workflow
 
       See how the CLI maps onto the five-stage workflow.
 

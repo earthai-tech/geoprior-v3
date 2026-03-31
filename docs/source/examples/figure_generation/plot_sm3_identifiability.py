@@ -74,8 +74,6 @@ example is fully executable during the docs build.
 # this gallery page teaches the actual figure generator, not a
 # separate demo implementation.
 
-from __future__ import annotations
-
 import json
 import tempfile
 from pathlib import Path

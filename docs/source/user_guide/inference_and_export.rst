@@ -727,8 +727,6 @@ The best next pages after this one are:
       :link: cli
       :link-type: doc
       :class-card: sd-shadow-sm card--cli
-      :data-preview: cli.png
-      :data-preview-label: GeoPrior command-line interface
 
       Review the command families used for inference,
       transfer, and deterministic build export.

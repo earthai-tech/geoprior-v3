@@ -580,8 +580,6 @@ The next best pages after Stage-3 are:
       :link: cli
       :link-type: doc
       :class-card: sd-shadow-sm card--cli
-      :data-preview: cli.png
-      :data-preview-label: GeoPrior command-line interface
 
       Go from the stage narrative to the full command
       interface.

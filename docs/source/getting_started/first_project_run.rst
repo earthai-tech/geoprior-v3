@@ -348,17 +348,16 @@ A practical first-run checklist
 
 Use this checklist before moving on:
 
-.. checklist::
 
-   * GeoPrior-v3 imports successfully.
-   * CLI entry points resolve with ``--help``.
-   * A project configuration has been initialized.
-   * Local paths in the config have been reviewed.
-   * The earliest stage runs successfully.
-   * Output artifacts are written to the intended location.
-   * The generated files and summaries look structurally
-     reasonable.
-   * You know which stage or guide page you will read next.
+* GeoPrior-v3 imports successfully.
+* CLI entry points resolve with ``--help``.
+* A project configuration has been initialized.
+* Local paths in the config have been reviewed.
+* The earliest stage runs successfully.
+* Output artifacts are written to the intended location.
+* The generated files and summaries look structurally
+  reasonable.
+* You know which stage or guide page you will read next.
 
 If all of these are true, the project bring-up is in good
 shape.
@@ -376,8 +375,6 @@ are:
       :link: ../user_guide/workflow_overview
       :link-type: doc
       :class-card: sd-shadow-sm card--workflow
-      :data-preview: workflow.png
-      :data-preview-label: GeoPrior staged workflow
 
       Understand how the full staged pipeline is organized.
 
@@ -385,8 +382,6 @@ are:
       :link: ../user_guide/configuration
       :link-type: doc
       :class-card: sd-shadow-sm card--configuration
-      :data-preview: configuration.png
-      :data-preview-label: GeoPrior configuration system
 
       Learn how the configuration layer controls the run.
 
@@ -394,8 +389,6 @@ are:
       :link: ../user_guide/cli
       :link-type: doc
       :class-card: sd-shadow-sm card--cli
-      :data-preview: cli.png
-      :data-preview-label: GeoPrior command-line interface
 
       Move from the first run to the full command reference.
 

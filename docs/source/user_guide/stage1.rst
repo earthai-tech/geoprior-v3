@@ -475,8 +475,6 @@ The next pages after Stage-1 are:
       :link: configuration
       :link-type: doc
       :class-card: sd-shadow-sm card--configuration
-      :data-preview: configuration.png
-      :data-preview-label: GeoPrior configuration system
 
       Understand how configuration drives Stage-1 inputs,
       scaling, paths, and split behavior.
@@ -485,8 +483,7 @@ The next pages after Stage-1 are:
       :link: cli
       :link-type: doc
       :class-card: sd-shadow-sm card--cli
-      :data-preview: cli.png
-      :data-preview-label: GeoPrior command-line interface
+
 
       Move from the stage narrative to the full command
       surface.

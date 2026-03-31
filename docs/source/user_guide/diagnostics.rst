@@ -606,8 +606,6 @@ The best next pages after this one are:
       :link: ../scientific_foundations/maths
       :link-type: doc
       :class-card: sd-shadow-sm card--physics
-      :data-preview: physics.png
-      :data-preview-label: GeoPrior physics and diagnostics
 
       Connect the workflow diagnostics back to the formal math
       behind residuals, losses, and epsilon summaries.

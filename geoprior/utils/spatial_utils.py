@@ -3775,8 +3775,6 @@ def batch_spatial_sampling(
 
     Examples
     --------
-    Examples
-    --------
     **Case 1: Stratified Sampling (Using 'year' and 'geological_category')**
     
     >>> from geoprior.utils.spatial_utils import batch_spatial_sampling
