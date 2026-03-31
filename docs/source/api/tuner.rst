@@ -206,7 +206,7 @@ Important base methods
 
 .. automethod:: geoprior.models.forecast_tuner._base_tuner.PINNTunerBase.build
 
-.. automethod:: geoprior.models.forecast_tuner._base_tuner.PINNTunerBase.summary
+.. automethod:: geoprior.models.forecast_tuner._base_tuner.PINNTunerBase
 
 How the tuning stack is layered
 -------------------------------
