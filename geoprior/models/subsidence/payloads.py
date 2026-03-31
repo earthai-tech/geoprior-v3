@@ -244,7 +244,7 @@ def identifiability_diagnostics_from_payload(
         A dictionary with three blocks:
 
         - "tau_rel_error": statistics of the relative error
-          |tau - tau_true| / tau_true.
+          :math:`frac{|\tau - \tau_{true}|}{tau_{true}}.
         - "closure_log_resid": statistics of the log-timescale
           residual log(tau_prior) - log(tau_true).
         - "offsets": nested dict with "vs_true" and "vs_prior",

@@ -168,26 +168,35 @@ class PINNTunerBase(HyperModel, BaseClass):
     ]:
         """
         Performs the hyperparameter search using Keras Tuner.
-
-        Args:
-            train_data (tf.data.Dataset): Training dataset. Must yield
-                tuples of `(inputs_dict, targets_dict)` compatible with
-                the model's `train_step`.
-            epochs (int): Number of epochs to train each model during a trial.
-            validation_data (tf.data.Dataset, optional): Validation dataset.
-            callbacks (List[tf.keras.callbacks.Callback], optional):
-                List of Keras callbacks for the search phase.
-            verbose (int, default 1): Verbosity level for Keras Tuner search.
-            **additional_search_kwargs: Additional keyword arguments passed to
-                the Keras Tuner's `search()` method.
-
-        Returns:
-            Tuple[Optional[tf.keras.Model], Optional[kt.HyperParameters], Optional[kt.Tuner]]:
-                - The best model instance built with the best hyperparameters.
-                - The best HyperParameters object found.
-                - The Keras Tuner instance.
-                Returns (None, None, self.tuner_) if search encounters issues or
-                no best HPs are found.
+    
+        Parameters
+        ----------
+        train_data : tf.data.Dataset
+            Training dataset. Must yield tuples of
+            ``(inputs_dict, targets_dict)`` compatible with the model's
+            ``train_step``.
+        epochs : int
+            Number of epochs to train each model during a trial.
+        validation_data : tf.data.Dataset or None, default=None
+            Validation dataset.
+        callbacks : list of tf.keras.callbacks.Callback or None, default=None
+            Keras callbacks for the search phase.
+        verbose : int, default=1
+            Verbosity level for Keras Tuner search.
+        patience : int, default=10
+            Early-stopping patience.
+        **additional_search_kwargs
+            Additional keyword arguments passed to the tuner
+            ``search()`` method.
+    
+        Returns
+        -------
+        best_model : tf.keras.Model or None
+            Best model instance built with the best hyperparameters.
+        best_hps : keras_tuner.HyperParameters or None
+            Best hyperparameters found.
+        tuner : keras_tuner.Tuner or None
+            Tuner instance used for the search.
         """
         tuner_verbose = additional_search_kwargs.pop(
             "tuner_verbose", 1
