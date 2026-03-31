@@ -678,8 +678,6 @@ The best next pages after this one are:
       :link: cli
       :link-type: doc
       :class-card: sd-shadow-sm card--cli
-      :data-preview: cli.png
-      :data-preview-label: GeoPrior command-line interface
 
       See how configuration is installed, overridden, and
       persisted from the CLI.
@@ -696,8 +694,6 @@ The best next pages after this one are:
       :link: workflow_overview
       :link-type: doc
       :class-card: sd-shadow-sm card--workflow
-      :data-preview: workflow.png
-      :data-preview-label: GeoPrior staged workflow
 
       Review how config participates in the staged pipeline.
 

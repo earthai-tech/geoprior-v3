@@ -387,7 +387,7 @@ See also
 
 - :doc:`../user_guide/stage1`
 - :doc:`../auto_examples/diagnostics/plot_stage1_data_checks`
-- :doc:`../auto_examples/diagnostics/plot_holdout_group_masks.py`
+- :doc:`../auto_examples/diagnostics/plot_holdout_group_masks`
 
 .. _run-stage2:
 
@@ -928,8 +928,7 @@ The most distinctive transfer-oriented options are:
    Control how calibration and scaling behavior are treated during
    transfer evaluation. 
 
-``--source-model`` / ``--source-load`` / ``--hps-mode`` /
-``--prefer-artifact``
+``--source-model`` / ``--source-load`` / ``--hps-mode`` / ``--prefer-artifact``
    Select how the source model and its preferred artifacts are resolved
    for the transfer workflow. 
 
@@ -1072,8 +1071,9 @@ the options that matter most here are the sensitivity-grid controls:
    Control restart behavior, completed-run scanning, and planning
    without execution. 
 
-Related figure:
-:doc:`../auto_examples/figure_generation/plot_physics_sensitivity`
+**Related figure:**
+
+- :doc:`../auto_examples/figure_generation/plot_physics_sensitivity`
 
 .. _run-identifiability:
 
@@ -1182,8 +1182,7 @@ the most distinctive options here are the SM3-oriented controls:
    as ``none``, ``base``, ``anchored``, ``closure_locked``, and
    ``data_relaxed``. 
 
-``--n-realizations`` / ``--n-years`` / ``--time-steps`` /
-``--forecast-horizon``
+``--n-realizations`` / ``--n-years`` / ``--time-steps`` / ``--forecast-horizon``
    Control the synthetic experiment size and time structure. These are
    forwarded legacy arguments exposed by the wrapper help. 
 
@@ -1196,8 +1195,9 @@ the most distinctive options here are the SM3-oriented controls:
    scenario. The forwarded help lists values such as ``tau``, ``k``,
    and ``both`` for ``--identify``. 
 
-Related figure:
-:doc:`../auto_examples/figure_generation/plot_sm3_identifiability`
+**Related figure:**
+
+- :doc:`../auto_examples/figure_generation/plot_sm3_identifiability`
 
 .. _run-sm3-offsets:
 
@@ -1259,8 +1259,9 @@ That keeps this page focused on the command's role in the workflow while
 avoiding duplication once the full offset wrapper details are documented
 elsewhere.
 
-Related figure:
-:doc:`../auto_examples/figure_generation/plot_sm3_log_offsets`
+**Related figure:**
+
+- :doc:`../auto_examples/figure_generation/plot_sm3_log_offsets`
 
 .. _run-sm3-suite:
 
@@ -1399,12 +1400,11 @@ the most distinctive suite-oriented options are:
 ``--skip-collect``
    Skip the final combined-summary collection step. 
 
-``--epochs`` / ``--batch`` / ``--patience`` /
-``--n-realizations``
+``--epochs`` / ``--batch`` / ``--patience`` / ``--n-realizations``
    Adjust the size and training behavior of each regime run in the
    suite. 
 
-Related figures:
+**Related figures:**
 
 - :doc:`../auto_examples/figure_generation/plot_sm3_bounds_ridge_summary`
 - :doc:`../auto_examples/figure_generation/plot_sm3_log_offsets`

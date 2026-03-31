@@ -1015,7 +1015,7 @@ def audit_stage1_stage2_coord_consistency(
 
     This audit:
       - computes normalized min/max for t/x/y in X_train["coords"]
-      - derives implied raw min/max using MinMaxScaler data_min_/data_max_
+      - derives implied raw min/max using MinMaxScaler ``data_min_`` / ``data_max_``
       - checks raw ranges are within Stage-1 scaler bounds
       - checks t_unique count == H and t_raw_unique spacing (≈1 year)
       - provides UTM plausibility hint if epsg is UTM-like

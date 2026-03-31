@@ -5499,7 +5499,7 @@ def forecast_single_step(
       if actual target values (`y`) are provided.
     - The prediction output is expected to have the shape
       :math:`(n, 1, m)`, where :math:`m` is the number of outputs (e.g., the
-      number of quantiles in quantile mode, or 1 in point mode) [1]_.
+      number of quantiles in quantile mode, or 1 in point mode).
 
     See Also
     --------

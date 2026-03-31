@@ -353,8 +353,6 @@ individual stages.
       :link: configuration
       :link-type: doc
       :class-card: sd-shadow-sm card--configuration
-      :data-preview: configuration.png
-      :data-preview-label: GeoPrior configuration layer
 
       Understand the configuration system that controls the
       staged workflow.
@@ -363,8 +361,6 @@ individual stages.
       :link: cli
       :link-type: doc
       :class-card: sd-shadow-sm card--cli
-      :data-preview: cli.png
-      :data-preview-label: GeoPrior command-line interface
 
       Move from the workflow concept into the actual command
       surface.

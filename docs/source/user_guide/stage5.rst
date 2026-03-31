@@ -719,8 +719,6 @@ The next best pages after Stage-5 are:
       :link: configuration
       :link-type: doc
       :class-card: sd-shadow-sm card--configuration
-      :data-preview: configuration.png
-      :data-preview-label: GeoPrior configuration system
 
       Review how transfer defaults such as city pair and
       results directory can be driven from config.
@@ -729,8 +727,6 @@ The next best pages after Stage-5 are:
       :link: cli
       :link-type: doc
       :class-card: sd-shadow-sm card--cli
-      :data-preview: cli.png
-      :data-preview-label: GeoPrior command-line interface
 
       Move from the stage narrative to the full command
       interface.

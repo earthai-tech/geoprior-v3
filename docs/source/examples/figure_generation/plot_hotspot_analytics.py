@@ -434,7 +434,7 @@ print(
 # ----------------------------------
 # The first panel is the anomaly map:
 #
-#   |Δs| relative to the base year
+#   :math:`|\Delta s|` relative to the base year
 #
 # This panel tells you where the forecast differs most strongly
 # from the baseline state.
@@ -452,7 +452,7 @@ print(
 # ----------------------------------
 # The second panel is the exceedance-risk map:
 #
-#   P(|s| >= threshold)
+#   :math:`P(|s| \ge T)`
 #
 # This is not the same thing as anomaly magnitude.
 #

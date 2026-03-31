@@ -727,8 +727,6 @@ The most useful follow-up pages after the FAQ are:
       :link: cli
       :link-type: doc
       :class-card: sd-shadow-sm card--cli
-      :data-preview: cli.png
-      :data-preview-label: GeoPrior command-line interface
 
       Go from quick questions to the full command structure.
 
@@ -736,8 +734,6 @@ The most useful follow-up pages after the FAQ are:
       :link: configuration
       :link-type: doc
       :class-card: sd-shadow-sm card--configuration
-      :data-preview: configuration.png
-      :data-preview-label: GeoPrior configuration system
 
       Review the config layer, override model, and runtime
       snapshot logic.
