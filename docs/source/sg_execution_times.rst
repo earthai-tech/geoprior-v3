@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:00.607** total execution time for 56 files **from all galleries**:
+**00:00.338** total execution time for 56 files **from all galleries**:
 
 .. container::
 
@@ -32,10 +32,13 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_diagnostics_plot_physics_diagnostic.py` (``examples\diagnostics\plot_physics_diagnostic.py``)
-     - 00:00.607
+   * - :ref:`sphx_glr_auto_examples_forecasting_plot_evaluate_forecast.py` (``examples\forecasting\plot_evaluate_forecast.py``)
+     - 00:00.338
      - 0.0
    * - :ref:`sphx_glr_auto_examples_diagnostics_plot_holdout_group_masks.py` (``examples\diagnostics\plot_holdout_group_masks.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_diagnostics_plot_physics_diagnostic.py` (``examples\diagnostics\plot_physics_diagnostic.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_diagnostics_plot_physics_diagnostic_bridge.py` (``examples\diagnostics\plot_physics_diagnostic_bridge.py``)
@@ -114,9 +117,6 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_figure_generation_plot_xfer_transferability.py` (``examples\figure_generation\plot_xfer_transferability.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_forecasting_plot_evaluate_forecast.py` (``examples\forecasting\plot_evaluate_forecast.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_forecasting_plot_forecast.py` (``examples\forecasting\plot_forecast.py``)

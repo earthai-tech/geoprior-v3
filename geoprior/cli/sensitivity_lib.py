@@ -13,14 +13,14 @@ with the heavy steps moved to `build_context()`:
 - tf.data pipeline building
 
 `run_one()` assumes `ctx` contains:
-- ctx.manifest, ctx.manifest_path
-- ctx.cfg_base
-- ctx.base_output_dir
-- ctx.scaler_info
-- ctx.X_train / ctx.y_train / ctx.X_val / ctx.y_val
-- optional ctx.X_test / ctx.y_test
-- ctx.ds_train / ctx.ds_val / optional ctx.ds_test
-- ctx.dyn_names / ctx.fut_names / ctx.sta_names
+- ``ctx.manifest``, ``ctx.manifest_path``
+- ``ctx.cfg_base``
+- ``ctx.base_output_dir``
+- ``ctx.scaler_info``
+- ``ctx.X_train / ctx.y_train / ctx.X_val / ctx.y_val``
+- optional ``ctx.X_test / ctx.y_test``
+- ``ctx.ds_train / ctx.ds_val /`` optional ``ctx.ds_test``
+- ``ctx.dyn_names / ctx.fut_names / ctx.sta_names``
 
 It writes all artifacts under `run_dir`.
 """
@@ -292,7 +292,7 @@ def run_one(
 
     Notes
     -----
-    - Reuses ctx.ds_train/ctx.ds_val/ctx.ds_test.
+    - Reuses ``ctx.ds_train/ctx.ds_val/ctx.ds_test``.
     - All artifacts are written to the returned run_dir.
     """
 
