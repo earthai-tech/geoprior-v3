@@ -48,10 +48,10 @@ import numpy as np
 import pandas as pd
 from shapely.geometry import shape
 
-from geoprior._scripts.make_boundary import (
+from geoprior.scripts.make_boundary import (
     make_boundary_main,
 )
-from geoprior._scripts import utils as script_utils
+from geoprior.scripts import utils as script_utils
 
 # %%
 # Build compact synthetic point clouds

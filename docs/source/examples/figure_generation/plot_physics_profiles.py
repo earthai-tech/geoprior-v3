@@ -59,7 +59,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from geoprior._scripts.plot_physics_profiles import (
+from geoprior.scripts.plot_physics_profiles import (
     figA1_phys_profiles_main,
 )
 

@@ -85,7 +85,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from geoprior._scripts.plot_sm3_log_offsets import (
+from geoprior.scripts.plot_sm3_log_offsets import (
     build_offsets_table,
     summarise_offsets,
 )

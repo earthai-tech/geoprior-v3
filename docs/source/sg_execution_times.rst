@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:02.624** total execution time for 55 files **from all galleries**:
+**00:01.188** total execution time for 56 files **from all galleries**:
 
 .. container::
 
@@ -32,16 +32,13 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_forecasting_plot_forecast_by_step.py` (``examples\forecasting\plot_forecast_by_step.py``)
-     - 00:01.741
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_diagnostics_plot_physics_diagnostic_bridge.py` (``examples\diagnostics\plot_physics_diagnostic_bridge.py``)
-     - 00:00.625
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_forecasting_plot_evaluate_forecast.py` (``examples\forecasting\plot_evaluate_forecast.py``)
-     - 00:00.258
+   * - :ref:`sphx_glr_auto_examples_diagnostics_plot_stage2_training_curves.py` (``examples\diagnostics\plot_stage2_training_curves.py``)
+     - 00:01.188
      - 0.0
    * - :ref:`sphx_glr_auto_examples_diagnostics_plot_holdout_group_masks.py` (``examples\diagnostics\plot_holdout_group_masks.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_diagnostics_plot_physics_diagnostic_bridge.py` (``examples\diagnostics\plot_physics_diagnostic_bridge.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_diagnostics_plot_spatial_block_holdout.py` (``examples\diagnostics\plot_spatial_block_holdout.py``)
@@ -116,7 +113,13 @@ Computation times
    * - :ref:`sphx_glr_auto_examples_figure_generation_plot_xfer_transferability.py` (``examples\figure_generation\plot_xfer_transferability.py``)
      - 00:00.000
      - 0.0
+   * - :ref:`sphx_glr_auto_examples_forecasting_plot_evaluate_forecast.py` (``examples\forecasting\plot_evaluate_forecast.py``)
+     - 00:00.000
+     - 0.0
    * - :ref:`sphx_glr_auto_examples_forecasting_plot_forecast.py` (``examples\forecasting\plot_forecast.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_forecasting_plot_forecast_by_step.py` (``examples\forecasting\plot_forecast_by_step.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_forecasting_plot_format_and_forecast.py` (``examples\forecasting\plot_format_and_forecast.py``)
@@ -128,13 +131,10 @@ Computation times
    * - :ref:`sphx_glr_auto_examples_forecasting_plot_holdout_vs_forecast.py` (``examples\forecasting\plot_holdout_vs_forecast.py``)
      - 00:00.000
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_model_inspection_autoplot_geoprior_history.py` (``examples\model_inspection\autoplot_geoprior_history.py``)
+   * - :ref:`sphx_glr_auto_examples_model_inspection_make_gather_coords_flat.py` (``examples\model_inspection\make_gather_coords_flat.py``)
      - 00:00.000
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_model_inspection_extract_physical_parameters.py` (``examples\model_inspection\extract_physical_parameters.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_model_inspection_gather_coords_flat.py` (``examples\model_inspection\gather_coords_flat.py``)
+   * - :ref:`sphx_glr_auto_examples_model_inspection_plot_autoplot_geoprior_history.py` (``examples\model_inspection\plot_autoplot_geoprior_history.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_model_inspection_plot_epsilons_in.py` (``examples\model_inspection\plot_epsilons_in.py``)
@@ -147,6 +147,9 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_model_inspection_plot_physics_values_in.py` (``examples\model_inspection\plot_physics_values_in.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_model_inspection_tag_extract_physical_parameters.py` (``examples\model_inspection\tag_extract_physical_parameters.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_tables_and_summaries_build_ablation_table.py` (``examples\tables_and_summaries\build_ablation_table.py``)

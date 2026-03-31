@@ -236,7 +236,7 @@ html_theme_options = {
     ],
 
     "use_edit_page_button": True,
-    "header_links_before_dropdown": 5,
+    "header_links_before_dropdown": 6,
     "search_bar_text": "Search the GeoPrior docs ...",
     "navigation_with_keys": True,
     "show_prev_next": True,

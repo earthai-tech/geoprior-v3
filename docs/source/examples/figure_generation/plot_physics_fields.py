@@ -80,7 +80,7 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 
-from geoprior._scripts.plot_physics_fields import (
+from geoprior.scripts.plot_physics_fields import (
     plot_physics_fields,
 )
 

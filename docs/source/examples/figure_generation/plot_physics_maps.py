@@ -76,7 +76,7 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 
-from geoprior._scripts.plot_physics_maps import (
+from geoprior.scripts.plot_physics_maps import (
     plot_physics_maps,
 )
 

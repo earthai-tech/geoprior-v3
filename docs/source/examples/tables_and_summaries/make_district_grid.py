@@ -39,10 +39,10 @@ import numpy as np
 import pandas as pd
 from shapely.geometry import Polygon
 
-from geoprior._scripts.make_district_grid import (
+from geoprior.scripts.make_district_grid import (
     make_district_grid_main,
 )
-from geoprior._scripts import utils as script_utils
+from geoprior.scripts import utils as script_utils
 
 # %%
 # Build compact synthetic point clouds

@@ -75,7 +75,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from geoprior._scripts.plot_physics_sensitivity import (
+from geoprior.scripts.plot_physics_sensitivity import (
     plot_physics_sensitivity_main,
 )
 

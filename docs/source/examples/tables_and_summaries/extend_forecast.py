@@ -38,7 +38,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from geoprior._scripts.extend_forecast import (
+from geoprior.scripts.extend_forecast import (
     extend_forecast_main,
 )
 

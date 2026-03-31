@@ -70,7 +70,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from geoprior._scripts.plot_driver_response import (
+from geoprior.scripts.plot_driver_response import (
     plot_driver_response,
 )
 

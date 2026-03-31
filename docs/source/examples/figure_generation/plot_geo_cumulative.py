@@ -72,7 +72,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from geoprior._scripts.plot_geocum import (
+from geoprior.scripts.plot_geocum import (
     plot_geo_cumulative_main,
 )
 

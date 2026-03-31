@@ -43,7 +43,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from geoprior._scripts.compute_brier_exceedance import (
+from geoprior.scripts.compute_brier_exceedance import (
     brier_exceedance_main,
     exceed_prob_from_quantiles,
 )

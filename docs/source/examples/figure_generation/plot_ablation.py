@@ -81,7 +81,7 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from geoprior._scripts.plot_core_ablation import (
+from geoprior.scripts.plot_core_ablation import (
     plot_fig3_core_ablation,
 )
 

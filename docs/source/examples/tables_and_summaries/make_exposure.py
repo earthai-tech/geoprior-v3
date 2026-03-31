@@ -40,7 +40,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from geoprior._scripts.make_exposure import (
+from geoprior.scripts.make_exposure import (
     make_exposure_main,
 )
 

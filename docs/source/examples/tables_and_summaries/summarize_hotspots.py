@@ -43,7 +43,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from geoprior._scripts.summarize_hotspots import (
+from geoprior.scripts.summarize_hotspots import (
     summarize_hotspots,
     summarize_hotspots_main,
 )

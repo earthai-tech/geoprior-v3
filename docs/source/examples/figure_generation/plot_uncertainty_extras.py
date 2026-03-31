@@ -74,7 +74,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from geoprior._scripts import plot_uncertainty_extras as pux
+from geoprior.scripts import plot_uncertainty_extras as pux
 
 
 # %%

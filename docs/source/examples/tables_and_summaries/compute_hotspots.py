@@ -42,7 +42,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-import geoprior._scripts.compute_hotspots as hotspots_mod
+import geoprior.scripts.compute_hotspots as hotspots_mod
 
 # %%
 # Compatibility shim
