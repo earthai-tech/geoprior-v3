@@ -330,9 +330,18 @@ def apply_interval_factors_df(
         )
 
         idx = np.asarray(list(g_idx))
-        med = df2.loc[idx, med_col].to_numpy(dtype=float)
+        med = df2.loc[idx, med_col].to_numpy(
+            dtype=float,
+            copy=True,
+        )
 
-        q_vals = df2.loc[idx, cols].to_numpy(dtype=float)
+        # Pandas/NumPy may return a read-only array here depending on
+        # version, block layout, and copy-on-write behavior. We mutate
+        # q_vals in place below, so force an explicit writable copy.
+        q_vals = df2.loc[idx, cols].to_numpy(
+            dtype=float,
+            copy=True,
+        )
 
         # scale each quantile around median
         for j, q in enumerate(qs):
