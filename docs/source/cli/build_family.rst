@@ -370,7 +370,7 @@ Distinctive options to notice
 
 **Related example:**
 
-- :doc:`../auto_examples/tables_and_summaries/index`
+- :doc:`../auto_examples/tables_and_summaries/build_forecast_ready_sample`
 
 .. _build-spatial-sampling:
 
@@ -461,7 +461,7 @@ Distinctive options to notice
 
 **Related example:** 
 
-- :doc:`../auto_examples/tables_and_summaries/index`
+- :doc:`../auto_examples/tables_and_summaries/build_spatial_sampling`
 
 .. _build-batch-spatial-sampling:
 
@@ -544,7 +544,7 @@ Distinctive options to notice
 
 See also 
 ^^^^^^^^^^^^^^^^^
-- :doc:`../auto_examples/tables_and_summaries/index`
+- :doc:`../auto_examples/tables_and_summaries/build_batch_spatial_sampling`
 
 .. _build-spatial-roi:
 
@@ -610,7 +610,7 @@ Distinctive options to notice
 
 **Related example:**
 
-- :doc:`../auto_examples/tables_and_summaries/index`
+- :doc:`../auto_examples/tables_and_summaries/build_spatial_roi`
 
 
 .. _build-spatial-clusters:
@@ -701,7 +701,7 @@ Distinctive options to notice
 
 **Related example:** 
 
-- :doc:`../auto_examples/tables_and_summaries/index`
+- :doc:`../auto_examples/tables_and_summaries/build_spatial_clusters`
 
 .. _build-extract-zones:
 
@@ -799,7 +799,7 @@ Distinctive options to notice
 
 **Related example:**
 
-- :doc:`../auto_examples/tables_and_summaries/index`
+- :doc:`../auto_examples/tables_and_summaries/build_extract_zones`
 
 .. _build-assign-boreholes:
 
@@ -898,7 +898,7 @@ Distinctive options to notice
 
 **Related example:** 
 
-- :doc:`../auto_examples/tables_and_summaries/index`
+- :doc:`../auto_examples/tables_and_summaries/build_assign_boreholes`
 
 .. _build-add-zsurf-from-coords:
 
@@ -1020,15 +1020,17 @@ Distinctive options to notice
    Write merge diagnostics across all processed cities. 
 
 
+**Related example:** 
+
+- :doc:`../auto_examples/tables_and_summaries/build_add_zsurf_from_coords`
+
+
 Payloads and validation artifacts
 ----------------------------------
 
 These commands build model-facing or validation-facing artifacts that
 other workflows can consume later. 
 
-**Related example:** 
-
-- :doc:`../auto_examples/tables_and_summaries/index`
 
 .. _build-full-inputs-npz:
 
@@ -1122,7 +1124,7 @@ Distinctive options to notice
 
 **Related example:** 
 
-- :doc:`../auto_examples/tables_and_summaries/index`
+- :doc:`../auto_examples/tables_and_summaries/build_full_inputs_npz`
 
 .. _build-physics-payload-npz:
 

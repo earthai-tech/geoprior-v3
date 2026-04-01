@@ -139,8 +139,6 @@ def _canonize(
     return df
 
 
-
-
 def _load_exposure(path: str, *, col: str) -> pd.DataFrame:
     p = utils.as_path(path)
     df = pd.read_csv(p)

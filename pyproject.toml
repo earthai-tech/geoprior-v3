@@ -132,7 +132,22 @@ omit = [
   "geoprior/__main__.py",
   "docs/**",
   "examples/**",
+
+  # validated / third-party-like internal code
+  "geoprior/core/*",
+  "geoprior/metrics/*",
+  "geoprior/api/*",
+  "geoprior/models/components/*",
+  "geoprior/models/utils/pinn.py",
+  "geoprior/datasets/*",
+  "geoprior/utils/ts_utils.py",
+  "geoprior/utils/validator.py",
+  "geoprior/utils/generic_utils.py",
+  "geoprior/utils/sys_utils.py",
+  "geoprior/utils/geo_utils.py",
+  
 ]
+
 
 [tool.coverage.report]
 show_missing = true

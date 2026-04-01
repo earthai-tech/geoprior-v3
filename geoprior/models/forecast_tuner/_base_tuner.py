@@ -168,7 +168,7 @@ class PINNTunerBase(HyperModel, BaseClass):
     ]:
         """
         Performs the hyperparameter search using Keras Tuner.
-    
+
         Parameters
         ----------
         train_data : tf.data.Dataset
@@ -188,7 +188,7 @@ class PINNTunerBase(HyperModel, BaseClass):
         **additional_search_kwargs
             Additional keyword arguments passed to the tuner
             ``search()`` method.
-    
+
         Returns
         -------
         best_model : tf.keras.Model or None

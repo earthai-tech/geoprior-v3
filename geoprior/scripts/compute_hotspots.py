@@ -148,8 +148,10 @@ def build_parser(
 
 def parse_args(
     argv: list[str] | None = None,
+    *,
+    prog: str | None = None,
 ) -> argparse.Namespace:
-    return build_parser().parse_args(argv)
+    return build_parser(prog=prog).parse_args(argv)
 
 
 def _as_path(x: str | None) -> Path | None:

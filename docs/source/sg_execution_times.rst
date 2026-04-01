@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:00.338** total execution time for 56 files **from all galleries**:
+**00:01.835** total execution time for 65 files **from all galleries**:
 
 .. container::
 
@@ -32,8 +32,8 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_forecasting_plot_evaluate_forecast.py` (``examples\forecasting\plot_evaluate_forecast.py``)
-     - 00:00.338
+   * - :ref:`sphx_glr_auto_examples_tables_and_summaries_build_batch_spatial_sampling.py` (``examples\tables_and_summaries\build_batch_spatial_sampling.py``)
+     - 00:01.835
      - 0.0
    * - :ref:`sphx_glr_auto_examples_diagnostics_plot_holdout_group_masks.py` (``examples\diagnostics\plot_holdout_group_masks.py``)
      - 00:00.000
@@ -119,6 +119,9 @@ Computation times
    * - :ref:`sphx_glr_auto_examples_figure_generation_plot_xfer_transferability.py` (``examples\figure_generation\plot_xfer_transferability.py``)
      - 00:00.000
      - 0.0
+   * - :ref:`sphx_glr_auto_examples_forecasting_plot_evaluate_forecast.py` (``examples\forecasting\plot_evaluate_forecast.py``)
+     - 00:00.000
+     - 0.0
    * - :ref:`sphx_glr_auto_examples_forecasting_plot_forecast.py` (``examples\forecasting\plot_forecast.py``)
      - 00:00.000
      - 0.0
@@ -158,7 +161,31 @@ Computation times
    * - :ref:`sphx_glr_auto_examples_tables_and_summaries_build_ablation_table.py` (``examples\tables_and_summaries\build_ablation_table.py``)
      - 00:00.000
      - 0.0
+   * - :ref:`sphx_glr_auto_examples_tables_and_summaries_build_add_zsurf_from_coords.py` (``examples\tables_and_summaries\build_add_zsurf_from_coords.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_tables_and_summaries_build_assign_boreholes.py` (``examples\tables_and_summaries\build_assign_boreholes.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_tables_and_summaries_build_extract_zones.py` (``examples\tables_and_summaries\build_extract_zones.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_tables_and_summaries_build_forecast_ready_sample.py` (``examples\tables_and_summaries\build_forecast_ready_sample.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_tables_and_summaries_build_full_inputs_npz.py` (``examples\tables_and_summaries\build_full_inputs_npz.py``)
+     - 00:00.000
+     - 0.0
    * - :ref:`sphx_glr_auto_examples_tables_and_summaries_build_model_metrics.py` (``examples\tables_and_summaries\build_model_metrics.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_tables_and_summaries_build_spatial_clusters.py` (``examples\tables_and_summaries\build_spatial_clusters.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_tables_and_summaries_build_spatial_roi.py` (``examples\tables_and_summaries\build_spatial_roi.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_tables_and_summaries_build_spatial_sampling.py` (``examples\tables_and_summaries\build_spatial_sampling.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_tables_and_summaries_compute_brier_exceedance.py` (``examples\tables_and_summaries\compute_brier_exceedance.py``)
