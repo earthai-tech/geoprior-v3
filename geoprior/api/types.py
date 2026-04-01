@@ -26,17 +26,18 @@ TensorFlow, or JAX are absent or partially initialized.
 
 from __future__ import annotations
 
-from collections.abc import Callable
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from collections.abc import Iterator as AbcIterator
 from re import Pattern
-from typing import TYPE_CHECKING
-from typing import Any
-from typing import Literal
-from typing import Optional
-from typing import SupportsInt
-from typing import TypeAlias
-from typing import TypeVar
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    Optional,
+    SupportsInt,
+    TypeAlias,
+    TypeVar,
+)
 
 import numpy as np
 import pandas as pd
@@ -88,7 +89,9 @@ if TYPE_CHECKING:
         import tensorflow as tf
         from tensorflow.data import Dataset as TFDataset
         from tensorflow.keras import Model as TFModel
-        from tensorflow.keras import Sequential as TFSequential
+        from tensorflow.keras import (
+            Sequential as TFSequential,
+        )
         from tensorflow.keras.callbacks import (
             Callback as TFCallback,
         )
@@ -109,31 +112,18 @@ if TYPE_CHECKING:
     JNPNDArray = jnp.ndarray if jnp is not None else Any
 
     ArrayLike: TypeAlias = (
-        NDArray
-        | Series
-        | list[Any]
-        | tuple[Any, ...]
+        NDArray | Series | list[Any] | tuple[Any, ...]
     )
 
     _Sub: TypeAlias = Callable[[Any], Any]
     _F: TypeAlias = Callable[[ArrayLike], Any]
 
-    _Tensor: TypeAlias = (
-        TorchTensor
-        | TFTensor
-        | JNPNDArray
-    )
+    _Tensor: TypeAlias = TorchTensor | TFTensor | JNPNDArray
     _Dataset: TypeAlias = TorchDataset | TFDataset
-    _Optimizer: TypeAlias = (
-        TorchOptimizer
-        | TFOptimizer
-    )
+    _Optimizer: TypeAlias = TorchOptimizer | TFOptimizer
     _Callback: TypeAlias = TFCallback
     _Model: TypeAlias = TorchModel | TFModel
-    _Sequential: TypeAlias = (
-        TorchSequential
-        | TFSequential
-    )
+    _Sequential: TypeAlias = TorchSequential | TFSequential
 
 # ------------------------------------------------------------------
 # Runtime-safe aliases
@@ -196,6 +186,7 @@ PlotKindWIS = Literal[
     "summary_bar",
 ]
 PlotKindTheilU = Literal["summary_bar"]
+
 
 # ------------------------------------------------------------------
 # Small predicates

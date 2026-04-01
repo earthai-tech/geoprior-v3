@@ -18,20 +18,29 @@ def _import_target(name: str):
             return importlib.import_module(modname)
         except ModuleNotFoundError as exc:
             missing = str(getattr(exc, "name", "") or "")
-            if modname == missing or modname.startswith(missing + "."):
+            if modname == missing or modname.startswith(
+                missing + "."
+            ):
                 continue
             raise
-    pytest.skip(f"Could not import target module for {name!r}.")
+    pytest.skip(
+        f"Could not import target module for {name!r}."
+    )
+
 
 pytestmark = [pytest.mark.stage_artifacts]
 
 
-def test_compute_metrics_writes_site_table_and_metrics_json(tmp_path: Path):
+def test_compute_metrics_writes_site_table_and_metrics_json(
+    tmp_path: Path,
+):
     mod = _import_target("build_external_validation_metrics")
 
     stage1_manifest = tmp_path / "manifest.json"
     stage1_manifest.write_text(
-        __import__("json").dumps({"artifacts": {"encoders": {}}}),
+        __import__("json").dumps(
+            {"artifacts": {"encoders": {}}}
+        ),
         encoding="utf-8",
     )
 
@@ -44,7 +53,9 @@ def test_compute_metrics_writes_site_table_and_metrics_json(tmp_path: Path):
     )
     h_field = np.array([[[5.0]], [[7.0]]], dtype=np.float32)
     payload_k = np.array([[[0.1]], [[0.2]]], dtype=np.float32)
-    payload_hd = np.array([[[4.0]], [[6.0]]], dtype=np.float32)
+    payload_hd = np.array(
+        [[[4.0]], [[6.0]]], dtype=np.float32
+    )
 
     inputs_npz = tmp_path / "inputs.npz"
     payload_npz = tmp_path / "payload.npz"
@@ -82,8 +93,12 @@ def test_compute_metrics_writes_site_table_and_metrics_json(tmp_path: Path):
 
     assert len(site_df) == 2
     assert metrics["n_sites"] == 2
-    assert (outdir / "site_level_external_validation.csv").exists()
-    assert (outdir / "external_validation_metrics.json").exists()
+    assert (
+        outdir / "site_level_external_validation.csv"
+    ).exists()
+    assert (
+        outdir / "external_validation_metrics.json"
+    ).exists()
 
 
 def test_nearest_match_can_prefer_swapped_xy():

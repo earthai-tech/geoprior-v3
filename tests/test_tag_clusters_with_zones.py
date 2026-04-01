@@ -19,10 +19,14 @@ def _import_target(name: str):
             return importlib.import_module(modname)
         except ModuleNotFoundError as exc:
             missing = str(getattr(exc, "name", "") or "")
-            if modname == missing or modname.startswith(missing + "."):
+            if modname == missing or modname.startswith(
+                missing + "."
+            ):
                 continue
             raise
-    pytest.skip(f"Could not import target module for {name!r}.")
+    pytest.skip(
+        f"Could not import target module for {name!r}."
+    )
 
 
 @pytest.fixture
@@ -51,7 +55,9 @@ def test_tag_clusters_with_zones_main_writes_csv(
 ):
     mod = _import_target("tag_clusters_with_zones")
 
-    monkeypatch.setattr(mod, "_load_grid", lambda *args, **kwargs: object())
+    monkeypatch.setattr(
+        mod, "_load_grid", lambda *args, **kwargs: object()
+    )
     monkeypatch.setattr(
         mod,
         "_match_points_to_polys",
@@ -80,11 +86,15 @@ def test_tag_clusters_with_zones_main_writes_csv(
     assert "zone_label" in out.columns
 
 
-def test_load_clusters_coerces_numeric_fields(clusters_csv: Path):
+def test_load_clusters_coerces_numeric_fields(
+    clusters_csv: Path,
+):
     mod = _import_target("tag_clusters_with_zones")
 
     df = mod._load_clusters(str(clusters_csv))
 
     assert str(df["cluster_id"].dtype) == "Int64"
     assert str(df["year"].dtype) == "Int64"
-    assert float(df["centroid_x"].iloc[0]) == pytest.approx(113.40)
+    assert float(df["centroid_x"].iloc[0]) == pytest.approx(
+        113.40
+    )

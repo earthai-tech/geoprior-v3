@@ -162,8 +162,7 @@ def json_ready(value: Any) -> Any:
     """
     if isinstance(value, dict):
         return {
-            str(k): json_ready(v)
-            for k, v in value.items()
+            str(k): json_ready(v) for k, v in value.items()
         }
 
     if isinstance(value, (list, tuple)):
@@ -197,9 +196,8 @@ def deep_update(
         return out
 
     for key, value in updates.items():
-        if (
-            isinstance(value, dict)
-            and isinstance(out.get(key), dict)
+        if isinstance(value, dict) and isinstance(
+            out.get(key), dict
         ):
             out[key] = deep_update(out[key], value)
         else:
@@ -548,7 +546,9 @@ def plot_metric_bars(
     ax.grid(axis="x", alpha=0.25)
 
     if annotate:
-        for idx, row in frame.reset_index(drop=True).iterrows():
+        for idx, row in frame.reset_index(
+            drop=True
+        ).iterrows():
             ax.text(
                 row["plot_value"],
                 idx,

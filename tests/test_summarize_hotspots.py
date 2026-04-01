@@ -19,10 +19,14 @@ def _import_target(name: str):
             return importlib.import_module(modname)
         except ModuleNotFoundError as exc:
             missing = str(getattr(exc, "name", "") or "")
-            if modname == missing or modname.startswith(missing + "."):
+            if modname == missing or modname.startswith(
+                missing + "."
+            ):
                 continue
             raise
-    pytest.skip(f"Could not import target module for {name!r}.")
+    pytest.skip(
+        f"Could not import target module for {name!r}."
+    )
 
 
 @pytest.fixture
@@ -89,13 +93,22 @@ def test_summarize_hotspots_main_writes_grouped_csv(
     assert "value_mean" in out.columns
 
 
-def test_summarize_hotspots_returns_expected_group_means(hotspot_csv: Path):
+def test_summarize_hotspots_returns_expected_group_means(
+    hotspot_csv: Path,
+):
     mod = _import_target("summarize_hotspots")
 
     summary = mod.summarize_hotspots(pd.read_csv(hotspot_csv))
-    sub = summary[(summary["city"] == "Nansha") & (summary["year"] == 2025)]
+    sub = summary[
+        (summary["city"] == "Nansha")
+        & (summary["year"] == 2025)
+    ]
 
     assert len(sub) == 1
     assert float(sub.iloc[0]["n_hotspots"]) == 2
-    assert float(sub.iloc[0]["value_mean"]) == pytest.approx(13.0)
-    assert float(sub.iloc[0]["metric_mean"]) == pytest.approx(2.5)
+    assert float(sub.iloc[0]["value_mean"]) == pytest.approx(
+        13.0
+    )
+    assert float(sub.iloc[0]["metric_mean"]) == pytest.approx(
+        2.5
+    )

@@ -21,10 +21,14 @@ def _import_target(name: str):
             return importlib.import_module(modname)
         except ModuleNotFoundError as exc:
             name = str(getattr(exc, "name", "") or "")
-            if modname == name or modname.startswith(name + "."):
+            if modname == name or modname.startswith(
+                name + "."
+            ):
                 continue
             raise
-    pytest.skip(f"Could not import target module for {name!r}.")
+    pytest.skip(
+        f"Could not import target module for {name!r}."
+    )
 
 
 @pytest.fixture
@@ -33,10 +37,26 @@ def brier_inputs(tmp_path: Path) -> dict[str, Path]:
         return pd.DataFrame(
             {
                 "coord_t": [2020, 2021, 2022],
-                "subsidence_actual": [28.0 + offset, 45.0 + offset, 55.0 + offset],
-                "subsidence_q10": [20.0 + offset, 35.0 + offset, 45.0 + offset],
-                "subsidence_q50": [30.0 + offset, 45.0 + offset, 55.0 + offset],
-                "subsidence_q90": [40.0 + offset, 55.0 + offset, 65.0 + offset],
+                "subsidence_actual": [
+                    28.0 + offset,
+                    45.0 + offset,
+                    55.0 + offset,
+                ],
+                "subsidence_q10": [
+                    20.0 + offset,
+                    35.0 + offset,
+                    45.0 + offset,
+                ],
+                "subsidence_q50": [
+                    30.0 + offset,
+                    45.0 + offset,
+                    55.0 + offset,
+                ],
+                "subsidence_q90": [
+                    40.0 + offset,
+                    55.0 + offset,
+                    65.0 + offset,
+                ],
             }
         )
 
