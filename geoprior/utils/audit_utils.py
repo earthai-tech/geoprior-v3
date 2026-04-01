@@ -999,7 +999,7 @@ def audit_stage1_stage2_coord_consistency(
     time_units: str = "year",
     save_dir: str | None = None,
     table_width: int = 110,
-    title_prefix: str = "STAGE-1 ↔ STAGE-2 COORD CONSISTENCY",
+    title_prefix: str = "STAGE-1 <-> STAGE-2 COORD CONSISTENCY",
     city: str = "Unknown",
     model_name: str = "Model",
     log_fn=None,

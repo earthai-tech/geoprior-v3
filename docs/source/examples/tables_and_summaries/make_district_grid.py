@@ -265,9 +265,7 @@ for p in written + assignments:
 # We read both the grid layer and the assignment table back in.
 
 grid_geojson = tmp_dir / "district_grid_gallery_nansha.geojson"
-assign_csv = script_utils.resolve_out_out(
-    "district_assignments_nansha.csv"
-)
+assign_csv = tmp_dir / "district_assignments_nansha.csv"
 
 grid_gdf = gpd.read_file(grid_geojson)
 assign_df = pd.read_csv(assign_csv)
