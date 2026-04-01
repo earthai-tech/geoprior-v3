@@ -4,7 +4,7 @@
   "config": {
     "CITY_NAME": "nansha",
     "MODEL_NAME": "GeoPriorSubsNet",
-    "DATA_DIR": "F:/repositories/fusionlab-learn",
+    "DATA_DIR": "..",
     "DATASET_VARIANT": "with_zsurf",
     "BIG_FN_TEMPLATE": "{city}_final_main_std.harmonized.cleaned.{variant}.csv",
     "SMALL_FN_TEMPLATE": "{city}_2000.cleaned.{variant}.csv",
@@ -226,7 +226,7 @@
     "DRAINAGE_MODE": "double",
     "SCALING_ERROR_POLICY": "raise",
     "CLIP_GLOBAL_NORM": 5.0,
-    "EPOCHS": 5,
+    "EPOCHS": 20,
     "BATCH_SIZE": 32,
     "LEARNING_RATE": 0.001,
     "VERBOSE": 1,
@@ -493,6 +493,6 @@
     }
   },
   "__meta__": {
-    "config_py_hash": "38720638f388f43d218bf828cbd8273cada537f678b16afe1c9982f5085086fa"
+    "config_py_hash": "5218859825511580de24f92bce6f2cc893573bf93b5b7b72c0806b9348c4a17d"
   }
 }

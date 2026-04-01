@@ -4020,7 +4020,7 @@ def batch_spatial_sampling(
         min_relative_ratio = assert_ratio(
             min_relative_ratio,
             bounds=(0, 1),
-            excludes=(0, 1),
+            exclude_values=(0, 1),
             name="`min_relative_ratio`",
         )
     for batch_idx in range(n_batches):

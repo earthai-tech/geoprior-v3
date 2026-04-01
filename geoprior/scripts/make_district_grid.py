@@ -489,9 +489,10 @@ def make_district_grid_main(
                 ny=int(args.ny),
                 zone_ids=zone_ids,
             )
-            p2 = utils.resolve_out_out(
+            p2 = stem.parent / (
                 f"district_assignments_{_slug(city)}.csv"
             )
+            p2.parent.mkdir(parents=True, exist_ok=True)
             a.to_csv(p2, index=False)
             print(f"[OK] wrote {p2}")
 

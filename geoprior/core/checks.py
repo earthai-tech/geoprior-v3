@@ -3130,6 +3130,7 @@ def assert_ratio(
     in_percent: bool = False,
     inclusive: bool = True,
     name: str = "ratio",
+    excludes: float | list[float] | None = None,
 ) -> float:
     """
     Asserts that a given value falls within a specified range and does not
@@ -3167,6 +3168,9 @@ def assert_ratio(
     name : str, default='ratio'
         The descriptive name of the value being asserted. This is used in error
         messages for clarity.
+    excludes : Optional[Union[float, List[float]]], default=None,
+       For backward compatibility. If provides and ``exclude_values`` is ``None``,
+       then it passes the argument.
 
     Returns
     -------
@@ -3228,6 +3232,8 @@ def assert_ratio(
     - [Python `float()` Function](https://docs.python.org/3/library/functions.html#float)
     - [Warnings in Python](https://docs.python.org/3/library/warnings.html)
     """
+    if excludes is not None and exclude_values is None:
+        exclude_values = excludes
 
     # Initialize exclusion list
     if exclude_values is not None and not isinstance(

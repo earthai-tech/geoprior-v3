@@ -174,21 +174,21 @@ def __getattr__(name: str):
     )
 
 
-import geoprior as gp
-import geoprior.api
-import geoprior.backends
-import geoprior.cli
-import geoprior.core
-import geoprior.data
-import geoprior.datasets
-import geoprior.decorators
-import geoprior.deps
-import geoprior.metrics
-import geoprior.models
-import geoprior.params
-import geoprior.plot
-import geoprior.registry
-import geoprior.scripts
-import geoprior.utils
+# import geoprior as gp
+# import geoprior.api
+# import geoprior.backends
+# import geoprior.cli
+# import geoprior.core
+# import geoprior.data
+# import geoprior.datasets
+# import geoprior.decorators
+# import geoprior.deps
+# import geoprior.metrics
+# import geoprior.models
+# import geoprior.params
+# import geoprior.plot
+# import geoprior.registry
+# import geoprior.scripts
+# import geoprior.utils
 
 __doc__ = (__doc__ or "") + f"\nVersion: {__version__}\n"
