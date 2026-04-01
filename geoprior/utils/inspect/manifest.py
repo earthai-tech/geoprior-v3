@@ -944,6 +944,7 @@ def plot_manifest_artifact_inventory(
     manifest: ManifestLike,
     *,
     title: str = "Manifest artifact inventory",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot artifact and metadata inventory counts."""
     payload = _as_payload(manifest)
@@ -969,6 +970,7 @@ def plot_manifest_artifact_inventory(
         metrics,
         title=title,
         sort_by_value=False,
+        **plot_kws,
     )
 
 
@@ -977,6 +979,7 @@ def plot_manifest_feature_group_sizes(
     manifest: ManifestLike,
     *,
     title: str = "Stage-1 feature groups",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot Stage-1 feature-group sizes."""
     payload = _as_payload(manifest)
@@ -993,6 +996,7 @@ def plot_manifest_feature_group_sizes(
         metrics,
         title=title,
         sort_by_value=False,
+        **plot_kws,
     )
 
 
@@ -1001,6 +1005,7 @@ def plot_manifest_holdout_counts(
     manifest: ManifestLike,
     *,
     title: str = "Holdout split counts",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot the main group and sequence split counts."""
     payload = _as_payload(manifest)
@@ -1022,6 +1027,7 @@ def plot_manifest_holdout_counts(
         metrics,
         title=title,
         sort_by_value=False,
+        **plot_kws,
     )
 
 
@@ -1030,6 +1036,7 @@ def plot_manifest_coord_ranges(
     manifest: ManifestLike,
     *,
     title: str = "Coordinate ranges",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot nested coordinate ranges from scaling kwargs."""
     return plot_metric_bars(
@@ -1037,6 +1044,7 @@ def plot_manifest_coord_ranges(
         _coord_ranges(_as_payload(manifest)),
         title=title,
         sort_by_value=False,
+        **plot_kws,
     )
 
 
@@ -1045,6 +1053,7 @@ def plot_manifest_boolean_summary(
     manifest: ManifestLike,
     *,
     title: str = "Stage-1 manifest checks",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot simple boolean checks for the handshake."""
     payload = _as_payload(manifest)
@@ -1080,7 +1089,12 @@ def plot_manifest_boolean_summary(
             )
         ),
     }
-    return plot_boolean_checks(ax, checks, title=title)
+    return plot_boolean_checks(
+        ax,
+        checks,
+        title=title,
+        **plot_kws,
+    )
 
 
 def inspect_manifest(

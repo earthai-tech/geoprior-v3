@@ -5,7 +5,7 @@
 
 """
 Inspect a ``scaling_kwargs.json`` configuration
-===============================================
+=================================================
 
 This lesson explains how to inspect one of the most important
 configuration artifacts in the GeoPrior workflow:
@@ -133,6 +133,56 @@ print(f" - {json_path}")
 record = load_scaling_kwargs(json_path)
 payload = record.payload
 
+SCALING_COLORS = {
+    "primary": "#4f46e5",
+    "secondary": "#0f766e",
+    "accent": "#d97706",
+    "rose": "#db2777",
+    "ink": "#0f172a",
+    "muted": "#64748b",
+    "grid": "#cbd5e1",
+    "face": "#f8fafc",
+    "pass": "#16a34a",
+    "fail": "#dc2626",
+}
+
+
+def _style_axes(ax: plt.Axes, *, facecolor: str = SCALING_COLORS["face"]) -> None:
+    ax.set_facecolor(facecolor)
+    ax.set_axisbelow(True)
+    ax.grid(True, color=SCALING_COLORS["grid"], alpha=0.45, linewidth=0.8)
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    for side in ("left", "bottom"):
+        ax.spines[side].set_color("#94a3b8")
+        ax.spines[side].set_linewidth(0.9)
+    ax.tick_params(colors=SCALING_COLORS["ink"], labelsize=9)
+    if ax.get_title():
+        ax.set_title(ax.get_title(), fontsize=11, fontweight="bold", color=SCALING_COLORS["ink"], pad=12)
+    if ax.get_xlabel():
+        ax.set_xlabel(ax.get_xlabel(), fontsize=9.5, color=SCALING_COLORS["muted"])
+    if ax.get_ylabel():
+        ax.set_ylabel(ax.get_ylabel(), fontsize=9.5, color=SCALING_COLORS["muted"])
+
+
+def _style_bars(ax: plt.Axes, colors: list[str], *, edgecolor: str = SCALING_COLORS["ink"], linewidth: float = 1.1, alpha: float = 0.95) -> None:
+    for idx, patch in enumerate(ax.patches):
+        patch.set_facecolor(colors[idx % len(colors)])
+        patch.set_edgecolor(edgecolor)
+        patch.set_linewidth(linewidth)
+        patch.set_alpha(alpha)
+
+
+def _style_boolean_bars(ax: plt.Axes) -> None:
+    for patch in ax.patches:
+        value = patch.get_width() if patch.get_width() else patch.get_height()
+        color = SCALING_COLORS["pass"] if value >= 0.5 else SCALING_COLORS["fail"]
+        patch.set_facecolor(color)
+        patch.set_edgecolor(SCALING_COLORS["ink"])
+        patch.set_linewidth(1.1)
+        patch.set_alpha(0.95)
+
+
 print("Artifact kind:", record.kind)
 print("Artifact path:", record.path)
 
@@ -246,6 +296,8 @@ plot_scaling_kwargs_coord_ranges(
     ax=ax,
     title="Coordinate ranges carried by the scaling config",
 )
+_style_axes(ax, facecolor="#f8fafc")
+_style_bars(ax, [SCALING_COLORS["primary"], SCALING_COLORS["secondary"], SCALING_COLORS["accent"]])
 plt.show()
 
 
@@ -285,6 +337,8 @@ plot_scaling_kwargs_feature_group_sizes(
     ax=ax,
     title="Feature-group sizes declared in scaling_kwargs",
 )
+_style_axes(ax, facecolor="#fbfcff")
+_style_bars(ax, [SCALING_COLORS["secondary"], SCALING_COLORS["accent"], SCALING_COLORS["primary"]])
 plt.show()
 
 feature_frame = scaling_kwargs_feature_channels_frame(payload)
@@ -343,6 +397,8 @@ plot_scaling_kwargs_affine_maps(
     ax=ax,
     title="Affine SI maps for subsidence, head, and thickness",
 )
+_style_axes(ax, facecolor="#fffdf8")
+_style_bars(ax, [SCALING_COLORS["accent"], SCALING_COLORS["rose"], SCALING_COLORS["secondary"], SCALING_COLORS["primary"], SCALING_COLORS["accent"], SCALING_COLORS["secondary"]])
 plt.show()
 
 
@@ -389,6 +445,8 @@ plot_scaling_kwargs_schedule_scalars(
     ax=ax,
     title="Schedule and runtime scalars carried by the config",
 )
+_style_axes(ax, facecolor="#f8fafc")
+_style_bars(ax, [SCALING_COLORS["primary"], SCALING_COLORS["secondary"], SCALING_COLORS["accent"], SCALING_COLORS["rose"]])
 plt.show()
 
 
@@ -440,6 +498,9 @@ plot_scaling_kwargs_bounds(
     ax=ax,
     title="Configured physical and log-space bounds",
 )
+_style_axes(ax, facecolor="#fffdfa")
+_style_bars(ax, [SCALING_COLORS["primary"], SCALING_COLORS["accent"], SCALING_COLORS["secondary"], SCALING_COLORS["rose"]])
+ax.tick_params(axis="y", labelsize=8.5)
 plt.show()
 
 
@@ -480,6 +541,8 @@ plot_scaling_kwargs_boolean_summary(
     ax=ax,
     title="Boolean switches worth checking before training",
 )
+_style_axes(ax, facecolor="#f8fafc")
+_style_boolean_bars(ax)
 plt.show()
 
 

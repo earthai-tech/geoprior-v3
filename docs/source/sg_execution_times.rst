@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:01.835** total execution time for 65 files **from all galleries**:
+**00:02.628** total execution time for 101 files **from all galleries**:
 
 .. container::
 
@@ -32,8 +32,11 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_tables_and_summaries_build_batch_spatial_sampling.py` (``examples\tables_and_summaries\build_batch_spatial_sampling.py``)
-     - 00:01.835
+   * - :ref:`sphx_glr_auto_examples_inspection_plot_eval_physics_overview.py` (``examples\inspection\plot_eval_physics_overview.py``)
+     - 00:01.810
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_inspection_plot_calibration_stats_overview.py` (``examples\inspection\plot_calibration_stats_overview.py``)
+     - 00:00.818
      - 0.0
    * - :ref:`sphx_glr_auto_examples_diagnostics_plot_holdout_group_masks.py` (``examples\diagnostics\plot_holdout_group_masks.py``)
      - 00:00.000
@@ -42,6 +45,12 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_diagnostics_plot_physics_diagnostic_bridge.py` (``examples\diagnostics\plot_physics_diagnostic_bridge.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_diagnostics_plot_r2_in_overview.py` (``examples\diagnostics\plot_r2_in_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_diagnostics_plot_r2_overview.py` (``examples\diagnostics\plot_r2_overview.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_diagnostics_plot_spatial_block_holdout.py` (``examples\diagnostics\plot_spatial_block_holdout.py``)
@@ -54,6 +63,48 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_diagnostics_plot_stage3_tuning_summary.py` (``examples\diagnostics\plot_stage3_tuning_summary.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_evaluation_plot_coverage_overview.py` (``examples\evaluation\plot_coverage_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_evaluation_plot_crps_overview.py` (``examples\evaluation\plot_crps_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_evaluation_plot_forecast_comparison_overview.py` (``examples\evaluation\plot_forecast_comparison_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_evaluation_plot_mean_interval_width_overview.py` (``examples\evaluation\plot_mean_interval_width_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_evaluation_plot_metric_over_horizon_overview.py` (``examples\evaluation\plot_metric_over_horizon_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_evaluation_plot_metric_radar_overview.py` (``examples\evaluation\plot_metric_radar_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_evaluation_plot_prediction_stability_overview.py` (``examples\evaluation\plot_prediction_stability_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_evaluation_plot_qce_donut_overview.py` (``examples\evaluation\plot_qce_donut_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_evaluation_plot_quantile_calibration_overview.py` (``examples\evaluation\plot_quantile_calibration_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_evaluation_plot_radar_scores_overview.py` (``examples\evaluation\plot_radar_scores_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_evaluation_plot_theils_u_score_overview.py` (``examples\evaluation\plot_theils_u_score_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_evaluation_plot_time_weighted_metric_overview.py` (``examples\evaluation\plot_time_weighted_metric_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_evaluation_plot_weighted_interval_score_overview.py` (``examples\evaluation\plot_weighted_interval_score_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_evaluation_plot_xfer_results_overview_fixed.py` (``examples\evaluation\plot_xfer_results_overview_fixed.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_figure_generation_plot_ablation.py` (``examples\figure_generation\plot_ablation.py``)
@@ -137,6 +188,36 @@ Computation times
    * - :ref:`sphx_glr_auto_examples_forecasting_plot_holdout_vs_forecast.py` (``examples\forecasting\plot_holdout_vs_forecast.py``)
      - 00:00.000
      - 0.0
+   * - :ref:`sphx_glr_auto_examples_inspection_plot_ablation_record_overview.py` (``examples\inspection\plot_ablation_record_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_inspection_plot_eval_diagnostics_overview.py` (``examples\inspection\plot_eval_diagnostics_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_inspection_plot_manifest_overview.py` (``examples\inspection\plot_manifest_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_inspection_plot_model_init_manifest_overview.py` (``examples\inspection\plot_model_init_manifest_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_inspection_plot_physics_payload_meta_overview.py` (``examples\inspection\plot_physics_payload_meta_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_inspection_plot_run_manifest_overview.py` (``examples\inspection\plot_run_manifest_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_inspection_plot_scaling_kwargs_overview.py` (``examples\inspection\plot_scaling_kwargs_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_inspection_plot_stage1_audit_overview.py` (``examples\inspection\plot_stage1_audit_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_inspection_plot_training_summary_overview.py` (``examples\inspection\plot_training_summary_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_inspection_plot_xfer_results_overview.py` (``examples\inspection\plot_xfer_results_overview.py``)
+     - 00:00.000
+     - 0.0
    * - :ref:`sphx_glr_auto_examples_model_inspection_make_gather_coords_flat.py` (``examples\model_inspection\make_gather_coords_flat.py``)
      - 00:00.000
      - 0.0
@@ -158,6 +239,24 @@ Computation times
    * - :ref:`sphx_glr_auto_examples_model_inspection_tag_extract_physical_parameters.py` (``examples\model_inspection\tag_extract_physical_parameters.py``)
      - 00:00.000
      - 0.0
+   * - :ref:`sphx_glr_auto_examples_spatial_plot_hotspots_overview.py` (``examples\spatial\plot_hotspots_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_spatial_plot_spatial_contours_overview.py` (``examples\spatial\plot_spatial_contours_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_spatial_plot_spatial_heatmap_overview.py` (``examples\spatial\plot_spatial_heatmap_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_spatial_plot_spatial_overview.py` (``examples\spatial\plot_spatial_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_spatial_plot_spatial_roi_overview.py` (``examples\spatial\plot_spatial_roi_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_spatial_plot_spatial_voronoi_overview.py` (``examples\spatial\plot_spatial_voronoi_overview.py``)
+     - 00:00.000
+     - 0.0
    * - :ref:`sphx_glr_auto_examples_tables_and_summaries_build_ablation_table.py` (``examples\tables_and_summaries\build_ablation_table.py``)
      - 00:00.000
      - 0.0
@@ -165,6 +264,9 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_tables_and_summaries_build_assign_boreholes.py` (``examples\tables_and_summaries\build_assign_boreholes.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_tables_and_summaries_build_batch_spatial_sampling.py` (``examples\tables_and_summaries\build_batch_spatial_sampling.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_tables_and_summaries_build_extract_zones.py` (``examples\tables_and_summaries\build_extract_zones.py``)
@@ -218,6 +320,9 @@ Computation times
    * - :ref:`sphx_glr_auto_examples_uncertainty_plot_calibrate_forecasts.py` (``examples\uncertainty\plot_calibrate_forecasts.py``)
      - 00:00.000
      - 0.0
+   * - :ref:`sphx_glr_auto_examples_uncertainty_plot_calibration_comparison_overview.py` (``examples\uncertainty\plot_calibration_comparison_overview.py``)
+     - 00:00.000
+     - 0.0
    * - :ref:`sphx_glr_auto_examples_uncertainty_plot_coverage_vs_sharpness.py` (``examples\uncertainty\plot_coverage_vs_sharpness.py``)
      - 00:00.000
      - 0.0
@@ -225,5 +330,8 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_uncertainty_plot_reliability_diagram.py` (``examples\uncertainty\plot_reliability_diagram.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_uncertainty_plot_reliability_diagram_overview.py` (``examples\uncertainty\plot_reliability_diagram_overview.py``)
      - 00:00.000
      - 0.0

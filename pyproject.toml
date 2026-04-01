@@ -36,21 +36,21 @@ dependencies = [
   "pandas>=1.0",
   "scipy>=1.5",
   "matplotlib>=3.3",
-  "tqdm",
+  "tqdm>=4.67.1",
   "scikit-learn>=0.24",
-  "joblib",
+  "joblib>=1.5.3",
   "tensorflow>=2.20",
   "keras>=3.0",
   "keras-tuner>=0.1.2", 
-  "statsmodels",
-  "PyYAML",
-  "platformdirs",
-  "lz4",
-  "psutil",
-  "seaborn", 
-  "contextily",
-  "geopandas", 
-  "shapely"
+  "statsmodels>=0.14.6",
+  "PyYAML>=6.0.3",
+  "platformdirs>=4.5.1",
+  "lz4>=4.4.5",
+  "psutil>=4.2.1",
+  "seaborn>=0.13.2", 
+  "contextily>=1.7.0",
+  "geopandas>=1.1.2", 
+  "shapely>=2.1.2"
 ]
 
 [project.urls]

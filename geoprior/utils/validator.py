@@ -225,17 +225,102 @@ def process_y_pairs(
     .. [2] Harris, C.R. et al. Array programming with NumPy. Nature 585, 
        357-362 (2020)
     """
+    # from ..core.array_manager import drop_nan_in
+
+    # # Validate error handling mode using direct string comparison for
+    # # performance
+    # if error not in ("raise", "warn", "ignore"):
+    #     raise ValueError(
+    #         f"Invalid error mode '{error}'. Valid options: 'raise', "
+    #         "'warn', 'ignore'"
+    #     )
+
+    # # Check pair parity using bitwise AND for efficient even/odd check
+    # if len(ys) % 2 != 0:
+    #     msg = (
+    #         f"Received {len(ys)} array-likes - requires even count for "
+    #         "paired processing"
+    #     )
+    #     if error == "raise":
+    #         raise ValueError(msg)
+    #     elif error == "warn":
+    #         warnings.warn(
+    #             msg + ". Truncating to last even pair.",
+    #             UserWarning,
+    #             stacklevel=2,
+    #         )
+    #     ys = ys[
+    #         : len(ys) // 2 * 2
+    #     ]  # Floor division for index calculation
+
+    # y_trues, y_preds = [], []
+    # for i in range(
+    #     0, len(ys), 2
+    # ):  # Process pairs in steps of 2
+    #     y_true, y_pred = ys[i], ys[i + 1]
+
+    #     if ops == "validate":
+    #         # Simultaneous NaN removal with index alignment
+    #         y_true, y_pred = drop_nan_in(
+    #             y_true, y_pred, error=error
+    #         )
+
+    #         # Type validation and array conversion
+    #         y_true, y_pred = validate_yy(
+    #             y_true,
+    #             y_pred,
+    #             expected_type="continuous",
+    #             flatten="auto",
+    #         )
+    #     elif ops == "check_only":
+    #         # Length check using exception-free comparison
+    #         if len(y_true) != len(y_pred):
+    #             msg = (
+    #                 f"Pair {i // 2} length mismatch: "
+    #                 f"{len(y_true)} vs {len(y_pred)}"
+    #             )
+    #             if error == "raise":
+    #                 raise ValueError(msg)
+    #             elif error == "warn":
+    #                 warnings.warn(
+    #                     msg, UserWarning, stacklevel=2
+    #                 )
+    #     else:  # Guard against invalid ops values
+    #         raise ValueError(
+    #             f"Invalid operation mode '{ops}'. "
+    #             "Choose 'check_only' or 'validate'."
+    #         )
+
+    #     y_trues.append(y_true)
+    #     y_preds.append(y_pred)
+
+    # # Return type handling using boolean short-circuiting
+    # # # Extract y_trues and y_preds from processed_pairs
+    # # y_trues, y_preds = map(list, zip(*processed_pairs))
+
+    # return (
+    #     (y_trues[0], y_preds[0])
+    #     if (solo_return and len(y_trues) == 1)
+    #     else (y_trues, y_preds)
+    # )
+
+    # def process_y_pairs(
+    #     *ys: ArrayLike,
+    #     error: Literal["raise", "warn", "ignore"] = "warn",
+    #     solo_return: bool = False,
+    #     ops: Literal["check_only", "validate"] = "check_only",
+    # ) -> (
+    #     tuple[ArrayLike, ArrayLike]
+    #     | tuple[list[ArrayLike], list[ArrayLike]]
+    # ):
     from ..core.array_manager import drop_nan_in
 
-    # Validate error handling mode using direct string comparison for
-    # performance
     if error not in ("raise", "warn", "ignore"):
         raise ValueError(
             f"Invalid error mode '{error}'. Valid options: 'raise', "
             "'warn', 'ignore'"
         )
 
-    # Check pair parity using bitwise AND for efficient even/odd check
     if len(ys) % 2 != 0:
         msg = (
             f"Received {len(ys)} array-likes - requires even count for "
@@ -249,31 +334,53 @@ def process_y_pairs(
                 UserWarning,
                 stacklevel=2,
             )
-        ys = ys[
-            : len(ys) // 2 * 2
-        ]  # Floor division for index calculation
+        ys = ys[: len(ys) // 2 * 2]
 
     y_trues, y_preds = [], []
-    for i in range(
-        0, len(ys), 2
-    ):  # Process pairs in steps of 2
+    for i in range(0, len(ys), 2):
         y_true, y_pred = ys[i], ys[i + 1]
 
         if ops == "validate":
-            # Simultaneous NaN removal with index alignment
             y_true, y_pred = drop_nan_in(
                 y_true, y_pred, error=error
             )
 
-            # Type validation and array conversion
-            y_true, y_pred = validate_yy(
-                y_true,
-                y_pred,
-                expected_type="continuous",
-                flatten="auto",
-            )
+            # --- new: skip empty pairs after NaN removal ---
+            if len(y_true) == 0 or len(y_pred) == 0:
+                msg = f"Pair {i // 2} became empty after NaN removal."
+                if error == "raise":
+                    raise ValueError(msg)
+                elif error == "warn":
+                    warnings.warn(
+                        msg,
+                        UserWarning,
+                        stacklevel=2,
+                    )
+                continue
+
+            # --- new: normalize downstream validation failures ---
+            try:
+                y_true, y_pred = validate_yy(
+                    y_true,
+                    y_pred,
+                    expected_type="continuous",
+                    flatten="auto",
+                )
+            except (ValueError, TypeError, IndexError) as exc:
+                msg = (
+                    f"Pair {i // 2} failed validation: {exc}"
+                )
+                if error == "raise":
+                    raise ValueError(msg) from exc
+                elif error == "warn":
+                    warnings.warn(
+                        msg,
+                        UserWarning,
+                        stacklevel=2,
+                    )
+                continue
+
         elif ops == "check_only":
-            # Length check using exception-free comparison
             if len(y_true) != len(y_pred):
                 msg = (
                     f"Pair {i // 2} length mismatch: "
@@ -283,9 +390,13 @@ def process_y_pairs(
                     raise ValueError(msg)
                 elif error == "warn":
                     warnings.warn(
-                        msg, UserWarning, stacklevel=2
+                        msg,
+                        UserWarning,
+                        stacklevel=2,
                     )
-        else:  # Guard against invalid ops values
+                else:
+                    continue
+        else:
             raise ValueError(
                 f"Invalid operation mode '{ops}'. "
                 "Choose 'check_only' or 'validate'."
@@ -293,10 +404,6 @@ def process_y_pairs(
 
         y_trues.append(y_true)
         y_preds.append(y_pred)
-
-    # Return type handling using boolean short-circuiting
-    # # Extract y_trues and y_preds from processed_pairs
-    # y_trues, y_preds = map(list, zip(*processed_pairs))
 
     return (
         (y_trues[0], y_preds[0])

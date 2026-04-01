@@ -43,12 +43,16 @@ from .utils import (
     ArtifactRecord,
     clone_artifact,
     deep_update,
+    empty_plot,
+    filter_plot_kwargs,
+    finalize_plot,
     flatten_dict,
     load_artifact,
     metrics_frame,
     plot_boolean_checks,
     plot_metric_bars,
     plot_series_map,
+    prepare_plot,
     read_json,
     write_json,
 )
@@ -833,25 +837,29 @@ def plot_eval_physics_metrics(
     keys: list[str] | tuple[str, ...] | None = None,
     ax: plt.Axes | None = None,
     title: str | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot selected ``metrics_evaluate`` values."""
-    if ax is None:
-        _, ax = plt.subplots(figsize=(8.2, 4.8))
+    fig, ax, _ = prepare_plot(
+        ax=ax, figsize=(8.2, 4.8) if ax is None else None
+    )
 
     data = _as_payload(payload)
     metrics = _numeric_subset(
         data.get("metrics_evaluate", {}),
         keys=keys or _METRICS_EVALUATE_KEYS,
     )
-    plot_metric_bars(
+    return plot_metric_bars(
         ax,
         metrics,
         title=title or "Eval physics: metrics_evaluate",
         sort_by_value=True,
         top_n=14,
         absolute=True,
+        error=error,
+        **plot_kws,
     )
-    return ax
 
 
 def plot_eval_physics_epsilons(
@@ -859,10 +867,13 @@ def plot_eval_physics_epsilons(
     *,
     ax: plt.Axes | None = None,
     title: str = "Eval physics: epsilon diagnostics",
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot epsilon-related diagnostics."""
-    if ax is None:
-        _, ax = plt.subplots(figsize=(8.0, 4.6))
+    fig, ax, _ = prepare_plot(
+        ax=ax, figsize=(8.0, 4.6) if ax is None else None
+    )
 
     data = _as_payload(payload)
     metrics = {
@@ -879,15 +890,16 @@ def plot_eval_physics_epsilons(
             keys=["epsilon_cons_raw", "epsilon_gw_raw"],
         ),
     }
-    plot_metric_bars(
+    return plot_metric_bars(
         ax,
         metrics,
         title=title,
         sort_by_value=True,
         top_n=None,
         absolute=True,
+        error=error,
+        **plot_kws,
     )
-    return ax
 
 
 def plot_eval_physics_calibration_factors(
@@ -896,6 +908,8 @@ def plot_eval_physics_calibration_factors(
     source: str = "top",
     ax: plt.Axes | None = None,
     title: str | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """
     Plot per-horizon calibration factors.
@@ -906,8 +920,9 @@ def plot_eval_physics_calibration_factors(
         ``'top'`` uses ``factors_per_horizon``.
         ``'nested'`` uses ``factors_per_horizon_from_cal_stats``.
     """
-    if ax is None:
-        _, ax = plt.subplots(figsize=(7.8, 4.6))
+    fig, ax, _ = prepare_plot(
+        ax=ax, figsize=(7.8, 4.6) if ax is None else None
+    )
 
     data = _as_payload(payload)
     cal = data.get("interval_calibration", {}) or {}
@@ -928,14 +943,15 @@ def plot_eval_physics_calibration_factors(
             if _try_float(v) is not None
         }
 
-    plot_series_map(
+    return plot_series_map(
         ax,
         series,
         title=title or "Calibration factors by horizon",
         xlabel="horizon",
         ylabel="factor",
+        error=error,
+        **plot_kws,
     )
-    return ax
 
 
 def plot_eval_physics_point_metrics(
@@ -943,25 +959,29 @@ def plot_eval_physics_point_metrics(
     *,
     ax: plt.Axes | None = None,
     title: str = "Eval physics: point metrics",
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot point-metric summary."""
-    if ax is None:
-        _, ax = plt.subplots(figsize=(7.8, 4.6))
+    fig, ax, _ = prepare_plot(
+        ax=ax, figsize=(7.8, 4.6) if ax is None else None
+    )
 
     data = _as_payload(payload)
     metrics = _numeric_subset(
         data.get("point_metrics", {}),
         keys=_POINT_KEYS,
     )
-    plot_metric_bars(
+    return plot_metric_bars(
         ax,
         metrics,
         title=title,
         sort_by_value=True,
         top_n=None,
         absolute=True,
+        error=error,
+        **plot_kws,
     )
-    return ax
 
 
 def plot_eval_physics_per_horizon_metrics(
@@ -970,21 +990,25 @@ def plot_eval_physics_per_horizon_metrics(
     metric: str = "mae",
     ax: plt.Axes | None = None,
     title: str | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot one exported per-horizon metric map."""
-    if ax is None:
-        _, ax = plt.subplots(figsize=(7.8, 4.6))
+    fig, ax, _ = prepare_plot(
+        ax=ax, figsize=(7.8, 4.6) if ax is None else None
+    )
 
     data = _as_payload(payload)
     series = _per_horizon_map(data, metric)
-    plot_series_map(
+    return plot_series_map(
         ax,
         series,
         title=title or f"Per-horizon {metric}",
         xlabel="horizon",
         ylabel=metric,
+        error=error,
+        **plot_kws,
     )
-    return ax
 
 
 def plot_eval_physics_boolean_summary(
@@ -992,14 +1016,22 @@ def plot_eval_physics_boolean_summary(
     *,
     ax: plt.Axes | None = None,
     title: str = "Eval physics checks",
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot semantic pass/fail checks."""
-    if ax is None:
-        _, ax = plt.subplots(figsize=(8.0, 4.6))
+    fig, ax, _ = prepare_plot(
+        ax=ax, figsize=(8.0, 4.6) if ax is None else None
+    )
 
     checks = summarize_eval_physics(payload)["checks"]
-    plot_boolean_checks(ax, checks, title=title)
-    return ax
+    return plot_boolean_checks(
+        ax,
+        checks,
+        title=title,
+        error=error,
+        **plot_kws,
+    )
 
 
 def inspect_eval_physics(
@@ -1065,11 +1097,12 @@ def inspect_eval_physics(
             plot_eval_physics_point_metrics
         ),
         f"{stem}_per_h_mae.png": (
-            lambda p,
-            ax=None: plot_eval_physics_per_horizon_metrics(
-                p,
-                metric="mae",
-                ax=ax,
+            lambda p, ax=None: (
+                plot_eval_physics_per_horizon_metrics(
+                    p,
+                    metric="mae",
+                    ax=ax,
+                )
             )
         ),
         f"{stem}_checks.png": plot_eval_physics_boolean_summary,

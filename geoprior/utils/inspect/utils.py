@@ -31,6 +31,7 @@ from __future__ import annotations
 import copy
 import json
 import math
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -38,6 +39,8 @@ from typing import Any
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+from ...core.handlers import get_valid_kwargs
 
 PathLike = str | Path
 
@@ -57,6 +60,10 @@ __all__ = [
     "metrics_frame",
     "nested_get",
     "numeric_items",
+    "prepare_plot",
+    "empty_plot",
+    "finalize_plot",
+    "filter_plot_kwargs",
     "plot_boolean_checks",
     "plot_metric_bars",
     "plot_series_map",
@@ -496,36 +503,206 @@ def bool_checks_frame(
     return frame.reset_index(drop=True)
 
 
-def plot_metric_bars(
+def prepare_plot(
+    ax: plt.Axes | None = None,
+    *,
+    figsize: tuple[float, float] | None = None,
+    constrained_layout: bool = True,
+) -> tuple[plt.Figure, plt.Axes, bool]:
+    """
+    Return a plotting context as ``(fig, ax, created)``.
+
+    This helper is intentionally conservative so older
+    plot helpers can adopt it without changing their
+    public behavior.
+    """
+    if ax is None:
+        fig, ax = plt.subplots(
+            figsize=figsize,
+            constrained_layout=constrained_layout,
+        )
+        return fig, ax, True
+
+    return ax.figure, ax, False
+
+
+def empty_plot(
+    fig: plt.Figure,
     ax: plt.Axes,
-    metrics: dict[str, Any] | pd.DataFrame,
+    *,
+    title: str | None = None,
+    message: str = "No data",
+    axis_off: bool = True,
+) -> tuple[plt.Figure, plt.Axes]:
+    """
+    Render a consistent empty-state plot.
+    """
+    if title:
+        ax.set_title(title)
+
+    ax.text(
+        0.5,
+        0.5,
+        message,
+        ha="center",
+        va="center",
+        transform=ax.transAxes,
+    )
+    if axis_off:
+        ax.set_axis_off()
+    return fig, ax
+
+
+def finalize_plot(
+    fig: plt.Figure,
+    ax: plt.Axes,
+    *,
+    title: str | None = None,
+    xlabel: str | None = None,
+    ylabel: str | None = None,
+    show_grid: bool = True,
+    grid_kws: dict[str, Any] | None = None,
+    legend: bool | None = None,
+    legend_kws: dict[str, Any] | None = None,
+    rotate_xticks: float | int | None = None,
+    rotate_yticks: float | int | None = None,
+) -> tuple[plt.Figure, plt.Axes]:
+    """
+    Apply common cosmetic settings and return
+    ``(fig, ax)``.
+    """
+    if title:
+        ax.set_title(title)
+    if xlabel:
+        ax.set_xlabel(xlabel)
+    if ylabel:
+        ax.set_ylabel(ylabel)
+
+    if rotate_xticks is not None:
+        ax.tick_params(axis="x", rotation=rotate_xticks)
+    if rotate_yticks is not None:
+        ax.tick_params(axis="y", rotation=rotate_yticks)
+
+    if show_grid:
+        ax.grid(**(grid_kws or {"alpha": 0.25}))
+
+    if legend is True:
+        ax.legend(**(legend_kws or {}))
+
+    return fig, ax
+
+
+def filter_plot_kwargs(
+    callable_obj: Callable[..., Any] | Any,
+    kwargs: dict[str, Any] | None = None,
+    *,
+    error: str = "ignore",
+) -> dict[str, Any]:
+    """
+    Keep only kwargs accepted by ``callable_obj``.
+
+    Notes
+    -----
+    ``geoprior.core.handlers.get_valid_kwargs`` accepts keyword
+    arguments through ``**kwargs`` rather than via a named ``kwargs``
+    dictionary. Passing ``kwargs=...`` therefore duplicates the
+    internal ``kwargs`` argument and raises a ``TypeError`` on the
+    current handler implementation.  This wrapper normalizes the call
+    and falls back to local signature filtering if needed.
+    """
+    if not kwargs:
+        return {}
+
+    kws = dict(kwargs)
+
+    try:
+        return get_valid_kwargs(callable_obj, **kws)
+    except TypeError:
+        pass
+
+    try:
+        import inspect
+
+        sig = inspect.signature(callable_obj)
+    except (TypeError, ValueError):
+        return {}
+
+    if any(
+        p.kind == inspect.Parameter.VAR_KEYWORD
+        for p in sig.parameters.values()
+    ):
+        return kws
+
+    valid = set(sig.parameters)
+    return {k: v for k, v in kws.items() if k in valid}
+
+
+def _coerce_plot_inputs(
+    first: plt.Axes | dict[str, Any] | pd.DataFrame | None,
+    second: dict[str, Any] | pd.DataFrame | None = None,
+    *,
+    ax: plt.Axes | None = None,
+) -> tuple[
+    plt.Figure, plt.Axes, dict[str, Any] | pd.DataFrame | None
+]:
+    """
+    Support both legacy ``(ax, data)`` and newer
+    ``(data, ax=...)`` calling styles.
+    """
+    if isinstance(first, plt.Axes):
+        plot_ax = first
+        plot_data = second
+        fig = plot_ax.figure
+        return fig, plot_ax, plot_data
+
+    fig, plot_ax, _ = prepare_plot(ax=ax)
+    return fig, plot_ax, first
+
+
+def plot_metric_bars(
+    ax: plt.Axes | dict[str, Any] | pd.DataFrame,
+    metrics: dict[str, Any] | pd.DataFrame | None = None,
     *,
     title: str = "Metrics",
     top_n: int | None = None,
     sort_by_value: bool = False,
     absolute: bool = False,
     annotate: bool = True,
+    xlabel: str = "value",
+    show_grid: bool = True,
+    grid_kws: dict[str, Any] | None = None,
+    annotate_kws: dict[str, Any] | None = None,
+    ax_obj: plt.Axes | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """
     Plot a compact horizontal metric bar chart.
+
+    The legacy calling style ``plot_metric_bars(ax,
+    metrics, ...)`` is preserved. A newer style
+    ``plot_metric_bars(metrics, ax_obj=ax, ...)`` is
+    also accepted for gradual migration.
     """
-    if isinstance(metrics, pd.DataFrame):
-        frame = metrics.copy()
+    fig, plot_ax, plot_data = _coerce_plot_inputs(
+        ax,
+        metrics,
+        ax=ax_obj,
+    )
+
+    if isinstance(plot_data, pd.DataFrame):
+        frame = plot_data.copy()
     else:
-        frame = metrics_frame(metrics)
+        frame = metrics_frame(plot_data)
 
     if frame.empty:
-        ax.set_title(title)
-        ax.text(
-            0.5,
-            0.5,
-            "No numeric metrics",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        _, plot_ax = empty_plot(
+            fig,
+            plot_ax,
+            title=title,
+            message="No numeric metrics",
         )
-        ax.set_axis_off()
-        return ax
+        return plot_ax
 
     if absolute:
         frame["plot_value"] = frame["value"].abs()
@@ -540,94 +717,142 @@ def plot_metric_bars(
     if top_n is not None:
         frame = frame.tail(int(top_n))
 
-    ax.barh(frame["metric"], frame["plot_value"])
-    ax.set_title(title)
-    ax.set_xlabel("value")
-    ax.grid(axis="x", alpha=0.25)
+    bar_kws = filter_plot_kwargs(
+        plot_ax.barh,
+        plot_kws,
+        error=error,
+    )
+    plot_ax.barh(
+        frame["metric"],
+        frame["plot_value"],
+        **bar_kws,
+    )
+
+    _, plot_ax = finalize_plot(
+        fig,
+        plot_ax,
+        title=title,
+        xlabel=xlabel,
+        show_grid=show_grid,
+        grid_kws=grid_kws or {"axis": "x", "alpha": 0.25},
+    )
 
     if annotate:
+        text_kws = filter_plot_kwargs(
+            plot_ax.text,
+            annotate_kws,
+            error=error,
+        )
         for idx, row in frame.reset_index(
             drop=True
         ).iterrows():
-            ax.text(
+            plot_ax.text(
                 row["plot_value"],
                 idx,
                 f" {row['value']:.4g}",
                 va="center",
+                **text_kws,
             )
 
-    return ax
+    return plot_ax
 
 
 def plot_boolean_checks(
-    ax: plt.Axes,
-    checks: dict[str, Any] | pd.DataFrame,
+    ax: plt.Axes | dict[str, Any] | pd.DataFrame,
+    checks: dict[str, Any] | pd.DataFrame | None = None,
     *,
     title: str = "Checks",
+    show_grid: bool = True,
+    grid_kws: dict[str, Any] | None = None,
+    ax_obj: plt.Axes | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """
     Plot boolean pass/fail checks as a bar view.
+
+    Keeps the older ``(ax, checks)`` call pattern while
+    allowing ``(checks, ax_obj=ax)`` for newer code.
     """
-    if isinstance(checks, pd.DataFrame):
-        frame = checks.copy()
+    fig, plot_ax, plot_data = _coerce_plot_inputs(
+        ax,
+        checks,
+        ax=ax_obj,
+    )
+
+    if isinstance(plot_data, pd.DataFrame):
+        frame = plot_data.copy()
     else:
-        frame = bool_checks_frame(checks)
+        frame = bool_checks_frame(plot_data)
 
     if frame.empty:
-        ax.set_title(title)
-        ax.text(
-            0.5,
-            0.5,
-            "No boolean checks",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        _, plot_ax = empty_plot(
+            fig,
+            plot_ax,
+            title=title,
+            message="No boolean checks",
         )
-        ax.set_axis_off()
-        return ax
+        return plot_ax
 
     frame["score"] = frame["ok"].astype(int)
     labels = frame["check"]
     vals = frame["score"]
 
-    ax.barh(labels, vals)
-    ax.set_xlim(0, 1)
-    ax.set_xticks([0, 1])
-    ax.set_xticklabels(["fail", "pass"])
-    ax.set_title(title)
-    ax.grid(axis="x", alpha=0.25)
-    return ax
+    bar_kws = filter_plot_kwargs(
+        plot_ax.barh,
+        plot_kws,
+        error=error,
+    )
+    plot_ax.barh(labels, vals, **bar_kws)
+    plot_ax.set_xlim(0, 1)
+    plot_ax.set_xticks([0, 1])
+    plot_ax.set_xticklabels(["fail", "pass"])
+
+    _, plot_ax = finalize_plot(
+        fig,
+        plot_ax,
+        title=title,
+        show_grid=show_grid,
+        grid_kws=grid_kws or {"axis": "x", "alpha": 0.25},
+    )
+    return plot_ax
 
 
 def plot_series_map(
-    ax: plt.Axes,
-    series_map: dict[str, Any],
+    ax: plt.Axes | dict[str, Any],
+    series_map: dict[str, Any] | None = None,
     *,
     title: str = "Series",
     xlabel: str = "key",
     ylabel: str = "value",
     marker: str = "o",
+    show_grid: bool = True,
+    grid_kws: dict[str, Any] | None = None,
+    ax_obj: plt.Axes | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """
     Plot a string-keyed numeric mapping as a line.
 
-    This is useful for horizons such as
-    ``{"1": 0.9, "2": 0.8, "3": 0.7}``.
+    Keeps the older ``(ax, series_map)`` form while
+    also accepting ``(series_map, ax_obj=ax)``.
     """
-    pairs = numeric_items(series_map)
+    fig, plot_ax, plot_data = _coerce_plot_inputs(
+        ax,
+        series_map,
+        ax=ax_obj,
+    )
+    pairs = numeric_items(plot_data)
 
     if not pairs:
-        ax.set_title(title)
-        ax.text(
-            0.5,
-            0.5,
-            "No numeric series",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        _, plot_ax = empty_plot(
+            fig,
+            plot_ax,
+            title=title,
+            message="No numeric series",
         )
-        ax.set_axis_off()
-        return ax
+        return plot_ax
 
     def _key(v: str) -> tuple[int, Any]:
         try:
@@ -639,11 +864,24 @@ def plot_series_map(
     x = np.arange(len(keys))
     y = np.array([pairs[k] for k in keys], dtype=float)
 
-    ax.plot(x, y, marker=marker)
-    ax.set_xticks(x)
-    ax.set_xticklabels(keys)
-    ax.set_title(title)
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    ax.grid(alpha=0.25)
-    return ax
+    line_kws = filter_plot_kwargs(
+        plot_ax.plot,
+        plot_kws,
+        error=error,
+    )
+    if "marker" not in line_kws:
+        line_kws["marker"] = marker
+    plot_ax.plot(x, y, **line_kws)
+    plot_ax.set_xticks(x)
+    plot_ax.set_xticklabels(keys)
+
+    _, plot_ax = finalize_plot(
+        fig,
+        plot_ax,
+        title=title,
+        xlabel=xlabel,
+        ylabel=ylabel,
+        show_grid=show_grid,
+        grid_kws=grid_kws or {"alpha": 0.25},
+    )
+    return plot_ax

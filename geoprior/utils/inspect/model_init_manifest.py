@@ -691,6 +691,8 @@ def plot_model_init_dims(
     manifest: ModelInitManifestLike,
     *,
     ax: plt.Axes | None = None,
+    title: str = "Model-init dimensions",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot input/output dimensions."""
     payload = _as_payload(manifest)
@@ -701,10 +703,10 @@ def plot_model_init_dims(
         if isinstance(v, (int, float, np.number))
     }
     return plot_metric_bars(
+        ax,
         values,
-        ax=ax,
-        title="Model-init dimensions",
-        ylabel="size",
+        title=title,
+        **plot_kws,
     )
 
 
@@ -712,16 +714,18 @@ def plot_model_init_architecture(
     manifest: ModelInitManifestLike,
     *,
     ax: plt.Axes | None = None,
+    title: str = "Architecture scalars",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot key architecture scalars."""
     payload = _as_payload(manifest)
     cfg = nested_get(payload, "config", default={})
     values = _selected_numeric(cfg, _ARCH_KEYS)
     return plot_metric_bars(
+        ax,
         values,
-        ax=ax,
-        title="Architecture scalars",
-        ylabel="value",
+        title=title,
+        **plot_kws,
     )
 
 
@@ -729,6 +733,8 @@ def plot_model_init_geoprior(
     manifest: ModelInitManifestLike,
     *,
     ax: plt.Axes | None = None,
+    title: str = "GeoPrior initialization",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot key GeoPrior physics-init scalars."""
     payload = _as_payload(manifest)
@@ -737,10 +743,10 @@ def plot_model_init_geoprior(
     )
     values = _selected_numeric(geoprior, _GEO_KEYS)
     return plot_metric_bars(
+        ax,
         values,
-        ax=ax,
-        title="GeoPrior initialization",
-        ylabel="value",
+        title=title,
+        **plot_kws,
     )
 
 
@@ -748,6 +754,8 @@ def plot_model_init_feature_group_sizes(
     manifest: ModelInitManifestLike,
     *,
     ax: plt.Axes | None = None,
+    title: str = "Feature-group sizes",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot the sizes of static/dynamic/future feature groups."""
     payload = _as_payload(manifest)
@@ -763,10 +771,10 @@ def plot_model_init_feature_group_sizes(
         ),
     }
     return plot_metric_bars(
+        ax,
         values,
-        ax=ax,
-        title="Feature-group sizes",
-        ylabel="count",
+        title=title,
+        **plot_kws,
     )
 
 
@@ -774,6 +782,8 @@ def plot_model_init_boolean_summary(
     manifest: ModelInitManifestLike,
     *,
     ax: plt.Axes | None = None,
+    title: str = "Model-init checks",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot compact initialization checks as booleans."""
     payload = _as_payload(manifest)
@@ -823,9 +833,10 @@ def plot_model_init_boolean_summary(
         > 0,
     }
     return plot_boolean_checks(
+        ax,
         checks,
-        ax=ax,
-        title="Model-init checks",
+        title=title,
+        **plot_kws,
     )
 
 

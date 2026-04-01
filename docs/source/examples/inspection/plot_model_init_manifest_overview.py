@@ -5,7 +5,7 @@
 
 """
 Inspect a model-initialization manifest before training
-======================================================
+=========================================================
 
 This lesson explains how to inspect the
 ``model_init_manifest.json`` artifact.
@@ -76,6 +76,64 @@ from geoprior.utils.inspect import (
 
 pd.set_option("display.max_columns", 24)
 pd.set_option("display.width", 110)
+
+
+MODEL_INIT_PALETTE = {
+    "dims": "#2563EB",
+    "arch": "#9333EA",
+    "geoprior": "#EA580C",
+    "features": "#0F766E",
+    "pass": "#15803D",
+    "fail": "#B91C1C",
+    "edge": "#312E81",
+    "panel": "#FCFCFF",
+}
+
+
+def _style_bar_panel(
+    ax: plt.Axes,
+    *,
+    color: str,
+    edge: str | None = None,
+) -> None:
+    """Polish a bar-based gallery panel."""
+    edge = edge or MODEL_INIT_PALETTE["edge"]
+    for patch in ax.patches:
+        patch.set_facecolor(color)
+        patch.set_edgecolor(edge)
+        patch.set_linewidth(1.25)
+        patch.set_alpha(0.94)
+    ax.set_facecolor(MODEL_INIT_PALETTE["panel"])
+    ax.tick_params(labelsize=9)
+    ax.title.set_fontweight("bold")
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    for side in ("left", "bottom"):
+        ax.spines[side].set_color("#CBD5E1")
+
+
+def _style_boolean_panel(ax: plt.Axes) -> None:
+    """Apply a distinct pass/fail palette to boolean panels."""
+    for patch in ax.patches:
+        width = patch.get_width()
+        height = patch.get_height()
+        score = width if width != 0 else height
+        color = (
+            MODEL_INIT_PALETTE["pass"]
+            if score >= 0.5
+            else MODEL_INIT_PALETTE["fail"]
+        )
+        patch.set_facecolor(color)
+        patch.set_edgecolor(MODEL_INIT_PALETTE["edge"])
+        patch.set_linewidth(1.15)
+        patch.set_alpha(0.94)
+    ax.set_facecolor(MODEL_INIT_PALETTE["panel"])
+    ax.tick_params(labelsize=9)
+    ax.title.set_fontweight("bold")
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    for side in ("left", "bottom"):
+        ax.spines[side].set_color("#CBD5E1")
 
 
 # %%
@@ -274,6 +332,7 @@ plot_model_init_dims(
     payload,
     ax=ax,
 )
+_style_bar_panel(ax, color=MODEL_INIT_PALETTE["dims"])
 plt.show()
 
 
@@ -321,6 +380,7 @@ plot_model_init_architecture(
     payload,
     ax=ax,
 )
+_style_bar_panel(ax, color=MODEL_INIT_PALETTE["arch"])
 plt.show()
 
 
@@ -373,6 +433,7 @@ plot_model_init_geoprior(
     payload,
     ax=ax,
 )
+_style_bar_panel(ax, color=MODEL_INIT_PALETTE["geoprior"], edge="#9A3412")
 plt.show()
 
 
@@ -471,6 +532,7 @@ plot_model_init_feature_group_sizes(
     payload,
     ax=ax,
 )
+_style_bar_panel(ax, color=MODEL_INIT_PALETTE["features"], edge="#115E59")
 plt.show()
 
 
@@ -531,6 +593,7 @@ plot_model_init_boolean_summary(
     payload,
     ax=ax,
 )
+_style_boolean_panel(ax)
 plt.show()
 
 

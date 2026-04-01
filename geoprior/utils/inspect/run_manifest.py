@@ -563,6 +563,7 @@ def plot_run_manifest_path_inventory(
     manifest: RunManifestLike,
     *,
     title: str = "Run-manifest inventory",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """
     Plot path and artifact counts for the run manifest.
@@ -589,6 +590,7 @@ def plot_run_manifest_path_inventory(
         metrics,
         title=title,
         sort_by_value=False,
+        **plot_kws,
     )
 
 
@@ -597,6 +599,7 @@ def plot_run_manifest_feature_group_sizes(
     manifest: RunManifestLike,
     *,
     title: str = "Feature-group sizes",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot feature-group sizes from nested scaling kwargs."""
     payload = _as_payload(manifest)
@@ -616,6 +619,7 @@ def plot_run_manifest_feature_group_sizes(
         metrics,
         title=title,
         sort_by_value=False,
+        **plot_kws,
     )
 
 
@@ -624,6 +628,7 @@ def plot_run_manifest_coord_ranges(
     manifest: RunManifestLike,
     *,
     title: str = "Coordinate ranges",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot coordinate ranges from nested scaling kwargs."""
     metrics = _coord_ranges(_as_payload(manifest))
@@ -632,6 +637,7 @@ def plot_run_manifest_coord_ranges(
         metrics,
         title=title,
         sort_by_value=False,
+        **plot_kws,
     )
 
 
@@ -640,6 +646,7 @@ def plot_run_manifest_boolean_summary(
     manifest: RunManifestLike,
     *,
     title: str = "Run-manifest checks",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot simple boolean checks for expected run outputs."""
     payload = _as_payload(manifest)
@@ -661,7 +668,12 @@ def plot_run_manifest_boolean_summary(
             paths.get("model_init_manifest")
         ),
     }
-    return plot_boolean_checks(ax, checks, title=title)
+    return plot_boolean_checks(
+        ax,
+        checks,
+        title=title,
+        **plot_kws,
+    )
 
 
 def inspect_run_manifest(

@@ -291,9 +291,17 @@ Navigate directly
          View release notes
 
    .. grid-item::
-      .. button-ref:: references
+      .. button-ref:: glossary/index
          :ref-type: doc
          :color: secondary
+         :expand:
+
+         Open the glossary
+         
+   .. grid-item::
+      .. button-ref:: references
+         :ref-type: doc
+         :color: primary
          :expand:
 
          See shared references
@@ -312,4 +320,5 @@ Navigate directly
    api/index
    developer/index
    release_notes
+   glossary/index
    references
