@@ -30,7 +30,6 @@ from pathlib import Path
 from typing import Any
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 
 from .utils import (
@@ -38,12 +37,15 @@ from .utils import (
     as_path,
     clone_artifact,
     deep_update,
+    empty_plot,
+    filter_plot_kwargs,
+    finalize_plot,
     flatten_dict,
     load_artifact,
-    metrics_frame,
     nested_get,
     plot_boolean_checks,
     plot_metric_bars,
+    prepare_plot,
     read_json,
     write_json,
 )
@@ -773,13 +775,13 @@ def plot_training_best_metrics(
     keys: list[str] | tuple[str, ...] | None = None,
     ax: plt.Axes | None = None,
     title: str | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """
     Plot selected metrics from ``metrics_at_best``.
     """
-    own = ax is None
-    if own:
-        _, ax = plt.subplots(figsize=(8.2, 4.8))
+    fig, plot_ax, _ = prepare_plot(ax=ax, figsize=(8.2, 4.8))
 
     payload = _as_payload(summary)
     metrics = _filter_metrics(
@@ -788,14 +790,16 @@ def plot_training_best_metrics(
         keys=keys or _CORE_METRICS,
     )
     plot_metric_bars(
-        ax,
+        plot_ax,
         metrics,
         title=title or f"Best metrics ({split})",
         sort_by_value=True,
         top_n=12,
         absolute=True,
+        error=error,
+        **plot_kws,
     )
-    return ax
+    return plot_ax
 
 
 def plot_training_final_metrics(
@@ -805,13 +809,13 @@ def plot_training_final_metrics(
     keys: list[str] | tuple[str, ...] | None = None,
     ax: plt.Axes | None = None,
     title: str | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """
     Plot selected metrics from ``final_epoch_metrics``.
     """
-    own = ax is None
-    if own:
-        _, ax = plt.subplots(figsize=(8.2, 4.8))
+    fig, plot_ax, _ = prepare_plot(ax=ax, figsize=(8.2, 4.8))
 
     payload = _as_payload(summary)
     metrics = _filter_metrics(
@@ -820,14 +824,16 @@ def plot_training_final_metrics(
         keys=keys or _CORE_METRICS,
     )
     plot_metric_bars(
-        ax,
+        plot_ax,
         metrics,
         title=title or f"Final metrics ({split})",
         sort_by_value=True,
         top_n=12,
         absolute=True,
+        error=error,
+        **plot_kws,
     )
-    return ax
+    return plot_ax
 
 
 def plot_training_metric_deltas(
@@ -837,13 +843,18 @@ def plot_training_metric_deltas(
     keys: list[str] | tuple[str, ...] | None = None,
     ax: plt.Axes | None = None,
     title: str | None = None,
+    xlabel: str = "delta",
+    show_grid: bool = True,
+    grid_kws: dict[str, Any] | None = None,
+    annotate: bool = False,
+    annotate_kws: dict[str, Any] | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """
     Plot ``final - best`` deltas for aligned metrics.
     """
-    own = ax is None
-    if own:
-        _, ax = plt.subplots(figsize=(8.2, 4.8))
+    fig, plot_ax, _ = prepare_plot(ax=ax, figsize=(8.2, 4.8))
 
     payload = _as_payload(summary)
     deltas = _delta_metrics(
@@ -854,23 +865,47 @@ def plot_training_metric_deltas(
     )
 
     if not deltas:
-        ax.set_title(title or f"Metric deltas ({split})")
-        ax.text(
-            0.5,
-            0.5,
-            "No aligned delta metrics",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        _, plot_ax = empty_plot(
+            fig,
+            plot_ax,
+            title=title or f"Metric deltas ({split})",
+            message="No aligned delta metrics",
         )
-        ax.set_axis_off()
-        return ax
+        return plot_ax
 
-    ax.barh(list(deltas.keys()), list(deltas.values()))
-    ax.set_title(title or f"Final - best ({split})")
-    ax.set_xlabel("delta")
-    ax.grid(axis="x", alpha=0.25)
-    return ax
+    names = list(deltas.keys())
+    vals = list(deltas.values())
+    bar_kws = filter_plot_kwargs(
+        plot_ax.barh,
+        plot_kws,
+        error=error,
+    )
+    bars = plot_ax.barh(names, vals, **bar_kws)
+
+    _, plot_ax = finalize_plot(
+        fig,
+        plot_ax,
+        title=title or f"Final - best ({split})",
+        xlabel=xlabel,
+        show_grid=show_grid,
+        grid_kws=grid_kws or {"axis": "x", "alpha": 0.25},
+    )
+
+    if annotate:
+        text_kws = filter_plot_kwargs(
+            plot_ax.text,
+            annotate_kws,
+            error=error,
+        )
+        for bar, value in zip(bars, vals, strict=False):
+            plot_ax.text(
+                bar.get_width(),
+                bar.get_y() + bar.get_height() / 2.0,
+                f" {float(value):.4g}",
+                va="center",
+                **text_kws,
+            )
+    return plot_ax
 
 
 def plot_training_loss_family(
@@ -880,13 +915,13 @@ def plot_training_loss_family(
     split: str = "val",
     ax: plt.Axes | None = None,
     title: str | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """
     Plot the loss-family subset for one metric section.
     """
-    own = ax is None
-    if own:
-        _, ax = plt.subplots(figsize=(8.2, 4.8))
+    fig, plot_ax, _ = prepare_plot(ax=ax, figsize=(8.2, 4.8))
 
     payload = _as_payload(summary)
     metrics = _filter_metrics(
@@ -895,14 +930,16 @@ def plot_training_loss_family(
         keys=_LOSS_FAMILY,
     )
     plot_metric_bars(
-        ax,
+        plot_ax,
         metrics,
         title=title or f"Loss family: {section} ({split})",
         sort_by_value=True,
         top_n=None,
         absolute=True,
+        error=error,
+        **plot_kws,
     )
-    return ax
+    return plot_ax
 
 
 def plot_training_boolean_summary(
@@ -910,15 +947,21 @@ def plot_training_boolean_summary(
     *,
     ax: plt.Axes | None = None,
     title: str = "Training summary checks",
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot semantic pass/fail checks."""
-    own = ax is None
-    if own:
-        _, ax = plt.subplots(figsize=(8.0, 4.6))
+    fig, plot_ax, _ = prepare_plot(ax=ax, figsize=(8.0, 4.6))
 
     checks = summarize_training_summary(summary)["checks"]
-    plot_boolean_checks(ax, checks, title=title)
-    return ax
+    plot_boolean_checks(
+        plot_ax,
+        checks,
+        title=title,
+        error=error,
+        **plot_kws,
+    )
+    return plot_ax
 
 
 def inspect_training_summary(

@@ -725,6 +725,8 @@ def plot_scaling_kwargs_affine_maps(
     *,
     ax: plt.Axes | None = None,
     title: str = "Scaling affine maps",
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot subs/head/H affine map scalars."""
     data = _as_payload(payload)
@@ -739,6 +741,8 @@ def plot_scaling_kwargs_affine_maps(
         title=title,
         sort_by_value=False,
         annotate=True,
+        error=error,
+        **plot_kws,
     )
 
 
@@ -747,6 +751,8 @@ def plot_scaling_kwargs_coord_ranges(
     *,
     ax: plt.Axes | None = None,
     title: str = "Coordinate ranges",
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot ``coord_ranges`` for t/x/y."""
     data = _as_payload(payload)
@@ -763,6 +769,8 @@ def plot_scaling_kwargs_coord_ranges(
         title=title,
         sort_by_value=False,
         annotate=True,
+        error=error,
+        **plot_kws,
     )
 
 
@@ -772,6 +780,8 @@ def plot_scaling_kwargs_bounds(
     ax: plt.Axes | None = None,
     title: str = "Bounds overview",
     top_n: int | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot numeric bounds as a compact bar chart."""
     frame = scaling_kwargs_bounds_frame(payload)
@@ -789,6 +799,8 @@ def plot_scaling_kwargs_bounds(
         top_n=top_n,
         sort_by_value=False,
         annotate=False,
+        error=error,
+        **plot_kws,
     )
 
 
@@ -797,6 +809,8 @@ def plot_scaling_kwargs_schedule_scalars(
     *,
     ax: plt.Axes | None = None,
     title: str = "Schedule and runtime scalars",
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot selected numeric schedule/runtime scalars."""
     data = _as_payload(payload)
@@ -811,6 +825,8 @@ def plot_scaling_kwargs_schedule_scalars(
         title=title,
         sort_by_value=False,
         annotate=False,
+        error=error,
+        **plot_kws,
     )
 
 
@@ -819,6 +835,8 @@ def plot_scaling_kwargs_feature_group_sizes(
     *,
     ax: plt.Axes | None = None,
     title: str = "Feature group sizes",
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot dynamic/future/static feature-group counts."""
     data = _as_payload(payload)
@@ -846,6 +864,8 @@ def plot_scaling_kwargs_feature_group_sizes(
         title=title,
         sort_by_value=False,
         annotate=True,
+        error=error,
+        **plot_kws,
     )
 
 
@@ -854,6 +874,8 @@ def plot_scaling_kwargs_boolean_summary(
     *,
     ax: plt.Axes | None = None,
     title: str = "Scaling boolean checks",
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot common boolean config flags."""
     data = _as_payload(payload)
@@ -870,6 +892,8 @@ def plot_scaling_kwargs_boolean_summary(
         ax,
         checks,
         title=title,
+        error=error,
+        **plot_kws,
     )
 
 

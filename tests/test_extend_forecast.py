@@ -20,10 +20,14 @@ def _import_target(name: str):
             return importlib.import_module(modname)
         except ModuleNotFoundError as exc:
             name = str(getattr(exc, "name", "") or "")
-            if modname == name or modname.startswith(name + "."):
+            if modname == name or modname.startswith(
+                name + "."
+            ):
                 continue
             raise
-    pytest.skip(f"Could not import target module for {name!r}.")
+    pytest.skip(
+        f"Could not import target module for {name!r}."
+    )
 
 
 @pytest.fixture
@@ -45,7 +49,11 @@ def extend_inputs(tmp_path: Path) -> dict[str, Path]:
                 "subsidence_unit": "mm",
             }
         )
-        for step, year, q50 in ((1, 2023, 13.0), (2, 2024, 16.0), (3, 2025, 19.0)):
+        for step, year, q50 in (
+            (1, 2023, 13.0),
+            (2, 2024, 16.0),
+            (3, 2025, 19.0),
+        ):
             future_rows.append(
                 {
                     "sample_idx": sample_idx,

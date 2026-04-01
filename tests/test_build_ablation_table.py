@@ -21,10 +21,14 @@ def _import_target(name: str):
             return importlib.import_module(modname)
         except ModuleNotFoundError as exc:
             name = str(getattr(exc, "name", "") or "")
-            if modname == name or modname.startswith(name + "."):
+            if modname == name or modname.startswith(
+                name + "."
+            ):
                 continue
             raise
-    pytest.skip(f"Could not import target module for {name!r}.")
+    pytest.skip(
+        f"Could not import target module for {name!r}."
+    )
 
 
 @pytest.fixture

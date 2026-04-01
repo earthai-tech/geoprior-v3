@@ -34,20 +34,21 @@ from .utils import (
     ArtifactRecord,
     as_path,
     clone_artifact,
+    empty_plot,
+    filter_plot_kwargs,
+    finalize_plot,
     nested_get,
     plot_boolean_checks,
     plot_metric_bars,
     plot_series_map,
+    prepare_plot,
     read_json,
     write_json,
 )
 
 PathLike = str | Path
 CalibrationStatsLike = (
-    ArtifactRecord
-    | Mapping[str, Any]
-    | str
-    | Path
+    ArtifactRecord | Mapping[str, Any] | str | Path
 )
 
 __all__ = [
@@ -70,6 +71,7 @@ __all__ = [
 # ------------------------------------------------------------------
 # Internal helpers
 # ------------------------------------------------------------------
+
 
 def _coerce_horizon_map(
     value: Any,
@@ -157,7 +159,9 @@ def _per_horizon_rows(
     which: str,
 ) -> list[dict[str, Any]]:
     """Build tidy per-horizon rows."""
-    block = nested_get(payload, which, "per_horizon", default={})
+    block = nested_get(
+        payload, which, "per_horizon", default={}
+    )
     if not isinstance(block, Mapping):
         return []
 
@@ -186,6 +190,7 @@ def _per_horizon_rows(
 # Generation
 # ------------------------------------------------------------------
 
+
 def default_calibration_stats_payload(
     *,
     target: float = 0.80,
@@ -194,7 +199,7 @@ def default_calibration_stats_payload(
     tol: float = 0.02,
     factors: dict[str, float] | None = None,
     coverage_before: float = 0.865,
-    coverage_after: float = 0.867,
+    coverage_after: float = 0.800,
     sharpness_before: float = 33.08,
     sharpness_after: float = 33.38,
 ) -> dict[str, Any]:
@@ -218,7 +223,9 @@ def default_calibration_stats_payload(
         "tol": float(tol),
         "overall_key": "__overall__",
         "factors_source": "fit",
-        "factors": {str(k): float(v) for k, v in factors.items()},
+        "factors": {
+            str(k): float(v) for k, v in factors.items()
+        },
         "eval_before": {
             "coverage": float(coverage_before),
             "sharpness": float(sharpness_before),
@@ -259,7 +266,6 @@ def default_calibration_stats_payload(
     return payload
 
 
-
 def generate_calibration_stats(
     path: PathLike,
     *,
@@ -291,6 +297,7 @@ def generate_calibration_stats(
 # ------------------------------------------------------------------
 # Loading
 # ------------------------------------------------------------------
+
 
 def load_calibration_stats(
     path: PathLike,
@@ -333,6 +340,7 @@ def load_calibration_stats(
 # Frames
 # ------------------------------------------------------------------
 
+
 def calibration_stats_factors_frame(
     stats: CalibrationStatsLike,
 ) -> pd.DataFrame:
@@ -363,7 +371,6 @@ def calibration_stats_factors_frame(
     return frame.reset_index(drop=True)
 
 
-
 def calibration_stats_overall_frame(
     stats: CalibrationStatsLike,
 ) -> pd.DataFrame:
@@ -386,14 +393,14 @@ def calibration_stats_overall_frame(
                 "sharpness": sharpness,
                 "coverage_error": (
                     abs(float(coverage) - float(target))
-                    if coverage is not None and target is not None
+                    if coverage is not None
+                    and target is not None
                     else None
                 ),
             }
         )
 
     return pd.DataFrame(rows)
-
 
 
 def calibration_stats_per_horizon_frame(
@@ -410,12 +417,15 @@ def calibration_stats_per_horizon_frame(
         Which calibration stage to extract.
     """
     payload = _as_payload(stats)
-    return pd.DataFrame(_per_horizon_rows(payload, which=which))
+    return pd.DataFrame(
+        _per_horizon_rows(payload, which=which)
+    )
 
 
 # ------------------------------------------------------------------
 # Summary
 # ------------------------------------------------------------------
+
 
 def summarize_calibration_stats(
     stats: CalibrationStatsLike,
@@ -427,10 +437,16 @@ def summarize_calibration_stats(
     tol = payload.get("tol")
     factors = _coerce_horizon_map(payload.get("factors"))
 
-    before_cov = nested_get(payload, "eval_before", "coverage")
+    before_cov = nested_get(
+        payload, "eval_before", "coverage"
+    )
     after_cov = nested_get(payload, "eval_after", "coverage")
-    before_sharp = nested_get(payload, "eval_before", "sharpness")
-    after_sharp = nested_get(payload, "eval_after", "sharpness")
+    before_sharp = nested_get(
+        payload, "eval_before", "sharpness"
+    )
+    after_sharp = nested_get(
+        payload, "eval_after", "sharpness"
+    )
 
     before_error = (
         abs(float(before_cov) - float(target))
@@ -448,8 +464,12 @@ def summarize_calibration_stats(
 
     summary = {
         "target": target,
-        "interval_low": nested_get(payload, "interval", default=[None, None])[0],
-        "interval_high": nested_get(payload, "interval", default=[None, None])[1],
+        "interval_low": nested_get(
+            payload, "interval", default=[None, None]
+        )[0],
+        "interval_high": nested_get(
+            payload, "interval", default=[None, None]
+        )[1],
         "tol": tol,
         "n_horizons": len(factors),
         "factors_source": payload.get("factors_source"),
@@ -461,7 +481,8 @@ def summarize_calibration_stats(
         "coverage_error_after": after_error,
         "coverage_error_improved": (
             (after_error <= before_error)
-            if after_error is not None and before_error is not None
+            if after_error is not None
+            and before_error is not None
             else None
         ),
         "target_reached_after": (
@@ -489,34 +510,44 @@ def summarize_calibration_stats(
 # Plotting
 # ------------------------------------------------------------------
 
+
 def plot_calibration_factors(
     ax: plt.Axes,
     stats: CalibrationStatsLike,
     *,
     title: str = "Calibration factors",
+    show_grid: bool = True,
+    grid_kws: dict[str, Any] | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot per-horizon widening factors."""
+    fig, ax, _ = prepare_plot(ax=ax)
+
     frame = calibration_stats_factors_frame(stats)
     if frame.empty:
-        ax.set_title(title)
-        ax.text(
-            0.5,
-            0.5,
-            "No calibration factors",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        _, ax = empty_plot(
+            fig,
+            ax,
+            title=title,
+            message="No calibration factors",
         )
-        ax.set_axis_off()
         return ax
 
-    ax.bar(frame["horizon"], frame["factor"])
-    ax.set_title(title)
-    ax.set_xlabel("horizon")
-    ax.set_ylabel("factor")
-    ax.grid(axis="y", alpha=0.25)
+    bar_kws = filter_plot_kwargs(
+        ax.bar, plot_kws, error=error
+    )
+    ax.bar(frame["horizon"], frame["factor"], **bar_kws)
+    _, ax = finalize_plot(
+        fig,
+        ax,
+        title=title,
+        xlabel="horizon",
+        ylabel="factor",
+        show_grid=show_grid,
+        grid_kws=grid_kws or {"axis": "y", "alpha": 0.25},
+    )
     return ax
-
 
 
 def plot_calibration_overall_metrics(
@@ -524,20 +555,20 @@ def plot_calibration_overall_metrics(
     stats: CalibrationStatsLike,
     *,
     title: str = "Calibration summary",
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot overall before/after calibration metrics."""
+    fig, ax, _ = prepare_plot(ax=ax)
+
     frame = calibration_stats_overall_frame(stats)
     if frame.empty:
-        ax.set_title(title)
-        ax.text(
-            0.5,
-            0.5,
-            "No overall calibration metrics",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        _, ax = empty_plot(
+            fig,
+            ax,
+            title=title,
+            message="No overall calibration metrics",
         )
-        ax.set_axis_off()
         return ax
 
     plot_frame = pd.DataFrame(
@@ -580,8 +611,9 @@ def plot_calibration_overall_metrics(
         ax,
         plot_frame,
         title=title,
+        error=error,
+        **plot_kws,
     )
-
 
 
 def plot_calibration_per_horizon_coverage(
@@ -590,8 +622,11 @@ def plot_calibration_per_horizon_coverage(
     *,
     which: str = "eval_after",
     title: str | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot per-horizon coverage."""
+    fig, ax, _ = prepare_plot(ax=ax)
     frame = calibration_stats_per_horizon_frame(
         stats,
         which=which,
@@ -599,27 +634,26 @@ def plot_calibration_per_horizon_coverage(
     plot_title = title or f"Coverage by horizon ({which})"
 
     if frame.empty:
-        ax.set_title(plot_title)
-        ax.text(
-            0.5,
-            0.5,
-            "No per-horizon coverage",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        _, ax = empty_plot(
+            fig,
+            ax,
+            title=plot_title,
+            message="No per-horizon coverage",
         )
-        ax.set_axis_off()
         return ax
 
-    data = dict(zip(frame["horizon"], frame["coverage"], strict=False))
+    data = dict(
+        zip(frame["horizon"], frame["coverage"], strict=False)
+    )
     return plot_series_map(
         ax,
         data,
         title=plot_title,
         xlabel="horizon",
         ylabel="coverage",
+        error=error,
+        **plot_kws,
     )
-
 
 
 def plot_calibration_per_horizon_sharpness(
@@ -628,8 +662,11 @@ def plot_calibration_per_horizon_sharpness(
     *,
     which: str = "eval_after",
     title: str | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot per-horizon sharpness."""
+    fig, ax, _ = prepare_plot(ax=ax)
     frame = calibration_stats_per_horizon_frame(
         stats,
         which=which,
@@ -637,27 +674,28 @@ def plot_calibration_per_horizon_sharpness(
     plot_title = title or f"Sharpness by horizon ({which})"
 
     if frame.empty:
-        ax.set_title(plot_title)
-        ax.text(
-            0.5,
-            0.5,
-            "No per-horizon sharpness",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        _, ax = empty_plot(
+            fig,
+            ax,
+            title=plot_title,
+            message="No per-horizon sharpness",
         )
-        ax.set_axis_off()
         return ax
 
-    data = dict(zip(frame["horizon"], frame["sharpness"], strict=False))
+    data = dict(
+        zip(
+            frame["horizon"], frame["sharpness"], strict=False
+        )
+    )
     return plot_series_map(
         ax,
         data,
         title=plot_title,
         xlabel="horizon",
         ylabel="sharpness",
+        error=error,
+        **plot_kws,
     )
-
 
 
 def plot_calibration_boolean_summary(
@@ -665,6 +703,8 @@ def plot_calibration_boolean_summary(
     stats: CalibrationStatsLike,
     *,
     title: str = "Calibration checks",
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot compact boolean checks for calibration status."""
     summary = summarize_calibration_stats(stats)
@@ -678,18 +718,23 @@ def plot_calibration_boolean_summary(
         "target_reached_after": summary.get(
             "target_reached_after"
         ),
-        "not_skipped": not bool(summary.get("skipped", False)),
+        "not_skipped": not bool(
+            summary.get("skipped", False)
+        ),
     }
     return plot_boolean_checks(
         ax,
         checks,
         title=title,
+        error=error,
+        **plot_kws,
     )
 
 
 # ------------------------------------------------------------------
 # Inspection bundle
 # ------------------------------------------------------------------
+
 
 def inspect_calibration_stats(
     stats: CalibrationStatsLike,

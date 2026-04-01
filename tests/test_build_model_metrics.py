@@ -21,15 +21,21 @@ def _import_target(name: str):
             return importlib.import_module(modname)
         except ModuleNotFoundError as exc:
             name = str(getattr(exc, "name", "") or "")
-            if modname == name or modname.startswith(name + "."):
+            if modname == name or modname.startswith(
+                name + "."
+            ):
                 continue
             raise
-    pytest.skip(f"Could not import target module for {name!r}.")
+    pytest.skip(
+        f"Could not import target module for {name!r}."
+    )
 
 
 @pytest.fixture
 def metrics_results_root(tmp_path: Path) -> Path:
-    run_dir = tmp_path / "results" / "run_a" / "ablation_records"
+    run_dir = (
+        tmp_path / "results" / "run_a" / "ablation_records"
+    )
     run_dir.mkdir(parents=True, exist_ok=True)
 
     base_rec = {
@@ -58,19 +64,34 @@ def metrics_results_root(tmp_path: Path) -> Path:
             "factors_per_horizon_from_cal_stats": {
                 "eval_before": {
                     "per_horizon": {
-                        "1": {"coverage": 0.69, "sharpness": 14.2},
-                        "2": {"coverage": 0.71, "sharpness": 14.5},
+                        "1": {
+                            "coverage": 0.69,
+                            "sharpness": 14.2,
+                        },
+                        "2": {
+                            "coverage": 0.71,
+                            "sharpness": 14.5,
+                        },
                     }
                 },
                 "eval_after": {
                     "per_horizon": {
-                        "1": {"coverage": 0.79, "sharpness": 12.8},
-                        "2": {"coverage": 0.80, "sharpness": 13.0},
+                        "1": {
+                            "coverage": 0.79,
+                            "sharpness": 12.8,
+                        },
+                        "2": {
+                            "coverage": 0.80,
+                            "sharpness": 13.0,
+                        },
                     }
                 },
             },
         },
-        "units": {"subs_metrics_unit": "mm", "time_units": "year"},
+        "units": {
+            "subs_metrics_unit": "mm",
+            "time_units": "year",
+        },
     }
 
     plain_path = run_dir / "ablation_record.jsonl"

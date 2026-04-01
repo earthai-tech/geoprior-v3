@@ -41,9 +41,13 @@ from .utils import (
     as_path,
     clone_artifact,
     deep_update,
+    empty_plot,
+    filter_plot_kwargs,
+    finalize_plot,
     load_artifact,
     plot_boolean_checks,
     plot_metric_bars,
+    prepare_plot,
     read_json,
     write_json,
 )
@@ -505,13 +509,13 @@ def plot_eval_overall_metrics(
     keys: list[str] | tuple[str, ...] | None = None,
     ax: plt.Axes | None = None,
     title: str | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
-    """
-    Plot selected top-level metrics from ``__overall__``.
-    """
-    own = ax is None
-    if own:
-        _, ax = plt.subplots(figsize=(8.2, 4.8))
+    """Plot selected top-level metrics from ``__overall__``."""
+    fig, ax, _ = prepare_plot(
+        ax=ax, figsize=(8.2, 4.8) if ax is None else None
+    )
 
     overall = _overall_block(_as_payload(diagnostics))
     metrics = _top_scalar_metrics(
@@ -526,15 +530,16 @@ def plot_eval_overall_metrics(
             "pss",
         ],
     )
-    plot_metric_bars(
+    return plot_metric_bars(
         ax,
         metrics,
         title=title or "Overall evaluation metrics",
         sort_by_value=True,
         top_n=None,
         absolute=True,
+        error=error,
+        **plot_kws,
     )
-    return ax
 
 
 def plot_eval_year_metric_trend(
@@ -543,37 +548,41 @@ def plot_eval_year_metric_trend(
     metric: str = "overall_mae",
     ax: plt.Axes | None = None,
     title: str | None = None,
+    show_grid: bool = True,
+    grid_kws: dict[str, Any] | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
-    """
-    Plot one metric across year blocks.
-    """
-    own = ax is None
-    if own:
-        _, ax = plt.subplots(figsize=(8.0, 4.6))
+    """Plot one metric across year blocks."""
+    fig, ax, _ = prepare_plot(
+        ax=ax, figsize=(8.0, 4.6) if ax is None else None
+    )
 
     frame = eval_years_frame(diagnostics)
     if frame.empty or metric not in frame.columns:
-        ax.set_title(title or f"Year trend: {metric}")
-        ax.text(
-            0.5,
-            0.5,
-            "No year metric data",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        _, ax = empty_plot(
+            fig,
+            ax,
+            title=title or f"Year trend: {metric}",
+            message="No year metric data",
         )
-        ax.set_axis_off()
         return ax
 
-    ax.plot(
-        frame["year"],
-        frame[metric],
-        marker="o",
+    line_kws = filter_plot_kwargs(
+        ax.plot, plot_kws, error=error
     )
-    ax.set_title(title or f"Year trend: {metric}")
-    ax.set_xlabel("year")
-    ax.set_ylabel(metric)
-    ax.grid(alpha=0.25)
+    if "marker" not in line_kws:
+        line_kws["marker"] = "o"
+    ax.plot(frame["year"], frame[metric], **line_kws)
+    _, ax = finalize_plot(
+        fig,
+        ax,
+        title=title or f"Year trend: {metric}",
+        xlabel="year",
+        ylabel=metric,
+        show_grid=show_grid,
+        grid_kws=grid_kws or {"alpha": 0.25},
+    )
     return ax
 
 
@@ -583,33 +592,41 @@ def plot_eval_per_horizon_metrics(
     metric: str = "rmse",
     ax: plt.Axes | None = None,
     title: str | None = None,
+    show_grid: bool = True,
+    grid_kws: dict[str, Any] | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
-    """
-    Plot one per-horizon metric from ``__overall__``.
-    """
-    own = ax is None
-    if own:
-        _, ax = plt.subplots(figsize=(8.0, 4.6))
+    """Plot one per-horizon metric from ``__overall__``."""
+    fig, ax, _ = prepare_plot(
+        ax=ax, figsize=(8.0, 4.6) if ax is None else None
+    )
 
     frame = eval_per_horizon_frame(diagnostics)
     if frame.empty or metric not in frame.columns:
-        ax.set_title(title or f"Per-horizon {metric}")
-        ax.text(
-            0.5,
-            0.5,
-            "No per-horizon data",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        _, ax = empty_plot(
+            fig,
+            ax,
+            title=title or f"Per-horizon {metric}",
+            message="No per-horizon data",
         )
-        ax.set_axis_off()
         return ax
 
-    ax.bar(frame["horizon"].astype(str), frame[metric])
-    ax.set_title(title or f"Per-horizon {metric}")
-    ax.set_xlabel("horizon")
-    ax.set_ylabel(metric)
-    ax.grid(axis="y", alpha=0.25)
+    bar_kws = filter_plot_kwargs(
+        ax.bar, plot_kws, error=error
+    )
+    ax.bar(
+        frame["horizon"].astype(str), frame[metric], **bar_kws
+    )
+    _, ax = finalize_plot(
+        fig,
+        ax,
+        title=title or f"Per-horizon {metric}",
+        xlabel="horizon",
+        ylabel=metric,
+        show_grid=show_grid,
+        grid_kws=grid_kws or {"axis": "y", "alpha": 0.25},
+    )
     return ax
 
 
@@ -618,15 +635,21 @@ def plot_eval_boolean_summary(
     *,
     ax: plt.Axes | None = None,
     title: str = "Evaluation diagnostics checks",
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot semantic pass/fail checks."""
-    own = ax is None
-    if own:
-        _, ax = plt.subplots(figsize=(8.0, 4.6))
-
+    fig, ax, _ = prepare_plot(
+        ax=ax, figsize=(8.0, 4.6) if ax is None else None
+    )
     checks = summarize_eval_diagnostics(diagnostics)["checks"]
-    plot_boolean_checks(ax, checks, title=title)
-    return ax
+    return plot_boolean_checks(
+        ax,
+        checks,
+        title=title,
+        error=error,
+        **plot_kws,
+    )
 
 
 def inspect_eval_diagnostics(

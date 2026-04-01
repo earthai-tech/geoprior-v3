@@ -19,10 +19,14 @@ def _import_target(name: str):
             return importlib.import_module(modname)
         except ModuleNotFoundError as exc:
             missing = str(getattr(exc, "name", "") or "")
-            if modname == missing or modname.startswith(missing + "."):
+            if modname == missing or modname.startswith(
+                missing + "."
+            ):
                 continue
             raise
-    pytest.skip(f"Could not import target module for {name!r}.")
+    pytest.skip(
+        f"Could not import target module for {name!r}."
+    )
 
 
 class _FakeGrid(pd.DataFrame):
@@ -74,7 +78,9 @@ def test_make_district_grid_main_writes_grid_and_assignments(
             {"zone_id": "Z0102", "zone_label": "Zone Z0102"},
         ]
     )
-    monkeypatch.setattr(mod, "_build_grid_gdf", lambda **kwargs: fake_grid)
+    monkeypatch.setattr(
+        mod, "_build_grid_gdf", lambda **kwargs: fake_grid
+    )
 
     out_stem = tmp_path / "district_grid"
     mod.make_district_grid_main(

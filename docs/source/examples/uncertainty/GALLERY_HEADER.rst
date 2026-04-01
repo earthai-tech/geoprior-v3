@@ -19,6 +19,7 @@ artifacts such as:
 - coverage-versus-sharpness summaries,
 - exceedance-probability diagnostics,
 - reliability diagrams,
+- raw-versus-calibrated reliability comparisons,
 - recalibrated quantile forecast columns.
 
 In other words, this gallery is about **working with predictive
@@ -44,7 +45,7 @@ Module guide
 
 .. list-table::
    :header-rows: 1
-   :widths: 30 22 48
+   :widths: 32 22 46
 
    * - Module
      - Main output
@@ -63,11 +64,16 @@ Module guide
      - Exceedance probability diagnostics
      - Calibrate event probabilities, inspect Brier scores, and explain
        risk-oriented exceedance forecasting for critical thresholds.
-   * - ``plot_reliability_diagram.py``
+   * - ``plot_reliability_diagram_overview.py``
      - Reliability curves
-     - Compare nominal interval probabilities with observed coverage
-       across models or calibration settings using reliability
-       diagrams.
+     - Read nominal probability against empirical frequency for one or
+       more forecast systems and learn how under- and over-confidence
+       appear in a reliability diagram.
+   * - ``plot_calibration_comparison_overview.py``
+     - Raw-versus-calibrated reliability
+     - Compare the original reliability curve against the calibrated
+       one so users can judge whether post-processing improved honesty
+       without hiding the calibration cost.
    * - ``calibrate_forecasts.py``
      - Recalibrated quantile columns
      - Recalibrate individual quantile forecast columns and inspect
@@ -83,7 +89,8 @@ complete uncertainty workflow:
 #. begin by calibrating forecast intervals,
 #. compare coverage against sharpness,
 #. move to exceedance-event probabilities and Brier score,
-#. inspect reliability curves,
+#. inspect the raw reliability curve,
+#. compare raw reliability against calibrated reliability,
 #. finish with direct quantile-column recalibration.
 
 That is why the examples are grouped by **uncertainty workflow
@@ -157,9 +164,14 @@ They are most useful when you want to inspect:
 - whether calibration differs across forecast systems,
 - whether a recalibrated forecast moves closer to perfect reliability.
 
-The main page in this group is:
+The main pages in this group are:
 
-- ``plot_reliability_diagram.py``
+- ``plot_reliability_diagram_overview.py``
+- ``plot_calibration_comparison_overview.py``
+
+The first page teaches how to read a reliability curve on its own.
+The second teaches how to compare the raw and calibrated curves so the
+user can judge whether calibration actually improved the forecast.
 
 Quantile-column recalibration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -207,16 +219,21 @@ Notes
 - A useful rule of thumb is:
 
   - ``forecasting/`` explains how forecast outputs are built, read,
-    and evaluated,
+    and compared,
   - ``uncertainty/`` explains calibration, reliability, and event-risk
     interpretation,
+  - ``evaluation/`` explains how forecast quality is judged with metric
+    plots and summary views,
   - ``diagnostics/`` explains workflow and training diagnostics,
+  - ``spatial/`` explains how mapped outputs and spatial structures
+    should be read,
   - ``tables_and_summaries/`` builds reusable analysis artifacts.
 
-- A  practical reading sequence is:
+- A practical reading sequence is:
 
   - first calibrate the intervals,
   - then inspect the coverage-versus-sharpness trade-off,
   - then study exceedance probabilities and Brier score,
   - then read the reliability diagram,
+  - then compare raw and calibrated reliability directly,
   - then inspect direct quantile recalibration in more detail.

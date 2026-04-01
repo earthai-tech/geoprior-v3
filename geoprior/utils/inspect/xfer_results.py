@@ -50,17 +50,17 @@ import numpy as np
 import pandas as pd
 
 from .utils import (
+    empty_plot,
     ensure_parent_dir,
+    filter_plot_kwargs,
+    finalize_plot,
     json_ready,
     plot_boolean_checks,
+    prepare_plot,
 )
 
 PathLike = str | Path
-XferResultsLike = (
-    Sequence[Mapping[str, Any]]
-    | str
-    | Path
-)
+XferResultsLike = Sequence[Mapping[str, Any]] | str | Path
 
 __all__ = [
     "default_xfer_results_payload",
@@ -173,9 +173,8 @@ def _deep_update_record(
         return out
 
     for key, value in updates.items():
-        if (
-            isinstance(value, dict)
-            and isinstance(out.get(key), dict)
+        if isinstance(value, dict) and isinstance(
+            out.get(key), dict
         ):
             out[key] = _deep_update_record(out[key], value)
         else:
@@ -186,9 +185,7 @@ def _deep_update_record(
 def _apply_overrides(
     records: list[dict[str, Any]],
     overrides: (
-        dict[str, Any]
-        | list[dict[str, Any]]
-        | None
+        dict[str, Any] | list[dict[str, Any]] | None
     ) = None,
 ) -> list[dict[str, Any]]:
     """
@@ -207,8 +204,7 @@ def _apply_overrides(
 
     if isinstance(overrides, dict):
         return [
-            _deep_update_record(rec, overrides)
-            for rec in out
+            _deep_update_record(rec, overrides) for rec in out
         ]
 
     if isinstance(overrides, list):
@@ -234,7 +230,12 @@ def _record_label(record: dict[str, Any]) -> str:
 
     bits = [
         part
-        for part in [direction, strategy, calibration, rescale]
+        for part in [
+            direction,
+            strategy,
+            calibration,
+            rescale,
+        ]
         if part
     ]
     return " | ".join(bits) if bits else "record"
@@ -496,9 +497,7 @@ def generate_xfer_results(
     *,
     template: list[dict[str, Any]] | None = None,
     overrides: (
-        dict[str, Any]
-        | list[dict[str, Any]]
-        | None
+        dict[str, Any] | list[dict[str, Any]] | None
     ) = None,
 ) -> Path:
     """
@@ -515,7 +514,8 @@ def generate_xfer_results(
         or record-wise.
     """
     records = copy.deepcopy(
-        template if template is not None
+        template
+        if template is not None
         else default_xfer_results_payload()
     )
     records = _apply_overrides(records, overrides=overrides)
@@ -559,7 +559,9 @@ def xfer_overall_frame(
             num = _try_float(record.get(key))
             if num is not None:
                 row[key] = float(num)
-        row["n_quantiles"] = len(record.get("quantiles", []) or [])
+        row["n_quantiles"] = len(
+            record.get("quantiles", []) or []
+        )
         row["job_index"] = _try_float(record.get("job_index"))
         row["job_total"] = _try_float(record.get("job_total"))
         rows.append(row)
@@ -592,7 +594,9 @@ def xfer_per_horizon_frame(
         }
 
         for metric in ["mae", "mse", "rmse", "r2"]:
-            mapping = record.get(f"per_horizon_{metric}", {}) or {}
+            mapping = (
+                record.get(f"per_horizon_{metric}", {}) or {}
+            )
             if not isinstance(mapping, Mapping):
                 continue
             for horizon, value in mapping.items():
@@ -740,7 +744,9 @@ def summarize_xfer_results(
     }
 
     if not overall.empty:
-        best_rmse = overall.sort_values("overall_rmse").iloc[0]
+        best_rmse = overall.sort_values("overall_rmse").iloc[
+            0
+        ]
         best_r2 = overall.sort_values(
             "overall_r2", ascending=False
         ).iloc[0]
@@ -804,6 +810,15 @@ def plot_xfer_overall_metrics(
     *,
     metrics: list[str] | tuple[str, ...] | None = None,
     figsize: tuple[float, float] = (8.4, 4.8),
+    ax: plt.Axes | None = None,
+    title: str = "Transfer overall metrics",
+    ylabel: str = "value",
+    show_grid: bool = True,
+    grid_kws: dict[str, Any] | None = None,
+    legend: bool | None = None,
+    legend_kws: dict[str, Any] | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> tuple[plt.Figure, plt.Axes]:
     """
     Plot selected overall metrics for each record.
@@ -812,43 +827,54 @@ def plot_xfer_overall_metrics(
     if metrics is None:
         metrics = ("overall_rmse", "overall_r2")
 
-    fig, ax = plt.subplots(figsize=figsize)
+    fig, ax, _ = prepare_plot(ax=ax, figsize=figsize)
 
     if frame.empty:
-        ax.set_title("Transfer overall metrics")
-        ax.text(
-            0.5,
-            0.5,
-            "No transfer records",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        return empty_plot(
+            fig,
+            ax,
+            title=title,
+            message="No transfer records",
         )
-        ax.set_axis_off()
-        return fig, ax
 
     labels = frame["label"].astype(str).tolist()
     x = np.arange(len(labels))
     width = 0.8 / max(len(metrics), 1)
 
+    bar_kws = filter_plot_kwargs(
+        ax.bar,
+        plot_kws,
+        error=error,
+    )
+
+    plotted = 0
     for idx, metric in enumerate(metrics):
         if metric not in frame.columns:
             continue
         vals = frame[metric].astype(float).to_numpy()
-        offset = (
-            idx - (len(metrics) - 1) / 2.0
-        ) * width
-        ax.bar(x + offset, vals, width=width, label=metric)
+        offset = (idx - (len(metrics) - 1) / 2.0) * width
+        ax.bar(
+            x + offset,
+            vals,
+            width=width,
+            label=metric,
+            **bar_kws,
+        )
+        plotted += 1
 
     ax.set_xticks(x)
     ax.set_xticklabels(labels, rotation=25, ha="right")
-    ax.set_title("Transfer overall metrics")
-    ax.set_ylabel("value")
-    ax.grid(axis="y", alpha=0.25)
-    if len(metrics) > 1:
-        ax.legend()
-    fig.tight_layout()
-    return fig, ax
+
+    return finalize_plot(
+        fig,
+        ax,
+        title=title,
+        ylabel=ylabel,
+        show_grid=show_grid,
+        grid_kws=grid_kws or {"axis": "y", "alpha": 0.25},
+        legend=(plotted > 1) if legend is None else legend,
+        legend_kws=legend_kws,
+    )
 
 
 def plot_xfer_direction_metric(
@@ -856,33 +882,49 @@ def plot_xfer_direction_metric(
     *,
     metric: str = "overall_rmse",
     figsize: tuple[float, float] = (7.8, 4.2),
+    ax: plt.Axes | None = None,
+    title: str | None = None,
+    ylabel: str | None = None,
+    show_grid: bool = True,
+    grid_kws: dict[str, Any] | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> tuple[plt.Figure, plt.Axes]:
     """
     Plot one overall metric by transfer direction.
     """
     frame = xfer_overall_frame(xfer)
-    fig, ax = plt.subplots(figsize=figsize)
+    fig, ax, _ = prepare_plot(ax=ax, figsize=figsize)
 
+    plot_title = title or f"Direction comparison: {metric}"
     if frame.empty or metric not in frame.columns:
-        ax.set_title(f"Direction comparison: {metric}")
-        ax.text(
-            0.5,
-            0.5,
-            "Metric not available",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        return empty_plot(
+            fig,
+            ax,
+            title=plot_title,
+            message="Metric not available",
         )
-        ax.set_axis_off()
-        return fig, ax
 
     plot = frame.sort_values("direction")
-    ax.bar(plot["direction"].astype(str), plot[metric].astype(float))
-    ax.set_title(f"Direction comparison: {metric}")
-    ax.set_ylabel(metric)
-    ax.grid(axis="y", alpha=0.25)
-    fig.tight_layout()
-    return fig, ax
+    bar_kws = filter_plot_kwargs(
+        ax.bar,
+        plot_kws,
+        error=error,
+    )
+    ax.bar(
+        plot["direction"].astype(str),
+        plot[metric].astype(float),
+        **bar_kws,
+    )
+
+    return finalize_plot(
+        fig,
+        ax,
+        title=plot_title,
+        ylabel=ylabel or metric,
+        show_grid=show_grid,
+        grid_kws=grid_kws or {"axis": "y", "alpha": 0.25},
+    )
 
 
 def plot_xfer_per_horizon_metrics(
@@ -890,95 +932,108 @@ def plot_xfer_per_horizon_metrics(
     *,
     metric: str = "rmse",
     figsize: tuple[float, float] = (8.0, 4.8),
+    ax: plt.Axes | None = None,
+    title: str | None = None,
+    xlabel: str = "horizon",
+    ylabel: str | None = None,
+    marker: str = "o",
+    show_grid: bool = True,
+    grid_kws: dict[str, Any] | None = None,
+    legend: bool = True,
+    legend_kws: dict[str, Any] | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> tuple[plt.Figure, plt.Axes]:
     """
     Plot one per-horizon metric as lines over horizon.
     """
     frame = xfer_per_horizon_frame(xfer)
-    fig, ax = plt.subplots(figsize=figsize)
+    fig, ax, _ = prepare_plot(ax=ax, figsize=figsize)
+    plot_title = title or f"Transfer per-horizon {metric}"
 
     if frame.empty:
-        ax.set_title(f"Transfer per-horizon {metric}")
-        ax.text(
-            0.5,
-            0.5,
-            "No per-horizon metrics",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        return empty_plot(
+            fig,
+            ax,
+            title=plot_title,
+            message="No per-horizon metrics",
         )
-        ax.set_axis_off()
-        return fig, ax
 
     sub = frame[frame["metric"] == metric].copy()
     if sub.empty:
-        ax.set_title(f"Transfer per-horizon {metric}")
-        ax.text(
-            0.5,
-            0.5,
-            "Requested metric not available",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        return empty_plot(
+            fig,
+            ax,
+            title=plot_title,
+            message="Requested metric not available",
         )
-        ax.set_axis_off()
-        return fig, ax
+
+    line_kws = filter_plot_kwargs(
+        ax.plot,
+        plot_kws,
+        error=error,
+    )
+    if "marker" not in line_kws:
+        line_kws["marker"] = marker
 
     for label, grp in sub.groupby("label", sort=False):
         g = grp.sort_values("horizon_index")
         ax.plot(
             g["horizon"].astype(str),
             g["value"].astype(float),
-            marker="o",
             label=label,
+            **line_kws,
         )
 
-    ax.set_title(f"Transfer per-horizon {metric}")
-    ax.set_xlabel("horizon")
-    ax.set_ylabel(metric)
-    ax.grid(alpha=0.25)
-    ax.legend()
-    fig.tight_layout()
-    return fig, ax
+    return finalize_plot(
+        fig,
+        ax,
+        title=plot_title,
+        xlabel=xlabel,
+        ylabel=ylabel or metric,
+        show_grid=show_grid,
+        grid_kws=grid_kws or {"alpha": 0.25},
+        legend=legend,
+        legend_kws=legend_kws,
+    )
 
 
 def plot_xfer_schema_counts(
     xfer: XferResultsLike,
     *,
     figsize: tuple[float, float] = (8.0, 4.6),
+    ax: plt.Axes | None = None,
+    title: str = "Schema mismatch counts",
+    ylabel: str = "count",
+    show_grid: bool = True,
+    grid_kws: dict[str, Any] | None = None,
+    legend: bool = True,
+    legend_kws: dict[str, Any] | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> tuple[plt.Figure, plt.Axes]:
     """
     Plot schema mismatch counts by record.
     """
     schema = xfer_schema_frame(xfer)
-    fig, ax = plt.subplots(figsize=figsize)
+    fig, ax, _ = prepare_plot(ax=ax, figsize=figsize)
 
     if schema.empty:
-        ax.set_title("Schema mismatch counts")
-        ax.text(
-            0.5,
-            0.5,
-            "No schema diagnostics",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        return empty_plot(
+            fig,
+            ax,
+            title=title,
+            message="No schema diagnostics",
         )
-        ax.set_axis_off()
-        return fig, ax
 
     sub = schema[schema["kind"] == "count"].copy()
     if sub.empty:
-        ax.set_title("Schema mismatch counts")
-        ax.text(
-            0.5,
-            0.5,
-            "No schema count diagnostics",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        return empty_plot(
+            fig,
+            ax,
+            title=title,
+            message="No schema count diagnostics",
         )
-        ax.set_axis_off()
-        return fig, ax
 
     labels = list(dict.fromkeys(sub["label"].astype(str)))
     x = np.arange(len(labels))
@@ -994,25 +1049,57 @@ def plot_xfer_schema_counts(
         ext = grp.loc[
             grp["name"] == "static_extra_n", "value"
         ]
-        missing.append(float(miss.iloc[0]) if not miss.empty else 0.0)
-        extra.append(float(ext.iloc[0]) if not ext.empty else 0.0)
+        missing.append(
+            float(miss.iloc[0]) if not miss.empty else 0.0
+        )
+        extra.append(
+            float(ext.iloc[0]) if not ext.empty else 0.0
+        )
 
-    ax.bar(x - width / 2.0, missing, width=width, label="static_missing_n")
-    ax.bar(x + width / 2.0, extra, width=width, label="static_extra_n")
+    bar_kws = filter_plot_kwargs(
+        ax.bar,
+        plot_kws,
+        error=error,
+    )
+    ax.bar(
+        x - width / 2.0,
+        missing,
+        width=width,
+        label="static_missing_n",
+        **bar_kws,
+    )
+    ax.bar(
+        x + width / 2.0,
+        extra,
+        width=width,
+        label="static_extra_n",
+        **bar_kws,
+    )
     ax.set_xticks(x)
     ax.set_xticklabels(labels, rotation=25, ha="right")
-    ax.set_title("Schema mismatch counts")
-    ax.set_ylabel("count")
-    ax.grid(axis="y", alpha=0.25)
-    ax.legend()
-    fig.tight_layout()
-    return fig, ax
+
+    return finalize_plot(
+        fig,
+        ax,
+        title=title,
+        ylabel=ylabel,
+        show_grid=show_grid,
+        grid_kws=grid_kws or {"axis": "y", "alpha": 0.25},
+        legend=legend,
+        legend_kws=legend_kws,
+    )
 
 
 def plot_xfer_boolean_summary(
     xfer: XferResultsLike,
     *,
     figsize: tuple[float, float] = (8.4, 4.8),
+    ax: plt.Axes | None = None,
+    title: str = "Transfer boolean summary",
+    show_grid: bool = True,
+    grid_kws: dict[str, Any] | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> tuple[plt.Figure, plt.Axes]:
     """
     Plot aggregated schema boolean pass rates.
@@ -1021,34 +1108,24 @@ def plot_xfer_boolean_summary(
     compact pass-rate view.
     """
     schema = xfer_schema_frame(xfer)
-    fig, ax = plt.subplots(figsize=figsize)
+    fig, ax, _ = prepare_plot(ax=ax, figsize=figsize)
 
     if schema.empty:
-        ax.set_title("Transfer boolean summary")
-        ax.text(
-            0.5,
-            0.5,
-            "No schema diagnostics",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        return empty_plot(
+            fig,
+            ax,
+            title=title,
+            message="No schema diagnostics",
         )
-        ax.set_axis_off()
-        return fig, ax
 
     sub = schema[schema["kind"] == "bool"].copy()
     if sub.empty:
-        ax.set_title("Transfer boolean summary")
-        ax.text(
-            0.5,
-            0.5,
-            "No schema boolean checks",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        return empty_plot(
+            fig,
+            ax,
+            title=title,
+            message="No schema boolean checks",
         )
-        ax.set_axis_off()
-        return fig, ax
 
     agg = (
         sub.groupby("name")["value"]
@@ -1061,12 +1138,14 @@ def plot_xfer_boolean_summary(
         for key, val in agg.items()
     }
 
-    # Reuse the shared boolean plot helper by converting
-    # pass rates to strict pass/fail flags.
     plot_boolean_checks(
         ax,
         checks,
-        title="Transfer boolean summary",
+        title=title,
+        show_grid=show_grid,
+        grid_kws=grid_kws,
+        error=error,
+        **plot_kws,
     )
     return fig, ax
 

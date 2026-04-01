@@ -1,4 +1,3 @@
-from ._cas import clustered_anomaly_severity_score
 from ._metrics import (
     continuous_ranked_probability_score,
     coverage_score,
@@ -27,5 +26,4 @@ __all__ = [
     "time_weighted_interval_score",
     "get_metric",
     "get_scorer",
-    "clustered_anomaly_severity_score",
 ]

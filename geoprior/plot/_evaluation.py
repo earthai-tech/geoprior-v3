@@ -1074,18 +1074,24 @@ def plot_forecast_comparison(  # noqa: PLR0912
                         low_col in s_df.columns
                         and hi_col in s_df.columns
                     ):
+                        fill_kws = dict(
+                            plot_kwargs.get(
+                                "fill_between_kwargs", {}
+                            )
+                        )
+                        fill_kws.setdefault("color", "gray")
+                        fill_kws.setdefault("alpha", 0.3)
+                        fill_kws.setdefault(
+                            "label",
+                            f"Interval "
+                            f"(q{int(q_sorted[0] * 100)}–"
+                            f"q{int(q_sorted[-1] * 100)})",
+                        )
                         ax.fill_between(
                             s_df["forecast_step"],
                             s_df[low_col],
                             s_df[hi_col],
-                            color="gray",
-                            alpha=0.3,
-                            label=f"Interval "
-                            f"(q{int(q_sorted[0] * 100)}–"
-                            f"q{int(q_sorted[-1] * 100)})",
-                            **plot_kwargs.get(
-                                "fill_between_kwargs", {}
-                            ),
+                            **fill_kws,
                         )
                 else:
                     pr_base = (

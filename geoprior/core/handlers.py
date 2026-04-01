@@ -1096,109 +1096,76 @@ def get_valid_kwargs(
     >>> print(valid_kwargs)
     {'a': 1, 'b': 2}
     """
-    valid_kwargs = {}
-    not_valid_keys = []
 
-    # Determine whether obj_or_func is callable and get its valid arguments
-    obj = (
-        obj_or_func()
-        if callable(obj_or_func)
-        else obj_or_func
+    return _get_valid_kwargs(
+        callable_obj=obj_or_func, kwargs=kwargs, **kwargs
     )
-    valid_args = (
-        obj.__init__.__code__.co_varnames
-        if hasattr(obj, "__init__")
-        else obj.__code__.co_varnames
-    )
-
-    # Filter kwargs to separate valid from invalid ones
-    for key, value in kwargs.items():
-        if key in valid_args:
-            valid_kwargs[key] = value
-        else:
-            not_valid_keys.append(key)
-
-    # Raise a warning for invalid kwargs, if required
-    if raise_warning and not_valid_keys:
-        warning_msg = (
-            f"'{', '.join(not_valid_keys)}' "
-            f"{'is' if len(not_valid_keys) == 1 else 'are'} "
-            "not a valid keyword argument "
-            f"for '{obj_or_func.__name__}'."
-        )
-        warnings.warn(warning_msg, stacklevel=2)
-
-    return valid_kwargs
 
 
 def _get_valid_kwargs(
     callable_obj: Any,
     kwargs: dict[str, Any],
-    error: str = "warn",
+    error="ignore",
+    **kws,
 ) -> dict[str, Any]:
+    r"""
+    Filter kwargs to what the callable accepts. If the callable
+    accepts **kwargs (VAR_KEYWORD), return kwargs unchanged.
     """
-    Filter and return only the valid keyword arguments for a given
-    callable object, while warning about any invalid kwargs.
+    # In python 3.9 --> 3.12 :
+    #     # If the callable_obj is an instance, use its class for sig
+    #     if not inspect.isclass(callable_obj) and not callable(callable_obj):
+    #         callable_obj = callable_obj.__class__
 
-    Parameters
-    ----------
-    callable_obj : callable
-        The callable object (function, lambda function, method, or class)
-        for which the keyword arguments need to be validated.
-
-    kwargs : dict
-        Dictionary of keyword arguments to be validated against the callable object.
-
-    Returns
-    -------
-    valid_kwargs : dict
-        Dictionary containing only the valid keyword arguments
-        for the callable object.
-    """
-    # If the callable_obj is an instance, get its class
+    # 1) Non-callable instance: do NOT reinterpret as its class.
+    #    Return {} to keep behavior stable across Python versions.
     if not inspect.isclass(callable_obj) and not callable(
         callable_obj
     ):
-        callable_obj = callable_obj.__class__
-
-    try:
-        # Retrieve the signature of the callable object
-        signature = inspect.signature(callable_obj)
-    except ValueError:
-        # If signature cannot be obtained, return empty kwargs and warn
-        warnings.warn(
-            "Unable to retrieve signature of the callable object. "
-            "No keyword arguments will be passed.",
-            stacklevel=2,
-        )
+        msg = "Unable to inspect callable signature; passing no kwargs."
+        _handle_error(msg, error, stacklevel=2)
         return {}
 
-    # Extract parameter names from the function signature
-    valid_params = set(signature.parameters.keys())
+    # 2) Inspect signature; handle cross-version exceptions.
+    try:
+        sig = inspect.signature(callable_obj)
+    except (ValueError, TypeError):
+        msg = "Unable to inspect callable signature; passing no kwargs."
+        _handle_error(msg, error, stacklevel=2)
+        return {}
 
-    # Identify valid and invalid kwargs
-    valid_kwargs = {}
-    invalid_kwargs = {}
+    # 3) If function accepts **kwargs, don't filter.
+    if any(
+        p.kind == inspect.Parameter.VAR_KEYWORD
+        for p in sig.parameters.values()
+    ):
+        return kwargs
+
+    valid_params = set(sig.parameters.keys())
+    valid_kwargs: dict[str, Any] = {}
+    invalid: list[str] = []
+
     for k, v in kwargs.items():
         if k in valid_params:
             valid_kwargs[k] = v
         else:
-            invalid_kwargs[k] = v
+            invalid.append(k)
 
-    # Warn the user about invalid kwargs
-    if invalid_kwargs:
-        invalid_keys = ", ".join(invalid_kwargs.keys())
-        msg = (
-            "The following keyword arguments are invalid"
-            f" and will be ignored: {invalid_keys}"
+    if invalid and error == "warn":
+        warnings.warn(
+            "Ignoring invalid keyword(s): "
+            + ", ".join(invalid),
+            stacklevel=2,
         )
-        if error == "warn":
-            warnings.warn(msg, stacklevel=2)
-        elif error == "raise":
-            raise ValueError(msg)
-        # ignore.
 
     return valid_kwargs
+
+
+def _handle_error(msg: str, mode: str, stacklevel=3) -> None:
+    if mode == "raise":
+        raise ValueError(msg)
+    elif mode == "warn":
+        warnings.warn(msg, stacklevel=stacklevel)
 
 
 def get_batch_size(

@@ -21,10 +21,7 @@ from sklearn.metrics import (
     mean_absolute_percentage_error,
     mean_squared_error,
 )
-from sklearn.utils.validation import (
-    check_array,
-    check_consistent_length,
-)
+from sklearn.utils.validation import check_consistent_length
 
 from ..api.docs import (
     DocstringComponents,
@@ -37,6 +34,7 @@ from ..api.types import (
     PlotKindTheilU,
     PlotKindWIS,
 )
+from ..compat.sklearn import check_array
 from ..core.checks import exist_features
 from ..core.diagnose_q import validate_quantiles
 from ..core.handlers import columns_manager
@@ -594,6 +592,45 @@ def plot_weighted_interval_score(
         )
     K_intervals = alphas_arr.shape[0]
 
+    # Normalize compact single-interval bounds so the plotting helper
+    # and the metric function both receive accepted shapes.
+    y_lower_metric_arr = y_lower_arr
+    y_upper_metric_arr = y_upper_arr
+
+    if (
+        y_true_arr.ndim == 1
+        and K_intervals == 1
+        and y_lower_arr.ndim == 1
+        and y_upper_arr.ndim == 1
+    ):
+        if (
+            y_lower_arr.shape != y_true_arr.shape
+            or y_upper_arr.shape != y_true_arr.shape
+        ):
+            raise ValueError(
+                "For 1D y_true with a single interval, "
+                "y_lower and y_upper must match y_true shape."
+            )
+        y_lower_metric_arr = y_lower_arr.reshape(-1, 1)
+        y_upper_metric_arr = y_upper_arr.reshape(-1, 1)
+
+    elif (
+        y_true_arr.ndim == 2
+        and K_intervals == 1
+        and y_lower_arr.ndim == 2
+        and y_upper_arr.ndim == 2
+    ):
+        if (
+            y_lower_arr.shape != y_true_arr.shape
+            or y_upper_arr.shape != y_true_arr.shape
+        ):
+            raise ValueError(
+                "For 2D y_true with a single interval, "
+                "y_lower and y_upper must match y_true shape."
+            )
+        y_lower_metric_arr = y_lower_arr[..., np.newaxis]
+        y_upper_metric_arr = y_upper_arr[..., np.newaxis]
+
     # Reshape inputs for consistent processing:
     # y_true_proc, y_median_proc: (N, O)
     # y_lower_proc, y_upper_proc: (N, O, K)
@@ -602,31 +639,31 @@ def plot_weighted_interval_score(
         y_true_proc = y_true_arr.reshape(-1, 1)
         y_median_proc = y_median_arr.reshape(-1, 1)
         if (
-            y_lower_arr.ndim == 2
-            and y_lower_arr.shape[1] == K_intervals
+            y_lower_metric_arr.ndim == 2
+            and y_lower_metric_arr.shape[1] == K_intervals
         ):  # (N,K)
-            y_lower_proc = y_lower_arr.reshape(
-                y_lower_arr.shape[0], 1, -1
+            y_lower_proc = y_lower_metric_arr.reshape(
+                y_lower_metric_arr.shape[0], 1, -1
             )
-            y_upper_proc = y_upper_arr.reshape(
-                y_upper_arr.shape[0], 1, -1
+            y_upper_proc = y_upper_metric_arr.reshape(
+                y_upper_metric_arr.shape[0], 1, -1
             )
         else:
             raise ValueError(
                 "Shape mismatch for 1D y_true with bounds."
             )
+
     elif y_true_ndim_orig == 2:  # (N,O)
         y_true_proc = y_true_arr
         y_median_proc = y_median_arr
         if (
-            y_lower_arr.ndim == 3
-            and y_lower_arr.shape[1] == y_true_proc.shape[1]
-            and y_lower_arr.shape[2] == K_intervals
+            y_lower_metric_arr.ndim == 3
+            and y_lower_metric_arr.shape[1]
+            == y_true_proc.shape[1]
+            and y_lower_metric_arr.shape[2] == K_intervals
         ):  # (N,O,K)
-            y_lower_proc, y_upper_proc = (
-                y_lower_arr,
-                y_upper_arr,
-            )
+            y_lower_proc = y_lower_metric_arr
+            y_upper_proc = y_upper_metric_arr
         else:
             raise ValueError(
                 "Shape mismatch for 2D y_true with bounds."
@@ -799,14 +836,31 @@ def plot_weighted_interval_score(
         ]
 
         if valid_scores_for_hist.size > 0:
+            bins_to_use = hist_bins
+
+            # Guard against degenerate constant/near-constant data when
+            # bins='auto' or another automatic estimator is requested.
+            if isinstance(hist_bins, str):
+                vmin = float(np.min(valid_scores_for_hist))
+                vmax = float(np.max(valid_scores_for_hist))
+                scale = max(1.0, abs(vmin), abs(vmax))
+                atol = 1e-12 * scale
+
+                if np.isclose(
+                    vmin, vmax, rtol=0.0, atol=atol
+                ):
+                    delta = max(1e-6 * scale, 1e-12)
+                    bins_to_use = np.array(
+                        [vmin - delta, vmin + delta]
+                    )
+
             ax.hist(
                 valid_scores_for_hist,
-                bins=hist_bins,
+                bins=bins_to_use,
                 color=hist_color,
                 edgecolor=hist_edgecolor,
                 **kwargs.get("hist_kwargs", {}),
             )
-
             if (
                 show_score_on_title
             ):  # Show mean of the *plotted* scores
@@ -866,8 +920,8 @@ def plot_weighted_interval_score(
 
             scores_to_plot_bar = weighted_interval_score(
                 y_true_arr,
-                y_lower_arr,
-                y_upper_arr,
+                y_lower_metric_arr,
+                y_upper_metric_arr,
                 y_median_arr,
                 alphas_arr,
                 **cleaned_kws,
@@ -5851,11 +5905,17 @@ def plot_radar_scores(
 
     # For a single radar line, line_color can be a string
     # If comparing multiple entities on same radar later, this would need cycling
-    current_line_color = (
-        line_color
-        if line_color is not None
-        else next(ax._get_lines.prop_cycler)["color"]
-    )  # type: ignore
+    if line_color is not None:
+        current_line_color = line_color
+    else:
+        try:
+            current_line_color = (
+                ax._get_lines.get_next_color()
+            )
+        except Exception:
+            current_line_color = plt.rcParams[
+                "axes.prop_cycle"
+            ].by_key()["color"][0]
 
     ax.plot(
         angles_closed,

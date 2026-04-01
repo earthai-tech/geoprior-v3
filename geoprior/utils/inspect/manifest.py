@@ -108,7 +108,6 @@ def _as_payload(manifest: ManifestLike) -> dict[str, Any]:
     return dict(read_json(manifest))
 
 
-
 def _try_int(value: Any) -> int | None:
     """Return ``value`` as int when possible."""
     try:
@@ -117,7 +116,6 @@ def _try_int(value: Any) -> int | None:
         return int(value)
     except Exception:
         return None
-
 
 
 def _try_float(value: Any) -> float | None:
@@ -130,17 +128,19 @@ def _try_float(value: Any) -> float | None:
         return None
 
 
-
 def _feature_count(payload: dict[str, Any], key: str) -> int:
     """Return the size of a Stage-1 feature group."""
-    vals = nested_get(payload, "config", "features", key, default=[])
+    vals = nested_get(
+        payload, "config", "features", key, default=[]
+    )
     if isinstance(vals, list):
         return len(vals)
     return 0
 
 
-
-def _coord_ranges(payload: dict[str, Any]) -> dict[str, float]:
+def _coord_ranges(
+    payload: dict[str, Any],
+) -> dict[str, float]:
     """Return numeric coord ranges from nested scaling kwargs."""
     src = nested_get(
         payload,
@@ -159,7 +159,6 @@ def _coord_ranges(payload: dict[str, Any]) -> dict[str, float]:
             continue
         out[str(key)] = num
     return out
-
 
 
 def _walk_leaf_paths(
@@ -212,17 +211,19 @@ def _walk_leaf_paths(
     return rows
 
 
-
 def _artifact_path_count(payload: dict[str, Any]) -> int:
     """Return the number of leaf artifact path entries."""
     rows = _walk_leaf_paths(payload.get("artifacts", {}))
     return sum(1 for row in rows if row.get("is_path"))
 
 
-
-def _shape_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
+def _shape_rows(
+    payload: dict[str, Any],
+) -> list[dict[str, Any]]:
     """Extract tidy rows from ``artifacts.shapes``."""
-    src = nested_get(payload, "artifacts", "shapes", default={})
+    src = nested_get(
+        payload, "artifacts", "shapes", default={}
+    )
     rows: list[dict[str, Any]] = []
 
     if not isinstance(src, dict):
@@ -240,13 +241,18 @@ def _shape_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
                     "tensor": str(tensor_name),
                     "shape": shape,
                     "rank": len(shape),
-                    "samples": _try_int(shape[0]) if shape else None,
-                    "time_dim": _try_int(shape[1]) if len(shape) > 1 else None,
-                    "feature_dim": _try_int(shape[2]) if len(shape) > 2 else None,
+                    "samples": _try_int(shape[0])
+                    if shape
+                    else None,
+                    "time_dim": _try_int(shape[1])
+                    if len(shape) > 1
+                    else None,
+                    "feature_dim": _try_int(shape[2])
+                    if len(shape) > 2
+                    else None,
                 }
             )
     return rows
-
 
 
 def default_manifest_payload(
@@ -275,7 +281,9 @@ def default_manifest_payload(
         "stage": "stage1",
         "config": {
             "TIME_STEPS": int(time_steps),
-            "FORECAST_HORIZON_YEARS": int(forecast_horizon_years),
+            "FORECAST_HORIZON_YEARS": int(
+                forecast_horizon_years
+            ),
             "MODE": str(mode),
             "TRAIN_END_YEAR": 2022,
             "FORECAST_START_YEAR": 2023,
@@ -583,7 +591,6 @@ def default_manifest_payload(
     return payload
 
 
-
 def generate_manifest(
     path: PathLike,
     *,
@@ -596,15 +603,15 @@ def generate_manifest(
         if template is not None
         else default_manifest_payload()
     )
-    payload = clone_artifact(base, overrides=dict(overrides or {}))
+    payload = clone_artifact(
+        base, overrides=dict(overrides or {})
+    )
     return write_json(payload, path)
-
 
 
 def load_manifest(path: PathLike) -> ArtifactRecord:
     """Load a Stage-1 manifest as ``ArtifactRecord``."""
     return load_artifact(path, kind="manifest")
-
 
 
 def manifest_identity_frame(
@@ -642,14 +649,15 @@ def manifest_identity_frame(
     return pd.DataFrame(rows)
 
 
-
 def manifest_config_frame(
     manifest: ManifestLike,
 ) -> pd.DataFrame:
     """Return a tidy frame for the compact config overview."""
     payload = _as_payload(manifest)
     cfg = nested_get(payload, "config", default={})
-    conv = nested_get(payload, "config", "conventions", default={})
+    conv = nested_get(
+        payload, "config", "conventions", default={}
+    )
 
     rows: list[dict[str, Any]] = []
     for key in _CONFIG_KEYS:
@@ -687,16 +695,22 @@ def manifest_config_frame(
     return pd.DataFrame(rows)
 
 
-
 def manifest_feature_groups_frame(
     manifest: ManifestLike,
 ) -> pd.DataFrame:
     """Return feature-group names and counts."""
     payload = _as_payload(manifest)
-    feats = nested_get(payload, "config", "features", default={})
+    feats = nested_get(
+        payload, "config", "features", default={}
+    )
 
     rows: list[dict[str, Any]] = []
-    for key in ("static", "dynamic", "future", "group_id_cols"):
+    for key in (
+        "static",
+        "dynamic",
+        "future",
+        "group_id_cols",
+    ):
         values = (feats or {}).get(key, [])
         if not isinstance(values, list):
             values = []
@@ -711,16 +725,23 @@ def manifest_feature_groups_frame(
     return pd.DataFrame(rows)
 
 
-
 def manifest_holdout_frame(
     manifest: ManifestLike,
 ) -> pd.DataFrame:
     """Return key holdout and split counts as a tidy frame."""
     payload = _as_payload(manifest)
-    holdout = nested_get(payload, "config", "holdout", default={})
-    group_counts = (holdout or {}).get("group_counts", {}) or {}
-    row_counts = (holdout or {}).get("row_counts_hist", {}) or {}
-    seq_counts = (holdout or {}).get("sequence_counts", {}) or {}
+    holdout = nested_get(
+        payload, "config", "holdout", default={}
+    )
+    group_counts = (holdout or {}).get(
+        "group_counts", {}
+    ) or {}
+    row_counts = (holdout or {}).get(
+        "row_counts_hist", {}
+    ) or {}
+    seq_counts = (holdout or {}).get(
+        "sequence_counts", {}
+    ) or {}
 
     rows: list[dict[str, Any]] = []
     for key in _HOLDOUT_KEYS:
@@ -772,7 +793,6 @@ def manifest_holdout_frame(
     return pd.DataFrame(rows)
 
 
-
 def manifest_artifacts_frame(
     manifest: ManifestLike,
 ) -> pd.DataFrame:
@@ -785,24 +805,26 @@ def manifest_artifacts_frame(
     return frame
 
 
-
 def manifest_paths_frame(
     manifest: ManifestLike,
 ) -> pd.DataFrame:
     """Return a frame describing top-level manifest paths."""
     payload = _as_payload(manifest)
     rows: list[dict[str, Any]] = []
-    for key, value in (payload.get("paths", {}) or {}).items():
+    for key, value in (
+        payload.get("paths", {}) or {}
+    ).items():
         rows.append(
             {
                 "section": "paths",
                 "key": str(key),
                 "value": value,
-                "basename": Path(str(value)).name if value else None,
+                "basename": Path(str(value)).name
+                if value
+                else None,
             }
         )
     return pd.DataFrame(rows)
-
 
 
 def manifest_versions_frame(
@@ -811,7 +833,9 @@ def manifest_versions_frame(
     """Return runtime/library versions saved in the manifest."""
     payload = _as_payload(manifest)
     rows: list[dict[str, Any]] = []
-    for key, value in (payload.get("versions", {}) or {}).items():
+    for key, value in (
+        payload.get("versions", {}) or {}
+    ).items():
         rows.append(
             {
                 "section": "versions",
@@ -822,14 +846,12 @@ def manifest_versions_frame(
     return pd.DataFrame(rows)
 
 
-
 def manifest_shapes_frame(
     manifest: ManifestLike,
 ) -> pd.DataFrame:
     """Return a tidy tensor-shape summary frame."""
     payload = _as_payload(manifest)
     return pd.DataFrame(_shape_rows(payload))
-
 
 
 def summarize_manifest(
@@ -843,10 +865,18 @@ def summarize_manifest(
     """
     payload = _as_payload(manifest)
     cfg = nested_get(payload, "config", default={})
-    holdout = nested_get(payload, "config", "holdout", default={})
-    group_counts = (holdout or {}).get("group_counts", {}) or {}
-    row_counts = (holdout or {}).get("row_counts_hist", {}) or {}
-    seq_counts = (holdout or {}).get("sequence_counts", {}) or {}
+    holdout = nested_get(
+        payload, "config", "holdout", default={}
+    )
+    group_counts = (holdout or {}).get(
+        "group_counts", {}
+    ) or {}
+    row_counts = (holdout or {}).get(
+        "row_counts_hist", {}
+    ) or {}
+    seq_counts = (holdout or {}).get(
+        "sequence_counts", {}
+    ) or {}
     versions = payload.get("versions", {}) or {}
 
     summary = {
@@ -864,9 +894,15 @@ def summarize_manifest(
         "forecast_start_year": (cfg or {}).get(
             "FORECAST_START_YEAR"
         ),
-        "static_feature_count": _feature_count(payload, "static"),
-        "dynamic_feature_count": _feature_count(payload, "dynamic"),
-        "future_feature_count": _feature_count(payload, "future"),
+        "static_feature_count": _feature_count(
+            payload, "static"
+        ),
+        "dynamic_feature_count": _feature_count(
+            payload, "dynamic"
+        ),
+        "future_feature_count": _feature_count(
+            payload, "future"
+        ),
         "group_id_cols_count": _feature_count(
             payload,
             "group_id_cols",
@@ -885,10 +921,16 @@ def summarize_manifest(
         "val_seq": seq_counts.get("val_seq"),
         "test_seq": seq_counts.get("test_seq"),
         "has_config": isinstance(payload.get("config"), dict),
-        "has_artifacts": isinstance(payload.get("artifacts"), dict),
+        "has_artifacts": isinstance(
+            payload.get("artifacts"), dict
+        ),
         "has_paths": isinstance(payload.get("paths"), dict),
-        "has_versions": isinstance(payload.get("versions"), dict),
-        "has_holdout": isinstance((cfg or {}).get("holdout"), dict),
+        "has_versions": isinstance(
+            payload.get("versions"), dict
+        ),
+        "has_holdout": isinstance(
+            (cfg or {}).get("holdout"), dict
+        ),
         "has_scaling_kwargs": isinstance(
             (cfg or {}).get("scaling_kwargs"),
             dict,
@@ -897,12 +939,12 @@ def summarize_manifest(
     return summary
 
 
-
 def plot_manifest_artifact_inventory(
     ax: plt.Axes,
     manifest: ManifestLike,
     *,
     title: str = "Manifest artifact inventory",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot artifact and metadata inventory counts."""
     payload = _as_payload(manifest)
@@ -911,10 +953,16 @@ def plot_manifest_artifact_inventory(
         "paths": len(payload.get("paths", {}) or {}),
         "versions": len(payload.get("versions", {}) or {}),
         "shape_blocks": len(
-            nested_get(payload, "artifacts", "shapes", default={}) or {}
+            nested_get(
+                payload, "artifacts", "shapes", default={}
+            )
+            or {}
         ),
         "numpy_artifacts": len(
-            nested_get(payload, "artifacts", "numpy", default={}) or {}
+            nested_get(
+                payload, "artifacts", "numpy", default={}
+            )
+            or {}
         ),
     }
     return plot_metric_bars(
@@ -922,8 +970,8 @@ def plot_manifest_artifact_inventory(
         metrics,
         title=title,
         sort_by_value=False,
+        **plot_kws,
     )
-
 
 
 def plot_manifest_feature_group_sizes(
@@ -931,6 +979,7 @@ def plot_manifest_feature_group_sizes(
     manifest: ManifestLike,
     *,
     title: str = "Stage-1 feature groups",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot Stage-1 feature-group sizes."""
     payload = _as_payload(manifest)
@@ -938,15 +987,17 @@ def plot_manifest_feature_group_sizes(
         "static": _feature_count(payload, "static"),
         "dynamic": _feature_count(payload, "dynamic"),
         "future": _feature_count(payload, "future"),
-        "group_id_cols": _feature_count(payload, "group_id_cols"),
+        "group_id_cols": _feature_count(
+            payload, "group_id_cols"
+        ),
     }
     return plot_metric_bars(
         ax,
         metrics,
         title=title,
         sort_by_value=False,
+        **plot_kws,
     )
-
 
 
 def plot_manifest_holdout_counts(
@@ -954,10 +1005,13 @@ def plot_manifest_holdout_counts(
     manifest: ManifestLike,
     *,
     title: str = "Holdout split counts",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot the main group and sequence split counts."""
     payload = _as_payload(manifest)
-    holdout = nested_get(payload, "config", "holdout", default={})
+    holdout = nested_get(
+        payload, "config", "holdout", default={}
+    )
     groups = (holdout or {}).get("group_counts", {}) or {}
     seqs = (holdout or {}).get("sequence_counts", {}) or {}
     metrics = {
@@ -973,8 +1027,8 @@ def plot_manifest_holdout_counts(
         metrics,
         title=title,
         sort_by_value=False,
+        **plot_kws,
     )
-
 
 
 def plot_manifest_coord_ranges(
@@ -982,6 +1036,7 @@ def plot_manifest_coord_ranges(
     manifest: ManifestLike,
     *,
     title: str = "Coordinate ranges",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot nested coordinate ranges from scaling kwargs."""
     return plot_metric_bars(
@@ -989,8 +1044,8 @@ def plot_manifest_coord_ranges(
         _coord_ranges(_as_payload(manifest)),
         title=title,
         sort_by_value=False,
+        **plot_kws,
     )
-
 
 
 def plot_manifest_boolean_summary(
@@ -998,33 +1053,48 @@ def plot_manifest_boolean_summary(
     manifest: ManifestLike,
     *,
     title: str = "Stage-1 manifest checks",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot simple boolean checks for the handshake."""
     payload = _as_payload(manifest)
     cfg = payload.get("config", {}) or {}
     checks = {
-        "has_schema_version": bool(payload.get("schema_version")),
+        "has_schema_version": bool(
+            payload.get("schema_version")
+        ),
         "has_stage": bool(payload.get("stage")),
         "has_city": bool(payload.get("city")),
         "has_model": bool(payload.get("model")),
         "has_config": isinstance(payload.get("config"), dict),
-        "has_artifacts": isinstance(payload.get("artifacts"), dict),
+        "has_artifacts": isinstance(
+            payload.get("artifacts"), dict
+        ),
         "has_paths": isinstance(payload.get("paths"), dict),
-        "has_versions": isinstance(payload.get("versions"), dict),
+        "has_versions": isinstance(
+            payload.get("versions"), dict
+        ),
         "has_scaling_kwargs": isinstance(
             cfg.get("scaling_kwargs"),
             dict,
         ),
         "has_holdout": isinstance(cfg.get("holdout"), dict),
         "has_numpy_artifacts": bool(
-            nested_get(payload, "artifacts", "numpy", default={})
+            nested_get(
+                payload, "artifacts", "numpy", default={}
+            )
         ),
         "has_shape_summary": bool(
-            nested_get(payload, "artifacts", "shapes", default={})
+            nested_get(
+                payload, "artifacts", "shapes", default={}
+            )
         ),
     }
-    return plot_boolean_checks(ax, checks, title=title)
-
+    return plot_boolean_checks(
+        ax,
+        checks,
+        title=title,
+        **plot_kws,
+    )
 
 
 def inspect_manifest(
@@ -1045,7 +1115,9 @@ def inspect_manifest(
         "summary": summarize_manifest(payload),
         "identity": manifest_identity_frame(payload),
         "config": manifest_config_frame(payload),
-        "feature_groups": manifest_feature_groups_frame(payload),
+        "feature_groups": manifest_feature_groups_frame(
+            payload
+        ),
         "holdout": manifest_holdout_frame(payload),
         "artifacts": manifest_artifacts_frame(payload),
         "paths": manifest_paths_frame(payload),

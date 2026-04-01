@@ -39,10 +39,14 @@ from .utils import (
     as_path,
     clone_artifact,
     deep_update,
+    empty_plot,
+    filter_plot_kwargs,
+    finalize_plot,
     load_artifact,
     nested_get,
     plot_boolean_checks,
     plot_metric_bars,
+    prepare_plot,
     read_json,
     write_json,
 )
@@ -693,40 +697,65 @@ def plot_stage1_coord_ranges(
     *,
     ax: plt.Axes | None = None,
     title: str = "Stage-1 coord ranges",
+    ylabel: str = "range",
+    show_grid: bool = True,
+    grid_kws: dict[str, Any] | None = None,
+    annotate: bool = True,
+    annotate_kws: dict[str, Any] | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot chain-rule coordinate ranges."""
-    own = ax is None
-    if own:
-        _, ax = plt.subplots(figsize=(7.0, 4.0))
+    fig, plot_ax, _ = prepare_plot(ax=ax, figsize=(7.0, 4.0))
 
     frame = stage1_coord_ranges_frame(audit)
     if frame.empty:
-        ax.set_title(title)
-        ax.text(
-            0.5,
-            0.5,
-            "No coord ranges",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        _, plot_ax = empty_plot(
+            fig,
+            plot_ax,
+            title=title,
+            message="No coord ranges",
         )
-        ax.set_axis_off()
-        return ax
+        return plot_ax
 
-    ax.bar(frame["coord"], frame["range"])
-    ax.set_title(title)
-    ax.set_ylabel("range")
-    ax.grid(axis="y", alpha=0.25)
+    bar_kws = filter_plot_kwargs(
+        plot_ax.bar,
+        plot_kws,
+        error=error,
+    )
+    bars = plot_ax.bar(
+        frame["coord"].astype(str),
+        frame["range"],
+        **bar_kws,
+    )
 
-    for _, row in frame.iterrows():
-        ax.text(
-            row["coord"],
-            row["range"],
-            f"{row['range']:.4g}",
-            ha="center",
-            va="bottom",
+    _, plot_ax = finalize_plot(
+        fig,
+        plot_ax,
+        title=title,
+        ylabel=ylabel,
+        show_grid=show_grid,
+        grid_kws=grid_kws or {"axis": "y", "alpha": 0.25},
+    )
+
+    if annotate:
+        text_kws = filter_plot_kwargs(
+            plot_ax.text,
+            annotate_kws,
+            error=error,
         )
-    return ax
+        for bar, value in zip(
+            bars, frame["range"], strict=False
+        ):
+            plot_ax.text(
+                bar.get_x() + bar.get_width() / 2.0,
+                bar.get_height(),
+                f"{float(value):.4g}",
+                ha="center",
+                va="bottom",
+                **text_kws,
+            )
+    return plot_ax
 
 
 def plot_stage1_feature_split(
@@ -734,27 +763,28 @@ def plot_stage1_feature_split(
     *,
     ax: plt.Axes | None = None,
     title: str = "Stage-1 feature split",
+    xlabel: str = "feature group",
+    ylabel: str = "features",
+    show_grid: bool = True,
+    grid_kws: dict[str, Any] | None = None,
+    legend_kws: dict[str, Any] | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """
     Plot feature bucket counts by feature group.
     """
-    own = ax is None
-    if own:
-        _, ax = plt.subplots(figsize=(8.2, 4.4))
+    fig, plot_ax, _ = prepare_plot(ax=ax, figsize=(8.2, 4.4))
 
     frame = stage1_feature_split_frame(audit)
     if frame.empty:
-        ax.set_title(title)
-        ax.text(
-            0.5,
-            0.5,
-            "No feature split",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        _, plot_ax = empty_plot(
+            fig,
+            plot_ax,
+            title=title,
+            message="No feature split",
         )
-        ax.set_axis_off()
-        return ax
+        return plot_ax
 
     count_frame = (
         frame.groupby(["group", "bucket"])
@@ -768,17 +798,30 @@ def plot_stage1_feature_split(
         values="n",
     ).fillna(0.0)
 
+    plot_call_kws = filter_plot_kwargs(
+        pivot.plot,
+        plot_kws,
+        error=error,
+    )
     pivot.plot(
         kind="bar",
         stacked=True,
-        ax=ax,
+        ax=plot_ax,
+        **plot_call_kws,
     )
-    ax.set_title(title)
-    ax.set_xlabel("feature group")
-    ax.set_ylabel("features")
-    ax.grid(axis="y", alpha=0.25)
-    ax.legend(title="bucket")
-    return ax
+
+    _, plot_ax = finalize_plot(
+        fig,
+        plot_ax,
+        title=title,
+        xlabel=xlabel,
+        ylabel=ylabel,
+        show_grid=show_grid,
+        grid_kws=grid_kws or {"axis": "y", "alpha": 0.25},
+        legend=True,
+        legend_kws=legend_kws or {"title": "bucket"},
+    )
+    return plot_ax
 
 
 def plot_stage1_variable_stats(
@@ -788,53 +831,47 @@ def plot_stage1_variable_stats(
     stat: str = "mean",
     ax: plt.Axes | None = None,
     title: str | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """
     Plot one statistic across variables.
     """
-    own = ax is None
-    if own:
-        _, ax = plt.subplots(figsize=(8.0, 4.2))
+    fig, plot_ax, _ = prepare_plot(ax=ax, figsize=(8.0, 4.2))
 
     frame = stage1_stats_frame(audit, section=section)
     if frame.empty:
-        ax.set_title(title or section)
-        ax.text(
-            0.5,
-            0.5,
-            "No numeric variable stats",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        _, plot_ax = empty_plot(
+            fig,
+            plot_ax,
+            title=title or section,
+            message="No numeric variable stats",
         )
-        ax.set_axis_off()
-        return ax
+        return plot_ax
 
     sub = frame.loc[frame["stat"].eq(stat)].copy()
     if sub.empty:
-        ax.set_title(title or section)
-        ax.text(
-            0.5,
-            0.5,
-            f"Statistic {stat!r} not found",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        _, plot_ax = empty_plot(
+            fig,
+            plot_ax,
+            title=title or section,
+            message=f"Statistic {stat!r} not found",
         )
-        ax.set_axis_off()
-        return ax
+        return plot_ax
 
     metrics = dict(
         zip(sub["name"], sub["value"], strict=False)
     )
     plot_metric_bars(
-        ax,
+        plot_ax,
         metrics,
         title=title or f"{section}: {stat}",
         sort_by_value=True,
+        xlabel=stat,
+        error=error,
+        **plot_kws,
     )
-    ax.set_xlabel(stat)
-    return ax
+    return plot_ax
 
 
 def plot_stage1_target_stats(
@@ -861,15 +898,21 @@ def plot_stage1_boolean_summary(
     *,
     ax: plt.Axes | None = None,
     title: str = "Stage-1 audit checks",
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot semantic pass/fail checks."""
-    own = ax is None
-    if own:
-        _, ax = plt.subplots(figsize=(7.2, 4.0))
+    fig, plot_ax, _ = prepare_plot(ax=ax, figsize=(7.2, 4.0))
 
     checks = summarize_stage1_audit(audit)["checks"]
-    plot_boolean_checks(ax, checks, title=title)
-    return ax
+    plot_boolean_checks(
+        plot_ax,
+        checks,
+        title=title,
+        error=error,
+        **plot_kws,
+    )
+    return plot_ax
 
 
 def inspect_stage1_audit(

@@ -10,16 +10,16 @@ import pytest
 
 # --- Attempt to import functions and dependencies ---
 try:
-    from fusionlab.nn.utils import (
+    from geoprior.models.utils._utils import (
         format_predictions_to_dataframe,
     )
-    from fusionlab.plot.evaluation import (
+    from geoprior.plot.evaluation import (
         plot_forecast_comparison,
         plot_metric_over_horizon,
         plot_metric_radar,
     )
 
-    FUSIONLAB_INSTALLED = True
+    GEOPRIOR_INSTALLED = True
 except ImportError as e:
     print(
         f"Skipping plot.evaluation tests due to import error: {e}"

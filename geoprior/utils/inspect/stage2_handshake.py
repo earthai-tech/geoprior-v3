@@ -38,11 +38,15 @@ from .utils import (
     as_path,
     clone_artifact,
     deep_update,
+    empty_plot,
+    filter_plot_kwargs,
+    finalize_plot,
     load_artifact,
     metrics_frame,
     nested_get,
     plot_boolean_checks,
     plot_metric_bars,
+    prepare_plot,
     read_json,
     write_json,
 )
@@ -711,11 +715,11 @@ def plot_stage2_sample_sizes(
     *,
     ax: plt.Axes | None = None,
     title: str = "Stage-2 sample sizes",
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot training and validation counts."""
-    own = ax is None
-    if own:
-        _, ax = plt.subplots(figsize=(6.4, 4.0))
+    fig, plot_ax, _ = prepare_plot(ax=ax, figsize=(6.4, 4.0))
 
     payload = _as_payload(audit)
     got = payload.get("got", {}) or {}
@@ -724,12 +728,14 @@ def plot_stage2_sample_sizes(
         "N_val": got.get("N_val", 0),
     }
     plot_metric_bars(
-        ax,
+        plot_ax,
         metrics,
         title=title,
         sort_by_value=False,
+        error=error,
+        **plot_kws,
     )
-    return ax
+    return plot_ax
 
 
 def plot_stage2_finite_ratios(
@@ -737,20 +743,22 @@ def plot_stage2_finite_ratios(
     *,
     ax: plt.Axes | None = None,
     title: str = "Stage-2 finite ratios",
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot finite-ratio metrics."""
-    own = ax is None
-    if own:
-        _, ax = plt.subplots(figsize=(9.0, 4.8))
+    fig, plot_ax, _ = prepare_plot(ax=ax, figsize=(9.0, 4.8))
 
     payload = _as_payload(audit)
     plot_metric_bars(
-        ax,
+        plot_ax,
         payload.get("finite", {}),
         title=title,
         sort_by_value=True,
+        error=error,
+        **plot_kws,
     )
-    return ax
+    return plot_ax
 
 
 def plot_stage2_coord_stats(
@@ -760,53 +768,47 @@ def plot_stage2_coord_stats(
     stat: str = "mean",
     ax: plt.Axes | None = None,
     title: str | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """
     Plot one coord statistic across axes.
     """
-    own = ax is None
-    if own:
-        _, ax = plt.subplots(figsize=(7.4, 4.0))
+    fig, plot_ax, _ = prepare_plot(ax=ax, figsize=(7.4, 4.0))
 
     frame = stage2_coord_stats_frame(audit, section=section)
     if frame.empty:
-        ax.set_title(title or section)
-        ax.text(
-            0.5,
-            0.5,
-            "No coordinate stats",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        _, plot_ax = empty_plot(
+            fig,
+            plot_ax,
+            title=title or section,
+            message="No coordinate stats",
         )
-        ax.set_axis_off()
-        return ax
+        return plot_ax
 
     sub = frame.loc[frame["stat"].eq(stat)].copy()
     if sub.empty:
-        ax.set_title(title or section)
-        ax.text(
-            0.5,
-            0.5,
-            f"Statistic {stat!r} not found",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        _, plot_ax = empty_plot(
+            fig,
+            plot_ax,
+            title=title or section,
+            message=f"Statistic {stat!r} not found",
         )
-        ax.set_axis_off()
-        return ax
+        return plot_ax
 
     metrics = dict(
         zip(sub["coord"], sub["value"], strict=False)
     )
     plot_metric_bars(
-        ax,
+        plot_ax,
         metrics,
         title=title or f"{section}: {stat}",
         sort_by_value=False,
+        xlabel=stat,
+        error=error,
+        **plot_kws,
     )
-    ax.set_xlabel(stat)
-    return ax
+    return plot_ax
 
 
 def plot_stage2_coord_range_errors(
@@ -814,40 +816,65 @@ def plot_stage2_coord_range_errors(
     *,
     ax: plt.Axes | None = None,
     title: str = "Stage-2 coord range relative errors",
+    ylabel: str = "relative error",
+    show_grid: bool = True,
+    grid_kws: dict[str, Any] | None = None,
+    annotate: bool = True,
+    annotate_kws: dict[str, Any] | None = None,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot coord range relative errors."""
-    own = ax is None
-    if own:
-        _, ax = plt.subplots(figsize=(7.0, 4.0))
+    fig, plot_ax, _ = prepare_plot(ax=ax, figsize=(7.0, 4.0))
 
     frame = stage2_coord_range_frame(audit)
     if frame.empty:
-        ax.set_title(title)
-        ax.text(
-            0.5,
-            0.5,
-            "No coord range checks",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        _, plot_ax = empty_plot(
+            fig,
+            plot_ax,
+            title=title,
+            message="No coord range checks",
         )
-        ax.set_axis_off()
-        return ax
+        return plot_ax
 
-    ax.bar(frame["coord"], frame["rel_err"])
-    ax.set_title(title)
-    ax.set_ylabel("relative error")
-    ax.grid(axis="y", alpha=0.25)
+    bar_kws = filter_plot_kwargs(
+        plot_ax.bar,
+        plot_kws,
+        error=error,
+    )
+    bars = plot_ax.bar(
+        frame["coord"].astype(str),
+        frame["rel_err"],
+        **bar_kws,
+    )
 
-    for _, row in frame.iterrows():
-        ax.text(
-            row["coord"],
-            row["rel_err"],
-            f"{row['rel_err']:.3g}",
-            ha="center",
-            va="bottom",
+    _, plot_ax = finalize_plot(
+        fig,
+        plot_ax,
+        title=title,
+        ylabel=ylabel,
+        show_grid=show_grid,
+        grid_kws=grid_kws or {"axis": "y", "alpha": 0.25},
+    )
+
+    if annotate:
+        text_kws = filter_plot_kwargs(
+            plot_ax.text,
+            annotate_kws,
+            error=error,
         )
-    return ax
+        for bar, value in zip(
+            bars, frame["rel_err"], strict=False
+        ):
+            plot_ax.text(
+                bar.get_x() + bar.get_width() / 2.0,
+                bar.get_height(),
+                f"{float(value):.3g}",
+                ha="center",
+                va="bottom",
+                **text_kws,
+            )
+    return plot_ax
 
 
 def plot_stage2_scaling_summary(
@@ -856,52 +883,46 @@ def plot_stage2_scaling_summary(
     ax: plt.Axes | None = None,
     title: str = "Stage-2 scaling summary",
     top_n: int | None = 12,
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot numeric items from ``sk_summary``."""
-    own = ax is None
-    if own:
-        _, ax = plt.subplots(figsize=(8.4, 4.8))
+    fig, plot_ax, _ = prepare_plot(ax=ax, figsize=(8.4, 4.8))
 
     frame = stage2_scaling_frame(audit)
     if frame.empty:
-        ax.set_title(title)
-        ax.text(
-            0.5,
-            0.5,
-            "No scaling summary",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        _, plot_ax = empty_plot(
+            fig,
+            plot_ax,
+            title=title,
+            message="No scaling summary",
         )
-        ax.set_axis_off()
-        return ax
+        return plot_ax
 
     sub = frame.loc[frame["is_numeric"]].copy()
     if sub.empty:
-        ax.set_title(title)
-        ax.text(
-            0.5,
-            0.5,
-            "No numeric scaling items",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        _, plot_ax = empty_plot(
+            fig,
+            plot_ax,
+            title=title,
+            message="No numeric scaling items",
         )
-        ax.set_axis_off()
-        return ax
+        return plot_ax
 
     metrics = dict(
         zip(sub["key"], sub["value"], strict=False)
     )
     plot_metric_bars(
-        ax,
+        plot_ax,
         metrics,
         title=title,
         sort_by_value=True,
         top_n=top_n,
         absolute=True,
+        error=error,
+        **plot_kws,
     )
-    return ax
+    return plot_ax
 
 
 def plot_stage2_boolean_summary(
@@ -909,20 +930,21 @@ def plot_stage2_boolean_summary(
     *,
     ax: plt.Axes | None = None,
     title: str = "Stage-2 handshake checks",
+    error: str = "ignore",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot semantic pass/fail checks."""
-    own = ax is None
-    if own:
-        _, ax = plt.subplots(figsize=(8.0, 4.6))
+    fig, plot_ax, _ = prepare_plot(ax=ax, figsize=(8.0, 4.6))
 
     checks = summarize_stage2_handshake(audit)["checks"]
-    plot_boolean_checks(ax, checks, title=title)
-    return ax
-
-
-# ------------------------------------------------------------------
-# Inspection bundle
-# ------------------------------------------------------------------
+    plot_boolean_checks(
+        plot_ax,
+        checks,
+        title=title,
+        error=error,
+        **plot_kws,
+    )
+    return plot_ax
 
 
 def inspect_stage2_handshake(

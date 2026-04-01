@@ -19,10 +19,14 @@ def _import_target(name: str):
             return importlib.import_module(modname)
         except ModuleNotFoundError as exc:
             missing = str(getattr(exc, "name", "") or "")
-            if modname == missing or modname.startswith(missing + "."):
+            if modname == missing or modname.startswith(
+                missing + "."
+            ):
                 continue
             raise
-    pytest.skip(f"Could not import target module for {name!r}.")
+    pytest.skip(
+        f"Could not import target module for {name!r}."
+    )
 
 
 class _FakeGeoFrame:

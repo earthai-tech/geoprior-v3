@@ -14,6 +14,24 @@ transfer-result payloads.
 
 from __future__ import annotations
 
+from .ablation_record import (
+    ablation_config_frame,
+    ablation_metrics_frame,
+    ablation_per_horizon_frame,
+    ablation_record_flags_frame,
+    ablation_record_runs_frame,
+    default_ablation_record_payload,
+    generate_ablation_record,
+    inspect_ablation_record,
+    load_ablation_record,
+    plot_ablation_boolean_summary,
+    plot_ablation_lambda_weights,
+    plot_ablation_metric_by_variant,
+    plot_ablation_per_horizon_metric,
+    plot_ablation_run_counts,
+    plot_ablation_top_variants,
+    summarize_ablation_record,
+)
 from .calibration_stats import (
     calibration_stats_factors_frame,
     calibration_stats_overall_frame,
@@ -436,4 +454,20 @@ __all__ = [
     "plot_calibration_per_horizon_coverage",
     "plot_calibration_per_horizon_sharpness",
     "summarize_calibration_stats",
+    "ablation_config_frame",
+    "ablation_metrics_frame",
+    "ablation_per_horizon_frame",
+    "ablation_record_flags_frame",
+    "ablation_record_runs_frame",
+    "default_ablation_record_payload",
+    "generate_ablation_record",
+    "inspect_ablation_record",
+    "load_ablation_record",
+    "plot_ablation_boolean_summary",
+    "plot_ablation_lambda_weights",
+    "plot_ablation_metric_by_variant",
+    "plot_ablation_per_horizon_metric",
+    "plot_ablation_run_counts",
+    "plot_ablation_top_variants",
+    "summarize_ablation_record",
 ]

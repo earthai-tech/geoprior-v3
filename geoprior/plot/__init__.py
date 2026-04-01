@@ -6,6 +6,7 @@ from .evaluation import (
     plot_metric_over_horizon,
     plot_metric_radar,
     plot_prediction_stability,
+    plot_qce_donut,
     plot_quantile_calibration,
     plot_theils_u_score,
     plot_time_weighted_metric,
@@ -53,4 +54,5 @@ __all__ = [
     "plot_hotspots",
     "plot_spatial_voronoi",
     "plot_spatial_heatmap",
+    "plot_qce_donut",
 ]

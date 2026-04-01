@@ -5,13 +5,14 @@ This section collects the **example-driven lessons** of
 GeoPrior-v3.
 
 Unlike the API reference, these pages are organized around
-practical workflows and interpretation tasks. Each subsection
-shows executable examples, generated outputs, and guided
-explanations that help you understand what the workflow is
-doing and how to read the results.
+practical workflows, interpretation tasks, and decision-making
+questions. Each subsection shows executable examples,
+generated outputs, and guided explanations that help users
+understand not only **how to run** a helper, but also **how to
+read what it produced**.
 
 Use this gallery to move from **running GeoPrior** to
-**interpreting GeoPrior**.
+**interpreting GeoPrior with confidence**.
 
 Start here
 ----------
@@ -32,15 +33,41 @@ Start here
          :link: ../auto_examples/uncertainty/index
          :link-type: doc
 
-         Explore interval calibration, coverage-versus-sharpness,
-         and exceedance-oriented uncertainty diagnostics.
+         Explore calibration, reliability, coverage-versus-
+         sharpness, raw-versus-calibrated reliability, and
+         exceedance-oriented uncertainty diagnostics.
+
+      .. grid-item-card:: Evaluation
+         :link: ../auto_examples/evaluation/index
+         :link-type: doc
+
+         Read forecast quality through horizon-wise metrics,
+         stability, interval scores, calibration summaries,
+         and multi-metric comparison plots.
 
       .. grid-item-card:: Diagnostics
          :link: ../auto_examples/diagnostics/index
          :link-type: doc
 
          Inspect stage-oriented data checks, training curves,
-         and tuning summaries for the core workflow.
+         tuning summaries, and regression-style fit diagnostics
+         such as R² comparison views.
+
+      .. grid-item-card:: Spatial
+         :link: ../auto_examples/spatial/index
+         :link-type: doc
+
+         Learn how to read mapped outputs through full-domain
+         scatter maps, ROI zooms, contours, hotspot views,
+         Voronoi partitions, and heatmap-style summaries.
+
+      .. grid-item-card:: Inspection
+         :link: ../auto_examples/inspection/index
+         :link-type: doc
+
+         Read saved workflow artifacts as evidence: audits,
+         manifests, scaling sidecars, training summaries,
+         evaluation bundles, transfer results, and ablation logs.
 
       .. grid-item-card:: Figure generation
          :link: ../auto_examples/figure_generation/index
@@ -64,25 +91,77 @@ Start here
          trends, payload values, coordinates, and learned
          parameters.
 
-
-   
 How this gallery is organized
 -----------------------------
 
 The gallery is split by purpose so you can navigate the
 documentation according to the kind of task you want to do.
 
-**Forecasting**, **uncertainty**, and **diagnostics**
-focus on understanding workflow results and model behaviour.
+**Forecasting** focuses on what was predicted and how forecast
+outputs are structured.
+
+**Uncertainty** focuses on probabilistic trust questions such as
+reliability, calibration, coverage, sharpness, raw-versus-
+calibrated comparison, and exceedance behavior.
+
+**Evaluation** focuses on judging forecast quality once results
+already exist: error over horizon, weighted metrics, stability,
+interval scores, calibration summaries, and compact model
+comparison views.
+
+**Diagnostics** focuses on whether the workflow behaved cleanly:
+stage checks, training health, tuning summaries, and
+regression-style fit views such as R² diagnostics.
+
+**Spatial** focuses on where patterns happen and how mapped
+results should be read: sampled points, local regions of
+interest, smoothed surfaces, hotspots, support partitions,
+and gridded summaries.
+
+**Inspection** focuses on reading the saved workflow artifacts
+that connect those stages together: audits, manifests,
+configuration sidecars, summaries, evaluation JSONs, transfer
+bundles, and experiment logs. It is the best place to go when
+you already have an artifact on disk and want to decide whether
+to continue, recalibrate, compare, export, or re-run.
 
 **Figure generation** focuses on producing polished visual
 outputs for analysis, reporting, and publication.
 
-**Tables and summaries** focuses on reusable artifacts such
-as metric tables, summaries, and lightweight support layers.
+**Tables and summaries** focuses on reusable artifacts such as
+metric tables, summaries, and lightweight support layers.
 
 **Model inspection** focuses on deeper checks of training
-behaviour, physics diagnostics, and learned quantities.
+behavior, physics diagnostics, and learned quantities inside the
+model itself.
+
+A practical reading rule
+------------------------
+
+If you are not sure where to begin, use this guide:
+
+- Go to **Forecasting** when your main question is *what was
+  predicted?*
+- Go to **Uncertainty** when your main question is *how reliable
+  are the intervals, quantiles, or exceedance estimates?*
+- Go to **Evaluation** when your main question is *how good is the
+  forecast once I quantify it across horizons, metrics, and
+  calibration views?*
+- Go to **Diagnostics** when your main question is *did the
+  workflow run cleanly and do the staged checks or fit summaries
+  look healthy?*
+- Go to **Spatial** when your main question is *where are the
+  mapped patterns, support zones, hotspots, or local regional
+  structures?*
+- Go to **Inspection** when your main question is *what does this
+  saved artifact mean, and is it trustworthy enough for the next
+  decision?*
+- Go to **Figure generation** when your main question is *how do I
+  communicate the result clearly?*
+- Go to **Tables and summaries** when your main question is *how do
+  I export a reusable metric or spatial summary?*
+- Go to **Model inspection** when your main question is *what did
+  the model learn internally and how did the physics terms behave?*
 
 How to use these pages
 ----------------------
@@ -94,10 +173,11 @@ A typical page will help you:
 - build or load a compact example input,
 - run a real GeoPrior helper or plotting routine,
 - inspect the resulting figure, table, or artifact,
-- and understand how to interpret what you see.
+- understand what the output means,
+- and decide what to do next.
 
-That means the gallery is not only for copying code. It is
-also a practical guide to reading outputs with confidence.
+That means the gallery is not only for copying code. It is also
+a practical guide to reading outputs with confidence.
 
 See also
 --------
@@ -111,13 +191,16 @@ See also
 
       Review execution-time summaries for the generated
       gallery examples.
-      
+
 .. toctree::
    :hidden:
 
    ../auto_examples/forecasting/index
    ../auto_examples/uncertainty/index
+   ../auto_examples/evaluation/index
    ../auto_examples/diagnostics/index
+   ../auto_examples/spatial/index
+   ../auto_examples/inspection/index
    ../auto_examples/figure_generation/index
    ../auto_examples/tables_and_summaries/index
    ../auto_examples/model_inspection/index

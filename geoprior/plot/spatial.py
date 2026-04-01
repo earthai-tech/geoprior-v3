@@ -171,8 +171,8 @@ def plot_spatial(
 
         if savefig:
             fmts = (
-                [savefig]
-                if isinstance(savefig, str)
+                [save_fmts]
+                if isinstance(save_fmts, str)
                 else save_fmts
             )
             base, _ = os.path.splitext(savefig)
@@ -389,8 +389,8 @@ def plot_spatial_roi(
 
     if savefig:
         fmts = (
-            [savefig]
-            if isinstance(savefig, str)
+            [save_fmts]
+            if isinstance(save_fmts, str)
             else save_fmts
         )
         base, _ = os.path.splitext(savefig)
@@ -627,8 +627,8 @@ def plot_spatial_contours(
     # save figure
     if savefig:
         fmts = (
-            [savefig]
-            if isinstance(savefig, str)
+            [save_fmts]
+            if isinstance(save_fmts, str)
             else save_fmts
         )
         base, _ = os.path.splitext(savefig)
@@ -865,8 +865,8 @@ def plot_hotspots(
 
     if savefig:
         fmts = (
-            [savefig]
-            if isinstance(savefig, str)
+            [save_fmts]
+            if isinstance(save_fmts, str)
             else save_fmts
         )
         base, _ = os.path.splitext(savefig)
@@ -1080,8 +1080,8 @@ def plot_spatial_voronoi(
     # Save
     if savefig:
         fmts = (
-            [savefig]
-            if isinstance(savefig, str)
+            [save_fmts]
+            if isinstance(save_fmts, str)
             else save_fmts
         )
         base, _ = os.path.splitext(savefig)
@@ -1308,8 +1308,8 @@ def plot_spatial_heatmap(
     # save
     if savefig:
         fmts = (
-            [savefig]
-            if isinstance(savefig, str)
+            [save_fmts]
+            if isinstance(save_fmts, str)
             else save_fmts
         )
         base, _ = os.path.splitext(savefig)

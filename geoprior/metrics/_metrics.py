@@ -2867,8 +2867,12 @@ def weighted_interval_score(
         Shape: (n_samples,) or (n_samples, n_outputs).
     y_lower : array-like
         Lower bounds for each central prediction interval.
-        - If `y_true` is 1D: (n_samples, K_intervals)
-        - If `y_true` is 2D: (n_samples, n_outputs, K_intervals)
+        - If `y_true` is 1D:
+        - (n_samples,) when K_intervals == 1, or
+        - (n_samples, K_intervals)
+      - If `y_true` is 2D:
+        - (n_samples, n_outputs) when K_intervals == 1, or
+        - (n_samples, n_outputs, K_intervals)
     y_upper : array-like
         Upper bounds, matching `y_lower`'s shape.
     y_median : array-like
@@ -3016,45 +3020,108 @@ def weighted_interval_score(
     if y_true_ndim == 1:
         y_true_proc = y_true_arr.reshape(-1, 1)
         y_median_proc = y_median_arr.reshape(-1, 1)
+
+        if y_median_arr.shape != y_true_arr.shape:
+            raise ValueError(
+                "If y_true is 1D, y_median must have the same shape."
+            )
+
         if (
-            y_lower_arr.ndim == 2
-            and y_lower_arr.shape[1] == K_intervals
+            y_lower_arr.ndim == 1
+            and y_upper_arr.ndim == 1
+            and K_intervals == 1
         ):
+            if (
+                y_lower_arr.shape != y_true_arr.shape
+                or y_upper_arr.shape != y_true_arr.shape
+            ):
+                raise ValueError(
+                    "If y_true is 1D and K_intervals == 1, "
+                    "1D y_lower/y_upper must match y_true shape."
+                )
+            # Compact single-interval form: (n_samples,) -> (n_samples, 1, 1)
+            y_lower_proc = y_lower_arr.reshape(-1, 1, 1)
+            y_upper_proc = y_upper_arr.reshape(-1, 1, 1)
+
+        elif (
+            y_lower_arr.ndim == 2
+            and y_upper_arr.ndim == 2
+            and y_lower_arr.shape
+            == (y_true_arr.shape[0], K_intervals)
+            and y_upper_arr.shape
+            == (y_true_arr.shape[0], K_intervals)
+        ):
+            # Standard single-output interval form: (n_samples, K)
             y_lower_proc = y_lower_arr.reshape(
-                y_lower_arr.shape[0], 1, -1
+                y_lower_arr.shape[0], 1, K_intervals
             )
             y_upper_proc = y_upper_arr.reshape(
-                y_upper_arr.shape[0], 1, -1
+                y_upper_arr.shape[0], 1, K_intervals
             )
+
         elif (
             y_lower_arr.ndim == 3
+            and y_upper_arr.ndim == 3
             and y_lower_arr.shape[1] == 1
+            and y_upper_arr.shape[1] == 1
             and y_lower_arr.shape[2] == K_intervals
+            and y_upper_arr.shape[2] == K_intervals
         ):
+            # Already expanded: (n_samples, 1, K)
             y_lower_proc = y_lower_arr
             y_upper_proc = y_upper_arr
+
         else:
             raise ValueError(
-                "If y_true is 1D, y_lower/y_upper must be 2D "
-                "(n_samples, K_intervals) or 3D (n_samples, 1, K_intervals)."
-                f" Got y_lower: {y_lower_arr.shape}, K_intervals={K_intervals}"
+                "If y_true is 1D, y_lower/y_upper must be either "
+                "(n_samples,) when K_intervals == 1, "
+                "(n_samples, K_intervals), or "
+                "(n_samples, 1, K_intervals). "
+                f"Got y_lower: {y_lower_arr.shape}, "
+                f"y_upper: {y_upper_arr.shape}, "
+                f"K_intervals={K_intervals}"
             )
+
     elif y_true_ndim == 2:
         y_true_proc = y_true_arr
         y_median_proc = y_median_arr
+
+        if y_median_arr.shape != y_true_arr.shape:
+            raise ValueError(
+                "If y_true is 2D, y_median must have the same shape."
+            )
+
         if (
+            y_lower_arr.ndim == 2
+            and y_upper_arr.ndim == 2
+            and K_intervals == 1
+            and y_lower_arr.shape == y_true_proc.shape
+            and y_upper_arr.shape == y_true_proc.shape
+        ):
+            # Compact multi-output single-interval form: (n_samples, n_outputs)
+            y_lower_proc = y_lower_arr[..., np.newaxis]
+            y_upper_proc = y_upper_arr[..., np.newaxis]
+
+        elif (
             y_lower_arr.ndim == 3
+            and y_upper_arr.ndim == 3
             and y_lower_arr.shape[1] == y_true_proc.shape[1]
+            and y_upper_arr.shape[1] == y_true_proc.shape[1]
             and y_lower_arr.shape[2] == K_intervals
+            and y_upper_arr.shape[2] == K_intervals
         ):
             y_lower_proc = y_lower_arr
             y_upper_proc = y_upper_arr
+
         else:
             raise ValueError(
-                "If y_true is 2D (n_s, n_o), y_lower/y_upper must be 3D "
-                "(n_s, n_o, K_intervals) with matching n_o and K."
-                f" Got y_true:{y_true_proc.shape}, y_lower:{y_lower_arr.shape}"
-                f", K_intervals={K_intervals}"
+                "If y_true is 2D (n_s, n_o), y_lower/y_upper must be either "
+                "(n_s, n_o) when K_intervals == 1, or "
+                "(n_s, n_o, K_intervals) with matching n_o and K. "
+                f"Got y_true:{y_true_proc.shape}, "
+                f"y_lower:{y_lower_arr.shape}, "
+                f"y_upper:{y_upper_arr.shape}, "
+                f"K_intervals={K_intervals}"
             )
     else:
         raise ValueError(

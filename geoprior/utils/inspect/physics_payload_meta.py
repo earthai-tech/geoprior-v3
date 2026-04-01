@@ -574,46 +574,42 @@ def plot_physics_payload_meta_core_scalars(
     *,
     ax: plt.Axes | None = None,
     title: str = "Physics payload meta: core scalars",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot selected top-level numeric metadata values."""
-    if ax is None:
-        _, ax = plt.subplots(figsize=(7.8, 4.5))
-
     data = _as_payload(payload)
     metrics = _numeric_subset(data, keys=_CORE_SCALARS)
-    plot_metric_bars(
+    return plot_metric_bars(
         ax,
         metrics,
         title=title,
         sort_by_value=True,
         absolute=True,
+        **plot_kws,
     )
-    return ax
 
 
 def plot_physics_payload_meta_payload_metrics(
     payload: PhysicsPayloadMetaLike,
     *,
     ax: plt.Axes | None = None,
-    title: str = ("Physics payload meta: payload metrics"),
+    title: str = "Physics payload meta: payload metrics",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot compact payload-level metrics."""
-    if ax is None:
-        _, ax = plt.subplots(figsize=(7.8, 4.5))
-
     data = _as_payload(payload)
     metrics = _numeric_subset(
         data.get("payload_metrics", {}),
         keys=_PAYLOAD_METRIC_KEYS,
     )
-    plot_metric_bars(
+    return plot_metric_bars(
         ax,
         metrics,
         title=title,
         sort_by_value=True,
         absolute=True,
+        **plot_kws,
     )
-    return ax
 
 
 def plot_physics_payload_meta_boolean_summary(
@@ -621,18 +617,16 @@ def plot_physics_payload_meta_boolean_summary(
     *,
     ax: plt.Axes | None = None,
     title: str = "Physics payload meta: checks",
+    **plot_kws: Any,
 ) -> plt.Axes:
     """Plot boolean inspection checks."""
-    if ax is None:
-        _, ax = plt.subplots(figsize=(8.2, 4.8))
-
     checks = summarize_physics_payload_meta(payload)["checks"]
-    plot_boolean_checks(
+    return plot_boolean_checks(
         ax,
         checks,
         title=title,
+        **plot_kws,
     )
-    return ax
 
 
 def inspect_physics_payload_meta(

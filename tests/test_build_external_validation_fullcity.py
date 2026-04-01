@@ -18,10 +18,15 @@ def _import_target(name: str):
             return importlib.import_module(modname)
         except ModuleNotFoundError as exc:
             missing = str(getattr(exc, "name", "") or "")
-            if modname == missing or modname.startswith(missing + "."):
+            if modname == missing or modname.startswith(
+                missing + "."
+            ):
                 continue
             raise
-    pytest.skip(f"Could not import target module for {name!r}.")
+    pytest.skip(
+        f"Could not import target module for {name!r}."
+    )
+
 
 pytestmark = [pytest.mark.stage_artifacts]
 
@@ -32,7 +37,9 @@ def _write_npz(path: Path, **arrays) -> Path:
     return path
 
 
-def test_compute_external_metrics_writes_site_table_and_json(tmp_path: Path):
+def test_compute_external_metrics_writes_site_table_and_json(
+    tmp_path: Path,
+):
     mod = _import_target("build_external_validation_fullcity")
 
     coords = np.array(
@@ -44,7 +51,9 @@ def test_compute_external_metrics_writes_site_table_and_json(tmp_path: Path):
     )
     h_field = np.array([[[5.0]], [[7.0]]], dtype=np.float32)
     payload_k = np.array([[[0.1]], [[0.2]]], dtype=np.float32)
-    payload_hd = np.array([[[4.0]], [[6.0]]], dtype=np.float32)
+    payload_hd = np.array(
+        [[[4.0]], [[6.0]]], dtype=np.float32
+    )
     payload_h = np.array([[[5.5]], [[7.5]]], dtype=np.float32)
 
     inputs_npz = _write_npz(
@@ -91,21 +100,33 @@ def test_compute_external_metrics_writes_site_table_and_json(tmp_path: Path):
 
     assert len(site_df) == 2
     assert metrics["n_sites"] == 2
-    assert (outdir / "site_level_external_validation_fullcity.csv").exists()
-    assert (outdir / "external_validation_metrics_fullcity.json").exists()
+    assert (
+        outdir / "site_level_external_validation_fullcity.csv"
+    ).exists()
+    assert (
+        outdir / "external_validation_metrics_fullcity.json"
+    ).exists()
 
 
-def test_make_full_inputs_npz_concatenates_matching_keys(tmp_path: Path):
+def test_make_full_inputs_npz_concatenates_matching_keys(
+    tmp_path: Path,
+):
     mod = _import_target("build_external_validation_fullcity")
 
     a = tmp_path / "a.npz"
     b = tmp_path / "b.npz"
     out = tmp_path / "full.npz"
 
-    np.savez(a, coords=np.array([[1.0]]), H_field=np.array([[2.0]]))
-    np.savez(b, coords=np.array([[3.0]]), H_field=np.array([[4.0]]))
+    np.savez(
+        a, coords=np.array([[1.0]]), H_field=np.array([[2.0]])
+    )
+    np.savez(
+        b, coords=np.array([[3.0]]), H_field=np.array([[4.0]])
+    )
 
-    result = mod.make_full_inputs_npz([str(a), str(b)], str(out))
+    result = mod.make_full_inputs_npz(
+        [str(a), str(b)], str(out)
+    )
     merged = np.load(result)
 
     assert merged["coords"].shape[0] == 2
