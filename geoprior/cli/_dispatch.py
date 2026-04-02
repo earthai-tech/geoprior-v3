@@ -1,4 +1,79 @@
 # SPDX-License-Identifier: Apache-2.0
+r"""
+Low-level dispatch helpers for GeoPrior command-line entry points.
+
+This module provides the internal building blocks used by the GeoPrior
+CLI frontends to resolve commands, import their implementation modules,
+and execute the appropriate entry callable with a uniform interface.
+
+It is intentionally small and generic. The higher-level command
+registry, family routing, and user-facing help pages live elsewhere,
+while this module focuses on the reusable mechanics required by all
+CLI entry points.
+
+Overview
+--------
+The dispatcher infrastructure revolves around a small command
+description object, :class:`CommandSpec`, and a set of helper
+functions that perform four main tasks:
+
+1. Import a command module from a registry entry.
+2. Load the entry callable exposed by that module.
+3. Execute the callable or module with the correct delegated
+   ``argv`` and program name.
+4. Build compact command/alias listings for help output.
+
+Design goals
+------------
+This module is designed to keep CLI execution:
+
+- **registry-driven**
+  so commands can be described declaratively rather than hard-coded,
+- **lightweight**
+  so frontends such as ``geoprior``, ``geoprior-run``,
+  ``geoprior-build``, and ``geoprior-plot`` can share the same
+  dispatch machinery,
+- **backward-compatible**
+  so legacy command names and aliases can still resolve cleanly,
+- **implementation-agnostic**
+  so a command may expose either a callable entrypoint or a
+  module-style ``__main__`` execution path.
+
+Execution model
+---------------
+A command is described by :class:`CommandSpec`, which records the
+target package, module, callable name, public command name, family,
+and accepted aliases.
+
+Given such a specification, the helpers in this module support two
+execution styles:
+
+``call_entry``
+    Load a Python callable and invoke it using the most compatible
+    calling convention discovered from its signature.
+
+``run_module``
+    Execute a module as ``__main__`` after temporarily patching
+    :data:`sys.argv`, which is useful for module-oriented CLI code.
+
+The module also provides small helpers such as :func:`alias_map`,
+:func:`public_items`, and :func:`print_help_table` to support
+consistent help rendering across command families.
+
+Notes
+-----
+This module is primarily internal and is not intended to contain
+domain-specific workflow logic. It should remain focused on generic
+dispatch behavior only.
+
+See Also
+--------
+geoprior.cli.__main__
+    Family-aware public CLI frontends built on top of this module.
+geoprior.scripts.registry
+    Registry definitions consumed by the dispatch layer.
+"""
+
 from __future__ import annotations
 
 import importlib
@@ -11,7 +86,6 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class CommandSpec:
-    """Shared command description for CLI dispatch."""
 
     package: str
     mod: str
@@ -23,6 +97,53 @@ class CommandSpec:
     aliases: tuple[str, ...] = ()
     legacy_names: tuple[str, ...] = ()
 
+CommandSpec.__doc__ = r"""
+Immutable command description used by the CLI dispatch layer.
+
+A :class:`CommandSpec` stores the minimal metadata needed to resolve
+and execute a command from the registry-driven GeoPrior CLI system.
+
+Each instance identifies
+
+- the Python package containing the command,
+- the module to import,
+- the callable name to execute,
+- a short human-readable description,
+- the execution mode,
+- the command family and public-facing names.
+
+Attributes
+----------
+package : str
+    Package path used for relative imports. If empty, ``mod`` is
+    imported as an absolute module path.
+mod : str
+    Module name containing the command implementation.
+fn : str
+    Name of the callable entrypoint expected inside ``mod`` when the
+    execution mode is callable-based.
+desc : str
+    Short help text shown in command listings.
+mode : str, default="argv"
+    Execution strategy used by the dispatcher.
+
+    Supported values are typically:
+
+    - ``"argv"`` for callable entrypoints that accept delegated
+      argument lists,
+    - ``"sysargv"`` for callables relying on patched
+      :data:`sys.argv`,
+    - ``"module"`` for modules executed through :mod:`runpy`.
+family : str or None, default=None
+    Optional command family such as ``"run"``, ``"build"``, or
+    ``"plot"``.
+public_name : str or None, default=None
+    Canonical public command name exposed to users.
+aliases : tuple of str, default=()
+    Alternative spellings that resolve to ``public_name``.
+legacy_names : tuple of str, default=()
+    Backward-compatible historical command names.
+"""
 
 def load_module(spec: CommandSpec):
     """Import a module for a command spec."""

@@ -73,8 +73,8 @@ output_gwl_dim : int, default 1
     is consistent with the configured output dimensionality.
 """,
     pde_mode=r"""
-pde_mode : {{'consolidation', 'gw_flow', 'both', 'none', \
-'on', 'off'}} or list of str, default 'both'
+pde_mode : {'consolidation', 'gw_flow', 'both', 'none', \
+'on', 'off'} or list of str, default 'both'
     Select which physics residuals participate in the loss.
 
     GeoPriorSubsNet can enforce two main constraints:
@@ -118,8 +118,8 @@ pde_mode : {{'consolidation', 'gw_flow', 'both', 'none', \
     data-driven run, ensure physics loss weights are also set to zero.
 """,
     identifiability_regime=r"""
-identifiability_regime : {{None, 'base', 'anchored', \
-'closure_locked', 'data_relaxed'}}, default None
+identifiability_regime : {None, 'base', 'anchored', \
+'closure_locked', 'data_relaxed'}, default None
     Select an *identifiability profile* that configures
     physics/regularization knobs to mitigate parameter
     non-identifiability (ridge-like trade-offs) in the
@@ -928,9 +928,6 @@ _param_docs = DocstringComponents.from_nested_components(
 # GeoPriorSubsNet main docstring template.
 # ---------------------------------------------------------------------
 GEOPRIOR_SUBSNET_DOC = rf"""
-GeoPriorSubsNet
-================
-
 Prior-regularized physics-informed network for multi-step
 subsidence forecasting with groundwater coupling.
 
@@ -1261,9 +1258,6 @@ _poro_param_docs = DocstringComponents.from_nested_components(
 # PoroElastic docstring template.
 # ---------------------------------------------------------------------
 POROELASTIC_SUBSNET_DOC = rf"""
-PoroElasticSubsNet
-==================
-
 Poroelastic surrogate variant of GeoPriorSubsNet.
 
 This model is architecturally identical to GeoPriorSubsNet and

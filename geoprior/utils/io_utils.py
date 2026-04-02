@@ -1689,9 +1689,9 @@ def rename_files(
     sortby: Regex or Callable,
        Key to sort the collection of the items when `src_files` is passed as
        a path-like object.  This is usefull to keep order as the origin files
-       especially  when files includes a specific character.  Furthermore
-       [int| float |'num'|'digit'] sorted the files according to the
-       number included in the filename if exists.
+       especially when files include a specific character. The values
+       ``int``, ``float``, ``"num"``, and ``"digit"`` sort files
+       according to the number included in the filename when present.
 
     kws: dict
        keyword arguments passed to `os.rename`.

@@ -761,10 +761,9 @@ def cons_step_to_cons_residual(
 ) -> Tensor:
     """
     Convert consolidation step residual (meters per step) into the chosen
-    residual units:
-      - "step"      -> meters
-      - "time_unit" -> meters / time_unit
-      - "second"    -> meters / second (SI rate)
+    residual units. Supported outputs are ``"step"`` for meters,
+    ``"time_unit"`` for meters per time unit, and ``"second"`` for
+    meters per second (SI rate).
     """
     sk = scaling_kwargs or {}
     mode = resolve_cons_units(sk)
@@ -4986,15 +4985,13 @@ def compose_physics_fields(
     
     Notes
     -----
-    Why coordinate corrections use ``(0, x, y)``
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Why coordinate corrections use ``(0, x, y)``.**
     The coordinate MLPs are intended to represent slowly varying spatial
     heterogeneity (e.g., lithology-driven variability). Zeroing time
     reduces the risk that the model encodes time-varying physics fields
     that can destabilize PDE derivatives across horizons.
-    
-    Hard vs soft bounds
-    ~~~~~~~~~~~~~~~~~~~
+
+    **Hard vs soft bounds.**
     When ``bounds_mode="hard"``, log-parameters are projected into the
     valid interval, yielding fields that always satisfy bounds.
     
@@ -5003,8 +5000,7 @@ def compose_physics_fields(
     float32 overflow. This preserves gradients for penalties without
     risking NaN / Inf in the forward pass.
     
-    Numerical stability
-    ~~~~~~~~~~~~~~~~~~~
+    **Numerical stability.**
     The function deliberately avoids reapplying ``log(exp(.))`` patterns.
     In particular, it composes :math:`\log \tau` additively:
     
@@ -6986,8 +6982,7 @@ def compute_scales(
 
     Notes
     -----
-    Why scaling is needed
-    ~~~~~~~~~~~~~~~~~~~~~
+    **Why scaling is needed.**
     Consolidation and groundwater residuals can differ by many
     orders of magnitude depending on:
 
@@ -6999,8 +6994,7 @@ def compute_scales(
     A stable scaling strategy prevents trivial unit choices from
     changing optimization dynamics.
 
-    dt construction and safety
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **dt construction and safety.**
     If ``dt`` is not provided, dt is inferred as consecutive
     differences along horizon:
 
@@ -7022,23 +7016,20 @@ def compute_scales(
     This guards against degenerate dt values that would explode
     scales.
 
-    Relaxation-aware consolidation scaling
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Relaxation-aware consolidation scaling.**
     If both ``tau_field`` and ``H_field`` are provided, consolidation
     scales may incorporate a relaxation time scale to better match
     the form of the consolidation closure used by the model. If they
     are not provided, a simpler heuristic is used.
 
-    Groundwater scaling inputs
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Groundwater scaling inputs.**
     Groundwater scales are computed from representative magnitudes
     of the groundwater PDE components, optionally using
     ``dh_dt`` and ``div_K_grad_h`` when provided. The scaling also
     accounts for display unit policies returned by
     ``resolve_gw_units(sk)``.
 
-    This function is not traced
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **This function is not traced.**
     This wrapper is not decorated with ``tf.function`` because it
     accepts a Python ``model`` object. Callers may wrap the function
     at a higher level if a stable tracing boundary is desired.
@@ -7473,15 +7464,13 @@ def settlement_state_for_pde(
 
     Notes
     -----
-    Baseline handling
-    ~~~~~~~~~~~~~~~~~
+    **Baseline handling.**
     The baseline :math:`s_0` is interpreted as the settlement value
     at the reference time :math:`t_0` used by the physics residuals.
     If no baseline is provided, :math:`s_0` defaults to zero with
     shape ``(B, 1, 1)`` and is broadcast over the horizon.
 
-    Cumulative construction
-    ~~~~~~~~~~~~~~~~~~~~~~~
+    **Cumulative construction.**
     The function builds a cumulative settlement series :math:`s(t)`
     according to ``subsidence_kind``:
 
@@ -7518,8 +7507,7 @@ def settlement_state_for_pde(
        the time coordinate tensor ``t`` using finite differences. The
        first step uses a fallback of 1.0 (for backward compatibility).
 
-    Incremental state for PDE/ODE residuals
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Incremental state for PDE/ODE residuals.**
     Many physics residuals are written for an incremental settlement
     state :math:`s_{inc}(t)` that starts at zero at :math:`t_0`. When
     ``return_incremental=True`` the function returns:
@@ -7784,8 +7772,7 @@ def to_rms(
 
     Notes
     -----
-    Flooring behavior
-    ~~~~~~~~~~~~~~~~~
+    **Flooring behavior.**
     Floors are opt-in. If ``eps is None`` and ``ms_floor is None``,
     no flooring is applied to the mean-square. If ``rms_floor is
     None``, no flooring is applied to the RMS.
@@ -7797,8 +7784,7 @@ def to_rms(
     * ``ms_floor`` to avoid taking ``sqrt(0)`` when a later operation
       applies ``log`` or divides by RMS.
 
-    Non-finite handling
-    ~~~~~~~~~~~~~~~~~~~
+    **Non-finite handling.**
     ``nan_policy="omit"`` is intended for diagnostics and logging.
     For training-time physics losses, prefer cleaning tensors before
     the loss is computed, so gradients are well-defined.

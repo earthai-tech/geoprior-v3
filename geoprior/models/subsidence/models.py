@@ -2032,8 +2032,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
         Notes
         -----
-        Step outline
-        ~~~~~~~~~~~~
+        **Step outline.**
         This training step performs the following stages:
 
         0) Unpack and canonicalize targets
@@ -2091,8 +2090,7 @@ class GeoPriorSubsNet(BaseAttentive):
             :func:`pack_step_results` so both training logs and evaluation
             summaries remain consistent.
 
-        Physics loss semantics
-        ~~~~~~~~~~~~~~~~~~~~~~
+        **Physics loss semantics.**
         The physics contribution returned by :func:`physics_core` is already
         assembled with internal multipliers and (optionally) warmup/ramp
         gating. In other words, ``physics_loss_scaled`` is the quantity that
@@ -2103,8 +2101,7 @@ class GeoPriorSubsNet(BaseAttentive):
         ``debug_physics_grads=True``) and use the debug hooks called inside
         this step.
 
-        Gradient sanity and debugging
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        **Gradient sanity and debugging.**
         This method provides multiple stability and debug mechanisms:
 
         * NaN/Inf gradient filtering before applying updates.
@@ -2484,8 +2481,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
         Notes
         -----
-        Step outline
-        ~~~~~~~~~~~~
+        **Step outline.**
         This evaluation step follows a stable, dict-safe flow:
 
         1) Unpack and canonicalize targets
@@ -2531,8 +2527,7 @@ class GeoPriorSubsNet(BaseAttentive):
             :func:`pack_step_results` to keep training and validation logs
             consistent.
 
-        When to use physics in validation
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        **When to use physics in validation.**
         Enabling physics during validation is useful to monitor:
 
         * PDE residual RMS values (epsilon metrics),
@@ -2873,35 +2868,20 @@ class GeoPriorSubsNet(BaseAttentive):
         Returns
         -------
         out : dict of str to Tensor
-            Dictionary of physics diagnostics.
+            Dictionary of physics diagnostics. In Dataset mode, scalar keys
+            whose names start with ``'loss_'`` or ``'epsilon_'`` are
+            aggregated by mean across processed batches. Example aggregated
+            outputs include ``loss_cons``, ``loss_gw``, ``loss_prior``,
+            ``loss_smooth``, ``loss_bounds``, ``loss_mv``, ``loss_q_reg``,
+            ``epsilon_cons``, ``epsilon_gw``, and ``epsilon_prior``.
 
-            Aggregated scalars (Dataset mode)
-            --------------------------------
-            Scalars are aggregated by mean across processed batches for keys
-            whose names start with one of these prefixes:
-
-            * ``'loss_'`` (physics loss components)
-            * ``'epsilon_'`` (RMS-style residual diagnostics)
-
-            Example aggregated outputs include:
-
-            * ``loss_cons`` / ``loss_gw`` / ``loss_prior`` / ``loss_smooth``
-            * ``loss_bounds`` / ``loss_mv`` / ``loss_q_reg``
-            * ``epsilon_cons`` / ``epsilon_gw`` / ``epsilon_prior``
-
-            Optional maps (when return_maps=True)
-            -------------------------------------
-            The method may include maps from the last processed batch,
-            selected from:
-
-            * residuals: ``R_prior``, ``R_cons``, ``R_gw``
-            * learned fields: ``K``, ``Ss``, ``tau``
-            * closure prior: ``tau_prior`` / ``tau_closure``
-            * thickness: ``H_field`` / ``H``, drainage thickness ``Hd``
-
-            Map availability depends on the underlying physics computation
-            and whether the batch contains required inputs (coords, thickness
-            field, etc.).
+            When ``return_maps=True``, the output may also include maps from
+            the last processed batch, such as residuals ``R_prior``,
+            ``R_cons``, ``R_gw``; learned fields ``K``, ``Ss``, ``tau``;
+            closure-prior fields ``tau_prior`` / ``tau_closure``; and
+            thickness fields ``H_field`` / ``H`` plus drainage thickness
+            ``Hd``. Map availability depends on the underlying physics
+            computation and whether the batch contains the required inputs.
 
         Raises
         ------
@@ -2911,8 +2891,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
         Notes
         -----
-        What this method is for
-        ~~~~~~~~~~~~~~~~~~~~~~~
+        **What this method is for.**
         Use this method to evaluate physics consistency independently of the
         supervised data loss. Typical use cases include:
 
@@ -2921,14 +2900,12 @@ class GeoPriorSubsNet(BaseAttentive):
         * validating bounds and prior strength before long training runs,
         * generating physics maps for qualitative inspection.
 
-        What this method is not
-        ~~~~~~~~~~~~~~~~~~~~~~~
+        **What this method is not.**
         This method does not compute or aggregate supervised metrics. It is
         intentionally physics-focused and ignores targets even if they are
         present in dataset elements.
 
-        Aggregation semantics
-        ~~~~~~~~~~~~~~~~~~~~~
+        **Aggregation semantics.**
         In Dataset mode, only scalar keys (loss and epsilon prefixes) are
         aggregated across batches. Residual maps and learned fields are not
         aggregated because they are spatially structured tensors; returning
@@ -3370,8 +3347,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
         Notes
         -----
-        Backward compatibility and "always return Q"
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        **Backward compatibility and "always return Q".**
         This helper is designed so downstream physics code never needs to
         branch on whether Q exists.
 
@@ -3384,8 +3360,7 @@ class GeoPriorSubsNet(BaseAttentive):
         This allows PDE residual code to accept a consistent signature
         regardless of whether Q is actually trained.
 
-        Shape and dimension conventions
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        **Shape and dimension conventions.**
         The slice widths are controlled by model attributes:
 
         * ``output_K_dim``
@@ -3777,11 +3752,10 @@ class GeoPriorSubsNet(BaseAttentive):
             If True, multiply the :math:`L_{q}` contribution by the global
             physics multiplier :math:`alpha` in addition to ``lambda_q``.
 
-
             This is commonly enabled so forcing regularization ramps in
             together with other physics terms during physics warmup.
 
-        **kwargs
+        kwargs : dict
             Additional keyword arguments forwarded to
             :meth:`tf.keras.Model.compile`, such as ``optimizer``, ``loss``,
             ``metrics``, ``run_eagerly``, ``jit_compile``, and so on.
@@ -3793,8 +3767,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
         Notes
         -----
-        Physics-off behavior
-        ~~~~~~~~~~~~~~~~~~~~
+        **Physics-off behavior.**
         If the model physics is disabled (for example, by PDE mode settings
         or a physics switch), this method forces all physics weights to
         neutral values regardless of the inputs:
@@ -3809,14 +3782,12 @@ class GeoPriorSubsNet(BaseAttentive):
         This ensures that :meth:`train_step` and :meth:`test_step` remain
         stable and that logs do not contain misleading physics terms.
 
-        Validation of lambda_offset
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        **Validation of lambda_offset.**
         For ``offset_mode='mul'``, ``lambda_offset`` must be strictly
         positive. For ``offset_mode='log10'``, any real value is allowed and
         acts as a log10-scale controller.
 
-        Scheduling lambda_offset
-        ~~~~~~~~~~~~~~~~~~~~~~~~
+        **Scheduling lambda_offset.**
         A recommended pattern is to keep individual ``lambda_*`` values
         fixed and schedule ``lambda_offset`` (warmup/ramp) using a callback.
         Because ``self._lambda_offset`` is a non-trainable TF weight, it is

@@ -4,9 +4,8 @@
 # Author: LKouadio <https://lkouadio.com>
 
 """
-Learn how to read forecast sharpness with
-``plot_mean_interval_width``
-=========================================
+Learn how to read forecast sharpness with ``plot_mean_interval_width``
+======================================================================
 
 This lesson explains how to use
 ``geoprior.plot.evaluation.plot_mean_interval_width``
@@ -40,7 +39,7 @@ It gives two complementary views:
 
 This page is written as a teaching guide, not only as an API demo.
 We will build realistic interval arrays, inspect the full width
- distribution, compare narrower and wider regimes, look at
+distribution, compare narrower and wider regimes, look at
 multi-output behavior, and finish with a checklist for applying the
 function to your own forecast tables.
 """

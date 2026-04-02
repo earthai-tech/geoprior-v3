@@ -3474,7 +3474,7 @@ def normalize_for_pinn(
         If a list of column names, scales exactly those columns.
         If "auto", selects all numeric columns, excluding `time_col`,
         `lon_col`, `lat_col` if `scale_coords=False`, and excluding
-        one-hot encoded columns (values only \{0,1\}).
+        one-hot encoded columns whose values are only ``{0, 1}``.
         If None, no extra columns are scaled.
 
     scale_coords : bool, default True

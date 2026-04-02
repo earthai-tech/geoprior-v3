@@ -1180,12 +1180,8 @@ def quantile_columns_from_mean_scale(
     Returns
     -------
     dict[str, np.ndarray]
-        Mapping like:
-        {
-            "subsidence_q10": ...,
-            "subsidence_q50": ...,
-            ...
-        }
+        Mapping from quantile column names such as
+        ``subsidence_q10`` and ``subsidence_q50`` to arrays.
     """
     mu = np.asarray(mean, dtype=float)
     sig = np.asarray(scale, dtype=float)
@@ -1514,11 +1510,18 @@ def detect_artifacts(src: Any) -> Artifacts:
     """
     Detect common v3.2 artifacts starting from a src path.
 
-    Example:
-    - src = ".../results/nansha_..._stage1/train_YYYYmmdd-HHMMSS"
-    - We auto-locate:
-      geoprior_eval_phys_*.json, eval_diagnostics.json,
-      *_calibrated.csv, *_future.csv, physics payload, etc.
+    Examples
+    --------
+    If ``src`` is a run directory such as
+    ``.../results/nansha_..._stage1/train_YYYYmmdd-HHMMSS``,
+    the helper auto-locates common artifacts including:
+
+    - ``geoprior_eval_phys_*.json``
+    - ``eval_diagnostics.json``
+    - ``*_calibrated.csv``
+    - ``*_future.csv``
+    - physics payload files
+    - coordinate archives
     """
     root = as_path(src)
     if root.is_file():
@@ -1991,13 +1994,11 @@ def flatten_eval_diag(
     """
     Flatten eval diagnostics into keys used by plots.
 
-    Supports:
-      1) Flat: {"mae":..., "coverage80":...}
-      2) "__overall__" block:
-         {"2020.0": {...}, "__overall__": {...}}
-      3) eval_after:
-         {"overall_key": "__overall__",
-          "eval_after": {"__overall__": {...}}}
+    Supported input shapes include:
+
+    - flat mappings such as ``{"mae": ..., "coverage80": ...}``
+    - mappings with an ``"__overall__"`` block
+    - mappings with ``"overall_key"`` plus an ``"eval_after"`` block
     """
     if not diag:
         return {}

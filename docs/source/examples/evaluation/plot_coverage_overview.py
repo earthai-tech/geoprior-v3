@@ -4,9 +4,8 @@
 # Author: LKouadio <https://lkouadio.com>
 
 """
-Learn how to read interval reliability with
-``plot_coverage``
-==========================================
+Learn how to read interval reliability with ``plot_coverage``
+=============================================================
 
 This lesson explains how to use
 ``geoprior.plot.evaluation.plot_coverage``
@@ -430,29 +429,26 @@ plot_coverage(
 # When you adapt ``plot_coverage`` to real forecast results,
 # use this checklist.
 #
-# 1. Build aligned arrays
-#    ``y_true``, ``y_lower``, and ``y_upper`` must have the
-#    same shape.
+# - Build aligned arrays.
+#   ``y_true``, ``y_lower``, and ``y_upper`` must have the same shape.
 #
-# 2. Decide the question first
-#    - choose ``kind='intervals'`` when you want to inspect
-#      where misses happen,
-#    - choose ``kind='summary_bar'`` when you want a compact
-#      comparison score.
+# - Decide the question first.
+#   Choose ``kind='intervals'`` when you want to inspect where misses
+#   happen, and choose ``kind='summary_bar'`` when you want a compact
+#   comparison score.
 #
-# 3. Use real sample labels when helpful
-#    ``sample_indices`` is worth using whenever the default
-#    integer positions are not meaningful enough.
+# - Use real sample labels when helpful.
+#   ``sample_indices`` is worth using whenever the default integer
+#   positions are not meaningful enough.
 #
-# 4. For multi-output data, avoid hiding differences
-#    use ``metric_kws={'multioutput': 'raw_values'}`` for the
-#    bar chart, then inspect one output at a time with
-#    ``output_index``.
+# - For multi-output data, avoid hiding differences.
+#   Use ``metric_kws={'multioutput': 'raw_values'}`` for the bar chart,
+#   then inspect one output at a time with ``output_index``.
 #
-# 5. Never interpret coverage alone
-#    a high-coverage interval can still be too wide.
-#    Read it together with sharpness-oriented tools such as
-#    weighted interval score and mean interval width.
+# - Never interpret coverage alone.
+#   A high-coverage interval can still be too wide. Read it together
+#   with sharpness-oriented tools such as weighted interval score and
+#   mean interval width.
 #
 # That final point is the most important lesson on this page:
 #

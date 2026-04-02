@@ -496,6 +496,7 @@ General model helper module
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 This module contains many of the reusable helpers for sequence
 forecasting and model-side formatting. Its own module docstring
@@ -510,6 +511,7 @@ PINN/model physics helper module
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 This module is the entry point for PINN-specific utility logic,
 including PDE mode normalization, coordinate extraction,
@@ -520,38 +522,55 @@ Selected model-facing helpers
 -----------------------------
 
 .. autofunction:: geoprior.models.utils.prepare_model_inputs
+   :no-index:
 
 .. autofunction:: geoprior.models.utils.prepare_model_inputs_in
+   :no-index:
 
 .. autofunction:: geoprior.models.utils.create_sequences
+   :no-index:
 
 .. autofunction:: geoprior.models.utils.split_static_dynamic
+   :no-index:
 
 .. autofunction:: geoprior.models.utils.forecast_single_step
+   :no-index:
 
 .. autofunction:: geoprior.models.utils.forecast_multi_step
+   :no-index:
 
 .. autofunction:: geoprior.models.utils.format_predictions_to_dataframe
+   :no-index:
 
 .. autofunction:: geoprior.models.utils.extract_batches_from_dataset
+   :no-index:
 
 .. autofunction:: geoprior.models.utils.get_tensor_from
+   :no-index:
 
 .. autofunction:: geoprior.models.utils.compute_anomaly_scores
+   :no-index:
 
-.. autofunction:: geoprior.models.utils.PDE_MODE_ALIASES
+.. autodata:: geoprior.models.utils.PDE_MODE_ALIASES
+   :no-index:
 
 .. autofunction:: geoprior.models.utils.prepare_pinn_data_sequences
+   :no-index:
 
 .. autofunction:: geoprior.models.utils.normalize_for_pinn
+   :no-index:
 
 .. autofunction:: geoprior.models.utils.format_pinn_predictions
+   :no-index:
 
 .. autofunction:: geoprior.models.utils.extract_txy
+   :no-index:
 
 .. autofunction:: geoprior.models.utils.extract_txy_in
+   :no-index:
 
 .. autofunction:: geoprior.models.utils.process_pde_modes
+   :no-index:
 
 Subsidence-physics utility layer
 --------------------------------
@@ -565,6 +584,7 @@ policies, historical states, and hydrogeological interpretation.
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 What this module covers
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -619,38 +639,55 @@ Selected subsidence-physics helpers
 -----------------------------------
 
 .. autofunction:: geoprior.models.subsidence.utils.canonicalize_scaling_kwargs
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.validate_scaling_kwargs
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.enforce_scaling_alias_consistency
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.to_si_thickness
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.to_si_head
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.to_si_subsidence
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.from_si_subsidence
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.deg_to_m
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.resolve_gwl_dyn_index
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.resolve_subs_dyn_index
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.gwl_to_head_m
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.get_h_hist_si
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.get_s_init_si
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.get_h_ref_si
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.policy_gate
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.finalize_scaling_kwargs
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.coord_ranges_si
+   :no-index:
 
 Connections to the scientific stack
 -----------------------------------
@@ -687,42 +724,42 @@ implementation comments remain visible in the documentation.
 Top-level utility exports
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../geoprior/utils/__init__.py
+.. literalinclude:: ../../../geoprior/utils/__init__.py
    :language: python
    :caption: geoprior/utils/__init__.py
 
 Model utility exports
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../geoprior/models/utils/__init__.py
+.. literalinclude:: ../../../geoprior/models/utils/__init__.py
    :language: python
    :caption: geoprior/models/utils/__init__.py
 
 Subsidence utility implementation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../geoprior/models/subsidence/utils.py
+.. literalinclude:: ../../../geoprior/models/subsidence/utils.py
    :language: python
    :caption: geoprior/models/subsidence/utils.py
 
 NAT package exports
 ~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../geoprior/utils/nat_utils/__init__.py
+.. literalinclude:: ../../../geoprior/utils/nat_utils/__init__.py
    :language: python
    :caption: geoprior/utils/nat_utils/__init__.py
 
 Optional: workflow/NAT helper module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../geoprior/utils/nat_utils/nat_utils.py
+.. literalinclude:: ../../../geoprior/utils/nat_utils/natutils.py
    :language: python
-   :caption: geoprior/utils/nat_utils/nat_utils.py
+   :caption: geoprior/utils/nat_utils/natutils.py
 
 Optional: model/PINN helper module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../geoprior/models/utils/pinn.py
+.. literalinclude:: ../../../geoprior/models/utils/pinn.py
    :language: python
    :caption: geoprior/models/utils/pinn.py
 

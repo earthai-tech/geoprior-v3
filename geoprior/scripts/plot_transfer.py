@@ -4,8 +4,7 @@
 # Author: LKouadio <https://lkouadio.com>
 
 """
-Supplementary Figure Sx — Cross-city transferability of GeoPriorSubsNet
----------------------------------------------------------------------
+Supplementary Figure Sx — Cross-city transferability of GeoPriorSubsNet.
 
 Uses xfer_results.csv produced by nat.com/xfer_matrix.py to show:
 
@@ -22,8 +21,6 @@ Panels summarise:
 - Nansha → Zhongshan (A_to_B)
 - Zhongshan → Nansha (B_to_A)
 
-Run (module form required)
--------------------------
 python -m scripts.plot_transfer \
   --src results/xfer/nansha__zhongshan \
   --split val

@@ -4,9 +4,8 @@
 # Author: LKouadio <https://lkouadio.com>
 
 """
-Learn how horizon emphasis changes the score with
-``plot_time_weighted_metric``
-===============================================
+Learn how horizon emphasis changes the score with ``plot_time_weighted_metric``
+===============================================================================
 
 This lesson explains how to use
 ``geoprior.plot.evaluation.plot_time_weighted_metric``

@@ -80,11 +80,13 @@ def default_meta_from_model(model) -> dict:
 
     Notes
     -----
-    - `time_units` describes the *time coordinate units* in the dataset
-      (e.g., "year"), i.e., what `t` represents before conversion.
-    - Physics diagnostics (`tau`, `tau_prior`, `K`, `cons_res_vals`) are
-      exported in SI time units after the model's internal conversions:
-        K: m/s, tau: s, cons_res_vals: m/s.
+    - ``time_units`` describes the time coordinate units in the dataset
+      (for example, ``"year"``), meaning what ``t`` represents before
+      conversion.
+    - Physics diagnostics such as ``tau``, ``tau_prior``, ``K``, and
+      ``cons_res_vals`` are exported in SI time units after the model's
+      internal conversions. In practice, ``K`` is in m/s, ``tau`` is in s,
+      and ``cons_res_vals`` is in m/s.
     """
     skw = getattr(model, "scaling_kwargs", None) or {}
     time_units = skw.get(
@@ -244,12 +246,12 @@ def identifiability_diagnostics_from_payload(
         A dictionary with three blocks:
 
         - "tau_rel_error": statistics of the relative error
-          :math:`frac{|\tau - \tau_{true}|}{tau_{true}}.
+          :math:`\frac{|\tau - \tau_{true}|}{\tau_{true}}`.
         - "closure_log_resid": statistics of the log-timescale
-          residual log(tau_prior) - log(tau_true).
+          residual ``log(tau_prior) - log(tau_true)``.
         - "offsets": nested dict with "vs_true" and "vs_prior",
           each containing summary stats for the log-offsets
-          delta_K, delta_Ss, delta_Hd.
+          ``delta_K``, ``delta_Ss``, and ``delta_Hd``.
     """
 
     tau = np.asarray(payload["tau"], dtype=float)

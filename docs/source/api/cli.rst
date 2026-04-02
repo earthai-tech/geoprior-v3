@@ -569,9 +569,6 @@ On Windows PowerShell:
 Source listings
 ---------------
 
-Source listings
----------------
-
 The most important source files for the CLI stack are listed
 below. These listings are useful when the API reference is
 read together with the developer notes.
@@ -579,33 +576,33 @@ read together with the developer notes.
 Package entry point
 ~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../geoprior/__main__.py
+.. literalinclude:: ../../../geoprior/__main__.py
    :language: python
    :caption: ``geoprior/__main__.py``
 
 Modern CLI package
 ~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../geoprior/cli/__init__.py
+.. literalinclude:: ../../../geoprior/cli/__init__.py
    :language: python
    :caption: ``geoprior/cli/__init__.py``
 
-.. literalinclude:: ../../geoprior/cli/__main__.py
+.. literalinclude:: ../../../geoprior/cli/__main__.py
    :language: python
    :caption: ``geoprior/cli/__main__.py``
 
-.. literalinclude:: ../../geoprior/cli/_dispatch.py
+.. literalinclude:: ../../../geoprior/cli/_dispatch.py
    :language: python
    :caption: ``geoprior/cli/_dispatch.py``
 
 Script registry and shared config
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../geoprior/scripts/registry.py
+.. literalinclude:: ../../../geoprior/scripts/registry.py
    :language: python
    :caption: ``geoprior/scripts/registry.py``
 
-.. literalinclude:: ../../geoprior/scripts/config.py
+.. literalinclude:: ../../../geoprior/scripts/config.py
    :language: python
    :caption: ``geoprior/scripts/config.py``
 

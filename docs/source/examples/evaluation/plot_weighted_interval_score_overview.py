@@ -4,9 +4,8 @@
 # Author: LKouadio <https://lkouadio.com>
 
 """
-Learn how to judge interval forecasts with
-``plot_weighted_interval_score``
-=========================================
+Learn how to judge interval forecasts with ``plot_weighted_interval_score``
+============================================================================
 
 This lesson explains how to use
 ``geoprior.plot.evaluation.plot_weighted_interval_score``

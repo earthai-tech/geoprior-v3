@@ -713,5 +713,306 @@ def plot_main(argv: list[str] | None = None) -> None:
     _dispatch(argv, fixed_family="plot")
 
 
+main.__doc__ = r"""
+Run the root GeoPrior command dispatcher.
+
+This is the top-level CLI entry point behind the generic
+``geoprior`` command. It routes user input to one of the three
+public command families exposed by the project:
+
+- ``run`` for staged model workflows,
+- ``build`` for artifact materialization and table generation,
+- ``plot`` for figure and map rendering.
+
+The function itself is intentionally thin. It delegates all parsing,
+family resolution, alias expansion, help rendering, and command
+execution to the internal dispatcher while keeping a stable public
+entry point for console scripts and programmatic invocation.
+
+Conceptually, the root command supports calls of the form
+
+.. code-block:: bash
+
+   geoprior run <command> [args]
+   geoprior build <command> [args]
+   geoprior plot <command> [args]
+
+which mirrors the stage-wise and artifact-aware workflow adopted by
+the GeoPrior project for forecasting, diagnostics, and uncertainty
+analysis :cite:p:`Kouadio2025XTFT,Limetal2021`.
+
+Parameters
+----------
+argv : list of str or None, default=None
+    Optional command-line tokens excluding the program name.
+    When ``None``, the function reads arguments from
+    :data:`sys.argv`.
+
+Returns
+-------
+None
+    This function is executed for its side effects. It prints help,
+    dispatches a command, or raises :class:`SystemExit` on invalid
+    user input.
+
+Raises
+------
+SystemExit
+    Raised when command resolution fails, when help is requested, or
+    when a delegated subcommand exits.
+
+Notes
+-----
+This function is the most user-facing CLI entry point in the module.
+Use it when you want the full family-aware dispatcher behavior.
+
+For family-specific wrappers that do not require the explicit
+``run``, ``build``, or ``plot`` prefix, see :func:`run_main`,
+:func:`build_main`, and :func:`plot_main`.
+
+Examples
+--------
+Call from Python with an explicit token list:
+
+>>> from geoprior.cli.__main__ import main
+>>> main(["run", "stage1-preprocess"])  # doctest: +SKIP
+
+Request top-level help:
+
+>>> main(["--help"])  # doctest: +SKIP
+
+Dispatch a plotting command:
+
+>>> main(["plot", "physics-fields", "--help"])  # doctest: +SKIP
+
+See Also
+--------
+run_main :
+    Run-family wrapper used by the ``geoprior-run`` entry point.
+build_main :
+    Build-family wrapper used by the ``geoprior-build`` entry point.
+plot_main :
+    Plot-family wrapper used by the ``geoprior-plot`` entry point.
+"""
+
+
+run_main.__doc__ = r"""
+Run the GeoPrior dispatcher in fixed ``run`` mode.
+
+This wrapper exposes the workflow-oriented command family behind the
+``geoprior-run`` console script. Unlike :func:`main`, it does not
+expect a family token as the first positional argument. Instead, it
+assumes that every command belongs to the ``run`` family and rejects
+attempts to repeat the family prefix.
+
+Typical commands dispatched through this entry point include stage
+execution and synthetic or sensitivity workflows, such as
+preprocessing, training, tuning, inference, transfer evaluation, and
+selected supplementary diagnostics.
+
+Supported usage therefore follows the shorter form
+
+.. code-block:: bash
+
+   geoprior-run <command> [args]
+
+rather than
+
+.. code-block:: bash
+
+   geoprior run <command> [args]
+
+Parameters
+----------
+argv : list of str or None, default=None
+    Optional command-line tokens excluding the program name.
+    When ``None``, the function reads arguments from
+    :data:`sys.argv`.
+
+Returns
+-------
+None
+    This function dispatches a run-family command for its side
+    effects.
+
+Raises
+------
+SystemExit
+    Raised when the requested command is unknown, belongs to a
+    different family, or explicitly requests help.
+
+Notes
+-----
+This wrapper is mainly intended for console-script integration and
+family-specific convenience. It is especially useful in automation,
+examples, and shell documentation where repeated family prefixes
+would add noise.
+
+Examples
+--------
+Run stage 1 preprocessing:
+
+>>> from geoprior.cli.__main__ import run_main
+>>> run_main(["stage1-preprocess"])  # doctest: +SKIP
+
+Inspect the help of a training command:
+
+>>> run_main(["stage2-train", "--help"])  # doctest: +SKIP
+
+Request family-scoped help:
+
+>>> run_main(["--help"])  # doctest: +SKIP
+
+See Also
+--------
+main :
+    Root family-aware dispatcher.
+build_main :
+    Build-family wrapper.
+plot_main :
+    Plot-family wrapper.
+"""
+
+
+build_main.__doc__ = r"""
+Run the GeoPrior dispatcher in fixed ``build`` mode.
+
+This wrapper exposes the artifact-building command family behind the
+``geoprior-build`` console script. It assumes that the requested
+subcommand already belongs to the ``build`` family and therefore uses
+the compact invocation form
+
+.. code-block:: bash
+
+   geoprior-build <command> [args]
+
+Typical commands in this family generate or transform reproducible
+artifacts needed by downstream training, validation, interpretation,
+or documentation workflows. Examples include merged NPZ payloads,
+external-validation tables, spatial sampling products, hotspot
+summaries, and other materialized intermediate datasets.
+
+Parameters
+----------
+argv : list of str or None, default=None
+    Optional command-line tokens excluding the program name.
+    When ``None``, the function reads arguments from
+    :data:`sys.argv`.
+
+Returns
+-------
+None
+    This function dispatches a build-family command for its side
+    effects.
+
+Raises
+------
+SystemExit
+    Raised when the command is unknown, belongs to another family, or
+    when help is requested.
+
+Notes
+-----
+Use this wrapper when you want a stable programmatic entry point for
+artifact generation without exposing the full root dispatcher. This
+is the recommended choice for shell examples, gallery preparation,
+and reproducible data-materialization scripts built around GeoPrior.
+
+Examples
+--------
+Build a full input archive:
+
+>>> from geoprior.cli.__main__ import build_main
+>>> build_main(["full-inputs-npz", "--help"])  # doctest: +SKIP
+
+Build a compact forecast-ready panel:
+
+>>> build_main(["forecast-ready-sample"])  # doctest: +SKIP
+
+Show the build-family help page:
+
+>>> build_main(["--help"])  # doctest: +SKIP
+
+See Also
+--------
+main :
+    Root family-aware dispatcher.
+run_main :
+    Run-family wrapper.
+plot_main :
+    Plot-family wrapper.
+"""
+
+
+plot_main.__doc__ = r"""
+Run the GeoPrior dispatcher in fixed ``plot`` mode.
+
+This wrapper exposes the visualization command family behind the
+``geoprior-plot`` console script. It dispatches plotting commands
+without requiring the explicit ``plot`` family prefix and therefore
+supports the compact form
+
+.. code-block:: bash
+
+   geoprior-plot <command> [args]
+
+The plot family is used to render publication-style figures,
+diagnostic graphics, uncertainty summaries, spatial forecast maps,
+transfer panels, and other visual outputs derived from GeoPrior
+artifacts. In practice, this family is central to the project's
+interpretability and reporting workflow, where forecast accuracy,
+uncertainty behavior, and physically informed diagnostics must be
+read together :cite:p:`Kouadio2025XTFT`.
+
+Parameters
+----------
+argv : list of str or None, default=None
+    Optional command-line tokens excluding the program name.
+    When ``None``, the function reads arguments from
+    :data:`sys.argv`.
+
+Returns
+-------
+None
+    This function dispatches a plot-family command for its side
+    effects.
+
+Raises
+------
+SystemExit
+    Raised when the command is unknown, belongs to another family, or
+    when help is requested.
+
+Notes
+-----
+This wrapper is useful when the calling context is already
+visualization-specific, such as gallery scripts, reproducible figure
+pipelines, or publication packaging code.
+
+Examples
+--------
+Inspect help for a physics-field plot:
+
+>>> from geoprior.cli.__main__ import plot_main
+>>> plot_main(["physics-fields", "--help"])  # doctest: +SKIP
+
+Render a transferability figure:
+
+>>> plot_main(["xfer-transferability"])  # doctest: +SKIP
+
+Show the plot-family help page:
+
+>>> plot_main(["--help"])  # doctest: +SKIP
+
+See Also
+--------
+main :
+    Root family-aware dispatcher.
+run_main :
+    Run-family wrapper.
+build_main :
+    Build-family wrapper.
+"""
+
 if __name__ == "__main__":
     main()
