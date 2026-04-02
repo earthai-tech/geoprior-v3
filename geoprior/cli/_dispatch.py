@@ -86,7 +86,6 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class CommandSpec:
-
     package: str
     mod: str
     fn: str
@@ -96,6 +95,7 @@ class CommandSpec:
     public_name: str | None = None
     aliases: tuple[str, ...] = ()
     legacy_names: tuple[str, ...] = ()
+
 
 CommandSpec.__doc__ = r"""
 Immutable command description used by the CLI dispatch layer.
@@ -144,6 +144,7 @@ aliases : tuple of str, default=()
 legacy_names : tuple of str, default=()
     Backward-compatible historical command names.
 """
+
 
 def load_module(spec: CommandSpec):
     """Import a module for a command spec."""
