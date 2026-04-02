@@ -312,7 +312,6 @@ def debug_model_reload(
         for w in getattr(mem_model, "weights", [])
     )
 
-
     w_all = weight_diff_report(
         mem_model,
         load_model,

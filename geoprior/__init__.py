@@ -185,4 +185,4 @@ import geoprior.datasets
 import geoprior.metrics
 import geoprior.models
 import geoprior.plot
-import geoprior.utils # noqa
+import geoprior.utils  # noqa

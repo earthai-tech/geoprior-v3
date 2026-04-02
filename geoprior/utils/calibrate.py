@@ -837,7 +837,6 @@ def calibrate_probability_forecast(
     clip: bool = True,
     savefile: str | None = None,
 ) -> pd.DataFrame:
-
     df = df.copy()
     if out_col is None:
         out_col = f"{prob_col}_calib"
@@ -967,6 +966,7 @@ def calibrate_forecasts(
         df_out = _calibrate_block(df)
 
     return df_out
+
 
 fit_interval_factors_df.__doc__ = r"""
 Fit empirical interval-width correction factors from an evaluation
