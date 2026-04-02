@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 description: Migrate Python docstring citations to references.bib without changing runtime code
 ---
 
