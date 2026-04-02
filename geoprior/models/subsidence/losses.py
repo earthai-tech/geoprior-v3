@@ -238,10 +238,13 @@ def assemble_physics_loss(
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Returning both ``physics_raw`` and ``physics_scaled`` helps debug
     training stability:
-    
+
     * ``physics_raw`` shows whether residual magnitudes are decreasing.
     * ``physics_scaled`` shows the effective contribution to the total
       optimization objective.
+
+    The physics-informed weighting pattern follows
+    :cite:t:`RaissiEtAl2019PINNs`.
     
     Examples
     --------
@@ -268,19 +271,11 @@ def assemble_physics_loss(
     
     See Also
     --------
-    geoprior.nn.pinn.geoprior.step_core.physics_core
+    geoprior.models.subsidence.step_core.physics_core
         Produces the component losses used as inputs here.
     
     GeoPriorSubsNet.compile
         Configures the ``lambda_*`` weights and the offset multiplier.
-    
-    References
-    ----------
-    .. [1] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
-       Physics-informed neural networks: A deep learning framework
-       for solving forward and inverse problems involving nonlinear
-       partial differential equations. Journal of Computational
-       Physics, 2019.
     """
 
     # ----------------------------------------------------------
@@ -593,6 +588,9 @@ def update_compiled_metrics(model, targets, y_pred):
     provided as ``(B,H)`` or ``(B,H,1)`` while predictions may be
     ``(B,H,Q,1)`` (quantiles) or similar.
 
+    Metric routing behavior follows
+    :cite:t:`KerasFitCompileMetricsDocs`.
+
     Examples
     --------
     Inside a custom test_step:
@@ -615,10 +613,6 @@ def update_compiled_metrics(model, targets, y_pred):
     GeoPriorSubsNet.train_step
         Custom training loop that may use this helper to keep metrics
         consistent.
-
-    References
-    ----------
-    .. [1] Keras Team. Keras fit/compile metrics routing documentation.
     """
 
     _update_compiled_metrics(
@@ -863,6 +857,9 @@ def pack_step_results(
     (``log_q_diagnostics=True``), additional fields such as Q RMS and gate
     values may be included for debugging training schedules.
 
+    The custom-loop packing pattern follows
+    :cite:t:`KerasCustomTrainStepDocs`.
+
     Examples
     --------
     Inside a custom training step:
@@ -899,11 +896,6 @@ def pack_step_results(
 
     physics_core
         Produces the physics bundle consumed by this packer.
-
-    References
-    ----------
-    .. [1] Keras Team. Customizing ``fit`` with ``train_step`` and
-       ``test_step``. Keras guides and API documentation.
     """
 
     RESERVED = {
@@ -1262,8 +1254,6 @@ def pack_eval_physics(
 
     Notes
     -----
-    Stable logging schema
-    ~~~~~~~~~~~~~~~~~~~~
     Returning a zero bundle when physics is off is useful for dashboards
     and automated training loops where missing keys complicate aggregation.
 

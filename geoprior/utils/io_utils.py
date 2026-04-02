@@ -182,18 +182,13 @@ class FileManager(BaseClass):
     `replacement`. The method :meth:`get_processed_files` compiles a
     list of all files that have been organized, based on a walk of the
     target directory.
+    The directory traversal and file-operation APIs are documented in
+    :cite:p:`PythonOsWalkDocs,PythonShutilDocs`.
 
     See Also
     --------
     shutil.move : To move files between directories.
     shutil.copy2: To copy files while preserving file metadata.
-
-    References
-    ----------
-    .. [1] Python Software Foundation. "os.walk — Directory tree
-           generator". Python Documentation.
-    .. [2] Python Software Foundation. "shutil — High-level file
-           operations". Python Documentation.
     """
 
     @validate_params(
@@ -758,20 +753,15 @@ def to_hdf5(
       ``"dataset_01"``.
     - If ``close`` is set to ``False``, the caller is responsible for
       closing the store.
+    - The pandas and NumPy foundations underlying this serialization path
+      are summarized in
+      :cite:p:`McKinney2010PythonSciPy,VanDerWaltEtAl2011NumPyArray`.
 
     See Also
     --------
     joblib.dump : For serializing objects using Joblib.
     pickle.dump : For serializing objects using Pickle.
     h5py.File   : For working with HDF5 files in Python.
-
-    References
-    ----------
-    .. [1] McKinney, W. (2010). "Data Structures for Statistical Computing
-           in Python". Proceedings of the 9th Python in Science Conference.
-    .. [2] Van der Walt, S., Colbert, S. C., & Varoquaux, G. (2011).
-           "The NumPy Array: A Structure for Efficient Numerical
-           Computation". Computing in Science & Engineering, 13(2), 22-30.
     """
 
     # Validate that data is either a NumPy array or a pandas DataFrame.
@@ -2916,18 +2906,15 @@ def deserialize_data(filename: str, verbose: int = 0) -> Any:
     The function first attempts deserialization with `joblib` to leverage
     efficient file handling for large datasets. If `joblib` encounters an error,
     it falls back to `pickle`, which provides broader compatibility with Python
-    objects but may be less optimized for large datasets.
+    objects but may be less optimized for large datasets. Loader semantics for
+    the two backends are documented in
+    :cite:p:`JoblibDocs,PythonPickleDocs`.
 
     See Also
     --------
     joblib.load : Joblib's load function for fast I/O operations on large data.
     pickle.load : Pickle's load function for serializing and deserializing
                   Python objects.
-
-    References
-    ----------
-    .. [1] Joblib Documentation - https://joblib.readthedocs.io
-    .. [2] Python Pickle Module - https://docs.python.org/3/library/pickle.html
     """
     filename = check_files(filename, return_valid=True)
 
@@ -3432,7 +3419,9 @@ def load_csv(
     with a straightforward parameter for delimiter customization and full access
     to `pandas.read_csv` options. It is ideal for basic CSV loading tasks, as well
     as more complex ones requiring specific column handling, type casting, and
-    missing value handling, which can be passed via `**kwargs`.
+    missing value handling, which can be passed via `**kwargs`. CSV-oriented
+    DataFrame loading patterns are discussed in
+    :cite:t:`McKinney2017PythonDataAnalysis`.
 
     Examples
     --------
@@ -3471,10 +3460,6 @@ def load_csv(
     --------
     pandas.read_csv : Full documentation for loading CSV files into a DataFrame
                       with detailed parameter options.
-
-    References
-    ----------
-    .. [1] Wes McKinney, "Python for Data Analysis," 2nd Edition, O'Reilly Media, 2017.
     """
 
     if not os.path.isfile(data_path):
@@ -3694,7 +3679,9 @@ def to_txt(
     export. The `<serializer>` argument allows
     custom transformations, such as flattening
     nested dicts or converting objects to JSON-
-    serializable representations [1]_.
+    serializable representations. The standard-library
+    JSON behavior used here is documented in
+    :cite:t:`PythonJsonDocs`.
 
     Examples
     --------
@@ -3709,11 +3696,6 @@ def to_txt(
     --------
     pformat : Pretty-print complex Python data
         structures.
-
-    References
-    ----------
-    .. [1] van Rossum, Guido, *Python's standard
-       library "json" module*, Python Docs.
     """
     log = logger or print
 

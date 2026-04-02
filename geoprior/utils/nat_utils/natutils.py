@@ -1030,7 +1030,9 @@ def extract_preds(
 
     The function does not validate tensor dtypes or
     numerical finiteness. Upstream code should handle
-    ``NaN`` and ``Inf`` checks as needed.
+    ``NaN`` and ``Inf`` checks as needed. Output normalization
+    follows the Keras model conventions documented in
+    :cite:t:`KerasDocs`.
 
     Examples
     --------
@@ -1054,11 +1056,6 @@ def extract_preds(
     --------
     subs_point_from_stage_out :
         Convert subsidence predictions to a point forecast.
-
-    References
-    ----------
-    .. [1] Chollet, F. et al. Keras: Deep Learning for Humans.
-           (Software documentation).
     """
     # ---------------------------------------------------------
     # 0) forward_with_aux() style: (y_pred, aux)
@@ -1207,7 +1204,9 @@ def subs_point_from_out(
     third dimension (axis=2).
 
     If the model returns point predictions already,
-    the function is effectively a no-op.
+    the function is effectively a no-op. The quantile
+    interpretation used here follows
+    :cite:t:`KoenkerBassett1978`.
 
     Examples
     --------
@@ -1232,11 +1231,6 @@ def subs_point_from_out(
     --------
     extract_stage_outputs :
         Normalize outputs across new and legacy checkpoints.
-
-    References
-    ----------
-    .. [1] Koenker, R. and Bassett, G. Regression Quantiles.
-           Econometrica, 1978.
     """
     subs_pred, _ = extract_preds(model, out)
 
