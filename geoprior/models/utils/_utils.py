@@ -2414,11 +2414,6 @@ def compute_anomaly_scores(
     geoprior.models.losses.objective_loss :
         For integrating anomaly scores into a multi-objective loss.
     
-    References
-    ----------
-    .. [1] Wang, X., et al. "Enhanced Temporal Fusion Transformer for Time
-           Series Forecasting." International Journal of Forecasting, 37(3),
-           2021.
     """
     if objective == "ts":
         if y_true.ndim != 3:
@@ -2659,11 +2654,6 @@ def split_static_dynamic(
         Function to create input sequences and targets for 
         time series forecasting.
 
-    References
-    ----------
-    .. [1] Qin, Y., Song, D., Chen, H., Cheng, W., Jiang, G., & Cottrell, G. (2017). 
-       Temporal fusion transformers for interpretable multi-horizon time series forecasting. 
-       *arXiv preprint arXiv:1912.09363*.
     """
     # Validate static_time_step
     if not (0 <= static_time_step < sequences.shape[1]):
@@ -2886,16 +2876,6 @@ def create_sequences(
     geoprior.models.utils.split_static_dynamic :
         Function to split sequences into static and dynamic inputs.
 
-    References
-    ----------
-    .. [1] Brownlee, J. (2018). Time Series Forecasting with Python:
-           Create accurate models in Python to forecast the future and
-           gain insight from your time series data. Machine Learning
-           Mastery.
-    .. [2] Qin, Y., Song, D., Chen, H., Cheng, W., Jiang, G., &
-           Cottrell, G. (2017). Temporal fusion transformers for
-           interpretable multi-horizon time series forecasting.
-           *arXiv preprint arXiv:1912.09363*.
     """
     if verbose >= 1:
         print("[INFO] Starting sequence generation ...")
@@ -3161,12 +3141,6 @@ def compute_forecast_horizon(
     pandas.date_range : Generates a fixed frequency DatetimeIndex.
     pandas.infer_freq : Infers the frequency of a DatetimeIndex.
 
-    References
-    ----------
-    .. [1] McKinney, Wes. *Python for Data Analysis: Data Wrangling with Pandas,
-       NumPy, and IPython*. O'Reilly Media, 2017.
-    .. [2] Harris, C.R., Millman, K.J., van der Walt, S.J., et al.
-       *Array programming with NumPy*. Nature, 585(7825), pp.357-362, 2020.
     """
 
     if verbose >= 1:
@@ -3462,10 +3436,6 @@ def extract_callbacks_from(
     tf.keras.callbacks.Callback :
         Base class used to build new callbacks.
 
-    References
-    ----------
-    .. [1] François Chollet, et al. Keras Documentation.
-           https://keras.io/api/callbacks/
     """
 
     callbacks = []
@@ -3666,12 +3636,6 @@ def prepare_spatial_future_data(
     --------
     prepare_future_data : Main function for preparing future data inputs.
 
-    References
-    ----------
-    .. [1] Smith, J., & Doe, A. (2020). *Time Series Forecasting Methods*. Journal of
-       Data Science, 15(3), 123-145.
-    .. [2] Johnson, L. (2019). *Advanced Neural Networks for Time Series Prediction*.
-       Machine Learning Review, 22(4), 567-589.
     """
     future_years = columns_manager(
         future_years, empty_as_none=False
@@ -4723,10 +4687,6 @@ def generate_forecast(
     geoprior.metrics_special.coverage_score:
         Function to compute coverage score for quantile predictions.
 
-    References
-    ----------
-    .. [1] Kouadio et al., "Gofast Forecasting Model", Journal of
-       Advanced Forecasting, 2025. (In Review)
     """
     # **********************************************************
     from ..metrics import coverage_score
@@ -7234,12 +7194,6 @@ _step_to_long_q : Converts multi-step quantile forecasts to long format.
 _step_to_long_pred: Converts multi-step point forecasts to long format.
 detect_digits   : Extracts numeric values from strings for quantile detection.
 
-References
-----------
-.. [1] Wickham, H. (2014). "Tidy Data". Journal of Statistical Software,
-       59(10), 1-23.
-.. [2] McKinney, W. (2010). "Data Structures for Statistical Computing in 
-       Python". Proceedings of the 9th Python in Science Conference.
 """
 
 generate_forecast_with.__doc__ = r"""\
@@ -7416,8 +7370,4 @@ forecast_multi_step  : Generates a multi-step forecast.
 validate_keras_model : Validates a Keras model.
 coverage_score       : Computes the coverage score.
 
-References
-----------
-.. [1] Kouadio et al., "Gofast Forecasting Model", Journal of Advanced
-   Forecasting, 2025. (In Review)
 """

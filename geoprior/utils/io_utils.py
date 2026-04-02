@@ -1363,13 +1363,6 @@ def serialize_data_in(
     pickle.dump : Serialize objects to disk using Pickle.
     os.getcwd    : Retrieve the current working directory.
 
-    References
-    ----------
-    .. [1] McKinney, W. (2010). "Data Structures for Statistical Computing
-           in Python". Proceedings of the 9th Python in Science Conference.
-    .. [2] Van der Walt, S., Colbert, S. C., & Varoquaux, G. (2011).
-           "The NumPy Array: A Structure for Efficient Numerical
-           Computation". Computing in Science & Engineering, 13(2), 22-30.
     """
     # Determine the filename: if not provided, generate one using a timestamp.
     if filename is None:
@@ -3036,13 +3029,6 @@ def serialize_data(
     pickle.dump : Serialize objects to disk using Pickle.
     os.getcwd    : Retrieve the current working directory.
 
-    References
-    ----------
-    .. [1] McKinney, W. (2010). "Data Structures for Statistical Computing
-           in Python". Proceedings of the 9th Python in Science Conference.
-    .. [2] Van der Walt, S., Colbert, S. C., & Varoquaux, G. (2011).
-           "The NumPy Array: A Structure for Efficient Numerical
-           Computation". Computing in Science & Engineering, 13(2), 22-30.
     """
 
     # Set default serialization method to joblib if not provided.

@@ -1350,10 +1350,6 @@ class GeoPriorSubsNet(BaseAttentive):
             Internal forward routine that returns both predictions and
             auxiliary tensors.
 
-        References
-        ----------
-        .. [1] Abadi, M., et al. TensorFlow: Large-scale machine learning
-           on heterogeneous systems. 2015.
         """
 
         return self._forward_all(inputs, training=training)
@@ -1428,9 +1424,6 @@ class GeoPriorSubsNet(BaseAttentive):
         _forward_all
             Internal routine returning ``(y_pred, aux)``.
 
-        References
-        ----------
-        .. [1] Chollet, F. et al. Keras. 2015.
         """
 
         y_pred, _aux = self._forward_all(
@@ -1596,15 +1589,6 @@ class GeoPriorSubsNet(BaseAttentive):
         geoprior.nn.pinn.geoprior.maths.compose_physics_fields
             Map physics logits to bounded physical fields and priors.
 
-        References
-        ----------
-        .. [1] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
-           Physics-informed neural networks: A deep learning framework
-           for solving forward and inverse problems involving nonlinear
-           partial differential equations. Journal of Computational
-           Physics, 2019.
-
-        .. [2] Terzaghi, K. Theoretical Soil Mechanics. Wiley, 1943.
         """
 
         sk = self.scaling_kwargs or {}
@@ -2164,16 +2148,6 @@ class GeoPriorSubsNet(BaseAttentive):
         tf.clip_by_global_norm
             TensorFlow utility for global-norm gradient clipping.
 
-        References
-        ----------
-        .. [1] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
-           Physics-informed neural networks: A deep learning framework
-           for solving forward and inverse problems involving nonlinear
-           partial differential equations. Journal of Computational
-           Physics, 2019.
-
-        .. [2] Goodfellow, I., Bengio, Y., and Courville, A.
-           Deep Learning. MIT Press, 2016.
         """
 
         # ------------------------------------------------------
@@ -2600,15 +2574,6 @@ class GeoPriorSubsNet(BaseAttentive):
             Pack supervised metrics, physics terms, and manual trackers into
             a stable Keras logging dictionary.
 
-        References
-        ----------
-        .. [1] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
-           Physics-informed neural networks: A deep learning framework
-           for solving forward and inverse problems involving nonlinear
-           partial differential equations. Journal of Computational
-           Physics, 2019.
-
-        .. [2] Chollet, F. et al. Keras. 2015.
         """
 
         # ------------------------------------------------------
@@ -3001,16 +2966,6 @@ class GeoPriorSubsNet(BaseAttentive):
         geoprior.nn.pinn.geoprior.step_core.physics_core
             Shared physics computation used for diagnostics and training.
 
-        References
-        ----------
-        .. [1] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
-           Physics-informed neural networks: A deep learning framework
-           for solving forward and inverse problems involving nonlinear
-           partial differential equations. Journal of Computational
-           Physics, 2019.
-
-        .. [2] Bear, J. Dynamics of Fluids in Porous Media. Dover
-           Publications, 1988.
         """
 
         MAP_KEYS = (
@@ -3913,18 +3868,6 @@ class GeoPriorSubsNet(BaseAttentive):
         geoprior.nn.pinn.geoprior.step_core.physics_core
             Computes per-batch physics residuals and loss terms.
 
-        References
-        ----------
-        .. [1] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
-           Physics-informed neural networks: A deep learning framework
-           for solving forward and inverse problems involving nonlinear
-           partial differential equations. Journal of Computational
-           Physics, 2019.
-
-        .. [2] Bear, J. Dynamics of Fluids in Porous Media. Dover
-           Publications, 1988.
-
-        .. [3] Terzaghi, K. Theoretical Soil Mechanics. Wiley, 1943.
         """
 
         # Let base class set optimizer/loss/metrics first.
@@ -4109,13 +4052,6 @@ class GeoPriorSubsNet(BaseAttentive):
         ...     overwrite=True,
         ... )
 
-        References
-        ----------
-        .. [1] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
-           Physics-informed neural networks: A deep learning framework
-           for solving forward and inverse problems involving nonlinear
-           partial differential equations. Journal of Computational
-           Physics, 2019.
         """
 
         payload = gather_physics_payload(
@@ -4198,13 +4134,6 @@ class GeoPriorSubsNet(BaseAttentive):
         >>> list(payload)[:5]
         ['tau', 'tau_prior', 'K', 'Ss', 'Hd']
 
-        References
-        ----------
-        .. [1] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
-           Physics-informed neural networks: A deep learning framework
-           for solving forward and inverse problems involving nonlinear
-           partial differential equations. Journal of Computational
-           Physics, 2019.
         """
 
         return load_physics_payload(path)
@@ -4279,9 +4208,6 @@ class GeoPriorSubsNet(BaseAttentive):
         keras.saving.serialize_keras_object
             Keras helper used to serialize non-JSON config objects.
 
-        References
-        ----------
-        .. [1] Keras Team. Keras serialization and saving API documentation.
         """
 
         cfg = super().get_config()
@@ -4419,9 +4345,6 @@ class GeoPriorSubsNet(BaseAttentive):
         keras.saving.deserialize_keras_object
             Keras helper used to rehydrate serialized config objects.
 
-        References
-        ----------
-        .. [1] Keras Team. Keras serialization and saving API documentation.
         """
 
         if custom_objects is None:

@@ -839,11 +839,6 @@ def validate_strategy(
     sklearn.impute.SimpleImputer :
         Imputation transformer for completing missing values.
 
-    References
-    ----------
-    .. [1] Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B.,
-           Grisel, O., ... & Duchesnay, E. (2011). Scikit-learn: Machine learning
-           in Python. Journal of Machine Learning Research, 12, 2825-2830.
     """
 
     numeric_strategies = {"median", "mean"}
@@ -1137,11 +1132,6 @@ def has_methods(
     See Also
     --------
     validate_models: Another function for model validation.
-
-    References
-    ----------
-    .. [1] Smith, J., & Doe, A. (2020). *Model Validation Techniques*.
-       Journal of Machine Learning, 15(3), 123-145.
 
     """
     if isinstance(models, dict):
