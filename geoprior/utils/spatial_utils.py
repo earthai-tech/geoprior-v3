@@ -3850,12 +3850,6 @@ def batch_spatial_sampling(
     --------
     spatial_sampling : Perform stratified sampling without batching.
 
-    References
-    ----------
-    .. [1] Kotsiantis, S., Kanellopoulos, D., & Pintelas, P. (2006).
-           "Data preprocessing for supervised learning." *International
-           Journal of Computer Science*, 1(2), 111-117.
-
     """
     data = data.copy()
     total_samples = sample_size
@@ -4154,7 +4148,7 @@ def spatial_sampling(
 
     This function performs stratified sampling on spatial data,
     ensuring that the sample reflects both spatial distribution
-    and temporal aspects of the entire dataset [1]_. It combines spatial
+    and temporal aspects of the entire dataset. It combines spatial
     stratification based on coordinates and additional stratification
     columns specified by the user.
 

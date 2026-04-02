@@ -1,3 +1,5 @@
+.. _key_terms:
+
 Key terms and concepts
 ======================
 

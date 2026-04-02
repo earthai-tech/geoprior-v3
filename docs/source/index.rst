@@ -297,11 +297,19 @@ Navigate directly
          :expand:
 
          Open the glossary
+
+   .. grid-item::
+      .. button-ref:: scientific_scope
+         :ref-type: doc
+         :color: primary
+         :expand:
+
+         Understand the scientific scope
          
    .. grid-item::
       .. button-ref:: references
          :ref-type: doc
-         :color: primary
+         :color: secondary
          :expand:
 
          See shared references
@@ -321,4 +329,5 @@ Navigate directly
    developer/index
    release_notes
    glossary/index
+   scientific_scope
    references

@@ -243,48 +243,6 @@ def weight_diff_report(
     return rows[: int(top)]
 
 
-# def _weight_diff_report(
-#     m1: Any,
-#     m2: Any,
-#     *,
-#     top: int = 30,
-#     include_ok: bool = False,
-# ) -> List[Tuple[float, str, str, Any]]:
-#     """
-#     Compare weights by name; returns rows sorted by worst diff first.
-
-#     Each row is:
-#       (max_abs_diff or inf, tag, weight_name, shape_info)
-#     where tag in {"OK","MISSING","SHAPE"}.
-#     """
-#     w2 = {w.name: w for w in getattr(m2, "weights", [])}
-#     rows: List[Tuple[float, str, str, Any]] = []
-
-#     for w in getattr(m1, "weights", []):
-#         name = w.name
-#         if name not in w2:
-#             rows.append(
-#                 (np.inf, "MISSING", name, tuple(
-#                     getattr(w, "shape", ()))))
-#             continue
-
-#         a = _to_numpy(w)
-#         b = _to_numpy(w2[name])
-
-#         if a.shape != b.shape:
-#             rows.append((np.inf, "SHAPE", name, (a.shape, b.shape)))
-#             continue
-
-#         d = float(np.max(np.abs(a - b))) if a.size else 0.0
-#         if include_ok or d > 0.0:
-#             rows.append((d, "OK", name, a.shape))
-
-#     rows.sort(key=lambda x: x[0], reverse=True)
-
-#     # If include_ok=False, the tail may be empty; keep only top anyway
-#     return rows[: int(top)]
-
-
 def model_scaling_digest(model: Any) -> str:
     """
     Stable digest of `model.scaling_kwargs` to verify the same config
@@ -354,13 +312,6 @@ def debug_model_reload(
         for w in getattr(mem_model, "weights", [])
     )
 
-    # w_rows = weight_diff_report(
-    #     mem_model, load_model, top=top_weights,
-    #     include_ok=False,
-    #     include_extra= True,
-    # )
-    # n_missing = sum(1 for _, tag, _, _ in w_rows if tag == "MISSING")
-    # n_shape   = sum(1 for _, tag, _, _ in w_rows if tag == "SHAPE")
 
     w_all = weight_diff_report(
         mem_model,

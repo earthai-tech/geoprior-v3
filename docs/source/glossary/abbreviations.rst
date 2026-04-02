@@ -1,3 +1,5 @@
+.. _abbreviations:
+
 Abbreviations and acronyms
 ==========================
 
@@ -12,16 +14,16 @@ materials.
    Mathematical notation and physics symbols such as
    :math:`K`, :math:`S_s`, :math:`H_d`, :math:`\tau`,
    :math:`\varepsilon_{cons}`, and :math:`\gamma_w`
-   should be documented separately in ``symbols.rst``.
+   should be documented separately in :doc:`symbols`.
 
 How to use this page
 --------------------
 
 - Use this page when you meet a short form such as ``PINN``,
   ``InSAR``, or ``PIT`` in the docs or examples.
-- Use ``symbols.rst`` later for equations, physical fields,
+- Use :ref:`symbols` later for equations, physical fields,
   and diagnostic symbols.
-- Use ``terms.rst`` later for longer conceptual explanations such as
+- Use :ref:`key_terms` later for longer conceptual explanations such as
   *calibration*, *sharpness*, *identifiability*, or
   *closure consistency*.
 

@@ -1,3 +1,5 @@
+.. _symbols:
+
 Symbols and notation
 ====================
 
