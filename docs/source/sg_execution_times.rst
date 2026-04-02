@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:02.628** total execution time for 101 files **from all galleries**:
+**00:01.190** total execution time for 100 files **from all galleries**:
 
 .. container::
 
@@ -32,11 +32,8 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_inspection_plot_eval_physics_overview.py` (``examples\inspection\plot_eval_physics_overview.py``)
-     - 00:01.810
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_inspection_plot_calibration_stats_overview.py` (``examples\inspection\plot_calibration_stats_overview.py``)
-     - 00:00.818
+   * - :ref:`sphx_glr_auto_examples_tables_and_summaries_make_district_grid.py` (``examples\tables_and_summaries\make_district_grid.py``)
+     - 00:01.190
      - 0.0
    * - :ref:`sphx_glr_auto_examples_diagnostics_plot_holdout_group_masks.py` (``examples\diagnostics\plot_holdout_group_masks.py``)
      - 00:00.000
@@ -102,9 +99,6 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_evaluation_plot_weighted_interval_score_overview.py` (``examples\evaluation\plot_weighted_interval_score_overview.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_evaluation_plot_xfer_results_overview_fixed.py` (``examples\evaluation\plot_xfer_results_overview_fixed.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_figure_generation_plot_ablation.py` (``examples\figure_generation\plot_ablation.py``)
@@ -191,7 +185,13 @@ Computation times
    * - :ref:`sphx_glr_auto_examples_inspection_plot_ablation_record_overview.py` (``examples\inspection\plot_ablation_record_overview.py``)
      - 00:00.000
      - 0.0
+   * - :ref:`sphx_glr_auto_examples_inspection_plot_calibration_stats_overview.py` (``examples\inspection\plot_calibration_stats_overview.py``)
+     - 00:00.000
+     - 0.0
    * - :ref:`sphx_glr_auto_examples_inspection_plot_eval_diagnostics_overview.py` (``examples\inspection\plot_eval_diagnostics_overview.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_inspection_plot_eval_physics_overview.py` (``examples\inspection\plot_eval_physics_overview.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_inspection_plot_manifest_overview.py` (``examples\inspection\plot_manifest_overview.py``)
@@ -300,9 +300,6 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_tables_and_summaries_make_boundary.py` (``examples\tables_and_summaries\make_boundary.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_tables_and_summaries_make_district_grid.py` (``examples\tables_and_summaries\make_district_grid.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_tables_and_summaries_make_exposure.py` (``examples\tables_and_summaries\make_exposure.py``)

@@ -687,7 +687,7 @@ def calibrate_quantile_forecasts(
 
 
 @check_empty(["y_val", "forecast_val"])
-def calibrate_forecasts(
+def calibrate_forecasts_in(
     y_val: pd.Series,
     forecasts_val: pd.DataFrame,
     *forecasts_to_calibrate: pd.DataFrame
@@ -753,7 +753,7 @@ def calibrate_forecasts(
     return results, calibrators
 
 
-calibrate_forecasts.__doc__ = r"""
+calibrate_forecasts_in.__doc__ = r"""
 Train and apply isotonic calibration models on forecast data.
 
 Parameters
@@ -795,7 +795,7 @@ Examples
 --------
 >>> import pandas as pd
 >>> import numpy as np
->>> from geoprior.utils.forecast_utils import calibrate_forecasts
+>>> from geoprior.utils.calibrate import calibrate_forecasts
 >>> # Create dummy validation series
 >>> idx = pd.date_range('2021-01-01', periods=50)
 >>> y_val = pd.Series(
@@ -837,33 +837,7 @@ def calibrate_probability_forecast(
     clip: bool = True,
     savefile: str | None = None,
 ) -> pd.DataFrame:
-    """
-    Calibrate a probability forecast using either isotonic regression
-    or logistic (Platt scaling).
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-        DataFrame containing raw probability forecasts and actuals.
-    prob_col : str
-        Column name of raw probability forecasts (values in [0,1]).
-    actual_col : str
-        Column name of binary outcomes (0 or 1).
-    method : {'isotonic','logistic'}, default 'isotonic'
-        Calibration method:
-        - 'isotonic': non-parametric isotonic regression.
-        - 'logistic': parametric Platt scaling with logistic regression.
-    out_col : str, optional
-        Name for calibrated probability column. If None, defaults to
-        f"{prob_col}_calib".
-    clip : bool, default True
-        If True, clip output to [0,1].
-
-    Returns
-    -------
-    pd.DataFrame
-        A copy of df with an added calibrated probability column.
-    """
     df = df.copy()
     if out_col is None:
         out_col = f"{prob_col}_calib"
@@ -993,3 +967,660 @@ def calibrate_forecasts(
         df_out = _calibrate_block(df)
 
     return df_out
+
+fit_interval_factors_df.__doc__ = r"""
+Fit empirical interval-width correction factors from an evaluation
+DataFrame.
+
+This function learns one multiplicative factor per forecast horizon
+so that an existing predictive interval reaches a desired empirical
+coverage on evaluation data. It is designed for the common case where
+a model already produces quantile forecasts, but the resulting
+intervals are systematically too narrow or too wide.
+
+For each group of rows, the function identifies
+
+- one lower quantile,
+- one median-like quantile, and
+- one upper quantile,
+
+then searches for the smallest factor :math:`f \ge 1` such that the
+rescaled interval reaches the requested target coverage.
+
+If :math:`q_{lo}`, :math:`q_{md}`, and :math:`q_{hi}` denote the
+selected lower, median, and upper forecasts, the calibrated interval
+used during fitting is
+
+.. math::
+
+   \tilde q_{lo} = q_{md} - f \, (q_{md} - q_{lo})
+
+.. math::
+
+   \tilde q_{hi} = q_{md} + f \, (q_{hi} - q_{md})
+
+and the fitted factor is the smallest value whose empirical coverage
+is at least the target, up to the requested tolerance.
+
+This is a lightweight post-hoc calibration strategy that is especially
+useful for multi-horizon quantile forecasts, where sharpness and
+coverage must be balanced carefully in downstream risk analysis
+:cite:p:`Limetal2021,Kouadio2025XTFT`.
+
+Parameters
+----------
+df_eval : pandas.DataFrame
+    Evaluation table containing the observed target and the forecast
+    quantile columns used for calibration.
+target_name : str, default="subsidence"
+    Base name of the forecasted variable. When ``column_map`` is not
+    provided, quantile columns are auto-detected using names such as
+    ``"{target_name}_q10"``, ``"{target_name}_q50"``, and
+    ``"{target_name}_q90"``.
+column_map : mapping or None, default=None
+    Optional explicit column mapping. This may contain at least
+
+    - ``"quantiles"``: a mapping from quantile level to column name,
+      or a list of quantile column names,
+    - ``"actual"``: the observed target column.
+
+    This is useful when the DataFrame does not follow the default
+    naming convention.
+step_col : str, default="forecast_step"
+    Column used to fit separate factors per horizon or lead time.
+    If this column is missing, the full DataFrame is treated as a
+    single group and a single factor is returned with key ``1``.
+interval : tuple of float, default=(0.1, 0.9)
+    Nominal lower and upper quantiles defining the interval to
+    calibrate. The function uses the closest available quantiles in
+    the DataFrame.
+target_coverage : float, default=0.8
+    Desired empirical coverage of the calibrated interval.
+median_q : float, default=0.5
+    Target quantile used as the center of the interval expansion.
+    The nearest available quantile in the DataFrame is used.
+tol : float, default=1e-3
+    Numerical tolerance used during the bisection search.
+f_max : float, default=5.0
+    Upper bound for the searched interval factor. If the target
+    coverage cannot be reached before this bound, ``f_max`` is
+    returned for that group.
+max_iter : int, default=32
+    Maximum number of bisection iterations used to fit each factor.
+verbose : int, default=1
+    Verbosity level forwarded to the internal logging helper.
+logger : logging.Logger or None, default=None
+    Optional logger used for progress messages.
+
+Returns
+-------
+dict[int, float]
+    Dictionary mapping each forecast horizon to its fitted interval
+    factor.
+
+Raises
+------
+ValueError
+    If no actual column can be resolved, or if no valid quantile
+    interval can be formed from the available columns.
+KeyError
+    If a user-specified column in ``column_map`` is missing.
+
+Notes
+-----
+This function does not change the forecasts directly. It only learns
+the correction factors. To apply the fitted factors to evaluation or
+future forecasts, use :func:`apply_interval_factors_df`.
+
+Because the method calibrates interval width around a median-like
+center, it is most appropriate when miscalibration is primarily a
+sharpness problem rather than a severe bias in the central forecast.
+
+Examples
+--------
+>>> import pandas as pd
+>>> from geoprior.utils.calibrate import fit_interval_factors_df
+>>> df = pd.DataFrame(
+...     {
+...         "forecast_step": [1, 1, 1, 2, 2, 2],
+...         "subsidence_actual": [0.4, 0.7, 1.0, 0.5, 0.8, 1.2],
+...         "subsidence_q10": [0.3, 0.5, 0.8, 0.4, 0.6, 0.9],
+...         "subsidence_q50": [0.4, 0.7, 1.0, 0.5, 0.8, 1.1],
+...         "subsidence_q90": [0.5, 0.9, 1.1, 0.6, 1.0, 1.3],
+...     }
+... )
+>>> factors = fit_interval_factors_df(
+...     df,
+...     target_name="subsidence",
+...     interval=(0.1, 0.9),
+...     target_coverage=0.8,
+... )
+>>> isinstance(factors, dict)
+True
+
+See Also
+--------
+apply_interval_factors_df :
+    Apply learned interval factors to forecast quantiles.
+calibrate_quantile_forecasts :
+    High-level wrapper that can fit and apply factors in one call.
+
+References
+----------
+:cite:t:`Limetal2021` discuss multi-horizon quantile forecasting in a
+setting where calibration and interpretability both matter.
+
+For subsidence-oriented uncertainty-aware forecasting and practical
+post-hoc probabilistic refinement in this project context, see
+:cite:t:`Kouadio2025XTFT`.
+"""
+
+
+apply_interval_factors_df.__doc__ = r"""
+Apply interval-width calibration factors to quantile forecasts stored
+in a DataFrame.
+
+This function rescales forecast quantiles around a median-like central
+forecast using either
+
+- a single scalar factor applied to every row, or
+- a mapping of ``forecast_step -> factor``.
+
+The main goal is to widen or shrink predictive intervals after the
+factors have been estimated on evaluation data with
+:func:`fit_interval_factors_df`.
+
+If :math:`q_{md}` is the selected median-like forecast and
+:math:`f_h` is the factor for horizon :math:`h`, then for a lower
+quantile :math:`q < q_{md}` the calibrated value is
+
+.. math::
+
+   \tilde q = q_{md} - f_h \, (q_{md} - q)
+
+and for an upper quantile :math:`q > q_{md}` it is
+
+.. math::
+
+   \tilde q = q_{md} + f_h \, (q - q_{md})
+
+while the median itself is left unchanged.
+
+Parameters
+----------
+df : pandas.DataFrame
+    DataFrame containing forecast quantile columns.
+factors : mapping or float
+    Calibration factor specification. This may be
+
+    - a scalar applied to every row, or
+    - a mapping from forecast horizon to factor.
+
+target_name : str, default="subsidence"
+    Base variable name used to auto-detect quantile columns when
+    ``column_map`` is not supplied.
+column_map : mapping or None, default=None
+    Optional explicit mapping describing the quantile columns.
+step_col : str, default="forecast_step"
+    Horizon column used when ``factors`` is a mapping. If this column
+    is absent, it is created and filled with ``1``.
+median_q : float, default=0.5
+    Quantile used as the center of the recalibration. The closest
+    available forecast quantile is used.
+keep_original : bool, default=False
+    If True, each raw quantile column is preserved in an additional
+    ``"{col}_raw"`` column before calibration is applied.
+factor_col : str, default="calibration_factor"
+    Name of the column storing the factor applied to each row.
+calibrated_col : str, default="is_calibrated"
+    Name of the Boolean marker column added to the returned DataFrame.
+enforce_monotonic : {"cummax", "sort", "none"}, default="cummax"
+    Strategy used after recalibration to keep quantiles ordered.
+
+    - ``"cummax"`` applies a cumulative maximum across quantiles,
+    - ``"sort"`` sorts the calibrated quantiles row-wise,
+    - ``"none"`` leaves the result unchanged.
+
+verbose : int, default=1
+    Verbosity level forwarded to the internal logger helper.
+logger : logging.Logger or None, default=None
+    Optional logger used for progress messages.
+
+Returns
+-------
+pandas.DataFrame
+    A calibrated copy of ``df`` containing updated quantiles and the
+    metadata columns specified by ``factor_col`` and
+    ``calibrated_col``.
+
+Raises
+------
+ValueError
+    If no quantile columns can be resolved from the DataFrame or if
+    an invalid ``enforce_monotonic`` mode is requested.
+
+Notes
+-----
+Monotonicity enforcement is important because quantile-wise
+post-processing can otherwise produce crossing quantiles. Keeping
+quantiles ordered is especially important when the calibrated outputs
+are used to derive intervals, exceedance probabilities, or downstream
+risk metrics :cite:p:`Limetal2021,Kouadio2025XTFT`.
+
+This function only modifies the quantile forecasts. It does not
+recompute summary coverage statistics. For fit-and-apply workflows
+with optional evaluation summaries, use
+:func:`calibrate_quantile_forecasts`.
+
+Examples
+--------
+>>> import pandas as pd
+>>> from geoprior.utils.calibrate import apply_interval_factors_df
+>>> df = pd.DataFrame(
+...     {
+...         "forecast_step": [1, 1, 2, 2],
+...         "subsidence_q10": [0.3, 0.5, 0.4, 0.6],
+...         "subsidence_q50": [0.4, 0.7, 0.5, 0.8],
+...         "subsidence_q90": [0.5, 0.9, 0.6, 1.0],
+...     }
+... )
+>>> out = apply_interval_factors_df(
+...     df,
+...     factors={1: 1.2, 2: 1.1},
+...     target_name="subsidence",
+... )
+>>> "calibration_factor" in out.columns
+True
+
+See Also
+--------
+fit_interval_factors_df :
+    Fit per-horizon interval scaling factors.
+calibrate_quantile_forecasts :
+    High-level wrapper for fitting, applying, and summarizing
+    interval calibration.
+"""
+
+
+calibrate_quantile_forecasts.__doc__ = r"""
+Fit and apply post-hoc interval calibration for quantile forecasts.
+
+This is the high-level DataFrame-oriented entry point for interval
+recalibration in ``geoprior.utils.calibrate``. It can
+
+1. detect whether evaluation forecasts already appear calibrated,
+2. fit interval-width correction factors from evaluation data,
+3. apply those factors to evaluation and/or future forecasts,
+4. compute before/after summary diagnostics on the evaluation set,
+5. optionally save the outputs to disk.
+
+The function is designed for workflows where quantile forecasts are
+already available in tabular form and calibration should be handled
+without retraining the forecasting model.
+
+Conceptually, the function widens or narrows a predictive interval
+around a median-like forecast so that the empirical interval coverage
+better matches the requested target. This is a practical post-hoc
+strategy for uncertainty refinement in multi-horizon forecasting
+pipelines :cite:p:`Limetal2021,Kouadio2025XTFT`.
+
+Parameters
+----------
+df_eval : pandas.DataFrame or None, default=None
+    Evaluation forecasts used to fit calibration factors and to
+    compute before/after diagnostics. This table should contain the
+    observed target column in addition to the quantile forecasts.
+df_future : pandas.DataFrame or None, default=None
+    Future or inference forecasts to which the fitted factors should
+    be applied. This table does not need observed targets.
+target_name : str, default="subsidence"
+    Base name used to infer forecast and observation columns when
+    ``column_map`` is not explicitly supplied.
+column_map : mapping or None, default=None
+    Optional mapping describing the observed column and the quantile
+    columns. This is helpful when the table does not follow the
+    default naming conventions.
+step_col : str, default="forecast_step"
+    Column used to fit and apply separate factors per forecast
+    horizon.
+interval : tuple of float, default=(0.1, 0.9)
+    Lower and upper quantiles defining the interval to calibrate.
+    The nearest available quantiles are used.
+target_coverage : float, default=0.8
+    Desired empirical coverage after calibration.
+median_q : float, default=0.5
+    Central quantile used as the expansion anchor.
+use : {"auto", True, False}, default="auto"
+    Control flag for whether calibration is performed.
+
+    - ``False`` disables calibration and returns inputs unchanged.
+    - ``"auto"`` skips calibration when evaluation forecasts already
+      look calibrated.
+    - ``True`` forces calibration even if the automatic check would
+      skip it.
+
+tol : float, default=0.02
+    Tolerance used by the automatic already-calibrated check.
+f_max : float, default=5.0
+    Maximum factor allowed during fitting.
+max_iter : int, default=32
+    Maximum number of bisection iterations used when fitting factors.
+keep_original : bool, default=False
+    If True, raw quantiles are copied into ``*_raw`` columns before
+    calibration is applied.
+enforce_monotonic : {"cummax", "sort", "none"}, default="cummax"
+    Strategy used to prevent quantile crossing after recalibration.
+overall_key : str or None, default="__overall__"
+    Reserved label stored in the returned statistics dictionary for
+    overall summary reporting.
+calibrated_col : str, default="is_calibrated"
+    Column name added to calibrated outputs as a Boolean marker.
+factor_col : str, default="calibration_factor"
+    Column name used to store the factor applied to each row.
+factors : float or mapping or None, default=None
+    Optional user-specified calibration factors. If provided, these
+    take precedence over factors fitted from ``df_eval``.
+save_eval : str or path-like or None, default=None
+    Optional CSV path for saving the calibrated evaluation table.
+save_future : str or path-like or None, default=None
+    Optional CSV path for saving the calibrated future table.
+save_stats : str or path-like or None, default=None
+    Optional JSON path for saving the calibration summary.
+verbose : int, default=1
+    Verbosity level forwarded to logging helpers.
+logger : logging.Logger or None, default=None
+    Optional logger used for progress messages.
+
+Returns
+-------
+df_eval_cal : pandas.DataFrame or None
+    Calibrated evaluation DataFrame, or None when no evaluation table
+    was provided.
+df_future_cal : pandas.DataFrame or None
+    Calibrated future DataFrame, or None when no future table was
+    provided.
+stats : dict[str, Any]
+    Dictionary describing the calibration workflow. Depending on the
+    path taken, it may contain
+
+    - the target interval and target coverage,
+    - the fitted or user-specified factors,
+    - skip reasons,
+    - evaluation summaries before and after calibration.
+
+Notes
+-----
+In ``use="auto"`` mode, the function first checks for an explicit
+``calibrated_col`` and then falls back to a simple empirical
+coverage-based decision. This makes the wrapper conservative in
+repeated workflows, where the same tables may pass through the
+calibration stage more than once.
+
+The returned ``stats`` dictionary is designed to be JSON-friendly and
+therefore suitable for audit trails, experiment manifests, or gallery
+artifacts.
+
+Examples
+--------
+>>> import pandas as pd
+>>> from geoprior.utils.calibrate import (
+...     calibrate_quantile_forecasts,
+... )
+>>> df_eval = pd.DataFrame(
+...     {
+...         "forecast_step": [1, 1, 2, 2],
+...         "subsidence_actual": [0.4, 0.7, 0.5, 0.9],
+...         "subsidence_q10": [0.3, 0.5, 0.4, 0.6],
+...         "subsidence_q50": [0.4, 0.7, 0.5, 0.8],
+...         "subsidence_q90": [0.5, 0.9, 0.6, 1.0],
+...     }
+... )
+>>> df_eval_cal, df_future_cal, stats = (
+...     calibrate_quantile_forecasts(
+...         df_eval=df_eval,
+...         target_name="subsidence",
+...         target_coverage=0.8,
+...     )
+... )
+>>> isinstance(stats, dict)
+True
+
+See Also
+--------
+fit_interval_factors_df :
+    Fit per-horizon interval-width correction factors.
+apply_interval_factors_df :
+    Apply a scalar or per-horizon factor map to quantile forecasts.
+
+References
+----------
+For the broader role of calibrated probabilistic multi-horizon
+forecasting, see :cite:t:`Limetal2021`.
+
+For uncertainty-rich forecasting in the present project ecosystem, see
+:cite:t:`Kouadio2025XTFT`.
+"""
+
+
+calibrate_probability_forecast.__doc__ = r"""
+Calibrate binary probability forecasts with isotonic regression or
+logistic scaling.
+
+This function post-processes a column of raw forecast probabilities so
+that they better agree with observed binary outcomes. It returns a
+copy of the input DataFrame with one additional calibrated
+probability column.
+
+Two calibration modes are supported:
+
+- ``"isotonic"``
+    Non-parametric monotone calibration using isotonic regression.
+- ``"logistic"``
+    Parametric calibration using logistic regression on the raw
+    probabilities.
+
+Parameters
+----------
+df : pandas.DataFrame
+    DataFrame containing a column of raw forecast probabilities and a
+    column of observed binary outcomes.
+prob_col : str
+    Name of the column containing the raw forecast probabilities.
+    Values are usually expected in the interval ``[0, 1]``.
+actual_col : str
+    Name of the column containing the realized binary outcomes,
+    encoded as ``0`` and ``1``.
+method : {"isotonic", "logistic"}, default="isotonic"
+    Calibration method to apply.
+out_col : str or None, default=None
+    Name of the calibrated probability column. If None,
+    ``f"{prob_col}_calib"`` is used.
+clip : bool, default=True
+    If True, calibrated outputs are clipped to ``[0, 1]`` before
+    being written to the result.
+savefile : str or None, default=None
+    Optional output path handled by the :func:`SaveFile` decorator.
+
+Returns
+-------
+pandas.DataFrame
+    Copy of ``df`` with an additional calibrated probability column.
+
+Raises
+------
+ValueError
+    If ``method`` is not one of ``"isotonic"`` or ``"logistic"``.
+
+Notes
+-----
+This function is appropriate for event-probability forecasts, not for
+continuous quantile forecasts. For quantile-table recalibration, use
+:func:`calibrate_forecasts` or
+:func:`calibrate_quantile_forecasts` depending on the workflow.
+
+The isotonic option is often preferred when a flexible monotone
+mapping is desired, whereas the logistic option is useful when a
+simple parametric correction is sufficient.
+
+Examples
+--------
+>>> import pandas as pd
+>>> from geoprior.utils.calibrate import (
+...     calibrate_probability_forecast,
+... )
+>>> df = pd.DataFrame(
+...     {
+...         "p_raw": [0.10, 0.30, 0.60, 0.85],
+...         "y": [0, 0, 1, 1],
+...     }
+... )
+>>> out = calibrate_probability_forecast(
+...     df,
+...     prob_col="p_raw",
+...     actual_col="y",
+...     method="isotonic",
+... )
+>>> "p_raw_calib" in out.columns
+True
+
+See Also
+--------
+calibrate_forecasts :
+    Calibrate continuous quantile forecasts by inverting calibrated
+    CDF estimates.
+calibrate_quantile_forecasts :
+    Fit-and-apply interval calibration for tabular quantile forecasts.
+"""
+
+
+calibrate_forecasts.__doc__ = r"""
+Calibrate continuous quantile forecasts by fitting a calibrated CDF
+surrogate and inverting it at the nominal quantile levels.
+
+This function works on a DataFrame containing continuous quantile
+forecasts and the corresponding observed target. For each requested
+quantile level :math:`q`, it builds a binary supervision signal of
+the form
+
+.. math::
+
+   y_q = \mathbb{1}\{y \le \hat q\}
+
+where :math:`y` is the observed outcome and :math:`\hat q` is the raw
+forecast quantile at level :math:`q`.
+
+A monotone classifier is then fitted to approximate the conditional
+CDF at that threshold. Finally, the calibrated forecast is obtained by
+inverting the fitted CDF on a grid and taking the first threshold
+whose calibrated CDF reaches the nominal quantile level.
+
+This provides a practical post-hoc recalibration mechanism for
+continuous quantile forecasts in multi-horizon settings
+:cite:p:`Limetal2021,Kouadio2025XTFT`.
+
+Parameters
+----------
+df : pandas.DataFrame
+    DataFrame containing the raw forecast quantile columns and the
+    observed target column.
+quantiles : sequence of float
+    Nominal quantile levels to recalibrate, expressed on the unit
+    interval, for example ``[0.1, 0.5, 0.9]``.
+q_prefix : str
+    Base prefix for the raw quantile columns. For example, if
+    ``q_prefix="subsidence"``, the function expects columns such as
+    ``"subsidence_q10"``, ``"subsidence_q50"``, and
+    ``"subsidence_q90"``.
+actual_col : str
+    Name of the observed continuous target column.
+method : {"isotonic", "logistic"}, default="isotonic"
+    Calibration method used to estimate the monotone CDF surrogate at
+    each quantile level.
+out_prefix : str, default="calib"
+    Prefix used to build the new calibrated quantile column names.
+    The output columns follow the pattern
+    ``"{out_prefix}_{q_prefix}_qXX"``.
+grid_mode : {"unit", "range"}, default="unit"
+    Domain used to construct the inversion grid.
+
+    - ``"unit"`` builds ``np.linspace(0, 1, grid_size)``.
+      This is mainly appropriate when the forecast support is already
+      normalized to the unit interval.
+    - ``"range"`` builds a grid from the observed range of each raw
+      quantile column and is typically the safer choice for forecasts
+      on the original target scale.
+
+grid_size : int, default=1001
+    Number of points used in the inversion grid.
+group_by : str or None, default=None
+    Optional grouping column. When provided, calibration is performed
+    separately within each group, for example by forecast horizon.
+savefile : str or None, default=None
+    Optional output path handled by the :func:`SaveFile` decorator.
+
+Returns
+-------
+pandas.DataFrame
+    Copy of ``df`` with calibrated quantile columns appended.
+
+Notes
+-----
+This function differs from :func:`calibrate_quantile_forecasts`.
+Here, each quantile is recalibrated through a classifier-plus-
+inversion approach. By contrast,
+:func:`calibrate_quantile_forecasts` applies multiplicative interval
+width factors around a median-like forecast.
+
+The two approaches answer different needs:
+
+- use :func:`calibrate_forecasts` when you want to recalibrate the
+  quantile levels themselves through a threshold-CDF view;
+- use :func:`calibrate_quantile_forecasts` when your main issue is
+  interval under- or over-dispersion and you want a simpler,
+  auditable width correction.
+
+When ``group_by`` is used, the function preserves the original row
+index order after concatenating the calibrated groups.
+
+Examples
+--------
+>>> import pandas as pd
+>>> from geoprior.utils.calibrate import calibrate_forecasts
+>>> df = pd.DataFrame(
+...     {
+...         "forecast_step": [1, 1, 2, 2],
+...         "subsidence_actual": [0.4, 0.8, 0.5, 1.0],
+...         "subsidence_q10": [0.3, 0.6, 0.4, 0.8],
+...         "subsidence_q50": [0.4, 0.8, 0.5, 1.0],
+...         "subsidence_q90": [0.5, 1.0, 0.6, 1.2],
+...     }
+... )
+>>> out = calibrate_forecasts(
+...     df,
+...     quantiles=[0.1, 0.5, 0.9],
+...     q_prefix="subsidence",
+...     actual_col="subsidence_actual",
+...     method="isotonic",
+...     grid_mode="range",
+...     group_by="forecast_step",
+... )
+>>> "calib_subsidence_q50" in out.columns
+True
+
+See Also
+--------
+calibrate_probability_forecast :
+    Calibrate event probabilities rather than continuous quantiles.
+calibrate_quantile_forecasts :
+    Wrapper for interval-width calibration on tabular forecasts.
+fit_interval_factors_df :
+    Learn empirical per-horizon interval scaling factors.
+
+References
+----------
+For interpretable multi-horizon quantile forecasting, see
+:cite:t:`Limetal2021`.
+
+For uncertainty-rich forecasting in the GeoPrior ecosystem, see
+:cite:t:`Kouadio2025XTFT`.
+"""

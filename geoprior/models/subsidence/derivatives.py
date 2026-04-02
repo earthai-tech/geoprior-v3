@@ -218,10 +218,10 @@ def compute_head_pde_derivatives_raw(
 
     References
     ----------
-    .. [1] Bear, J. Dynamics of Fluids in Porous Media. Dover
-       Publications, 1988.
+    Bear, J. Dynamics of Fluids in Porous Media. Dover
+         Publications, 1988.
 
-    .. [2] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
+    Raissi, M., Perdikaris, P., and Karniadakis, G. E.
        Physics-informed neural networks: A deep learning framework
        for solving forward and inverse problems involving nonlinear
        partial differential equations. Journal of Computational
@@ -525,7 +525,7 @@ def ensure_si_derivative_frame(
 
     References
     ----------
-    .. [1] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
+    - Raissi, M., Perdikaris, P., and Karniadakis, G. E.
        Physics-informed neural networks: A deep learning framework
        for solving forward and inverse problems involving nonlinear
        partial differential equations. Journal of Computational
