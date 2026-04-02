@@ -8,28 +8,30 @@ Update ablation_record.jsonl using post-hoc calibrated metrics.
 
 What this does
 --------------
-For each JSONL row (one run):
-- Finds the run folder via the timestamp:
-  geoprior_eval_phys_<TS>_interpretable.json
-- Replaces top-level metrics with *post-hoc calibrated* values:
-  mae, mse, rmse, r2, coverage80, sharpness80, per-horizon metrics
-- Writes units + detailed blocks into record["metrics"]
-- Stores the old (pre-patch) values under:
-  record["legacy"]["pre_posthoc_patch"]
+For each JSONL row (one run), this script:
+
+- finds the run folder via the timestamped
+  ``geoprior_eval_phys_<TS>_interpretable.json`` file
+- replaces top-level metrics with post-hoc calibrated values:
+  ``mae``, ``mse``, ``rmse``, ``r2``, ``coverage80``,
+  ``sharpness80``, and per-horizon metrics
+- writes units and detailed blocks into ``record["metrics"]``
+- stores the old pre-patch values under
+  ``record["legacy"]["pre_posthoc_patch"]``
 
 Typical layout
 --------------
-results_root/
-  run_folder_A/
-    geoprior_eval_phys_<TS>_interpretable.json
-    <city>_GeoPriorSubsNet_eval_diagnostics_TestSet_H3_calibrated.json
-    ablations_records/ablation_record.jsonl
-  run_folder_B/
-    ...
+.. code-block:: text
 
-Note that ablations_records/ folder is under each run_folder.
-ablation_records/
-  ablation_record.jsonl
+   results_root/
+     run_folder_A/
+       geoprior_eval_phys_<TS>_interpretable.json
+       <city>_GeoPriorSubsNet_eval_diagnostics_TestSet_H3_calibrated.json
+       ablations_records/ablation_record.jsonl
+     run_folder_B/
+       ...
+
+The ``ablations_records/`` folder lives under each run folder.
 """
 
 from __future__ import annotations

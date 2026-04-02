@@ -1350,10 +1350,6 @@ class GeoPriorSubsNet(BaseAttentive):
             Internal forward routine that returns both predictions and
             auxiliary tensors.
 
-        References
-        ----------
-        .. [1] Abadi, M., et al. TensorFlow: Large-scale machine learning
-           on heterogeneous systems. 2015.
         """
 
         return self._forward_all(inputs, training=training)
@@ -1428,9 +1424,6 @@ class GeoPriorSubsNet(BaseAttentive):
         _forward_all
             Internal routine returning ``(y_pred, aux)``.
 
-        References
-        ----------
-        .. [1] Chollet, F. et al. Keras. 2015.
         """
 
         y_pred, _aux = self._forward_all(
@@ -1596,15 +1589,6 @@ class GeoPriorSubsNet(BaseAttentive):
         geoprior.nn.pinn.geoprior.maths.compose_physics_fields
             Map physics logits to bounded physical fields and priors.
 
-        References
-        ----------
-        .. [1] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
-           Physics-informed neural networks: A deep learning framework
-           for solving forward and inverse problems involving nonlinear
-           partial differential equations. Journal of Computational
-           Physics, 2019.
-
-        .. [2] Terzaghi, K. Theoretical Soil Mechanics. Wiley, 1943.
         """
 
         sk = self.scaling_kwargs or {}
@@ -2048,8 +2032,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
         Notes
         -----
-        Step outline
-        ~~~~~~~~~~~~
+        **Step outline.**
         This training step performs the following stages:
 
         0) Unpack and canonicalize targets
@@ -2107,8 +2090,7 @@ class GeoPriorSubsNet(BaseAttentive):
             :func:`pack_step_results` so both training logs and evaluation
             summaries remain consistent.
 
-        Physics loss semantics
-        ~~~~~~~~~~~~~~~~~~~~~~
+        **Physics loss semantics.**
         The physics contribution returned by :func:`physics_core` is already
         assembled with internal multipliers and (optionally) warmup/ramp
         gating. In other words, ``physics_loss_scaled`` is the quantity that
@@ -2119,8 +2101,7 @@ class GeoPriorSubsNet(BaseAttentive):
         ``debug_physics_grads=True``) and use the debug hooks called inside
         this step.
 
-        Gradient sanity and debugging
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        **Gradient sanity and debugging.**
         This method provides multiple stability and debug mechanisms:
 
         * NaN/Inf gradient filtering before applying updates.
@@ -2164,16 +2145,6 @@ class GeoPriorSubsNet(BaseAttentive):
         tf.clip_by_global_norm
             TensorFlow utility for global-norm gradient clipping.
 
-        References
-        ----------
-        .. [1] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
-           Physics-informed neural networks: A deep learning framework
-           for solving forward and inverse problems involving nonlinear
-           partial differential equations. Journal of Computational
-           Physics, 2019.
-
-        .. [2] Goodfellow, I., Bengio, Y., and Courville, A.
-           Deep Learning. MIT Press, 2016.
         """
 
         # ------------------------------------------------------
@@ -2510,8 +2481,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
         Notes
         -----
-        Step outline
-        ~~~~~~~~~~~~
+        **Step outline.**
         This evaluation step follows a stable, dict-safe flow:
 
         1) Unpack and canonicalize targets
@@ -2557,8 +2527,7 @@ class GeoPriorSubsNet(BaseAttentive):
             :func:`pack_step_results` to keep training and validation logs
             consistent.
 
-        When to use physics in validation
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        **When to use physics in validation.**
         Enabling physics during validation is useful to monitor:
 
         * PDE residual RMS values (epsilon metrics),
@@ -2600,15 +2569,6 @@ class GeoPriorSubsNet(BaseAttentive):
             Pack supervised metrics, physics terms, and manual trackers into
             a stable Keras logging dictionary.
 
-        References
-        ----------
-        .. [1] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
-           Physics-informed neural networks: A deep learning framework
-           for solving forward and inverse problems involving nonlinear
-           partial differential equations. Journal of Computational
-           Physics, 2019.
-
-        .. [2] Chollet, F. et al. Keras. 2015.
         """
 
         # ------------------------------------------------------
@@ -2908,35 +2868,20 @@ class GeoPriorSubsNet(BaseAttentive):
         Returns
         -------
         out : dict of str to Tensor
-            Dictionary of physics diagnostics.
+            Dictionary of physics diagnostics. In Dataset mode, scalar keys
+            whose names start with ``'loss_'`` or ``'epsilon_'`` are
+            aggregated by mean across processed batches. Example aggregated
+            outputs include ``loss_cons``, ``loss_gw``, ``loss_prior``,
+            ``loss_smooth``, ``loss_bounds``, ``loss_mv``, ``loss_q_reg``,
+            ``epsilon_cons``, ``epsilon_gw``, and ``epsilon_prior``.
 
-            Aggregated scalars (Dataset mode)
-            --------------------------------
-            Scalars are aggregated by mean across processed batches for keys
-            whose names start with one of these prefixes:
-
-            * ``'loss_'`` (physics loss components)
-            * ``'epsilon_'`` (RMS-style residual diagnostics)
-
-            Example aggregated outputs include:
-
-            * ``loss_cons`` / ``loss_gw`` / ``loss_prior`` / ``loss_smooth``
-            * ``loss_bounds`` / ``loss_mv`` / ``loss_q_reg``
-            * ``epsilon_cons`` / ``epsilon_gw`` / ``epsilon_prior``
-
-            Optional maps (when return_maps=True)
-            -------------------------------------
-            The method may include maps from the last processed batch,
-            selected from:
-
-            * residuals: ``R_prior``, ``R_cons``, ``R_gw``
-            * learned fields: ``K``, ``Ss``, ``tau``
-            * closure prior: ``tau_prior`` / ``tau_closure``
-            * thickness: ``H_field`` / ``H``, drainage thickness ``Hd``
-
-            Map availability depends on the underlying physics computation
-            and whether the batch contains required inputs (coords, thickness
-            field, etc.).
+            When ``return_maps=True``, the output may also include maps from
+            the last processed batch, such as residuals ``R_prior``,
+            ``R_cons``, ``R_gw``; learned fields ``K``, ``Ss``, ``tau``;
+            closure-prior fields ``tau_prior`` / ``tau_closure``; and
+            thickness fields ``H_field`` / ``H`` plus drainage thickness
+            ``Hd``. Map availability depends on the underlying physics
+            computation and whether the batch contains the required inputs.
 
         Raises
         ------
@@ -2946,8 +2891,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
         Notes
         -----
-        What this method is for
-        ~~~~~~~~~~~~~~~~~~~~~~~
+        **What this method is for.**
         Use this method to evaluate physics consistency independently of the
         supervised data loss. Typical use cases include:
 
@@ -2956,14 +2900,12 @@ class GeoPriorSubsNet(BaseAttentive):
         * validating bounds and prior strength before long training runs,
         * generating physics maps for qualitative inspection.
 
-        What this method is not
-        ~~~~~~~~~~~~~~~~~~~~~~~
+        **What this method is not.**
         This method does not compute or aggregate supervised metrics. It is
         intentionally physics-focused and ignores targets even if they are
         present in dataset elements.
 
-        Aggregation semantics
-        ~~~~~~~~~~~~~~~~~~~~~
+        **Aggregation semantics.**
         In Dataset mode, only scalar keys (loss and epsilon prefixes) are
         aggregated across batches. Residual maps and learned fields are not
         aggregated because they are spatially structured tensors; returning
@@ -3001,16 +2943,6 @@ class GeoPriorSubsNet(BaseAttentive):
         geoprior.nn.pinn.geoprior.step_core.physics_core
             Shared physics computation used for diagnostics and training.
 
-        References
-        ----------
-        .. [1] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
-           Physics-informed neural networks: A deep learning framework
-           for solving forward and inverse problems involving nonlinear
-           partial differential equations. Journal of Computational
-           Physics, 2019.
-
-        .. [2] Bear, J. Dynamics of Fluids in Porous Media. Dover
-           Publications, 1988.
         """
 
         MAP_KEYS = (
@@ -3415,8 +3347,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
         Notes
         -----
-        Backward compatibility and "always return Q"
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        **Backward compatibility and "always return Q".**
         This helper is designed so downstream physics code never needs to
         branch on whether Q exists.
 
@@ -3429,8 +3360,7 @@ class GeoPriorSubsNet(BaseAttentive):
         This allows PDE residual code to accept a consistent signature
         regardless of whether Q is actually trained.
 
-        Shape and dimension conventions
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        **Shape and dimension conventions.**
         The slice widths are controlled by model attributes:
 
         * ``output_K_dim``
@@ -3822,11 +3752,10 @@ class GeoPriorSubsNet(BaseAttentive):
             If True, multiply the :math:`L_{q}` contribution by the global
             physics multiplier :math:`alpha` in addition to ``lambda_q``.
 
-
             This is commonly enabled so forcing regularization ramps in
             together with other physics terms during physics warmup.
 
-        **kwargs
+        kwargs : dict
             Additional keyword arguments forwarded to
             :meth:`tf.keras.Model.compile`, such as ``optimizer``, ``loss``,
             ``metrics``, ``run_eagerly``, ``jit_compile``, and so on.
@@ -3838,8 +3767,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
         Notes
         -----
-        Physics-off behavior
-        ~~~~~~~~~~~~~~~~~~~~
+        **Physics-off behavior.**
         If the model physics is disabled (for example, by PDE mode settings
         or a physics switch), this method forces all physics weights to
         neutral values regardless of the inputs:
@@ -3854,14 +3782,12 @@ class GeoPriorSubsNet(BaseAttentive):
         This ensures that :meth:`train_step` and :meth:`test_step` remain
         stable and that logs do not contain misleading physics terms.
 
-        Validation of lambda_offset
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        **Validation of lambda_offset.**
         For ``offset_mode='mul'``, ``lambda_offset`` must be strictly
         positive. For ``offset_mode='log10'``, any real value is allowed and
         acts as a log10-scale controller.
 
-        Scheduling lambda_offset
-        ~~~~~~~~~~~~~~~~~~~~~~~~
+        **Scheduling lambda_offset.**
         A recommended pattern is to keep individual ``lambda_*`` values
         fixed and schedule ``lambda_offset`` (warmup/ramp) using a callback.
         Because ``self._lambda_offset`` is a non-trainable TF weight, it is
@@ -3913,18 +3839,6 @@ class GeoPriorSubsNet(BaseAttentive):
         geoprior.nn.pinn.geoprior.step_core.physics_core
             Computes per-batch physics residuals and loss terms.
 
-        References
-        ----------
-        .. [1] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
-           Physics-informed neural networks: A deep learning framework
-           for solving forward and inverse problems involving nonlinear
-           partial differential equations. Journal of Computational
-           Physics, 2019.
-
-        .. [2] Bear, J. Dynamics of Fluids in Porous Media. Dover
-           Publications, 1988.
-
-        .. [3] Terzaghi, K. Theoretical Soil Mechanics. Wiley, 1943.
         """
 
         # Let base class set optimizer/loss/metrics first.
@@ -4109,13 +4023,6 @@ class GeoPriorSubsNet(BaseAttentive):
         ...     overwrite=True,
         ... )
 
-        References
-        ----------
-        .. [1] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
-           Physics-informed neural networks: A deep learning framework
-           for solving forward and inverse problems involving nonlinear
-           partial differential equations. Journal of Computational
-           Physics, 2019.
         """
 
         payload = gather_physics_payload(
@@ -4198,13 +4105,6 @@ class GeoPriorSubsNet(BaseAttentive):
         >>> list(payload)[:5]
         ['tau', 'tau_prior', 'K', 'Ss', 'Hd']
 
-        References
-        ----------
-        .. [1] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
-           Physics-informed neural networks: A deep learning framework
-           for solving forward and inverse problems involving nonlinear
-           partial differential equations. Journal of Computational
-           Physics, 2019.
         """
 
         return load_physics_payload(path)
@@ -4279,9 +4179,6 @@ class GeoPriorSubsNet(BaseAttentive):
         keras.saving.serialize_keras_object
             Keras helper used to serialize non-JSON config objects.
 
-        References
-        ----------
-        .. [1] Keras Team. Keras serialization and saving API documentation.
         """
 
         cfg = super().get_config()
@@ -4419,9 +4316,6 @@ class GeoPriorSubsNet(BaseAttentive):
         keras.saving.deserialize_keras_object
             Keras helper used to rehydrate serialized config objects.
 
-        References
-        ----------
-        .. [1] Keras Team. Keras serialization and saving API documentation.
         """
 
         if custom_objects is None:

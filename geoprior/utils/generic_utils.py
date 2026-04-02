@@ -486,7 +486,7 @@ def find_id_column(
     to detect columns likely to serve as unique identifiers.
     This is particularly useful for large datasets where the
     ID field is not explicitly labeled, and for quick scanning
-    of possible key columns [1]_.
+    of possible key columns.
 
     Parameters
     ----------
@@ -1481,11 +1481,6 @@ def transform_contributions(
     --------
     numpy.mean: Compute the arithmetic mean of an array.
     numpy.std: Compute the standard deviation of an array.
-
-    References
-    ----------
-    [1]_ "Statistical Methods for Data Transformation" by J. Smith,
-         Springer, 2020.
     """
 
     # Handle zero values based on user preference
@@ -1763,7 +1758,7 @@ def reorder_columns(
        \\right\\rfloor,
 
     where :math:`|R|` is the number of remaining
-    columns after removing the target columns [1]_.
+    columns after removing the target columns.
     For integer or float ``pos``, the target columns
     are inserted at index :math:`\\lfloor pos
     \\rfloor` among the remaining columns. Column-order

@@ -13,18 +13,18 @@ SI units (e.g., meters) or store *uncalibrated* interval metrics.
 This script patches each JSONL row by reading the authoritative
 run artifacts:
 
-- geoprior_eval_phys_<TS>_interpretable.json  (preferred)
-- geoprior_eval_phys_<TS>.json                (fallback)
-- *eval_diagnostics*_calibrated.json          (fallback)
+- ``geoprior_eval_phys_<TS>_interpretable.json`` (preferred)
+- ``geoprior_eval_phys_<TS>.json`` (fallback)
+- ``*eval_diagnostics*_calibrated.json`` (fallback)
 
 Outputs
 -------
 For each input ablation JSONL:
-- writes a sibling file ``ablation_record.updated.jsonl`` next
-  to the original (does not overwrite by default).
 
-Optionally also exports a combined table (CSV + JSON) under
-``scripts/out``.
+- writes a sibling file ``ablation_record.updated.jsonl`` next
+  to the original and does not overwrite by default
+- optionally exports a combined table as CSV and JSON under
+  ``scripts/out``
 """
 
 from __future__ import annotations

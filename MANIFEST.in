@@ -1,4 +1,4 @@
-# MANIFEST.in for GeoPrior-v3 project
+# MANIFEST.in for GeoPrior-v3
 
 # ---------------------------------------------------------
 # Essential root files
@@ -10,19 +10,45 @@ include MANIFEST.in
 include setup.py
 
 # ---------------------------------------------------------
-# PyPI / long-description assets
+# Documentation source (hand-written only)
 # ---------------------------------------------------------
-recursive-include docs/source/_static *
 recursive-include docs/source *.rst
+recursive-include docs/source *.md
 recursive-include docs/source *.py
 recursive-include docs/source/_templates *
-
-# Exclude docs images unless explicitly needed
-recursive-exclude docs/source/images *
+recursive-include docs/source/_static *.css *.js *.svg *.png *.jpg *.jpeg *.ico *.gif
 
 include docs/Makefile
 include docs/make.bat
 include docs/requirements.txt
+
+# ---------------------------------------------------------
+# Exclude generated / heavy / preview docs assets
+# ---------------------------------------------------------
+prune docs/_build
+prune docs/source/_generated
+prune docs/source/generated
+prune docs/source/_autosummary
+prune docs/source/api/_autosummary
+prune docs/source/images
+prune docs/source/_static/previews
+prune docs/source/_static/apps
+
+recursive-exclude docs/source/_generated *
+recursive-exclude docs/source/generated *
+recursive-exclude docs/source/_autosummary *
+recursive-exclude docs/source/api/_autosummary *
+recursive-exclude docs/source/images *
+recursive-exclude docs/source/_static/previews *
+
+# Never ship Illustrator sources
+recursive-exclude docs/source/_static *.ai
+global-exclude *.ai
+
+# Optional: common generated doc artefacts
+recursive-exclude docs/source *.doctree
+recursive-exclude docs/source *.pickle
+recursive-exclude docs/source *.ipynb_checkpoints *
 
 # ---------------------------------------------------------
 # Package data
@@ -37,6 +63,8 @@ recursive-include geoprior/resources *.yml *.txt
 recursive-include scripts *.py
 
 # Keep legacy artifact folders out of source releases
+prune scripts/fig
+prune scripts/out
 recursive-exclude scripts/fig *
 recursive-exclude scripts/out *
 
@@ -85,14 +113,6 @@ recursive-exclude .* *
 recursive-exclude build *
 recursive-exclude dist *
 recursive-exclude *.egg-info *
-recursive-exclude docs/_build *
-
-# ---------------------------------------------------------
-# Prune empty or generated directories
-# ---------------------------------------------------------
-prune docs/_build
-prune scripts/fig
-prune scripts/out
 
 # ---------------------------------------------------------
 # Optional paper artefacts

@@ -5,7 +5,7 @@
 
 """
 Supplementary Figure Sy — Impactful transferability
---------------------------------------------------
+----------------------------------------------------
 
 This figure extends ``plot_transfer.py`` by adding
 decision-maker oriented diagnostics:
@@ -38,11 +38,13 @@ For panel (d), it also uses ``xfer_results.json``
 if available, to locate per-job ``csv_eval`` paths.
 
 Run (module form required)
--------------------------
-python -m scripts plot-xfer-impact \
-  --src results/xfer/nansha__zhongshan \
-  --split val \
-  --calib source
+--------------------------
+.. code-block:: bash
+
+   python -m scripts plot-xfer-impact \
+     --src results/xfer/nansha__zhongshan \
+     --split val \
+     --calib source
 
 """
 

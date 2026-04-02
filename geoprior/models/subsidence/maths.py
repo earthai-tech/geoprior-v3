@@ -250,11 +250,6 @@ class LogClipConstraint(Constraint):
     tf.where
         Used here to sanitize non-finite entries before clipping.
     
-    References
-    ----------
-    .. [1] Abadi, M. et al.
-       TensorFlow: Large-Scale Machine Learning on Heterogeneous
-       Systems. (2016). (Defines clip and masking behaviors).
     """
 
     def __init__(self, min_value, max_value):
@@ -599,15 +594,6 @@ def q_to_gw_source_term_si(
         Resolves the configured Q interpretation mode from the
         scaling configuration.
 
-    References
-    ----------
-    .. [1] Bear, J.
-       Dynamics of Fluids in Porous Media. Dover (1988).
-       (Groundwater flow equation and source terms).
-
-    .. [2] de Marsily, G.
-       Quantitative Hydrogeology. Academic Press (1986).
-       (Units and interpretation of recharge and forcing terms).
     """
 
     sk = scaling_kwargs or {}
@@ -775,10 +761,9 @@ def cons_step_to_cons_residual(
 ) -> Tensor:
     """
     Convert consolidation step residual (meters per step) into the chosen
-    residual units:
-      - "step"      -> meters
-      - "time_unit" -> meters / time_unit
-      - "second"    -> meters / second (SI rate)
+    residual units. Supported outputs are ``"step"`` for meters,
+    ``"time_unit"`` for meters per time unit, and ``"second"`` for
+    meters per second (SI rate).
     """
     sk = scaling_kwargs or {}
     mode = resolve_cons_units(sk)
@@ -1369,14 +1354,6 @@ def compute_mv_prior(
     assemble_physics_loss
         Combines MV prior with other physics terms and offsets.
 
-    References
-    ----------
-    .. [1] Terzaghi, K., Peck, R. B., and Mesri, G.
-       Soil Mechanics in Engineering Practice. Wiley (1996).
-       (Consolidation theory and storage relations).
-
-    .. [2] Huber, P. J.
-       Robust Statistics. Wiley (1981).  (Huber loss).
     """
 
     # ----------------------------------------------------------
@@ -2037,14 +2014,6 @@ def equilibrium_compaction_si(
     settlement_state_for_pde
         Maps model settlement outputs to the ODE state convention.
     
-    References
-    ----------
-    .. [1] Terzaghi, K.
-       Theoretical Soil Mechanics. Wiley (1943).
-    
-    .. [2] Wang, H. F.
-       Theory of Linear Poroelasticity. Princeton University Press
-       (2000).
     """
 
     h_mean_si = _ensure_3d(tf_cast(h_mean_si, tf_float32))
@@ -2472,17 +2441,6 @@ def integrate_consolidation_mean(
     settlement_state_for_pde
         Converts predicted settlement representations to an ODE state.
 
-    References
-    ----------
-    .. [1] Terzaghi, K.
-       Theoretical Soil Mechanics. Wiley (1943).
-
-    .. [2] Wang, H. F.
-       Theory of Linear Poroelasticity. Princeton University Press
-       (2000).
-
-    .. [3] Zienkiewicz, O. C., Taylor, R. L.
-       The Finite Element Method, Vol. 3. Butterworth-Heinemann (2000).
     """
 
     def _align_to_horizon(x: Tensor, *, name: str) -> Tensor:
@@ -2996,14 +2954,6 @@ def compute_consolidation_step_residual(
     dt_to_seconds
         Converts ``dt`` in ``time_units`` to SI seconds.
 
-    References
-    ----------
-    .. [1] Terzaghi, K.
-       Theoretical Soil Mechanics. Wiley (1943).
-
-    .. [2] Wang, H. F.
-       Theory of Linear Poroelasticity. Princeton University Press
-       (2000).
     """
 
     # ---------------------------------------------------------
@@ -3387,14 +3337,6 @@ def tau_phys_from_fields(
     get_log_tau_bounds
         Provides configured bounds for ``log_tau`` (log-seconds).
     
-    References
-    ----------
-    .. [1] Terzaghi, K.
-       Theoretical Soil Mechanics. Wiley (1943).
-    
-    .. [2] Wang, H. F.
-       Theory of Linear Poroelasticity. Princeton University Press
-       (2000).
     """
 
     eps = float(eps)
@@ -3644,14 +3586,6 @@ def compute_consistency_prior(
         Builds bounded/guarded SI fields and returns both learned
         and closure timescales in log-space.
 
-    References
-    ----------
-    .. [1] Terzaghi, K.
-       Theoretical Soil Mechanics. Wiley (1943).
-
-    .. [2] Wang, H. F.
-       Theory of Linear Poroelasticity. Princeton University Press
-       (2000).
     """
 
     eps = tf_constant(_EPSILON, dtype=tf_float32)
@@ -3840,14 +3774,6 @@ def compute_smoothness_prior(
         Converts autodiff derivatives to SI-consistent spatial
         derivatives suitable for smoothness penalties.
 
-    References
-    ----------
-    .. [1] Tarantola, A.
-       Inverse Problem Theory and Methods for Model Parameter
-       Estimation. SIAM (2005).
-
-    .. [2] Rasmussen, C. E., and Williams, C. K. I.
-       Gaussian Processes for Machine Learning. MIT Press (2006).
     """
 
     # Safe epsilon for division
@@ -4200,10 +4126,6 @@ def get_log_bounds(
     compute_bounds_residual
         Uses these bounds to compute normalized violations.
 
-    References
-    ----------
-    .. [1] Nocedal, J., and Wright, S. J. Numerical Optimization.
-       Springer (2006).
     """
 
     sk = getattr(model, "scaling_kwargs", None) or {}
@@ -4498,11 +4420,6 @@ def get_log_tau_bounds(
     compute_bounds_residual
         Computes normalized bound violations using these limits.
 
-    References
-    ----------
-    .. [1] Terzaghi, K. Theoretical Soil Mechanics. Wiley (1943).
-    .. [2] Verruijt, A. Theory and Problems of Poroelasticity.
-       Delft University of Technology (2013).
     """
 
     sk = getattr(model, "scaling_kwargs", None) or {}
@@ -4736,10 +4653,6 @@ def bounded_exp(
     compose_physics_fields
         Uses bounded_exp to build K, Ss, and tau fields.
 
-    References
-    ----------
-    .. [1] Goodfellow, I., Bengio, Y., and Courville, A. Deep
-       Learning. MIT Press (2016).
     """
 
     eps_t = tf_constant(float(eps), tf_float32)
@@ -5072,15 +4985,13 @@ def compose_physics_fields(
     
     Notes
     -----
-    Why coordinate corrections use ``(0, x, y)``
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Why coordinate corrections use ``(0, x, y)``.**
     The coordinate MLPs are intended to represent slowly varying spatial
     heterogeneity (e.g., lithology-driven variability). Zeroing time
     reduces the risk that the model encodes time-varying physics fields
     that can destabilize PDE derivatives across horizons.
-    
-    Hard vs soft bounds
-    ~~~~~~~~~~~~~~~~~~~
+
+    **Hard vs soft bounds.**
     When ``bounds_mode="hard"``, log-parameters are projected into the
     valid interval, yielding fields that always satisfy bounds.
     
@@ -5089,8 +5000,7 @@ def compose_physics_fields(
     float32 overflow. This preserves gradients for penalties without
     risking NaN / Inf in the forward pass.
     
-    Numerical stability
-    ~~~~~~~~~~~~~~~~~~~
+    **Numerical stability.**
     The function deliberately avoids reapplying ``log(exp(.))`` patterns.
     In particular, it composes :math:`\log \tau` additively:
     
@@ -5134,12 +5044,6 @@ def compose_physics_fields(
     compute_bounds_residual
         Uses the returned logs and thickness for bounds penalties.
     
-    References
-    ----------
-    .. [1] Biot, M. A. Theory of elasticity and consolidation for a
-       porous anisotropic solid. Journal of Applied Physics (1941).
-    
-    .. [2] Bear, J. Dynamics of Fluids in Porous Media. Dover (1972).
     """
 
     bc = _get_bounds_loss_cfg(model)
@@ -5691,13 +5595,6 @@ def compute_bounds_residual(
     _log_bounds_residual
         Internal helper that converts log-values to normalized residuals.
 
-    References
-    ----------
-    .. [1] Nocedal, J., and Wright, S. J. Numerical Optimization.
-       Springer (2006).
-
-    .. [2] Boyd, S., and Vandenberghe, L. Convex Optimization.
-       Cambridge University Press (2004).
     """
 
     dtype = H_field.dtype
@@ -6074,11 +5971,6 @@ def guard_scale_with_residual(
     to_rms
         Compute RMS magnitudes when you want RMS-based scaling.
 
-    References
-    ----------
-    .. [1] Goodfellow, I., Bengio, Y., and Courville, A.
-       Deep Learning. MIT Press (2016).  (Gradient stability
-       discussion; normalization heuristics).
     """
 
     dtype = residual.dtype
@@ -6187,11 +6079,6 @@ def scale_residual(
         Compute robust scales for consolidation and groundwater
         residuals.
 
-    References
-    ----------
-    .. [1] Bottou, L., Curtis, F. E., and Nocedal, J.
-       Optimization Methods for Large-Scale Machine Learning.
-       SIAM Review (2018).
     """
 
     s = tf_cast(scale, residual.dtype)
@@ -6486,14 +6373,6 @@ def _cons_scale_core(
     dt_to_seconds
         Conversion of time step sizes to SI seconds.
 
-    References
-    ----------
-    .. [1] Terzaghi, K.
-       Theoretical Soil Mechanics. Wiley (1943).
-
-    .. [2] Wang, H. F.
-       Theory of Linear Poroelasticity. Princeton University Press
-       (2000).
     """
 
     eps = tf_constant(_EPSILON, tf_float32)
@@ -6858,14 +6737,6 @@ def _gw_scale_core(
     dt_to_seconds
         Converts per-step dt into SI seconds.
 
-    References
-    ----------
-    .. [1] Bear, J.
-       Dynamics of Fluids in Porous Media. Dover (1972).
-
-    .. [2] Wang, H. F.
-       Theory of Linear Poroelasticity. Princeton University Press
-       (2000).
     """
 
     eps = tf_constant(_EPSILON, tf_float32)
@@ -7111,8 +6982,7 @@ def compute_scales(
 
     Notes
     -----
-    Why scaling is needed
-    ~~~~~~~~~~~~~~~~~~~~~
+    **Why scaling is needed.**
     Consolidation and groundwater residuals can differ by many
     orders of magnitude depending on:
 
@@ -7124,8 +6994,7 @@ def compute_scales(
     A stable scaling strategy prevents trivial unit choices from
     changing optimization dynamics.
 
-    dt construction and safety
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **dt construction and safety.**
     If ``dt`` is not provided, dt is inferred as consecutive
     differences along horizon:
 
@@ -7147,23 +7016,20 @@ def compute_scales(
     This guards against degenerate dt values that would explode
     scales.
 
-    Relaxation-aware consolidation scaling
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Relaxation-aware consolidation scaling.**
     If both ``tau_field`` and ``H_field`` are provided, consolidation
     scales may incorporate a relaxation time scale to better match
     the form of the consolidation closure used by the model. If they
     are not provided, a simpler heuristic is used.
 
-    Groundwater scaling inputs
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Groundwater scaling inputs.**
     Groundwater scales are computed from representative magnitudes
     of the groundwater PDE components, optionally using
     ``dh_dt`` and ``div_K_grad_h`` when provided. The scaling also
     accounts for display unit policies returned by
     ``resolve_gw_units(sk)``.
 
-    This function is not traced
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **This function is not traced.**
     This wrapper is not decorated with ``tf.function`` because it
     accepts a Python ``model`` object. Callers may wrap the function
     at a higher level if a stable tracing boundary is desired.
@@ -7205,13 +7071,6 @@ def compute_scales(
     ensure_si_derivative_frame
         Converts raw autodiff derivatives to SI-consistent forms.
 
-    References
-    ----------
-    .. [1] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
-       Physics-informed neural networks: A deep learning framework
-       for solving forward and inverse problems involving nonlinear
-       partial differential equations. JCP (2019).
-    .. [2] Terzaghi, K. Theoretical Soil Mechanics. Wiley (1943).
     """
 
     sk = getattr(model, "scaling_kwargs", None) or {}
@@ -7605,15 +7464,13 @@ def settlement_state_for_pde(
 
     Notes
     -----
-    Baseline handling
-    ~~~~~~~~~~~~~~~~~
+    **Baseline handling.**
     The baseline :math:`s_0` is interpreted as the settlement value
     at the reference time :math:`t_0` used by the physics residuals.
     If no baseline is provided, :math:`s_0` defaults to zero with
     shape ``(B, 1, 1)`` and is broadcast over the horizon.
 
-    Cumulative construction
-    ~~~~~~~~~~~~~~~~~~~~~~~
+    **Cumulative construction.**
     The function builds a cumulative settlement series :math:`s(t)`
     according to ``subsidence_kind``:
 
@@ -7650,8 +7507,7 @@ def settlement_state_for_pde(
        the time coordinate tensor ``t`` using finite differences. The
        first step uses a fallback of 1.0 (for backward compatibility).
 
-    Incremental state for PDE/ODE residuals
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Incremental state for PDE/ODE residuals.**
     Many physics residuals are written for an incremental settlement
     state :math:`s_{inc}(t)` that starts at zero at :math:`t_0`. When
     ``return_incremental=True`` the function returns:
@@ -7712,11 +7568,6 @@ def settlement_state_for_pde(
         Integrates a consolidation mean settlement trajectory used as
         a physics-driven prediction path.
 
-    References
-    ----------
-    .. [1] Terzaghi, K. Theoretical Soil Mechanics. Wiley (1943).
-    .. [2] Biot, M. A. General theory of three-dimensional
-       consolidation. Journal of Applied Physics (1941).
     """
 
     sk = scaling_kwargs or {}
@@ -7921,8 +7772,7 @@ def to_rms(
 
     Notes
     -----
-    Flooring behavior
-    ~~~~~~~~~~~~~~~~~
+    **Flooring behavior.**
     Floors are opt-in. If ``eps is None`` and ``ms_floor is None``,
     no flooring is applied to the mean-square. If ``rms_floor is
     None``, no flooring is applied to the RMS.
@@ -7934,8 +7784,7 @@ def to_rms(
     * ``ms_floor`` to avoid taking ``sqrt(0)`` when a later operation
       applies ``log`` or divides by RMS.
 
-    Non-finite handling
-    ~~~~~~~~~~~~~~~~~~~
+    **Non-finite handling.**
     ``nan_policy="omit"`` is intended for diagnostics and logging.
     For training-time physics losses, prefer cleaning tensors before
     the loss is computed, so gradients are well-defined.
@@ -7966,11 +7815,6 @@ def to_rms(
     guard_scale_with_residual
         Ensures a scale is safe when residuals are near zero.
 
-    References
-    ----------
-    .. [1] Goodfellow, I., Bengio, Y., and Courville, A.
-       Deep Learning. MIT Press (2016). Chapter on numerical
-       stability and floating point considerations.
     """
 
     pol = str(nan_policy or "propagate").strip().lower()

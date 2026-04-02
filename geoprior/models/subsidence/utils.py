@@ -1386,12 +1386,11 @@ def policy_gate(
     step : Tensor
         Global step counter (typically ``optimizer.iterations``).
     policy : {"always_on","always_off","warmup_off"}
-        Gating behavior:
-        - ``always_on``  : gate = 1
-        - ``always_off`` : gate = 0
-        - ``warmup_off`` : gate = 0 for ``step < warmup_steps``,
-          then ramps to 1 over ``ramp_steps`` (linear) if ``ramp_steps>0``,
-          otherwise becomes 1 immediately at ``warmup_steps``.
+        Gating behavior. ``always_on`` returns 1, ``always_off``
+        returns 0, and ``warmup_off`` returns 0 for
+        ``step < warmup_steps`` before ramping to 1 over
+        ``ramp_steps`` when ``ramp_steps > 0`` or switching
+        immediately at ``warmup_steps`` otherwise.
     warmup_steps : int, default=0
         Number of steps to keep the gate at 0 (only for ``warmup_off``).
     ramp_steps : int, default=0

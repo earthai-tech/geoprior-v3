@@ -291,9 +291,11 @@ def export_keras_losses(
         all keys ending with "loss".
     savefile
         Path (optionally with extension) where to write the output.
+
         If extension is:
          - .json → writes only JSON
          - .csv  → writes only CSV
+
         If no extension given, will write all formats in `formats`
         using `savefile` as the base name.
     verbose
@@ -305,6 +307,7 @@ def export_keras_losses(
     Returns
     -------
     result : dict
+
         {
             "epochs_run": int,
             "<key1>": [ ... ],
@@ -381,7 +384,7 @@ def extract_batches_from_dataset(
     Extracts a specified number of batches from a tf.data.Dataset.
     Optionally aggregates the extracted batches.
 
-    Parameters:
+    Parameters
     ----------
     dataset : tf.data.Dataset
         The TensorFlow dataset to extract batches from.
@@ -394,7 +397,7 @@ def extract_batches_from_dataset(
     errors : str, default 'warn'
         Error handling: 'raise', 'warn', 'ignore'.
 
-    Returns:
+    Returns
     -------
     Union[List[Tuple[Any, ...]], Optional[Tuple[Any, ...]]]
         - If `agg` is False: A list of batch tuples.
@@ -403,7 +406,7 @@ def extract_batches_from_dataset(
         Returns an empty list (if `agg=False`) or `None` (if `agg=True`)
         if 0 batches are requested or the dataset is empty.
 
-    Raises:
+    Raises
     ------
     TypeError
         If `dataset` is not a `tf.data.Dataset` or `num_batches_to_extract`
@@ -763,14 +766,17 @@ def format_predictions(
     ----------
     predictions : np.ndarray or tf.Tensor, optional
         The raw prediction tensor or array.
+
         - For point forecasts, expected shapes:
             - (num_samples, forecast_horizon, output_dim)
             - (num_samples, forecast_horizon) if output_dim=1 (will be reshaped)
             - (num_samples, output_dim) if forecast_horizon=1 (will be reshaped)
+
         - For quantile forecasts, expected shapes:
             - (num_samples, forecast_horizon, num_quantiles * output_dim)
             - (num_samples, forecast_horizon, num_quantiles, output_dim)
             - (num_samples, num_quantiles * output_dim) if forecast_horizon=1
+
         If ``None``, `model` and `inputs` must be provided.
         Default is ``None``.
     model : tf.keras.Model, optional
@@ -811,10 +817,12 @@ def format_predictions(
     spatial_data_array : np.ndarray or tf.Tensor or pd.DataFrame or pd.Series, optional
         An array or DataFrame containing static spatial/identifier
         features for each of the `num_samples` sequences.
+
         - If NumPy/Tensor: Expected shape `(num_samples, num_spatial_features)`.
           `spatial_cols_indices` must be provided.
         - If DataFrame/Series: Must have `num_samples` rows.
           `spatial_cols` must be provided.
+
         These features will be repeated for each forecast step in the
         output DataFrame. Default is ``None``.
     spatial_cols : List[str], optional
@@ -849,6 +857,7 @@ def format_predictions(
         Default is ``None``.
     verbose : int, default 0
         Verbosity level for logging during processing.
+
         - ``0``: Silent.
         - ``1``: Basic info.
         - ``3``: More detailed steps.
@@ -860,20 +869,17 @@ def format_predictions(
     Returns
     -------
     pandas.DataFrame
-        A long-format DataFrame with columns including:
-        - `sample_idx`: Identifier for the original input sequence.
-        - `forecast_step`: Time step within the forecast horizon (1 to H).
-        - Spatial columns (if `spatial_data_array` provided).
-        - Prediction columns:
-            - Point forecast: `{target_name}_pred` (or
-              `{target_name}_{output_idx}_pred` for multi-output).
-            - Quantile forecast: `{target_name}_qXX` (or
-              `{target_name}_{output_idx}_qXX` for multi-output).
-        - Actual value columns (if `y_true_sequences` provided):
-            - `{target_name}_actual` (or
-              `{target_name}_{output_idx}_actual`).
-        Values in prediction and actual columns will be inverse-
-        transformed if a valid `scaler` and related parameters are given.
+        A long-format DataFrame containing ``sample_idx`` and
+        ``forecast_step``, optional spatial columns, prediction
+        columns, and actual-value columns when ``y_true_sequences`` is
+        provided. Point forecasts use names like
+        ``{target_name}_pred`` or ``{target_name}_{output_idx}_pred``.
+        Quantile forecasts use names like ``{target_name}_qXX`` or
+        ``{target_name}_{output_idx}_qXX``. Actual values use
+        ``{target_name}_actual`` or
+        ``{target_name}_{output_idx}_actual``. Prediction and actual
+        values are inverse-transformed when valid scaler information is
+        provided.
 
     Raises
     ------
@@ -1671,6 +1677,7 @@ def prepare_model_inputs(
     model_type : {'strict', 'flexible'}, default 'strict'
         Determines how ``None`` inputs for static and future features
         are handled:
+
         - ``'strict'``: If `static_input` or `future_input` is
           ``None``, a dummy tensor with a feature dimension of 0
           will be created and included in the output list. This is
@@ -1692,6 +1699,7 @@ def prepare_model_inputs(
     verbose : int, default 0
         Verbosity level. If > 0, prints information about dummy
         tensor creation.
+
         - ``0``: Silent.
         - ``1``: Basic info on dummy creation.
         - ``2``: More details on shapes.
@@ -2251,7 +2259,7 @@ def compute_anomaly_scores(
     Compute anomaly scores for given true targets using various methods.
     
     This utility function, ``anomaly_scores``, provides a flexible approach
-    to compute anomaly scores outside the XTFT model [1]_. Anomaly scores
+    to compute anomaly scores outside the XTFT model itself. Anomaly scores
     serve as indicators of how unusual certain observations are, guiding
     the model towards more robust and stable forecasts. By detecting and
     quantifying anomalies, practitioners can adjust forecasting strategies,
@@ -2280,39 +2288,42 @@ def compute_anomaly_scores(
     
     method : str, optional
         The method used to compute anomaly scores. Supported options:
+
         - ``"statistical"`` or ``"stats"``:  
           Uses mean and standard deviation of `y_true` to measure deviation
           from the mean. Points far from the mean by a certain factor
           (controlled by `threshold`) yield higher anomaly scores.
-          
+
           Formally, let :math:`\mu` be the mean of `y_true` and 
           :math:`\sigma` its standard deviation. The anomaly score for 
           a point :math:`y` is:  
+
           .. math::  
              (\frac{y - \mu}{\sigma + \varepsilon})^2
-          
+
           where :math:`\varepsilon` is a small constant for numerical
           stability.
-        
+
         - ``"domain"``:  
           Uses a domain-specific heuristic (provided by `domain_func`)
           to compute scores. If no `domain_func` is provided, a default
           heuristic marks negative values as anomalies.
-    
+
         - ``"isolation_forest"`` or ``"if"``:  
           Employs the IsolationForest algorithm to detect outliers. 
           The model learns a structure to isolate anomalies more quickly
           than normal points. Higher contamination rates allow more
           points to be considered anomalous.
-    
+
         - ``"residual"``:  
           If `y_pred` is provided, anomalies are derived from residuals:
           the difference `(y_true - y_pred)`. By default, mean squared 
           error (`mse`) is used. Other metrics include `mae` and `rmse`,
           offering flexibility in quantifying deviations:
+
           .. math::
              \text{MSE: }(y_{true} - y_{pred})^2
-    
+
         Default is ``"statistical"``.
     
     threshold : float, optional
@@ -2325,6 +2336,7 @@ def compute_anomaly_scores(
         A user-defined function for `domain` method. It takes `y_true`
         as input and returns an array of anomaly scores with the same
         shape. If none is provided, the default heuristic:
+
         .. math::
            \text{anomaly}(y) = \begin{cases}
            |y| \times 10 & \text{if } y < 0 \\
@@ -2352,10 +2364,11 @@ def compute_anomaly_scores(
     residual_metric : str, optional
         The metric used to compute anomalies from residuals if `method`
         is set to `'residual'`. Supported metrics:
+
         - ``"mse"``: mean squared error per point `(residuals**2)`
         - ``"mae"``: mean absolute error per point `|residuals|`
         - ``"rmse"``: root mean squared error `sqrt((residuals**2))`
-        
+
         Default is ``"mse"``.
     
     objective : str, optional
@@ -2414,11 +2427,6 @@ def compute_anomaly_scores(
     geoprior.models.losses.objective_loss :
         For integrating anomaly scores into a multi-objective loss.
     
-    References
-    ----------
-    .. [1] Wang, X., et al. "Enhanced Temporal Fusion Transformer for Time
-           Series Forecasting." International Journal of Forecasting, 37(3),
-           2021.
     """
     if objective == "ts":
         if y_true.ndim != 3:
@@ -2659,11 +2667,6 @@ def split_static_dynamic(
         Function to create input sequences and targets for 
         time series forecasting.
 
-    References
-    ----------
-    .. [1] Qin, Y., Song, D., Chen, H., Cheng, W., Jiang, G., & Cottrell, G. (2017). 
-       Temporal fusion transformers for interpretable multi-horizon time series forecasting. 
-       *arXiv preprint arXiv:1912.09363*.
     """
     # Validate static_time_step
     if not (0 <= static_time_step < sequences.shape[1]):
@@ -2886,16 +2889,6 @@ def create_sequences(
     geoprior.models.utils.split_static_dynamic :
         Function to split sequences into static and dynamic inputs.
 
-    References
-    ----------
-    .. [1] Brownlee, J. (2018). Time Series Forecasting with Python:
-           Create accurate models in Python to forecast the future and
-           gain insight from your time series data. Machine Learning
-           Mastery.
-    .. [2] Qin, Y., Song, D., Chen, H., Cheng, W., Jiang, G., &
-           Cottrell, G. (2017). Temporal fusion transformers for
-           interpretable multi-horizon time series forecasting.
-           *arXiv preprint arXiv:1912.09363*.
     """
     if verbose >= 1:
         print("[INFO] Starting sequence generation ...")
@@ -3161,12 +3154,6 @@ def compute_forecast_horizon(
     pandas.date_range : Generates a fixed frequency DatetimeIndex.
     pandas.infer_freq : Infers the frequency of a DatetimeIndex.
 
-    References
-    ----------
-    .. [1] McKinney, Wes. *Python for Data Analysis: Data Wrangling with Pandas,
-       NumPy, and IPython*. O'Reilly Media, 2017.
-    .. [2] Harris, C.R., Millman, K.J., van der Walt, S.J., et al.
-       *Array programming with NumPy*. Nature, 585(7825), pp.357-362, 2020.
     """
 
     if verbose >= 1:
@@ -3462,10 +3449,6 @@ def extract_callbacks_from(
     tf.keras.callbacks.Callback :
         Base class used to build new callbacks.
 
-    References
-    ----------
-    .. [1] François Chollet, et al. Keras Documentation.
-           https://keras.io/api/callbacks/
     """
 
     callbacks = []
@@ -3666,12 +3649,6 @@ def prepare_spatial_future_data(
     --------
     prepare_future_data : Main function for preparing future data inputs.
 
-    References
-    ----------
-    .. [1] Smith, J., & Doe, A. (2020). *Time Series Forecasting Methods*. Journal of
-       Data Science, 15(3), 123-145.
-    .. [2] Johnson, L. (2019). *Advanced Neural Networks for Time Series Prediction*.
-       Machine Learning Review, 22(4), 567-589.
     """
     future_years = columns_manager(
         future_years, empty_as_none=False
@@ -4410,7 +4387,7 @@ def generate_forecast(
     ----------
     xtft_model : object
         A validated Keras model instance. It is processed by the
-        ``validate_keras_model`` method [1]_.
+        ``validate_keras_model`` method.
     train_data : pandas.DataFrame
         The training data containing historical records. Must include
         the `dt_col` and all required feature columns.
@@ -4723,10 +4700,6 @@ def generate_forecast(
     geoprior.metrics_special.coverage_score:
         Function to compute coverage score for quantile predictions.
 
-    References
-    ----------
-    .. [1] Kouadio et al., "Gofast Forecasting Model", Journal of
-       Advanced Forecasting, 2025. (In Review)
     """
     # **********************************************************
     from ..metrics import coverage_score
@@ -7234,12 +7207,6 @@ _step_to_long_q : Converts multi-step quantile forecasts to long format.
 _step_to_long_pred: Converts multi-step point forecasts to long format.
 detect_digits   : Extracts numeric values from strings for quantile detection.
 
-References
-----------
-.. [1] Wickham, H. (2014). "Tidy Data". Journal of Statistical Software,
-       59(10), 1-23.
-.. [2] McKinney, W. (2010). "Data Structures for Statistical Computing in 
-       Python". Proceedings of the 9th Python in Science Conference.
 """
 
 generate_forecast_with.__doc__ = r"""\
@@ -7416,8 +7383,4 @@ forecast_multi_step  : Generates a multi-step forecast.
 validate_keras_model : Validates a Keras model.
 coverage_score       : Computes the coverage score.
 
-References
-----------
-.. [1] Kouadio et al., "Gofast Forecasting Model", Journal of Advanced
-   Forecasting, 2025. (In Review)
 """

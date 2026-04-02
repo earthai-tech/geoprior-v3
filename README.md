@@ -17,11 +17,14 @@
     <a href="https://github.com/psf/black">
       <img alt="Black" src="https://img.shields.io/badge/code%20style-Black-000000.svg?style=flat-square">
     </a>
-    <a href="https://github.com/earthai-tech/geoprior-v3/blob/main/CONTRIBUTING.md">
-      <img alt="Contributions" src="https://img.shields.io/badge/Contributions-Welcome-brightgreen?style=plastic">
+    <a href="https://pypi.org/project/geoprior-v3/"> 
+      <img alt="PyPI - Version" src="https://img.shields.io/pypi/v/geoprior-v3?logo=pypi&logoColor=0492C2&color=FBB040">
     </a>
     <a href="https://github.com/earthai-tech/geoprior-v3/releases/latest">
         <img alt="GitHub Release" src="https://img.shields.io/github/v/release/earthai-tech/geoprior-v3">
+    </a>
+    <a href="https://github.com/earthai-tech/geoprior-v3/blob/main/CONTRIBUTING.md">
+      <img alt="Contributions" src="https://img.shields.io/badge/Contributions-Welcome-brightgreen?style=plastic">
     </a>
   </p>
 

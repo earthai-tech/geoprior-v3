@@ -525,12 +525,6 @@ class WorkflowOptimizer:
     multiprocessing.Pool: Provides a pool of worker processes.
     psutil.Process: Allows manipulation of system processes.
 
-    References
-    ----------
-    .. [1] Van Rossum, G., & Drake, F. L. (2009). *Python Cookbook* (3rd ed.).
-           O'Reilly Media.
-    .. [2] Jones, E., Oliphant, T., Peterson, P., et al. (2001). *SciPy: Open Source
-           Scientific Tools for Python*. URL https://www.scipy.org/.
     """
 
     def __init__(
@@ -784,12 +778,6 @@ def build_large_df(
     geoprior.nn.utils.generate_forecast : Primary data source
     geoprior.utils.memory_optimizer.reduce_mem_usage : Detailed dtype optimization
 
-    References
-    ----------
-    .. [1] Kouadio et al. "Memory-Efficient Time Series Forecasting",
-       Journal of Computational Engineering, 2025 (In Press).
-    .. [2] McKinney, W. "Python for Data Analysis", O'Reilly, 2022.
-       Ch.7 - Data Cleaning.
     """
 
     def _get_optimal_chunk_size(num_rows: int) -> int:
@@ -2504,9 +2492,6 @@ def find_similar_string(
     --------
     str.strip : Returns a copy of the string with leading and trailing characters removed.
 
-    References
-    ----------
-    .. [1] Python documentation on string methods.
     """
     # Validate inputs
     if not isinstance(name, str):
@@ -2623,9 +2608,6 @@ def represent_callable(
     --------
     inspect.signature : Get a signature object for the callable.
 
-    References
-    ----------
-    .. [1] Python documentation on the inspect module.
     """
     if not callable(obj) and not hasattr(obj, "__dict__"):
         raise TypeError(
@@ -2735,9 +2717,6 @@ def safe_getattr(
     --------
     getattr : Built-in function to get an attribute from an object.
 
-    References
-    ----------
-    .. [1] Python documentation on built-in functions.
     """
     if hasattr(obj, name):
         return getattr(obj, name)
@@ -2997,16 +2976,6 @@ def safe_optimize(
     multiprocessing.Pool : For parallel task execution.
     psutil : For system and process utilities.
     functools.wraps : For preserving metadata of decorated functions.
-
-    References
-    ----------
-    .. [1] Python Documentation. *functools - Higher-order functions
-          and operations on callable objects*.
-       https://docs.python.org/3/library/functools.html
-    .. [2] psutil Documentation. *Process Management*.
-       https://psutil.readthedocs.io/en/latest/#process-management
-    .. [3] Python Packaging User Guide. *Installing Packages*.
-       https://packaging.python.org/tutorials/installing-packages/
 
     """
     return _SafeOptimize(

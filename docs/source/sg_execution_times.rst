@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:01.190** total execution time for 100 files **from all galleries**:
+**00:01.184** total execution time for 100 files **from all galleries**:
 
 .. container::
 
@@ -32,8 +32,11 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_tables_and_summaries_make_district_grid.py` (``examples\tables_and_summaries\make_district_grid.py``)
-     - 00:01.190
+   * - :ref:`sphx_glr_auto_examples_evaluation_plot_coverage_overview.py` (``examples\evaluation\plot_coverage_overview.py``)
+     - 00:00.635
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_evaluation_plot_mean_interval_width_overview.py` (``examples\evaluation\plot_mean_interval_width_overview.py``)
+     - 00:00.549
      - 0.0
    * - :ref:`sphx_glr_auto_examples_diagnostics_plot_holdout_group_masks.py` (``examples\diagnostics\plot_holdout_group_masks.py``)
      - 00:00.000
@@ -62,16 +65,10 @@ Computation times
    * - :ref:`sphx_glr_auto_examples_diagnostics_plot_stage3_tuning_summary.py` (``examples\diagnostics\plot_stage3_tuning_summary.py``)
      - 00:00.000
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_evaluation_plot_coverage_overview.py` (``examples\evaluation\plot_coverage_overview.py``)
-     - 00:00.000
-     - 0.0
    * - :ref:`sphx_glr_auto_examples_evaluation_plot_crps_overview.py` (``examples\evaluation\plot_crps_overview.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_evaluation_plot_forecast_comparison_overview.py` (``examples\evaluation\plot_forecast_comparison_overview.py``)
-     - 00:00.000
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_evaluation_plot_mean_interval_width_overview.py` (``examples\evaluation\plot_mean_interval_width_overview.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_evaluation_plot_metric_over_horizon_overview.py` (``examples\evaluation\plot_metric_over_horizon_overview.py``)
@@ -300,6 +297,9 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_tables_and_summaries_make_boundary.py` (``examples\tables_and_summaries\make_boundary.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_tables_and_summaries_make_district_grid.py` (``examples\tables_and_summaries\make_district_grid.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_tables_and_summaries_make_exposure.py` (``examples\tables_and_summaries\make_exposure.py``)

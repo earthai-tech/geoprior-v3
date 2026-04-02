@@ -227,3 +227,18 @@ Notes
   utilities are intentionally omitted from the public API summary so
   that the page stays focused on the import patterns intended for end
   users.
+
+.. toctree::
+   :hidden:
+
+   _autosummary/params/legacy/geoprior.params.LearnableC
+   _autosummary/params/legacy/geoprior.params.FixedC
+   _autosummary/params/legacy/geoprior.params.DisabledC
+   _autosummary/params/learnable/geoprior.params.LearnableK
+   _autosummary/params/learnable/geoprior.params.LearnableSs
+   _autosummary/params/learnable/geoprior.params.LearnableQ
+   _autosummary/params/learnable/geoprior.params.LearnableMV
+   _autosummary/params/learnable/geoprior.params.LearnableKappa
+   _autosummary/params/fixed/geoprior.params.FixedGammaW
+   _autosummary/params/fixed/geoprior.params.FixedHRef
+   _autosummary/params/helpers/geoprior.params.resolve_physical_param

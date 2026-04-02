@@ -318,21 +318,28 @@ and policy gating.
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Selected public helpers
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autofunction:: geoprior.models.subsidence.utils.to_si_head
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.to_si_thickness
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.from_si_subsidence
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.gwl_to_head_m
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.get_h_ref_si
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.utils.get_s_init_si
+   :no-index:
 
 Shared physics core
 -------------------

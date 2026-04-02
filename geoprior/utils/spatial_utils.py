@@ -921,10 +921,6 @@ def gen_negative_samples_plus(
     generate_negative_samples : A simpler negative sampling
         utility for certain strategies.
 
-    References
-    ----------
-    .. [1] P. Goovaerts, "Geostatistics for Natural Resources
-       Evaluation," Oxford University Press, 1997.
     """
 
     # If the strategy is one of the recognized
@@ -2256,11 +2252,6 @@ def create_spatial_clusters(
     filter_valid_kwargs : Helps discard unsupported
         keyword arguments for chosen estimators.
 
-    References
-    ----------
-    .. [1] Pedregosa et al. *Scikit-learn:
-       Machine Learning in Python*, JMLR 12,
-       pp. 2825-2830, 2011.
     """
     # Confirm required columns exist in DataFrame
     # This prevents missing key data issues
@@ -2918,12 +2909,6 @@ def extract_zones_from(
         The array extraction utility used for retrieving
         arrays from DataFrame columns.
 
-    References
-    ----------
-    .. [1] Smith, J. & Doe, A. "Advanced Filtering
-       Techniques", Journal of Data Science, 2022.
-    .. [2] Brown, K. "Data Visualization Best
-       Practices", Data Analytics Press, 2021.
     """
 
     # 1) If z, x, y are strings, extract from DataFrame
@@ -3203,10 +3188,6 @@ def dual_merge(
     pandas.merge: pandas.DataFrame.merge
         The pandas merge function, used to merge DataFrames based on columns.
 
-    References
-    ----------
-    .. [1] Scipy Documentation, cKDTree
-       https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.cKDTree.html
     """
 
     # Ensure feature_cols are valid and both contain two elements
@@ -3360,11 +3341,6 @@ def extract_coordinates(
        station  resistivity
     0      0.0          1.0
     1     20.0        167.5
-
-    References
-    ----------
-    .. [1] Fotheringham, A. Stewart, *Geographically Weighted Regression:
-           The Analysis of Spatially Varying Relationships*, Wiley, 2002.
 
     See Also
     --------
@@ -4279,12 +4255,6 @@ def spatial_sampling(
     pandas.qcut : Quantile-based discretization function used for binning.
     sklearn.model_selection.StratifiedShuffleSplit : For stratified sampling.
     batch_spatial_sampling: Resample spatial data with batching.
-
-    References
-    ----------
-    .. [1] Kotsiantis, S., Kanellopoulos, D., & Pintelas, P. (2006).
-           "Data preprocessing for supervised learning." *International
-           Journal of Computer Science*, 1(2), 111-117.
 
     """
     data = data.copy()

@@ -17,27 +17,30 @@ R² is optional:
 - Use --metric-bottom r2
 
 Run examples
------------
-# Auto-detect latest xfer_results.csv under src
-python scripts/plot_xfer_transferability.py \
-  --src results/xfer/nansha__zhongshan \
-  --split val \
-  --rescale-mode strict
+------------
+.. code-block:: bash
 
-# Explicit CSV
-python scripts/plot_xfer_transferability.py \
-  --xfer-csv results/xfer/nansha__zhongshan/ \
-  20260126-164613/xfer_results.csv \
-  --strategies baseline xfer warm \
-  --calib-modes none source target \
-  --metric-bottom r2
+   # Auto-detect latest xfer_results.csv under src
+   python scripts/plot_xfer_transferability.py \
+     --src results/xfer/nansha__zhongshan \
+     --split val \
+     --rescale-mode strict
+
+   # Explicit CSV
+   python scripts/plot_xfer_transferability.py \
+     --xfer-csv results/xfer/nansha__zhongshan/20260126-164613/xfer_results.csv \
+     --strategies baseline xfer warm \
+     --calib-modes none source target \
+     --metric-bottom r2
 
 Notes
 -----
-- baseline rows are A_to_A / B_to_B.
-  For cross-city rows:
-    A_to_B uses baseline from B_to_B (target-only ref)
-    B_to_A uses baseline from A_to_A (target-only ref)
+Baseline rows are ``A_to_A`` / ``B_to_B``.
+
+For cross-city rows:
+
+- ``A_to_B`` uses baseline from ``B_to_B`` (target-only reference).
+- ``B_to_A`` uses baseline from ``A_to_A`` (target-only reference).
 """
 
 from __future__ import annotations

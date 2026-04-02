@@ -4,9 +4,8 @@
 # Author: LKouadio <https://lkouadio.com>
 
 """
-Learn how to benchmark a forecast against a naive baseline with
-``plot_theils_u_score``
-===============================================
+Learn how to benchmark a forecast against a naive baseline with ``plot_theils_u_score``
+========================================================================================
 
 This lesson explains how to use
 ``geoprior.plot.evaluation.plot_theils_u_score`` when you want to ask a

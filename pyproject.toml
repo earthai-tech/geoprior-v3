@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geoprior-v3"
-version = "3.2.0"
+version = "3.2.0rc2"
 description = "Physics-guided AI for geohazards"
 readme = { file = "README.md", content-type = "text/markdown" }
 authors = [{ name = "Laurent Kouadio", email = "etanoyau@gmail.com" }]

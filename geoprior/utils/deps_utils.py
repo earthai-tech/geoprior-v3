@@ -299,12 +299,6 @@ def ensure_module_installed(
     subprocess : For spawning new processes.
     sys : System-specific parameters and functions.
 
-    References
-    ----------
-    .. [1] Python Packaging User Guide. *Installing Packages*. 
-       https://packaging.python.org/tutorials/installing-packages/
-    .. [2] pip documentation. *User Guide*. 
-       https://pip.pypa.io/en/stable/user_guide/
     """
     try:
         # Attempt to import the module using the module_name
@@ -459,11 +453,6 @@ def install_package(
         Infers a distribution name for the given module name,
         if necessary.
 
-    References
-    ----------
-    .. [1] Gonsalves, T. et al. (2023). *Dynamic Environment
-           Management in Python Projects*. PyCon Proceedings,
-           45(7), 31-42.
     """
     # Check if tqdm is available
     try:

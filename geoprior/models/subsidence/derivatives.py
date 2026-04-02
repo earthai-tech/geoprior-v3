@@ -11,20 +11,23 @@ for coordinate chain-rule conversions.
 
 Conventions
 -----------
-- Raw autodiff derivatives are w.r.t. the coordinates tensor fed to call().
-- This module converts those derivatives to **SI-consistent** forms:
-  - time derivatives -> per-second
-  - spatial derivatives -> per-meter (and per-meter^2 for second derivatives)
+- Raw autodiff derivatives are w.r.t. the coordinates tensor fed to
+  ``call()``.
+- This module converts those derivatives to SI-consistent forms:
+  time derivatives to per-second, and spatial derivatives to per-meter
+  (and per-meter squared for second derivatives).
 
 The helper is "conversion-aware":
-- If coords are normalized and `scaling_kwargs` provides `coord_ranges_si`,
-  those SI spans are used directly (t in seconds, x/y in meters).
-- Otherwise, it falls back to `coord_ranges()` plus optional `deg_to_m()`
-  and finally `rate_to_per_second()` for time.
 
-It also returns `t_range_units_tf` (the *original* time span in `time_units`)
-for Q conversion (because Q scaling typically expects the span in the same
-time units used by the dataset, not seconds).
+- If coords are normalized and ``scaling_kwargs`` provides
+  ``coord_ranges_si``, those SI spans are used directly
+  (t in seconds, x/y in meters).
+- Otherwise, it falls back to ``coord_ranges()``, optional
+  ``deg_to_m()``, and finally ``rate_to_per_second()`` for time.
+
+It also returns ``t_range_units_tf`` (the original time span in
+``time_units``) for Q conversion, because Q scaling typically expects
+the span in the same time units used by the dataset, not seconds.
 """
 
 from __future__ import annotations
@@ -361,10 +364,10 @@ def ensure_si_derivative_frame(
 
         * ``coords_normalized`` : bool
             If True, apply span-based chain-rule scaling.
-        * ``coord_ranges`` : dict with keys {'t','x','y'}
+        * ``coord_ranges`` : dict with keys ``{'t', 'x', 'y'}``
             Original coordinate spans in dataset units.
             Required when ``coords_normalized=True``.
-        * ``coord_ranges_si`` : dict with keys {'t','x','y'}
+        * ``coord_ranges_si`` : dict with keys ``{'t', 'x', 'y'}``
             Coordinate spans in SI units (t in seconds, x/y in meters).
             If present, this is preferred over ``coord_ranges``.
         * ``coords_in_degrees`` : bool
@@ -431,8 +434,7 @@ def ensure_si_derivative_frame(
     Notes
     -----
 
-    Chain-rule scaling for normalized coordinates
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Chain-rule scaling for normalized coordinates.**
     If normalized coordinates are defined as:
 
     .. math::
@@ -456,8 +458,7 @@ def ensure_si_derivative_frame(
     This function applies these rules using either ``coord_ranges_si``
     (preferred) or ``coord_ranges`` plus unit conversion.
 
-    Degrees to meters conversion
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Degrees to meters conversion.**
     If spatial coords are degrees (longitude/latitude), the function
     converts spatial derivative scaling using a degrees-to-meters factor
     derived from the scaling payload. This is only applied when SI spans

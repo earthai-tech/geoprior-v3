@@ -307,7 +307,7 @@ def auto_noise_std_from_increments(
     noise_frac : float, default=0.10
         Fraction applied to the percentile scale.
     percentile : float, default=95.0
-        Percentile of |y_inc| used as scale.
+        Percentile of :math:`\lvert y_{inc} \rvert` used as scale.
     min_std : float, default=0.0
         Lower bound for returned std.
     max_std : float or None, default=None
@@ -323,8 +323,9 @@ def auto_noise_std_from_increments(
     Notes
     -----
     - Filters non-finite values.
-    - If scale is ~0, falls back to max(|y_inc|)
-      then mean(|y_inc|), then eps.
+    - If scale is approximately 0, falls back to
+      :math:`\max(\lvert y_{inc} \rvert)`, then
+      :math:`\operatorname{mean}(\lvert y_{inc} \rvert)`, then ``eps``.
     """
     if y_inc is None:
         return float(max(min_std, 0.0))

@@ -4,9 +4,8 @@
 # Author: LKouadio <https://lkouadio.com>
 
 """
-Learn how forecast smoothness behaves with
-``plot_prediction_stability``
-===========================================
+Learn how forecast smoothness behaves with ``plot_prediction_stability``
+========================================================================
 
 This lesson explains how to use
 ``geoprior.plot.evaluation.plot_prediction_stability``

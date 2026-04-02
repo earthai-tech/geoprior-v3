@@ -424,18 +424,6 @@ def physics_core(
     geoprior.models.subsidence.maths.compose_physics_fields
         Map logits to bounded physical fields and tau prior.
 
-    References
-    ----------
-    .. [1] Bear, J. Dynamics of Fluids in Porous Media. Dover
-       Publications, 1988.
-
-    .. [2] Raissi, M., Perdikaris, P., and Karniadakis, G. E.
-       Physics-informed neural networks: A deep learning framework
-       for solving forward and inverse problems involving nonlinear
-       partial differential equations. Journal of Computational
-       Physics, 2019.
-
-    .. [3] Terzaghi, K. Theoretical Soil Mechanics. Wiley, 1943.
     """
 
     sk = getattr(model, "scaling_kwargs", None) or {}
