@@ -257,7 +257,10 @@ class SubsNetTuner(PINNTunerBase):
     Workflow. ``run`` builds ``tf.data`` pipelines from NumPy
     inputs, applies key canonicalization, validates GeoPrior
     requirements, and delegates to ``search``. The best HPs
-    and a built model are returned and stored on the class.
+    and a built model are returned and stored on the class. The tuning
+    workflow combines Keras Tuner search patterns with the poromechanics
+    background from
+    :cite:p:`KerasTunerDocs,Terzaghi1943TheoreticalSoilMechanics,Bear1972DynamicsFluidsPorousMedia`.
 
     Examples
     --------
@@ -298,12 +301,6 @@ class SubsNetTuner(PINNTunerBase):
         Target model with physics residuals and priors.
     HydroTuner
         Generic PINN tuner for HAL and TransFlow models.
-
-    References
-    ----------
-    .. [1] Keras Tuner. https://keras.io/keras_tuner/
-    .. [2] Terzaghi, K. Theory of Consolidation, 1943.
-    .. [3] Bear, J. Dynamics of Fluids in Porous Media, 1972.
     """
 
     def __init__(

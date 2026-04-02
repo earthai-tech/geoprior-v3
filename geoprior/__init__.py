@@ -50,7 +50,7 @@ def _lazy_import(module_name: str, alias: str | None = None):
 try:
     from ._version import version as __version__
 except Exception:
-    __version__ = "3.2.0"
+    __version__ = "3.2.0rc1"
 
 
 # Core dependencies (mirrors fusionlab-learn list; adjusted for PyYAML).
@@ -185,4 +185,4 @@ import geoprior.datasets
 import geoprior.metrics
 import geoprior.models
 import geoprior.plot
-import geoprior.utils
+import geoprior.utils # noqa

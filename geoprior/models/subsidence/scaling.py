@@ -133,6 +133,9 @@ class GeoPriorScalingConfig:
       stable under Keras serialization.
     - Use :func:`_jsonify` to defensively convert nested values
       (NumPy scalars, tuples, sets) into plain Python types.
+    - The config container combines Keras serialization patterns with the
+      standard-library dataclass model
+      :cite:p:`KerasSerializationDocs,PythonDataclassesDocs`.
 
     See Also
     --------
@@ -144,13 +147,6 @@ class GeoPriorScalingConfig:
         Ensure alias keys agree and do not conflict.
     validate_scaling_kwargs :
         Validate schema and value ranges.
-
-    References
-    ----------
-    .. [1] Chollet, F. et al. "Keras: Deep Learning for Humans".
-           Keras serialization and configuration patterns.
-    .. [2] Python Software Foundation. "dataclasses - Data
-           Classes" (Python standard library documentation).
     """
 
     # Raw payload (may be incomplete or aliased).
@@ -210,6 +206,8 @@ class GeoPriorScalingConfig:
         - ``get_config`` returns JSON-safe objects only. This avoids
           subtle reconstruction drift caused by non-serializable
           values.
+        - This factory aligns with the Keras object-serialization
+          pattern described in :cite:t:`KerasSerializationDocs`.
 
         Examples
         --------
@@ -242,11 +240,6 @@ class GeoPriorScalingConfig:
             Produce canonical and validated scaling dictionary.
         load_scaling_kwargs, canonicalize_scaling_kwargs :
             Scaling pipeline functions.
-
-        References
-        ----------
-        .. [1] Chollet, F. et al. "Keras: Deep Learning for Humans".
-               Keras object serialization via get_config/from_config.
         """
 
         r"""
@@ -699,10 +692,13 @@ def override_scaling_kwargs(
         ``coord_epsg_used``, ``coords_normalized``, or unit flags.
 
     Finalization
-        In GeoPrior pipelines, ``finalize`` is typically a helper that
-        enforces defaults and recomputes derived entries. Applying it
-        both before and after the override helps reduce edge cases
-        where the override only supplies partial information.
+    In GeoPrior pipelines, ``finalize`` is typically a helper that
+    enforces defaults and recomputes derived entries. Applying it
+    both before and after the override helps reduce edge cases
+    where the override only supplies partial information.
+
+    Figure assembly follows the plotting conventions described in
+    :cite:t:`Hunter2007Matplotlib`.
 
     Examples
     --------
@@ -756,12 +752,6 @@ def override_scaling_kwargs(
         Canonicalize and complete ``scaling_kwargs`` entries.
     compute_scaling_kwargs :
         Build a base scaling dict from data and pipeline settings.
-
-    References
-    ----------
-    .. [1] Hunter, J. D. (2007). Matplotlib: A 2D graphics
-       environment. Computing in Science and Engineering, 9(3),
-       90-95.
     """
 
     base = dict(sk) if sk is not None else {}

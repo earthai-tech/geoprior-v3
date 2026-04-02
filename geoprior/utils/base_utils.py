@@ -165,6 +165,8 @@ def detect_categorical_columns(
     - Utilizing ``'drop'`` or ``'fill'`` in
       ``handle_nan`` ensures minimal disruptions due
       to missing data.
+    - The array-programming background is discussed in
+      :cite:t:`NumPyNature2020`.
 
     The function uses flexible criteria for determining whether a column should
     be treated as categorical, allowing for detection of columns with integer
@@ -185,11 +187,6 @@ def detect_categorical_columns(
         axis=0.
     fill_NaN : Fills missing data in a DataFrame using
         forward and backward fill.
-
-    References
-    ----------
-    .. [1] Harris, C.R., et al. "Array Programming
-       with NumPy." *Nature*, 585(7825), 357–362 (2020).
     """
 
     # ensure input data is a DataFrame or convert it to one
@@ -838,6 +835,8 @@ def select_features(
       should be selected.
     - Transformation functions should be designed to handle the data types of
       the respective columns to avoid runtime errors.
+    - Related selection and coercion behavior is documented in
+      :cite:p:`PandasSelectDtypesDocs,PythonReDocs,PandasAstypeDocs,PandasDataFrameDocs`.
 
     See Also
     --------
@@ -845,17 +844,6 @@ def select_features(
     pandas.DataFrame.select_dtypes : For more information on how to use ``include`` and
         ``exclude`` parameters.
     pandas.DataFrame.astype : For information on data type conversion.
-
-    References
-    ----------
-    .. [1] Pandas Documentation. "DataFrame.select_dtypes."
-       https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.select_dtypes.html
-    .. [2] Python `re` Module.
-       https://docs.python.org/3/library/re.html
-    .. [3] Pandas Documentation. "DataFrame.astype."
-       https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.astype.html
-    .. [4] Pandas Documentation. "DataFrame."
-       https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html
     """
 
     # Convert input data to DataFrame if necessary
@@ -1145,6 +1133,8 @@ def fancier_downloader(
     - **File Integrity**: Enabling ``check_size`` helps in verifying that the
       downloaded file is complete and uncorrupted. However, it does not perform
       a checksum verification.
+    - Progress-reporting patterns and surrounding tooling are described in
+      :cite:p:`ScikitLearnJMLR2011,TqdmDocs`.
 
     See Also
     --------
@@ -1153,15 +1143,6 @@ def fancier_downloader(
     os.makedirs: Function to create directories.
     geoprior.utils.base_utils.check_file_exists:
         Utility to check file existence.
-
-    References
-    ----------
-    .. [1] Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B.,
-           Grisel, O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V.,
-           Vanderplas, J., Passos, A., Cournapeau, D., Brucher, M., Perrot, M.,
-           & Duchesnay, E. (2011). Scikit-learn: Machine Learning in Python.
-           *Journal of Machine Learning Research*, 12, 2825-2830.
-    .. [2] tqdm documentation. https://tqdm.github.io/
     """
 
     # Import necessary dependencies

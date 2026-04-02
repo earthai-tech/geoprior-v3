@@ -226,3 +226,6 @@ AGENTS.md
 .codex-cache/
 .github/prompts/ 
 .github/copilot-instructions.md
+
+unresolved_citations.md
+.vscode/

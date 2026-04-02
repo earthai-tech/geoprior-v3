@@ -184,32 +184,81 @@ Why GeoPrior-v3?
       geohazard workflows and future physics-guided hazard
       modeling tasks.
 
-Quick start
------------
 
-Install the package and start from either Python or the CLI.
+Start in one minute
+-------------------
+
+Install GeoPrior-v3 once, then choose how you want to start.
 
 .. code-block:: bash
 
    pip install geoprior-v3
 
-.. code-block:: python
+.. grid:: 1 1 2 3
+   :gutter: 3
+   :class-container: quickstart-grid
 
-   import geoprior as gp
+   .. grid-item-card::
+      :link: api/index
+      :link-type: doc
+      :class-card: quickstart-card sd-text-center
 
-.. code-block:: bash
+      .. image:: _static/icons/quickstart-python.svg
+         :alt: Python API icon
+         :class: quickstart-icon
+         :width: 64px
+         :align: center
 
-   geoprior --help
-   geoprior-init --help
-   geoprior-run --help
-   geoprior-build --help
-   geoprior-plot --help
+      **Python API**
 
-The package metadata presents GeoPrior-v3 as a Python package
-for physics-guided geohazard modeling with land subsidence as
-its current flagship application area. The command-line
-workflow complements the Python API so the same project can be
-used both programmatically and operationally.
+      Build workflows in notebooks and Python scripts.
+
+      :doc:`Open the API guide <api/index>`
+
+   .. grid-item-card::
+      :link: cli/index
+      :link-type: doc
+      :class-card: quickstart-card sd-text-center
+
+      .. image:: _static/icons/quickstart-cli.svg
+         :alt: CLI workflow icon
+         :class: quickstart-icon
+         :width: 64px
+         :align: center
+
+      **CLI workflow**
+
+      Run staged pipelines, builds, and plotting from the terminal.
+
+      :doc:`Open the CLI guide <cli/index>`
+
+   .. grid-item-card::
+      :link: examples/index
+      :link-type: doc
+      :class-card: quickstart-card sd-text-center
+
+      .. image:: _static/icons/quickstart-examples.svg
+         :alt: Examples gallery icon
+         :class: quickstart-icon
+         :width: 64px
+         :align: center
+
+      **Learn by examples**
+
+      Start from gallery lessons for forecasting, uncertainty,
+      diagnostics, and figure generation.
+
+      :doc:`Open the examples gallery <examples/index>`
+
+.. container:: quickstart-helper
+
+   **Need project setup first?**
+   Create the working configuration used by staged CLI runs with
+   ``geoprior-init``.
+
+   .. code-block:: bash
+
+      geoprior-init --help
 
 
 Navigate directly

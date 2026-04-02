@@ -349,7 +349,9 @@ def check_group_column_validity(
        \\quad i = 1,2,\\ldots,\\text{bins}
 
     where each :math:`Q_i` is the i-th quantile boundary of
-    the distribution of `group_col`.
+    the distribution of `group_col`. For background on discretization
+    and learning-oriented preprocessing, see
+    :cite:t:`HastieTibshiraniFriedman2009ESL`.
 
     Examples
     --------
@@ -378,13 +380,6 @@ def check_group_column_validity(
     --------
     pd.qcut : Pandas method used internally for creating
         quantile-based bins from numeric data.
-
-    References
-    ----------
-    .. [1] T. Hastie, R. Tibshirani, and J. Friedman.
-       "The Elements of Statistical Learning:
-       Data Mining, Inference, and Prediction."
-       Springer Series in Statistics, 2009.
     """
 
     # Check if group_col is in the DataFrame.
@@ -590,6 +585,9 @@ def find_id_column(
       values above 1.
     - If the DataFrame has no columns or is empty, the
       behavior is determined by `<errors>`.
+    - The relational-model motivation for schema-oriented
+      column handling goes back to
+      :cite:t:`Codd1970Relational`.
 
     Examples
     --------
@@ -615,11 +613,6 @@ def find_id_column(
     pandas.api.types.is_integer_dtype : Checks integer type.
     pandas.api.types.is_string_dtype : Checksstring type.
     pandas.api.types.is_object_dtype : Checksobject type.
-
-    References
-    ----------
-    .. [1] E. F. Codd (1970). "A Relational Model of Data
-           for Large Shared Data Banks."
     """
     # Validate that df is a DataFrame
     if not isinstance(df, pd.DataFrame):
@@ -1650,7 +1643,8 @@ def exclude_duplicate_kwargs(
     If it's a list, those items are protected. The
     function signature of `func` is also used to
     verify that only recognized parameters are
-    protected.
+    protected. Keyword-filtering patterns like this
+    are covered in :cite:t:`BeazleyJones2013PythonCookbook`.
 
     See Also
     --------
@@ -1659,11 +1653,6 @@ def exclude_duplicate_kwargs(
     filter_valid_kwargs : Another inline function that
         discards user params not valid for a given
         function.
-
-    References
-    ----------
-    .. [1] David Beazley and Brian K. Jones.
-       *Python Cookbook, 3rd Edition.* O'Reilly Media, 2013.
     """
 
     # Validate existing_kwargs
@@ -1777,7 +1766,9 @@ def reorder_columns(
     columns after removing the target columns [1]_.
     For integer or float ``pos``, the target columns
     are inserted at index :math:`\\lfloor pos
-    \\rfloor` among the remaining columns.
+    \\rfloor` among the remaining columns. Column-order
+    management follows common DataFrame practices
+    discussed in :cite:t:`McKinney2017PythonDataAnalysis`.
 
     Examples
     --------
@@ -1802,11 +1793,6 @@ def reorder_columns(
                                  reindexing or
                                  reordering columns
                                  more generally.
-
-    References
-    ----------
-    .. [1] Wes McKinney. "Python for Data Analysis,"
-           2nd Edition, O'Reilly Media.
     """
     # Validate that the input 'df' is a pandas DataFrame
     if not isinstance(df, pd.DataFrame):

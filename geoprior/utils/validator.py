@@ -211,19 +211,15 @@ def process_y_pairs(
        flattening
     3. Forward references for ``ArrayLike`` allow flexibility - accepts any 
        array-like structure (list, numpy array, pandas Series, etc.)
+    4. The type and array-handling conventions rely on the Python language
+       reference and NumPy's array-programming model
+       :cite:p:`PythonReferenceManual2001,NumPyNature2020`.
 
     See Also
     --------
     drop_nan_in : Core NaN removal and index resetting function
     validate_yy : Array validation and dtype consistency checker
     sklearn.utils.check_consistent_length : Scikit-learn's length validation
-
-    References
-    ----------
-    .. [1] Van Rossum, G. & Drake, F.L. Python Reference Manual. 
-       Amsterdam: CWI (2001)
-    .. [2] Harris, C.R. et al. Array programming with NumPy. Nature 585, 
-       357-362 (2020)
     """
     # from ..core.array_manager import drop_nan_in
 
@@ -1286,7 +1282,9 @@ def check_is_runned(
     -----
     The `check_is_runned` function ensures that methods dependent on
     the "runned" status are only executed after the estimator has completed
-    all required preliminary processes, like `fit` or `run`.
+    all required preliminary processes, like `fit` or `run`. This helper
+    mirrors the fitted-state checks described in
+    :cite:p:`SklearnCheckIsFittedDocs,PythonClassInstanceAttrsDocs`.
 
     Examples
     --------
@@ -1312,14 +1310,6 @@ def check_is_runned(
     check_is_fitted : Validates that an estimator has been "fitted" before
                       further use.
     validate_estimator_methods : Validates essential estimator methods.
-
-    References
-    ----------
-
-    .. [1] Scikit-learn's `check_is_fitted` function:
-           https://scikit-learn.org/stable/modules/generated/sklearn.utils.validation.check_is_fitted.html
-    .. [2] Python official documentation on class attributes:
-           https://docs.python.org/3/tutorial/classes.html#class-and-instance-attributes
     """
     from ..exceptions import NotRunnedError
 
@@ -1418,19 +1408,14 @@ def check_has_run_method(
         \end{cases}
 
     It determines whether the method is callable or raises an error 
-    otherwise.
+    otherwise. Callable-method validation here follows the Python
+    documentation and the staticmethod overview in
+    :cite:p:`Python3Docs,RealPythonStaticMethods`.
 
     See Also
     --------
     validate_estimator_methods : A helper function to validate multiple 
                                  methods on an estimator.
-
-    References
-    ----------
-    .. [1] Python Software Foundation. Python 3.9 Documentation.
-           https://docs.python.org/3/
-    .. [2] Static Methods in Python. Real Python.
-           https://realpython.com/instance-class-and-static-methods-python/
 
     """
 
@@ -1527,7 +1512,9 @@ def validate_batch_size(
 
     This function is essential for managing data batching in machine learning
     workflows, where improper batch sizes can lead to inefficient training or
-    runtime errors.
+    runtime errors. The practical mini-batch constraint follows standard
+    deep-learning training guidance
+    :cite:p:`GoodfellowEtAl2016DeepLearning`.
 
     Examples
     --------
@@ -1537,11 +1524,6 @@ def validate_batch_size(
     >>> validate_batch_size(150, 100)  # Raises ValueError
     >>> validate_batch_size(32, 100, max_batch_size=32)  # Valid case
     >>> validate_batch_size(40, 100, max_batch_size=32)  # Raises ValueError
-
-    References
-    ----------
-    .. [1] Goodfellow, I., Bengio, Y., & Courville, A. (2016). Deep Learning.
-       MIT Press. https://www.deeplearningbook.org/
     """
     n_samples = validate_positive_integer(
         n_samples, "N-samples"
@@ -1649,18 +1631,13 @@ def validate_estimator_methods(estimator, methods, msg=None):
         \quad \text{else error}
 
     If any method is missing or not callable, the function raises an
-    `AttributeError`.
+    `AttributeError`. Method-callability checks follow the Python
+    documentation and the callable-object discussion in
+    :cite:p:`Python3Docs,RealPythonCallable`.
 
     See Also
     --------
     check_has_run_method : Validate the presence of a single method (defaulting to `run`).
-
-    References
-    ----------
-    .. [1] Python Software Foundation. Python 3.9 Documentation.
-           https://docs.python.org/3/
-    .. [2] Callable Objects in Python. Real Python.
-           https://realpython.com/python-callable/
 
     """
     if isinstance(methods, str):
@@ -1843,16 +1820,12 @@ def validate_sets(
     In 'base' mode, it ensures the data is a set. In 'deep' mode, it ensures the
     data is a dictionary where all values are sets. Additional parameters allow
     for checking if sets are empty, if elements are of a specific type, and if
-    dictionary keys are of a specific type.
+    dictionary keys are of a specific type. The core type test used here is
+    documented in :cite:t:`PythonIsinstanceDocs`.
 
     See Also
     --------
     isinstance : Python built-in function to check an object's type.
-
-    References
-    ----------
-    .. [1] Python Software Foundation. (n.d.). isinstance. Retrieved from
-       https://docs.python.org/3/library/functions.html#isinstance
 
     """
     if mode == "base":
@@ -2990,17 +2963,14 @@ def validate_performance_data(
     The validation process includes statistical pre-checks, using custom
     modules to convert data and handle NaNs. For integer-to-float
     conversion, the `convert_to_numeric` function is utilized, while NaN
-    policies are verified using `is_valid_policies`.
+    policies are verified using `is_valid_policies`. The comparison
+    framing for multiple models follows
+    :cite:t:`Demsar2006Classifiers`.
 
     See Also
     --------
     DataFrameFormatter : Formatter for handling DataFrame structures.
     MultiFrameFormatter : Formatter for handling multiple DataFrames.
-
-    References
-    ----------
-    .. [1] Demsar, J., "Statistical Comparisons of Classifiers over
-           Multiple Data Sets," Journal of Machine Learning Research, 2006.
 
     """
 
@@ -5721,6 +5691,8 @@ def validate_numeric(
     - :math:`x` is the input value
     - :math:`y` is the output value after validation and conversion
 
+    Array coercion details are documented in :cite:t:`NumPyDocs`.
+
     Examples
     --------
     >>> from geoprior.utils.validator import validate_numeric
@@ -5742,10 +5714,6 @@ def validate_numeric(
     See Also
     --------
     numpy.array : Numpy arrays, which can be validated by this function.
-
-    References
-    ----------
-    .. [1] "NumPy Documentation", https://numpy.org/doc/stable/
     """
     # Check if the value is a numpy array with a single element
     if isinstance(value, np.ndarray):
