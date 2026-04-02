@@ -220,7 +220,7 @@ docs/source/auto_examples/
 # ------------------------------
 geoprior/api/gimini_key.py
 
-
+AGENTS.md 
 .codex-log/
 .codex-cache/
 .github/prompts/ 
