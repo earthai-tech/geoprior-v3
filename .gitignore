@@ -221,3 +221,7 @@ docs/source/auto_examples/
 geoprior/api/gimini_key.py
 
 
+.codex-log/
+.codex-cache/
+.github/prompts/ 
+.github/copilot-instructions.md
