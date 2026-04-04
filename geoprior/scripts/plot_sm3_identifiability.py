@@ -3,8 +3,7 @@
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
-r"""
-Supplementary Methods 3 • Synthetic identifiability (SM3)
+r"""Plot synthetic identifiability (SM3).
 
 Panels
 ------

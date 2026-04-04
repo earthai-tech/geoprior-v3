@@ -1,4 +1,5 @@
 #   License: BSD-3-Clause
+r"""Additional tests for metric plotting helpers."""
 
 import warnings
 

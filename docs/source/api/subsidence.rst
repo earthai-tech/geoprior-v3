@@ -149,6 +149,7 @@ subsidence forecasting in GeoPrior-v3.
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Key model classes
 ~~~~~~~~~~~~~~~~~
@@ -157,11 +158,13 @@ Key model classes
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 .. autoclass:: geoprior.models.subsidence.models.PoroElasticSubsNet
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Scientific math helpers
 -----------------------
@@ -184,21 +187,28 @@ fields are turned into physically meaningful quantities.
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Important helper functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autofunction:: geoprior.models.subsidence.maths.compose_physics_fields
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.maths.tau_phys_from_fields
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.maths.equilibrium_compaction_si
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.maths.compute_mv_prior
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.maths.q_to_gw_source_term_si
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.maths.compute_bounds_residual
+   :no-index:
 
 Scaling and serialization
 -------------------------
@@ -214,6 +224,7 @@ units, coordinates, bounds, and downstream diagnostics.
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Key scaling object
 ~~~~~~~~~~~~~~~~~~
@@ -222,6 +233,7 @@ Key scaling object
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Loss and step-packing helpers
 -----------------------------
@@ -236,11 +248,13 @@ the richer objects consumed by the staged workflow.
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Important helpers
 ~~~~~~~~~~~~~~~~~
 
 .. autofunction:: geoprior.models.subsidence.losses.pack_step_results
+   :no-index:
 
 Identifiability controls
 ------------------------
@@ -256,15 +270,19 @@ training.
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Important helpers
 ~~~~~~~~~~~~~~~~~
 
 .. autofunction:: geoprior.models.subsidence.identifiability.init_identifiability
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.identifiability.apply_ident_locks
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.identifiability.resolve_compile_weights
+   :no-index:
 
 Payloads and exported physics artifacts
 ---------------------------------------
@@ -279,15 +297,19 @@ inspect the internal physical state of a run after training.
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Important helpers
 ~~~~~~~~~~~~~~~~~
 
 .. autofunction:: geoprior.models.subsidence.payloads.gather_physics_payload
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.payloads.save_physics_payload
+   :no-index:
 
 .. autofunction:: geoprior.models.subsidence.payloads.load_physics_payload
+   :no-index:
 
 Stability helpers
 -----------------
@@ -300,11 +322,13 @@ physics branches, unstable residual terms, or bad gradients.
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Important helpers
 ~~~~~~~~~~~~~~~~~
 
 .. autofunction:: geoprior.models.subsidence.stability.filter_nan_gradients
+   :no-index:
 
 Utility helpers
 ---------------
@@ -315,7 +339,6 @@ mapping, groundwater/head conversion, initialization helpers,
 and policy gating.
 
 .. automodule:: geoprior.models.subsidence.utils
-   :members:
    :undoc-members:
    :show-inheritance:
    :no-index:
@@ -355,11 +378,13 @@ place.
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Important helper
 ~~~~~~~~~~~~~~~~
 
 .. autofunction:: geoprior.models.subsidence.step_core.physics_core
+   :no-index:
 
 Derivative and residual helpers
 -------------------------------
@@ -374,6 +399,7 @@ fed into the residual machinery.
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Batch and transport helpers
 ---------------------------
@@ -388,6 +414,7 @@ before they enter the shared physics core.
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Debugging and scientific inspection
 -----------------------------------
@@ -402,6 +429,7 @@ behavior.
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Log-offset diagnostics
 ----------------------
@@ -415,6 +443,7 @@ offset magnitudes, or identifiability behavior.
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Plotting helpers
 ----------------
@@ -427,6 +456,7 @@ fields, and derived diagnostics from this package.
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Package-level scientific text helpers
 -------------------------------------
@@ -439,6 +469,7 @@ explanation layer around the subsidence stack.
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Suggested reading order
 -----------------------
@@ -466,14 +497,14 @@ implementation structure directly.
 Main model module
 ~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../geoprior/models/subsidence/models.py
+.. literalinclude:: ../../../geoprior/models/subsidence/models.py
    :language: python
    :caption: geoprior/models/subsidence/models.py
 
 Scientific math helpers
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../geoprior/models/subsidence/maths.py
+.. literalinclude:: ../../../geoprior/models/subsidence/maths.py
    :language: python
    :caption: geoprior/models/subsidence/maths.py
    :lines: 1-260
@@ -481,7 +512,7 @@ Scientific math helpers
 Utility helpers
 ~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../geoprior/models/subsidence/utils.py
+.. literalinclude:: ../../../geoprior/models/subsidence/utils.py
    :language: python
    :caption: geoprior/models/subsidence/utils.py
    :lines: 1-260
@@ -489,7 +520,7 @@ Utility helpers
 Step-core helpers
 ~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../geoprior/models/subsidence/step_core.py
+.. literalinclude:: ../../../geoprior/models/subsidence/step_core.py
    :language: python
    :caption: geoprior/models/subsidence/step_core.py
    :lines: 1-260

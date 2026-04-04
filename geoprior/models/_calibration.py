@@ -3,6 +3,7 @@
 # Copyright (c) 2026-present
 # Author: LKouadio <etanoyau@gmail.com>
 # website:https://lkouadio.com
+r"""Internal calibration helpers for GeoPrior models."""
 
 import numpy as np
 

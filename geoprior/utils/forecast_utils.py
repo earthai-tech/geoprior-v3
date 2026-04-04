@@ -1298,7 +1298,7 @@ def format_and_forecast(
         ``{'subs_pred': ..., 'gwl_pred': ...}``.
 
         If ``None``, evaluation DataFrame is still created but
-        without the ``'<target_name>_actual'`` column.
+        without the actual-value column.
 
     coords : ndarray, optional
         Optional coordinates array aligned with predictions.
@@ -1311,7 +1311,7 @@ def format_and_forecast(
     quantiles : list of float or None, optional
         List of quantiles (e.g. ``[0.1, 0.5, 0.9]``) if the model
         was trained in probabilistic mode.  If ``None``, a single
-        column ``'<target_name>_pred'`` is emitted instead.
+        prediction column is emitted instead.
 
     target_name : str, default='subsidence'
         Logical target identifier used as the default key for locating the
@@ -1330,23 +1330,19 @@ def format_and_forecast(
         and ``f"{output_target_name}_actual"``).
 
         If ``None`` (default), the function derives the output prefix from
-        ``target_name`` and applies a small convenience rule:
-
-        * if ``target_name`` ends with ``"_cum"`` (or ``"_cumulative"``),
-          the suffix is stripped for output naming.
+        ``target_name`` and applies a small convenience rule: if
+        ``target_name`` ends with ``"_cum"`` or ``"_cumulative"``, that
+        suffix is stripped for output naming.
 
         This keeps downstream tooling consistent (many plotting and metrics
         utilities expect names like ``subsidence_q10`` rather than
         ``subsidence_cum_q10``), while still allowing the scaler lookup to
-        use the true target key::
-
-            >>> target_name = "subsidence_cum"
-            >>> output_target_name = None
-            # Output columns become: subsidence_q10, subsidence_q50, subsidence_actual
-
-            >>> target_name = "subsidence_cum"
-            >>> output_target_name = "subsidence_cum"
-            # Output columns keep the suffix: subsidence_cum_q10, ...
+        use the true target key. For example, with
+        ``target_name="subsidence_cum"`` and ``output_target_name=None``,
+        output columns become ``subsidence_q10``, ``subsidence_q50``, and
+        ``subsidence_actual``. If
+        ``output_target_name="subsidence_cum"``, the output columns keep
+        the suffix such as ``subsidence_cum_q10``.
 
     scaler_target_name : str or None, optional
         Name used to locate the target scaling block inside ``scaler_info``
@@ -1360,16 +1356,12 @@ def format_and_forecast(
         columns but the scaler was fitted/stored under the original target
         name.
 
-        Notes:
-
-        A common pattern is to keep ``target_name="subsidence_cum"`` so the
-        scaler lookup matches the Stage-1 schema, while letting
-        ``output_target_name=None`` produce clean output columns:
-
-        * inverse-transform uses ``scaler_target_name="subsidence_cum"``
-          (implicitly via ``target_name``),
-        * output columns are named ``subsidence_*`` due to the auto-strip
-          rule.
+        A common pattern is to keep ``target_name="subsidence_cum"`` so
+        the scaler lookup matches the Stage-1 schema, while letting
+        ``output_target_name=None`` produce clean output columns. In that
+        setup, inverse transform still uses the ``subsidence_cum`` scaler
+        key, while output columns use the ``subsidence_`` prefix because
+        of the auto-strip rule.
 
     target_key_pred : str, default='subs_pred'
         Key inside ``y_pred`` that holds the subsidence forecasts.
@@ -1382,13 +1374,7 @@ def format_and_forecast(
     scaler_info : dict, optional
         Optional Stage-1 ``scaler_info`` mapping containing a
         target scaler under keys such as ``'targets'`` or
-        ``'target'``.  The block is expected to have fields:
-
-        - ``'scaler'``: an sklearn-like transformer.
-        - ``'columns'`` or ``'cols'``: list of column names.
-
-        If present and consistent, subsidence values (predicted and
-        actual) are inverse-transformed for ``target_name``.
+        ``'target'``.  The target block is expected to provide an sklearn-like transformer under ``'scaler'`` together with column names under ``'columns'`` or ``'cols'``. If present and consistent, subsidence values (predicted and actual) are inverse-transformed for ``target_name``.
 
     coord_scaler : object, optional
         Optional scaler used for coordinates.  If provided, it is
@@ -1626,7 +1612,7 @@ def format_and_forecast(
     df_future : pandas.DataFrame
         DataFrame containing predictions for the future horizon,
         without actuals.  Same structure as ``df_eval`` but without
-        the ``'<target_name>_actual'`` column.
+        the actual-value column.
 
     Notes
     -----
@@ -1634,7 +1620,7 @@ def format_and_forecast(
     *output column naming* (``output_target_name``).
     This is useful when the stored scaler key contains suffixes like
     ``"_cum"`` but downstream tools expect canonical names such
-    as ``subsidence_*``.
+    as columns prefixed with ``subsidence_``.
 
 
     """
@@ -3434,27 +3420,29 @@ def normalize_for_pinn(
     MinMaxScaler | None,
 ]:
     """
-    Apply Min-Max normalization to spatial–temporal coordinates and
-    optionally to other numeric columns. If `cols_to_scale == "auto"`,
-    automatically select numeric columns excluding categorical and one-hot
+    Apply Min-Max normalization to spatial-temporal coordinates and
+    optionally to other numeric columns. If
+    ``cols_to_scale == "auto"``, automatically select numeric columns
+    excluding categorical and one-hot
     features.
 
     By default, this function scales the time, longitude, and latitude
-    columns (if `scale_coords=True`). Then, it either scales explicitly
-    provided columns in `cols_to_scale` or automatically infers numeric
-    columns (excluding coordinates if `scale_coords` is False, and excluding
+    columns (if ``scale_coords=True``). Then, it either scales explicitly
+    provided columns in ``cols_to_scale`` or automatically infers numeric
+    columns (excluding coordinates if ``scale_coords`` is False, and excluding
     one-hot/boolean columns).
 
-    The Min-Max scaling for a feature \(x\) is:
+    The Min-Max scaling for a feature :math:`x` is:
 
     .. math::
-       x' = \frac{x - \min(x)}{\max(x) - \min(x)}
+       x' = \\frac{x - \\min(x)}{\\max(x) - \\min(x)}
 
     Parameters
     ----------
     df : pd.DataFrame
-        The input DataFrame containing at least `time_col`, `lon_col`,
-        and `lat_col` columns. The DataFrame should contain temporal
+        The input DataFrame containing at least ``time_col``,
+        ``coord_x``, and ``coord_y`` columns. The DataFrame should
+        contain temporal
         and spatial information to be scaled.
 
     time_col : str
@@ -3472,13 +3460,14 @@ def normalize_for_pinn(
 
     cols_to_scale : list of str or "auto" or None, default "auto"
         If a list of column names, scales exactly those columns.
-        If "auto", selects all numeric columns, excluding `time_col`,
-        `lon_col`, `lat_col` if `scale_coords=False`, and excluding
+        If ``"auto"``, selects all numeric columns, excluding
+        ``time_col``, ``coord_x``, and ``coord_y`` if
+        ``scale_coords=False``, and excluding
         one-hot encoded columns whose values are only ``{0, 1}``.
         If None, no extra columns are scaled.
 
     scale_coords : bool, default True
-        If True, scales the `[time_col, lon_col, lat_col]` columns.
+        If True, scales the ``[time_col, coord_x, coord_y]`` columns.
         If False, these columns remain unchanged.
 
     verbose : int, default 1
@@ -3493,7 +3482,7 @@ def normalize_for_pinn(
         Logger or function to handle logging messages. If None, the
         default logging mechanism is used.
 
-    **kws : Additional keyword arguments
+    kws : dict, optional
         These will be passed on to any other internal function used in
         the data processing or scaling steps.
 
@@ -3503,8 +3492,8 @@ def normalize_for_pinn(
         A new DataFrame with the specified columns normalized.
 
     coord_scaler : MinMaxScaler or None
-        The fitted scaler for the `[time_col, lon_col, lat_col]` columns
-        if `scale_coords=True`, else None.
+        The fitted scaler for the ``[time_col, coord_x, coord_y]``
+        columns if ``scale_coords=True``, else ``None``.
 
     other_scaler : MinMaxScaler or None
         The fitted scaler for any additional columns that were scaled
@@ -3519,8 +3508,9 @@ def normalize_for_pinn(
         a string.
 
     ValueError
-        If required columns (`time_col`, `lon_col`, `lat_col`) or any
-        of `cols_to_scale` do not exist in `df`, or cannot be converted
+        If required columns (``time_col``, ``coord_x``, ``coord_y``) or
+        any of ``cols_to_scale`` do not exist in ``df``, or cannot be
+        converted
         to numeric.
 
     Examples
@@ -3552,13 +3542,13 @@ def normalize_for_pinn(
 
     Notes
     -----
-    - When `cols_to_scale="auto"`, numeric columns with only {0,1}
-      values are assumed one-hot and excluded from scaling.
-    - If `scale_coords=False`, coordinate columns remain unchanged,
+    - When ``cols_to_scale="auto"``, numeric columns with only
+      ``{0, 1}`` values are assumed to be one-hot and excluded from scaling.
+    - If ``scale_coords=False``, coordinate columns remain unchanged,
       and auto-selection (if used) will exclude them.
-    - Returned `coord_scaler` is None if `scale_coords=False`.
-      Returned `other_scaler` is None if `cols_to_scale` is None or
-      results in an empty set after filtering.
+    - Returned ``coord_scaler`` is ``None`` if ``scale_coords=False``.
+      Returned ``other_scaler`` is ``None`` if ``cols_to_scale`` is
+      ``None`` or results in an empty set after filtering.
 
     See Also
     --------

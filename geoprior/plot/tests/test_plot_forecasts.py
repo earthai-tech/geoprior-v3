@@ -1,4 +1,5 @@
 # test_plot_forecasts.py
+r"""Tests for forecast plotting helpers."""
 
 from unittest.mock import (  # For mocking plt.show and plt.figure
     patch,

@@ -50,9 +50,9 @@ The API can be read as three layers.
 Public module surface
 ---------------------
 
-The following autosummary blocks use fully qualified targets so that the
-API page remains stable during Sphinx builds and does not depend on
-package-relative lookup.
+The following autosummary blocks use the current module context with an
+explicit toctree layout so that the API page remains stable during
+Sphinx builds.
 
 Module reference
 ~~~~~~~~~~~~~~~~
@@ -73,11 +73,10 @@ configurations still rely on the original coefficient-based interface.
 .. autosummary::
    :toctree: _autosummary/params/legacy
    :nosignatures:
-   :no-index:
 
-   ~geoprior.params.LearnableC
-   ~geoprior.params.FixedC
-   ~geoprior.params.DisabledC
+   LearnableC
+   FixedC
+   DisabledC
 
 General parameter bases
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -91,8 +90,8 @@ serialization and runtime conventions as the built-in descriptors.
    :toctree: _autosummary/params/bases
    :nosignatures:
 
-   ~geoprior.params.BaseLearnable
-   ~geoprior.params.BaseFixed
+   BaseLearnable
+   BaseFixed
 
 Learnable physical descriptors
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -105,13 +104,12 @@ while the recovered physical parameter stays positive.
 .. autosummary::
    :toctree: _autosummary/params/learnable
    :nosignatures:
-   :no-index:
 
-   ~geoprior.params.LearnableK
-   ~geoprior.params.LearnableSs
-   ~geoprior.params.LearnableQ
-   ~geoprior.params.LearnableMV
-   ~geoprior.params.LearnableKappa
+   LearnableK
+   LearnableSs
+   LearnableQ
+   LearnableMV
+   LearnableKappa
 
 Fixed physical descriptors
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -124,10 +122,9 @@ to integrate into model construction and serialization logic.
 .. autosummary::
    :toctree: _autosummary/params/fixed
    :nosignatures:
-   :no-index:
 
-   ~geoprior.params.FixedGammaW
-   ~geoprior.params.FixedHRef
+   FixedGammaW
+   FixedHRef
 
 Resolution and normalization helpers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -140,9 +137,8 @@ to accept both simple user input and explicit descriptor objects.
 .. autosummary::
    :toctree: _autosummary/params/helpers
    :nosignatures:
-   :no-index:
 
-   ~geoprior.params.resolve_physical_param
+   resolve_physical_param
 
 Interpretation in the GeoPrior workflow
 ---------------------------------------

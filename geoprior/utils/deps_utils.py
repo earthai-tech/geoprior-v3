@@ -218,7 +218,7 @@ def ensure_module_installed(
     extra_install_args: list[str] | None = None,
 ) -> bool:
     """
-    Ensure that the required module is installed, optionally installing it 
+    Ensure that the required module is installed, optionally installing it
     if missing.
 
     Parameters
@@ -226,45 +226,38 @@ def ensure_module_installed(
     module_name : str
         The name of the module to check and install if necessary.
     auto_install : bool, optional
-        If ``True``, automatically install the module using the specified 
+        If ``True``, automatically install the module using the specified
         package manager if it is not already installed (default is ``False``).
     version : Optional[str], optional
-        Specify a version or version range for the module. For example, 
-        ">=1.0.0" or "==2.0.1". If ``None``, no version constraints are 
+        Specify a version or version range for the module. For example,
+        ">=1.0.0" or "==2.0.1". If ``None``, no version constraints are
         applied (default is ``None``).
     package_manager : str, optional
-        The package manager to use for installation. Currently, only 
-        ``"pip"`` is supported. Future versions may support other package 
+        The package manager to use for installation. Currently, only
+        ``"pip"`` is supported. Future versions may support other package
         managers like ``"conda"`` (default is ``"pip"``).
     dist_name : Optional[str], optional
-        Sometimes the module name used for importing is different from the 
-        distribution package name. This parameter allows specifying the 
+        Sometimes the module name used for importing is different from the
+        distribution package name. This parameter allows specifying the
         distribution package name (default is ``None``).
     extra_install_args : Optional[List[str]], optional
-        A list of additional arguments to pass to the package manager during 
-        installation. For example, ``["--upgrade"]`` to upgrade the package. 
+        A list of additional arguments to pass to the package manager during
+        installation. For example, ``["--upgrade"]`` to upgrade the package.
         If ``None``, no extra arguments are passed (default is ``None``).
 
     Returns
     -------
     bool
-        Returns ``True`` if the module is installed or successfully 
+        Returns ``True`` if the module is installed or successfully
         installed, ``False`` otherwise.
 
     Raises
     ------
     ImportError
-        If the module is not installed and ``auto_install`` is ``False``, 
+        If the module is not installed and ``auto_install`` is ``False``,
         or if the installation fails.
     ValueError
         If an unsupported package manager is specified.
-
-    .. math::
-        P(\text{installed}) = 
-        \begin{cases} 
-            1 & \text{if module is installed} \\ 
-            0 & \text{otherwise} 
-        \end{cases}
 
     Examples
     --------
@@ -288,11 +281,11 @@ def ensure_module_installed(
 
     Notes
     -----
-    - This function currently supports only ``"pip"`` as the package manager.
-    - When specifying a version, ensure that the version string is compatible 
-      with the package manager's version specification syntax.
-    - For packages that require system-level dependencies, manual installation 
-      might be necessary.
+    This function currently supports only ``"pip"`` as the package
+    manager. When specifying a version, ensure that the version string is
+    compatible with the package manager's version specification syntax.
+    Packages that require system-level dependencies may still need manual
+    installation steps.
 
     See Also
     --------
@@ -372,18 +365,15 @@ def install_package(
         Base name of the package to install (e.g., ``'requests'``).
     dist_name : str, optional
         Distribution name, if different from the import name. For example,
-        scikit-learn's import name <sklearn> differs from its distribution
+        scikit-learn's import name ``sklearn`` differs from its distribution
         name ``'scikit-learn'``.
     infer_dist_name : bool, optional
         If True, calls :meth:`get_installation_name` to infer the
         distribution name automatically. Defaults to False.
     version : str, optional
-        Version string or comparator. Examples:
-          - ``'1.2.0'``  => interpreted as '>=1.2.0'
-          - ``'==1.2.0'``
-          - ``'<2.0'``
-          - ``'>=1.5.3'``
-        If None, no version constraint is applied.
+        Version string or comparator. Examples include ``'1.2.0'``
+        interpreted as ``'>=1.2.0'``, ``'==1.2.0'``, ``'<2.0'``, and
+        ``'>=1.5.3'``. If ``None``, no version constraint is applied.
 
     extra : str, optional
         Additional install specifiers or command-line flags passed
@@ -411,14 +401,12 @@ def install_package(
 
     Notes
     -----
-    - If the package is already installed (as determined by
-      :meth:`is_module_installed`), no further action is taken.
-    - When using pip, a progress bar is displayed (if the `tqdm`
-      library is installed). For conda, no progress bar is shown
-      due to console I/O capture limitations.
+    If the package is already installed, as determined by
+    :func:`is_module_installed`, no further action is taken. When using
+    pip, a progress bar is displayed if ``tqdm`` is installed. For conda,
+    no progress bar is shown because of console I/O capture limitations.
 
-
-    Mathematically, this function assembles an install spec of the form:
+    Conceptually, this function assembles an install spec of the form:
 
     .. math::
        \text{install\_str} = \langle \text{name} \rangle
@@ -446,12 +434,10 @@ def install_package(
 
     See Also
     --------
-    is_module_installed:
-        Checks whether a Python module or corresponding distribution
-        is already installed.
-    get_installation_name:
-        Infers a distribution name for the given module name,
-        if necessary.
+    is_module_installed : Check whether a Python module or corresponding
+        distribution is already installed.
+    get_installation_name : Infer a distribution name for the given
+        module name when needed.
 
     """
     # Check if tqdm is available

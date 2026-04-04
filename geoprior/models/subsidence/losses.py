@@ -219,8 +219,7 @@ def assemble_physics_loss(
     
     Notes
     -----
-    Offset-aware scaling policy
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Offset-aware scaling policy.**
     The global multiplier ``phys_mult`` is intended as a single knob to
     warm up or damp all PDE-style physics terms together. By default:
     
@@ -234,8 +233,7 @@ def assemble_physics_loss(
     This separation avoids unintended suppression of calibration signals
     when physics warmup is used.
     
-    Logging and gradient debugging
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Logging and gradient debugging.**
     Returning both ``physics_raw`` and ``physics_scaled`` helps debug
     training stability:
 
@@ -564,16 +562,14 @@ def update_compiled_metrics(model, targets, y_pred):
 
     Notes
     -----
-    Why a custom updater is needed
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Why a custom updater is needed.**
     Keras multi-output metric routing depends on how metrics were compiled
     (list-based vs dict-based) and how outputs are named and returned. In
     custom :meth:`train_step` / :meth:`test_step`, you often compute losses
     manually and must also call metric updates manually to preserve the
     behavior of ``model.fit``.
 
-    Compatibility behavior
-    ~~~~~~~~~~~~~~~~~~~~~~~~
+    **Compatibility behavior.**
     - In some Keras 2 environments, calling ``compiled.update_state`` with
       dicts can fail or silently mis-route metrics when output names do not
       align with how the metric container was constructed. The list-first
@@ -581,8 +577,7 @@ def update_compiled_metrics(model, targets, y_pred):
     - The final manual fallback updates metric objects directly by matching
       their name prefix (``<output_name>_``) and skipping loss-like metrics.
 
-    Shape normalization
-    ~~~~~~~~~~~~~~~~~~~~~
+    **Shape normalization.**
     The helper normalizes ground-truth shapes to match prediction shapes
     before updating metrics. This reduces common failures when targets are
     provided as ``(B,H)`` or ``(B,H,1)`` while predictions may be
@@ -826,21 +821,18 @@ def pack_step_results(
 
     Notes
     -----
-    Metric collection strategy
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Metric collection strategy.**
     Compiled metrics are updated via ``update_compiled_metrics`` and then
     read from the underlying compile-metrics object. This avoids common
     routing failures when using dict outputs in custom training loops.
 
-    Reserved and excluded keys
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    **Reserved and excluded keys.**
     Certain names are reserved to prevent collisions with Keras internals
     and to ensure that the loss scalar remains authoritative. Some epsilon
     fields may also be excluded from the compiled-metric collection to
     avoid duplicate/conflicting reporting.
 
-    Physics logging
-    ~~~~~~~~~~~~~~~
+    **Physics logging.**
     If physics logging is enabled (``should_log_physics(model)`` returns
     True), this helper adds a consistent set of physics metrics, typically:
 
@@ -851,8 +843,7 @@ def pack_step_results(
     If physics is disabled for the model and logging is enabled, a zero
     bundle is inserted to keep log schemas stable.
 
-    Q and residual gates
-    ~~~~~~~~~~~~~~~~~~~~
+    **Q and residual gates.**
     When ``scaling_kwargs`` requests Q diagnostics
     (``log_q_diagnostics=True``), additional fields such as Q RMS and gate
     values may be included for debugging training schedules.

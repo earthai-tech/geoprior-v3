@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2026-present Laurent Kouadio
-
+r"""Compatibility helpers for dependency and backend setup."""
 
 import subprocess
 import sys

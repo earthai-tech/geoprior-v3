@@ -1,6 +1,6 @@
 """
 Forecast by horizon step with ``plot_forecast_by_step``
-======================================================
+=======================================================
 
 This lesson teaches how to inspect forecasts **step-by-step**
 with :func:`geoprior.plot.plot_forecast_by_step`.

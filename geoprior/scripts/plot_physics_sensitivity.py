@@ -3,22 +3,20 @@
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 #
-"""
-Supplement S7 • Physics sensitivity (ε_prior, ε_cons)
+"""Plot physics sensitivity (:math:`epsilon\_prior, \epsilon_cons`).
 
 Robust plotting over (λ_cons, λ_prior) with:
 - precedence for ablation_record.updated*.jsonl
 - fallback to legacy ablation_record*.jsonl
 - explicit --input support: CSV / JSON / JSONL
 - model/city/pde_mode filters
-- render styles via --render:
-    heatmap | tricontour | pcolormesh
+- render styles via ``--render``: ``heatmap``, ``tricontour``, ``pcolormesh``
 
 Outputs
 -------
 - Figure: <out>.png and <out>.pdf
-- Used tidy table: tableS7_physics_used.csv
-  written next to the figure outputs.
+- Used tidy table: ``tableS7_physics_used.csv`` written next to the figure
+  outputs.
 """
 
 from __future__ import annotations

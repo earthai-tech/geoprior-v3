@@ -1,6 +1,6 @@
 """
 Physics sanity: checking closure agreement and residual behavior
-===============================================================
+================================================================
 
 This example teaches you how to read the GeoPrior physics-sanity
 figure.

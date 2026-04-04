@@ -3,8 +3,8 @@
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
-r"""
-Summarise hotspot point clouds:
+r"""Summarise hotspot point clouds.
+
 - subsidence level (mm/yr): `value`
 - anomaly / delta metric (mm/yr): `metric_value`
 

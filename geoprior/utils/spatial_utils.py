@@ -1282,7 +1282,7 @@ def gen_buffered_negative_samples(
     negatives within a circular buffer. The function
     validates input columns and parameters via
     `_validate_negatives_sampling` before constructing
-    synthetic samples [1]_.
+    synthetic samples.
 
     Parameters
     ----------
@@ -1311,25 +1311,24 @@ def gen_buffered_negative_samples(
         Number of negatives to generate per positive
         (landslide) or gauge point.
     strategy : str, default 'landslide'
-        Defines the base from which negative samples
-        are generated:
-          - `'landslide'` or ``'event'``: Use rows from `df`
-            as base.
-          - `'gauge'`: Use rows from `<gauge_data>` as base.
+        Defines the base from which negative samples are generated.
+        Use ``'landslide'`` or ``'event'`` to sample around rows in
+        ``df``. Use ``'gauge'`` to sample around rows in
+        ``gauge_data``.
     gauge_data : pandas.DataFrame, optional
-        Required if `<strategy>` is `'gauge'`. Must
-        contain `<spatial_cols>`.
+        Required if ``strategy`` is ``'gauge'``. Must
+        contain ``spatial_cols``.
     use_gpd : bool or 'auto', default 'auto'
-        If `'auto'`, attempts to use GeoPandas for
+        If ``'auto'``, attempts to use GeoPandas for
         visualization if installed. Otherwise,
         falls back to Matplotlib. This parameter
         is forwarded to the underlying visualization
         function.
     id_col : str or list of str, default 'auto'
-        Column(s) representing IDs in `<df>`. If
-        `'auto'`, the function tries to detect
+        Column(s) representing IDs in ``df``. If
+        ``'auto'``, the function tries to detect
         possible ID columns. Used by
-        `_validate_negatives_sampling`.
+        ``_validate_negatives_sampling``.
     view : bool, default False
         Whether to visualize the sampled negatives
         around the base points.
@@ -1341,36 +1340,36 @@ def gen_buffered_negative_samples(
         Seed for NumPy's random generator, ensuring
         reproducible offsets in negative sampling.
     verbose : int, default 1
-        Controls console messages: `1` for minimal,
-        `2` for more detailed logs.
+        Controls console messages: ``1`` for minimal,
+        ``2`` for more detailed logs.
 
     Returns
     -------
     pandas.DataFrame
         The combined dataset containing both the original
-        (positive) rows, labeled with `target_col`=1,
+        (positive) rows, labeled with ``target_col`` = 1,
         and the newly generated negative rows, labeled
-        `target_col`=0.
+        ``target_col`` = 0.
 
     Methods
     -------
-    `_validate_negatives_sampling`
+    ``_validate_negatives_sampling``
         Validates required columns and parameters,
-        including `<num_neg_per_pos>` and
-        `<neg_feature_range>`.
-    `visualize_negative_sampling`
+        including ``num_neg_per_pos`` and
+        ``neg_feature_range``.
+    ``visualize_negative_sampling``
         Generates a plot showing the negative samples
-        around the base points if `<view>` is True.
+        around the base points if ``view`` is True.
 
     Notes
     -----
-    - If `strategy` is `'gauge'`, `gauge_data` must
-      be provided and contain columns `longitude` and
-      `latitude`.
-    - When `<view>` is True, circles are drawn to
+    - If ``strategy`` is ``'gauge'``, ``gauge_data`` must
+      be provided and contain columns ``longitude`` and
+      ``latitude``.
+    - When ``view`` is True, circles are drawn to
       illustrate the buffer radius.
-    - The ratio of 1° ~ 111 km is approximate and can
-      vary slightly by latitude [1]_.
+    - The ratio of 1 degree to roughly 111 km is an
+      approximation and can vary slightly by latitude.
 
     Formally, a buffer in degrees
     :math:`\\Delta` is computed by:
@@ -1460,11 +1459,6 @@ def gen_buffered_negative_samples(
     visualize_negative_sampling :
         Plots the positive and negative points for inspection.
 
-    References
-    ----------
-    .. [1] "What is a degree of Latitude/Longitude?"
-           US National Geodetic Survey (NGS),
-           https://www.ngs.noaa.gov/.
     """
     # See for reproducibility
     strategy = (
@@ -1675,7 +1669,7 @@ def gen_negative_samples(
     generate negative examples that reflect realistic
     conditions but have not triggered an event, thereby
     assisting models in distinguishing occurrences from
-    non-occurrences [1]_.
+    non-occurrences.
     
     Parameters
     ----------
@@ -1755,8 +1749,8 @@ def gen_negative_samples(
     - When `view=True`, circles depicting the buffer
       zone around each positive sample are drawn for
       visualization.
-    - The approximation of 1° ~ 111 km varies slightly
-      depending on latitude [1]_.
+    - The approximation of 1 degree to roughly 111 km
+      varies slightly depending on latitude.
     
     Mathematically, we define the spatial buffer in degrees
     as:
@@ -1765,7 +1759,7 @@ def gen_negative_samples(
        \\Delta = \\frac{\\text{buffer_km}}{111.0},
     
     where :math:`111.0` km approximates the distance of
-    one degree of latitude or longitude [1]_. For each
+    one degree of latitude or longitude. For each
     positive sample at location :math:`(lat, lon)`,
     we generate :math:`n` new points with offsets
     :math:`\\delta_{lat}` and :math:`\\delta_{lon}`, each
@@ -1816,11 +1810,6 @@ def gen_negative_samples(
     columns_manager : Handles both feature and spatial
                         columns for processing.
     
-    References
-    ----------
-    .. [1] US National Geodetic Survey (NGS). "What is a
-           degree of Latitude/Longitude?"
-           (https://www.ngs.noaa.gov/).
     """
     # Validate input and columns
     checked_values = _validate_negative_sampling(
@@ -2614,8 +2603,7 @@ def filter_position(
     by DataFrame index using the first element of `pos`. This
     approach may fail for multi-level indexes unless
     ``error='warn'`` or ``error='ignore'`` is used to bypass
-    the dimension mismatch. See [1]_ for further discussion
-    on multi-dimensional indexing.
+    the dimension mismatch.
 
     Examples
     --------
@@ -2645,11 +2633,6 @@ def filter_position(
         Truncate multiple DataFrames based on spatial
         coordinates or index alignment with a base DataFrame.
 
-    References
-    ----------
-    .. [1] Smith, J., & Doe, A. (2020). Multi-dimensional
-       indexing in big data. Journal of Spatial Computing,
-       15(3), 200-210.
     """
     # Initialize filtered_df as the original DataFrame
     filtered_df = df.copy()
@@ -2786,129 +2769,55 @@ def extract_zones_from(
     show_grid=True,
     **kwargs,
 ):
-    r"""
-    Extracts specific zones by filtering an input array or arrays
-    using a threshold criterion. This function applies a logical
-    mask to the values and retains those which satisfy a chosen
-    condition (e.g. ``'above'``, ``'below'``, or ``'between'`` a
-    specific threshold or thresholds). The threshold can be
-    automatically derived using percentiles if ``'auto'`` is
-    specified.
-
-    .. math::
-       \text{mask}(z) \;=\;
-       \begin{cases}
-         1 & \text{if } z \,\in\, \Omega \\
-         0 & \text{otherwise}
-       \end{cases}
-
-    where :math:`\Omega` is the region of acceptance determined
-    by the threshold mechanism.
-
+    """
+    Extract zones by filtering values against a threshold rule.
+    
     Parameters
     ----------
-    z : array-like, Series, or string
-        The input data to be filtered. If <z> is a string,
-        it is treated as a column name from the provided
-        <data> (see below). If it is an array or Series, it
-        is used directly.
-    threshold : { ``'auto'``, float, int, tuple }
-        The criterion for filtering. If ``'auto'``, the
-        function computes a percentile-based threshold
-        driven by <percentile>. If a float or int is
-        given, the function will filter values above or
-        below that single threshold. If a tuple of length 2
-        is provided, the function will filter between those
-        bounds.
-    condition : { ``'auto'``, ``'above'``, ``'below'``,
-                     ``'between'`` }
-        Defines how the filter is applied relative to the
-        given or derived threshold. If ``'auto'``, the
-        function decides based on <use_negative_criteria>.
-        If ``'above'``, all values satisfying
-        :math:`z > \text{threshold}` are kept. If
-        ``'below'``, then :math:`z < \text{threshold}`
-        are retained. If ``'between'``, a range
-        (low, high) is respected.
-    use_negative_criteria : bool
-        When ``True``, automatically interprets
-        ``'auto'`` condition as filtering from below, akin
-        to negative-based risk. When ``False``, filters
-        from above.
-    percentile : int or float
-        Used only if ``threshold='auto'``. Determines which
-        percentile is used to compute the threshold. For
-        example, if <use_negative_criteria> is ``True``,
-        the <percentile>th percentile is chosen, otherwise
-        the (100 - <percentile>)th percentile is used.
-    x : array-like, Series, or string, optional
-        The x-axis data. If <x> is a string and <data> is
-        provided, the function extracts the relevant
-        column. If <x> is an array or Series, it is used
-        directly.
-    y : array-like, Series, or string, optional
-        Similar to <x>, representing the y-axis data.
-    data : pandas.DataFrame, optional
-        The DataFrame source if <x>, <y>, or <z> are
-        provided as strings referencing column names.
-    view : bool
-        If ``True``, displays a plot of the filtered data.
-    plot_type : { ``'scatter'``, ``'line'``, ``'hist'``,
-                      ... }
-        Determines how the data are visualized when <view>
-        is ``True``.
-    figsize : tuple of int
-        The size of the generated figure for plotting. E.g.
-        ``(8,6)`` is typical.
-    axis_off: bool, default=False 
-        Remove the axis if set to ``True``. 
-    show_grid: bool, default=True 
-        Display the plot grid or make it invisible if ``False``. 
-
-    Methods
-    -------
-    The function itself does not expose methods starting with
-    letters (excluding `_`), as it is a single operation. All
-    steps are executed internally with no additional public
-    methods.
-
-    Notes
-    ------
-    .. math::
-       \mathbf{z}_{\text{filtered}}
-       \;=\; \{ z_i \mid \text{condition}(z_i) \}
-
-    where :math:`\text{condition}(z_i)` is derived from
-    ``threshold`` and ``condition``. For instance, if
-    ``condition='below'`` and :math:`\tau =
-    \text{threshold}`, then
-
-    .. math::
-       \text{condition}(z_i)
-       \;=\; [\, z_i < \tau \,].
-       
-    This function relies on ``extract_array_from`` (from
-    the geoprior.core.array_manager) if <z>, <x>, or <y>
-    are passed as strings and a <data> DataFrame is
-    supplied. The user has the option to visualize the
-    retained data points by enabling <view> and
-    customizing <plot_type>.
+    z : array-like, pandas.Series, or str
+        Input data to filter. If ``z`` is a string, it is interpreted as a
+        column name in ``data``.
+    threshold : {'auto'} or float or int or tuple, optional
+        Filtering criterion. Use ``'auto'`` for percentile-based
+        thresholding, a scalar for a single cutoff, or a length-2 tuple for
+        interval filtering.
+    condition : {'auto', 'above', 'below', 'between'}, optional
+        Relation between the data and the threshold.
+    use_negative_criteria : bool, optional
+        Controls the automatic condition when ``condition='auto'``.
+    percentile : int or float, optional
+        Percentile used when ``threshold='auto'``.
+    x, y : array-like, pandas.Series, str, or None, optional
+        Optional coordinates or column names used for plotting.
+    data : pandas.DataFrame or None, optional
+        Data source used when ``x``, ``y``, or ``z`` are column names.
+    view : bool, optional
+        Whether to visualize the filtered result.
+    plot_type : str, optional
+        Plot type used when ``view=True``. Common values include
+        ``'scatter'``, ``'line'``, and ``'hist'``.
+    figsize : tuple, optional
+        Figure size for plotting.
+    savefile : str or None, optional
+        Optional path used when saving the figure.
+    axis_off : bool, optional
+        Whether to hide axes in the plot.
+    show_grid : bool, optional
+        Whether to display the plot grid.
+    **kwargs : dict
+        Additional plotting keyword arguments.
     
-    Examples
-    --------
-    >>> from geoprior.utils.spatial_utils import extract_zones_from
-    >>> import numpy as np
-    >>> z_data = np.array([0, 2, 5, 10, 15, 20])
-    >>> result = extract_zones_from(z=z_data, threshold=10,
-    ...                        condition='above')
-    >>> print(result)
-
-    See Also
-    --------
-    geoprior.core.array_manager.extract_array_from:
-        The array extraction utility used for retrieving
-        arrays from DataFrame columns.
-
+    Returns
+    -------
+    object
+        Filtered values and any optional plotting outputs defined by the
+        implementation.
+    
+    Notes
+    -----
+    When ``x``, ``y``, or ``z`` are passed as strings, the function relies on
+    ``extract_array_from`` to retrieve the corresponding arrays from
+    ``data``.
     """
 
     # 1) If z, x, y are strings, extract from DataFrame
@@ -3264,88 +3173,35 @@ def extract_coordinates(
     tuple[str, str],
 ]:
     """
-    Identifies coordinate columns (longitude/latitude or easting/northing)
-    in a DataFrame, returns the coordinates or their central values, and
-    optionally removes the coordinate columns from the DataFrame.
-
+    Extract coordinate columns or their midpoint from a DataFrame.
+    
     Parameters
     ----------
-    df : pd.DataFrame
-        The DataFrame expected to contain coordinates (`longitude` and
-        `latitude` or `easting` and `northing`). If both types are present,
-        `longitude` and `latitude` are prioritized.
-
-    as_frame : bool, default=False
-        If True, returns the coordinate columns as a DataFrame. If False,
-        computes and returns the midpoint values.
-
-    drop_xy : bool, default=False
-        If True, removes coordinate columns (`longitude`/`latitude` or
-        `easting`/`northing`) from the DataFrame after extracting them.
-
-    error : Union[bool, str], {'raise', 'warn', 'ignore'} default='raise'
-        If True, raises an error if `df` is not a DataFrame. If set to False,
-        converts errors to warnings. If set to ``"ignore"``, suppresses
-        warnings.
-
-    verbose : int, default=0
-        If greater than 0, outputs messages about coordinate detection.
-
+    df : pandas.DataFrame
+        DataFrame expected to contain longitude/latitude or easting/northing
+        columns.
+    as_frame : bool, optional
+        If ``True``, return the coordinate columns as a DataFrame. Otherwise
+        return their midpoint.
+    drop_xy : bool, optional
+        If ``True``, remove detected coordinate columns from the returned
+        DataFrame.
+    error : bool or {'raise', 'warn', 'ignore'}, optional
+        Error-handling policy for invalid inputs.
+    verbose : int, optional
+        Verbosity level for detection messages.
+    
     Returns
     -------
-    Tuple[Union[Tuple[float, float], pd.DataFrame, None], pd.DataFrame, Tuple[str, str]]
-        - A tuple containing either the midpoint (longitude, latitude) or
-          (easting, northing) if `as_frame=False` or the coordinate columns
-          as a DataFrame if `as_frame=True`.
-        - The original DataFrame, optionally with coordinates removed if
-          `drop_xy=True`.
-        - A tuple of detected coordinate column names, or an empty tuple if
-          none are detected.
-
+    tuple
+        Tuple containing the extracted coordinates or midpoint, the DataFrame
+        with optional coordinate removal, and the detected coordinate-column
+        names.
+    
     Notes
     -----
-    - This function searches for either `longitude`/`latitude` or
-      `easting`/`northing` columns and returns them as coordinates. If both
-      are found, `longitude`/`latitude` is prioritized.
-
-    - To calculate the midpoint of the coordinates, the function averages
-      the values in the columns:
-
-      .. math::
-          \text{midpoint} = \left(\frac{\text{longitude}_{min} + \text{longitude}_{max}}{2},
-          \frac{\text{latitude}_{min} + \text{latitude}_{max}}{2}\right)
-
-    Examples
-    --------
-    >>> import gofast as gf
-    >>> from geoprior.utils.spatial_utils import extract_coordinates
-    >>> testdata = gf.datasets.make_erp(samples=7, seed=42, as_frame=True)
-
-    # Extract midpoint coordinates
-    >>> xy, d, xynames = extract_coordinates(testdata)
-    >>> xy, xynames
-    ((110.48627946874444, 26.051952363176344), ('longitude', 'latitude'))
-
-    # Extract coordinates as a DataFrame without removing columns
-    >>> xy, d, xynames = extract_coordinates(testdata, as_frame=True)
-    >>> xy.head(2)
-       longitude   latitude
-    0  110.485833  26.051389
-    1  110.485982  26.051577
-
-    # Drop coordinate columns from the DataFrame
-    >>> xy, d, xynames = extract_coordinates(testdata, drop_xy=True)
-    >>> xy, xynames
-    ((110.48627946874444, 26.051952363176344), ('longitude', 'latitude'))
-    >>> d.head(2)
-       station  resistivity
-    0      0.0          1.0
-    1     20.0        167.5
-
-    See Also
-    --------
-    pd.DataFrame : Main pandas data structure for handling tabular data.
-    np.nanmean : Computes the mean along specified axis, ignoring NaNs.
+    Longitude/latitude are preferred over easting/northing when both are
+    present.
     """
 
     def rename_if_exists(
@@ -3606,226 +3462,42 @@ def batch_spatial_sampling(
     verbose=1,
 ):
     """
-    Batch resample spatial data with stratification over spatial and
-    specified columns.
-
-    This function divides the dataset into `n_batches` batches, each
-    being a stratified sample of the data. It ensures that samples in
-    the first batch are not present in subsequent batches, and so on.
-    This is particularly useful when dealing with very large datasets
-    that cannot be processed at once, allowing for batch processing in
-    machine learning algorithms.
-
+    Create stratified spatial sample batches from a DataFrame.
+    
     Parameters
     ----------
     data : pandas.DataFrame
-        The input DataFrame from which samples are to be drawn. It must
-        contain the spatial coordinate columns specified in
-        `spatial_cols`, and any additional columns specified in
-        `stratify_by`.
-
+        Input DataFrame used for sampling.
     sample_size : float or int, optional
-        The total number of samples to draw from `data`. If `sample_size`
-        is a float between 0.0 and 1.0, it represents the fraction of the
-        dataset to include in the sample (e.g., `sample_size=0.1` selects
-        10% of the data). If `sample_size` is an integer, it represents
-        the absolute number of samples to select. The default is ``0.1``.
-
+        Total sample size as a fraction or absolute count.
     n_batches : int, optional
-        The number of batches to divide the total samples into. The
-        samples are divided as evenly as possible among the batches. The
-        default is ``10``.
-
-    stratify_by : str, list of str, optional
-        A list of column names in `data` to use for stratification. The
-        sampling will ensure that the distribution of these columns in
-        each batch matches the distribution in the original dataset.
-
-    spatial_bins : int or tuple/list of int, optional
-        The number of bins to divide the spatial coordinates into for
-        stratification. If an integer, the same number of bins is used
-        for all spatial dimensions. If a tuple or list, its length must
-        match the number of spatial columns specified in `spatial_cols`,
-        and each element specifies the number of bins for that spatial
-        dimension. The default is ``10``.
-
-    spatial_cols : list or tuple of str, optional
-        A list of column names in `data` representing spatial coordinates.
-        The function can accept one or two columns (e.g., longitude and
-        latitude). If ``None``, the function will look for columns named
-        `'longitude'` and/or `'latitude'` in `data`. If only one spatial
-        column is provided or found, a warning is issued, suggesting that
-        providing both spatial columns is recommended for more accurate
-        sampling. If more than two columns are provided, an error is
-        raised.
-    
-    method : str, {'abs', 'relative'}, default='abs'
-        Defines how the sample size is determined:
-        - ``'abs'`` or ``'absolute'``: Uses a **fixed** sampling proportion
-          based on `sample_size`.
-        - ``'relative'``: Dynamically **scales** sampling based on dataset
-          stratification, ensuring that all stratification groups receive
-          a proportional sample while maintaining a minimum sampling ratio
-          (controlled by `min_relative_ratio`).
-        
-        When ``method='relative'``, the function ensures that even small
-        stratification groups receive a sufficient sample by applying
-        `min_relative_ratio`.
-
-    min_relative_ratio : float, default=0.01
-        Controls the **minimum allowable fraction** of records that 
-        must be sampled when ``method='relative'``.
-
-        - Ensures that no group is **undersampled** to zero, even if
-          its natural proportion in the dataset is very small.
-        - Must be a value between ``0`` and ``1``.
-        - The default value (``0.01``) means that at **least 1% of the
-          total dataset** will be sampled from each stratification group,
-          regardless of its relative size.
-        
-        **Example Scenarios:**
-        
-        - If `min_relative_ratio=0.05`, then each group **must** 
-          contribute **at least 5%** of the total dataset size (if possible).
-        - If a group is too small to reach this minimum, its entire
-          subset is sampled instead.
-        - This ensures that no group receives **less than
-        ``min_relative_ratio × total samples**``.
-        
+        Number of batches to generate.
+    stratify_by : str or list of str or None, optional
+        Additional columns used for stratification.
+    spatial_bins : int or sequence of int, optional
+        Number of spatial bins used when discretizing coordinates.
+    spatial_cols : list or tuple of str or None, optional
+        Spatial coordinate columns.
+    method : {'abs', 'absolute', 'relative'}, optional
+        Strategy used to translate ``sample_size`` into per-batch sample
+        counts.
+    min_relative_ratio : float, optional
+        Minimum relative group size used by ``method='relative'``.
     random_state : int, optional
-        Controls the randomness of the sampling for reproducibility. This
-        integer seed is used to initialize the random number generator.
-        The default is ``42``.
+        Random seed for reproducibility.
+    verbose : int, optional
+        Verbosity level.
     
-    verbose: bool, default=False, 
-       If `True`, displays a progress bar and detailed status messages
-       during execution. Useful for monitoring the process, especially
-       when working with large datasets.
-
     Returns
     -------
-    batches : list of pandas.DataFrame
-        A list of DataFrames, each representing a batch of the stratified
-        sampled data.
-
+    list of pandas.DataFrame
+        Stratified batches sampled without overlap.
+    
     Notes
     -----
-    The function performs stratified sampling based on spatial bins and
-    other specified stratification columns. Spatial coordinates are
-    binned using quantile-based discretization (:func:`pandas.qcut`),
-    ensuring each bin has approximately the same number of observations.
-
-    The total number of samples, :math:`n`, is divided among the batches,
-    and within each batch, samples are drawn in a stratified manner. The
-    sample size for each batch is calculated as:
-
-    .. math::
-
-        n_{\text{batch}} = \left\lfloor \frac{n}{n_{\text{batches}}} \right\rfloor
-
-    The remaining samples are distributed among the first few batches:
-
-    .. math::
-
-        n_{\text{leftover}} = n \mod n_{\text{batches}}
-
-    For each batch, the number of samples per stratification group is
-    calculated based on the proportion of the group size to the remaining
-    data size:
-
-    .. math::
-
-        n_{i} = \left\lceil \frac{N_{i}}{N_{\text{remaining}}}\\
-            \times n_{\text{batch}} \right\rceil
-
-    where:
-
-    - :math:`N_{i}` is the size of group :math:`i`.
-    - :math:`N_{\text{remaining}}` is the total number of samples
-      remaining in the data.
-    - :math:`n_{i}` is the number of samples to draw from group
-      :math:`i`.
-
-    After sampling, the selected samples are removed from the remaining
-    data to ensure that they are not selected again in subsequent batches.
-
-    Examples
-    --------
-    **Case 1: Stratified Sampling (Using 'year' and 'geological_category')**
-    
-    >>> from geoprior.utils.spatial_utils import batch_spatial_sampling
-    >>> import pandas as pd
-    >>> import numpy as np
-    
-    >>> # Create a sample dataset
-    >>> np.random.seed(42)
-    >>> df = pd.DataFrame({
-    ...     "id": np.arange(10_000),
-    ...     "longitude": np.random.uniform(-180, 180, 10_000),  # Geographic range
-    ...     "latitude": np.random.uniform(-90, 90, 10_000),     # Geographic range
-    ...     "year": np.random.randint(1990, 2025, 10_000),  # Temporal feature
-    ...     "geological_category": np.random.choice(
-    ...         ["Sedimentary", "Metamorphic", "Igneous"], 10_000
-    ...     ),
-    ...     "value": np.random.randn(10_000)  # Random numerical data
-    ... })
-    
-    >>> # Perform stratified batch sampling
-    >>> sampled_batches = batch_spatial_sampling(
-    ...     data=df,
-    ...     sample_size=0.05,  # 5% of total data
-    ...     n_batches=5,
-    ...     stratify_by=['year', 'geological_category'],  # Stratify by year & geology type
-    ...     spatial_bins=(10, 15),
-    ...     spatial_cols=['longitude', 'latitude'],
-    ...     random_state=42
-    ... )
-    
-    >>> for i, batch in enumerate(sampled_batches):
-    ...     print(f"Batch {i+1}: {batch.shape}")
-    
-    Creating 5 stratified batches with a total of 500 samples...
-    Batch Sampling Progress: 100%|██████████| 5/5 [00:01<00:00,  4.43it/s]
-    Batch sampling completed. 5 batches created.
-    
-    **Stratified Sampling Results:**
-    Batch 1: (100, 6)
-    Batch 2: (100, 6)
-    Batch 3: (100, 6)
-    Batch 4: (100, 6)
-    Batch 5: (100, 6)
-    
-    **Case 2: Random Sampling (Without Stratification)**
-    
-    >>> sampled_batches = batch_spatial_sampling(
-    ...     data=df,
-    ...     sample_size=0.05,
-    ...     n_batches=5,
-    ...     stratify_by=None,  # No stratification
-    ...     spatial_bins=(10, 15),
-    ...     spatial_cols=['longitude', 'latitude'],
-    ...     random_state=42
-    ... )
-    
-    >>> for i, batch in enumerate(sampled_batches):
-    ...     print(f"Batch {i+1}: {batch.shape}")
-    
-    Creating 5 random batches with a total of 500 samples...
-    Batch Sampling Progress: 100%|██████████| 5/5 [00:00<00:00, 247.27it/s]
-    Batch sampling completed. 5 batches created.
-    
-    **Random Sampling Results:**
-    Batch 1: (100, 6)
-    Batch 2: (100, 6)
-    Batch 3: (100, 6)
-    Batch 4: (100, 6)
-    Batch 5: (100, 6)
-
-
-    See Also
-    --------
-    spatial_sampling : Perform stratified sampling without batching.
-
+    Spatial coordinates are discretized with ``pandas.qcut`` and combined
+    with ``stratify_by`` columns so batches preserve the overall data
+    distribution as closely as possible.
     """
     data = data.copy()
     total_samples = sample_size
@@ -4157,45 +3829,26 @@ def spatial_sampling(
         sampling. If more than two columns are provided, an error is raised.
 
     method : str, {'abs', 'relative'}, default='abs'
-        Defines how the sample size is determined:
-        - ``'abs'`` or ``'absolute'``: Uses a **fixed** sampling proportion
-          based on `sample_size`.
-        - ``'relative'``: Dynamically **scales** sampling based on dataset
-          stratification, ensuring that all stratification groups receive
-          a proportional sample while maintaining a minimum sampling ratio
-          (controlled by `min_relative_ratio`).
-
-        When ``method='relative'``, the function ensures that even small
-        stratification groups receive a sufficient sample by applying
-        `min_relative_ratio`.
+        Defines how the sample size is determined. ``'abs'`` or
+        ``'absolute'`` uses a fixed sampling proportion based on
+        ``sample_size``. ``'relative'`` scales sampling by dataset
+        stratification so small groups still receive a proportional
+        sample controlled by ``min_relative_ratio``.
 
     min_relative_ratio : float, default=0.01
-        Controls the **minimum allowable fraction** of records that
-        must be sampled when ``method='relative'``.
-
-        - Ensures that no group is **undersampled** to zero, even if
-          its natural proportion in the dataset is very small.
-        - Must be a value between ``0`` and ``1``.
-        - The default value (``0.01``) means that at **least 1% of the
-          total dataset** will be sampled from each stratification group,
-          regardless of its relative size.
-
-        **Example Scenarios:**
-
-        - If `min_relative_ratio=0.05`, then each group **must**
-          contribute **at least 5%** of the total dataset size (if possible).
-        - If a group is too small to reach this minimum, its entire
-          subset is sampled instead.
-        - This ensures that no group receives **less than
-        ``min_relative_ratio × total samples**``.
+        Controls the minimum allowable fraction of records that must
+        be sampled when ``method='relative'``. It must be between
+        ``0`` and ``1``. For example, ``min_relative_ratio=0.05``
+        requests at least 5 percent of the total dataset size from
+        each stratification group when possible; if a group is smaller
+        than that minimum, the entire subset is sampled instead.
 
     random_state : int, optional
         Random seed for reproducibility. Default is ``42``.
 
-    verbose: bool, default=False,
-       If `True`, displays a progress bar and detailed status messages
-       during execution. Useful for monitoring the process, especially
-       when working with large datasets.
+    verbose : int, default=1
+        Controls progress-bar and status output during execution.
+        Larger values produce more detailed messages.
 
     Returns
     -------
@@ -4217,22 +3870,16 @@ def spatial_sampling(
 
     .. math::
 
-        n_i = \left\lceil \frac{N_i}{N} \times n \right\rceil
+        n_i = \\left\\lceil \\frac{N_i}{N} \\times n \\right\\rceil
 
     where :math:`N_i` is the size of group :math:`i`, and :math:`n_i`
     is the number of samples to draw from group :math:`i`.
 
-    The function ensures that:
-
-    - All specified spatial and stratification columns exist in ``data``.
-    - The number of spatial bins matches the number of spatial columns.
-    - The sample size is valid (positive float between 0 and 1, or
-      positive integer).
-
-    Warnings are issued if:
-
-    - Only one spatial column is used, suggesting that using two spatial
-      columns is recommended for more accurate sampling.
+    The function ensures that all specified spatial and stratification
+    columns exist in ``data``, that the number of spatial bins matches
+    the number of spatial columns, and that the sample size is valid.
+    A warning is issued when only one spatial column is used because
+    two spatial columns usually give more reliable spatial sampling.
 
     Examples
     --------

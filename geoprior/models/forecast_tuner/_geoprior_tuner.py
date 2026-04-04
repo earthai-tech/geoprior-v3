@@ -143,31 +143,20 @@ class SubsNetTuner(PINNTunerBase):
     Parameters
     ----------
     fixed_params : dict
-        Non-tunable configuration passed to the model
-        ``__init__``. Include data-shape keys and stable
-        flags, for example:
-
-            - ``static_input_dim`` : int
-            - ``dynamic_input_dim`` : int
-            - ``future_input_dim`` : int
-            - ``output_subsidence_dim`` : int
-            - ``output_gwl_dim`` : int
-            - ``forecast_horizon`` : int
-            - optional flags (e.g., ``use_batch_norm``)
-            - physics toggles (e.g., ``pde_mode``)
+        Non-tunable configuration passed to the model ``__init__``.
+        Typical keys include ``static_input_dim``,
+        ``dynamic_input_dim``, ``future_input_dim``,
+        ``output_subsidence_dim``, ``output_gwl_dim``,
+        ``forecast_horizon``, and stable flags such as
+        ``use_batch_norm`` or ``pde_mode``.
 
     search_space : dict, optional
-        Hyperparameter definitions. Each entry is either a
-        list of discrete choices or a dict with a typed
-        range, e.g.:
-
-            - list: ``{"embed_dim": [32, 64, 96]}``
-            - dict: ``{"dropout_rate": {"type": "float",
-              "min_value": 0.1, "max_value": 0.4}}``
-
-        Supported types are ``int``, ``float``, ``choice``,
-        and ``bool``. Items are routed to model ``__init__``
-        or to ``compile`` (see Notes).
+        Hyperparameter definitions. Each entry is either a list of
+        discrete choices or a typed range dictionary such as
+        ``{"dropout_rate": {"type": "float", "min_value": 0.1,
+        "max_value": 0.4}}``. Supported types are ``int``,
+        ``float``, ``choice``, and ``bool``. Items are routed to
+        model ``__init__`` or to ``compile`` as noted below.
 
     objective : str or keras_tuner.Objective, default "val_loss"
         Metric to optimize. If the string contains "loss",
@@ -180,8 +169,7 @@ class SubsNetTuner(PINNTunerBase):
         Root directory where tuner artifacts are saved.
     executions_per_trial : int, default 1
         Number of repeated trainings per hyperparameter set.
-    tuner_type : {"randomsearch", "bayesianoptimization",
-                  "hyperband"}, default "randomsearch"
+    tuner_type : {'randomsearch', 'bayesianoptimization', 'hyperband'}, default 'randomsearch'
         Search algorithm used by keras-tuner.
     seed : int, optional
         Random seed for reproducibility.
@@ -189,7 +177,7 @@ class SubsNetTuner(PINNTunerBase):
         If True, existing project results are overwritten.
     _logger : logging.Logger or callable, optional
         Logger or print-like callable for progress lines.
-    **kwargs
+    kwargs : dict
         Forwarded to ``PINNTunerBase`` for advanced control.
 
     Attributes
@@ -211,55 +199,56 @@ class SubsNetTuner(PINNTunerBase):
 
     Notes
     -----
-    Required inputs. ``GeoPriorSubsNet`` expects the keys in
-    ``inputs``:
-        - ``coords`` : spatiotemporal coordinates
-        - ``dynamic_features`` : time-varying covariates
-        - ``H_field`` : soil thickness field
+    **Required inputs.** ``GeoPriorSubsNet`` expects ``coords`` for
+    spatiotemporal coordinates, ``dynamic_features`` for time-varying
+    covariates, and ``H_field`` for the soil-thickness field.
+
     The helper canonicalizes ``H_field`` from common aliases,
     e.g., ``soil_thickness``, ``soil thickness``, ``h_field``.
 
+    **Target canonicalization.**
     Targets are canonicalized to ``subs_pred`` and
     ``gwl_pred`` from ``subsidence`` and ``gwl``. This is
     handled internally before data pipelines are built.
 
-    Compile-only hyperparameters. These search keys are not
+    **Compile-only hyperparameters.** These search keys are not
     passed to ``__init__`` and are routed to ``compile``:
 
-        - ``learning_rate``
-        - ``lambda_gw``, ``lambda_cons``, ``lambda_prior``,
-          ``lambda_smooth``, ``lambda_mv``
-        - ``mv_lr_mult``, ``kappa_lr_mult``
+    - ``learning_rate``
+    - ``lambda_gw``, ``lambda_cons``, ``lambda_prior``,
+      ``lambda_smooth``, ``lambda_mv``
+    - ``mv_lr_mult``, ``kappa_lr_mult``
 
-    Losses and metrics. By default the supervised heads use
+    **Losses and metrics.** By default the supervised heads use
     mean squared error with mean absolute error metrics. If
     ``fixed_params["quantiles"]`` is set, a pinball loss can
     be injected via a user loss factory at compile time.
 
-    Physics objectives. GeoPrior adds residuals consistent
+    **Physics objectives.** GeoPrior adds residuals consistent
     with consolidation and groundwater flow:
 
-        - :math:`R_gw = Ss * d(h)/dt - div(K * grad(h)) - Q`
-        - :math:`R_cons = d(s)/dt - (s_eq - s) / tau`
-      with :math:`s_eq = m_v * gamma_w * (h_ref - h) * H`.
-      Weights are controlled by the compile-time lambdas.
+    - :math:`R_gw = Ss * d(h)/dt - div(K * grad(h)) - Q`
+    - :math:`R_cons = d(s)/dt - (s_eq - s) / tau`
 
-    Typical search groups:
-        - Architecture: ``embed_dim``, ``hidden_units``,
-          ``lstm_units``, ``attention_units``, ``num_heads``,
-          ``dropout_rate``, ``vsn_units``, ``use_vsn``,
-          ``use_batch_norm``.
-        - Physics: ``pde_mode``, ``mv``, ``kappa``,
-          ``use_effective_h``, ``hd_factor``, ``kappa_mode``,
-          ``scale_pde_residuals``.
-        - Optimization: ``learning_rate`` and lambda weights.
+    with :math:`s_eq = m_v * gamma_w * (h_ref - h) * H`.
+    Weights are controlled by the compile-time lambdas.
 
-    Workflow. ``run`` builds ``tf.data`` pipelines from NumPy
-    inputs, applies key canonicalization, validates GeoPrior
-    requirements, and delegates to ``search``. The best HPs
-    and a built model are returned and stored on the class. The tuning
-    workflow combines Keras Tuner search patterns with the poromechanics
-    background from
+    **Typical search groups.**
+
+    - Architecture: ``embed_dim``, ``hidden_units``,
+      ``lstm_units``, ``attention_units``, ``num_heads``,
+      ``dropout_rate``, ``vsn_units``, ``use_vsn``,
+      ``use_batch_norm``
+    - Physics: ``pde_mode``, ``mv``, ``kappa``,
+      ``use_effective_h``, ``hd_factor``, ``kappa_mode``,
+      ``scale_pde_residuals``
+    - Optimization: ``learning_rate`` and lambda weights
+
+    Workflow. ``run`` builds ``tf.data`` pipelines from NumPy inputs,
+    applies key canonicalization, validates GeoPrior requirements, and
+    delegates to ``search``. The best HPs and a built model are returned
+    and stored on the class. The tuning workflow combines Keras Tuner
+    search patterns with the poromechanics background from
     :cite:p:`KerasTunerDocs,Terzaghi1943TheoreticalSoilMechanics,Bear1972DynamicsFluidsPorousMedia`.
 
     Examples

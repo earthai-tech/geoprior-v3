@@ -5,11 +5,11 @@ This section collects the **example-driven lessons** of
 GeoPrior-v3.
 
 Unlike the API reference, these pages are organized around
-practical workflows, interpretation tasks, and decision-making
-questions. Each subsection shows executable examples,
-generated outputs, and guided explanations that help users
-understand not only **how to run** a helper, but also **how to
-read what it produced**.
+practical workflows, interpretation tasks, decision support,
+and deployment questions. Each subsection shows executable
+examples, generated outputs, and guided explanations that help
+users understand not only **how to run** a helper, but also
+**how to read what it produced**.
 
 Use this gallery to move from **running GeoPrior** to
 **interpreting GeoPrior with confidence**.
@@ -21,6 +21,14 @@ Start here
 
    .. grid:: 1 1 2 3
       :gutter: 3
+
+      .. grid-item-card:: Applications
+         :link: ../auto_examples/applications/index
+         :link-type: doc
+
+         Follow scientific case studies that show how
+         GeoPrior supports validation, identifiability audits,
+         action prioritization, and transfer-aware deployment.
 
       .. grid-item-card:: Forecasting
          :link: ../auto_examples/forecasting/index
@@ -97,6 +105,12 @@ How this gallery is organized
 The gallery is split by purpose so you can navigate the
 documentation according to the kind of task you want to do.
 
+**Applications** focuses on scientific and operational
+stories. These pages connect multiple GeoPrior outputs into one
+case study so you can see how the framework supports validation,
+interpretation guardrails, intervention prioritization, and
+cross-city deployment.
+
 **Forecasting** focuses on what was predicted and how forecast
 outputs are structured.
 
@@ -140,6 +154,9 @@ A practical reading rule
 
 If you are not sure where to begin, use this guide:
 
+- Go to **Applications** when your main question is *why this
+  result matters scientifically or operationally, and how several
+  GeoPrior outputs combine into one decision story.*
 - Go to **Forecasting** when your main question is *what was
   predicted?*
 - Go to **Uncertainty** when your main question is *how reliable
@@ -195,6 +212,7 @@ See also
 .. toctree::
    :hidden:
 
+   ../auto_examples/applications/index
    ../auto_examples/forecasting/index
    ../auto_examples/uncertainty/index
    ../auto_examples/evaluation/index

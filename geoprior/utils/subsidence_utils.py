@@ -1,6 +1,7 @@
 # License: Apache-2.0
 # Copyright (c) 2026-present
 # Author: LKouadio <etanoyau@gmail.com>
+r"""Utility helpers for subsidence data, units, and coordinates."""
 
 from __future__ import annotations
 
@@ -1281,21 +1282,19 @@ def convert_eval_payload_units(
         ``interval_calibration`` and ``censor_stratified``.
     cfg : mapping or module, optional
         The experiment config (e.g. ``config`` module or ``globals()``).
-        We use:
-        - ``SUBS_UNIT_TO_SI`` (or stage-1 provenance)
-        - ``TIME_UNITS`` (e.g. "year")
+        The helper reads ``SUBS_UNIT_TO_SI`` (or stage-1 provenance) and
+        ``TIME_UNITS`` from this object when available.
     mode : {"si", "interpretable"}, default="si"
-        - "si": leave values untouched (current behaviour).
-        - "interpretable": convert selected subsidence/physics metrics
-          from SI into native units implied by ``SUBS_UNIT_TO_SI``.
+        ``"si"`` leaves values untouched. ``"interpretable"`` converts
+        selected subsidence and physics metrics from SI into the native
+        units implied by ``SUBS_UNIT_TO_SI``.
     scope : {"all", "subsidence", "physics"}, default="all"
         Which parts to convert when ``mode="interpretable"``.
-        - "subsidence": convert only subsidence metrics (MAE/MSE/
-          sharpness) to the native unit (e.g. mm).
-        - "physics": convert only physics residual rates where units are
-          unambiguous (currently ``epsilon_cons_raw`` and
-          ``epsilon_gw_raw``).
-        - "all": do both.
+        ``"subsidence"`` converts only subsidence metrics such as
+        MAE, MSE, and sharpness to the native unit. ``"physics"``
+        converts only unambiguous physics residual rates, currently
+        ``epsilon_cons_raw`` and ``epsilon_gw_raw``. ``"all"``
+        applies both conversions.
     savefile : str, optional
         If provided, write the converted payload to this path.
     fmt : {"json"}, default="json"
@@ -1313,15 +1312,15 @@ def convert_eval_payload_units(
 
     Notes
     -----
-    Subsidence conversions:
-    - linear metrics (MAE, sharpness) scale by ``1/SUBS_UNIT_TO_SI``.
-    - squared metrics (MSE) scale by ``(1/SUBS_UNIT_TO_SI)^2``.
+    For subsidence metrics, linear quantities such as MAE and sharpness
+    scale by ``1 / SUBS_UNIT_TO_SI``, while squared quantities such as
+    MSE scale by ``(1 / SUBS_UNIT_TO_SI) ** 2``.
 
-    Physics conversions (when enabled):
-    - ``epsilon_cons_raw`` is treated as a **rate** in [m/s] and is
-      converted to ``<subs_native_unit>/<TIME_UNITS>`` (e.g. mm/yr).
-    - ``epsilon_gw_raw`` is treated as a **rate** in [1/s] and is
-      converted to ``1/<TIME_UNITS>`` (e.g. 1/yr).
+    When physics conversion is enabled, ``epsilon_cons_raw`` is treated
+    as a rate in ``m/s`` and converted to
+    ``<subs_native_unit>/<TIME_UNITS>`` (for example ``mm/yr``), while
+    ``epsilon_gw_raw`` is treated as a rate in ``1/s`` and converted to
+    ``1/<TIME_UNITS>``.
 
     The helper records unit provenance under ``payload["units"]``.
     """

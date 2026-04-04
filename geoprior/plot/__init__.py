@@ -1,3 +1,5 @@
+r"""Public plotting exports for GeoPrior."""
+
 from .evaluation import (
     plot_coverage,
     plot_crps,

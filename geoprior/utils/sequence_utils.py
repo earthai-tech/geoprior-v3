@@ -3,7 +3,7 @@
 # https://lkouadio.com
 # Copyright (c) 2026-present
 # Author: LKouadio <etanoyau@gmail.com>
-
+r"""Sequence-building helpers for temporal model inputs."""
 
 from __future__ import annotations
 
@@ -92,23 +92,14 @@ def build_future_sequences_npz(
     * ``forecast_horizon``: by default one time step ahead, clipped to
       the number of available future points.
 
-    For each valid group, the function builds:
-
-    * **History dynamic features**: shape
-      ``(time_steps, n_dynamic)``.
-    * **Future features**:
-      - If ``mode`` starts with ``"tft"`` (e.g. ``"tft_like"``),
-        history and future rows are concatenated, giving shape
-        ``(time_steps + H, n_future)``.
-      - Otherwise, only the forecast horizon is used, giving shape
-        ``(H, n_future)``.
-    * **Static features**: one vector per group,
-      shape ``(n_static,)``.
-    * **Coordinates** over the horizon: shape ``(H, 3)`` where the
-      three columns are ``[time_num, lon, lat]``.
-    * **H_field** over the horizon: shape ``(H, 1)``.
-    * **Targets** (if present) over the horizon for subsidence and
-      groundwater level: shapes ``(H, 1)`` each.
+    For each valid group, the function builds history dynamic features of
+    shape ``(time_steps, n_dynamic)``, future features of shape
+    ``(time_steps + H, n_future)`` when ``mode`` starts with ``"tft"``
+    or ``(H, n_future)`` otherwise, one static feature vector of shape
+    ``(n_static,)``, coordinates over the horizon of shape ``(H, 3)``
+    with columns ``[time_num, lon, lat]``, an ``H_field`` array of shape
+    ``(H, 1)``, and optional subsidence and groundwater targets of shape
+    ``(H, 1)`` each.
 
     All per-group arrays are stacked along a new batch dimension and
     written as two NPZ files:
@@ -982,7 +973,7 @@ def check_sequence_feasibility(
     Checks whether the input table is *long enough*—per group—to yield at
     least one `(look-back + horizon)` sliding window, **without** allocating
     large NumPy tensors.  It is typically called immediately before
-    :pyfunc:`prepare_pinn_data_sequences` or similar generators to “fail
+    :func:`prepare_pinn_data_sequences` or similar generators to “fail
     fast’’ on data shortages.
 
     Parameters
@@ -1003,7 +994,7 @@ def check_sequence_feasibility(
     forecast_horizon : int, default 3
         Prediction horizon :math:`H` produced by the decoder.
     engine : {'vectorized', 'loop', 'pyarrow'}, default 'vectorized'
-        * **'vectorized'** – fastest; single :pymeth:`DataFrame.groupby.size`
+        * **'vectorized'** – fastest; single :meth:`DataFrame.groupby.size`
           call (C-level) plus NumPy math.
         * **'native'** – reproduces the original Python loop for
           debuggability.
@@ -1013,7 +1004,7 @@ def check_sequence_feasibility(
     mode : {'pihal_like', 'tft_like'} or None, optional
         Present only for API symmetry.  **Ignored** – feasibility depends
         *solely* on ``time_steps + forecast_horizon``.
-    logger : callable, default :pyfunc:`print`
+    logger : callable, default :func:`print`
         Sink for human-readable log messages.  Must accept a single `str`.
     verbose : int, default 0
         Verbosity level:
@@ -1220,7 +1211,7 @@ def get_sequence_counts(
     engine : {'vectorized', 'native', 'pyarrow'}, default 'vectorized'
         Execution backend.
 
-        * **'vectorized'** – fast C-level :pymeth:`DataFrame.groupby.size`
+        * **'vectorized'** – fast C-level :meth:`DataFrame.groupby.size`
           (recommended).
         * **'native'** – original Python loop (easier to debug, slower).
         * **'pyarrow'** – forces pandas’ Arrow backend *if available*,

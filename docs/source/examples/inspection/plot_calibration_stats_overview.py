@@ -5,7 +5,7 @@
 
 """
 Inspect calibration statistics before trusting interval forecasts
-===============================================================
+=================================================================
 
 This lesson explains how to inspect the compact
 ``calibration_stats.json`` artifact produced by the forecast

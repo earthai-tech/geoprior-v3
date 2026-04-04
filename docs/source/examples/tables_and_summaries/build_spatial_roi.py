@@ -1,6 +1,6 @@
 """
 Extract a rectangular region of interest with ``spatial-roi``
-===========================================================
+=============================================================
 
 This lesson teaches how to use GeoPrior's
 ``spatial-roi`` build utility.

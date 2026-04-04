@@ -3,6 +3,7 @@
 # https://lkouadio.com
 # Copyright (c) 2026-present Laurent Kouadio
 # Author: LKouadio <etanoyau@gmail.com>
+r"""Sequence caching helpers for registry workflows."""
 
 from __future__ import annotations
 

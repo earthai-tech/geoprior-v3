@@ -117,7 +117,7 @@ class BatchDataFrameBuilder:
     Manages incremental construction of a large DataFrame in
     controlled-size chunks. This can reduce peak memory usage
     and allow GPU-accelerated libraries (e.g., ``cudf``) if
-    they are available and desired [1]_.
+    they are available and desired.
 
     The approach can be expressed mathematically as a chunking
     process that partitions an incoming stream of :math:`N`
@@ -194,11 +194,6 @@ class BatchDataFrameBuilder:
     cudf.DataFrame : GPU DataFrame object from RAPIDS.
     check_processor : Utility for detecting GPU availability.
 
-    References
-    ----------
-    .. [1] Perrone, L. & Bader, D. (2021).
-           *Understanding High-Performance DataFrame Systems*.
-           HPC Journal, 15(3): 101-125.
     """
 
     def __init__(
@@ -441,11 +436,10 @@ class WorkflowOptimizer:
         T_{\text{total}} = T_{\text{start}} + T_{\text{execution}} +
         T_{\text{cleanup}}
 
-    Where:
-    - :math:`T_{\text{total}}` is the total time taken by the workflow.
-    - :math:`T_{\text{start}}` is the time taken to initialize optimizations.
-    - :math:`T_{\text{execution}}` is the time taken to execute the main workflow.
-    - :math:`T_{\text{cleanup}}` is the time taken to perform cleanup operations.
+    Here, :math:`T_{\text{total}}` is the total workflow time,
+    :math:`T_{\text{start}}` is the initialization time,
+    :math:`T_{\text{execution}}` is the main execution time, and
+    :math:`T_{\text{cleanup}}` is the cleanup time.
 
     Parameters
     ----------
@@ -510,15 +504,13 @@ class WorkflowOptimizer:
 
     Notes
     -----
-    - The decorator checks for the presence of a ``data`` keyword argument to
-      determine whether to apply parallelization.
-    - When ``parallelize`` is enabled, ensure that the decorated function is
-      compatible with multiprocessing (i.e., it should be picklable).
-    - Memory cleanup is particularly useful in long-running workflows to prevent
-      memory leaks and manage resource usage efficiently.
-    - CPU affinity optimization can lead to performance improvements by limiting
-      the process to specific cores, reducing context switching and cache misses
-       (see `Python Logging <https://docs.python.org/3/library/logging.html>`_)
+    The decorator checks for the presence of a ``data`` keyword argument to
+    decide whether parallelization should be applied. When
+    ``parallelize=True``, the decorated function should be compatible with
+    multiprocessing, meaning it should be picklable. Memory cleanup can be
+    useful in long-running workflows, and CPU affinity may improve
+    performance by reducing context switching and cache misses. Logging
+    behavior follows the standard Python logging model.
 
     See Also
     --------
@@ -708,29 +700,28 @@ def build_large_df(
         ``2023``) or datetime strings. Automatic type detection
         with fallback to :class:`numpy.int32` for years >200000.
     tname : str
-        Target variable prefix for prediction columns. Formats:
-        - Quantile: ``f"{tname}_q{quantile}"`` (e.g., 'subs_q10')
-        - Point: ``f"{tname}_pred"``
+        Target variable prefix for prediction columns. Quantile columns are
+        expected in the form ``f"{tname}_q{quantile}"`` such as
+        ``"subs_q10"``, while point predictions use
+        ``f"{tname}_pred"``.
     spatial_cols : List[str], optional
         Geographic columns (e.g., ``['longitude', 'latitude']``).
         Auto-detects categorical ( <10% unique values) vs continuous
         spatial data, using :class:`pandas.Category` or
         :class:`numpy.float32` dtypes respectively.
     chunk_size : int, optional
-        Maximum rows per chunk. Auto-calculated using:
+        Maximum rows per chunk. Auto-calculated using
 
         .. math::
             C_{optimal} = \\min\\left(10^5, \\frac{0.8M_{free}}{S_{row}}\\right)
 
-        Where:
-        - :math:`M_{free}` = Available memory in bytes
-        - :math:`S_{row}` = Estimated row size (1KB default)
+        where :math:`M_{free}` is available memory in bytes and
+        :math:`S_{row}` is the estimated row size, assumed to be about
+        1 KB by default.
     verbose : int, default=0
-        Logging verbosity:
-        - 0: Silent
-        - 1: Memory reports
-        - 2: Chunk diagnostics
-        - 3: Per-chunk metrics
+        Logging verbosity. Use ``0`` for silent mode, ``1`` for memory
+        reports, ``2`` for chunk diagnostics, and ``3`` for per-chunk
+        metrics.
 
     Returns
     -------
@@ -759,17 +750,11 @@ def build_large_df(
 
     Notes
     -----
-    Key implementation features:
-    1. **Dynamic Chunk Adjustment**: Monitors :func:`psutil.virtual_memory`
-       during processing, reducing chunk size if memory pressure >90%
-    2. **Parallel I/O**: Uses :class:`ThreadPoolExecutor` for concurrent
-       chunk reading when >5 chunks detected
-    3. **Type Inference**:
-       - Datetime conversion attempts via :func:`pd.to_datetime`
-       - Spatial columns classified using uniqueness ratio:
-         :math:`r_{unique} = \\frac{N_{unique}}{N_{total}}`
-    4. **Memory Safety**: Guaranteed tempfile cleanup via ``try...finally``
-       blocks
+    Key implementation features include dynamic chunk adjustment using
+    :func:`psutil.virtual_memory`, concurrent chunk reading with
+    :class:`ThreadPoolExecutor` when many chunks are present, dtype
+    inference for temporal and spatial columns, and guaranteed tempfile
+    cleanup via ``try...finally`` blocks.
 
     See Also
     --------
@@ -1928,19 +1913,15 @@ def run_command(
     Notes
     -----
     This function uses `subprocess.run` to execute shell commands, which
-    allows for error handling and logging.
+    allows for error handling and logging. For example,
+    ``run_command("echo Hello World")`` returns ``"Hello World\\n"``
+    when ``capture_output=True``.
 
     Raises
     ------
     subprocess.CalledProcessError
         If the command exits with a non-zero status and `capture_output` is
         True.
-
-    Examples
-    --------
-    >>> from geoprior.utils.sys_utils import run_command
-    >>> run_command("echo Hello World")
-    'Hello World\n'
 
     """
     try:

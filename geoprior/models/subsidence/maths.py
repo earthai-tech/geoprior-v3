@@ -5,7 +5,6 @@
 
 """
 GeoPrior maths helpers (physics terms + scaling).
-Short docs only; full docs later.
 """
 
 from __future__ import annotations

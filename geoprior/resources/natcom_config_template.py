@@ -12,6 +12,7 @@
 # - Keep placeholders only for values the bootstrap script supplies.
 # - Keep the file limited to assignments and comments.
 # - Avoid imports or helper code.
+r"""Template configuration for NATCOM-based workflows."""
 
 # ================================================================
 # 1) CORE EXPERIMENT SETUP

@@ -1,3 +1,5 @@
+r"""Script helpers for building study-area boundary artifacts."""
+
 from __future__ import annotations
 
 import argparse

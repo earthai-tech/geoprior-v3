@@ -1,3 +1,5 @@
+r"""Public exports for registry utilities."""
+
 from ._manifest_registry import (
     ManifestRegistry,
     _locate_manifest,

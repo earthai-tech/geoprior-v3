@@ -5,7 +5,7 @@
 
 """
 Read quantile miscalibration with ``plot_qce_donut``
-===================================================
+====================================================
 
 This lesson explains how to use
 ``geoprior.plot.evaluation.plot_qce_donut`` when you

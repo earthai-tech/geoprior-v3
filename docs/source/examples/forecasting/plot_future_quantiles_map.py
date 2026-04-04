@@ -1,6 +1,6 @@
 """
 Future quantile maps with ``forecast_view``
-==========================================
+===========================================
 
 This lesson teaches how to read **future forecast maps**
 with :func:`geoprior.plot.forecast_view`.

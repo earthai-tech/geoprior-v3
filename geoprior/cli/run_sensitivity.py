@@ -44,12 +44,9 @@ Resume mechanism
 On restart, the script scans existing ablation_record.jsonl files
 under the results directory and skips runs that already finished.
 
-A run is considered "done" if an ablation record exists containing:
-
-- pde_mode
-- lambda_cons
-- lambda_prior
-(and matching CITY when available).
+A run is considered "done" if an ablation record exists containing
+``pde_mode``, ``lambda_cons``, and ``lambda_prior`` (and matching
+CITY when available).
 
 Usage
 ------

@@ -95,6 +95,7 @@ exclude_patterns = [
     "Thumbs.db",
     ".DS_Store",
     "examples/**/GALLERY_HEADER.rst",
+    "api/generated/utils_subsidence/geoprior.models.subsidence.utils.rst",
 ]
 source_suffix = {
     ".rst": "restructuredtext",
@@ -212,8 +213,8 @@ html_theme_options = {
             "type": "fontawesome",
         },
         {
-            "name": "Website",
-            "url": "https://geoprior-v3.readthedocs.io",
+            "name": "Blog",
+            "url": "https://lkouadio.com/en/blog/2026-04-04-geoprior-v3-physics-guided-ai-geohazards",
             "icon": "fa-solid fa-globe",
             "type": "fontawesome",
         },
@@ -299,7 +300,7 @@ extensions += [
 sphinx_gallery_conf = {
     "examples_dirs": ["examples"],
     "gallery_dirs": ["auto_examples"],
-    "filename_pattern": r"(plot_|build_|compute_|make_|summarize_|tag_|extend_)",
+    "filename_pattern": r"(plot_|build_|compute_|make_|summarize_|tag_|extend_|app_)",
     "ignore_pattern": r"__init__\.py",
     "nested_sections": True,
     "within_subsection_order": FileNameSortKey,

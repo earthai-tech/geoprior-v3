@@ -2,6 +2,7 @@
 # Author: LKouadio <etanoyau@gmail.com>
 # Adapted from: earthai-tech/fusionlab-learn — https://github.com/earthai-tech/fusionlab-learn
 # Modified for GeoPrior-v3 API.
+r"""Metric registry helpers for evaluation workflows."""
 
 import importlib
 from collections.abc import Callable

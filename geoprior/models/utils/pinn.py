@@ -745,9 +745,9 @@ def format_pihalnet_predictions(
     ids_cols_indices : list[int], optional
         Column indices if `ids_data_array` is a NumPy array.
     scaler_info : dict, optional
-        Dictionary for inverse scaling, structured as:
-        { 'subsidence': {'scaler': scaler_obj, 'idx': 0, 'all_features': [...]},
-          'gwl': {'scaler': scaler_obj, 'idx': 1, 'all_features': [...]} }
+        Dictionary for inverse scaling. Each target entry should provide
+        a fitted scaler, the target index inside that scaler, and the
+        feature-name ordering used when the scaler was fit.
     coord_scaler : sklearn.preprocessing.Scaler, optional
         A *fitted* scaler object for inverse transforming the 'coords' tensor.
     evaluate_coverage : bool, default False
@@ -4128,11 +4128,11 @@ def extract_txy_in(
     Parameters
     ----------
     inputs : tf.Tensor, np.ndarray, or dict
-        The input data containing coordinates.
-        - If a single tensor/array: Can be 2D `(batch, 3)` or 3D
-          `(batch, time_steps, 3)`.
-        - If a dict: Can contain a 'coords' key with the tensor, or
-          separate 't', 'x', 'y' keys.
+        The input data containing coordinates. A single tensor or array
+        may be 2D with shape ``(batch, 3)`` or 3D with shape
+        ``(batch, time_steps, 3)``. A dictionary may contain a
+        ``'coords'`` key with the coordinate tensor, or separate
+        ``'t'``, ``'x'``, and ``'y'`` keys.
 
     coord_slice_map : dict, optional
         Mapping for 't', 'x', 'y' to their index in the last
@@ -4141,10 +4141,11 @@ def extract_txy_in(
 
     expect_dim : {'2d', '3d'}, optional
         If provided, enforces that the input resolves to the
-        specified dimension.
-        - '2d': Input must be `(batch, 3)` or dict of `(batch, 1)`.
-        - '3d': Input must be `(batch, time, 3)` or dict of `(batch, time, 1)`.
-        If None (default), both are accepted and 2D is expanded to 3D.
+        specified dimension. ``'2d'`` requires input shaped like
+        ``(batch, 3)`` or a dictionary of ``(batch, 1)`` tensors.
+        ``'3d'`` requires input shaped like ``(batch, time, 3)`` or a
+        dictionary of ``(batch, time, 1)`` tensors. If ``None``,
+        both are accepted and 2D inputs are expanded to 3D.
 
     verbose : int, default 0
         Controls the verbosity of logging messages. `0` is silent,
@@ -4320,13 +4321,12 @@ def extract_txy(
         Defaults to `{'t': 0, 'x': 1, 'y': 2}`.
 
     expect_dim : {'2d', '3d', '3d_only'}, optional
-        Enforces a constraint on the input's dimension.
-        - ``'2d'``: Input must resolve to a 2D shape like `(batch, 3)`.
-        - ``'3d'``: Accepts 3D input. If 2D is given, it's expanded
-          to 3D with a time dimension of 1.
-        - ``'3d_only'``: Input must be 3D; raises an error for 2D input.
-        - ``None`` (default): Accepts both 2D and 3D inputs without
-          changing their rank.
+        Enforces a constraint on the input's dimension. ``'2d'``
+        requires input shaped like ``(batch, 3)``. ``'3d'`` accepts
+        3D input and expands 2D input to 3D with a time dimension of 1.
+        ``'3d_only'`` requires 3D input and raises an error for 2D
+        input. ``None`` accepts both 2D and 3D inputs without changing
+        their rank.
 
     verbose : int, default 0
         Controls logging verbosity.

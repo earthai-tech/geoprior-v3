@@ -3,9 +3,7 @@
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
-"""
-Supplementary Figure Sy — Impactful transferability
-----------------------------------------------------
+"""Plot impact transferability.
 
 This figure extends ``plot_transfer.py`` by adding
 decision-maker oriented diagnostics:

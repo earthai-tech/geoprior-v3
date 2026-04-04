@@ -2,7 +2,7 @@
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
-
+r"""Stage-5 CLI helpers for forecast generation workflows."""
 
 #
 # python stage5.py \

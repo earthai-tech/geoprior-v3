@@ -1,3 +1,5 @@
+r"""Public exports for GeoPrior utility helpers."""
+
 from .audit_utils import (
     audit_stage1_scaling,
     audit_stage2_handshake,

@@ -9,8 +9,7 @@ Read forecast quality horizon by horizon with ``plot_metric_over_horizon``
 
 This lesson explains how to use
 ``geoprior.plot.evaluation.plot_metric_over_horizon``
-when you want to understand **how forecast quality changes with lead
- time**.
+when you want to understand **how forecast quality changes with lead time**.
 
 Why this function matters
 -------------------------
@@ -416,16 +415,16 @@ print(mae_table)
 # - ``group_by_cols=['model_family']`` -> ``['city']`` or ``['split']``,
 # - ``metrics=['mae', 'rmse']`` -> the metrics that match your decision.
 #
-# For example, a user table named ``eval_df`` may be plotted like this:
+# For example, a user table named ``eval_df`` may be plotted like this::
 #
-# ``plot_metric_over_horizon(
-#     forecast_df=eval_df,
-#     target_name='gwl',
-#     metrics=['mae', 'coverage'],
-#     quantiles=[0.1, 0.5, 0.9],
-#     group_by_cols=['model_name'],
-#     plot_kind='line',
-# )``
+#     plot_metric_over_horizon(
+#         forecast_df=eval_df,
+#         target_name="gwl",
+#         metrics=["mae", "coverage"],
+#         quantiles=[0.1, 0.5, 0.9],
+#         group_by_cols=["model_name"],
+#         plot_kind="line",
+#     )
 
 
 # %%

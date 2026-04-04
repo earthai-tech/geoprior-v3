@@ -1,6 +1,6 @@
 """
 Extract threshold-based spatial zones with ``extract-zones``
-==========================================================
+============================================================
 
 This lesson teaches how to build compact zone tables from a spatial
 field using GeoPrior's ``extract-zones`` workflow.

@@ -1,6 +1,6 @@
 """
 Build one merged ``full_inputs.npz`` from Stage-1 split artifacts
-===============================================================
+=================================================================
 
 This lesson teaches how to use GeoPrior's
 ``full-inputs-npz`` build command.

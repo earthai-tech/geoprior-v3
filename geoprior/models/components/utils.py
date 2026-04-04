@@ -2,6 +2,7 @@
 # Author: LKouadio <etanoyau@gmail.com>
 # Adapted from: earthai-tech/fusionlab-learn — https://github.com/earthai-tech/gofast
 # Modified for GeoPrior-v3 API.
+r"""Utility helpers for reusable model components."""
 
 import warnings
 from typing import Any

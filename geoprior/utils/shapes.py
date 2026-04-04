@@ -1,6 +1,7 @@
 # License: Apache-2.0
 # Copyright (c) 2026-present
 # Author: LKouadio <etanoyau@gmail.com>
+r"""Shape utility helpers for arrays and tensors."""
 
 from __future__ import annotations
 

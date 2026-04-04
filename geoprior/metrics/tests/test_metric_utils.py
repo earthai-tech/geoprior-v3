@@ -1,3 +1,5 @@
+r"""Tests for metric utility helpers."""
+
 import json
 import os
 

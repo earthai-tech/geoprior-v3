@@ -3,8 +3,7 @@
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
-"""
-Supplementary Figure — Cross-city transferability (v3.2)
+"""Plot cross-city transferability +.
 
 Reads xfer_results.csv produced by nat.com/xfer_matrix(v3.2).py.
 

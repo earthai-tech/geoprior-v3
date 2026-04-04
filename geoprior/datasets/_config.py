@@ -1,4 +1,6 @@
 # --- City-Specific Default Configurations ---
+r"""Dataset configuration constants for supported study areas."""
+
 CITY_CONFIGS = {
     "zhongshan": {
         "metadata": "{}",  # Use the 500k metadata

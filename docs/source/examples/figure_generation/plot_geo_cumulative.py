@@ -360,7 +360,7 @@ fig.tight_layout()
 
 # %%
 # Step 5b - Build a hotspot overlay table
-# --------------------------------------
+# ---------------------------------------
 # The backend can optionally overlay forecast hotspots.
 #
 # For the lesson, we define a hotspot very simply:
@@ -454,7 +454,7 @@ print(f" - {hotspot_csv.name}")
 
 # %%
 # Step 6b - Run the real plotting backend
-# --------------------------------------
+# ---------------------------------------
 # We now call the actual GeoPrior plotting entry point.
 #
 # The main visual choices are deliberate:
@@ -539,7 +539,7 @@ finally:
 
 # %%
 # Step 6c - Display the rendered figure
-# ------------------------------------
+# -------------------------------------
 # The backend writes the publication-style figure to disk.
 # We reload it here so the gallery page shows the exact final
 # output that a workflow would produce.

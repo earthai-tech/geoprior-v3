@@ -362,17 +362,17 @@ def ensure_si_derivative_frame(
 
         This function primarily consults the following keys:
 
-        * ``coords_normalized`` : bool
-            If True, apply span-based chain-rule scaling.
-        * ``coord_ranges`` : dict with keys ``{'t', 'x', 'y'}``
-            Original coordinate spans in dataset units.
-            Required when ``coords_normalized=True``.
-        * ``coord_ranges_si`` : dict with keys ``{'t', 'x', 'y'}``
-            Coordinate spans in SI units (t in seconds, x/y in meters).
-            If present, this is preferred over ``coord_ranges``.
-        * ``coords_in_degrees`` : bool
-            If True, spatial axes are in degrees and must be converted
-            to meters if SI spans were not already provided.
+        * ``coords_normalized``. If True, apply span-based chain-rule
+          scaling.
+        * ``coord_ranges``. Original coordinate spans in dataset units,
+          keyed by ``'t'``, ``'x'``, and ``'y'``. Required when
+          ``coords_normalized=True``.
+        * ``coord_ranges_si``. Coordinate spans in SI units, keyed by
+          ``'t'``, ``'x'``, and ``'y'`` where t is in seconds and x/y are
+          in meters. If present, this is preferred over ``coord_ranges``.
+        * ``coords_in_degrees``. If True, spatial axes are in degrees and
+          must be converted to meters if SI spans were not already
+          provided.
 
 
         The payload is treated as an audit-friendly source-of-truth.
@@ -416,20 +416,17 @@ def ensure_si_derivative_frame(
         The purpose of this function is to enforce correct coordinate
         scaling (per-second, per-meter, per-meter squared).
     meta : dict of str to Any
-        Metadata describing which conversion path was used:
+        Metadata describing which conversion path was used. Important
+        keys include:
 
-        ``'used_coord_ranges_si'`` : bool
-            True if SI spans were taken from ``coord_ranges_si``.
-        ``'time_already_si'`` : bool
-            True if SI time span (seconds) was provided.
-        ``'deg_already_applied'`` : bool
-            True if x/y spans were already in meters and no degree-to-
-            meter correction was applied.
-        ``'t_range_units_tf'`` : Tensor or None
-            The original time span in dataset time units (not seconds).
-            This is returned for downstream Q scaling logic, where some
-            conversions are defined in dataset time units rather than
-            SI seconds.
+        - ``'used_coord_ranges_si'``: True if SI spans were taken from
+          ``coord_ranges_si``.
+        - ``'time_already_si'``: True if an SI time span in seconds was
+          provided.
+        - ``'deg_already_applied'``: True if x/y spans were already in
+          meters and no degree-to-meter correction was applied.
+        - ``'t_range_units_tf'``: Original time span in dataset time
+          units, retained for downstream Q scaling logic.
 
     Notes
     -----

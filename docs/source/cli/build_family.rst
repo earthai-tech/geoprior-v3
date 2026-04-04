@@ -884,8 +884,7 @@ Distinctive options to notice
    Multiple ways to resolve the city clouds used for nearest-city
    classification. 
 
-``--borehole-x-col`` / ``--borehole-y-col`` and
-``--city-x-col`` / ``--city-y-col``
+``--borehole-x-col`` / ``--borehole-y-col`` and ``--city-x-col`` / ``--city-y-col``
    Separate coordinate-column controls for the borehole table and the
    city processed tables. 
 
@@ -999,8 +998,7 @@ Distinctive options to notice
    Repeated ``CITY=PATH`` mappings for the main dataset and the
    elevation lookup CSV. 
 
-``--data-root`` / ``--coords-root`` plus ``--main-pattern`` /
-``--elev-pattern``
+``--data-root`` / ``--coords-root`` plus ``--main-pattern`` / ``--elev-pattern``
    Let the command resolve city-specific files automatically from root
    directories and filename templates. 
 
@@ -1104,8 +1102,7 @@ Relax strict key matching across splits:
 Distinctive options to notice
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``--manifest`` / ``--stage1-dir`` / ``--results-dir`` with
-``--city`` and ``--model``
+``--manifest`` / ``--stage1-dir`` / ``--results-dir`` with ``--city`` and ``--model``
    Multiple ways to resolve the Stage-1 manifest used to discover the
    split NPZ files. 
 
@@ -1332,13 +1329,11 @@ Distinctive options to notice
    Multiple ways to resolve the trained inference bundle used for the
    full-city payload export. 
 
-``--x-col`` / ``--y-col`` / ``--productivity-col`` /
-``--thickness-col``
+``--x-col`` / ``--y-col`` / ``--productivity-col`` / ``--thickness-col``
    Select the validation-table columns used for nearest-pixel matching
    and for the site-level metrics. 
 
-``--horizon-reducer`` / ``--site-reducer`` /
-``--max-match-distance-m`` / ``--min-unique-pixels``
+``--horizon-reducer`` / ``--site-reducer`` / ``--max-match-distance-m`` / ``--min-unique-pixels``
    Control how horizon-level arrays are collapsed to site-level values
    and how strict the site-to-pixel sanity checks are. 
 

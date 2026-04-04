@@ -72,7 +72,7 @@ pip install geoprior-v3
 ````
 
 This installs GeoPrior and the scientific Python stack it depends on.
-Python **3.10+** is supported **(available soon)**.
+Python **3.10+** is supported.
 
 ### Development install (editable)
 
@@ -201,28 +201,6 @@ geoprior build sm3-collect-summaries --help
 ```
 
 
-A slightly more concise version is:
-
-### 3) Backward-compatible legacy scripts
-
-For reproducibility and legacy workflows, helper scripts are 
-still available under `scripts/`.
-
-A typical workflow includes:
-
-- preprocessing
-- training
-- evaluation and figure generation
-
-These script-based entry points remain supported. For example:
-
-```bash
-python -m scripts plot-physics-fields --help
-python -m scripts plot-sm3-identifiability --help
-python -m scripts make-exposure --help
-```
-> For Code Ocean users: see `codeocean/README.md` and `codeocean/run.sh`.
-
 ---
 
 ## 🧪 Reproducibility
@@ -245,16 +223,11 @@ If you publish results, please pin:
 
 ## 📚 Documentation
 
-Documentation is under active development.
+For detailed usage, API reference, workflow guides, and example
+galleries, please visit the official documentation:
 
-* Landing page (coming soon): `https://earthai-tech.github.io/geoprior-v3/`
-* Meanwhile, start with:
+**[geoprior-v3.readthedocs.io](https://geoprior-v3.readthedocs.io/)**
 
-  * `docs/reproducibility.md`
-  * `geoprior --help`
-  * `geoprior-run --help`
-  * `geoprior-build --help`
-  * inline API docstrings
 
 ---
 
@@ -295,10 +268,6 @@ Please see `CONTRIBUTING.md` for details.
 
 GeoPrior-v3 is distributed under the **Apache License 2.0**.
 See `LICENSE` and `NOTICE` for details.
-
-Note: GeoPrior-v3 may include a small number of files adapted from
-other earthai-tech repositories under their original licenses
-(e.g., BSD-3-Clause). See `third_party/licenses/`.
 
 ---
 

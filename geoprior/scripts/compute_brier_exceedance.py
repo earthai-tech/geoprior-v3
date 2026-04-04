@@ -8,23 +8,20 @@ Compute Brier scores for subsidence exceedance events.
 
 Event
 -----
-    y = 1{ subsidence_actual >= T }
+``y = 1{ subsidence_actual >= T }``
 
 Probability approximation
 -------------------------
 We approximate P(subsidence >= T) from three quantiles
-(q10,q50,q90) by piecewise-linear interpolation of the CDF
-at:
-    (q10,0.1), (q50,0.5), (q90,0.9)
-then:
-    p = 1 - F(T)
+``(q10, q50, q90)`` by piecewise-linear interpolation of the
+CDF at ``(q10, 0.1)``, ``(q50, 0.5)``, and ``(q90, 0.9)``.
+Then ``p = 1 - F(T)``.
 
 Inputs
 ------
-A calibrated forecast CSV that contains:
-    coord_t,
-    subsidence_actual,
-    subsidence_q10, subsidence_q50, subsidence_q90
+A calibrated forecast CSV that contains ``coord_t``,
+``subsidence_actual``, ``subsidence_q10``, ``subsidence_q50``,
+and ``subsidence_q90``.
 
 Hold-out note
 -------------
@@ -32,31 +29,37 @@ Your "TestSet" calibrated CSV can also contain
 subsidence_actual (e.g. 2020-2022 hold-out). So we support
 three discovery modes:
 
-    --source auto  (default): use TestSet if present, else
-                              fall back to Validation.
-    --source test           : require TestSet.
-    --source val            : require Validation.
+- ``--source auto`` (default): use TestSet if present, else fall back
+  to Validation
+- ``--source test``: require TestSet
+- ``--source val``: require Validation
 
 Outputs
 -------
-A tidy CSV under scripts/out/ by default:
-    city, years, threshold_mm_per_yr,
-    brier_score, n_samples, src_csv
+A tidy CSV under ``scripts/out/`` by default with columns
+``city``, ``years``, ``threshold_mm_per_yr``, ``brier_score``,
+``n_samples``, and ``src_csv``.
 
 Examples
 --------
 Auto-discover (test-first):
-  python nat.com/compute_brier_exceedance.py \
-    --root results \
-    --source auto \
-    --thresholds 30,50 \
-    --years 2020,2021,2022
+
+.. code-block:: bash
+
+   python nat.com/compute_brier_exceedance.py \
+     --root results \
+     --source auto \
+     --thresholds 30,50 \
+     --years 2020,2021,2022
 
 Force Validation:
-  python nat.com/compute_brier_exceedance.py \
-    --root results \
-    --source val \
-    --out brier_scores_val.csv
+
+.. code-block:: bash
+
+   python nat.com/compute_brier_exceedance.py \
+     --root results \
+     --source val \
+     --out brier_scores_val.csv
 """
 
 from __future__ import annotations

@@ -1,4 +1,6 @@
 # test_visualize_forecasts.py
+r"""Tests for forecast visualization helpers."""
+
 import re
 from unittest.mock import patch
 

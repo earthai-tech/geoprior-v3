@@ -5,7 +5,7 @@
 
 """
 Compare compact score profiles with ``plot_radar_scores``
-=======================================================
+=========================================================
 
 This lesson explains how to use
 ``geoprior.plot.evaluation.plot_radar_scores`` when you
@@ -170,7 +170,7 @@ def bias_abs_metric(yt, yp):
     return float(np.abs(np.mean(yp - yt)))
 
 
-bias_abs_metric.__name__ = "|Bias|"
+bias_abs_metric.__name__ = "Abs Bias"
 
 
 def corr_metric(yt, yp):
@@ -187,7 +187,7 @@ metric_functions = [
     corr_metric,
 ]
 
-category_names = ["MAE", "RMSE", "|Bias|", "Corr"]
+category_names = ["MAE", "RMSE", "Abs Bias", "Corr"]
 
 fig, axes = plt.subplots(
     1,
@@ -250,7 +250,7 @@ plot_radar_scores(
 #
 # In this example:
 #
-# - MAE, RMSE, and |Bias| are better when smaller,
+# - MAE, RMSE, and Abs Bias are better when smaller,
 # - correlation is better when larger.
 #
 # That means the polygon is a quick profile, not a single
@@ -371,7 +371,7 @@ plot_radar_scores(
 score_dict_strong = {
     "MAE": float(mean_absolute_error(y_true, y_pred_strong)),
     "RMSE": float(rmse_metric(y_true, y_pred_strong)),
-    "|Bias|": float(bias_abs_metric(y_true, y_pred_strong)),
+    "Abs Bias": float(bias_abs_metric(y_true, y_pred_strong)),
     "Corr": float(corr_metric(y_true, y_pred_strong)),
     "Skill": 0.92,
 }
@@ -379,7 +379,7 @@ score_dict_strong = {
 score_dict_mid = {
     "MAE": float(mean_absolute_error(y_true, y_pred_mid)),
     "RMSE": float(rmse_metric(y_true, y_pred_mid)),
-    "|Bias|": float(bias_abs_metric(y_true, y_pred_mid)),
+    "Abs Bias": float(bias_abs_metric(y_true, y_pred_mid)),
     "Corr": float(corr_metric(y_true, y_pred_mid)),
     "Skill": 0.84,
 }

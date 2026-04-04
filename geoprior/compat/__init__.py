@@ -1,3 +1,5 @@
+r"""Compatibility exports for optional GeoPrior dependencies."""
+
 from .keras import (
     load_inference_model,
     load_model_from_tfv2,

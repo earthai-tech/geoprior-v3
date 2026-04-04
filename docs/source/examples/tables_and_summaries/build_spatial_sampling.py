@@ -1,6 +1,6 @@
 """
 Build a stratified spatial sample table
-======================================
+=======================================
 
 This example teaches you how to use GeoPrior's
 ``spatial-sampling`` build utility.

@@ -4,7 +4,7 @@
 # Author: LKouadio <https://lkouadio.com>
 
 """
-Update ablation_record.jsonl using post-hoc calibrated metrics.
+Update ablation record  using post-hoc calibrated metrics.
 
 What this does
 --------------

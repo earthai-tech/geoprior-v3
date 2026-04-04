@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2026-present Laurent Kouadio
+r"""Logging helpers and configured loggers for GeoPrior."""
 
 from __future__ import annotations
 

@@ -1,6 +1,6 @@
 """
 Build non-overlapping spatial sample batches
-===========================================
+============================================
 
 This example teaches you how to use GeoPrior's
 ``batch-spatial-sampling`` build utility.

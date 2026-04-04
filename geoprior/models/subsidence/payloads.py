@@ -225,11 +225,13 @@ def identifiability_diagnostics_from_payload(
         Must contain 1D arrays with keys:
         "tau", "tau_prior", "K", "Ss", "Hd".
     tau_true : float
-        True effective relaxation time tau_eff,true from the
-        1D consolidation column.
+        True effective relaxation time
+        :math:`\tau_{\mathrm{eff,true}}` from the 1D consolidation
+        column.
     K_true, Ss_true, Hd_true : float
-        True effective closures (K_eff, Ss_eff, H_d,eff) at the
-        column scale.
+        True effective closures :math:`K_{\mathrm{eff}}`,
+        :math:`S_{s,\mathrm{eff}}`, and
+        :math:`H_{d,\mathrm{eff}}` at the column scale.
     K_prior, Ss_prior, Hd_prior : float
         Lithology-based priors used to construct the GeoPrior head
         for this synthetic column.
@@ -245,11 +247,12 @@ def identifiability_diagnostics_from_payload(
     dict
         A dictionary with three blocks:
 
-        - "tau_rel_error": statistics of the relative error
+        - ``"tau_rel_error"``: statistics of the relative error
           :math:`\frac{|\tau - \tau_{true}|}{\tau_{true}}`.
-        - "closure_log_resid": statistics of the log-timescale
+        - ``"closure_log_resid"``: statistics of the log-timescale
           residual ``log(tau_prior) - log(tau_true)``.
-        - "offsets": nested dict with "vs_true" and "vs_prior",
+        - ``"offsets"``: nested dict with ``"vs_true"`` and
+          ``"vs_prior"``,
           each containing summary stats for the log-offsets
           ``delta_K``, ``delta_Ss``, and ``delta_Hd``.
     """

@@ -4,9 +4,7 @@
 # Author: LKouadio <https://lkouadio.com>
 
 
-"""plot_physics_maps
-
-Figure — Spatial physics fields and "physics tension".
+"""Plot spatial physics fields and "physics tension".
 
 This script renders a 2×3 panel for a single city:
 

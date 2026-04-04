@@ -82,6 +82,7 @@ public tuner classes, including ``SubsNetTuner`` and
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Compatibility shim
 ------------------
@@ -96,6 +97,7 @@ older imports expect a shorter path under ``geoprior.models``.
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Public tuner entry point
 ------------------------
@@ -114,6 +116,7 @@ already available in memory.
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Key public class
 ~~~~~~~~~~~~~~~~
@@ -122,15 +125,19 @@ Key public class
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Important public methods
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automethod:: geoprior.models.forecast_tuner._geoprior_tuner.SubsNetTuner.create
+   :no-index:
 
 .. automethod:: geoprior.models.forecast_tuner._geoprior_tuner.SubsNetTuner.run
+   :no-index:
 
 .. automethod:: geoprior.models.forecast_tuner._geoprior_tuner.SubsNetTuner.build
+   :no-index:
 
 What ``SubsNetTuner`` is responsible for
 ----------------------------------------

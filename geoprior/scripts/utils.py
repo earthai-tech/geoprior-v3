@@ -8,6 +8,7 @@
 # - auto-detect artifacts from a "src" (file or folder)
 # - load JSON/CSV robustly (schema checks)
 # - harmonize GeoPrior JSON units (raw vs interpretable variants)
+r"""Shared utility helpers for GeoPrior scripts."""
 
 from __future__ import annotations
 
