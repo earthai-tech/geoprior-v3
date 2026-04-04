@@ -173,10 +173,10 @@ Reference and project notes
    :class-container: cta-tiles featured-app-tiles
 
    .. grid-item-card:: Glossary
-      :link: glossary
+      :link: glossary/index
       :link-type: doc
       :img-top: _static/icons/glossary-icon-book.svg
-      :class-card: card--configuration
+      :class-card: card--configuration sd-text-center
 
       Look up core symbols, abbreviations, workflow terms, and
       recurring scientific language used throughout the documentation.
@@ -185,7 +185,7 @@ Reference and project notes
       :link: developer/index
       :link-type: doc
       :img-top: _static/icons/developer-notes-icon-tools.svg
-      :class-card: card--configuration
+      :class-card: card--configuration sd-text-center
 
       See package layout, migration notes, and contribution
       guidance for maintaining and extending GeoPrior-v3.
@@ -194,7 +194,7 @@ Reference and project notes
       :link: release_notes
       :link-type: doc
       :img-top: _static/icons/release-notes-icon-clock-history.svg
-      :class-card: card--workflow
+      :class-card: card--workflow sd-text-center
 
       Track user-visible changes across versions, including
       workflow, API, scientific, and documentation updates.
