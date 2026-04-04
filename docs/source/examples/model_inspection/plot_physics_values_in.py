@@ -46,7 +46,7 @@ from geoprior.models import plot_physics_values_in
 
 # %%
 # Build compact synthetic coordinates and payload fields
-# -----------------------------------------------------
+# ------------------------------------------------------
 # The helper expects a payload dict and, for map mode, either:
 #
 # - explicit coords={"x": ..., "y": ...}

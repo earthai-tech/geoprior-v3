@@ -3,6 +3,7 @@
 # https://lkouadio.com
 # Copyright (c) 2026-present
 # Author: LKouadio <etanoyau@gmail.com>
+r"""Audit helpers for stage handshakes and scaling artifacts."""
 
 from __future__ import annotations
 

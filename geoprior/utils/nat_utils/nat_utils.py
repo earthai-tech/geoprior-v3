@@ -3,7 +3,7 @@
 # Copyright (c) 2026-present
 # Author: LKouadio <etanoyau@gmail.com>
 # website:https://lkouadio.com
-
+r"""NAT workflow helpers for configs, datasets, and scaling."""
 
 from __future__ import annotations
 
@@ -959,24 +959,24 @@ def build_censor_mask(
 
     Parameters
     ----------
-    source:
-        - "dynamic": read flag from xb["dynamic_features"][:, :, idx]
-          (history window, length TIME_STEPS).
-        - "future":  read flag from xb["future_features"][:, :, idx]
-          (forecast window, should have length H).
-    reduce_time:
-        When source="dynamic" and the flag is effectively static, collapse
-        the history axis to one label per sample:
-          - "any":  censored if any history step is flagged (robust default)
-          - "last": use last history step
-          - "all":  censored only if all history steps are flagged
-    align:
-        How to align to horizon H if time length != H (mainly for safety):
-          - "broadcast": repeat a single-step label to all H steps (recommended)
-          - "crop":      take last H steps (only works if T > H)
-          - "pad_false": pad missing steps with False (if T < H)
-          - "pad_edge":  pad missing steps by repeating last (if T < H)
-          - "error":     raise if mismatch
+    source : {"dynamic", "future"}, default="dynamic"
+        Selects where the censoring flag is read from. ``"dynamic"``
+        reads ``xb["dynamic_features"][:, :, idx]`` from the history
+        window, while ``"future"`` reads
+        ``xb["future_features"][:, :, idx]`` from the forecast window.
+    reduce_time : {"any", "last", "all"}, default="any"
+        Reduction applied when ``source="dynamic"`` and the censor flag
+        behaves like a per-sample label. ``"any"`` marks the sample as
+        censored if any history step is flagged, ``"last"`` uses only
+        the last history step, and ``"all"`` requires every history step
+        to be flagged.
+    align : {"broadcast", "crop", "pad_false", "pad_edge", "error"}, default="broadcast"
+        Policy used when the time axis does not already match the
+        forecast horizon ``H``. ``"broadcast"`` repeats a single-step
+        label across all horizon steps, ``"crop"`` keeps the last ``H``
+        steps, ``"pad_false"`` pads missing steps with ``False``,
+        ``"pad_edge"`` repeats the last available step, and ``"error"``
+        raises on mismatch.
     """
     try:
         import tensorflow as tf  # type: ignore

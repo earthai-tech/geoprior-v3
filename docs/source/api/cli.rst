@@ -609,15 +609,15 @@ Script registry and shared config
 Compatibility package
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../scripts/__init__.py
+.. literalinclude:: ../../../scripts/__init__.py
    :language: python
    :caption: ``scripts/__init__.py``
 
-.. literalinclude:: ../../scripts/__main__.py
+.. literalinclude:: ../../../scripts/__main__.py
    :language: python
    :caption: ``scripts/__main__.py``
 
-.. literalinclude:: ../../scripts/registry.py
+.. literalinclude:: ../../../scripts/registry.py
    :language: python
    :caption: ``scripts/registry.py``
 

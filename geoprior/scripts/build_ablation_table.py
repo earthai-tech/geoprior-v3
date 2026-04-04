@@ -3,10 +3,9 @@
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
-"""scripts.build_ablation_table
-
+"""
 Build tidy ablation/sensitivity tables from
-ablation_records/ablation_record*.jsonl.
+ablation_records.
 
 Design goals
 ------------

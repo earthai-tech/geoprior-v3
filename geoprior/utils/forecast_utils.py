@@ -3434,27 +3434,29 @@ def normalize_for_pinn(
     MinMaxScaler | None,
 ]:
     """
-    Apply Min-Max normalization to spatial–temporal coordinates and
-    optionally to other numeric columns. If `cols_to_scale == "auto"`,
-    automatically select numeric columns excluding categorical and one-hot
+    Apply Min-Max normalization to spatial-temporal coordinates and
+    optionally to other numeric columns. If
+    ``cols_to_scale == "auto"``, automatically select numeric columns
+    excluding categorical and one-hot
     features.
 
     By default, this function scales the time, longitude, and latitude
-    columns (if `scale_coords=True`). Then, it either scales explicitly
-    provided columns in `cols_to_scale` or automatically infers numeric
-    columns (excluding coordinates if `scale_coords` is False, and excluding
+    columns (if ``scale_coords=True``). Then, it either scales explicitly
+    provided columns in ``cols_to_scale`` or automatically infers numeric
+    columns (excluding coordinates if ``scale_coords`` is False, and excluding
     one-hot/boolean columns).
 
-    The Min-Max scaling for a feature \(x\) is:
+    The Min-Max scaling for a feature :math:`x` is:
 
     .. math::
-       x' = \frac{x - \min(x)}{\max(x) - \min(x)}
+       x' = \\frac{x - \\min(x)}{\\max(x) - \\min(x)}
 
     Parameters
     ----------
     df : pd.DataFrame
-        The input DataFrame containing at least `time_col`, `lon_col`,
-        and `lat_col` columns. The DataFrame should contain temporal
+        The input DataFrame containing at least ``time_col``,
+        ``coord_x``, and ``coord_y`` columns. The DataFrame should
+        contain temporal
         and spatial information to be scaled.
 
     time_col : str
@@ -3472,13 +3474,14 @@ def normalize_for_pinn(
 
     cols_to_scale : list of str or "auto" or None, default "auto"
         If a list of column names, scales exactly those columns.
-        If "auto", selects all numeric columns, excluding `time_col`,
-        `lon_col`, `lat_col` if `scale_coords=False`, and excluding
+        If ``"auto"``, selects all numeric columns, excluding
+        ``time_col``, ``coord_x``, and ``coord_y`` if
+        ``scale_coords=False``, and excluding
         one-hot encoded columns whose values are only ``{0, 1}``.
         If None, no extra columns are scaled.
 
     scale_coords : bool, default True
-        If True, scales the `[time_col, lon_col, lat_col]` columns.
+        If True, scales the ``[time_col, coord_x, coord_y]`` columns.
         If False, these columns remain unchanged.
 
     verbose : int, default 1
@@ -3493,7 +3496,7 @@ def normalize_for_pinn(
         Logger or function to handle logging messages. If None, the
         default logging mechanism is used.
 
-    **kws : Additional keyword arguments
+    kws : dict, optional
         These will be passed on to any other internal function used in
         the data processing or scaling steps.
 
@@ -3503,8 +3506,8 @@ def normalize_for_pinn(
         A new DataFrame with the specified columns normalized.
 
     coord_scaler : MinMaxScaler or None
-        The fitted scaler for the `[time_col, lon_col, lat_col]` columns
-        if `scale_coords=True`, else None.
+        The fitted scaler for the ``[time_col, coord_x, coord_y]``
+        columns if ``scale_coords=True``, else ``None``.
 
     other_scaler : MinMaxScaler or None
         The fitted scaler for any additional columns that were scaled
@@ -3519,8 +3522,9 @@ def normalize_for_pinn(
         a string.
 
     ValueError
-        If required columns (`time_col`, `lon_col`, `lat_col`) or any
-        of `cols_to_scale` do not exist in `df`, or cannot be converted
+        If required columns (``time_col``, ``coord_x``, ``coord_y``) or
+        any of ``cols_to_scale`` do not exist in ``df``, or cannot be
+        converted
         to numeric.
 
     Examples
@@ -3552,13 +3556,13 @@ def normalize_for_pinn(
 
     Notes
     -----
-    - When `cols_to_scale="auto"`, numeric columns with only {0,1}
-      values are assumed one-hot and excluded from scaling.
-    - If `scale_coords=False`, coordinate columns remain unchanged,
+    - When ``cols_to_scale="auto"``, numeric columns with only
+      ``{0, 1}`` values are assumed to be one-hot and excluded from scaling.
+    - If ``scale_coords=False``, coordinate columns remain unchanged,
       and auto-selection (if used) will exclude them.
-    - Returned `coord_scaler` is None if `scale_coords=False`.
-      Returned `other_scaler` is None if `cols_to_scale` is None or
-      results in an empty set after filtering.
+    - Returned ``coord_scaler`` is ``None`` if ``scale_coords=False``.
+      Returned ``other_scaler`` is ``None`` if ``cols_to_scale`` is
+      ``None`` or results in an empty set after filtering.
 
     See Also
     --------

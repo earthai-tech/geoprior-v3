@@ -2,6 +2,7 @@
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
+r"""Registry helpers used by GeoPrior scripts."""
 
 from __future__ import annotations
 

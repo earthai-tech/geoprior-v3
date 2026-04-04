@@ -3,7 +3,7 @@
 # https://lkouadio.com
 # Copyright (c) 2026-present
 # Author: LKouadio <etanoyau@gmail.com>
-
+r"""Sequence-building helpers for temporal model inputs."""
 
 from __future__ import annotations
 

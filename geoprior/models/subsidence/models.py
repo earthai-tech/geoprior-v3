@@ -985,6 +985,13 @@ class GeoPriorSubsNet(BaseAttentive):
         coords_input: Tensor,
         training: bool,
     ) -> tuple[Tensor, Tensor]:
+        """
+        Run the shared encoder-decoder core for GeoPrior inputs.
+
+        This override keeps the coordinate tensor aligned with the
+        learned sequence features that are later consumed by the
+        physics stack.
+        """
         def _assert_finite(x: Tensor, tag: str) -> Tensor:
             tf_debugging.assert_all_finite(
                 x,
@@ -1582,11 +1589,11 @@ class GeoPriorSubsNet(BaseAttentive):
         call
             Keras forward returning supervised outputs only.
 
-        geoprior.nn.pinn.geoprior.step_core.physics_core
+        geoprior.models.subsidence.step_core.physics_core
             Shared physics pathway that consumes ``phys_mean_raw`` and
             computes PDE residuals and losses.
 
-        geoprior.nn.pinn.geoprior.maths.compose_physics_fields
+        geoprior.models.subsidence.maths.compose_physics_fields
             Map physics logits to bounded physical fields and priors.
 
         """
@@ -2131,7 +2138,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
         See Also
         --------
-        geoprior.nn.pinn.geoprior.step_core.physics_core
+        geoprior.models.subsidence.step_core.physics_core
             Shared physics pathway used to compute PDE residuals and physics
             loss scalars consistently across train and eval.
 
@@ -2730,7 +2737,7 @@ class GeoPriorSubsNet(BaseAttentive):
         evaluate_physics
             Aggregate physics diagnostics over a dataset or batch.
 
-        geoprior.nn.pinn.geoprior.step_core.physics_core
+        geoprior.models.subsidence.step_core.physics_core
             Shared physics computation used for diagnostics and training.
         """
 
@@ -2818,22 +2825,13 @@ class GeoPriorSubsNet(BaseAttentive):
         Evaluate physics diagnostics over a batch or a dataset.
 
         This method computes physics-only diagnostics for GeoPrior-style
-        PINN models. It supports three input modes:
+        PINN models. Supported input modes are:
 
-        1. Dataset mode
-            If ``inputs`` is a ``tf.data.Dataset``, physics scalars are
-            computed for each batch and aggregated (mean) across batches.
-            If ``return_maps=True``, residual maps and learned fields are
-            returned from the last processed batch only.
-
-        2. Mapping mode with batching
-            If ``inputs`` is a mapping (dict-like) and ``batch_size`` is
-            provided, the mapping can be wrapped into a dataset and batched
-            automatically (primarily for numpy-like arrays).
-
-        3. Single-batch mode
-            If ``inputs`` is a dict of tensors already shaped for one batch,
-            physics diagnostics are computed once and returned.
+        - a ``tf.data.Dataset`` whose scalar diagnostics are aggregated
+          across batches;
+        - a mapping of tensors or numpy-like arrays, optionally batched via
+          ``batch_size``;
+        - a single pre-batched mapping that is evaluated once.
 
         The returned values are intended for monitoring PDE consistency,
         prior adherence, and stability during training and validation.
@@ -2843,12 +2841,10 @@ class GeoPriorSubsNet(BaseAttentive):
         inputs : dict or Dataset
             Input payload used for physics evaluation.
 
-            * If a dict: it should follow the GeoPrior batch API and contain
-              tensors (or array-like values if ``batch_size`` is provided).
-            * If a Dataset: the dataset should yield either:
-              - a dict of inputs, or
-              - a tuple/list where the first element is the inputs dict
-                (targets are ignored).
+            - If a dict, it should follow the GeoPrior batch API and contain
+              tensors, or array-like values when ``batch_size`` is provided.
+            - If a Dataset, each element should yield either an input dict or
+              a tuple/list whose first element is the input dict.
 
         return_maps : bool, default False
             If True, include residual maps and learned field tensors.
@@ -2891,25 +2887,16 @@ class GeoPriorSubsNet(BaseAttentive):
 
         Notes
         -----
-        **What this method is for.**
         Use this method to evaluate physics consistency independently of the
-        supervised data loss. Typical use cases include:
+        supervised data loss. Typical use cases include monitoring residual
+        RMS values, diagnosing unit or coordinate mismatches, validating
+        bounds and priors, and generating physics maps for inspection.
 
-        * monitoring PDE residual RMS values during training,
-        * diagnosing unit or coordinate convention mismatches,
-        * validating bounds and prior strength before long training runs,
-        * generating physics maps for qualitative inspection.
-
-        **What this method is not.**
-        This method does not compute or aggregate supervised metrics. It is
-        intentionally physics-focused and ignores targets even if they are
-        present in dataset elements.
-
-        **Aggregation semantics.**
-        In Dataset mode, only scalar keys (loss and epsilon prefixes) are
+        This method does not compute supervised metrics. In Dataset mode,
+        only scalar keys with ``loss_`` or ``epsilon_`` prefixes are
         aggregated across batches. Residual maps and learned fields are not
-        aggregated because they are spatially structured tensors; returning
-        the last batch maps is a predictable, bounded-memory behavior.
+        aggregated; when ``return_maps=True``, the method returns the maps
+        from the last processed batch.
 
         Examples
         --------
@@ -2940,7 +2927,7 @@ class GeoPriorSubsNet(BaseAttentive):
         _evaluate_physics_on_batch
             Per-batch physics diagnostics wrapper.
 
-        geoprior.nn.pinn.geoprior.step_core.physics_core
+        geoprior.models.subsidence.step_core.physics_core
             Shared physics computation used for diagnostics and training.
 
         """
@@ -3571,7 +3558,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
         .. math::
 
-           L_{total} = L_{data} + alpha(\text{offset\_mode}, \lambda_{offset})
+           L_{total} = L_{data} + \alpha(\text{offset\_{mode}}, \lambda_{offset})
                        \, L_{phys}
 
         where the physics objective is assembled from multiple components:
@@ -3579,20 +3566,20 @@ class GeoPriorSubsNet(BaseAttentive):
         .. math::
 
            L_{phys} =
-               \lambda_{cons}   L_{cons}
-             + \lambda_{gw}     L_{gw}
-             + \lambda_{prior}  L_{prior}
-             + \lambda_{smooth} L_{smooth}
-             + \lambda_{mv}     L_{mv}
-             + \lambda_{bounds} L_{bounds}
-             + \lambda_{q}      L_{q}
+               &&\lambda_{cons}   L_{cons}\\
+             && + \lambda_{gw}     L_{gw}\\
+             && + \lambda_{prior}  L_{prior}\\
+             && + \lambda_{smooth} L_{smooth}\\
+             && + \lambda_{mv}     L_{mv}\\
+             && + \lambda_{bounds} L_{bounds}\\
+             && + \lambda_{q}      L_{q}\\
 
         Each component corresponds to a residual (or penalty) computed in the
         shared physics core and summarized as mean-square values. The global
         multiplier :math:`alpha` is determined by ``self.offset_mode``:
 
-        * ``offset_mode='mul'``  : :math:`alpha = \lambda_{offset}`
-        * ``offset_mode='log10'``: :math:`alpha = 10^{\lambda_{offset}}`
+        * ``offset_mode='mul'``  : :math:`\alpha = \lambda_{offset}`
+        * ``offset_mode='log10'``: :math:`\alpha = 10^{\lambda_{offset}}`
 
         The value of ``lambda_offset`` is stored in a non-trainable scalar
         weight ``self._lambda_offset`` (created via ``add_weight``), which
@@ -3836,7 +3823,7 @@ class GeoPriorSubsNet(BaseAttentive):
             Computes the global physics multiplier from ``offset_mode`` and
             ``self._lambda_offset``.
 
-        geoprior.nn.pinn.geoprior.step_core.physics_core
+        geoprior.models.subsidence.step_core.physics_core
             Computes per-batch physics residuals and loss terms.
 
         """

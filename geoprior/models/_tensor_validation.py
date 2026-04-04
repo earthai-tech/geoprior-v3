@@ -3,7 +3,7 @@
 # Copyright (c) 2026-present
 # Author: LKouadio <etanoyau@gmail.com>
 # website:https://lkouadio.com
-
+r"""Tensor validation helpers for model workflows."""
 
 from __future__ import annotations
 

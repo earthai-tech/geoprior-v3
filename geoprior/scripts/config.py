@@ -3,6 +3,7 @@
 # geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
+r"""Shared configuration helpers for GeoPrior scripts."""
 
 from __future__ import annotations
 

@@ -1,5 +1,6 @@
 #   License: BSD-3-Clause
 #   Author: LKouadio <etanoyau@gmail.com>
+r"""Tests for metric plotting helpers."""
 
 import warnings
 

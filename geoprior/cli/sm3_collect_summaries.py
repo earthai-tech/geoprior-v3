@@ -6,19 +6,23 @@
 """
 Collect SM3 per-regime summaries into one combined table.
 
-Expected structure under --suite-root:
-  sm3_tau_<reg>_50/
-    sm3_synth_summary.csv
+Expected structure under ``--suite-root``::
+
+    sm3_tau_<reg>_50/
+        sm3_synth_summary.csv
 
 Writes:
-  --out-csv  combined CSV (long format)
-  --out-json combined JSON (records)
+- ``--out-csv``: combined CSV (long format)
+- ``--out-json``: combined JSON (records)
 
-Example:
-  python nat.com/sm3_collect_summaries.py \
-    --suite-root results/sm3_tau_suite_20260303-120000 \
-    --out-csv results/.../combined.csv \
-    --out-json results/.../combined.json
+Example
+-------
+.. code-block:: bash
+
+   python nat.com/sm3_collect_summaries.py \
+     --suite-root results/sm3_tau_suite_20260303-120000 \
+     --out-csv results/.../combined.csv \
+     --out-json results/.../combined.json
 """
 
 from __future__ import annotations

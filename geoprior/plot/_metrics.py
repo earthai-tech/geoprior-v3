@@ -2,6 +2,7 @@
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
+r"""Plotting helpers for evaluation metrics."""
 
 import warnings
 from collections.abc import Sequence

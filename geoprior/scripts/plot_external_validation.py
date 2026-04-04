@@ -4,10 +4,7 @@
 # Author: LKouadio <https://lkouadio.com>
 
 """
-plot_external_validation
-
-Supplementary figure:
-Zhongshan point-support external validation of inferred
+Plot point-support external validation of inferred
 effective fields.
 
 Panels

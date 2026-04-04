@@ -1,3 +1,5 @@
+r"""Public exports for GeoPrior metrics."""
+
 from ._metrics import (
     continuous_ranked_probability_score,
     coverage_score,

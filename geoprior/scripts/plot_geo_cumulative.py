@@ -4,45 +4,48 @@
 # Author: LKouadio <https://lkouadio.com>
 
 """
-Cumulative subsidence maps on satellite basemap + optional hotspots.
+Plot cumulative subsidence maps on satellite basemap + optional hotspots.
 
-Layout (2 rows × N columns):
+Layout
+------
+The figure uses two rows by N columns, with Nansha on top and
+Zhongshan on the bottom. The first columns show 2022 observed and
+predicted cumulative maps, followed by forecast cumulative maps for
+later years.
 
-  [2022 observed (cum)] [2022 predicted (cum)]
-  [2024 forecast (cum)] [2025 forecast (cum)] ...
-
-Rows: Nansha (top), Zhongshan (bottom).
-
-Background: Esri.WorldImagery satellite tiles (contextily).
-Foreground: PS points coloured by cumulative subsidence (mm)
-            since a baseline year (default 2020).
-Optional: hotspot overlay from Fig.6 hotspot points CSV.
+Background and overlays
+-----------------------
+- Background: ``Esri.WorldImagery`` satellite tiles via
+  ``contextily``.
+- Foreground: PS points colored by cumulative subsidence (mm) since
+  a baseline year, default 2020.
+- Optional overlay: hotspot points from the Fig. 6 hotspot CSV.
 
 Cumulative definition
 ---------------------
 This script always plots *cumulative since start_year*, but the
 input CSV can be:
 
-1) --subsidence-kind=cumulative (default)
-   Values are already cumulative. We rebase at the first year
-   >= start_year:
-
-     cum(t) = value(t) - value(first)
-
-2) --subsidence-kind=increment (or rate)
-   Values are yearly increments. We accumulate:
-
-     cum(t) = sum_{y} increment(y)
+1. ``--subsidence-kind=cumulative`` (default): values are already
+   cumulative, so the script rebases them at the first year greater
+   than or equal to ``start_year`` using
+   ``cum(t) = value(t) - value(first)``.
+2. ``--subsidence-kind=increment`` or ``rate``: values are yearly
+   increments, so the script accumulates them using
+   ``cum(t) = sum_y increment(y)``.
 
 CRS handling (lat/lon vs UTM)
 -----------------------------
 coord_x/coord_y may be:
-- lon/lat (degrees)  -> treated as EPSG:4326
-- UTM (meters)       -> treated as EPSG:<utm_epsg> (default 32649)
+
+- lon/lat (degrees), treated as EPSG:4326
+- UTM (meters), treated as ``EPSG:<utm_epsg>`` with default 32649
 
 Auto-detection:
-- if |x|<=180 and |y|<=90 => lon/lat
-- else => UTM
+
+- if ``abs(x) <= 180`` and ``abs(y) <= 90``, treat the coordinates
+  as lon/lat
+- otherwise, treat them as UTM
 
 You can override using --coords-mode and --utm-epsg.
 

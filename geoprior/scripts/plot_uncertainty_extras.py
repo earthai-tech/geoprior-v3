@@ -3,32 +3,7 @@
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
-# Supplementary Fig. S5 — Expanded uncertainty diagnostics.
-#
-# Outputs (new scripts layout)
-# ---------------------------
-# Figures:
-#   scripts/figs/<out>.png
-#   scripts/figs/<out>.pdf
-#
-# Tables:
-#   scripts/out/<tables-stem>.csv
-#   scripts/out/<tables-stem>.tex
-#
-# Inputs (per city)
-# -----------------
-# - Calibrated forecast CSV (val/test) with columns:
-#     forecast_step,
-#     subsidence_q10, subsidence_q50, subsidence_q90,
-#     subsidence_actual
-#
-# - Optional GeoPrior phys JSON:
-#     interval_calibration.factors_per_horizon
-#
-# Discovery (recommended)
-# -----------------------
-# Provide --ns-src / --zh-src and optionally --split.
-# The script will auto-locate calibrated CSV + phys JSON.
+r"""Extra plotting helpers for uncertainty diagnostics."""
 
 from __future__ import annotations
 

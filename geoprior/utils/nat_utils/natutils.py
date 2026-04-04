@@ -3,6 +3,7 @@
 # Copyright (c) 2026-present
 # Author: LKouadio <etanoyau@gmail.com>
 # website:https://lkouadio.com
+r"""NAT evaluation and artifact helpers for GeoPrior."""
 
 from __future__ import annotations
 

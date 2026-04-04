@@ -3,8 +3,7 @@
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 #
-r"""
-Appendix Fig. A1 • 1D physics sensitivity profiles
+r""" Plot 1D physics sensitivity profiles.
 
 Complements:
 - Supp. Fig. S6 (ablations: skill + coverage),
@@ -20,36 +19,32 @@ we draw two line profiles:
 
 Layout
 ------
-2 rows × 4 columns:
+The figure has 2 rows × 4 columns.
 
-Row 1: City A (default: Nansha)
-  Col 1: metric_prior vs λ_prior
-  Col 2: metric_prior vs λ_cons
-  Col 3: metric_cons  vs λ_prior
-  Col 4: metric_cons  vs λ_cons
-
-Row 2: City B (default: Zhongshan)
-  same four panels.
+- Row 1: City A (default: Nansha), with metric-prior and
+  metric-cons profiles against ``λ_prior`` and ``λ_cons``.
+- Row 2: City B (default: Zhongshan), with the same four panels.
 
 Data source
 -----------
-We scan for JSONL under:
-  <root>/**/ablation_records/ablation_record*.jsonl
+We scan for JSONL under
+``<root>/**/ablation_records/ablation_record*.jsonl``.
 
 Outputs
 -------
-- Figure: <out>.png and <out>.pdf
+- Figure: ``<out>.png`` and ``<out>.pdf``
 - Tidy table copy:
-    appendix_table_A1_phys_profiles_tidy.csv
-  written next to the figure.
+  ``appendix_table_A1_phys_profiles_tidy.csv`` written next to the
+  figure.
 
 API conventions
 ---------------
-- Style via scripts.utils.set_paper_style()
-- Output path via scripts.utils.resolve_fig_out()
-- JSONL discovery via cfg.PATTERNS["ablation_record_jsonl"] +
-  scripts.utils.find_all()
-- main(argv) wrapper calls a *_main(argv) function.
+- Style via ``scripts.utils.set_paper_style()``
+- Output path via ``scripts.utils.resolve_fig_out()``
+- JSONL discovery via ``cfg.PATTERNS["ablation_record_jsonl"]`` plus
+  ``scripts.utils.find_all()``
+- A ``main(argv)`` wrapper calls a dedicated ``*_main(argv)``
+  function.
 
 Linting / format
 ----------------

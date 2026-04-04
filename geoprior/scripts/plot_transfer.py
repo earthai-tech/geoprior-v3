@@ -3,27 +3,27 @@
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
-"""
-Supplementary Figure Sx — Cross-city transferability of GeoPriorSubsNet.
+"""Plot cross-city transferability of GeoPriorSubsNet.
 
-Uses xfer_results.csv produced by nat.com/xfer_matrix.py to show:
+Uses ``xfer_results.csv`` produced by ``nat.com/xfer_matrix.py`` to show:
 
-(a) Cross-city performance vs calibration mode:
-    - Overall MAE (mm)
-    - Overall R²
-
-(b,c) Coverage–sharpness tradeoff for the 80% interval, split
-      by direction:
-    - x-axis: sharpness80 (mm)
-    - y-axis: coverage80 (fraction)
+- cross-city performance versus calibration mode, including overall MAE (mm)
+  and overall R²
+- the 80% interval coverage-sharpness tradeoff by direction, with
+  ``sharpness80`` (mm) on the x-axis and ``coverage80`` (fraction) on the
+  y-axis
 
 Panels summarise:
 - Nansha → Zhongshan (A_to_B)
 - Zhongshan → Nansha (B_to_A)
 
-python -m scripts.plot_transfer \
-  --src results/xfer/nansha__zhongshan \
-  --split val
+Example
+-------
+.. code-block:: bash
+
+   python -m scripts.plot_transfer \
+     --src results/xfer/nansha__zhongshan \
+     --split val
 
 """
 

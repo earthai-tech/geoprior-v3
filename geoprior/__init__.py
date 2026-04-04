@@ -50,7 +50,7 @@ def _lazy_import(module_name: str, alias: str | None = None):
 try:
     from ._version import version as __version__
 except Exception:
-    __version__ = "3.2.0rc1"
+    __version__ = "3.2.0rc2"
 
 
 # Core dependencies (mirrors fusionlab-learn list; adjusted for PyYAML).

@@ -473,41 +473,42 @@ class PINNTunerBase(HyperModel, BaseClass):
             )
 
 
-PINNTunerBase.__doc__ = rf"""
-    Base class for hyperparameter tuning of Physics‐Informed Neural
-    Networks (PINNs) like PIHALNet, using Keras Tuner.
-    
-    This class should be inherited by specific model tuners (e.g.,
-    ``PIHALTuner``). The subclass must implement the
-    ``build(self, hp)`` method, which defines how the Keras model is
-    constructed and compiled with a given set of hyperparameters.
-    
-    The ``PINNTunerBase`` provides a ``search`` method to orchestrate
-    the tuning process.
-    
-    Parameters
-    ----------
-    {_pinn_tuner_docs.base.fixed_model_params}
-    {_pinn_tuner_docs.base.param_space}
-    {_pinn_tuner_docs.base.objective}
-    {_pinn_tuner_docs.base.max_trials}
-    {_pinn_tuner_docs.base.project_name}
-    {_pinn_tuner_docs.base.directory}
-    {_pinn_tuner_docs.base.executions_per_trial}
-    {_pinn_tuner_docs.base.tuner_type}
-    {_pinn_tuner_docs.base.seed}
-    {_pinn_tuner_docs.base.overwrite_tuner}
-    {_pinn_tuner_docs.base.tuner_kwargs}
-    
-    Attributes
-    ----------
-    best_hps_ : dict | None
-        Mapping of the best hyper-parameters discovered during tuning.
-    best_model_ : tf.keras.Model | None
-        Fully trained model achieving the best validation objective.
-    tuner_ : keras_tuner.Tuner | None
-        Underlying Keras Tuner instance used for trials.
-    tuning_log_ : list[dict]
-        Chronological list of trial results, ultimately saved to
-        ``<directory>/<project_name>_tuning_summary.json``.
-    """
+PINNTunerBase.__doc__ = r"""
+Base class for hyperparameter tuning of physics-informed models.
+
+This class wraps keras-tuner orchestration for GeoPrior PINN-style
+models. Subclasses are expected to implement ``build(hp)``.
+
+Parameters
+----------
+objective : str or keras_tuner.Objective, default "val_loss"
+    Metric to optimize during the search.
+max_trials : int, default 10
+    Maximum number of hyperparameter trials to evaluate.
+project_name : str, default "PINN_Tuning"
+    Project name used for tuner artifacts.
+directory : str, default "pinn_tuner_results"
+    Root directory for tuner outputs.
+executions_per_trial : int, default 1
+    Number of repeated trainings per sampled hyperparameter set.
+tuner_type : {"randomsearch", "bayesianoptimization", "hyperband"}, default "randomsearch"
+    Search backend used by keras-tuner.
+seed : int or None, default None
+    Random seed used for reproducibility.
+overwrite_tuner : bool, default True
+    Whether to overwrite an existing tuner project directory.
+tuner_kwargs : dict
+    Additional keyword arguments forwarded to the underlying tuner
+    backend.
+
+Attributes
+----------
+best_hps_ : keras_tuner.HyperParameters or None
+    Best hyperparameters discovered during tuning.
+best_model_ : tf.keras.Model or None
+    Best compiled model recovered from the tuner.
+tuner_ : keras_tuner.Tuner or None
+    Underlying tuner instance.
+tuning_summary_ : dict
+    Compact summary of the completed tuning run.
+"""

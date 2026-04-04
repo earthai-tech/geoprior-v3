@@ -2,6 +2,7 @@
 # and https://github.com/pypa/packaging/blob/main/packaging/_structures.py
 # changeset ae891fd74d6dd4c6063bb04f2faeadaac6fc6313
 # 04/30/2021
+r"""Vendored version parsing utilities."""
 
 # This file is dual licensed under the terms of the Apache License, Version
 # 2.0, and the BSD License. See the LICENSE file in the root of this repository

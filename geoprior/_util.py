@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2026-present Laurent Kouadio
+r"""Internal helpers for configuration, paths, and logging."""
 
 from __future__ import annotations
 

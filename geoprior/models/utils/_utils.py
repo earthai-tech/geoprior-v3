@@ -292,12 +292,10 @@ def export_keras_losses(
     savefile
         Path (optionally with extension) where to write the output.
 
-        If extension is:
-         - .json → writes only JSON
-         - .csv  → writes only CSV
-
-        If no extension given, will write all formats in `formats`
-        using `savefile` as the base name.
+        If the extension is ``.json``, only JSON is written. If the
+        extension is ``.csv``, only CSV is written. If no extension is
+        given, all formats in ``formats`` are written using
+        ``savefile`` as the base name.
     verbose
         If >0, prints status messages.
     formats
@@ -307,13 +305,8 @@ def export_keras_losses(
     Returns
     -------
     result : dict
-
-        {
-            "epochs_run": int,
-            "<key1>": [ ... ],
-            "<key2>": [ ... ],
-            ...
-        }
+        Dictionary containing ``"epochs_run"`` and one list entry per
+        exported history key.
     """
     if isinstance(history, History):
         hist = history.history
@@ -400,11 +393,11 @@ def extract_batches_from_dataset(
     Returns
     -------
     Union[List[Tuple[Any, ...]], Optional[Tuple[Any, ...]]]
-        - If `agg` is False: A list of batch tuples.
-        - If `agg` is True: A single tuple representing the aggregated batch data,
-          or `None` if no batches were extracted.
-        Returns an empty list (if `agg=False`) or `None` (if `agg=True`)
-        if 0 batches are requested or the dataset is empty.
+        If ``agg`` is ``False``, returns a list of batch tuples.
+        If ``agg`` is ``True``, returns one aggregated tuple or
+        ``None`` if no batches were extracted. When zero batches are
+        requested or the dataset is empty, the function returns an
+        empty list for ``agg=False`` and ``None`` for ``agg=True``.
 
     Raises
     ------
@@ -3052,7 +3045,7 @@ def compute_forecast_horizon(
         The ending point for forecasting. Similar to `start_pred`, this can
         be a date string, a `datetime` object, or an integer representing a year.
         The function calculates the forecast horizon based on the difference
-        between `start_pred` and `end_pred.
+        between `start_pred` and `end_pred`.
 
     error : {'raise', 'warn', 'ignore'}, default='raise'
         Defines the error handling behavior when encountering issues such as
@@ -4194,34 +4187,32 @@ def set_default_params(
     quantiles : str, list of float, or None, optional
         Specifies the quantiles to be used for probabilistic forecasting.
 
-        - If set to `'auto'`, it defaults to `[0.1, 0.5, 0.9]`.
-        - If a list is provided, each element must be a float between 0 and 1 (exclusive).
-        - If `None`, it remains as `None` (can be used for deterministic forecasting).
+        If set to ``'auto'``, it defaults to ``[0.1, 0.5, 0.9]``. If a
+        list is provided, each element must be a float between 0 and 1
+        exclusive. If ``None``, it remains ``None`` and can be used for
+        deterministic forecasting.
 
     scales : str, list of int, or None, optional
         Specifies the scaling factors to be used in multi-scale processing.
 
-        - If set to `'auto'` or `None`, it defaults to `[1]`.
-        - If a list is provided, each element must be a positive integer.
+        If set to ``'auto'`` or ``None``, it defaults to ``[1]``. If a
+        list is provided, each element must be a positive integer.
 
     multi_scale_agg : str or None, optional
         Determines the aggregation method for multi-scale features.
 
-        - If set to `None`, `return_sequences` is set to `False`.
-        - Otherwise, `return_sequences` is set to `True`.
-        - Expected aggregation methods could include `'average'`, `'concat'`,
-          ``'sum'``, ``'last'``, ``'auto'`` (fallack to 'last'),etc.,
-        depending on model requirements.
+        If set to ``None``, ``return_sequences`` is ``False``.
+        Otherwise, ``return_sequences`` is ``True``. Expected
+        aggregation methods include ``'average'``, ``'concat'``,
+        ``'sum'``, ``'last'``, and ``'auto'`` (which falls back to
+        ``'last'``), depending on model requirements.
 
     Returns
     -------
     Tuple[List[float], List[int], bool]
-        A tuple containing:
-
-        - `quantiles`: A list of validated quantile floats.
-        - `scales`: A list of validated scale integers.
-        - `return_sequences`: A boolean indicating whether to return
-        sequences based on `multi_scale_agg`.
+        Tuple containing validated ``quantiles``, validated ``scales``,
+        and the ``return_sequences`` flag derived from
+        ``multi_scale_agg``.
 
     Raises
     ------
@@ -7006,7 +6997,7 @@ def make_dict_to_tuple_fn(
     Parameters
     ----------
     feature_keys : Sequence[str]
-        Keys – **in the exact positional order required by the model** –
+        Keys in the exact positional order required by the model
         that will populate the tuple.  For your PINN:
 
         >>> feature_keys = [
@@ -7017,11 +7008,12 @@ def make_dict_to_tuple_fn(
         ... ]
 
     target_keys : Sequence[str] or None, default ``None``
-        * ``None`` – pass through the dataset’s existing target element.
-        * sequence – extract those keys (from *features* **or** *targets*
-          if it is a dict) and return them as:
-            * a single tensor  if `len(target_keys) == 1`;
-            * a dict `{key: tensor}` otherwise.
+        If ``None``, pass through the dataset's existing target
+        element. If a sequence is provided, extract those keys from the
+        feature dictionary or, when available, from the target
+        dictionary. The function returns a single tensor when
+        ``len(target_keys) == 1`` and a ``{key: tensor}`` mapping
+        otherwise.
 
     allow_missing_optional : bool, default ``True``
         Whether to substitute ``None`` for missing *optional* feature or
@@ -7030,14 +7022,14 @@ def make_dict_to_tuple_fn(
     Returns
     -------
     Callable
-        A map-function you can plug into a `tf.data.Dataset`:
+        A map-function you can plug into a ``tf.data.Dataset``:
 
         >>> mapper = make_dict_to_tuple_fn(feature_keys, ["subsidence", "gwl"])
         >>> train_ds = train_ds.map(mapper, num_parallel_calls=tf.data.AUTOTUNE)
 
     Notes
     -----
-    * Duplicate names in `feature_keys` are rejected so the positional
+    * Duplicate names in ``feature_keys`` are rejected so the positional
       tuple cannot be ambiguous.
     * The function is fully Autograph-compatible; TensorFlow will stage
       it as part of the dataset pipeline.
@@ -7153,13 +7145,12 @@ verbose      : int, optional
 Returns
 -------
 pandas.DataFrame
-    A long-format DataFrame with the following columns:
-      - Spatial columns (if provided)
-      - The time column (``dt_col``), if provided
-      - Forecast prediction columns:
-        - In quantile mode: unified columns (e.g. 
-          ``subsidence_q10``, ``subsidence_q50``, etc.)
-        - In point mode: a single column (``subsidence_pred``)
+    A long-format DataFrame containing the retained spatial columns,
+    the time column when ``dt_col`` is provided, and the merged
+    forecast prediction columns. In quantile mode, the output contains
+    unified columns such as ``subsidence_q10`` and
+    ``subsidence_q50``. In point mode, it contains a single
+    ``subsidence_pred`` column.
 
 Examples
 --------
@@ -7184,14 +7175,11 @@ Notes
 -----
 Internally, this function calls:
 
-- :func:`check_forecast_mode` to validate the user-specified 
-  quantiles.
-- :func:`validate_consistency_q` and :func:`validate_quantiles` to ensure 
-  that the quantile values provided by the user match those auto-detected 
-  from the DataFrame.
-- Depending on the ``mode``, it then calls either 
-  :func:`_step_to_long_q` (for quantile mode) or 
-  :func:`_step_to_long_pred` (for point mode) to perform the conversion.
+- :func:`check_forecast_mode` to validate the user-specified quantiles.
+- :func:`validate_consistency_q` and :func:`validate_quantiles` to ensure
+  the supplied quantiles match those auto-detected from the DataFrame.
+- Depending on ``mode``, either :func:`_step_to_long_q` for quantile mode
+  or :func:`_step_to_long_pred` for point mode performs the conversion.
   
 Mathematically, let :math:`X \in \mathbb{R}^{n \times m}` represent the 
 wide-format DataFrame, where each row corresponds to one sample and each 

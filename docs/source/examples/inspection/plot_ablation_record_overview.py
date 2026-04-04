@@ -5,7 +5,7 @@
 
 """
 Inspect ablation records before choosing a configuration
-=======================================================
+========================================================
 
 This lesson explains how to inspect the JSONL artifact
 ``ablation_record.jsonl``.

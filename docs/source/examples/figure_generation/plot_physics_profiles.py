@@ -68,7 +68,7 @@ from geoprior.scripts.plot_physics_profiles import (
 # -------------------------------------
 # The real script scans JSONL ablation records under:
 #
-#   <root>/**/ablation_records/ablation_record*.jsonl
+#   ``<root>/**/ablation_records/ablation_record*.jsonl``
 #
 # So we create a small synthetic record set with that same shape.
 #
@@ -476,7 +476,7 @@ for city in ("Nansha", "Zhongshan"):
 # --------------------
 # The real script scans JSONL records under:
 #
-#   <root>/**/ablation_records/ablation_record*.jsonl
+#   ``<root>/**/ablation_records/ablation_record*.jsonl``
 #
 # It accepts:
 #

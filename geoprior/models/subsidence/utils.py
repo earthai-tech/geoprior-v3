@@ -4,8 +4,7 @@
 # Author: LKouadio <https://lkouadio.com>
 
 """
-GeoPrior small utilities (no derivatives here).
-Short docs only; full docs later.
+GeoPrior subsidence model utilities.
 """
 
 from __future__ import annotations

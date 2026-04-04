@@ -3,6 +3,7 @@
 # Copyright (c) 2026-present
 # Author: LKouadio <etanoyau@gmail.com>
 # website:https://lkouadio.com
+r"""Public exports for model utility helpers."""
 
 from ._utils import (
     compute_anomaly_scores,

@@ -4,17 +4,18 @@
 # Author: LKouadio <https://lkouadio.com>
 
 """
-Fig. S1 — Lithology parity across cities.
+Plot lithology parity across cities.
 
 Left: normalized composition bars (Nansha vs Zhongshan).
 Right: difference bars (Zhongshan - Nansha).
 
-Args:
-  --src   dataset directory
-  --col   column name (default lithology_class)
-  --year  all or a year integer
-  --out   output stem/path (saved into scripts/figs/)
-  -ns/-zh city codes (default uses both)
+Arguments
+---------
+- ``--src``: dataset directory
+- ``--col``: column name, default ``lithology_class``
+- ``--year``: ``all`` or a year integer
+- ``--out``: output stem/path, saved into ``scripts/figs/``
+- ``-ns`` / ``-zh``: city codes; the default uses both
 """
 
 from __future__ import annotations

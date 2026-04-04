@@ -5,7 +5,7 @@
 
 """
 Read smooth spatial structure with ``plot_spatial_contours``
-===========================================================
+============================================================
 
 This lesson explains how to use
 ``geoprior.plot.spatial.plot_spatial_contours`` when you want a

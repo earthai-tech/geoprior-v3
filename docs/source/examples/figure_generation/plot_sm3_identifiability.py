@@ -159,6 +159,7 @@ n_per_lith = 120
 # The key teaching idea here is the latent ridge variable ``u``.
 #
 # When ``u`` changes:
+#
 # - K is pushed one way,
 # - Ss and Hd can partly compensate,
 # - and the system can still look "acceptable" unless we inspect

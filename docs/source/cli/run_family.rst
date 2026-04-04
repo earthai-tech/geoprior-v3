@@ -159,7 +159,7 @@ See also:
 
 
 ``stage1-preprocess``
---------------------
+---------------------
 
 Use ``stage1-preprocess`` when you want to turn a raw or harmonized
 city dataset into the **structured Stage-1 artifact set** used by the

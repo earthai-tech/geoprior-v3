@@ -688,9 +688,11 @@ class BaseAttentive(Model, NNLearner):
         - Attention mechanisms are applied in the decoder block. The
           specific attention types and their order are controlled via the
           `att_levels` parameter, which can include:
-            - 'cross' for cross attention.
-            - 'hierarchical' for hierarchical attention.
-            - 'memory' for memory-augmented attention.
+              
+          - 'cross' for cross attention.
+          - 'hierarchical' for hierarchical attention.
+          - 'memory' for memory-augmented attention.
+          
         - If multiple attention mechanisms are chosen, they are applied
           sequentially.
         - The time dimension is collapsed in the final output, resulting
@@ -895,6 +897,7 @@ class BaseAttentive(Model, NNLearner):
 
         att_levels : str, list of str, int, or None
             Specifies the attention mechanisms to apply and the order:
+                
             - If None or 'use_all' or '*', use all attention mechanisms.
             - If 'hier_att' or 'hierarchical_attention', apply
               hierarchical attention.

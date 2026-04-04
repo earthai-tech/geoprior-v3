@@ -1282,7 +1282,7 @@ def gen_buffered_negative_samples(
     negatives within a circular buffer. The function
     validates input columns and parameters via
     `_validate_negatives_sampling` before constructing
-    synthetic samples [1]_.
+    synthetic samples.
 
     Parameters
     ----------
@@ -1311,25 +1311,24 @@ def gen_buffered_negative_samples(
         Number of negatives to generate per positive
         (landslide) or gauge point.
     strategy : str, default 'landslide'
-        Defines the base from which negative samples
-        are generated:
-          - `'landslide'` or ``'event'``: Use rows from `df`
-            as base.
-          - `'gauge'`: Use rows from `<gauge_data>` as base.
+        Defines the base from which negative samples are generated.
+        Use ``'landslide'`` or ``'event'`` to sample around rows in
+        ``df``. Use ``'gauge'`` to sample around rows in
+        ``gauge_data``.
     gauge_data : pandas.DataFrame, optional
-        Required if `<strategy>` is `'gauge'`. Must
-        contain `<spatial_cols>`.
+        Required if ``strategy`` is ``'gauge'``. Must
+        contain ``spatial_cols``.
     use_gpd : bool or 'auto', default 'auto'
-        If `'auto'`, attempts to use GeoPandas for
+        If ``'auto'``, attempts to use GeoPandas for
         visualization if installed. Otherwise,
         falls back to Matplotlib. This parameter
         is forwarded to the underlying visualization
         function.
     id_col : str or list of str, default 'auto'
-        Column(s) representing IDs in `<df>`. If
-        `'auto'`, the function tries to detect
+        Column(s) representing IDs in ``df``. If
+        ``'auto'``, the function tries to detect
         possible ID columns. Used by
-        `_validate_negatives_sampling`.
+        ``_validate_negatives_sampling``.
     view : bool, default False
         Whether to visualize the sampled negatives
         around the base points.
@@ -1341,36 +1340,36 @@ def gen_buffered_negative_samples(
         Seed for NumPy's random generator, ensuring
         reproducible offsets in negative sampling.
     verbose : int, default 1
-        Controls console messages: `1` for minimal,
-        `2` for more detailed logs.
+        Controls console messages: ``1`` for minimal,
+        ``2`` for more detailed logs.
 
     Returns
     -------
     pandas.DataFrame
         The combined dataset containing both the original
-        (positive) rows, labeled with `target_col`=1,
+        (positive) rows, labeled with ``target_col`` = 1,
         and the newly generated negative rows, labeled
-        `target_col`=0.
+        ``target_col`` = 0.
 
     Methods
     -------
-    `_validate_negatives_sampling`
+    ``_validate_negatives_sampling``
         Validates required columns and parameters,
-        including `<num_neg_per_pos>` and
-        `<neg_feature_range>`.
-    `visualize_negative_sampling`
+        including ``num_neg_per_pos`` and
+        ``neg_feature_range``.
+    ``visualize_negative_sampling``
         Generates a plot showing the negative samples
-        around the base points if `<view>` is True.
+        around the base points if ``view`` is True.
 
     Notes
     -----
-    - If `strategy` is `'gauge'`, `gauge_data` must
-      be provided and contain columns `longitude` and
-      `latitude`.
-    - When `<view>` is True, circles are drawn to
+    - If ``strategy`` is ``'gauge'``, ``gauge_data`` must
+      be provided and contain columns ``longitude`` and
+      ``latitude``.
+    - When ``view`` is True, circles are drawn to
       illustrate the buffer radius.
-    - The ratio of 1° ~ 111 km is approximate and can
-      vary slightly by latitude [1]_.
+    - The ratio of 1 degree to roughly 111 km is an
+      approximation and can vary slightly by latitude.
 
     Formally, a buffer in degrees
     :math:`\\Delta` is computed by:
@@ -1460,11 +1459,6 @@ def gen_buffered_negative_samples(
     visualize_negative_sampling :
         Plots the positive and negative points for inspection.
 
-    References
-    ----------
-    .. [1] "What is a degree of Latitude/Longitude?"
-           US National Geodetic Survey (NGS),
-           https://www.ngs.noaa.gov/.
     """
     # See for reproducibility
     strategy = (
@@ -1675,7 +1669,7 @@ def gen_negative_samples(
     generate negative examples that reflect realistic
     conditions but have not triggered an event, thereby
     assisting models in distinguishing occurrences from
-    non-occurrences [1]_.
+    non-occurrences.
     
     Parameters
     ----------
@@ -1755,8 +1749,8 @@ def gen_negative_samples(
     - When `view=True`, circles depicting the buffer
       zone around each positive sample are drawn for
       visualization.
-    - The approximation of 1° ~ 111 km varies slightly
-      depending on latitude [1]_.
+    - The approximation of 1 degree to roughly 111 km
+      varies slightly depending on latitude.
     
     Mathematically, we define the spatial buffer in degrees
     as:
@@ -1765,7 +1759,7 @@ def gen_negative_samples(
        \\Delta = \\frac{\\text{buffer_km}}{111.0},
     
     where :math:`111.0` km approximates the distance of
-    one degree of latitude or longitude [1]_. For each
+    one degree of latitude or longitude. For each
     positive sample at location :math:`(lat, lon)`,
     we generate :math:`n` new points with offsets
     :math:`\\delta_{lat}` and :math:`\\delta_{lon}`, each
@@ -1816,11 +1810,6 @@ def gen_negative_samples(
     columns_manager : Handles both feature and spatial
                         columns for processing.
     
-    References
-    ----------
-    .. [1] US National Geodetic Survey (NGS). "What is a
-           degree of Latitude/Longitude?"
-           (https://www.ngs.noaa.gov/).
     """
     # Validate input and columns
     checked_values = _validate_negative_sampling(
@@ -2614,8 +2603,7 @@ def filter_position(
     by DataFrame index using the first element of `pos`. This
     approach may fail for multi-level indexes unless
     ``error='warn'`` or ``error='ignore'`` is used to bypass
-    the dimension mismatch. See [1]_ for further discussion
-    on multi-dimensional indexing.
+    the dimension mismatch.
 
     Examples
     --------
@@ -2645,11 +2633,6 @@ def filter_position(
         Truncate multiple DataFrames based on spatial
         coordinates or index alignment with a base DataFrame.
 
-    References
-    ----------
-    .. [1] Smith, J., & Doe, A. (2020). Multi-dimensional
-       indexing in big data. Journal of Spatial Computing,
-       15(3), 200-210.
     """
     # Initialize filtered_df as the original DataFrame
     filtered_df = df.copy()
@@ -3660,47 +3643,28 @@ def batch_spatial_sampling(
         raised.
     
     method : str, {'abs', 'relative'}, default='abs'
-        Defines how the sample size is determined:
-        - ``'abs'`` or ``'absolute'``: Uses a **fixed** sampling proportion
-          based on `sample_size`.
-        - ``'relative'``: Dynamically **scales** sampling based on dataset
-          stratification, ensuring that all stratification groups receive
-          a proportional sample while maintaining a minimum sampling ratio
-          (controlled by `min_relative_ratio`).
-        
-        When ``method='relative'``, the function ensures that even small
-        stratification groups receive a sufficient sample by applying
-        `min_relative_ratio`.
+        Defines how the sample size is determined. ``'abs'`` or
+        ``'absolute'`` uses a fixed sampling proportion based on
+        ``sample_size``. ``'relative'`` scales sampling by dataset
+        stratification so small groups still receive a proportional
+        sample controlled by ``min_relative_ratio``.
 
     min_relative_ratio : float, default=0.01
-        Controls the **minimum allowable fraction** of records that 
-        must be sampled when ``method='relative'``.
-
-        - Ensures that no group is **undersampled** to zero, even if
-          its natural proportion in the dataset is very small.
-        - Must be a value between ``0`` and ``1``.
-        - The default value (``0.01``) means that at **least 1% of the
-          total dataset** will be sampled from each stratification group,
-          regardless of its relative size.
-        
-        **Example Scenarios:**
-        
-        - If `min_relative_ratio=0.05`, then each group **must** 
-          contribute **at least 5%** of the total dataset size (if possible).
-        - If a group is too small to reach this minimum, its entire
-          subset is sampled instead.
-        - This ensures that no group receives **less than
-        ``min_relative_ratio × total samples**``.
+        Controls the minimum allowable fraction of records that must
+        be sampled when ``method='relative'``. It must be between
+        ``0`` and ``1``. For example, ``min_relative_ratio=0.05``
+        requests at least 5 percent of the total dataset size from
+        each stratification group when possible; if a group is smaller
+        than that minimum, the entire subset is sampled instead.
         
     random_state : int, optional
         Controls the randomness of the sampling for reproducibility. This
         integer seed is used to initialize the random number generator.
         The default is ``42``.
     
-    verbose: bool, default=False, 
-       If `True`, displays a progress bar and detailed status messages
-       during execution. Useful for monitoring the process, especially
-       when working with large datasets.
+    verbose : int, default=1
+        Controls progress-bar and status output during execution.
+        Larger values produce more detailed messages.
 
     Returns
     -------
@@ -4157,45 +4121,26 @@ def spatial_sampling(
         sampling. If more than two columns are provided, an error is raised.
 
     method : str, {'abs', 'relative'}, default='abs'
-        Defines how the sample size is determined:
-        - ``'abs'`` or ``'absolute'``: Uses a **fixed** sampling proportion
-          based on `sample_size`.
-        - ``'relative'``: Dynamically **scales** sampling based on dataset
-          stratification, ensuring that all stratification groups receive
-          a proportional sample while maintaining a minimum sampling ratio
-          (controlled by `min_relative_ratio`).
-
-        When ``method='relative'``, the function ensures that even small
-        stratification groups receive a sufficient sample by applying
-        `min_relative_ratio`.
+        Defines how the sample size is determined. ``'abs'`` or
+        ``'absolute'`` uses a fixed sampling proportion based on
+        ``sample_size``. ``'relative'`` scales sampling by dataset
+        stratification so small groups still receive a proportional
+        sample controlled by ``min_relative_ratio``.
 
     min_relative_ratio : float, default=0.01
-        Controls the **minimum allowable fraction** of records that
-        must be sampled when ``method='relative'``.
-
-        - Ensures that no group is **undersampled** to zero, even if
-          its natural proportion in the dataset is very small.
-        - Must be a value between ``0`` and ``1``.
-        - The default value (``0.01``) means that at **least 1% of the
-          total dataset** will be sampled from each stratification group,
-          regardless of its relative size.
-
-        **Example Scenarios:**
-
-        - If `min_relative_ratio=0.05`, then each group **must**
-          contribute **at least 5%** of the total dataset size (if possible).
-        - If a group is too small to reach this minimum, its entire
-          subset is sampled instead.
-        - This ensures that no group receives **less than
-        ``min_relative_ratio × total samples**``.
+        Controls the minimum allowable fraction of records that must
+        be sampled when ``method='relative'``. It must be between
+        ``0`` and ``1``. For example, ``min_relative_ratio=0.05``
+        requests at least 5 percent of the total dataset size from
+        each stratification group when possible; if a group is smaller
+        than that minimum, the entire subset is sampled instead.
 
     random_state : int, optional
         Random seed for reproducibility. Default is ``42``.
 
-    verbose: bool, default=False,
-       If `True`, displays a progress bar and detailed status messages
-       during execution. Useful for monitoring the process, especially
-       when working with large datasets.
+    verbose : int, default=1
+        Controls progress-bar and status output during execution.
+        Larger values produce more detailed messages.
 
     Returns
     -------
@@ -4217,22 +4162,16 @@ def spatial_sampling(
 
     .. math::
 
-        n_i = \left\lceil \frac{N_i}{N} \times n \right\rceil
+        n_i = \\left\\lceil \\frac{N_i}{N} \\times n \\right\\rceil
 
     where :math:`N_i` is the size of group :math:`i`, and :math:`n_i`
     is the number of samples to draw from group :math:`i`.
 
-    The function ensures that:
-
-    - All specified spatial and stratification columns exist in ``data``.
-    - The number of spatial bins matches the number of spatial columns.
-    - The sample size is valid (positive float between 0 and 1, or
-      positive integer).
-
-    Warnings are issued if:
-
-    - Only one spatial column is used, suggesting that using two spatial
-      columns is recommended for more accurate sampling.
+    The function ensures that all specified spatial and stratification
+    columns exist in ``data``, that the number of spatial bins matches
+    the number of spatial columns, and that the sample size is valid.
+    A warning is issued when only one spatial column is used because
+    two spatial columns usually give more reliable spatial sampling.
 
     Examples
     --------

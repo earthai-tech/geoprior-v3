@@ -3,32 +3,32 @@
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 #
-r"""
-Supplement S6 • Extended ablations & sensitivities
+r"""Plot extended ablations & sensitivities.
 
 Updated v3.2 behavior:
+
 - Prefer ablation_record.updated*.jsonl when present.
 - Dedupe (timestamp, city): keep best record (updated wins).
 - Normalize pde_mode to buckets: none vs both
   (off/none -> none, else -> both).
-- Optional explicit --input (csv/json/jsonl) and --models filtering.
+- Optional explicit ``--input`` (csv/json/jsonl) and ``--models``
+  filtering.
 
 Plot upgrades (v3.2+):
-- Configurable colormap via --cmap.
-- Multiple heatmap metrics in a single figure via --heatmap-metrics.
-- Optional heatmap-only layout (no bar row) via --no-bars.
-- Optional "density-like" views via --map-kind:
-    * heatmap     : imshow (default; discrete grid)
-    * smooth      : imshow with interpolation (same data, smoother look)
-    * contour     : contourf on the pivot grid (requires rectangular grid)
-    * tricontour  : tricontourf from scattered points (handles missing cells)
-- Consistent lambda grid alignment across cities/metrics via --align-grid.
-- Optional marker for a chosen (lambda_cons, lambda_prior) point.
 
-- Optional Pareto trade-off view via --pareto:
-    * scatter of (MAE vs Sharpness) colored by Coverage (one panel per city)
-    * optional non-dominated front overlay
-    * optional density overlay (hexbin) via --pareto-density
+- Configurable colormap via ``--cmap``.
+- Multiple heatmap metrics in a single figure via
+  ``--heatmap-metrics``.
+- Optional heatmap-only layout (no bar row) via ``--no-bars``.
+- Optional ``--map-kind`` values: ``heatmap`` for discrete grids,
+  ``smooth`` for interpolated grids, ``contour`` for ``contourf`` on
+  a pivot grid, and ``tricontour`` for scattered cells.
+- Consistent lambda grid alignment across cities and metrics via
+  ``--align-grid``.
+- Optional marker for a chosen ``(lambda_cons, lambda_prior)`` point.
+- Optional Pareto trade-off view via ``--pareto`` with a scatter of
+  MAE versus sharpness, an optional non-dominated front overlay, and
+  an optional ``--pareto-density`` hexbin overlay.
 """
 
 from __future__ import annotations

@@ -169,11 +169,9 @@ Model utility modules
 Subsidence-physics utility modules
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autosummary::
-   :toctree: generated/utils_subsidence
-   :nosignatures:
-
-   ~geoprior.models.subsidence.utils
+The subsidence-physics utility module is indexed from the
+dedicated subsidence API page to keep one canonical autosummary
+stub for :mod:`geoprior.models.subsidence.utils`.
 
 Top-level workflow utility package
 ----------------------------------
@@ -185,6 +183,7 @@ layer of :mod:`geoprior.utils`.
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 What this package covers
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -244,6 +243,7 @@ Audit helpers
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 These helpers matter because they validate Stage-1 scaling and
 Stage-2 handoff assumptions before later model or physics-aware
@@ -256,6 +256,7 @@ Calibration helpers
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 The calibration layer is especially relevant to uncertainty
 workflows spanning Stage-2 through Stage-5 and any evaluation
@@ -268,6 +269,7 @@ Forecast helpers
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 This is one of the most frequently visited workflow helper
 modules because it turns saved or live outputs into reusable
@@ -280,6 +282,7 @@ Generic helpers
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 This module contains reusable helpers for paths, result folders,
 configuration display, and figure-saving behavior.
@@ -291,11 +294,13 @@ Geo/spatial helpers
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 .. automodule:: geoprior.utils.spatial_utils
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Together, these modules support spatial augmentation,
 sampling, clustering, dummy data generation, and degree-to-meter
@@ -309,6 +314,7 @@ Holdout helpers
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 These utilities are especially relevant when the workflow needs
 group-aware, spatially constrained, or otherwise structured
@@ -321,16 +327,19 @@ IO, system, and runtime helpers
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 .. automodule:: geoprior.utils.parallel_utils
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 .. automodule:: geoprior.utils.sys_utils
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 These modules help manage serialization, joblib artifacts,
 threading, runtime-device behavior, and larger workflow-side
@@ -343,21 +352,25 @@ Scale, shape, and sequence helpers
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 .. automodule:: geoprior.utils.sequence_utils
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 .. automodule:: geoprior.utils.shapes
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 .. automodule:: geoprior.utils.target_utils
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 These helpers support inverse target scaling, sequence
 construction, canonical layout handling, and target-aware
@@ -370,21 +383,25 @@ Validation and helper infrastructure
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 .. automodule:: geoprior.utils.deps_utils
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 .. automodule:: geoprior.utils.split
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 .. automodule:: geoprior.utils.validator
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 These modules form the lighter infrastructure layer behind the
 more visible staged helpers.
@@ -396,6 +413,7 @@ NAT/workflow contract helpers
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 This is one of the most important workflow modules in the
 GeoPrior stack. It includes config loading, dataset building,
@@ -409,6 +427,7 @@ Subsidence-oriented workflow helpers
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 This module is the workflow-side bridge back to the subsidence
 application. It exposes unit conversion helpers,
@@ -423,34 +442,49 @@ frequently in staged workflows, export paths, and figure or
 reproducibility scripts.
 
 .. autofunction:: geoprior.utils.load_nat_config
+   :no-index:
 
 .. autofunction:: geoprior.utils.load_nat_config_payload
+   :no-index:
 
 .. autofunction:: geoprior.utils.make_tf_dataset
+   :no-index:
 
 .. autofunction:: geoprior.utils.map_targets_for_training
+   :no-index:
 
 .. autofunction:: geoprior.utils.resolve_si_affine
+   :no-index:
 
 .. autofunction:: geoprior.utils.extract_preds
+   :no-index:
 
 .. autofunction:: geoprior.utils.best_epoch_and_metrics
+   :no-index:
 
 .. autofunction:: geoprior.utils.audit_stage1_scaling
+   :no-index:
 
 .. autofunction:: geoprior.utils.audit_stage2_handshake
+   :no-index:
 
 .. autofunction:: geoprior.utils.calibrate_quantile_forecasts
+   :no-index:
 
 .. autofunction:: geoprior.utils.evaluate_forecast
+   :no-index:
 
 .. autofunction:: geoprior.utils.format_and_forecast
+   :no-index:
 
 .. autofunction:: geoprior.utils.create_spatial_clusters
+   :no-index:
 
 .. autofunction:: geoprior.utils.spatial_sampling
+   :no-index:
 
 .. autofunction:: geoprior.utils.make_txy_coords
+   :no-index:
 
 Model-facing utility package
 ----------------------------
@@ -581,7 +615,6 @@ coherence layer for unit systems, scaling metadata, coordinate
 policies, historical states, and hydrogeological interpretation.
 
 .. automodule:: geoprior.models.subsidence.utils
-   :members:
    :undoc-members:
    :show-inheritance:
    :no-index:

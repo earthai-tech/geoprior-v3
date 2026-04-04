@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:01.184** total execution time for 100 files **from all galleries**:
+**00:05.353** total execution time for 100 files **from all galleries**:
 
 .. container::
 
@@ -32,11 +32,11 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_evaluation_plot_coverage_overview.py` (``examples\evaluation\plot_coverage_overview.py``)
-     - 00:00.635
+   * - :ref:`sphx_glr_auto_examples_evaluation_plot_crps_overview.py` (``examples\evaluation\plot_crps_overview.py``)
+     - 00:02.926
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_evaluation_plot_mean_interval_width_overview.py` (``examples\evaluation\plot_mean_interval_width_overview.py``)
-     - 00:00.549
+   * - :ref:`sphx_glr_auto_examples_evaluation_plot_metric_over_horizon_overview.py` (``examples\evaluation\plot_metric_over_horizon_overview.py``)
+     - 00:02.427
      - 0.0
    * - :ref:`sphx_glr_auto_examples_diagnostics_plot_holdout_group_masks.py` (``examples\diagnostics\plot_holdout_group_masks.py``)
      - 00:00.000
@@ -65,13 +65,13 @@ Computation times
    * - :ref:`sphx_glr_auto_examples_diagnostics_plot_stage3_tuning_summary.py` (``examples\diagnostics\plot_stage3_tuning_summary.py``)
      - 00:00.000
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_evaluation_plot_crps_overview.py` (``examples\evaluation\plot_crps_overview.py``)
+   * - :ref:`sphx_glr_auto_examples_evaluation_plot_coverage_overview.py` (``examples\evaluation\plot_coverage_overview.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_evaluation_plot_forecast_comparison_overview.py` (``examples\evaluation\plot_forecast_comparison_overview.py``)
      - 00:00.000
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_evaluation_plot_metric_over_horizon_overview.py` (``examples\evaluation\plot_metric_over_horizon_overview.py``)
+   * - :ref:`sphx_glr_auto_examples_evaluation_plot_mean_interval_width_overview.py` (``examples\evaluation\plot_mean_interval_width_overview.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_evaluation_plot_metric_radar_overview.py` (``examples\evaluation\plot_metric_radar_overview.py``)

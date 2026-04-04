@@ -4,7 +4,7 @@
 # Author: LKouadio <https://lkouadio.com>
 
 """
-Cumulative subsidence maps on satellite basemap + optional hotspots.
+Plot cumulative subsidence maps on satellite basemap.
 
 Layout (2 rows × N columns):
 

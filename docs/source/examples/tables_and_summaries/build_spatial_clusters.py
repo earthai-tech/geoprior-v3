@@ -1,6 +1,6 @@
 """
 Build spatial cluster tables with ``spatial-clusters``
-=====================================================
+======================================================
 
 This lesson teaches how to use GeoPrior's
 ``spatial-clusters`` build command.

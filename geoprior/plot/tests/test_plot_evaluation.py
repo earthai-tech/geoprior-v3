@@ -1,3 +1,5 @@
+r"""Tests for evaluation plotting helpers."""
+
 import re
 
 # For mocking plt.show and plt.figure

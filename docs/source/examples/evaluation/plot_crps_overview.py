@@ -5,7 +5,7 @@
 
 """
 Read ensemble forecast quality with ``plot_crps``
-================================================
+=================================================
 
 This lesson explains how to use
 ``geoprior.plot.evaluation.plot_crps`` when you want to judge the

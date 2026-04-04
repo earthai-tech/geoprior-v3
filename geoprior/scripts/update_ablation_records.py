@@ -3,7 +3,7 @@
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
-"""Update ablation_record.jsonl using post-hoc calibrated metrics.
+"""Update ablation_record  using post-hoc calibrated metrics.
 
 Why this script
 ---------------

@@ -3,8 +3,7 @@
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 #
-r"""
-SM3 • Bounds vs ridge summary (paper-style)
+r"""Plot bounds vs ridge summary.
 
 Summarize two failure modes in SM3 synthetic runs:
 - "clipped to bounds" (inferred from observed extrema)

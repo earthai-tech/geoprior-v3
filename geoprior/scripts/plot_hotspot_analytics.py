@@ -3,19 +3,8 @@
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
 
-#
-# Hotspot analytics for decision makers (Nature-friendly figure).
-#
-# Produces a 2x4 (cities x panels) figure:
-#   (1) Hotspot anomaly map |Δs| vs base-year
-#   (2) Risk probability map P(|s| >= threshold)
-#   (3) Hotspot timeline (n, T0.9, mean/max |Δs|)
-#   (4) Priority list (top clusters)
-#
-# Also exports:
-#   - scripts/out/hotspot_points.csv
-#   - scripts/out/hotspot_years.csv
-#   - scripts/out/hotspot_clusters.csv
+r"""Script helpers for plotting hotspot analytics."""
+
 
 from __future__ import annotations
 
@@ -879,15 +868,18 @@ def build_hotspot_tables(
     Build point/year hotspot tables for one city.
 
     Robust points:
-    - If kind="cumulative", annual rates are derived via diffs.
-      For the first requested year, we automatically include the
-      previous year if available (future preferred, else eval).
-    - Hotspot rule can be percentile/abs/risk/combo (optional).
-    - Risk can be exposure-weighted :math:`P * |\Delta s | * exposure`.
+    
+    - If ``kind="cumulative"``, annual rates are derived via diffs.
+      For the first requested year, the previous year is included
+      automatically when available, preferring future data and
+      otherwise evaluation data.
+    - The hotspot rule can be percentile, abs, risk, or combo.
+    - Risk can be exposure-weighted as
+      :math:`P * |\Delta s| * exposure`.
 
-    Returns CityHotspotData with:
-      df_points: per-point metrics for requested years
-      df_years: per-year summaries for requested years
+    Returns ``CityHotspotData`` with ``df_points`` for the requested
+    per-point metrics and ``df_years`` for the requested per-year
+    summaries.
     """
     # ---- normalize years
     years_req = sorted({int(y) for y in years})

@@ -95,6 +95,7 @@ exclude_patterns = [
     "Thumbs.db",
     ".DS_Store",
     "examples/**/GALLERY_HEADER.rst",
+    "api/generated/utils_subsidence/geoprior.models.subsidence.utils.rst",
 ]
 source_suffix = {
     ".rst": "restructuredtext",

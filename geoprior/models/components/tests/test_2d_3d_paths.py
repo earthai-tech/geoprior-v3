@@ -1,3 +1,5 @@
+r"""Tests for 2D and 3D component code paths."""
+
 import tensorflow as tf
 from fusionlab.nn.components.heads import (
     GaussianHead,

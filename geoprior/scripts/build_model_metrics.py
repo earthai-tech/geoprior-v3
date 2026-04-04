@@ -9,30 +9,30 @@ This scans a results root (or a single run folder) and collects
 metrics from ablation records, preferring *updated* JSONL records.
 
 Outputs (under scripts/out/ unless overridden)
---------------------------------------------
-- <out>.csv        (wide table; one row per run)
-- <out>.json       (same as CSV, as a list of dicts)
-- <out>_long.csv   (optional; one row per horizon per run)
-- <out>_long.json  (optional)
+----------------------------------------------
+- ``<out>.csv``: wide table with one row per run
+- ``<out>.json``: same content as the CSV, serialized as records
+- ``<out>_long.csv``: optional long table with one row per horizon per run
+- ``<out>_long.json``: optional JSON version of the long table
 
 Data sources
 ------------
-We scan for JSONL under:
-  <src>/**/ablation_records/ablation_record*.jsonl
+We scan for JSONL under
+``<src>/**/ablation_records/ablation_record*.jsonl``.
 
 Preference order (robust even if cfg differs)
---------------------------------------------
-  1) ablation_record.updated*.jsonl
-  2) ablation_record*.jsonl
+---------------------------------------------
+1. ``ablation_record.updated*.jsonl``
+2. ``ablation_record*.jsonl``
 
 Notes
 -----
 - Legacy (SI) ablation records are auto-converted to mm when
   values look like meters (heuristic).
-- Per-horizon blocks are expanded to columns like:
-    r2_H1, r2_H2, mae_H1, mae_H2, ...
-- Interval calibration fields are exported when present:
-    coverage80_cal_phys, sharpness80_cal_phys, ...
+- Per-horizon blocks are expanded to columns such as
+  ``r2_H1``, ``r2_H2``, ``mae_H1``, and ``mae_H2``.
+- Interval calibration fields are exported when present, including
+  ``coverage80_cal_phys`` and ``sharpness80_cal_phys``.
 """
 
 from __future__ import annotations

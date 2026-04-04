@@ -1,3 +1,5 @@
+r"""Evaluation plotting utilities for forecast analysis."""
+
 from ._evaluation import (
     plot_forecast_comparison,
     plot_metric_over_horizon,

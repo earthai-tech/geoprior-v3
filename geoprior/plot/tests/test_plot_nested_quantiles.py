@@ -1,4 +1,5 @@
 #   License: BSD-3-Clause
+r"""Tests for nested-quantile plotting helpers."""
 
 import re
 import warnings

@@ -1,6 +1,6 @@
 """
 Assign boreholes to the nearest city cloud
-=========================================
+==========================================
 
 This example teaches how to use GeoPrior's
 ``assign-boreholes`` build utility.
@@ -604,35 +604,43 @@ plt.show()
 #
 # The exact pattern used in this lesson is:
 #
-# ``geoprior-build assign-boreholes \
-#     --borehole-csv boreholes_validation.csv \
-#     --stage1-dir results/nansha_demo_stage1 \
-#     --stage1-dir results/zhongshan_demo_stage1 \
-#     --outdir results/borehole_assignment \
-#     --output-stem borehole_demo``
+# .. code-block:: bash
+#
+#    geoprior-build assign-boreholes \
+#        --borehole-csv boreholes_validation.csv \
+#        --stage1-dir results/nansha_demo_stage1 \
+#        --stage1-dir results/zhongshan_demo_stage1 \
+#        --outdir results/borehole_assignment \
+#        --output-stem borehole_demo
 #
 # or equivalently:
 #
-# ``geoprior build assign-boreholes \
-#     --borehole-csv boreholes_validation.csv \
-#     --stage1-dir results/nansha_demo_stage1 \
-#     --stage1-dir results/zhongshan_demo_stage1 \
-#     --outdir results/borehole_assignment \
-#     --output-stem borehole_demo``
+# .. code-block:: bash
+#
+#    geoprior build assign-boreholes \
+#        --borehole-csv boreholes_validation.csv \
+#        --stage1-dir results/nansha_demo_stage1 \
+#        --stage1-dir results/zhongshan_demo_stage1 \
+#        --outdir results/borehole_assignment \
+#        --output-stem borehole_demo
 #
 # You can also provide city clouds explicitly:
 #
-# ``geoprior-build assign-boreholes \
-#     --borehole-csv boreholes_validation.csv \
-#     --city-csv nansha=results/nansha_demo_stage1/nansha_proc.csv \
-#     --city-csv zhongshan=results/zhongshan_demo_stage1/zhongshan_proc.csv``
+# .. code-block:: bash
+#
+#    geoprior-build assign-boreholes \
+#        --borehole-csv boreholes_validation.csv \
+#        --city-csv nansha=results/nansha_demo_stage1/nansha_proc.csv \
+#        --city-csv zhongshan=results/zhongshan_demo_stage1/zhongshan_proc.csv
 #
 # Or resolve them from a results layout:
 #
-# ``geoprior-build assign-boreholes \
-#     --borehole-csv boreholes_validation.csv \
-#     --results-dir results \
-#     --cities nansha zhongshan``
+# .. code-block:: bash
+#
+#    geoprior-build assign-boreholes \
+#        --borehole-csv boreholes_validation.csv \
+#        --results-dir results \
+#        --cities nansha zhongshan
 #
 # Useful optional arguments include:
 #

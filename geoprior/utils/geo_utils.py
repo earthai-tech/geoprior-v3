@@ -3,7 +3,7 @@
 # https://lkouadio.com
 # Copyright (c) 2026-present
 # Author: LKouadio <etanoyau@gmail.com>
-
+r"""Geospatial utility helpers for GeoPrior workflows."""
 
 from __future__ import annotations
 

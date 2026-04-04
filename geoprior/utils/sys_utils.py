@@ -117,7 +117,7 @@ class BatchDataFrameBuilder:
     Manages incremental construction of a large DataFrame in
     controlled-size chunks. This can reduce peak memory usage
     and allow GPU-accelerated libraries (e.g., ``cudf``) if
-    they are available and desired [1]_.
+    they are available and desired.
 
     The approach can be expressed mathematically as a chunking
     process that partitions an incoming stream of :math:`N`
@@ -194,11 +194,6 @@ class BatchDataFrameBuilder:
     cudf.DataFrame : GPU DataFrame object from RAPIDS.
     check_processor : Utility for detecting GPU availability.
 
-    References
-    ----------
-    .. [1] Perrone, L. & Bader, D. (2021).
-           *Understanding High-Performance DataFrame Systems*.
-           HPC Journal, 15(3): 101-125.
     """
 
     def __init__(

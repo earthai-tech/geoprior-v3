@@ -2,7 +2,7 @@
 # GeoPrior-v3 — https://github.com/earthai-tech/geoprior-v3
 # Copyright (c) 2026-present
 # Author: LKouadio <https://lkouadio.com>
-
+r"""Script helpers for plotting driver response analyses."""
 
 from __future__ import annotations
 
