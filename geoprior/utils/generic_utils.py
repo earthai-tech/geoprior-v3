@@ -276,110 +276,43 @@ def check_group_column_validity(
     verbose: bool = True,
 ) -> pd.DataFrame | bool:
     """
-    Checks and optionally transforms a numeric group column,
-    providing flexibility for categorical plots or group-based
-    operations. Depending on ``ops``, it may simply validate,
-    apply binning, or return a boolean status of validity.
-
-    Internally, the function compares the number of unique
-    values in `group_col` to ``max_unique``. If the column is
-    numeric and exceeds this threshold, it may require binning
-    or triggers a warning/error based on ``error``.
-
+    Validate a grouping column for categorical-style use and optionally bin it.
+    
     Parameters
     ----------
     df : pandas.DataFrame
-        The input DataFrame holding the data to be examined.
+        Input DataFrame holding the grouping column.
     group_col : str
-        Name of the column in ``df`` that may be treated as
-        a grouping or categorical variable in plots.
+        Name of the candidate grouping column in ``df``.
     ops : {'check_only', 'binning', 'validate'}, optional
-        Defines the operation mode:
-        - ``"check_only"`` : Returns a boolean indicating
-          whether `group_col` is valid as categorical.
-        - ``"binning"`` : Bins `group_col` if necessary,
-          returning a modified DataFrame.
-        - ``"validate"`` : Acts like ``"check_only"``, but
-          raises or warns if invalid, depending on
-          ``error``.
-    max_unique : int
-        Maximum allowable unique numeric values to consider
-        `group_col` categorical.
-    auto_bin : bool
-        Whether to auto-bin if `group_col` is invalid and
-        ``ops='binning'``. If False, a warning/error may
-        appear.
-    bins : int
-        Number of quantile bins to create if binning is
-        used. Must be an integer >= 1.
+        Operation mode. Use ``"check_only"`` to return a boolean,
+        ``"binning"`` to bin the column when needed and return a modified
+        DataFrame, or ``"validate"`` to check validity while honoring
+        ``error``.
+    max_unique : int, optional
+        Maximum number of unique numeric values allowed before the column is
+        treated as too continuous for categorical use.
+    auto_bin : bool, optional
+        Whether to auto-bin a numeric column when ``ops='binning'``.
+    bins : int, optional
+        Number of bins to create when binning is applied.
     error : {'warn', 'raise', 'ignore'}, optional
-        Determines how validation issues are handled:
-        - ``"warn"`` : Prints a warning message.
-        - ``"raise"`` : Raises a ValueError.
-        - ``"ignore"`` : Does nothing.
-    bin_labels : list of str, optional
-        Custom labels for the binned categories if used.
-        If None, default labels like "Q1", "Q2", etc. are
-        generated.
+        Policy used when validation fails.
+    bin_labels : list of str or None, optional
+        Custom labels for generated bins.
     verbose : bool, optional
-        Whether to print informational messages when
-        transformations or warnings occur.
-
+        Whether to emit informational messages.
+    
     Returns
     -------
     bool or pandas.DataFrame
-        - If ``ops="check_only"``, a boolean indicating
-          whether `group_col` can be used as a category.
-        - Otherwise, a pandas DataFrame (possibly with
-          a transformed `group_col`).
-
+        Returns a boolean for ``ops='check_only'``. Otherwise returns a
+        DataFrame, possibly with a transformed ``group_col``.
+    
     Notes
     -----
-    If ``ops="validate"`` and `group_col` is numeric with
-    many unique values, the function may raise or warn,
-    based on the ``error`` argument. If ``auto_bin=True``,
-    it automatically switches to ``"binning"``.
-
-    Mathematically, if the user chooses quantile binning, then
-    :math:`bins` equally spaced quantiles are computed:
-
-    .. math::
-       Q_i = \\text{quantile}\\bigl(
-       \\frac{i}{\\text{bins}}\\bigr),
-       \\quad i = 1,2,\\ldots,\\text{bins}
-
-    where each :math:`Q_i` is the i-th quantile boundary of
-    the distribution of `group_col`. For background on discretization
-    and learning-oriented preprocessing, see
-    :cite:t:`HastieTibshiraniFriedman2009ESL`.
-
-    Examples
-    --------
-    >>> from geoprior.utils.generic_utils import check_group_column_validity
-    >>> import pandas as pd
-    >>> data = {
-    ...     "value": [10.5, 11.2, 9.8, 15.6, 12.0],
-    ...     "category": ["A", "B", "B", "A", "C"]
-    ... }
-    >>> df = pd.DataFrame(data)
-    >>> # Simple check if 'category' can be used
-    >>> # as a grouping column
-    >>> is_valid = check_group_column_validity(
-    ...     df, "category", ops="check_only"
-    ... )
-    >>> print(is_valid)
-    True
-
-    >>> # Binning a numeric column with auto_bin
-    >>> result_df = check_group_column_validity(
-    ...     df, "value", ops="binning", auto_bin=True
-    ... )
-    >>> print(result_df["value"])
-
-    See Also
-    --------
-    pd.qcut : Pandas method used internally for creating
-        quantile-based bins from numeric data.
+    When quantile binning is used, interval boundaries are derived from the
+    numeric distribution of ``group_col``.
     """
 
     # Check if group_col is in the DataFrame.
@@ -2843,102 +2776,41 @@ def normalize_time_column(
     year_col: str = "year_int",
     drop_orig: bool = False,
 ) -> pd.DataFrame:
-    r"""
-    Ensure a time column becomes both a datetime and an integer year.
-
-    Given a DataFrame `df` with a column `time_col` that may contain
-    integer years (e.g., 2015), ISO‐formatted strings (e.g., "2020‐03‐15"),
-    or pandas datetime values, this function:
-      1. Creates a new column `datetime_col` of type `datetime64[ns]`,
-         representing each entry as a full timestamp (if the original was
-         integer or string “YYYY”, it becomes January 1st of that year).
-      2. Creates a new column `year_col` of integer dtype, extracting
-         the year from `datetime_col`.
-      3. Optionally, if `drop_orig=True`, removes the original `time_col`
-         and renames `datetime_col` back to `time_col`.
-
-    It handles mixed‐type entries by first identifying pure integers,
-    parsing those with format `%Y`, and then generically parsing all
-    remaining entries. Invalid entries will raise immediately.
-
-    Mathematically, for each row index $i$ and original value $v_i` in
-    `time_col`:
-    .. math::
-       \text{datetime\_col}_i =
-         \begin{cases}
-           \text{v}_i, & \text{if } v_i \text{ is already a Timestamp}\\[6pt]
-           \text{Timestamp}(\text{str}(v_i) + "-01-01"), & \text{if } v_i \in \mathbb{Z}\\[6pt]
-           \text{pd.to\_datetime}(v_i), & \text{otherwise}
-         \end{cases}
-    and
-    .. math::
-       \text{year\_col}_i = \text{datetime\_col}_i.\text{year}
-
+    """
+    Normalize a time column into a datetime column and an integer year.
+    
+    The input column may contain integer years, strings, or existing pandas
+    Datetime values. The function creates ``datetime_col`` with parsed
+    timestamps and ``year_col`` with the extracted integer year. When
+    ``drop_orig=True``, the original ``time_col`` is removed and
+    ``datetime_col`` is renamed back to ``time_col``.
+    
     Parameters
     ----------
-    df : pd.DataFrame
-        Input DataFrame containing a time column named `time_col`.
+    df : pandas.DataFrame
+        Input DataFrame containing a time column named ``time_col``.
     time_col : str
-        Name of the column to normalize. May contain ints, strings, or
-        datetime64 values.
-    datetime_col : str, default "datetime_temp"
-        Name of the new column to hold parsed datetime values.
-    year_col : str, default "year_int"
-        Name of the new column to hold integer years extracted from
-        `datetime_col`.
-    drop_orig : bool, default False
-        If True, drop original `time_col` and rename `datetime_col` to
-        `time_col` after parsing.
+        Name of the column to normalize.
+    datetime_col : str, default='datetime_temp'
+        Name of the parsed datetime column.
+    year_col : str, default='year_int'
+        Name of the extracted integer year column.
+    drop_orig : bool, default=False
+        If ``True``, drop the original ``time_col`` after parsing and rename
+        ``datetime_col`` back to ``time_col``.
+    
     Returns
     -------
-    pd.DataFrame
-        A copy of `df` with two additional columns:
-        - `datetime_col` as dtype `datetime64[ns]`
-        - `year_col` as integer dtype
-
+    pandas.DataFrame
+        A copy of ``df`` with the parsed datetime column and integer year
+        column.
+    
     Raises
     ------
     ValueError
-        If `time_col` is missing, or if parsing fails for any entry.
+        If ``time_col`` is missing or parsing fails for any entry.
     TypeError
-        If `df` is not a pandas DataFrame.
-
-    Examples
-    --------
-    >>> import pandas as pd
-    >>> from geoprior.utils.generic_utils import normalize_time_column
-    >>> df = pd.DataFrame({
-    ...     "time_mixed": [2015, "2016-07-10", "2017", pd.Timestamp("2018-05-05")]
-    ... })
-    >>> df
-         time_mixed
-    0          2015
-    1    2016-07-10
-    2          2017
-    3    2018-05-05
-
-    >>> df2 = normalize_time_column(
-    ...     df, time_col="time_mixed", datetime_col="dt_col", year_col="yr_col"
-    ... )
-    >>> df2
-         time_mixed     dt_col  yr_col
-    0          2015 2015-01-01    2015
-    1    2016-07-10 2016-07-10    2016
-    2          2017 2017-01-01    2017
-    3    2018-05-05 2018-05-05    2018
-
-    Notes
-    -----
-    - After this call, you can drop the original `time_col` if you
-      only need the normalized columns.
-    - If you only want the integer year, you can still benefit from
-      `datetime_col` for any downstream date‐based logic.
-    - Invalid date strings (e.g., "foo") will cause a `ValueError`
-      during parsing.
-
-    See Also
-    --------
-    pandas.to_datetime : Convert argument to datetime.
+        If ``df`` is not a pandas DataFrame.
     """
     if not isinstance(df, pd.DataFrame):
         raise TypeError(
@@ -3049,80 +2921,30 @@ def select_mode(
     default: str = "pihal_like",
     canonical: dict[str, Any] | list[Any] | None = None,
 ) -> str:
-    r"""
-    Resolve a user‑supplied *mode* string to the canonical value
-    ``'pihal'`` or ``'tft'``.
-
-    The helper is used throughout
-    ``geoprior.nn.models.utils`` to decide whether the model should
-    follow the PIHALNet or the Temporal Fusion Transformer (TFT)
-    convention for handling :pydata:`future_features`.
-
+    """
+    Resolve a user-supplied mode alias to a canonical value.
+    
     Parameters
     ----------
-    mode : Union[str, None], optional
-        Case‑insensitive keyword.  Accepted values are
-
-        * ``'pihal'``        or ``'pihal_like'``
-        * ``'tft'``          or ``'tft_like'``
-        * *None*             – fall back to *default*.
-    default : {'pihal', 'tft'}, default ``'pihal'``
-        Canonical value returned when *mode* is *None*.
-    canonical : dict or list, optional
-        A custom mapping from user input to canonical value.
-        - If a dictionary is provided, it must map input strings to
-          their canonical representation.
-        - If a list is provided, it will be converted to a dictionary
-          where each element is a key, and the value will be the
-          same as the key.
-        - By default, the function uses a predefined dictionary
-          for mode resolution.
-
+    mode : str or None, optional
+        Case-insensitive mode alias. Accepted values include ``'pihal'``,
+        ``'pihal_like'``, ``'tft'``, ``'tft_like'``, or ``None`` to fall
+        back to ``default``.
+    default : {'pihal', 'tft'}, optional
+        Canonical value returned when ``mode`` is ``None``.
+    canonical : dict or list or None, optional
+        Custom alias mapping. A dictionary maps input strings to canonical
+        values. A list is treated as an identity mapping for its items.
+    
     Returns
     -------
     str
-        Canonical string corresponding to the mode, either
-        ``'pihal_like'`` or ``'tft_like'``.
-
+        Canonical string corresponding to the resolved mode.
+    
     Raises
     ------
     ValueError
-        If *mode* is not *None* and does not match any accepted
-        keyword.
-
-    Notes
-    -----
-    * ``'..._like'`` aliases are provided for backward compatibility
-      with earlier API versions.
-    * The function strips whitespace and converts *mode* to lower
-      case before matching.
-
-    Examples
-    --------
-    >>> select_mode('TFT_like')
-    'tft'
-    >>> select_mode(None, default='tft')
-    'tft'
-    >>> select_mode('invalid')
-    Traceback (most recent call last):
-        ...
-    ValueError: Invalid mode 'invalid'. Choose one of: pihal, ...
-
-    See Also
-    --------
-    geoprior.nn.pinn.PIHALNet.call
-        Uses the resolved mode to slice *future_features*.
-    geoprior.nn.pinn.HLNet
-        High‑level model wrapper that exposes the *mode* argument.
-
-    References
-    ----------
-    * Lim, B. et al. *Temporal Fusion Transformers for
-      Interpretable Multi‑horizon Time Series Forecasting.*
-      NeurIPS 2021.
-    * Kouadio, L. K. et al. *Physics‑Informed Heterogeneous Attention
-      Learning for Spatio‑Temporal Subsidence Prediction.*
-      IEEE T‑PAMI 2025 (in press).
+        If ``mode`` does not match any accepted alias.
     """
 
     default_canonical = {

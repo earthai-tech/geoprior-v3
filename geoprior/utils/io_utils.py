@@ -691,39 +691,13 @@ def to_hdf5(
     **hdf5_kws : dict, optional
         Additional keyword arguments to pass to the HDFStore
         constructor (for DataFrames) or to customize dataset creation
-        (for arrays). Examples include:
-          - ``mode``: File mode (e.g., ``'a'``, ``'w'``)
-          - ``complevel``: Compression level (0-9)
-          - ``complib``: Compression library (e.g., ``'zlib'``)
-          - ``fletcher32``: Enable Fletcher32 checksum (bool)
+        (for arrays). Common options include ``mode`` for the file mode,
+        ``complevel`` for compression level, ``complib`` for the
+        compression library, and ``fletcher32`` to enable the Fletcher32
+        checksum. For ``mode``, use ``'r'`` for read-only access, ``'w'``
+        to create a new file, ``'a'`` to append or create, and ``'r+'`` to
+        open an existing file for reading and writing.
 
-        In more details:
-
-        *  mode : {'a', 'w', 'r', 'r+'}, default 'a'
-
-             ``'r'``
-                 Read-only; no data can be modified.
-             ``'w'``
-                 Write; a new file is created (an existing file with the same
-                 name would be deleted).
-             ``'a'``
-                 Append; an existing file is opened for reading and writing,
-                 and if the file does not exist it is created.
-             ``'r+'``
-                 It is similar to ``'a'``, but the file must already exist.
-         * complevel : int, 0-9, default None
-             Specifies a compression level for data.
-             A value of 0 or None disables compression.
-         * complib : {'zlib', 'lzo', 'bzip2', 'blosc'}, default 'zlib'
-             Specifies the compression library to be used.
-             As of v0.20.2 these additional compressors for Blosc are supported
-             (default if no compressor specified: 'blosc:blosclz'):
-             {'blosc:blosclz', 'blosc:lz4', 'blosc:lz4hc', 'blosc:snappy',
-              'blosc:zlib', 'blosc:zstd'}.
-             Specifying a compression library which is not available issues
-             a ValueError.
-         * fletcher32 : bool, default False
-             If applying compression use the fletcher32 checksum.
     Returns
     -------
     store : object
@@ -747,21 +721,18 @@ def to_hdf5(
 
     Notes
     -----
-    - Ensure the dependency ``pytables`` is installed when serializing a
-      DataFrame. If not, an error will be raised.
-    - When serializing NumPy arrays, the dataset is created with the name
-      ``"dataset_01"``.
-    - If ``close`` is set to ``False``, the caller is responsible for
-      closing the store.
-    - The pandas and NumPy foundations underlying this serialization path
-      are summarized in
-      :cite:p:`McKinney2010PythonSciPy,VanDerWaltEtAl2011NumPyArray`.
+    Ensure the dependency ``pytables`` is installed when serializing a
+    DataFrame. When serializing NumPy arrays, the dataset is created with
+    the name ``"dataset_01"``. If ``close`` is set to ``False``, the
+    caller is responsible for closing the store. The pandas and NumPy
+    foundations underlying this serialization path are summarized in
+    :cite:p:`McKinney2010PythonSciPy,VanDerWaltEtAl2011NumPyArray`.
 
     See Also
     --------
-    joblib.dump : For serializing objects using Joblib.
-    pickle.dump : For serializing objects using Pickle.
-    h5py.File   : For working with HDF5 files in Python.
+    joblib.dump
+    pickle.dump
+    h5py.File
     """
 
     # Validate that data is either a NumPy array or a pandas DataFrame.
@@ -824,135 +795,46 @@ def store_or_write_hdf5(
     applyto: str | list[Any] = None,
     **func_kwds,
 ) -> None | pd.DataFrame:
-    r""" Store data to hdf5 or write data to csv file. 
+    """
+    Store a DataFrame to HDF5, write it to CSV, or sanitize it in memory.
     
-    Note that by default, the data is not store nor write and 
-    return data if frame or transform the Path-Like object to data frame. 
-
-    Parameters 
-    -----------
-    d: Dataframe, shape (m_samples, n_features)
-        data to store or write or sanitize.
-    key:str
-       Identifier for the group in the store.
-       
-    mode: {'a', 'w', 'r+'}, default 'a'
-       Mode to open file:
+    Parameters
+    ----------
+    df : pandas.DataFrame or array-like
+        Input data to store, export, or sanitize.
+    key : str or None, optional
+        Group key used when storing to HDF5.
+    mode : {'a', 'w', 'r+'}, optional
+        File mode used when opening an HDF5 store.
+    kind : {'store', 'write', None}, optional
+        Operation to perform. Use ``'store'`` for HDF5 output, ``'write'``
+        for CSV export, or ``None`` to return a sanitized DataFrame.
+    path_or_buf : str, path-like, pandas.HDFStore, file-like, or None, optional
+        Destination path, buffer, or open HDF5 store.
+    encoding : str, optional
+        Output encoding used for CSV export.
+    csv_sep : str, optional
+        Field separator used for CSV export.
+    index : bool, optional
+        Whether to write the index when exporting to CSV.
+    columns : list of str or None, optional
+        Column names used when constructing a DataFrame from an array.
+    sanitize_columns : bool, optional
+        Whether to sanitize column names with the built-in regex helper.
+    func : callable or None, optional
+        Optional custom sanitizing function applied to selected columns.
+    args : tuple, optional
+        Positional arguments forwarded to ``func``.
+    applyto : str or list of str or None, optional
+        Column or columns to which ``func`` should be applied.
+    func_kwds : dict
+        Keyword arguments forwarded to ``func``.
     
-       - 'w': write, a new file is created (an existing file with the 
-                                          same name would be deleted).
-       - 'a': append, an existing file is opened for reading and writing, 
-         and if the file does not exist it is created.
-       - 'r+': similar to 'a', but the file must already exist.
-       
-    kind: str, {'store', 'write', None} , default=None 
-       Type of task to perform: 
-           
-       - 'store': Store data to hdf5
-       - 'write': export data to csv file.
-       - None: construct a dataframe if array is passed or sanitize it. 
-
-    path_or_buf: str or pandas.HDFStore, or str, path object, file-like \
-        object, or None, default=None 
-       File path or HDFStore object. String, path object
-       (implementing os.PathLike[str]), or file-like object implementing 
-       a write() function. If ``write=True`` and  None, the result is returned 
-       as a string. If a non-binary file object is passed, it should be 
-       opened with newline=" ", disabling universal newlines. If a binary 
-       file object is passed, mode might need to contain a 'b'.
-      
-    encoding: str, default='utf8'
-       A string representing the encoding to use in the output file, 
-       Encoding is not supported if path_or_buf is a non-binary file object. 
-
-    csv_sep: str, default=',', 
-       String of length 1. Field delimiter for the output file.
-       
-    index: bool, index =False, 
-       Write data to csv with index or not. 
-       
-    columns: list of str, optional 
-        Usefull to create a dataframe when array is passed. Be aware to fit 
-        the number of array columns (shape[1])
-        
-    sanitize_columns: bool, default=False, 
-       remove undesirable character in the data columns using the default
-       argument of `regex` parameters and fill pattern to underscore '_'. 
-       The default regex implementation is:: 
-           
-           >>> import re 
-           >>> re.compile (r'[_#&.)(*@!,;\s-]\s*', flags=re.IGNORECASE)
-           
-    func: callable, Optional 
-       A custom sanitizing function and apply to each columns of the dataframe.
-       If provide, the expected columns must be listed to `applyto` parameter.
-       
-    args: tuple, optional 
-       Positional arguments of the sanitizing columns 
-       
-    applyto: str or list of str, Optional 
-       The list of columns to apply the function ``func``. To apply the 
-       function to all columns, use the ``*`` instead. 
-       
-    func_kwds: dict, 
-       Keywords arguments of the sanitizing function ``func``. 
-       
-    Return 
+    Returns
     -------
-    None or d: None of dataframe. 
-      returns None if `kind` is set to ``write`` or ``store`` otherwise 
-      return the dataframe. 
-  
-    Examples
-    --------
-    >>> from geoprior.utils.io_utils import store_or_write_hdf5
-    >>> from geoprior.datasets import load_bagoue 
-    >>> data = load_bagoue().frame 
-    >>> data.geol[:5]
-    0    VOLCANO-SEDIM. SCHISTS
-    1                  GRANITES
-    2                  GRANITES
-    3                  GRANITES
-    4          GEOSYN. GRANITES
-    Name: geol, dtype: object
-    >>> data = store_or_write_hdf5 ( data, sanitize_columns = True)
-    >>> data[['type', 'geol', 'shape']] # put all to lowercase
-      type                    geol shape
-    0   cp  volcano-sedim. schists     w
-    1   ec                granites     v
-    2   ec                granites     v
-    >>> # compute using func 
-    >>> def test_func ( a, times  , to_percent=False ): 
-            return ( a * times / 100)   if to_percent else ( a *times )
-    >>> data.sfi[:5]
-    0    0.388909
-    1    1.340127
-    2    0.446594
-    3    0.763676
-    4    0.068501
-    Name: sfi, dtype: float64
-    >>> d = store_or_write_hdf5 ( data,  func = test_func, args =(7,), applyto='sfi')
-    >>> d.sfi[:5] 
-    0    2.722360
-    1    9.380889
-    2    3.126156
-    3    5.345733
-    4    0.479507
-    Name: sfi, dtype: float64
-    >>> store_or_write_hdf5 ( data,  func = test_func, args =(7,),
-                          applyto='sfi', to_percent=True).sfi[:5]
-    0    0.027224
-    1    0.093809
-    2    0.031262
-    3    0.053457
-    4    0.004795
-    Name: sfi, dtype: float64
-    >>> # write data to hdf5 and outputs to current directory 
-    >>> store_or_write_hdf5 ( d, key='test0', path_or_buf= 'test_data.h5', 
-                          kind ='store')
-    >>> # export data to csv 
-    >>> store_or_write_hdf5 ( d, key='test0', path_or_buf= 'test_data', 
-                          kind ='export')
+    None or pandas.DataFrame
+        Returns ``None`` when ``kind`` is ``'store'`` or ``'write'``.
+        Otherwise returns the resulting DataFrame.
     """
 
     kind = key_search(
@@ -1649,53 +1531,31 @@ def rename_files(
     sortby: re.Pattern | callable = None,
     **kws,
 ) -> None:
-    r"""Rename files in directory.
-
+    """
+    Rename files from one set of names or paths to another.
+    
     Parameters
-    -----------
-    src_files: str, Path-like object
-       Source files to rename
-
-    dst_files: str of PathLike object
-       Destination files renamed.
-
-    extension: str, optional
-       If a path is given in `src_files`, specifying the `extension` will just
-       collect only files with this typical extensions.
-
-    basename: str, optional
-       If `dst_files` is passed as Path-object, name should be needed
-       for a change, otherwise, the number is incremented using the Python
-       index counting defined by the parameter ``how=py`
-
-    how: str, default='py'
-       The way to increment files when `dst_files` is given as a Path object.
-       For instance, for a  ``name=E_survey`` and ``prefix==True``, the first
-       file should be ``E_survey_00`` if ``how='py'`` otherwise it should be
-       ``E_survey_01``.
-
-    prefix: bool, default=True
-      Prefix is used to position the name before the number incrementation.
-      If ``False`` and `name` is given, the number is positionning before the
-      name. If ``True`` and not `prefix` for a ``name=E_survey``, it should be
-      ``00_E_survey`` and ``01_E_survey``.
-
-    keep_copy: bool, default=True
-       Keep a copy of the source files.
-
-    trailer: str, default='_',
-       Item used to separate the basename for counter.
-
-    sortby: Regex or Callable,
-       Key to sort the collection of the items when `src_files` is passed as
-       a path-like object.  This is usefull to keep order as the origin files
-       especially when files include a specific character. The values
-       ``int``, ``float``, ``"num"``, and ``"digit"`` sort files
-       according to the number included in the filename when present.
-
-    kws: dict
-       keyword arguments passed to `os.rename`.
-
+    ----------
+    src_files : str or list of str
+        Source files or a directory containing files to rename.
+    dst_files : str or list of str
+        Destination file names or destination directory.
+    basename : str or None, optional
+        Base name used when generating numbered destination files.
+    extension : str or None, optional
+        Optional extension filter when ``src_files`` is a directory.
+    how : str, optional
+        Numbering convention used when destination names are generated.
+    prefix : bool, optional
+        Whether generated numbering is appended after the basename.
+    keep_copy : bool, optional
+        Whether to keep copies of the original files.
+    trailer : str, optional
+        Separator inserted between the basename and the generated counter.
+    sortby : regex, callable, or None, optional
+        Optional sort key used when collecting files from a directory.
+    **kws : dict
+        Additional keyword arguments forwarded to ``os.rename``.
     """
     dest_dir = None
     trailer = str(trailer)

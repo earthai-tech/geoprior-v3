@@ -8,24 +8,21 @@
 Utilities for computing error metrics in *physical* units given
 Stage-1 scaling metadata.
 
-Main entry points
------------------
-- inverse_scale_target(...)
-- point_metrics(...)
-- per_horizon_metrics(...)
+Main entry points include ``inverse_scale_target(...)``,
+``point_metrics(...)``, and ``per_horizon_metrics(...)``.
 
 These are designed to work with the NATCOM pipeline where Stage-1
-stores a ``scaler_info`` dict in the manifest:
+stores a ``scaler_info`` dict in the manifest::
 
     scaler_info[target_name] = {
         "scaler_path": ".../main_scaler.joblib",
         "all_features": [...],
         "idx": <index in scaler>,
-        "scaler": <fitted MinMaxScaler>  # optional, attached at Stage-2
+        "scaler": <fitted MinMaxScaler>,  # optional, attached at Stage-2
     }
 
-But they are also flexible enough to handle a bare scaler object,
-a scaler path, or manual min/max / mean/std parameters.
+They can also handle a bare scaler object, a scaler path, or manual
+min/max or mean/std parameters.
 """
 
 from __future__ import annotations
@@ -133,12 +130,10 @@ def evaluate_point_forecast(
     r"""
     End-to-end helper for point-forecast evaluation.
 
-    Pipeline:
-      1) extract_preds(model, out)
-      2) canonicalize BHQO (if quantiles)
-      3) pick median (or chosen quantile/index)
-      4) inverse-scale (optional)
-      5) compute global + per-horizon metrics
+    Pipeline: extract predictions from ``model`` and ``out``,
+    canonicalize BHQO quantile outputs when needed, pick a point
+    prediction, optionally inverse-scale it, and compute global and
+    per-horizon metrics.
 
     Parameters
     ----------
@@ -149,29 +144,27 @@ def evaluate_point_forecast(
     y_true_gwl :
         Optional true gwl/head, same shape conventions.
     n_q, quantiles, q :
-        Quantile selection for (B, H, Q, 1) outputs.
-        - if q is None -> median (prefer_median=True)
-        - if q is int  -> direct index
-        - if q is float and quantiles is provided ->
-          nearest quantile
-        - if q is float and quantiles is None ->
-          treat as fraction in [0, 1]
+        Quantile-selection controls for ``(B, H, Q, 1)`` outputs. If
+        ``q`` is ``None``, the median is preferred. If ``q`` is an
+        integer, it is treated as a direct quantile index. If ``q`` is a
+        float and ``quantiles`` is provided, the nearest quantile is
+        selected; otherwise the float is treated as a fraction in
+        ``[0, 1]``.
     use_physical :
         If True, compute metrics in physical units.
     return_physical :
         If None, defaults to use_physical.
-        If True, return *_phys arrays when possible.
-    scaler_* :
-        Passed to inverse_scale_target(...).
+        If ``True``, return physical-space arrays such as
+        ``subs_pred_phys`` and ``gwl_pred_phys`` when possible.
+    scaler_info, scaler_entry, scaler, feature_index, n_features, params :
+        Passed through to ``inverse_scale_target(...)``.
 
     Returns
     -------
     dict
-        Keys:
-          - subs_pred_model, gwl_pred_model
-          - subs_pred_phys,  gwl_pred_phys  (optional)
-          - subs_metrics, subs_mae_h, subs_r2_h
-          - gwl_metrics,  gwl_mae_h,  gwl_r2_h (optional)
+        Dictionary containing model-space predictions, optional
+        physical-space predictions, and global and per-horizon metrics for
+        subsidence and groundwater outputs.
     """
     if return_physical is None:
         return_physical = use_physical
@@ -307,7 +300,7 @@ def auto_noise_std_from_increments(
     noise_frac : float, default=0.10
         Fraction applied to the percentile scale.
     percentile : float, default=95.0
-        Percentile of :math:`\lvert y_{inc} \rvert` used as scale.
+        Percentile of the absolute increments used as the scale.
     min_std : float, default=0.0
         Lower bound for returned std.
     max_std : float or None, default=None
@@ -322,10 +315,10 @@ def auto_noise_std_from_increments(
 
     Notes
     -----
-    - Filters non-finite values.
-    - If scale is approximately 0, falls back to
-      :math:`\max(\lvert y_{inc} \rvert)`, then
-      :math:`\operatorname{mean}(\lvert y_{inc} \rvert)`, then ``eps``.
+    Non-finite values are filtered first. If the percentile-based scale
+    is approximately zero, the function falls back to the maximum
+    absolute increment, then the mean absolute increment, and finally
+    to ``eps``.
     """
     if y_inc is None:
         return float(max(min_std, 0.0))
@@ -791,9 +784,10 @@ def point_metrics(
     y_true, y_pred : array-like
         Arbitrary shapes (e.g. (N, H, 1)); flattened internally.
     use_physical : bool, default=False
-    scaler_info, target_name, scaler_entry, scaler, feature_index,
-    n_features, params :
-        Passed through to inverse_scale_target.
+        If ``True``, inverse-transform ``y_true`` and ``y_pred`` to
+        physical units before computing metrics.
+    scaler_info, target_name, scaler_entry, scaler, feature_index, n_features, params : optional
+        Passed through to ``inverse_scale_target``.
 
     Returns
     -------

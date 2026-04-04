@@ -3558,7 +3558,7 @@ class GeoPriorSubsNet(BaseAttentive):
 
         .. math::
 
-           L_{total} = L_{data} + \alpha(\text{offset\_{mode}}, \lambda_{offset})
+           L_{total} = L_{data} + \alpha(\text{offset_mode}, \lambda_{offset})
                        \, L_{phys}
 
         where the physics objective is assembled from multiple components:
@@ -3566,7 +3566,7 @@ class GeoPriorSubsNet(BaseAttentive):
         .. math::
 
            L_{phys} =
-               &&\lambda_{cons}   L_{cons}\\
+             &&\lambda_{cons}   L_{cons}\\
              && + \lambda_{gw}     L_{gw}\\
              && + \lambda_{prior}  L_{prior}\\
              && + \lambda_{smooth} L_{smooth}\\

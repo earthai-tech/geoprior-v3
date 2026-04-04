@@ -64,11 +64,10 @@ def get_output_names(
 ):
     """
     Try to obtain stable output names (best-effort, Keras-3-safe).
-    Priority:
-      1) model._output_keys / model._output_names (your own, recommended)
-      2) model.output_names (functional models typically)
-      3) keys from y_pred dict
-      4) keys from y dict
+
+    Lookup priority is: ``model._output_keys`` or ``model._output_names``
+    first, then ``model.output_names``, then keys from ``y_pred``, and
+    finally keys from ``y``.
     """
     if model is not None:
         for attr in (

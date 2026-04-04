@@ -77,6 +77,16 @@ it also serves as an applied complement to the
          See how the project turns model outputs and diagnostics into
          publication-ready figures for interpretation and communication.
 
+      .. grid-item-card:: Application case studies
+         :class-card: sd-shadow-sm card--workflow
+         :link: ../auto_examples/applications/index
+         :link-type: doc
+
+         Move from workflow pages to full applied examples that show how
+         GeoPrior is read as a scientific case study, from core value and
+         identifiability guardrails to hotspot prioritization and
+         transferability across cities.
+
 How to read this section
 ------------------------
 
@@ -92,7 +102,10 @@ modules are implemented.
 The second is as a map of research-facing use cases. In that mode, each
 page acts as a focused application note showing how a specific activity
 fits into the broader GeoPrior ecosystem, what artifacts it depends on,
-and which later outputs it supports.
+and which later outputs it supports. The application case-study gallery
+under :doc:`../auto_examples/applications/index` is a natural follow-on
+when you want to see those ideas assembled into full scientific reading
+paths.
 
 A useful reading path is often:
 
@@ -100,18 +113,21 @@ A useful reading path is often:
 #. continue to :doc:`tuner_workflow`,
 #. then read :doc:`calibration_and_uncertainty`,
 #. finish with :doc:`reproducibility_scripts` and
-   :doc:`figure_generation`.
+   :doc:`figure_generation`,
+#. then move to :doc:`../auto_examples/applications/index` for the
+   case-study gallery.
 
 That sequence moves from the main applied workflow to experimentation,
-then to credibility analysis, and finally to the reproducibility and
-communication layers that support research-grade use.
+then to credibility analysis, and finally to the reproducibility,
+communication, and case-study layers that support research-grade use.
 
 .. tip::
 
    If you are new to GeoPrior, start with the forecasting page first.
    If you already know the workflow and mainly want to understand how
    results are organized, checked, regenerated, and presented, move
-   directly to the calibration, reproducibility, and figure pages.
+   directly to the calibration, reproducibility, figure, and case-study
+   pages.
 
 .. toctree::
    :maxdepth: 1
@@ -122,3 +138,4 @@ communication layers that support research-grade use.
    calibration_and_uncertainty
    reproducibility_scripts
    figure_generation
+   ../auto_examples/applications/index

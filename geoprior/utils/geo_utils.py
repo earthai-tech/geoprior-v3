@@ -441,87 +441,43 @@ def augment_series_features(
     random_seed: int | None = None,
     savefile: str | None = None,
 ) -> pd.DataFrame:
-    r"""
-    Augments specified feature columns in a time series DataFrame by adding noise.
-
-    This function is typically applied to sequences that are already long
-    enough, to create more training examples and improve model robustness.
-
-    Suppose :math:`x_i` are original feature values for one column. Then:
-
-    - For Gaussian noise:
-      .. math::
-         \text{noise}_i \sim \mathcal{N}\bigl(0,\; \sigma_x \times
-         \text{noise\_level}\bigr),
-         \quad \sigma_x = \mathrm{std}(x_i).
-      The augmented values are :math:`x_i + \text{noise}_i`.
-
-    - For Uniform noise:
-      .. math::
-         \text{range}_x = \max(x_i) - \min(x_i), \quad
-         \text{noise}_i \sim \mathcal{U}\Bigl(
-         -\tfrac{\text{range}_x \times \text{noise\_level}}{2},\;
-         \tfrac{\text{range}_x \times \text{noise\_level}}{2}\Bigr).
-      The augmented values are :math:`x_i + \text{noise}_i`.
-
+    """
+    Add random noise to selected numeric feature columns.
+    
     Parameters
     ----------
-    series_df : pd.DataFrame
+    series_df : pandas.DataFrame
         Input DataFrame representing one or more time series.
-    feature_cols : List[str]
-        List of column names (features) to which noise will be added.
-    noise_level : float, default 0.01
-        Magnitude of the noise.
-        - For 'gaussian': standard deviation of the noise relative to
-          feature's std.
-        - For 'uniform': half-width of the uniform distribution relative
-          to feature's range.
-    noise_type : str, default 'gaussian'
-        Type of noise to add. Options: 'gaussian', 'uniform'.
-    random_seed : int or None, default None
-        Seed for the random number generator for reproducible results.
-
+    feature_cols : list of str
+        Feature columns to augment.
+    noise_level : float, optional
+        Magnitude of the added noise. For Gaussian noise it scales the
+        feature standard deviation, and for uniform noise it scales the
+        feature range.
+    noise_type : {'gaussian', 'uniform'}, optional
+        Type of noise distribution to use.
+    random_seed : int or None, optional
+        Seed for reproducible noise generation.
+    savefile : str or None, optional
+        Optional output path handled by the decorator.
+    
     Returns
     -------
-    pd.DataFrame
-        DataFrame with noise added to the specified feature columns.
-
+    pandas.DataFrame
+        DataFrame with noise added to the selected feature columns.
+    
     Raises
     ------
     ValueError
-        If `feature_cols` are not in `series_df` or `noise_type` is invalid.
+        If requested feature columns are missing or ``noise_type`` is
+        invalid.
     TypeError
-        If inputs are not of the expected type.
-
-    Examples
-    --------
-    >>> import pandas as pd
-    >>> from geoprior.utils.geo_utils import augment_series_features
-    >>> df = pd.DataFrame({
-    ...     'x': [10.0, 12.0, 15.0, 13.0],
-    ...     'y': [100, 110, 105, 115]
-    ... })
-    >>> # Add Gaussian noise at 5% level to column 'x'
-    >>> df_aug = augment_series_features(df, ['x'], noise_level=0.05,
-    ...                                  noise_type='gaussian',
-    ...                                  random_seed=42)
-    >>> df_aug['x']
-    0    10.248357
-    1    11.930868
-    2    15.323844
-    3    12.761515
-    Name: x, dtype: float64
-
+        If the main inputs are of the wrong type.
+    
     Notes
     -----
-    - If a feature column has zero variance or NaN range, no noise is added
-      and a debug log is emitted.
-    - Non-numeric columns are skipped with a warning.
-
-    See Also
-    --------
-    pandas.DataFrame.sample : Random sampling methods.
-    sklearn.utils.resample : Resampling utilities for data augmentation.
+    Non-numeric columns are skipped, and constant or invalid numeric ranges
+    are left unchanged.
     """
     if not isinstance(series_df, pd.DataFrame):
         raise TypeError(
@@ -623,128 +579,47 @@ def augment_spatiotemporal_data(
     savefile: str | None = None,
     verbose: bool = False,
 ) -> pd.DataFrame:
-    r"""
-    Applies temporal interpolation and/or feature augmentation to a
-    spatiotemporal DataFrame.
-
-    This function can perform one of three operations on each group of
-    the DataFrame:
-
-    1. :math:`\text{interpolate}` only: fill temporal gaps via
-       `interpolate_temporal_gaps`.
-    2. :math:`\text{augment\_features}` only: add noise to features via
-       `augment_series_features`.
-    3. :math:`\text{both}`: first interpolate, then augment features.
-
-    Let :math:`G` be the set of groups defined by
-    :code:`group_by_cols`. For each group :math:`g \in G`, if mode
-    includes interpolation, we compute:
-
-    .. math::
-       \text{interpolated\_df}_g =
-       \text{interpolate\_temporal\_gaps}(
-         \text{series\_df}_g,\;\dots
-       )
-
-    Then if mode includes augmentation, we compute:
-
-    .. math::
-       \text{augmented\_df}_g =
-       \text{augment\_series\_features}(
-         \text{interpolated\_df}_g,\;\dots
-       )
-
-    Finally, all processed groups are concatenated:
-
-    .. math::
-       \text{result} = \bigcup_{g \in G} \text{processed\_df}_g.
-
+    """
+    Apply interpolation, feature augmentation, or both to grouped data.
+    
     Parameters
     ----------
-    df : pd.DataFrame
-        The input DataFrame (e.g., Zhongshan data).
-    mode : str
-        The augmentation mode. Options:
-        - 'interpolate': Applies only
-          :func:`interpolate_temporal_gaps`.
-        - 'augment_features': Applies only
-          :func:`augment_series_features`.
-        - 'both': Applies `interpolate_temporal_gaps` first, then
-          `augment_series_features`.
-    group_by_cols : list of str or None, default None
-        Columns to group by for temporal interpolation (e.g.,
-        ['longitude', 'latitude']). Required if mode includes
-        interpolation.
-    time_col : str or None, default None
-        Name of the time column. Required if mode includes
-        interpolation.
-    value_cols_interpolate : list of str or None, default None
-        Columns to interpolate. Required if mode includes
-        interpolation.
-    feature_cols_augment : list of str or None, default None
-        Columns for noise augmentation. Required if mode includes
-        augmentation.
-    interpolation_kwargs : dict or None, default None
-        Keyword arguments passed to
-        :func:`interpolate_temporal_gaps` (e.g., {'freq': 'AS'}).
-    augmentation_kwargs : dict or None, default None
-        Keyword arguments passed to
-        :func:`augment_series_features` (e.g., {'noise_level': 0.02}).
-    savefile: str, optional,
-        Save the dataframe into the csv format by default.
-    verbose : bool, default False
-        If True, prints progress messages (via print). Otherwise,
-        relies on logger.
-
+    df : pandas.DataFrame
+        Input spatiotemporal DataFrame.
+    mode : {'interpolate', 'augment_features', 'both'}
+        Processing mode. Use interpolation only, feature augmentation only,
+        or interpolation followed by augmentation.
+    group_by_cols : list of str or None, optional
+        Grouping columns used for per-location processing.
+    time_col : str or None, optional
+        Time column required when interpolation is requested.
+    value_cols_interpolate : list of str or None, optional
+        Value columns to interpolate when interpolation is enabled.
+    feature_cols_augment : list of str or None, optional
+        Feature columns to perturb when augmentation is enabled.
+    interpolation_kwargs : dict or None, optional
+        Keyword arguments forwarded to ``interpolate_temporal_gaps``.
+    augmentation_kwargs : dict or None, optional
+        Keyword arguments forwarded to ``augment_series_features``.
+    savefile : str or None, optional
+        Optional output path handled by the decorator.
+    verbose : bool, optional
+        Whether to emit progress information.
+    
     Returns
     -------
-    pd.DataFrame
-        The processed DataFrame. Groups are reassembled in original
-        order of grouping and then concatenated.
-
+    pandas.DataFrame
+        Processed DataFrame assembled from all groups.
+    
     Raises
     ------
     ValueError
-        If `mode` is invalid or required parameters for the selected
-        mode are missing.
-
-    Examples
-    --------
-    >>> import pandas as pd
-    >>> from geoprior.utils.geo_utils import augment_spatiotemporal_data
-    >>> df = pd.DataFrame({
-    ...     'lon': [0, 0, 1, 1],
-    ...     'lat': [0, 0, 1, 1],
-    ...     'date': ['2020-01-01', '2020-01-03',
-    ...              '2020-01-01', '2020-01-04'],
-    ...     'value': [1.0, None, 2.0, None]
-    ... })
-    >>> result = augment_spatiotemporal_data(
-    ...     df,
-    ...     mode='both',
-    ...     group_by_cols=['lon', 'lat'],
-    ...     time_col='date',
-    ...     value_cols_interpolate=['value'],
-    ...     feature_cols_augment=['value'],
-    ...     interpolation_kwargs={'freq': 'D'},
-    ...     augmentation_kwargs={'noise_level': 0.05,
-    ...                          'noise_type': 'gaussian',
-    ...                          'random_seed': 0}
-    ... )
-    >>> 'value' in result.columns
-    True
-
+        If ``mode`` is invalid or required arguments for the selected mode
+        are missing.
+    
     Notes
     -----
-    - Ensure `df` contains all columns in `group_by_cols` if mode
-      includes interpolation.
-    - Date column must be convertible to datetime.
-    - Groups are processed independently, then concatenated.
-
-    See Also
-    --------
-    interpolate_temporal_gaps : Fill temporal gaps per group.
-    augment_series_features : Add noise to feature columns.
+    Groups are processed independently and concatenated afterward.
     """
     if mode not in [
         "interpolate",
@@ -845,137 +720,60 @@ def augment_city_spatiotemporal_data(
     coordinate_precision: int | None = None,
     savefile: str | None = None,
 ) -> pd.DataFrame:
-    r"""
-    A robust and versatile function to augment spatiotemporal data for
-    Nansha or Zhongshan, with control over coordinate precision and
-    augmentation parameters.
-
-    This wrapper calls `augment_spatiotemporal_data` to apply temporal
-    interpolation and/or feature augmentation. Let :math:`G` be groups
-    defined by :code:`group_by_cols` and let each group :math:`g \in G`
-    have its own sequence :math:`\{(t_i, \mathbf{x}_i)\}`. Then:
-
-    1. If mode includes 'interpolate', for each group :math:`g`:
-       .. math::
-          \text{interp}_g = \texttt{interpolate\_temporal\_gaps}\bigl(
-            \text{series\_df}_g,\;\dots\bigr).
-
-    2. If mode includes 'augment_features', for each group :math:`g`:
-       .. math::
-          \text{aug}_g = \texttt{augment\_series\_features}\bigl(
-            \text{interp}_g\ {\text{or}}\ \text{series\_df}_g,\;\dots\bigr).
-
-    Finally, all processed groups are concatenated:
-    .. math::
-       \text{result} = \bigcup_{g \in G} \text{processed\_df}_g.
-
+    """
+    Apply grouped spatiotemporal augmentation with city-aware defaults.
+    
+    This is a convenience wrapper around ``augment_spatiotemporal_data``. It
+    validates the requested city, optionally rounds coordinates before
+    grouping, and forwards interpolation and augmentation configuration
+    dictionaries.
+    
     Parameters
     ----------
-    df : pd.DataFrame
-        Input DataFrame. Must include 'longitude', 'latitude', 'year',
-        and relevant value/feature columns.
-    city : str
-        City identifier: 'nansha' or 'zhongshan'. Used for potential
-        city-specific default logic in the future, currently for validation.
-    mode : str, default 'interpolate'
-        Augmentation mode. Options:
-        - 'interpolate': Applies only `interpolate_temporal_gaps`.
-        - 'augment_features': Applies only `augment_series_features`.
-        - 'both': Applies interpolation first, then feature augmentation.
-    group_by_cols : list of str or None, default ['longitude', 'latitude']
-        Columns to group by for interpolation.
-    time_col : str or None, default 'year'
-        Time column name for interpolation.
-    value_cols_interpolate : list of str or None, default None
-        Columns to interpolate. If None, defaults are determined based on
-        numeric columns, excluding IDs, target (unless
-        :code:`interpolate_target` is True), and common non-driver
-        categorical-like columns.
-    feature_cols_augment : list of str or None, default None
-        Columns to augment with noise. If None, defaults are determined
-        based on numeric columns, excluding IDs and the target.
-    interpolation_config : dict or None, default {'freq': 'AS',
-        'method': 'linear'}
-        Keyword arguments for `interpolate_temporal_gaps`.
-    augmentation_config : dict or None, default {'noise_level': 0.01,
-        'noise_type': 'gaussian'}
-        Keyword arguments for `augment_series_features`.
-    target_name : str or None, default None
-        Name of the target variable column (e.g., 'subsidence'). Used to
-        conditionally include/exclude it from default interpolation/
-        augmentation.
-    interpolate_target : bool, default False
-        If True and :code:`target_name` is provided, the target variable
-        will be included in the default list for
-        :code:`value_cols_interpolate`.
-    verbose : bool, default False
-        If True, prints progress messages from
-        `augment_spatiotemporal_data`.
-    coordinate_precision : int or None, default None
-        Number of decimal places to round longitude/latitude before
-        grouping. If None, no rounding.
-    savefile : str or None, default None
-        If a path is provided, the augmented DataFrame is saved as a CSV.
-
+    df : pandas.DataFrame
+        Input DataFrame containing spatial, temporal, and feature columns.
+    city : {'nansha', 'zhongshan'}
+        City identifier used for validation and defaults.
+    mode : {'interpolate', 'augment_features', 'both'}, optional
+        Processing mode forwarded to ``augment_spatiotemporal_data``.
+    group_by_cols : list of str or None, optional
+        Grouping columns for interpolation.
+    time_col : str or None, optional
+        Time column used for interpolation.
+    value_cols_interpolate : list of str or None, optional
+        Columns to interpolate.
+    feature_cols_augment : list of str or None, optional
+        Columns to augment with noise.
+    interpolation_config : dict or None, optional
+        Keyword arguments for ``interpolate_temporal_gaps``. Typical values
+        include ``{'freq': 'AS', 'method': 'linear'}``.
+    augmentation_config : dict or None, optional
+        Keyword arguments for ``augment_series_features``. Typical values
+        include ``{'noise_level': 0.01, 'noise_type': 'gaussian'}``.
+    target_name : str or None, optional
+        Optional target column name used when inferring default feature sets.
+    interpolate_target : bool, optional
+        Whether the target should be included in default interpolation
+        columns.
+    verbose : bool, optional
+        Whether to emit progress information.
+    coordinate_precision : int or None, optional
+        Decimal precision applied to coordinates before grouping.
+    savefile : str or None, optional
+        Optional output CSV path handled by the decorator.
+    
     Returns
     -------
-    pd.DataFrame
-        The augmented DataFrame.
-
+    pandas.DataFrame
+        Augmented DataFrame.
+    
     Raises
     ------
     ValueError
-        If :code:`city` is invalid, :code:`mode` is invalid, or required
-        parameters for the selected :code:`mode` are missing.
+        If ``city`` or ``mode`` is invalid, or if required arguments are
+        missing for the selected mode.
     TypeError
-        If :code:`df` is not a DataFrame or other inputs have incorrect
-        types.
-
-    Examples
-    --------
-    >>> import pandas as pd
-    >>> from geoprior.utils.geo_utils import augment_city_spatiotemporal_data
-    >>> df_zh = pd.DataFrame({
-    ...     'longitude': [113.38, 113.38],
-    ...     'latitude': [22.77, 22.77],
-    ...     'year': [2018, 2020],
-    ...     'GWL': [5.5, 39.4],
-    ...     'rainfall_mm': [311, 177],
-    ...     'subsidence': [12.5, 12.8]
-    ... })
-    >>> augmented = augment_city_spatiotemporal_data(
-    ...     df=df_zh,
-    ...     city='zhongshan',
-    ...     mode='both',
-    ...     target_name='subsidence',
-    ...     interpolate_target=False,
-    ...     interpolation_config={'freq': 'AS', 'method': 'linear'},
-    ...     augmentation_config={'noise_level': 0.01,
-    ...                          'noise_type': 'gaussian',
-    ...                          'random_seed': 42},
-    ...     coordinate_precision=4,
-    ...     verbose=True,
-    ...     savefile=None
-    ... )
-    >>> augmented.shape
-    (2, 6)
-
-    Notes
-    -----
-    - Ensure :code:`df` contains 'longitude', 'latitude', and
-      :code:`time_col` columns.
-    - If :code:`coordinate_precision` is set, longitude/latitude are
-      rounded to avoid overly granular groups.
-    - Default interpolation columns exclude categorical or target
-      columns unless specified by :code:`interpolate_target`.
-    - Default augmentation columns exclude the target column.
-
-    See Also
-    --------
-    interpolate_temporal_gaps : Fill temporal gaps per group.
-    augment_spatiotemporal_data : Core function for group-level
-        spatiotemporal augmentation.
-    augment_series_features : Add noise to numeric features.
+        If the main inputs are of the wrong type.
     """
     # Validate DataFrame type
     if not isinstance(df, pd.DataFrame):

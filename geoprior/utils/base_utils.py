@@ -86,8 +86,9 @@ def detect_categorical_columns(
     Above equation indicates that for float columns to be treated
     as categorical, each value :math:`x` must be an integer when
     cast from float. This function leverages the inline methods
-    `build_data_if`, `drop_nan_in`, `fill_NaN`, `parameter_validator`,
-    and `smart_format` (excluding those prefixed with `_`).
+    ``build_data_if``, ``drop_nan_in``, ``fill_NaN``,
+    ``parameter_validator``, and ``smart_format`` (excluding those
+    prefixed with ``_``).
 
     Parameters
     ----------
@@ -121,18 +122,13 @@ def detect_categorical_columns(
         column names. Default is ``False``.
     consider_dt_as : str, optional
         Indicates how to handle or convert datetime columns when
-        ``ops='validate'``:
-        - `None`: Do not convert; if datetime is not accepted,
-          handle according to `accept_dt` and `error`.
-        - `'numeric'`: Convert date columns to a numeric format
-          (like timestamps).
-        - `'float'`, `'float32'`, `'float64'`: Convert date columns
-          to float representation.
-        - `'int'`, `'int32'`, `'int64'`: Convert date columns to
-          integer representation.
-        - `'object'` or `'category'`: Convert date columns to Python
-          objects (strings, etc.). If conversion fails, raise or warn
-          per `error` policy.
+        ``ops='validate'``. Use ``None`` to keep datetime columns as-is.
+        Use ``'numeric'`` for timestamp-style conversion, ``'float'``,
+        ``'float32'`` or ``'float64'`` for float conversion, ``'int'``,
+        ``'int32'`` or ``'int64'`` for integer conversion, and
+        ``'object'`` or ``'category'`` to convert them to Python objects
+        such as strings. If conversion fails, behavior follows the
+        configured error policy.
     verbose : int, optional
         Verbosity level. If greater than 0, a summary of
         detected columns is printed.
@@ -158,15 +154,11 @@ def detect_categorical_columns(
 
     Notes
     -----
-    - This function focuses on flexible treatment of
-      integer and float columns. Combined with
-      `<verbose>` settings, it can provide detailed
-      feedback.
-    - Utilizing ``'drop'`` or ``'fill'`` in
-      ``handle_nan`` ensures minimal disruptions due
-      to missing data.
-    - The array-programming background is discussed in
-      :cite:t:`NumPyNature2020`.
+    This function focuses on flexible treatment of integer and float
+    columns. Combined with ``verbose`` settings, it can provide detailed
+    feedback. Using ``'drop'`` or ``'fill'`` for ``handle_nan`` helps
+    reduce disruptions caused by missing data. The array-programming
+    background is discussed in :cite:t:`NumPyNature2020`.
 
     The function uses flexible criteria for determining whether a column should
     be treated as categorical, allowing for detection of columns with integer
@@ -713,14 +705,9 @@ def select_features(
     Selects features from a dataset based on various criteria and returns
     a new DataFrame.
 
-    .. math::
-        \text{Selected Columns} =
-        \text{Features Selection Criteria Applied to } C
-
-    Where:
-    - \( C = \{c_1, c_2, \dots, c_n\} \) is the set of columns in the data.
-    - Features Selection Criteria include feature names, data types, regex patterns,
-      callable selectors, and missing data conditions.
+    Conceptually, the selected columns are the subset of the input column
+    set that satisfies the requested feature names, data-type filters,
+    regex patterns, callable selectors, and missing-data conditions.
 
     Parameters
     ----------
@@ -825,25 +812,22 @@ def select_features(
 
     Notes
     -----
-    - This function is particularly useful in data preprocessing pipelines
-      where the presence of certain features is critical for subsequent
-      analysis or modeling steps.
-    - When using regex patterns, ensure that the pattern accurately reflects
-      the intended column names to avoid unintended matches.
-    - The callable provided to ``callable_selector`` should accept a single string
-      argument (the column name) and return a boolean indicating whether the column
-      should be selected.
-    - Transformation functions should be designed to handle the data types of
-      the respective columns to avoid runtime errors.
-    - Related selection and coercion behavior is documented in
-      :cite:p:`PandasSelectDtypesDocs,PythonReDocs,PandasAstypeDocs,PandasDataFrameDocs`.
+    This function is particularly useful in data preprocessing pipelines
+    where the presence of certain features is critical for later analysis
+    or modeling steps. When using regex patterns, ensure that the pattern
+    accurately reflects the intended column names to avoid unintended
+    matches. The callable provided to ``callable_selector`` should accept
+    a single column-name string and return a boolean. Transformation
+    functions should be designed to handle the data types of the selected
+    columns to avoid runtime errors. Related selection and coercion
+    behavior is documented in
+    :cite:p:`PandasSelectDtypesDocs,PythonReDocs,PandasAstypeDocs,PandasDataFrameDocs`.
 
     See Also
     --------
-    validate_feature : Validates the existence of specified features in data.
-    pandas.DataFrame.select_dtypes : For more information on how to use ``include`` and
-        ``exclude`` parameters.
-    pandas.DataFrame.astype : For information on data type conversion.
+    validate_feature
+    pandas.DataFrame.select_dtypes
+    pandas.DataFrame.astype
     """
 
     # Convert input data to DataFrame if necessary
@@ -1572,26 +1556,26 @@ def validate_target_in(df, target, error="raise", verbose=0):
     Validate and process the target variable, ensuring it is consistent
     with the features in the DataFrame.
 
-    Parameters:
-    - df: pandas DataFrame
-        The DataFrame containing the features (X) and possibly the target column.
-    - target: str, pandas Series, or pandas DataFrame
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The DataFrame containing the features and possibly the target
+        column.
+    target : str or pandas.Series or pandas.DataFrame
         The target variable to validate and process.
-    - error: {'raise', 'warn', 'ignore'}, optional (default: 'raise')
-        Defines behavior if there are issues with target validation.
-        - 'raise': Raise an error if validation fails.
-        - 'warn': Issue a warning and continue.
-        - 'ignore': Ignore any issues.
-    - verbose: int, optional (default: 0)
-        Verbosity level for logging.
-        - 0: No output.
-        - 1: Basic info.
-        - 2: Detailed info.
+    error : {'raise', 'warn', 'ignore'}, optional
+        Behavior to use when target validation fails. Use ``'raise'`` to
+        raise an exception, ``'warn'`` to continue with a warning, or
+        ``'ignore'`` to skip reporting.
+    verbose : int, optional
+        Verbosity level for logging. Use ``0`` for no output, ``1`` for
+        basic information, and ``2`` for detailed information.
 
-    Returns:
-    - target: pandas Series
+    Returns
+    -------
+    target : pandas.Series
         The processed target variable.
-    - df: pandas DataFrame
+    df : pandas.DataFrame
         The DataFrame containing the features and target.
     """
     is_frame(

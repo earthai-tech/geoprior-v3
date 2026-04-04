@@ -29,22 +29,24 @@ reproducible figure generation in a single documentation space.
 Start here
 ----------
 
-.. grid:: 1 1 2 4
+.. grid:: 1 1 2 3
    :gutter: 3
-   :class-container: cta-tiles
+   :class-container: cta-tiles featured-app-tiles
 
    .. grid-item-card:: Getting started
       :link: getting_started/index
       :link-type: doc
-      :class-card: card--workflow
+      :img-top: _static/icons/getting-started-icon-rocket-takeoff.svg
+      :class-card: card--workflow sd-text-center
 
       Begin with the project overview, installation guidance,
       quickstart usage, and a first end-to-end run.
-      
+
    .. grid-item-card:: User guide
       :link: user_guide/index
       :link-type: doc
-      :class-card: card--configuration
+      :img-top: _static/icons/user-guide-icon-book.svg
+      :class-card: card--configuration sd-text-center
 
       Follow the staged workflow, command-line logic,
       diagnostics, inference paths, and export-oriented use.
@@ -52,52 +54,42 @@ Start here
    .. grid-item-card:: CLI
       :link: cli/index
       :link-type: doc
-      :class-card: card--cli
+      :img-top: _static/icons/cli-icon-terminal.svg
+      :class-card: card--cli sd-text-center
 
       Find run, build, and plot commands, shared conventions,
       command families, and the main command-line entry points.
-      
+
    .. grid-item-card:: Scientific foundations
       :link: scientific_foundations/index
       :link-type: doc
-      :class-card: card--physics
+      :img-top: _static/icons/scientific-foundations-icon-beaker.svg
+      :class-card: card--physics sd-text-center
 
       Understand the model family, the physical formulation,
       residual construction, scaling strategy, and the main
       scientific assumptions.
-      
+
    .. grid-item-card:: Gallery
       :link: examples/index
       :link-type: doc
-      :class-card: card--workflow
+      :img-top: _static/icons/gallery-icon-images.svg
+      :class-card: card--workflow sd-text-center
 
       Browse lesson-style examples for forecasting, uncertainty,
-      diagnostics, figure generation, table builders, and
-      model-inspection utilities.
-      
+      diagnostics, applications, figure generation, table builders,
+      and model-inspection utilities.
+
    .. grid-item-card:: API reference
       :link: api/index
       :link-type: doc
-      :class-card: card--cli
+      :img-top: _static/icons/api-reference-icon-braces.svg
+      :class-card: card--cli sd-text-center
 
       Browse the documented Python interfaces for parameters,
       CLI modules, subsidence components, tuners, utilities,
       and packaged resources.
-
-   .. grid-item-card:: Developer notes
-      :link: developer/index
-      :link-type: doc
-
-      See package layout, migration notes, and contribution
-      guidance for maintaining and extending GeoPrior-v3.
-
-   .. grid-item-card:: Release notes
-      :link: release_notes
-      :link-type: doc
-
-      Track user-visible changes across versions, including
-      workflow, API, scientific, and documentation updates.
-
+     
 Roadmap
 -------
 
@@ -105,47 +97,110 @@ Roadmap
    :alt: GeoPrior-v3 documentation roadmap
    :width: 100%
    :align: center
- 
- 
+
+
 Featured applications
 ---------------------
 
-.. grid:: 1 1 2 4
+.. grid:: 1 1 2 3
    :gutter: 3
-   :class-container: see-also-tiles
+   :class-container: see-also-tiles featured-app-tiles
 
    .. grid-item-card:: Applications
       :link: applications/index
       :link-type: doc
-      :class-card: sd-shadow-sm seealso-card card--workflow
+      :img-top: _static/icons/applications.svg
+      :class-card: sd-shadow-sm seealso-card card--workflow sd-text-center
 
-      Explore forecasting workflows, tuning, calibration,
-      uncertainty handling, and reproducibility scripts.
+      Explore workflow-oriented application pages together with
+      case-study examples that show how GeoPrior is used in practice.
 
    .. grid-item-card:: Core & ablation
-      :link: auto_examples/figure_generation/plot_core_ablation
+      :link: auto_examples/applications/app_core_ablation
       :link-type: doc
-      :class-card: sd-shadow-sm seealso-card card--core-ablation
+      :img-top: _static/icons/core-ablation.svg
+      :class-card: sd-shadow-sm seealso-card card--core-ablation sd-text-center
 
-      Compare the main with-physics and no-physics results in
-      the core ablation figure.
+      See how the physics-guided pathway changes forecast accuracy,
+      uncertainty quality, and interpretation under a controlled
+      with-physics versus no-physics comparison.
 
-   .. grid-item-card:: Bounds vs ridge summary
-      :link: auto_examples/figure_generation/plot_sm3_bounds_ridge_summary
+   .. grid-item-card:: Interpretation guardrails
+      :link: auto_examples/applications/app_bounds_ridge
       :link-type: doc
+      :img-top: _static/icons/bounds-vs-ridge-summary.svg
       :class-card: sd-shadow-sm seealso-card card--ridge-bounds
 
-      Inspect clipping, ridge behavior, and SM3 failure modes
-      in one summary figure.
+      Audit identifiability before reading learned fields literally,
+      using ridge and bounds diagnostics to separate stable structure
+      from non-unique decomposition.
+
+   .. grid-item-card:: External validation
+      :link: auto_examples/applications/app_external_validation
+      :link-type: doc
+      :img-top: _static/icons/external-validation.svg
+      :class-card: sd-shadow-sm seealso-card card--physics sd-text-center
+
+      Check how independent borehole and pumping-test evidence anchors
+      the thickness pathway and clarifies what can, and cannot, be
+      claimed from the inferred effective fields.
 
    .. grid-item-card:: Where to act first
-      :link: auto_examples/figure_generation/plot_hotspot_analytics
+      :link: auto_examples/applications/app_hotspot_prioritization
       :link-type: doc
-      :class-card: sd-shadow-sm seealso-card card--hotspot-analytics
+      :img-top: _static/icons/where-to-act-first.svg
+      :class-card: sd-shadow-sm seealso-card card--hotspot-analytics sd-text-center
 
-      See the hotspot analytics figure that highlights where
-      intervention should come first.
+      Turn calibrated forecasts into exceedance maps, ranked hotspot
+      clusters, and persistence-based intervention priorities.
+
+   .. grid-item-card:: Cross-city rollout
+      :link: auto_examples/applications/app_transferability
+      :link-type: doc
+      :img-top: _static/icons/transferability.svg
+      :class-card: sd-shadow-sm seealso-card card--workflow sd-text-center
+
+      Compare baseline, zero-shot transfer, and warm-start adaptation
+      to see what survives distribution shift and what level of local
+      adaptation is needed before deployment.
       
+
+Reference and project notes
+---------------------------
+
+.. grid:: 1 1 2 3
+   :gutter: 3
+   :class-container: cta-tiles featured-app-tiles
+
+   .. grid-item-card:: Glossary
+      :link: glossary
+      :link-type: doc
+      :img-top: _static/icons/glossary-icon-book.svg
+      :class-card: card--configuration
+
+      Look up core symbols, abbreviations, workflow terms, and
+      recurring scientific language used throughout the documentation.
+
+   .. grid-item-card:: Developer notes
+      :link: developer/index
+      :link-type: doc
+      :img-top: _static/icons/developer-notes-icon-tools.svg
+      :class-card: card--configuration
+
+      See package layout, migration notes, and contribution
+      guidance for maintaining and extending GeoPrior-v3.
+
+   .. grid-item-card:: Release notes
+      :link: release_notes
+      :link-type: doc
+      :img-top: _static/icons/release-notes-icon-clock-history.svg
+      :class-card: card--workflow
+
+      Track user-visible changes across versions, including
+      workflow, API, scientific, and documentation updates.
+      
+
+ 
 Why GeoPrior-v3?
 ----------------
 

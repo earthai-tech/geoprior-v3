@@ -748,44 +748,36 @@ def validate_strategy(
     """
     Validate and construct a strategy dictionary for imputing missing data.
 
-    This function processes the input `strategy` to ensure it conforms to 
-    the expected format for imputing missing values in numerical and 
-    categorical features. It provides flexibility in handling different 
-    strategies and error management, making it suitable  for integration 
+    This function processes the input ``strategy`` to ensure it conforms to
+    the expected format for imputing missing values in numerical and
+    categorical features. It provides flexibility in handling different
+    strategies and error management, making it suitable for integration
     with scikit-learn's imputation tools.
 
     Parameters
     ----------
     strategy : Optional[Union[str, Dict[str, str]]], default=None
-        Defines the imputation strategy for numerical and categorical features.
-        - If a string is provided, it is parsed to construct a dictionary 
-          with keys 'numeric' and 'categorical'.
-        - If a dictionary is provided, it should map feature types to their 
-          respective strategies.
-        - If `None`, the default strategy is used.
+        Defines the imputation strategy for numerical and categorical
+        features. A string is parsed into a dictionary with keys
+        ``"numeric"`` and ``"categorical"``, a dictionary is used directly,
+        and ``None`` selects the default strategy.
 
     error : str, default='raise'
-        Specifies the error handling behavior when encountering invalid 
-        strategy tokens.
-        Options are:
-        - ``'raise'``: Raise a `ValueError` for invalid tokens.
-        - ``'warn'``: Issue a warning for invalid tokens.
-        - ``'ignore'``: Silently ignore invalid tokens.
+        Error handling behavior for invalid strategy tokens. Use ``"raise"``
+        to raise a ``ValueError``, ``"warn"`` to emit a warning, or
+        ``"ignore"`` to skip invalid tokens silently.
 
     ops: str, default='validate'
-        Determines the operation mode of the validator.
-        - ``'passthrough'``: Returns the input strategy as-is if it is a
-          dictionary.
-        - ``'check_only'``: Validates the provided strategy dictionary without 
-          modifying it.
-        - ``'validate'``: Validates and constructs the strategy dictionary 
-          based on the input.
+        Operation mode of the validator. Use ``"passthrough"`` to return the
+        input strategy unchanged when it is already a dictionary,
+        ``"check_only"`` to validate without modifying it, or ``"validate"``
+        to validate and construct the strategy dictionary from the input.
 
     rename_key : bool, default=False
-        If `True`, renames keys in the input dictionary to standard keys:
-        - Keys like 'num', 'numeric', or 'numerical' are renamed to 'numeric'.
-        - Keys like 'cat', 'categorical', or 'categoric' are renamed to 'categorical'.
-        - Other keys remain unchanged.
+        If ``True``, rename aliases such as ``"num"``, ``"numeric"``, or
+        ``"numerical"`` to ``"numeric"``, and aliases such as ``"cat"``,
+        ``"categorical"``, or ``"categoric"`` to ``"categorical"``. Other
+        keys remain unchanged.
 
     **kwargs
         Additional keyword arguments for future extensions.
@@ -793,11 +785,9 @@ def validate_strategy(
     Returns
     -------
     Union[Dict[str, str], bool]
-        - If ``ops='passthrough'``, returns the input strategy dictionary.
-        - If ``ops='check_only'``, returns `True` if the strategy is valid, 
-          else `False`.
-        - If ``ops='validate'``, returns the validated and possibly modified 
-          strategy dictionary.
+        Returns the input strategy dictionary for ``ops='passthrough'``,
+        ``True`` or ``False`` for ``ops='check_only'``, and the validated or
+        modified strategy dictionary for ``ops='validate'``.
 
     Raises
     ------
@@ -807,17 +797,9 @@ def validate_strategy(
 
     Notes
     -----
-    The function ensures that numerical strategies are limited to ``'median'`` 
-    and ``'mean'``, while categorical strategies are set to ``'constant'``. 
-    It also handles aliasing of keys to maintain consistency expressed as:
-    
-    .. math::
-        \text{strategy\_dict} = 
-        \begin{cases}
-            \{\text{'numeric'}: \text{'median'}, \text{'categorical'}:\\
-              \text{'constant'}\} & \text{if } \text{strategy is None} \\
-            \text{parsed\_dict} & \text{if } \text{strategy is provided}
-        \end{cases}
+    The function limits numerical strategies to ``"median"`` and
+    ``"mean"`` while categorical strategies default to ``"constant"``. It
+    also handles key aliasing to keep the returned dictionary consistent.
 
     Examples
     --------
@@ -985,154 +967,38 @@ def has_methods(
     msg=None,
 ):
     """
-    Validates the implementation of specified methods across model objects.
-
-    This function checks whether each model in ``models`` implements all the
-    methods listed in ``methods``. It supports both single and multiple
-    model instances and provides flexible validation behaviors based on
-    the parameters.
-
-    .. math::
-        \text{For each model } m \text{ in } M, \text{ verify } \forall
-        \text{method } s \in S, \text{ } m \text{ has method } s \text{ and }
-        \text{callable}(m.s).
-
+    Validate that one or more model objects implement required methods.
+    
     Parameters
     ----------
     models : object or list of objects
-        A single model instance or a list of model instances to be validated.
+        Model instance or collection of model instances to validate.
     methods : list of str
-        A list of method names (strings) to validate. Only methods that do
-        not start with an underscore ('_') are considered.
+        Public method names that each model must implement.
     strict : bool, optional
-        If ``strict=True``, raises an ``AttributeError`` upon finding a
-        missing method. If ``False``, behaves based on the ``check_status``
-        parameter. Default is ``True``.
-    check_status : str, optional
-        Determines the return behavior. Must be either ``"validate"`` or
-        ``"check_only"``.
-
-        - ``"validate"``:
-            - If ``strict=True``, raises an error for models missing methods.
-            - If ``False``, returns a list of models that have all required
-              methods.
-        - ``"check_only"``:
-            - If ``strict=True``, raises an error for models missing methods.
-            - If ``False``, returns ``True`` if all models have the methods,
-              ``False`` otherwise.
-
-        Default is ``"check_only"``.
-    msg : str, optional
-        Custom error message. Can include placeholders:
-
-        - ``{model}``: Model name.
-        - ``{methods}``: Comma-separated list of missing methods.
-
-        Example: ``"Model '{model}' lacks methods: {methods}."``
-
+        If ``True``, raise an ``AttributeError`` when a required method is
+        missing.
+    check_status : {'validate', 'check_only'}, optional
+        Return mode. Use ``'validate'`` to return validated models and
+        ``'check_only'`` to return a boolean flag.
+    msg : str or None, optional
+        Optional custom error message using ``{model}`` and ``{methods}``
+        placeholders.
+    
     Returns
     -------
-    list of objects or bool or True
-        - If ``check_status="validate"``:
-            - If ``strict=True`` and all models have the methods, returns the
-              list of models.
-            - If ``strict=False``, returns a list of models that have all the
-              required methods.
-        - If ``check_status="check_only"``:
-            - If ``strict=False``, returns ``True`` if all models have the
-              methods, ``False`` otherwise.
-            - If ``strict=True`` and all models have the methods, returns
-              ``True``.
-
+    list of objects or bool
+        Validated models when ``check_status='validate'`` or a boolean flag
+        when ``check_status='check_only'``.
+    
     Raises
     ------
     AttributeError
-        If a model does not implement a required method and ``strict=True``.
+        If a required method is missing and ``strict=True``.
     TypeError
         If ``methods`` is not a list of strings.
     ValueError
-        If ``check_status`` has an invalid value.
-
-    Examples
-    --------
-    >>> from geoprior.utils.validator import has_methods
-    >>> class ModelA:
-    ...     def train(self):
-    ...         pass
-    ...     def predict(self):
-    ...         pass
-    >>> class ModelB:
-    ...     def train(self):
-    ...         pass
-    >>> model_a = ModelA()
-    >>> model_b = ModelB()
-
-    # Strict validation with check_status="validate"
-    >>> try:
-    ...     validated = has_methods(
-    ...         models=[model_a, model_b],
-    ...         methods=['train', 'predict'],
-    ...         strict=True,
-    ...         check_status="validate",
-    ...         msg="Custom Error: {model} lacks methods: {methods}."
-    ...     )
-    ... except AttributeError as e:
-    ...     print(e)
-    Custom Error: ModelB lacks methods: predict.
-
-    # Non-strict validation with check_status="validate"
-    >>> validated = has_methods(
-    ...     models=[model_a, model_b],
-    ...     methods=['train', 'predict'],
-    ...     strict=False,
-    ...     check_status="validate"
-    ... )
-    >>> [type(m).__name__ for m in validated]
-    ['ModelA']
-
-    # Strict check_only
-    >>> try:
-    ...     result = has_methods(
-    ...         models=[model_a, model_b],
-    ...         methods=['train', 'predict'],
-    ...         strict=True,
-    ...         check_status="check_only",
-    ...         msg="Error: {model} is missing methods: {methods}."
-    ...     )
-    ... except AttributeError as e:
-    ...     print(e)
-    Error: ModelB is missing methods: predict.
-
-    # Non-strict check_only
-    >>> result = has_methods(
-    ...     models=[model_a, model_b],
-    ...     methods=['train', 'predict'],
-    ...     strict=False,
-    ...     check_status="check_only"
-    ... )
-    >>> result
-    False
-
-    # Single model input
-    >>> single_result = has_methods(
-    ...     models=model_a,
-    ...     methods=['train', 'predict'],
-    ...     strict=False,
-    ...     check_status="check_only"
-    ... )
-    >>> single_result
-    True
-
-    Notes
-    -----
-    - The function assumes that the model instances are properly initialized.
-    - Only methods that are publicly accessible (do not start with '_') are
-      considered during validation.
-
-    See Also
-    --------
-    validate_models: Another function for model validation.
-
+        If ``check_status`` is invalid.
     """
     if isinstance(models, dict):
         models = list(models.values())
@@ -1560,9 +1426,9 @@ def validate_estimator_methods(estimator, methods, msg=None):
     given estimator.
 
     This utility function is designed to check whether an estimator (or
-    any object) contains the required methods (such as `fit`, `run`, etc.)
-    and ensures that those methods are callable. It helps prevent runtime
-    errors by verifying the presence of expected methods.
+    any object) contains the required methods, such as ``fit`` or
+    ``predict``, and ensures that those methods are callable. It helps
+    prevent runtime errors by verifying the presence of expected methods.
 
     Parameters
     ----------
@@ -1574,7 +1440,7 @@ def validate_estimator_methods(estimator, methods, msg=None):
     methods : list of str
         List of method names (as strings) to validate. Each method name
         must exist on the estimator and be callable. Examples of methods
-        might include `fit`, `run`, `predict`, etc.
+        might include ``fit``, ``run``, or ``predict``.
 
     msg : str, optional
         Custom error message to display if any method is missing or not
@@ -1584,8 +1450,8 @@ def validate_estimator_methods(estimator, methods, msg=None):
     Raises
     ------
     AttributeError
-        If any method in `methods` is not present or not callable on the
-        estimator, an AttributeError is raised.
+        If any method in ``methods`` is not present or not callable on the
+        estimator.
 
     Examples
     --------
@@ -1605,29 +1471,16 @@ def validate_estimator_methods(estimator, methods, msg=None):
 
     Notes
     -----
-    This function is useful when you want to ensure that an object, such
-    as an estimator or a model, has the required methods before proceeding
-    with operations. It validates the presence of multiple methods,
-    ensuring each is callable, preventing runtime errors in cases where
-    methods are expected to exist.
-
-    This function checks if all methods :math:`M_1, M_2, \dots, M_n`
-    exist and are callable on the estimator. The condition can be
-    expressed as:
-
-    .. math::
-        \forall M_i, \quad \text{if} \quad M_i \in \text{estimator} \quad
-        \land \quad \text{callable}(M_i) \quad \text{then valid}
-        \quad \text{else error}
-
+    This helper is useful when you want to ensure that an object, such as an
+    estimator or a model, exposes several callable methods before proceeding.
     If any method is missing or not callable, the function raises an
-    `AttributeError`. Method-callability checks follow the Python
+    ``AttributeError``. Method-callability checks follow the Python
     documentation and the callable-object discussion in
     :cite:p:`Python3Docs,RealPythonCallable`.
 
     See Also
     --------
-    check_has_run_method : Validate the presence of a single method (defaulting to `run`).
+    check_has_run_method : Validate the presence of a single method, defaulting to ``run``.
 
     """
     if isinstance(methods, str):
@@ -1895,13 +1748,11 @@ def validate_scores(
         and scores. Each element or row in true_labels should correspond to
         the equivalent in scores.
     mode : str, optional (default "strict")
-       Specifies the validation mode for checking probability distributions:
-       - 'strict': Each set of scores must sum exactly to 1, within a numerical
-         tolerance.
-       - 'soft': Scores must not exceed a total of 1, and all individual
-         scores must be non-negative.
-       - 'passthrough': Only checks that each score is between 0 and 1
-         inclusive, without summing them.
+        Validation mode for checking probability distributions. Use
+        ``"strict"`` to require each row to sum to ``1`` within numerical
+        tolerance, ``"soft"`` to require non-negative scores with totals no
+        greater than ``1``, or ``"passthrough"`` to only check that each
+        score lies in the interval ``[0, 1]``.
     accept_multi_output : bool, default False
         Flag indicating whether scores with multiple outputs are accepted.
         If False and scores are provided as a list, a ValueError will be
@@ -2006,19 +1857,14 @@ def _is_probability_distribution(
         Array containing score values which need to be validated as probability
         distributions.
     mode : str, optional
-        Validation mode to be used. Available modes are:
-        - 'strict': Requires that the sum of scores exactly equals 1
-        (within a tolerance).
-        - 'soft': Requires that the sum of scores does not exceed 1 and all
-        scores are non-negative.
-        - 'passthrough': Only checks that all scores are non-negative and do
-          not exceed 1, without summing them.
+        Validation mode to use. ``"strict"`` requires the sum of scores to
+        equal ``1`` within a tolerance, ``"soft"`` requires non-negative
+        scores with totals no greater than ``1``, and ``"passthrough"``
+        only checks that scores stay within ``[0, 1]``.
     error : str, optional
-        Specifies the error handling behavior. Options are:
-        - 'raise': Raises an error if the check fails.
-        - 'warn': Issues a warning if the check fails and returns False.
-        - 'ignore': Silently ignores any failure and returns False.
-        Default is 'ignore'.
+        Error handling behavior. Use ``"raise"`` to raise an error when the
+        check fails, ``"warn"`` to emit a warning and return ``False``, or
+        ``"ignore"`` to silently return ``False``. Default is ``"ignore"``.
 
     Returns
     -------
@@ -2107,8 +1953,8 @@ def validate_square_matrix(
     Validate that the input data forms a square matrix and optionally aligns its
     indices and columns if specified.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     data : DataFrame or array-like
         The input data to validate as a square matrix.
     align : bool, default False
@@ -2119,18 +1965,18 @@ def validate_square_matrix(
     message : str, default ''
         Additional message to append to the error if validation fails.
 
-    Returns:
-    --------
+    Returns
+    -------
     data
         The validated or aligned square matrix.
 
-    Raises:
-    -------
+    Raises
+    ------
     ValueError
         If the input is not a square matrix.
 
-    Examples:
-    ---------
+    Examples
+    --------
     >>> from geoprior.utils.validator import validate_square_matrix
     >>> validate_square(np.array([[1, 2], [3, 4]]))
     array([[1, 2],
@@ -2139,11 +1985,11 @@ def validate_square_matrix(
     >>> validate_square(pd.DataFrame([[1, 2], [3, 4, 5]]))
     ValueError: Input must be a square matrix.
 
-    Notes:
-    ------
+    Notes
+    -----
     A square matrix is defined as having equal number of rows and columns.
     This function checks the dimensionality of the data and optionally aligns
-    the index and columns if `align` is set to True.
+    the index and columns if ``align`` is set to ``True``.
     """
     if not is_square_matrix(data):
         raise ValueError(
@@ -2164,8 +2010,8 @@ def is_square_matrix(data, data_type=None):
     Automatically detects the data type unless specified. Supports data inputs
     that can be converted to a NumPy array.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     data : DataFrame, array-like, or any object convertible to a numpy array
         The input data to check.
     data_type : str, optional
@@ -2174,12 +2020,12 @@ def is_square_matrix(data, data_type=None):
         If not specified, the data type is inferred. Default interpretation
         is as an 'array'.
 
-    Returns:
-    --------
+    Returns
+    -------
     bool
         Returns True if the data is a square matrix, otherwise False.
 
-    Raises:
+    Raises
     ------
     ValueError
         If `data_type` is neither 'array' nor 'dataframe'.
@@ -2187,8 +2033,8 @@ def is_square_matrix(data, data_type=None):
         If the input `data` does not match the expected format or
         cannot be processed.
 
-    Examples:
-    ---------
+    Examples
+    --------
     >>> is_square_matrix(np.array([[1, 2], [3, 4]]))
     True
 
@@ -2198,8 +2044,8 @@ def is_square_matrix(data, data_type=None):
     >>> is_square_matrix([[1, 2], [3, 4]], data_type='array')
     True
 
-    Notes:
-    ------
+    Notes
+    -----
     A square matrix has an equal number of rows and columns. This function
     checks the dimensionality and shape of the data to confirm if it meets
     this criterion.
@@ -2414,7 +2260,7 @@ def validate_weights(
     Validates and optionally normalizes the given weights array to ensure all elements
     meet specified criteria and the structure is suitable for computations.
 
-    Parameters:
+    Parameters
     ----------
     weights : array-like
         Weights to be validated. Can be a list, tuple, or numpy array.
@@ -2432,18 +2278,18 @@ def validate_weights(
         (one-dimensional). If a tuple is provided, weights must match one of
         the dimensions specified in the tuple.
 
-    Returns:
+    Returns
     -------
     np.ndarray
         A numpy array of the validated and optionally normalized weights.
 
-    Raises:
+    Raises
     ------
     ValueError
         If weights contain values outside the specified range, or if the
         format or dimensions are not suitable.
 
-    Examples:
+    Examples
     --------
     >>> from geoprior.utils.validator import validate_weights
 
@@ -2507,24 +2353,23 @@ def is_normalized(arr, method="sum"):
     """
     Checks if the provided array is normalized according to the specified method.
 
-    Parameters:
+    Parameters
     ----------
     arr : array-like
         The array to check for normalization.
     method : str, optional
-        The method of normalization to check against:
-        - '01': Checks if values are between 0 and 1 and if min is 0 and max is 1.
-        - 'zscore': Checks if the mean is 0 and the standard deviation is 1.
-        - 'sum': Checks if the sum of the array elements is 1.
-        Default is 'sum'.
+        The normalization method to check against. Use ``"01"`` to confirm
+        values are within ``[0, 1]`` with minimum ``0`` and maximum ``1``,
+        ``"zscore"`` to confirm mean ``0`` and standard deviation ``1``, or
+        ``"sum"`` to confirm the array sums to ``1``. Default is ``"sum"``.
 
-    Returns:
+    Returns
     -------
     bool
         Returns True if the array is normalized according to the specified method,
         False otherwise.
 
-    Examples:
+    Examples
     --------
     >>> arr = np.array([0.25, 0.25, 0.25, 0.25])
     >>> is_normalized(arr, method='sum')
@@ -2565,39 +2410,34 @@ def normalize_array(arr, normalize="auto", method="01"):
     Checks if an array is normalized according to the specified method and
     normalizes it if required based on the 'normalize' parameter.
 
-    Parameters:
+    Parameters
     ----------
     arr : array-like
         The input array to check and potentially normalize.
 
     normalize : str, optional
-        Determines whether to normalize the array:
-        - 'auto': Normalize only if the array is not already normalized
-          according to the specified method.
-        - True: Always normalize the array regardless of its current state.
-        - False: Do not normalize the array, return as is.
-        Default is 'auto'.
+        Controls whether normalization is applied. Use ``"auto"`` to
+        normalize only when the array is not already normalized for the
+        selected ``method``. Use ``True`` to always normalize and ``False``
+        to return the array unchanged. Default is ``"auto"``.
 
     method : str, optional
-        The normalization method to apply:
-        - '01': Normalize the array to have values between 0 and 1.
-        - 'zscore': Standardize the array to have a mean of 0 and a standard
-          deviation of 1.
-        - 'sum': Normalize the array so that the sum of its elements equals 1.
-        Default is '01'.
+        Normalization method to apply. Use ``"01"`` for min-max scaling,
+        ``"zscore"`` for standardization, or ``"sum"`` to scale values so
+        they sum to ``1``. Default is ``"01"``.
 
-    Returns:
+    Returns
     -------
     np.ndarray
         The normalized array, or the original array if no normalization was applied.
 
-    Raises:
+    Raises
     ------
     ValueError
         If an unknown normalization method is specified or if normalization
         cannot be performed due to data characteristics (e.g., zero variance).
 
-    Examples:
+    Examples
     --------
     >>> import numpy as np
     >>> from geoprior.utils.validator import normalize_array
@@ -2659,7 +2499,7 @@ def is_binary_class(y, accept_multioutput=False):
     Check whether the target array represents binary classification. Optionally,
     handle multi-output arrays if each output is binary.
 
-    Parameters:
+    Parameters
     ----------
     y : array-like
         The target array to be checked. This can be a 1D array for single output
@@ -2668,13 +2508,13 @@ def is_binary_class(y, accept_multioutput=False):
         If True, the function checks if each column in a multi-dimensional array
         is binary. If False, the function checks if the entire array is binary.
 
-    Returns:
+    Returns
     -------
     bool
         Returns True if `y` is binary (or each output is binary if multi-output
         is accepted), False otherwise.
 
-    Examples:
+    Examples
     --------
     >>> from geoprior.utils.validator import is_binary_class
     >>> is_binary_class([0, 1, 1, 0])
@@ -2728,11 +2568,10 @@ def handle_zero_division(
     y_true : array-like
         The input data array where zeros might cause division errors.
     zero_division : {'warn', 'raise', 'ignore'}, default 'warn'
-        Determines the action to perform when a zero is encountered:
-        - 'warn': Issues a warning and replaces zeros with `replace_with` or `epsilon`.
-        - 'raise': Raises an error if a zero is found in the input data.
-        - 'ignore': Leaves the zeros as they are, useful when the metric calculation
-          can handle zeros natively.
+        Determines the action to perform when a zero is encountered. Use
+        ``"warn"`` to issue a warning and replace zeros with ``replace_with``
+        or ``epsilon``, ``"raise"`` to raise an error, or ``"ignore"`` to
+        leave zeros unchanged when the metric can handle them natively.
     metric_name : str, optional
         Name of the metric for which this preprocessing is being done, to be included
         in warnings or error messages for better context.
@@ -2758,12 +2597,14 @@ def handle_zero_division(
     be tailored to the specific requirements of different metric computations.
 
     Examples
-    ---------
+    --------
     >>> from geoprior.utils.validator import handle_zero_division
     >>> y_true = [0, 1, 2, 3, 0]
     >>> processed_y_true = handle_zero_division(
-        y_true, replace_with=0.001, zero_division='warn')
+    ...     y_true, replace_with=0.001, zero_division='warn'
+    ... )
     >>> print(processed_y_true)
+    [1.e-03 1.e+00 2.e+00 3.e+00 1.e-03]
 
     """
     y_true_processed = np.asarray(y_true, dtype=float)
@@ -3721,7 +3562,7 @@ def validate_distribution(
     Validates or generates distributions for given elements, ensuring the
     sum equals 1 if `check_normalization` is True.
 
-    Parameters:
+    Parameters
     ----------
     distribution : str, tuple, list
         The distribution to be validated or generated. If 'auto',
@@ -3739,12 +3580,12 @@ def validate_distribution(
         If True, ensures that the sum of the distribution equals 1.
         Default is True.
 
-    Returns:
+    Returns
     -------
     tuple
         A tuple representing the validated or generated distribution.
 
-    Raises:
+    Raises
     ------
     ValueError
         If the provided distribution does not meet the specified conditions.
@@ -3833,7 +3674,7 @@ def validate_length_range(
     Validates the review length range ensuring it's a tuple with two integers
     where the first value is less than the second.
 
-    Parameters:
+    Parameters
     ----------
     length_range : tuple
         A tuple containing two values that represent the minimum and maximum
@@ -3852,7 +3693,7 @@ def validate_length_range(
     tuple
         The validated length range.
 
-    Raise
+    Raises
     ------
     ValueError
         If the length range does not meet the requirements.
@@ -4649,11 +4490,14 @@ def _check_y(y, strategy="auto"):
     Validates the target array `y`, ensuring it is suitable for classification
     or regression tasks based on its content and the specified strategy.
 
-    Parameters:
-    - y: array-like, the target array to be validated.
-    - strategy: str, specifies how to determine if `y` is categorical or continuous.
-      'auto' for automatic detection based on unique values or explicitly using
-      `type_of_target` for more nuanced determination.
+    Parameters
+    ----------
+    y : array-like
+        Target array to validate.
+    strategy : str, default="auto"
+        Strategy used to determine whether ``y`` is categorical or continuous.
+        Use ``"auto"`` for automatic detection based on unique values or use
+        ``type_of_target`` semantics for more nuanced determination.
     """
     from ..core.utils import type_of_target
 
@@ -5034,7 +4878,7 @@ def validate_positive_integer(
     Validates whether the given value is a positive integer or zero based
     on the parameter and rounds float values according to the specified method.
 
-    Parameters:
+    Parameters
     ----------
     value : int or float
         The value to validate.
@@ -5045,14 +4889,15 @@ def validate_positive_integer(
     round_float : str, optional
         If "ceil", rounds up float values; if "floor", rounds down float values;
         if None, truncates float values to the nearest whole number towards zero.
-    msg: str, optional,
+    msg : str, optional
         Error message when checking for proper type failed.
-    Returns:
+
+    Returns
     -------
     int
         The validated value converted to an integer.
 
-    Raises:
+    Raises
     ------
     ValueError
         If the value is not a positive integer or zero (based on `include_zero`),
@@ -5608,43 +5453,39 @@ def validate_numeric(
     check_mode="soft",
 ):
     """
-    Validates if a given value is numeric. It can accept numeric strings 
-    and numpy arrays of single values. Optionally converts the value to 
+    Validates if a given value is numeric. It can accept numeric strings
+    and numpy arrays of single values. Optionally converts the value to
     either float or integer.
 
     Parameters
     ----------
     value : Any
-        The value to be validated as numeric. This can be of any type 
-        but is expected to be convertible to a numeric type. Accepted 
-        types include numeric strings (e.g., `"42"`), single-element 
+        The value to be validated as numeric. This can be of any type
+        but is expected to be convertible to a numeric type. Accepted
+        types include numeric strings (e.g., ``"42"``), single-element
         numpy arrays (e.g., `np.array([3.14])`), integers, and floats.
     convert_to : str, optional
-        The type to convert the validated numeric value to. Options are 
-        ``'float'`` or ``'int'``. Defaults to ``'float'``. 
-        - If ``'float'``, the value will be converted to a floating-point number.
-        - If ``'int'``, the value will be converted to an integer.
+        Type to convert the validated numeric value to. Use ``"float"`` for
+        floating-point output or ``"int"`` for integer output. Defaults to
+        ``"float"``.
     allow_negative : bool, optional
-        Whether to allow negative values. Defaults to ``True``. 
-        - If ``True``, negative values are allowed.
-        - If ``False``, negative values will raise a `ValueError`.
+        Whether to allow negative values. If ``False``, negative values raise
+        a ``ValueError``. Defaults to ``True``.
     min_value : float or int, optional
-        The minimum value allowed. If `None`, no minimum value check 
+        The minimum value allowed. If ``None``, no minimum value check
         is applied. Defaults to ``None``.
     max_value : float or int, optional
-        The maximum value allowed. If `None`, no maximum value check 
+        The maximum value allowed. If ``None``, no maximum value check
         is applied. Defaults to ``None``.
     check_mode : str, optional
-        The mode of checking the value. Options are ``'soft'`` or ``'strict'``. 
-        Defaults to ``'soft'``. 
-        - If ``'soft'``, iterables containing a single value are accepted 
-          and the single value is validated.
-        - If ``'strict'``, only non-iterable numeric values are accepted.
+        Validation mode. Use ``"soft"`` to accept single-element iterables and
+        validate their single value, or ``"strict"`` to accept only non-iterable
+        numeric inputs. Defaults to ``"soft"``.
 
     Returns
     -------
     float or int
-        The validated and optionally converted numeric value. The type 
+        The validated and optionally converted numeric value. The type
         of the return value is determined by the `convert_to` parameter.
 
     Raises
@@ -5654,34 +5495,11 @@ def validate_numeric(
 
     Notes
     -----
-    The function performs several checks and transformations:
-    1. If the value is a numpy array with a single element, it extracts 
-       the element.
-    2. If the value is a numeric string, it attempts to convert it to 
-       a float.
-    3. If `check_mode` is ``'soft'`` and the value is an iterable with 
-       a single element, it extracts and validates the element.
-    4. It validates whether the value is numeric.
-    5. It converts the value to the specified type (`float` or `int`).
-    6. It checks if negative values are allowed.
-    7. It checks if the value is within the specified `min_value` and 
-       `max_value` range.
-
-    The mathematical formulation for the validation can be expressed as:
-
-    .. math::
-        y = 
-        \begin{cases} 
-        x & \text{if } x \in \mathbb{R} \\
-        \text{convert_to}(x) & \text{if } x \in \text{numeric\_string} \\
-        \text{single\_element}(x) & \text{if } x \in \text{numpy\_array} \\
-        \end{cases}
-
-    Where:
-    - :math:`x` is the input value
-    - :math:`y` is the output value after validation and conversion
-
-    Array coercion details are documented in :cite:t:`NumPyDocs`.
+    The function can coerce single-element NumPy arrays, numeric strings, and,
+    in ``soft`` mode, single-element iterables before validating the result.
+    The validated value is then converted to ``float`` or ``int`` and checked
+    against the sign and range constraints. Array coercion details are
+    documented in :cite:t:`NumPyDocs`.
 
     Examples
     --------
@@ -5982,8 +5800,10 @@ def _check_array_in(obj, arr_name):
 
 def _deprecate_positional_args(func=None, *, version="1.3"):
     """Decorator for methods that issues warnings for positional arguments.
+
     Using the keyword-only argument syntax in pep 3102, arguments after the
     * will issue a warning when passed as a positional argument.
+
     Parameters
     ----------
     func : callable, default=None
@@ -6099,15 +5919,18 @@ def _is_arraylike_not_scalar(array):
 
 def _num_features(X):
     """Return the number of features in an array-like X.
+
     This helper function tries hard to avoid to materialize an array version
     of X unless necessary. For instance, if X is a list of lists,
     this function will return the length of the first element, assuming
     that subsequent elements are all lists of the same length without
     checking.
+
     Parameters
     ----------
     X : array-like
         array-like to get the number of features.
+
     Returns
     -------
     features : int
@@ -6184,9 +6007,11 @@ def _num_samples(x):
 
 def check_memory(memory):
     """Check that ``memory`` is joblib.Memory-like.
+
     joblib.Memory-like means that ``memory`` can be converted into a
     joblib.Memory instance (typically a str denoting the ``location``)
     or has the same interface (has a ``cache`` method).
+
     Parameters
     ----------
     memory : None, str or object with the joblib.Memory interface
@@ -6214,7 +6039,9 @@ def check_memory(memory):
 
 def check_consistent_length(*arrays):
     """Check that all arrays have consistent first dimensions.
+
     Checks whether all objects in arrays have the same shape or length.
+
     Parameters
     ----------
     *arrays : list or tuple of input objects.
@@ -6234,6 +6061,7 @@ def check_consistent_length(*arrays):
 
 def check_random_state(seed):
     """Turn seed into a np.random.RandomState instance.
+
     Parameters
     ----------
     seed : None, int or instance of RandomState
@@ -6259,17 +6087,20 @@ def check_random_state(seed):
 
 def has_fit_parameter(estimator, parameter):
     """Check whether the estimator's fit method supports the given parameter.
+
     Parameters
     ----------
     estimator : object
         An estimator to inspect.
     parameter : str
         The searched parameter.
+
     Returns
     -------
     is_parameter : bool
         Whether the parameter was found to be a named parameter of the
         estimator's fit method.
+
     Examples
     --------
     >>> from sklearn.svm import SVC
@@ -6288,9 +6119,11 @@ def check_symmetric(
     raise_exception=False,
 ):
     """Make sure that array is 2D, square and symmetric.
+
     If the array is not symmetric, then a symmetrized version is returned.
     Optionally, a warning or exception is raised if the matrix is not
     symmetric.
+
     Parameters
     ----------
     array : {ndarray, sparse matrix}
@@ -6355,6 +6188,7 @@ def check_scalar(
     include_boundaries="both",
 ):
     """Validate scalar parameters type and value.
+
     Parameters
     ----------
     x : object
@@ -6371,15 +6205,10 @@ def check_scalar(
         is implied that the parameter does not have an upper bound.
     include_boundaries : {"left", "right", "both", "neither"}, default="both"
         Whether the interval defined by `min_val` and `max_val` should include
-        the boundaries. Possible choices are:
-        - `"left"`: only `min_val` is included in the valid interval.
-          It is equivalent to the interval `[ min_val, max_val )`.
-        - `"right"`: only `max_val` is included in the valid interval.
-          It is equivalent to the interval `( min_val, max_val ]`.
-        - `"both"`: `min_val` and `max_val` are included in the valid interval.
-          It is equivalent to the interval `[ min_val, max_val ]`.
-        - `"neither"`: neither `min_val` nor `max_val` are included in the
-          valid interval. It is equivalent to the interval `( min_val, max_val )`.
+        the boundaries. Use ``"left"`` for ``[min_val, max_val)``,
+        ``"right"`` for ``(min_val, max_val]``, ``"both"`` for
+        ``[min_val, max_val]``, or ``"neither"`` for
+        ``(min_val, max_val)``.
     Returns
     -------
     x : numbers.Number
@@ -6474,15 +6303,17 @@ def check_scalar(
 
 def _get_feature_names(X):
     """Get feature names from X.
+
     Support for other array containers should place its implementation here.
+
     Parameters
     ----------
     X : {ndarray, dataframe} of shape (n_samples, n_features)
-        Array container to extract feature names.
-        - pandas dataframe : The columns will be considered to be feature
-          names. If the dataframe contains non-string feature names, `None` is
-          returned.
-        - All other array containers will return `None`.
+        Array container from which to extract feature names. For pandas
+        DataFrames, columns are treated as feature names and ``None`` is
+        returned when any feature name is not a string. All other array
+        containers return ``None``.
+
     Returns
     -------
     names: ndarray or None
@@ -6605,22 +6436,23 @@ def _check_feature_names_in(
     estimator, input_features=None, *, generate_names=True
 ):
     """Check `input_features` and generate names if needed.
+
     Commonly used in :term:`get_feature_names_out`.
+
     Parameters
     ----------
     input_features : array-like of str or None, default=None
-        Input features.
-        - If `input_features` is `None`, then `feature_names_in_` is
-          used as feature names in. If `feature_names_in_` is not defined,
-          then the following input feature names are generated:
-          `["x0", "x1", ..., "x(n_features_in_ - 1)"]`.
-        - If `input_features` is an array-like, then `input_features` must
-          match `feature_names_in_` if `feature_names_in_` is defined.
+        Input feature names. If ``input_features`` is ``None``, then
+        ``feature_names_in_`` is used when available; otherwise names like
+        ``["x0", "x1", ..., "x(n_features_in_ - 1)"]`` are generated.
+        When an array-like is provided, it must match ``feature_names_in_``
+        if that attribute is defined.
     generate_names : bool, default=True
         Whether to generate names when `input_features` is `None` and
         `estimator.feature_names_in_` is not defined. This is useful for transformers
         that validates `input_features` but do not require them in
         :term:`get_feature_names_out` e.g. `PCA`.
+
     Returns
     -------
     feature_names_in : ndarray of str or `None`
@@ -7069,6 +6901,7 @@ def check_array(
     to_frame=True,
 ):
     """Input validation on an array, list, or similar.
+
     By default, the input is checked to be a non-empty 2D array containing
     only finite values. If the dtype of the array is object, attempt
     converting to float, raising on failure.
@@ -7104,14 +6937,11 @@ def check_array(
         Whether a forced copy will be triggered. If copy=False, a copy might
         be triggered by a conversion.
     force_all_finite : bool or 'allow-nan', default=True
-        Whether to raise an error on np.inf, np.nan, pd.NA in array. The
-        possibilities are:
-        - True: Force all values of array to be finite.
-        - False: accepts np.inf, np.nan, pd.NA in array.
-        - 'allow-nan': accepts only np.nan and pd.NA values in array. Values
-          cannot be infinite.
-          ``force_all_finite`` accepts the string ``'allow-nan'``.
-           Accepts `pd.NA` and converts it into `np.nan`
+        Whether to raise an error on ``np.inf``, ``np.nan``, or ``pd.NA`` in
+        ``array``. Use ``True`` to require all values to be finite, ``False``
+        to allow ``np.inf``, ``np.nan``, and ``pd.NA``, or ``"allow-nan"`` to
+        allow only ``np.nan`` and ``pd.NA`` while still rejecting infinite
+        values. ``pd.NA`` is converted into ``np.nan``.
     ensure_2d : bool, default=True
         Whether to raise a value error if array is not 2D.
     ensure_min_samples : int, default=1
@@ -7131,7 +6961,7 @@ def check_array(
         allow_nan is False, the error message will link to the imputer
         documentation.
 
-    to_frame: bool, default=False
+    to_frame : bool, default=False
         Reconvert array back to pd.Series or pd.DataFrame if
         the original array is pd.Series or pd.DataFrame.
 
@@ -7413,12 +7243,14 @@ def check_X_y(
     to_frame=False,
 ):
     """Input validation for standard estimators.
+
     Checks X and y for consistent length, enforces X to be 2D and y 1D. By
     default, X is checked to be non-empty and containing only finite values.
     Standard input checks are also applied to y, such as checking that y
     does not have np.nan or np.inf targets. For multi-label y, set
     multi_output=True to allow 2D and sparse y. If the dtype of X is
     object, attempt converting to float, raising on failure.
+
     Parameters
     ----------
     X : {ndarray, list, sparse matrix}
@@ -7448,15 +7280,10 @@ def check_X_y(
     force_all_finite : bool or 'allow-nan', default=True
         Whether to raise an error on np.inf, np.nan, pd.NA in X. This parameter
         does not influence whether y can have np.inf, np.nan, pd.NA values.
-        The possibilities are:
-        - True: Force all values of X to be finite.
-        - False: accepts np.inf, np.nan, pd.NA in X.
-        - 'allow-nan': accepts only np.nan or pd.NA values in X. Values cannot
-          be infinite.
-        .. versionadded:: 0.20
-           ``force_all_finite`` accepts the string ``'allow-nan'``.
-        .. versionchanged:: 0.23
-           Accepts `pd.NA` and converts it into `np.nan`
+        Use ``True`` to require all values of ``X`` to be finite, ``False`` to
+        allow ``np.inf``, ``np.nan``, and ``pd.NA``, or ``"allow-nan"`` to
+        allow only ``np.nan`` and ``pd.NA`` while still rejecting infinite
+        values. ``pd.NA`` is accepted and converted into ``np.nan``.
     ensure_2d : bool, default=True
         Whether to raise a value error if X is not 2D.
     allow_nd : bool, default=False
@@ -7540,31 +7367,32 @@ def check_y(
     or regression tasks based on its content and the specified strategy.
 
     Parameters
-    -----------
+    ----------
+    y : array-like
+        Target values to validate.
     multi_output : bool, default=False
-        Whether to allow 2D y (array or sparse matrix). If false, y will be
-        validated as a vector. y cannot have np.nan or np.inf values if
-        multi_output=True.
+        Whether to allow two-dimensional ``y`` values. If ``False``, ``y`` is
+        validated as a vector. When ``multi_output=True``, ``y`` still cannot
+        contain ``np.nan`` or ``np.inf`` values unless ``allow_nan`` permits
+        NaNs.
     y_numeric : bool, default=False
         Whether to ensure that y has a numeric type. If dtype of y is object,
         it is converted to float64. Should only be used for regression
         algorithms.
     input_name : str, default="y"
-       The data name used to construct the error message. In particular
-       if `input_name` is "y".
+        Data name used to construct the error message.
     estimator : str or estimator instance, default=None
         If passed, include the name of the estimator in warning messages.
     allow_nan : bool, default=False
-       If True, do not throw error when `y` contains NaN.
-    to_frame:bool, default=False,
-        reconvert array to its initial type if it is given as pd.Series or
-        pd.DataFrame.
+        If ``True``, do not raise an error when ``y`` contains NaN values.
+    to_frame : bool, default=False
+        Reconvert the validated array to its initial pandas type when the
+        input was provided as a pandas Series or DataFrame.
+
     Returns
-    --------
-    y: array-like,
+    -------
     y_converted : object
         The converted and validated y.
-
     """
     y, column_orig = convert_array_to_pandas(
         y, input_name=input_name
@@ -7611,18 +7439,22 @@ def validate_dtype_selector(dtype_selector: str) -> str:
     Validates and categorizes the dtype_selector using regex, including
     handling cases where 'only' is specifically included.
 
-    Parameters:
-    - dtype_selector (str): The input dtype selector string.
+    Parameters
+    ----------
+    dtype_selector : str
+        Input dtype selector string.
 
-    Returns:
-    - str: A categorized dtype_selector based on predefined patterns.
-          If 'only' is included,
-           the returned category will reflect this to enable specific data
-           type handling.
+    Returns
+    -------
+    str
+        Categorized ``dtype_selector`` based on predefined patterns. If
+        ``"only"`` is included, the returned category reflects this so it can
+        drive specific data-type handling.
 
-    Raises:
-    - ValueError: If the input dtype_selector does not match any predefined
-      category.
+    Raises
+    ------
+    ValueError
+        If the input ``dtype_selector`` does not match any predefined category.
     """
     types = [
         "numeric",
@@ -7729,10 +7561,9 @@ def build_series_if(
         current index and replace it with a new default integer index.
 
     error_policy : {'raise', 'warn', 'ignore'}, optional, default 'raise'
-        Defines how to handle errors during Series construction:
-        - 'raise' will raise an error.
-        - 'warn' will print a warning message.
-        - 'ignore' will suppress errors without any notification.
+        Defines how to handle errors during Series construction. Use
+        ``"raise"`` to raise an error, ``"warn"`` to emit a warning, or
+        ``"ignore"`` to suppress errors.
 
     Returns
     -------
@@ -7770,54 +7601,15 @@ def build_series_if(
 
     Notes
     -----
-    The function performs the following operations on the input data:
-    1. Validates and converts the input data into a pandas Series.
-    2. Applies optional transformations like changing dtype,
-       setting index, filling NaN values, or dropping them.
-    3. Handles errors according to the `error_policy` parameter.
-    4. Returns a list of Series or a single Series depending on the input.
-
-    The function processes each input array (`arr[i]`) as follows:
-
-    1. `data_i = _validate_and_convert_data(arr[i])`
-       Converts the data to a pandas Series, if needed.
-
-    2. `series_i = pd.Series(data_i, name=series_names[i])`
-       Creates a pandas Series with the specified name.
-
-    3. If `dtype` is provided:
-       `series_i = series_i.astype(dtype)`
-       - Forces the dtype conversion.
-
-    4. If `indexes` is provided:
-       `series_i.index = indexes`
-       - Sets custom index.
-
-    5. If `dropna` is True:
-       `series_i = series_i.dropna()`
-       - Drops NaN values.
-
-    6. If `fill_value` is provided:
-       `series_i = series_i.fillna(fill_value)`
-       - Fills NaN values with the specified value.
-
-    7. If `transpose` is True:
-       `series_i = series_i.T`
-       - Transposes the Series.
-
-    8. If `reset_index` is True:
-       `series_i = series_i.reset_index(drop=True)`
-       - Resets the index.
-
-    9. The result is returned as a list of Series or a single Series.
+    The function validates and converts each input in ``arr`` before building
+    a pandas Series, then applies any optional dtype conversion, index
+    assignment, missing-value handling, transposition, or index reset. The
+    final result is either a single Series or a list of Series depending on
+    how many inputs are provided.
 
     See Also
     --------
     pandas.Series : The pandas Series constructor used to generate Series objects.
-
-    References
-    ----------
-    [1]_ pandas documentation. https://pandas.pydata.org/pandas-docs/stable/
     """
     series_list = []
 
@@ -7914,6 +7706,7 @@ def _check_series_names(series_names, data_len, error_policy):
 def _validate_and_convert_data(data):
     """
     Helper function to validate and convert input data to a compatible form.
+
     - Converts a list or tuple into a numpy array.
     - If a pandas DataFrame with a single column is passed, converts
       it to a Series.
@@ -7922,14 +7715,20 @@ def _validate_and_convert_data(data):
     - If the input is a 2D array (not a single-column DataFrame),
       raises a ValueError.
 
-    Parameters:
-    data: The input data to be validated and converted.
+    Parameters
+    ----------
+    data : object
+        Input data to validate and convert.
 
-    Returns:
-    A 1D numpy array or pandas Series.
+    Returns
+    -------
+    numpy.ndarray or pandas.Series
+        A one-dimensional NumPy array or pandas Series.
 
-    Raises:
-    ValueError: If the input data is not 1D when expected.
+    Raises
+    ------
+    ValueError
+        If the input data is not one-dimensional when expected.
     """
     # Check if the data is a pandas DataFrame with a single column
     if isinstance(data, pd.DataFrame) and data.shape[1] == 1:
@@ -8387,7 +8186,9 @@ def _ensure_sparse_format(
     input_name="",
 ):
     """Convert a sparse matrix to a given format.
+
     Checks the sparse format of spmatrix and converts if necessary.
+
     Parameters
     ----------
     spmatrix : sparse matrix
@@ -8404,16 +8205,11 @@ def _ensure_sparse_format(
         Whether a forced copy will be triggered. If copy=False, a copy might
         be triggered by a conversion.
     force_all_finite : bool or 'allow-nan'
-        Whether to raise an error on np.inf, np.nan, pd.NA in X. The
-        possibilities are:
-        - True: Force all values of X to be finite.
-        - False: accepts np.inf, np.nan, pd.NA in X.
-        - 'allow-nan': accepts only np.nan and pd.NA values in X. Values cannot
-          be infinite.
-        .. versionadded:: 0.20
-           ``force_all_finite`` accepts the string ``'allow-nan'``.
-        .. versionchanged:: 0.23
-           Accepts `pd.NA` and converts it into `np.nan`
+        Whether to raise an error on ``np.inf``, ``np.nan``, or ``pd.NA`` in
+        ``X``. Use ``True`` to require all values to be finite, ``False`` to
+        allow ``np.inf``, ``np.nan``, and ``pd.NA``, or ``"allow-nan"`` to
+        allow only ``np.nan`` and ``pd.NA`` while still rejecting infinite
+        values. ``pd.NA`` is accepted and converted into ``np.nan``.
     estimator_name : str, default=None
         The estimator name, used to construct the error message.
     input_name : str, default=""
@@ -8421,6 +8217,7 @@ def _ensure_sparse_format(
         if `input_name` is "X" and the data has NaN values and
         allow_nan is False, the error message will link to the imputer
         documentation.
+
     Returns
     -------
     spmatrix_converted : sparse matrix.
@@ -8592,6 +8389,7 @@ def assert_all_finite(
     input_name="",
 ):
     """Throw a ValueError if X contains NaN or infinity.
+
     Parameters
     ----------
     X : {ndarray, sparse matrix}
@@ -8618,8 +8416,10 @@ def _generate_get_feature_names_out(
     estimator, n_features_out, input_features=None
 ):
     """Generate feature names out for estimator using the estimator name as the prefix.
+
     The input_feature names are validated but not used. This function is useful
     for estimators that generate their own names based on `n_features_out`, i.e. PCA.
+
     Parameters
     ----------
     estimator : estimator instance
@@ -8628,6 +8428,7 @@ def _generate_get_feature_names_out(
         Number of feature names out.
     input_features : array-like of str or None, default=None
         Only used to validate feature names with `estimator.feature_names_in_`.
+
     Returns
     -------
     feature_names_in : ndarray of str or `None`
@@ -8648,24 +8449,29 @@ def _generate_get_feature_names_out(
 
 class PositiveSpectrumWarning(UserWarning):
     """Warning raised when the eigenvalues of a PSD matrix have issues
+
     This warning is typically raised by ``_check_psd_eigenvalues`` when the
     eigenvalues of a positive semidefinite (PSD) matrix such as a gram matrix
     (kernel) present significant negative eigenvalues, or bad conditioning i.e.
     very small non-zero eigenvalues compared to the largest eigenvalue.
+
     .. versionadded:: 0.22
     """
 
 
 class DataConversionWarning(UserWarning):
     """Warning used to notify implicit data conversions happening in the code.
+
     This warning occurs when some input data needs to be converted or
-    interpreted in a way that may not match the user's expectations.
-    For example, this warning may occur when the user
-        - passes an integer array to a function which expects float input and
-          will convert the input
-        - requests a non-copying operation, but a copy is required to meet the
-          implementation's data-type expectations;
-        - passes an input whose shape can be interpreted ambiguously.
+    interpreted in a way that may not match the user's expectations. For
+    example, this warning may occur when the user:
+
+    - passes an integer array to a function that expects float input and will
+      convert the input;
+    - requests a non-copying operation, but a copy is required to meet the
+      implementation's data-type expectations;
+    - passes an input whose shape can be interpreted ambiguously.
+
     .. versionchanged:: 0.18
-       Moved from sklearn.utils.validation.
+       Moved from ``sklearn.utils.validation``.
     """

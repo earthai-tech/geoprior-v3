@@ -586,6 +586,231 @@ table.table caption {
 }
 
 /* --------------------------------------------------------------------------
+ * Interpretation / operational-risk table
+ * -------------------------------------------------------------------------- */
+
+table.docutils.interpretation-table,
+table.interpretation-table {
+  border: 1px solid var(--pst-color-border);
+  border-radius: var(--gp-radius-md);
+  box-shadow: var(--gp-shadow-md);
+  overflow: hidden;
+}
+
+table.docutils.interpretation-table thead th,
+table.interpretation-table thead th {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.84rem;
+}
+
+table.docutils.interpretation-table tbody tr:nth-child(1) td,
+table.interpretation-table tbody tr:nth-child(1) td {
+  background: color-mix(
+    in srgb,
+    var(--gp-success) 10%,
+    var(--gp-card-bg)
+  );
+}
+
+table.docutils.interpretation-table tbody tr:nth-child(2) td,
+table.interpretation-table tbody tr:nth-child(2) td {
+  background: color-mix(
+    in srgb,
+    var(--gp-warning) 12%,
+    var(--gp-card-bg)
+  );
+}
+
+table.docutils.interpretation-table tbody tr:nth-child(3) td,
+table.interpretation-table tbody tr:nth-child(3) td {
+  background: color-mix(
+    in srgb,
+    var(--gp-danger) 10%,
+    var(--gp-card-bg)
+  );
+}
+
+/* Strong first-column label */
+table.docutils.interpretation-table tbody td:first-child,
+table.interpretation-table tbody td:first-child {
+  font-weight: 800;
+  white-space: nowrap;
+  width: 14rem;
+}
+
+/* Row accent bar */
+table.docutils.interpretation-table tbody tr:nth-child(1) td:first-child,
+table.interpretation-table tbody tr:nth-child(1) td:first-child {
+  box-shadow: inset 6px 0 0 var(--gp-success);
+}
+
+table.docutils.interpretation-table tbody tr:nth-child(2) td:first-child,
+table.interpretation-table tbody tr:nth-child(2) td:first-child {
+  box-shadow: inset 6px 0 0 var(--gp-warning);
+}
+
+table.docutils.interpretation-table tbody tr:nth-child(3) td:first-child,
+table.interpretation-table tbody tr:nth-child(3) td:first-child {
+  box-shadow: inset 6px 0 0 var(--gp-danger);
+}
+
+/* Slightly tighter prose for this table */
+table.docutils.interpretation-table td,
+table.interpretation-table td {
+  line-height: 1.5;
+  font-size: 0.97rem;
+}
+
+/* --------------------------------------------------------------------------
+ * External-validation interpretation table
+ * -------------------------------------------------------------------------- */
+
+table.docutils.external-validation-table,
+table.external-validation-table {
+  border: 1px solid var(--pst-color-border);
+  border-radius: var(--gp-radius-md);
+  box-shadow: var(--gp-shadow-md);
+  overflow: hidden;
+}
+
+table.docutils.external-validation-table thead th,
+table.external-validation-table thead th {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.84rem;
+}
+
+table.docutils.external-validation-table tbody tr:nth-child(1) td,
+table.external-validation-table tbody tr:nth-child(1) td {
+  background: color-mix(
+    in srgb,
+    var(--gp-success) 10%,
+    var(--gp-card-bg)
+  );
+}
+
+table.docutils.external-validation-table tbody tr:nth-child(2) td,
+table.external-validation-table tbody tr:nth-child(2) td {
+  background: color-mix(
+    in srgb,
+    var(--gp-warning) 12%,
+    var(--gp-card-bg)
+  );
+}
+
+table.docutils.external-validation-table tbody tr:nth-child(3) td,
+table.external-validation-table tbody tr:nth-child(3) td {
+  background: color-mix(
+    in srgb,
+    var(--gp-danger) 10%,
+    var(--gp-card-bg)
+  );
+}
+
+table.docutils.external-validation-table tbody td:first-child,
+table.external-validation-table tbody td:first-child {
+  font-weight: 800;
+  white-space: nowrap;
+  width: 14rem;
+}
+
+table.docutils.external-validation-table tbody tr:nth-child(1) td:first-child,
+table.external-validation-table tbody tr:nth-child(1) td:first-child {
+  box-shadow: inset 6px 0 0 var(--gp-success);
+}
+
+table.docutils.external-validation-table tbody tr:nth-child(2) td:first-child,
+table.external-validation-table tbody tr:nth-child(2) td:first-child {
+  box-shadow: inset 6px 0 0 var(--gp-warning);
+}
+
+table.docutils.external-validation-table tbody tr:nth-child(3) td:first-child,
+table.external-validation-table tbody tr:nth-child(3) td:first-child {
+  box-shadow: inset 6px 0 0 var(--gp-danger);
+}
+
+table.docutils.external-validation-table td,
+table.external-validation-table td {
+  font-size: 0.97rem;
+  line-height: 1.5;
+}
+
+/* --------------------------------------------------------------------------
+ * Hotspot interpretation guide table
+ * -------------------------------------------------------------------------- */
+
+table.docutils.hotspot-guide-table,
+table.hotspot-guide-table {
+  border: 1px solid var(--pst-color-border);
+  border-radius: var(--gp-radius-md);
+  box-shadow: var(--gp-shadow-md);
+  overflow: hidden;
+}
+
+table.docutils.hotspot-guide-table thead th,
+table.hotspot-guide-table thead th {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.84rem;
+}
+
+table.docutils.hotspot-guide-table tbody tr:nth-child(1) td,
+table.hotspot-guide-table tbody tr:nth-child(1) td {
+  background: color-mix(
+    in srgb,
+    var(--gp-danger) 10%,
+    var(--gp-card-bg)
+  );
+}
+
+table.docutils.hotspot-guide-table tbody tr:nth-child(2) td,
+table.hotspot-guide-table tbody tr:nth-child(2) td {
+  background: color-mix(
+    in srgb,
+    var(--gp-warning) 12%,
+    var(--gp-card-bg)
+  );
+}
+
+table.docutils.hotspot-guide-table tbody tr:nth-child(3) td,
+table.hotspot-guide-table tbody tr:nth-child(3) td {
+  background: color-mix(
+    in srgb,
+    var(--pst-color-primary) 10%,
+    var(--gp-card-bg)
+  );
+}
+
+table.docutils.hotspot-guide-table tbody td:first-child,
+table.hotspot-guide-table tbody td:first-child {
+  font-weight: 800;
+  white-space: nowrap;
+  width: 14rem;
+}
+
+table.docutils.hotspot-guide-table tbody tr:nth-child(1) td:first-child,
+table.hotspot-guide-table tbody tr:nth-child(1) td:first-child {
+  box-shadow: inset 6px 0 0 var(--gp-danger);
+}
+
+table.docutils.hotspot-guide-table tbody tr:nth-child(2) td:first-child,
+table.hotspot-guide-table tbody tr:nth-child(2) td:first-child {
+  box-shadow: inset 6px 0 0 var(--gp-warning);
+}
+
+table.docutils.hotspot-guide-table tbody tr:nth-child(3) td:first-child,
+table.hotspot-guide-table tbody tr:nth-child(3) td:first-child {
+  box-shadow: inset 6px 0 0 var(--pst-color-primary);
+}
+
+table.docutils.hotspot-guide-table td,
+table.hotspot-guide-table td {
+  font-size: 0.97rem;
+  line-height: 1.5;
+}
+
+/* --------------------------------------------------------------------------
  * Generic admonitions
  * -------------------------------------------------------------------------- */
 .admonition,
@@ -1669,4 +1894,20 @@ html[data-theme="dark"] .see-also-tiles .sd-card:hover {
   box-shadow: var(--gp-shadow-sm);
   margin: 1.4rem 0 1.8rem;
   padding: 1rem 1.15rem;
+}
+
+/* Featured applications: reduce oversized top SVG icons */
+.featured-app-tiles .sd-card-img-top {
+  display: block;
+  width: 100%;
+  height: 75px;          /* try 110px to 140px */
+  object-fit: contain;
+  object-position: center;
+  padding: 0.85rem 0.85rem 0.25rem;
+  margin: 0 auto;
+}
+
+/* Optional: keep card content balanced */
+.featured-app-tiles .sd-card-body {
+  padding-top: 0.75rem;
 }
