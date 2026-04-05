@@ -129,7 +129,7 @@ Featured applications
       :link: auto_examples/applications/app_bounds_ridge
       :link-type: doc
       :img-top: _static/icons/bounds-vs-ridge-summary.svg
-      :class-card: sd-shadow-sm seealso-card card--ridge-bounds
+      :class-card: sd-shadow-sm seealso-card card--ridge-bounds sd-text-center
 
       Audit identifiability before reading learned fields literally,
       using ridge and bounds diagnostics to separate stable structure
