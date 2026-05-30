@@ -3,7 +3,7 @@
 -------------
 Version 3.2.0
 -------------
-*(Current documented package release)*
+*(Previous release)*
 
 GeoPrior-v3 3.2.0 |New|
 ~~~~~~~~~~~~~~~~~~~~~~~

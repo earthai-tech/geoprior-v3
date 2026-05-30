@@ -158,6 +158,7 @@ Version index
    :maxdepth: 1
    :caption: Versions
 
+   release_notes/v3.2.1
    release_notes/v3.2.0
 
 Guidance for contributors

@@ -1,0 +1,110 @@
+.. _release_v3_2_1:
+
+-------------
+Version 3.2.1
+-------------
+*(Current release)*
+
+GeoPrior-v3 3.2.1 |Fix| |Build|
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is a patch release on top of the first stable 3.2.0
+line. It addresses the PyPI publish pipeline by switching
+from an OIDC trusted-publisher configuration to a direct
+API-token workflow, and cleans up the release-commit history
+to ensure all commits are attributed to the project
+maintainer only.
+
+No user-facing Python API, model semantics, CLI behavior,
+configuration schema, or workflow contracts changed in this
+release.
+
+Fixed
+~~~~~
+
+* |Fix| |Build| **PyPI publish authentication switched to
+  API token**
+
+  The initial 3.2.0 publish workflow used OIDC trusted-
+  publisher authentication, which requires a pre-registered
+  and pre-validated publisher environment on PyPI.  Because
+  the pending trusted publisher had not yet been activated,
+  the workflow was updated to authenticate via the
+  ``PYPI_API_TOKEN`` repository secret instead.
+
+  The ``publish.yml`` workflow now passes the secret as:
+
+  .. code-block:: yaml
+
+     - name: Publish to PyPI
+       uses: pypa/gh-action-pypi-publish@release/v1
+       with:
+         password: ${{ secrets.PYPI_API_TOKEN }}
+
+  This is the standard, unconditionally reliable path for
+  PyPI publishing from GitHub Actions and does not require
+  a pre-registered environment.
+
+* |Build| **Release-commit history cleaned**
+
+  Two commits in the 3.2.0 release cycle carried an
+  unintended ``Co-Authored-By`` trailer that incorrectly
+  attributed those commits to a second contributor.  Those
+  commits were rewritten and the branches force-updated so
+  that the full history is attributed solely to the project
+  maintainer:
+
+  .. code-block:: text
+
+     https://github.com/earthai-tech
+
+Added
+~~~~~
+
+* |Build| **Automated PyPI publish workflow**
+
+  Introduced ``.github/workflows/publish.yml``, a two-job
+  GitHub Actions workflow that triggers on any ``v*`` tag
+  push:
+
+  - **build** — checks out, sets up Python 3.12, installs
+    ``build``, runs ``python -m build`` to produce a wheel
+    and sdist, and uploads the ``dist/`` folder as an
+    artifact.
+
+  - **publish-pypi** — downloads the artifact and publishes
+    to PyPI via ``pypa/gh-action-pypi-publish``.
+
+  This replaces the previous manual upload path and makes
+  every tagged release reproducible from CI.
+
+Upgrade notes
+~~~~~~~~~~~~~
+
+No upgrade action is required.
+
+This patch only affects the CI/CD publish pipeline and
+the commit-history attribution.  Install or upgrade as
+usual:
+
+.. code-block:: bash
+
+   pip install --upgrade geoprior-v3
+
+Compatibility notes
+~~~~~~~~~~~~~~~~~~~
+
+This release is fully compatible with 3.2.0.
+
+All public import surfaces, CLI commands, config schemas,
+stage contracts, and model APIs are unchanged.
+
+See also
+~~~~~~~~
+
+.. seealso::
+
+   - :doc:`v3.2.0`
+   - :doc:`../api/cli`
+   - :doc:`../developer/contributing`
+   - :doc:`../developer/package_structure`
